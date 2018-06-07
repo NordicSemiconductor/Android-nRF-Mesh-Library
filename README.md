@@ -67,4 +67,4 @@ Contact: roshanrajaratnam <roshan.rajaratnam.@nordicsemi.no>
 
 ## License
 
-The Anroid-nRF-Mesh-Library is available under BSD 3-Clause license. See the LICENSE file for more info.
+The Android-nRF-Mesh-Library is available under BSD 3-Clause license. See the LICENSE file for more info.
