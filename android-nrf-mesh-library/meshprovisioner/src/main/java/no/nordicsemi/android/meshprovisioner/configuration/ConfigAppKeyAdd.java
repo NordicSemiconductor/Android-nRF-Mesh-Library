@@ -1,0 +1,128 @@
+package no.nordicsemi.android.meshprovisioner.configuration;
+
+import android.content.Context;
+import android.util.Log;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
+import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
+import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
+import no.nordicsemi.android.meshprovisioner.messages.Message;
+import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
+/**
+ * This class handles adding a application keys to a specific a mesh node.
+ */
+public class ConfigAppKeyAdd extends ConfigMessage {
+
+    private final String TAG = ConfigAppKeyAdd.class.getSimpleName();
+
+    private final int mAszmic;
+    private final String mAppKey;
+    private final int mAppKeyIndex;
+
+    public ConfigAppKeyAdd(final Context context, final ProvisionedMeshNode unprovisionedMeshNode,
+                           final int aszmic, final String appKey, final int appKeyIndex) {
+        super(context, unprovisionedMeshNode);
+        this.mAszmic = aszmic == 1 ? 1 : 0;
+        this.mAppKey = appKey;
+        this.mAppKeyIndex = appKeyIndex;
+        createAccessMessage();
+    }
+
+    public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
+        this.mInternalTransportCallbacks = callbacks;
+    }
+
+    public void setConfigurationStatusCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
+        this.mConfigStatusCallbacks = callbacks;
+    }
+
+    @Override
+    public ConfigMessageState getState() {
+        return ConfigMessageState.APP_KEY_ADD;
+    }
+
+    public void parseData(final byte[] pdu) {
+        parseMessage(pdu);
+    }
+
+    /**
+     * Creates the access message to be sent to the node
+     */
+    private void createAccessMessage() {
+        final byte[] networkKeyIndex = mProvisionedMeshNode.getKeyIndex();
+        final byte[] appKeyBytes = MeshParserUtils.toByteArray(mAppKey);
+        final byte[] applicationKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKeyIndex);
+
+        final ByteBuffer paramsBuffer = ByteBuffer.allocate(19).order(ByteOrder.BIG_ENDIAN);
+        paramsBuffer.put(networkKeyIndex[1]);
+        paramsBuffer.put((byte) ((applicationKeyIndex[1] << 4) | networkKeyIndex[0] & 0x0F));
+        paramsBuffer.put((byte) ((applicationKeyIndex[0] << 4) | applicationKeyIndex[1] >> 4));
+        paramsBuffer.put(appKeyBytes);
+
+        final byte[] parameters = paramsBuffer.array();
+
+        final byte[] key = mProvisionedMeshNode.getDeviceKey();
+        final int akf = 0;
+        final int aid = 0;
+        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_APPKEY_ADD, parameters);
+        mPayloads.putAll(accessMessage.getNetworkPdu());
+    }
+
+    /**
+     * Starts sending the mesh pdu
+     */
+    public void executeSend() {
+        if (!mPayloads.isEmpty()) {
+            for (int i = 0; i < mPayloads.size(); i++) {
+                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+            }
+
+            if (mConfigStatusCallbacks != null)
+                mConfigStatusCallbacks.onAppKeyAddSent(mProvisionedMeshNode);
+        }
+    }
+
+    private void parseMessage(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message);
+            }
+        }
+    }
+
+    @Override
+    public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
+        final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
+        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
+        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
+        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+    }
+
+    /**
+     * Returns the application key that sent in the app key add message
+     *
+     * @return app key
+     */
+    public String getAppKey() {
+        return mAppKey;
+    }
+
+    /**
+     * Returns the source address of the message i.e. where it originated from
+     *
+     * @return source address
+     */
+    public byte[] getSrc() {
+        return mSrc;
+    }
+}
