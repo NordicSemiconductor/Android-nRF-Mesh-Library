@@ -81,8 +81,7 @@ public class ElementConfigurationActivity extends AppCompatActivity implements I
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.title_model_configuration);
-        getSupportActionBar().setSubtitle("Model Configuration");
+        getSupportActionBar().setTitle(R.string.title_elements);
 
         // Set up views
         final View infoNoElements = findViewById(R.id.no_elements);

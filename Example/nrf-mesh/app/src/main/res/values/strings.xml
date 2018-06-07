@@ -118,6 +118,7 @@
     <string name="node_replay_protection_count">Replay Protection Count</string>
     <string name="node_features">Node Features</string>
 
+    <string name="title_elements">Elements</string>
     <string name="title_node_element_details">Element Details</string>
 
     <string name="title_node_app_keys">Application Keys</string>
