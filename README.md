@@ -6,6 +6,8 @@ An early alpha version of the Bluetooth Mesh specification, this library will al
 
 This is a preview version that has missing features and capabilities that are going to be added in the near future. 
 
+nRF Mesh for Android is supported on Android devices running Android 4.3 and onwards.
+
 ### Features
 1. Supports provisioning with OOB Numeric
 2. Adding App Key
