@@ -67,4 +67,4 @@ Contact: roshanrajaratnam <roshan.rajaratnam.@nordicsemi.no>
 
 ## License
 
-The Scanner Compat library is available under BSD 3-Clause license. See the LICENSE file for more info.
+The Anroid-nRF-Mesh-Library is available under BSD 3-Clause license. See the LICENSE file for more info.
