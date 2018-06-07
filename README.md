@@ -50,12 +50,14 @@ See example projects in this repository.
 
 #### Sample
 
+To start using the library in your own project take a look at the followign snippet.
 ```java
         MeshManagerApi mMeshManagerApi = MeshManagerApi.getInstance(this);
         mMeshManagerApi.setProvisionerManagerTransportCallbacks(this);
         mMeshManagerApi.setProvisioningStatusCallbacks(this);
         mMeshManagerApi.setConfigurationCallbacks(this);
 ```
+The sample application uses the [Android BLE Library](https://github.com/NordicSemiconductor/Android-BLE-Library/) by Nordic Semiconductor ASA and is recommended to use this dependency in your application.
 
 ## Author
 
