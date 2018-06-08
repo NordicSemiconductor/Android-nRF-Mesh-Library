@@ -50,7 +50,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     /**
      * Length of the random number required to calculate the hash containing the node id
      */
-    private final static int HASH_RANDOM_NUMBER_LENGTH = 64; //in btis
+    private final static int HASH_RANDOM_NUMBER_LENGTH = 64; //in bits
     private static final int ADVERTISEMENT_TYPE_NETWORK_ID = 0x00;
     private static final int ADVERTISEMENT_TYPE_NODE_IDENTITY = 0x01;
     /**
@@ -77,10 +77,9 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * Length of the network id contained in the advertisement service data
      */
     private final static int ADVERTISED_NETWWORK_ID_LENGTH = 8;
-    private static MeshManagerApi mInstance;
     private final Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new HashMap<>();
     private final ProvisioningSettings mProvisioningSettings;
-    private final Context mContext;
+    private Context mContext;
     private Gson mGson;
     private int mGlobalTtl = 7;
     private MeshManagerTransportCallbacks mTransportCallbacks;
@@ -91,19 +90,13 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     private byte[] mOutgoingBuffer;
     private int mOutgoingBufferOffset;
 
-    private MeshManagerApi(final Context context) {
+    public MeshManagerApi(final Context context) {
         this.mContext = context;
         this.mProvisioningSettings = new ProvisioningSettings(context);
         initGson();
         initProvisionedNodes();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, this, this);
         mMeshConfigurationHandler = new MeshConfigurationHandler(context, this, this);
-    }
-
-    public static MeshManagerApi getInstance(final Context context) {
-        if (mInstance == null)
-            mInstance = new MeshManagerApi(context);
-        return mInstance;
     }
 
     public void setProvisionerManagerTransportCallbacks(final MeshManagerTransportCallbacks transportCallbacks) {
@@ -437,6 +430,13 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * Starts the provisioning process
      */
     public void startProvisioning(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl) throws IllegalArgumentException {
+        //We must save all the provisioning data here so that they could be reused when provisioning the next devices
+        mProvisioningSettings.setNetworkKey(networkKeyValue);
+        mProvisioningSettings.setKeyIndex(keyIndex);
+        mProvisioningSettings.setFlags(flags);
+        mProvisioningSettings.setIvIndex(ivIndex);
+        mProvisioningSettings.setUnicastAddress(unicastAddress);
+        mProvisioningSettings.setGlobalTtl(globalTtl);
         mMeshProvisioningHandler.startProvisioning(address ,nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl);
     }
 
