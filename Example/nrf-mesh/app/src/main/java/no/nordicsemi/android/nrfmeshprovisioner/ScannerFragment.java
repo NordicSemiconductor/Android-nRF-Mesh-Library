@@ -124,14 +124,8 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
         super.onHiddenChanged(hidden);
         if(hidden){
             stopScan();
-            mScannerFragmentListener.hideProgressBar();
         } else {
             startScanning();
-            if(mSharedViewModel.getScannerRepository().getScannerState().isScanning()){
-                mScannerFragmentListener.showProgressBar();
-            } else {
-                mScannerFragmentListener.hideProgressBar();
-            }
         }
     }
 
