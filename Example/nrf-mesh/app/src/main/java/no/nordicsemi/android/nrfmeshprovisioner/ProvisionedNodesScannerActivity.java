@@ -141,6 +141,7 @@ public class ProvisionedNodesScannerActivity extends AppCompatActivity implement
 
 	@Override
 	public void onItemClick(final ExtendedBluetoothDevice device) {
+		stopScan();
 		final Intent meshProvisionerIntent = new Intent(this, ReconnectActivity.class);
 		meshProvisionerIntent.putExtra(Utils.EXTRA_DEVICE, device);
 		startActivityForResult(meshProvisionerIntent, ReconnectActivity.REQUEST_DEVICE_READY);

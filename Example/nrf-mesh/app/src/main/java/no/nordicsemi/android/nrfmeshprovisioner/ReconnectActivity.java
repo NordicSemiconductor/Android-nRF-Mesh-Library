@@ -102,6 +102,12 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
     }
 
 	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		mReconnectViewModel.disconnect();
+	}
+
+	@Override
 	protected void onStop() {
 		super.onStop();
 	}

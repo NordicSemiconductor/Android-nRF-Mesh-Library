@@ -196,10 +196,12 @@ public class ProvisionedNodesScannerRepository extends BaseMeshRepository {
      * stop scanning for bluetooth devices.
      */
     public void stopScanning() {
-        mScannerLiveData.stopScanning();
-        final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
-        scanner.stopScan(scanCallbackForProvisionedDevices);
-        mScannerLiveData.scanningStopped();
+        if(mScannerLiveData.isScanning()) {
+            mScannerLiveData.stopScanning();
+            final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
+            scanner.stopScan(scanCallbackForProvisionedDevices);
+            mScannerLiveData.scanningStopped();
+        }
     }
 
     private final ScanCallback scanCallbackForProvisionedDevices = new ScanCallback() {

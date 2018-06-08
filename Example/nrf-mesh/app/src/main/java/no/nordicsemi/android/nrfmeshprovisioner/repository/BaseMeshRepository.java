@@ -113,8 +113,7 @@ public abstract class BaseMeshRepository {
 
     //final MeshManagerApi mMeshManagerApi;
     final ProvisioningStateLiveData mProvisioningStateLiveData;
-    private final Gson mGson;
-    private final Handler mHandler;
+    protected final Handler mHandler;
 
     MeshService.MeshServiceBinder mBinder;
     protected MeshManagerApi mMeshManagerApi;
@@ -199,11 +198,6 @@ public abstract class BaseMeshRepository {
         //mProvisioningLiveData = new ProvisioningLiveData(context, mMeshManagerApi.getProvisioningSettings());
         mProvisioningStateLiveData = new ProvisioningStateLiveData();
         mIsReconnecting.postValue(false);
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.enableComplexMapKeySerialization();
-        gsonBuilder.registerTypeAdapter(MeshModel.class, new InterfaceAdapter<MeshModel>());
-        gsonBuilder.setPrettyPrinting();
-        mGson = gsonBuilder.create();
     }
 
     public void unbindService(){

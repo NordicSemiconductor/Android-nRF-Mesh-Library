@@ -61,4 +61,8 @@ public class ReconnectViewModel extends ViewModel {
     public void connect(final ExtendedBluetoothDevice device) {
         mReconnectRepository.connect(device);
     }
+
+    public void disconnect() {
+        mReconnectRepository.disconnect();
+    }
 }
