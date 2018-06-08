@@ -88,8 +88,8 @@ public class MeshProvisionerViewModel extends ViewModel {
         mMeshProvisionerRepository.unbindService();
     }
 
-    public void provisionNode(final String appKey, final int appKeyIndex) {
-        mMeshProvisionerRepository.startProvisioning();
+    public void provisionNode(final String nodeName) {
+        mMeshProvisionerRepository.startProvisioning(nodeName);
     }
 
     public void sendProvisioneePin(final String pin) {

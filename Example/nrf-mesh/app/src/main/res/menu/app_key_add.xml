@@ -21,21 +21,11 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
-              android:paddingEnd="@dimen/activity_horizontal_margin"
-              android:paddingStart="@dimen/activity_horizontal_margin"
-              tools:ignore="ContentDescription">
-
-    <Button
-        android:id="@+id/action_configure"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/configure"/>
-</LinearLayout>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_app_key_add"
+        android:enabled="true"
+        android:title="@string/action_add_app_key"
+        app:showAsAction="always"/>
+</menu>

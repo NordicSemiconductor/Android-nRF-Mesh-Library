@@ -142,4 +142,10 @@ public class ReconnectRepository {
         intent.putExtra(EXTRA_DEVICE, device);
         mContext.startService(intent);
     }
+
+    public void disconnect() {
+        if(mBinder != null) {
+            mBinder.disconnect();
+        }
+    }
 }

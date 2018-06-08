@@ -14,7 +14,7 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 public class ProvisionedMeshNode extends BaseMeshNode {
 
-    protected SecureUtils.K2Output k2Output;
+    private SecureUtils.K2Output k2Output;
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public ProvisionedMeshNode(){
@@ -63,7 +63,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         friendFeatureSupported = in.readByte() != 0;
         lowPowerFeatureSupported = in.readByte() != 0;
         generatedNetworkId = in.createByteArray();
-        mElements = in.readHashMap(Element.class.getClassLoader());
+        mElements.putAll(in.readHashMap(Element.class.getClassLoader()));
         mAddedAppKeys = in.readHashMap(String.class.getClassLoader());
         mAddedAppKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mTimeStampInMillis = in.readLong();
@@ -239,7 +239,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
             proxyFeatureSupported = configCompositionDataStatus.isProxyFeatureSupported();
             friendFeatureSupported = configCompositionDataStatus.isFriendFeatureSupported();
             lowPowerFeatureSupported = configCompositionDataStatus.isLowPowerFeatureSupported();
-            mElements = configCompositionDataStatus.getElements();
+            mElements.putAll(configCompositionDataStatus.getElements());
         }
     }
 

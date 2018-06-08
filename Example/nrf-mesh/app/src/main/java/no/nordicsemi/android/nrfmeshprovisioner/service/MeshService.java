@@ -36,6 +36,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,8 +136,14 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     /** Contains the initial provisioning live data **/
     private ProvisioningSettings mProvisioningSettings;
 
+    /** app key index**/
     private int mAppKeyIndex;
+
+    /** app key**/
     private String mAppKey;
+
+    /** flag to avoid adding app key when requesting composition data only as the initial provisioning steps of the app will continue adding app key after a composition data get **/
+    private boolean mShouldAddAppKeyBeAdded = false;
 
     /** Mesh ble manager handles the ble operations **/
     @Inject
@@ -153,11 +160,12 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     private NotificationManager mNotificationManager;
     private NotificationChannel mNotificationChannel;
 
+
     @Override
     public void onCreate() {
         AndroidInjection.inject(this);
         super.onCreate();
-        mMeshManagerApi = MeshManagerApi.getInstance(this);
+        mMeshManagerApi = new MeshManagerApi(this);
         mMeshManagerApi.setProvisionerManagerTransportCallbacks(this);
         mMeshManagerApi.setProvisioningStatusCallbacks(this);
         mMeshManagerApi.setConfigurationCallbacks(this);
@@ -292,10 +300,15 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         if(!mConnectToMeshNetwork) {
             if (mBleMeshManager.isProvisioningComplete()) {
                 if (!mIsConfigurationComplete) {
-                    //We update the bluetooth device after a reconnect because some devices may start advertising with different mac address
+                    //We update the bluetooth device after a startScan because some devices may start advertising with different mac address
                     mMeshNode.setBluetoothDeviceAddress(device.getAddress());
                     //Adding a slight delay here so we don't send anything before we receive the mesh beacon message
-                    mHandler.postDelayed(() -> mMeshManagerApi.getCompositionData(mMeshNode), 2000);
+                    mHandler.postDelayed(() -> {
+                        mMeshManagerApi.getCompositionData(mMeshNode);
+                        //We set this to true so that once provisioning is complete, it will
+                        // continue to with the app key add configuration after the Composition data is received
+                        mShouldAddAppKeyBeAdded = true;
+                        }, 2000);
                 }
             }
         }
@@ -465,7 +478,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         mBleMeshManager.setProvisioningComplete(true);
         mBleMeshManager.disconnect();
         mBleMeshManager.refreshDeviceCache();
-        mHandler.postDelayed(this::reconnect, 1500); //Added a slight delay to disconnect and refresh the cache
+        mHandler.postDelayed(mReconnectRunnable, 1500); //Added a slight delay to disconnect and refresh the cache
     }
 
     @Override
@@ -506,8 +519,13 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
         mAppKey = mProvisioningSettings.getAppKeys().get(mAppKeyIndex);
-        //We send app key add after composition is complete. Adding a delay so that we don't send anything before the acknowledgement is sent out.
-        mHandler.postDelayed(() -> mMeshManagerApi.addAppKey(node, mAppKeyIndex, mAppKey), 1500);
+        if(mShouldAddAppKeyBeAdded) {
+            //We send app key add after composition is complete. Adding a delay so that we don't send anything before the acknowledgement is sent out.
+            mHandler.postDelayed(() -> {
+                mMeshManagerApi.addAppKey(node, mAppKeyIndex, mAppKey);
+                mShouldAddAppKeyBeAdded = false; //set it to false once the message is sent
+            }, 1500);
+        }
     }
 
     @Override
@@ -607,7 +625,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     private void handleConnectivityStates(final boolean connected){
         //Check if provisioning is complete
         if(mIsProvisioningComplete) {
-            //We do a reconnect upon provisioning is complete so check for that
+            //We do a startScan upon provisioning is complete so check for that
             if(mIsReconnecting){
                 sendBroadcastReconnecting(true);
             } else if(mIsConfigurationComplete && !connected){
@@ -666,7 +684,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     /**
      * Starts reconnecting to the device
      */
-    private void reconnect() {
+    private void startScan() {
         if(mIsScanning)
             return;
 
@@ -690,16 +708,25 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
         scanner.startScan(filters, settings, scanCallback);
         Log.v(TAG, "Scan started");
+        mHandler.postDelayed(mScannerTimeout, 20000);
     }
 
     /**
      * stop scanning for bluetooth devices.
      */
     private void stopScan() {
+        mHandler.removeCallbacks(mScannerTimeout);
         final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
         scanner.stopScan(scanCallback);
         mIsScanning = false;
     }
+
+    private final Runnable mReconnectRunnable = () -> startScan();
+
+    private final Runnable mScannerTimeout = () -> {
+        Toast.makeText(getApplicationContext(), "Unable to find provisioned device", Toast.LENGTH_SHORT).show();
+        stopScan();
+    };
 
     private final ScanCallback scanCallback = new ScanCallback() {
         @Override
@@ -710,13 +737,14 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             if(scanRecord != null) {
                 final byte[] serviceData = scanRecord.getServiceData(new ParcelUuid((MESH_PROXY_UUID)));
                 if (serviceData != null) {
-                    final ProvisionedMeshNode node = mMeshNode;
-                    if (mMeshManagerApi.hashMatches(node, serviceData)) {
-                        stopScan();
-                        sendBroadcastConnectivityState(getString(R.string.state_scanning_provisioned_node_found, scanRecord.getDeviceName()));
-                        onProvisionedDeviceFound(node, new ExtendedBluetoothDevice(result));
+                    if (mMeshManagerApi.isAdvertisedWithNodeIdentity(serviceData)) {
+                        final ProvisionedMeshNode node = mMeshNode;
+                        if(mMeshManagerApi.nodeIdentityMatches(node, serviceData)) {
+                            stopScan();
+                            sendBroadcastConnectivityState(getString(R.string.state_scanning_provisioned_node_found, scanRecord.getDeviceName()));
+                            onProvisionedDeviceFound(node, new ExtendedBluetoothDevice(result));
+                        }
                     }
-
                 }
             }
         }
@@ -734,6 +762,10 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
     public class MeshServiceBinder extends Binder {
 
+        public MeshManagerApi getMeshManagerApi(){
+            return mMeshManagerApi;
+        }
+
         /**
          * Connect to peripheral
          * @param device bluetooth device
@@ -750,6 +782,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
          * Disconnects from peripheral
          */
         public void disconnect() {
+            mHandler.removeCallbacks(mReconnectRunnable);
             mIsReconnecting = false;
             mIsProvisioningComplete = false;
             mIsConfigurationComplete = false;
@@ -765,6 +798,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
          * @param meshNode meshnode
          */
         public void sendCompositionDataGet(final ProvisionedMeshNode meshNode) {
+            mShouldAddAppKeyBeAdded = false;
             mMeshManagerApi.getCompositionData(meshNode);
         }
 
@@ -816,10 +850,9 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
         }
 
-        public void startProvisioning() {
+        public void startProvisioning(final String nodeName) {
             mIsProvisioningComplete = false;
             mIsConfigurationComplete = false;
-            final String nodeName =  mProvisioningSettings.getNodeName();
             final String networkKey = mProvisioningSettings.getNetworkKey();
             final int keyIndex = mProvisioningSettings.getKeyIndex();
             final int flags = mProvisioningSettings.getFlags();
@@ -849,6 +882,12 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         public void sendGetCompositionData(final ProvisionedMeshNode node) {
             mMeshNode = node;
             mMeshManagerApi.getCompositionData(node);
+        }
+
+        public void sendAppKeyAdd(final int appKeyIndex, final String appKey){
+            mAppKeyIndex = appKeyIndex;
+            mAppKey = appKey;
+            mMeshManagerApi.addAppKey(mMeshNode, appKeyIndex, appKey);
         }
 
         /**
@@ -898,6 +937,10 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
         public String getSelectedAppKey() {
             return mAppKey;
+        }
+
+        public ProvisioningSettings getProvisioningSettings() {
+            return mMeshManagerApi.getProvisioningSettings();
         }
     }
 

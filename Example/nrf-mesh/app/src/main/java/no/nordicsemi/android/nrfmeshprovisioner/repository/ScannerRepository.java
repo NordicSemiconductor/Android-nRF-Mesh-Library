@@ -30,6 +30,7 @@ import android.content.IntentFilter;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.ParcelUuid;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,7 @@ import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 
 public class ScannerRepository {
 
+    private static final String TAG = ScannerRepository.class.getSimpleName();
     private final Context mContext;
     private Handler mHandler;
 
@@ -74,8 +76,12 @@ public class ScannerRepository {
 
         @Override
         public void onScanFailed(final int errorCode) {
-            // TODO This should be handled
-            mScannerLiveData.scanningStopped();
+            try {
+                // TODO This should be handled
+                mScannerLiveData.scanningStopped();
+            } catch (Exception ex) {
+                Log.v(TAG, ex.getMessage() + " : Error code: " + errorCode);
+            }
         }
     };
 
@@ -158,6 +164,7 @@ public class ScannerRepository {
             return;
         }
 
+        mScannerLiveData.scanningStarted();
         // Scanning settings
         final ScanSettings settings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
@@ -175,7 +182,6 @@ public class ScannerRepository {
 
         final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
         scanner.startScan(filters, settings, mScanCallbacks);
-        mScannerLiveData.scanningStarted();
     }
 
     /**

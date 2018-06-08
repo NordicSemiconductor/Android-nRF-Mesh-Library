@@ -113,7 +113,7 @@ public class MeshRepository extends BaseMeshRepository {
         Utils.saveApplicationKeys(mContext, appKeys);
     }
 
-    public void getProvisionedNodes(){
+    public void refreshProvisionedNodes(){
         if(mBinder != null) {
             Map<Integer, ProvisionedMeshNode> nodes = mBinder.getProvisionedNodes();
             if(!nodes.isEmpty()) {

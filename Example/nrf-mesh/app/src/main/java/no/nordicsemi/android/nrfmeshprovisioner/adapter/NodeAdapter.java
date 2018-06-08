@@ -53,7 +53,7 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
         this.mContext = fragmentActivity;
         provisionedNodesLiveData.observe(fragmentActivity, provisionedNodesLiveData1 -> {
             final Map<Integer, ProvisionedMeshNode> nodes = provisionedNodesLiveData1.getProvisionedNodes();
-            if(nodes != null /*&& !nodes.isEmpty()*/){
+            if(nodes != null){
                 mNodes.clear();
                 mNodes.addAll(nodes.values());
             }
@@ -78,11 +78,14 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
         holder.unicastAddress.setText(MeshParserUtils.bytesToHex(node.getUnicastAddress(), false));
         final Map<Integer, Element> elements = node.getElements();
         if(elements != null && !elements.isEmpty()) {
+            holder.notConfiguredView.setVisibility(View.GONE);
+            holder.nodeInfoContainer.setVisibility(View.VISIBLE);
             holder.companyIdentifier.setText(CompanyIdentifiers.getCompanyName((short) node.getCompanyIdentifier()));
             holder.elements.setText(String.valueOf(elements.size()));
             holder.models.setText(String.valueOf(getModels(elements)));
         } else {
             holder.nodeInfoContainer.setVisibility(View.GONE);
+            holder.notConfiguredView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -126,6 +129,8 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
         TextView elements;
         @BindView(R.id.models)
         TextView models;
+        @BindView(R.id.not_configured_view)
+        View notConfiguredView;
         @BindView(R.id.action_configure)
         Button configure;
         @BindView(R.id.action_details)

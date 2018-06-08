@@ -123,13 +123,9 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
     public void onHiddenChanged(final boolean hidden) {
         super.onHiddenChanged(hidden);
         if(hidden){
-            mScannerFragmentListener.hideProgressBar();
+            stopScan();
         } else {
-            if(mSharedViewModel.getScannerRepository().getScannerState().isScanning()){
-                mScannerFragmentListener.showProgressBar();
-            } else {
-                mScannerFragmentListener.hideProgressBar();
-            }
+            startScanning();
         }
     }
 
@@ -195,15 +191,10 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
         startActivity(intent);
     }
 
-    public void startScanning(){
+    private void startScanning(){
         mSharedViewModel.getScannerRepository().getScannerState().startScanning();
         // Create view model containing utility methods for scanning
         mSharedViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
-        Log.v(TAG, "scan started");
-    }
-
-    public void stopScanning() {
-        stopScan();
     }
 
     /**
@@ -220,7 +211,7 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
                 // We are now OK to start scanning
                 if(state.isScanRequested())
                     if(!state.isScanning()) {
-                        Log.v(TAG, "NOT SCANNING YET..STARTING SCAN");
+                        Log.v(TAG, "scan started");
                         mSharedViewModel.getScannerRepository().startScan(BleMeshManager.MESH_PROVISIONING_UUID);
                     }
 
@@ -259,11 +250,9 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
      * stop scanning for bluetooth devices.
      */
     private void stopScan() {
-        if(mSharedViewModel.getScannerRepository().getScannerState().isScanning()) {
-            mSharedViewModel.getScannerRepository().getScannerState().stopScanning();
-            mSharedViewModel.getScannerRepository().stopScan();
-            mScannerFragmentListener.hideProgressBar();
-            Log.v(TAG, "stopping scan");
-        }
+        mSharedViewModel.getScannerRepository().getScannerState().stopScanning();
+        mSharedViewModel.getScannerRepository().stopScan();
+        mScannerFragmentListener.hideProgressBar();
+        Log.v(TAG, "stopping scan");
     }
 }

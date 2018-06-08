@@ -10,15 +10,20 @@ import com.google.gson.GsonBuilder;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessage;
+import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.SequenceNumber;
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -50,7 +55,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     /**
      * Length of the random number required to calculate the hash containing the node id
      */
-    private final static int HASH_RANDOM_NUMBER_LENGTH = 64; //in btis
+    private final static int HASH_RANDOM_NUMBER_LENGTH = 64; //in bits
     private static final int ADVERTISEMENT_TYPE_NETWORK_ID = 0x00;
     private static final int ADVERTISEMENT_TYPE_NODE_IDENTITY = 0x01;
     /**
@@ -77,10 +82,9 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * Length of the network id contained in the advertisement service data
      */
     private final static int ADVERTISED_NETWWORK_ID_LENGTH = 8;
-    private static MeshManagerApi mInstance;
-    private final Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new HashMap<>();
+    private final Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new LinkedHashMap<>();
     private final ProvisioningSettings mProvisioningSettings;
-    private final Context mContext;
+    private Context mContext;
     private Gson mGson;
     private int mGlobalTtl = 7;
     private MeshManagerTransportCallbacks mTransportCallbacks;
@@ -91,19 +95,13 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     private byte[] mOutgoingBuffer;
     private int mOutgoingBufferOffset;
 
-    private MeshManagerApi(final Context context) {
+    public MeshManagerApi(final Context context) {
         this.mContext = context;
         this.mProvisioningSettings = new ProvisioningSettings(context);
         initGson();
         initProvisionedNodes();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, this, this);
         mMeshConfigurationHandler = new MeshConfigurationHandler(context, this, this);
-    }
-
-    public static MeshManagerApi getInstance(final Context context) {
-        if (mInstance == null)
-            mInstance = new MeshManagerApi(context);
-        return mInstance;
     }
 
     public void setProvisionerManagerTransportCallbacks(final MeshManagerTransportCallbacks transportCallbacks) {
@@ -155,14 +153,34 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final Map<String, ?> nodes = preferences.getAll();
 
         if (!nodes.isEmpty()) {
+            final List<Integer> orderedKeys = reOrderProvisionedNodes(nodes);
             mProvisionedNodes.clear();
-            for (Map.Entry<String, ?> item : nodes.entrySet()) {
-                final String json = item.getValue().toString();
-                final ProvisionedMeshNode node = mGson.fromJson(json, ProvisionedMeshNode.class);
-                final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
-                mProvisionedNodes.put(unicastAddress, node);
+            for(int orderedKey : orderedKeys) {
+                final String key = String.format(Locale.US, "0x%04X", orderedKey);
+                final String json = preferences.getString(key, null);
+                if(json != null) {
+                    final ProvisionedMeshNode node = mGson.fromJson(json, ProvisionedMeshNode.class);
+                    final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
+                    mProvisionedNodes.put(unicastAddress, node);
+                }
             }
         }
+    }
+
+    /**
+     * Order the keys so that the nodes are read in insertion order
+     * @param nodes list containing unordered nodes
+     * @return node list
+     */
+    private List<Integer> reOrderProvisionedNodes(final Map<String, ?> nodes){
+        final Set<String> unorderedKeys =  nodes.keySet();
+        final List<Integer> orderedKeys = new ArrayList<>();
+        for(String k : unorderedKeys) {
+            final int key = Integer.decode(k);
+            orderedKeys.add(key);
+        }
+        Collections.sort(orderedKeys);
+        return orderedKeys;
     }
 
     @Override
@@ -181,7 +199,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
         final String provisionedNode = mGson.toJson(node);
         editor.putString(unicastAddress, provisionedNode);
-        editor.apply();
+        editor.commit();
     }
 
     /**
@@ -191,7 +209,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
-        editor.apply();
+        editor.commit();
     }
 
     @Override
@@ -437,6 +455,13 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * Starts the provisioning process
      */
     public void startProvisioning(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl) throws IllegalArgumentException {
+        //We must save all the provisioning data here so that they could be reused when provisioning the next devices
+        mProvisioningSettings.setNetworkKey(networkKeyValue);
+        mProvisioningSettings.setKeyIndex(keyIndex);
+        mProvisioningSettings.setFlags(flags);
+        mProvisioningSettings.setIvIndex(ivIndex);
+        mProvisioningSettings.setUnicastAddress(unicastAddress);
+        mProvisioningSettings.setGlobalTtl(globalTtl);
         mMeshProvisioningHandler.startProvisioning(address ,nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl);
     }
 
@@ -465,10 +490,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @param serviceData advertised service data
      * @return true if the hashes match or false otherwise
      */
-    public boolean hashMatches(final ProvisionedMeshNode meshNode, final byte[] serviceData) {
-        if (!isAdvertisedWithNodeIdentity(serviceData))
-            return false;
-
+    public boolean nodeIdentityMatches(final ProvisionedMeshNode meshNode, final byte[] serviceData) {
         final byte[] advertisedHash = getAdvertisedHash(serviceData);
         //If there is no advertised hash return false as this is used to match against the generated hash
         if (advertisedHash == null) {
@@ -500,7 +522,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @param serviceData advertised service data
      * @return returns true if the node is advertising with Node Identity or false otherwise
      */
-    private boolean isAdvertisedWithNodeIdentity(final byte[] serviceData) {
+    public boolean isAdvertisedWithNodeIdentity(final byte[] serviceData) {
         return serviceData != null &&
                 serviceData[ADVERTISED_HASH_OFFSET - 1] == ADVERTISEMENT_TYPE_NODE_IDENTITY;
     }
@@ -541,9 +563,6 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @return returns true if the network ids match or false otherwise
      */
     public boolean networkIdMatches(final String networkId, final byte[] serviceData) {
-        if (!isAdvertisingWithNetworkIdentity(serviceData))
-            return false;
-
         final byte[] advertisedNetworkId = getAdvertisedNetworkId(serviceData);
         return advertisedNetworkId != null && networkId.equals(MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase());
     }
@@ -554,7 +573,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @param serviceData advertised service data
      * @return returns the advertised hash
      */
-    private boolean isAdvertisingWithNetworkIdentity(final byte[] serviceData) {
+    public boolean isAdvertisingWithNetworkIdentity(final byte[] serviceData) {
         return serviceData != null && serviceData[ADVERTISED_NETWWORK_ID_OFFSET - 1] == ADVERTISEMENT_TYPE_NETWORK_ID;
     }
 

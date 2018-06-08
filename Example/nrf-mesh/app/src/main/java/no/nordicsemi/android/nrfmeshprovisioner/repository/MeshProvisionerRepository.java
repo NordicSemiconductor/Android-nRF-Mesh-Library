@@ -94,10 +94,6 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
         return mProvisioningStateLiveData;
     }
 
-    public ProvisioningLiveData getProvisioningData(){
-        return mProvisioningLiveData;
-    }
-
     public ExtendedMeshNode getExtendedMeshNode() {
         return mExtendedMeshNode.getValue();
     }
@@ -197,7 +193,7 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
         switch (status) {
             case COMPOSITION_DATA_GET_SENT:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
-                mExtendedMeshNode = new ExtendedMeshNode(node);
+                mExtendedMeshNode.updateMeshNode(node);
                 break;
             case COMPOSITION_DATA_STATUS_RECEIVED:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
@@ -263,8 +259,8 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
         mContext.startService(intent);
     }
 
-    public void startProvisioning() {
-        mBinder.startProvisioning();
+    public void startProvisioning(final String nodeName) {
+        mBinder.startProvisioning(nodeName);
     }
 
     public void confirmProvisioning(final String pin) {

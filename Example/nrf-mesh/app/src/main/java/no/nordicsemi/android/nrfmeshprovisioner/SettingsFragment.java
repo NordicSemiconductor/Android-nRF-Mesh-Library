@@ -171,15 +171,17 @@ public class SettingsFragment extends Fragment implements Injectable,
         });
 
        mViewModel.getProvisioningData().observe(this, provisioningData -> {
-           networkNameView.setText(provisioningData.getNetworkName());
-           globalTtlView.setText(String.valueOf(provisioningData.getGlobalTtl()));
-           keyView.setText(getString(R.string.hex_format, provisioningData.getNetworkKey()));
-           keyIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%03X", provisioningData.getKeyIndex())));
-           flagsView.setText(parseFlagsMessage(provisioningData.getFlags()));
-           ivIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%08X", provisioningData.getIvIndex())));
-           mViewModel.saveApplicationKeys(provisioningData.getAppKeys());
-           unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningData.getUnicastAddress())));
-           manageAppKeysView.setText(getString(R.string.app_key_count, provisioningData.getAppKeys().size()));
+           if(provisioningData.getProvisioningSettings() != null) {
+               networkNameView.setText(provisioningData.getNetworkName());
+               globalTtlView.setText(String.valueOf(provisioningData.getGlobalTtl()));
+               keyView.setText(getString(R.string.hex_format, provisioningData.getNetworkKey()));
+               keyIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%03X", provisioningData.getKeyIndex())));
+               flagsView.setText(parseFlagsMessage(provisioningData.getFlags()));
+               ivIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%08X", provisioningData.getIvIndex())));
+               mViewModel.saveApplicationKeys(provisioningData.getAppKeys());
+               unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningData.getUnicastAddress())));
+               manageAppKeysView.setText(getString(R.string.app_key_count, provisioningData.getAppKeys().size()));
+           }
        });
         return rootView;
 
@@ -205,7 +207,7 @@ public class SettingsFragment extends Fragment implements Injectable,
 
     @Override
     public void onNetworkNameEntered(final String networkName) {
-        mViewModel.getProvisioningData().setNetworkName(networkName);
+        mViewModel.getProvisioningData().setNetworkName(getContext(), networkName);
     }
 
     @Override

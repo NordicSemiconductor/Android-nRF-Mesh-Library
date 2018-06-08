@@ -39,6 +39,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
@@ -47,12 +48,14 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDetails.ViewHolder> {
 
     private final Context mContext;
-    private final List<Element> mElements;
+    private final List<Element> mElements = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
 
-    public ElementAdapterDetails(final Context mContext, final List<Element> elements) {
+    public ElementAdapterDetails(final Context mContext, final ProvisionedMeshNode node) {
         this.mContext = mContext;
-        mElements = elements;
+        if(node != null  && node.getElements() != null) {
+            mElements.addAll(new ArrayList<>(node.getElements().values()));
+        }
     }
 
 

@@ -63,12 +63,12 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisioningFailedErrorMessage;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.ProvisioningProgress;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 
-public class MeshProvisionerActivity extends AppCompatActivity implements Injectable,
+public class MeshConfigurationActivity extends AppCompatActivity implements Injectable,
         DialogFragmentAuthenticationInput.ProvisionerInputFragmentListener,
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
         DialogFragmentNetworkKey.DialogFragmentNetworkKeyListener,
@@ -150,7 +150,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         final TextView appKeyView = containerAppKey.findViewById(R.id.text);
         containerAppKey.setOnClickListener(v -> {
             final Map<Integer, String> appKeys = mViewModel.getProvisioningData().getAppKeys();
-            final Intent manageAppKeys = new Intent(MeshProvisionerActivity.this, ManageAppKeysActivity.class);
+            final Intent manageAppKeys = new Intent(MeshConfigurationActivity.this, ManageAppKeysActivity.class);
             manageAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys.values()));
             startActivityForResult(manageAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
         });
