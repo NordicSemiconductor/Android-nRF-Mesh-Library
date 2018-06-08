@@ -49,7 +49,7 @@ import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 import static no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager.MESH_PROXY_UUID;
 
 @Singleton
-public class ProvisionedNodesScannerRepository extends BaseMeshRepository{
+public class ProvisionedNodesScannerRepository extends BaseMeshRepository {
 
     private final Context mContext;
     private String mNetworkId;
@@ -213,6 +213,7 @@ public class ProvisionedNodesScannerRepository extends BaseMeshRepository{
             if (scanRecord != null) {
                 final byte[] serviceData = scanRecord.getServiceData(new ParcelUuid((MESH_PROXY_UUID)));
                 if (serviceData != null) {
+                    if(mMeshManagerApi != null)
                     if (mMeshManagerApi.networkIdMatches(mNetworkId, serviceData)) {
                         mScannerLiveData.deviceDiscovered(result);
                     }

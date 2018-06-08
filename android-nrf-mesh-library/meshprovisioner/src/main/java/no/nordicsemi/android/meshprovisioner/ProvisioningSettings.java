@@ -13,7 +13,6 @@ public class ProvisioningSettings extends NetworkSettings {
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
     private static final String PROVISIONING_DATA = "PROVISIONING_DATA";
     private static final String NETWORK_NAME = "NETWORK_NAME";
-    private static final String NODE_NAME = "NODE_NAME";
     private static final String NETWORK_KEY = "NETWORK_KEY";
     private static final String UNICAST_ADDRESS = "UNICAST_ADDRESS";
     private static final String KEY_INDEX = "KEY_INDEX";
@@ -21,7 +20,6 @@ public class ProvisioningSettings extends NetworkSettings {
     private static final String FLAGS = "FLAGS";
     private static final String GLOBAL_TTL = "GLOBAL_TTL";
     private final Context mContext;
-    private String nodeName = "nRF Mesh Node";
     private String selectedAppkey;
 
     ProvisioningSettings(final Context context) {
@@ -35,8 +33,6 @@ public class ProvisioningSettings extends NetworkSettings {
      */
     protected void generateProvisioningData() {
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONING_DATA, Context.MODE_PRIVATE);
-        networkName = preferences.getString(NETWORK_NAME, "nRF Mesh Network");
-        nodeName = preferences.getString(NODE_NAME, "nRF Mesh Node");
         networkKey = preferences.getString(NETWORK_KEY, SecureUtils.generateRandomNetworkKey());
         unicastAddress = preferences.getInt(UNICAST_ADDRESS, 1);
         keyIndex = preferences.getInt(KEY_INDEX, 0);
@@ -68,24 +64,6 @@ public class ProvisioningSettings extends NetworkSettings {
             appKeys.put(2, "63964771734fbd76e3b40519d1d94a50".toUpperCase());
         }
         saveApplicationKeys();
-    }
-
-    public String getNetworkName() {
-        return networkName;
-    }
-
-    public void setNetworkName(final String networkName) {
-        this.networkName = networkName;
-        saveNetworkName();
-    }
-
-    public String getNodeName() {
-        return nodeName;
-    }
-
-    public void setNodeName(final String nodeName) {
-        this.nodeName = nodeName;
-        saveNodeName();
     }
 
     public String getNetworkKey() {
@@ -146,21 +124,6 @@ public class ProvisioningSettings extends NetworkSettings {
         this.globalTtl = globalTtl;
         saveGlobalTtl();
     }
-
-    private void saveNetworkName() {
-        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONING_DATA, Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(NETWORK_NAME, networkName);
-        editor.apply();
-    }
-
-    private void saveNodeName() {
-        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONING_DATA, Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(NODE_NAME, nodeName);
-        editor.apply();
-    }
-
     private void saveNetowrkKey() {
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONING_DATA, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = preferences.edit();

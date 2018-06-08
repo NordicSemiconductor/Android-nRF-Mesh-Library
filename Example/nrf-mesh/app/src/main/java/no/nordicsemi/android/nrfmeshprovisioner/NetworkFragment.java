@@ -96,7 +96,7 @@ public class NetworkFragment extends Fragment implements Injectable, NodeAdapter
     @Override
     public void onStart() {
         super.onStart();
-        updateNodeList();
+        mViewModel.getProvisionedNodes();
     }
 
     @Override
@@ -118,7 +118,4 @@ public class NetworkFragment extends Fragment implements Injectable, NodeAdapter
         getActivity().startActivity(meshConfigurationIntent);
     }
 
-    private void updateNodeList(){
-        mViewModel.updateProvisionedNodes();
-    }
 }

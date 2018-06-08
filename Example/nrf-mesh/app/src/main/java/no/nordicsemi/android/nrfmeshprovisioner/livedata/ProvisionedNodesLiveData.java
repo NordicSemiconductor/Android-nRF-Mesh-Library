@@ -45,7 +45,6 @@ public class ProvisionedNodesLiveData extends LiveData<ProvisionedNodesLiveData>
 
     public void updateProvisionedNodes(final Map<Integer, ProvisionedMeshNode> provisionedNodes) {
         mProvisionedNodesMap.clear();
-        postValue(this);
         mProvisionedNodesMap.putAll(provisionedNodes);
         postValue(this);
     }

@@ -23,6 +23,8 @@
 package no.nordicsemi.android.nrfmeshprovisioner.livedata;
 
 import android.arch.lifecycle.LiveData;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import java.util.Map;
 
@@ -31,35 +33,51 @@ import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 public class ProvisioningLiveData extends LiveData<ProvisioningLiveData>  {
 
     private ProvisioningSettings mProvisioningSettings;
+    protected String networkName = "nRF Mesh Network";
+    private String nodeName = "nRF Mesh Node";
     private String selectedAppKey;
+    private String NETWORK_NAME_PREFS = "NETWORK_NAME_PREFS";
+    private String NETWORK_NAME = "NETWORK_NAME";
 
-    public ProvisioningLiveData(final ProvisioningSettings provisioningSettings){
+    public ProvisioningLiveData(){
+        postValue(this);
+    }
+
+    public ProvisioningSettings getProvisioningSettings() {
+        return mProvisioningSettings;
+    }
+
+    public void loadProvisioningData(final Context context, final ProvisioningSettings provisioningSettings){
         this.mProvisioningSettings = provisioningSettings;
+        loadNetworkName(context);
         postValue(this);
     }
 
     public void refreshProvisioningData(final ProvisioningSettings provisioningSettings) {
         this.mProvisioningSettings = provisioningSettings;
+        networkName = "nRF Mesh Network";
+        nodeName = "nRF Mesh Node";
         postValue(this);
     }
 
     public void setNodeName(final String nodeName) {
         if(nodeName != null && !nodeName.isEmpty()) {
-            mProvisioningSettings.setNodeName(nodeName);
+            this.nodeName = nodeName;
             postValue(this);
         }
     }
 
     public String getNodeName() {
-        return mProvisioningSettings.getNodeName();
+        return nodeName;
     }
 
     public String getNetworkName() {
-        return mProvisioningSettings.getNetworkName();
+        return networkName;
     }
 
-    public void setNetworkName(final String name) {
-        mProvisioningSettings.setNetworkName(name);
+    public void setNetworkName(final Context context, final String name) {
+        this.networkName = name;
+        saveNetworkName(context);
         postValue(this);
     }
 
@@ -134,5 +152,17 @@ public class ProvisioningLiveData extends LiveData<ProvisioningLiveData>  {
     public void setSelectedAppKey(final String appKey){
         this.selectedAppKey = appKey;
         postValue(this);
+    }
+
+    private void loadNetworkName(final Context context) {
+        final SharedPreferences preferences = context.getSharedPreferences(NETWORK_NAME_PREFS, Context.MODE_PRIVATE);
+        networkName = preferences.getString(NETWORK_NAME, networkName);
+    }
+
+    private void saveNetworkName(final Context context) {
+        final SharedPreferences preferences = context.getSharedPreferences(NETWORK_NAME_PREFS, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(NETWORK_NAME, networkName);
+        editor.apply();
     }
 }

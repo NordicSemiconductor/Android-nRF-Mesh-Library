@@ -53,7 +53,7 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
         this.mContext = fragmentActivity;
         provisionedNodesLiveData.observe(fragmentActivity, provisionedNodesLiveData1 -> {
             final Map<Integer, ProvisionedMeshNode> nodes = provisionedNodesLiveData1.getProvisionedNodes();
-            if(nodes != null /*&& !nodes.isEmpty()*/){
+            if(nodes != null){
                 mNodes.clear();
                 mNodes.addAll(nodes.values());
             }

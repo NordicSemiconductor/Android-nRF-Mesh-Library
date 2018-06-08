@@ -106,17 +106,18 @@ public abstract class BaseMeshRepository {
     final ConfigModelSubscriptionStatusLiveData mConfigModelSubscriptionStatus = new ConfigModelSubscriptionStatusLiveData();
 
     /** Contains the initial provisioning live data **/
-    ProvisioningLiveData mProvisioningLiveData;
+    final ProvisioningLiveData mProvisioningLiveData = new ProvisioningLiveData();
 
     /** Contains the provisioned nodes **/
     final ProvisionedNodesLiveData mProvisionedNodesLiveData = new ProvisionedNodesLiveData();
 
-    final MeshManagerApi mMeshManagerApi;
+    //final MeshManagerApi mMeshManagerApi;
     final ProvisioningStateLiveData mProvisioningStateLiveData;
     private final Gson mGson;
     private final Handler mHandler;
 
     MeshService.MeshServiceBinder mBinder;
+    protected MeshManagerApi mMeshManagerApi;
     private boolean mIsBound;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -125,6 +126,8 @@ public abstract class BaseMeshRepository {
             mBinder = (MeshService.MeshServiceBinder) service;
             if (mBinder != null) {
                 mIsBound = true;
+                mMeshManagerApi = mBinder.getMeshManagerApi();
+                mProvisioningLiveData.loadProvisioningData(mContext, mBinder.getProvisioningSettings());
                 mProvisionedNodesLiveData.updateProvisionedNodes(mBinder.getProvisionedNodes());
                 if(mExtendedMeshNode != null) {
                     final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
@@ -192,8 +195,8 @@ public abstract class BaseMeshRepository {
         context.bindService(intent, mServiceConnection, 0);
         mContext = context;
         mHandler = new Handler();
-        mMeshManagerApi = MeshManagerApi.getInstance(context);
-        mProvisioningLiveData = new ProvisioningLiveData(mMeshManagerApi.getProvisioningSettings());
+        //mMeshManagerApi = MeshManagerApi.getInstance(context);
+        //mProvisioningLiveData = new ProvisioningLiveData(context, mMeshManagerApi.getProvisioningSettings());
         mProvisioningStateLiveData = new ProvisioningStateLiveData();
         mIsReconnecting.postValue(false);
         final GsonBuilder gsonBuilder = new GsonBuilder();
@@ -310,7 +313,7 @@ public abstract class BaseMeshRepository {
     public void resetMeshNetwork() {
         mBinder.disconnect();
         mBinder.resetMeshNetwork();
-        mProvisioningLiveData.refreshProvisioningData(mMeshManagerApi.getProvisioningSettings());
+        mProvisioningLiveData.refreshProvisioningData(mBinder.getProvisioningSettings());
         mProvisionedNodesLiveData.clearNodes();
         mExtendedMeshNode = null;
     }

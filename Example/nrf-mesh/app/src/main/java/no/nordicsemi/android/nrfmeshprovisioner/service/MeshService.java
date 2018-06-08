@@ -158,7 +158,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     public void onCreate() {
         AndroidInjection.inject(this);
         super.onCreate();
-        mMeshManagerApi = MeshManagerApi.getInstance(this);
+        mMeshManagerApi = new MeshManagerApi(this);
         mMeshManagerApi.setProvisionerManagerTransportCallbacks(this);
         mMeshManagerApi.setProvisioningStatusCallbacks(this);
         mMeshManagerApi.setConfigurationCallbacks(this);
@@ -742,6 +742,10 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
     public class MeshServiceBinder extends Binder {
 
+        public MeshManagerApi getMeshManagerApi(){
+            return mMeshManagerApi;
+        }
+
         /**
          * Connect to peripheral
          * @param device bluetooth device
@@ -824,10 +828,9 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
         }
 
-        public void startProvisioning() {
+        public void startProvisioning(final String nodeName) {
             mIsProvisioningComplete = false;
             mIsConfigurationComplete = false;
-            final String nodeName =  mProvisioningSettings.getNodeName();
             final String networkKey = mProvisioningSettings.getNetworkKey();
             final int keyIndex = mProvisioningSettings.getKeyIndex();
             final int flags = mProvisioningSettings.getFlags();
@@ -906,6 +909,10 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
         public String getSelectedAppKey() {
             return mAppKey;
+        }
+
+        public ProvisioningSettings getProvisioningSettings() {
+            return mMeshManagerApi.getProvisioningSettings();
         }
     }
 
