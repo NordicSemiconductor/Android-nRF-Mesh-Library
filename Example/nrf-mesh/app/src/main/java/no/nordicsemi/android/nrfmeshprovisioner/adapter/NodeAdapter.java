@@ -79,6 +79,7 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
         final Map<Integer, Element> elements = node.getElements();
         if(elements != null && !elements.isEmpty()) {
             holder.notConfiguredView.setVisibility(View.GONE);
+            holder.nodeInfoContainer.setVisibility(View.VISIBLE);
             holder.companyIdentifier.setText(CompanyIdentifiers.getCompanyName((short) node.getCompanyIdentifier()));
             holder.elements.setText(String.valueOf(elements.size()));
             holder.models.setText(String.valueOf(getModels(elements)));

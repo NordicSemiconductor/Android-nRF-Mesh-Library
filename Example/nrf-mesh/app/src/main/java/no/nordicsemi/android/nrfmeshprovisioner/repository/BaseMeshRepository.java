@@ -219,6 +219,10 @@ public abstract class BaseMeshRepository {
 
     public abstract void onConfigurationStateChanged(final Intent intent);
 
+    public ProvisioningLiveData getProvisioningData(){
+        return mProvisioningLiveData;
+    }
+
     /**
      * Registers a broadcast receiver to receive events from the {@link MeshService}
      */
@@ -319,5 +323,9 @@ public abstract class BaseMeshRepository {
 
     public String getSelectedAppKey() {
         return mBinder.getSelectedAppKey();
+    }
+
+    public void addAppKey(final int appKeyIndex, final String appKey) {
+        mBinder.sendAppKeyAdd(appKeyIndex, appKey);
     }
 }

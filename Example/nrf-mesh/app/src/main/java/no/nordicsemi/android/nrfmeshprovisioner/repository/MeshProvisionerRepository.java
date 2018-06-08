@@ -94,10 +94,6 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
         return mProvisioningStateLiveData;
     }
 
-    public ProvisioningLiveData getProvisioningData(){
-        return mProvisioningLiveData;
-    }
-
     public ExtendedMeshNode getExtendedMeshNode() {
         return mExtendedMeshNode.getValue();
     }

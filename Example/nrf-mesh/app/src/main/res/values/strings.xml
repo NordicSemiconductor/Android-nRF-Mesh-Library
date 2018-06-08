@@ -277,4 +277,6 @@
     <string name="title_configuration_compete">Confguration Complete</string>
     <string name="configuration_complete_summary">Mesh node has been successfully configured.</string>
     <string name="action_composition_data">GET COMPOSITION DATA</string>
+
+    <string name="action_add_app_key">ADD APP KEY</string>
 </resources>

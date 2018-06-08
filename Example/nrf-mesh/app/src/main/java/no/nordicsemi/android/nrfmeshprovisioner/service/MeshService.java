@@ -884,6 +884,12 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             mMeshManagerApi.getCompositionData(node);
         }
 
+        public void sendAppKeyAdd(final int appKeyIndex, final String appKey){
+            mAppKeyIndex = appKeyIndex;
+            mAppKey = appKey;
+            mMeshManagerApi.addAppKey(mMeshNode, appKeyIndex, appKey);
+        }
+
         /**
          * Binds appkey to model
          * @param meshNode corresponding mesh node
