@@ -293,7 +293,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         if(!mConnectToMeshNetwork) {
             if (mBleMeshManager.isProvisioningComplete()) {
                 if (!mIsConfigurationComplete) {
-                    //We update the bluetooth device after a reconnect because some devices may start advertising with different mac address
+                    //We update the bluetooth device after a startScan because some devices may start advertising with different mac address
                     mMeshNode.setBluetoothDeviceAddress(device.getAddress());
                     //Adding a slight delay here so we don't send anything before we receive the mesh beacon message
                     mHandler.postDelayed(() -> mMeshManagerApi.getCompositionData(mMeshNode), 2000);
@@ -466,7 +466,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         mBleMeshManager.setProvisioningComplete(true);
         mBleMeshManager.disconnect();
         mBleMeshManager.refreshDeviceCache();
-        mHandler.postDelayed(this::reconnect, 1500); //Added a slight delay to disconnect and refresh the cache
+        mHandler.postDelayed(mReconnectRunnable, 1500); //Added a slight delay to disconnect and refresh the cache
     }
 
     @Override
@@ -608,7 +608,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     private void handleConnectivityStates(final boolean connected){
         //Check if provisioning is complete
         if(mIsProvisioningComplete) {
-            //We do a reconnect upon provisioning is complete so check for that
+            //We do a startScan upon provisioning is complete so check for that
             if(mIsReconnecting){
                 sendBroadcastReconnecting(true);
             } else if(mIsConfigurationComplete && !connected){
@@ -667,7 +667,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     /**
      * Starts reconnecting to the device
      */
-    private void reconnect() {
+    private void startScan() {
         if(mIsScanning)
             return;
 
@@ -698,10 +698,13 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
      * stop scanning for bluetooth devices.
      */
     private void stopScan() {
+        mHandler.removeCallbacks(mScannerTimeout);
         final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
         scanner.stopScan(scanCallback);
         mIsScanning = false;
     }
+
+    private final Runnable mReconnectRunnable = () -> startScan();
 
     private final Runnable mScannerTimeout = () -> {
         Toast.makeText(getApplicationContext(), "Unable to find provisioned device", Toast.LENGTH_SHORT).show();
@@ -719,7 +722,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
                 if (serviceData != null) {
                     final ProvisionedMeshNode node = mMeshNode;
                     if (mMeshManagerApi.hashMatches(node, serviceData)) {
-                        mHandler.removeCallbacks(mScannerTimeout);
                         stopScan();
                         sendBroadcastConnectivityState(getString(R.string.state_scanning_provisioned_node_found, scanRecord.getDeviceName()));
                         onProvisionedDeviceFound(node, new ExtendedBluetoothDevice(result));
@@ -762,6 +764,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
          * Disconnects from peripheral
          */
         public void disconnect() {
+            mHandler.removeCallbacks(mReconnectRunnable);
             mIsReconnecting = false;
             mIsProvisioningComplete = false;
             mIsConfigurationComplete = false;

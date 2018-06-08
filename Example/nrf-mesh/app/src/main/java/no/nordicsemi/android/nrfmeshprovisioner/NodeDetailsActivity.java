@@ -107,13 +107,20 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         final TextView features = containerFeatures.findViewById(R.id.text);
         features.setText(CompositionDataParser.formatFeatures(node.getFeatures(), false));
 
+        final TextView view =  findViewById(R.id.no_elements_view);
         mRecyclerView = findViewById(R.id.recycler_view_elements);
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(linearLayoutManager);
-        final ElementAdapterDetails adapter = new ElementAdapterDetails(this, new ArrayList<>(node.getElements().values()));
-        adapter.setOnItemClickListener(this);
-        mRecyclerView.setAdapter(adapter);
-
+        if(node.getElements().isEmpty()){
+            view.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.INVISIBLE);
+        } else {
+            view.setVisibility(View.INVISIBLE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+            mRecyclerView.setLayoutManager(linearLayoutManager);
+            final ElementAdapterDetails adapter = new ElementAdapterDetails(this, node/*new ArrayList<>(node.getElements().values())*/);
+            adapter.setOnItemClickListener(this);
+            mRecyclerView.setAdapter(adapter);
+        }
     }
 
     @Override

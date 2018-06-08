@@ -253,7 +253,7 @@
     <string name="title_bound_app_keys">Bound App Keys</string>
 
     <string name="no_elements_found">NO ELEMENTS FOUND</string>
-    <string name="no_elements_guide_info">Try configuring the node again to see what elements are available on this node</string>
+    <string name="no_elements_guide_info">No elements were found! \n\nTry configuring the node again to see what elements are available on this node. You may do this by going back to the main screen and connecting to the node</string>
     <string name="action_connect">CONNECT</string>
     <string name="action_disconnect">Disconnect</string>
 
@@ -271,7 +271,7 @@
     <string name="action_reset_network">Reset Network</string>
     <string name="title_reset_network">Reset Mesh Network</string>
     <string name="message_reset_network">This will clear all the data stored related to this network and will not be recoverable. Would you like to continue?</string>
-    <string name="not_subscribed_to_groups">Not subscribed to to any group addresses.</string>
+    <string name="not_subscribed_to_groups">Not subscribed to any group addresses.</string>
     <string name="title_group_address">Group Address</string>
     <string name="dialog_summary_group_address">Group address this model should subscribe.</string>
     <string name="title_configuration_compete">Confguration Complete</string>
