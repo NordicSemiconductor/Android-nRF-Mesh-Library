@@ -10,9 +10,14 @@ import com.google.gson.GsonBuilder;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessage;
@@ -77,7 +82,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * Length of the network id contained in the advertisement service data
      */
     private final static int ADVERTISED_NETWWORK_ID_LENGTH = 8;
-    private final Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new HashMap<>();
+    private final Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new LinkedHashMap<>();
     private final ProvisioningSettings mProvisioningSettings;
     private Context mContext;
     private Gson mGson;
@@ -148,14 +153,34 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final Map<String, ?> nodes = preferences.getAll();
 
         if (!nodes.isEmpty()) {
+            final List<Integer> orderedKeys = reOrderProvisionedNodes(nodes);
             mProvisionedNodes.clear();
-            for (Map.Entry<String, ?> item : nodes.entrySet()) {
-                final String json = item.getValue().toString();
-                final ProvisionedMeshNode node = mGson.fromJson(json, ProvisionedMeshNode.class);
-                final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
-                mProvisionedNodes.put(unicastAddress, node);
+            for(int orderedKey : orderedKeys) {
+                final String key = String.format(Locale.US, "0x%04X", orderedKey);
+                final String json = preferences.getString(key, null);
+                if(json != null) {
+                    final ProvisionedMeshNode node = mGson.fromJson(json, ProvisionedMeshNode.class);
+                    final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
+                    mProvisionedNodes.put(unicastAddress, node);
+                }
             }
         }
+    }
+
+    /**
+     * Order the keys so that the nodes are read in insertion order
+     * @param nodes list containing unordered nodes
+     * @return node list
+     */
+    private List<Integer> reOrderProvisionedNodes(final Map<String, ?> nodes){
+        final Set<String> unorderedKeys =  nodes.keySet();
+        final List<Integer> orderedKeys = new ArrayList<>();
+        for(String k : unorderedKeys) {
+            final int key = Integer.decode(k);
+            orderedKeys.add(key);
+        }
+        Collections.sort(orderedKeys);
+        return orderedKeys;
     }
 
     @Override
@@ -174,7 +199,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
         final String provisionedNode = mGson.toJson(node);
         editor.putString(unicastAddress, provisionedNode);
-        editor.apply();
+        editor.commit();
     }
 
     /**
