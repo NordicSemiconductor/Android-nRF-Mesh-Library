@@ -36,6 +36,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -690,6 +691,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
         scanner.startScan(filters, settings, scanCallback);
         Log.v(TAG, "Scan started");
+        mHandler.postDelayed(mScannerTimeout, 20000);
     }
 
     /**
@@ -700,6 +702,11 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         scanner.stopScan(scanCallback);
         mIsScanning = false;
     }
+
+    private final Runnable mScannerTimeout = () -> {
+        Toast.makeText(getApplicationContext(), "Unable to find provisioned device", Toast.LENGTH_SHORT).show();
+        stopScan();
+    };
 
     private final ScanCallback scanCallback = new ScanCallback() {
         @Override
@@ -712,6 +719,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
                 if (serviceData != null) {
                     final ProvisionedMeshNode node = mMeshNode;
                     if (mMeshManagerApi.hashMatches(node, serviceData)) {
+                        mHandler.removeCallbacks(mScannerTimeout);
                         stopScan();
                         sendBroadcastConnectivityState(getString(R.string.state_scanning_provisioned_node_found, scanRecord.getDeviceName()));
                         onProvisionedDeviceFound(node, new ExtendedBluetoothDevice(result));
