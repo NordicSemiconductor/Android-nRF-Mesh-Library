@@ -123,8 +123,10 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
     public void onHiddenChanged(final boolean hidden) {
         super.onHiddenChanged(hidden);
         if(hidden){
+            stopScan();
             mScannerFragmentListener.hideProgressBar();
         } else {
+            startScanning();
             if(mSharedViewModel.getScannerRepository().getScannerState().isScanning()){
                 mScannerFragmentListener.showProgressBar();
             } else {
@@ -195,15 +197,11 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
         startActivity(intent);
     }
 
-    public void startScanning(){
+    private void startScanning(){
         mSharedViewModel.getScannerRepository().getScannerState().startScanning();
         // Create view model containing utility methods for scanning
         mSharedViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
         Log.v(TAG, "scan started");
-    }
-
-    public void stopScanning() {
-        stopScan();
     }
 
     /**
@@ -220,7 +218,6 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
                 // We are now OK to start scanning
                 if(state.isScanRequested())
                     if(!state.isScanning()) {
-                        Log.v(TAG, "NOT SCANNING YET..STARTING SCAN");
                         mSharedViewModel.getScannerRepository().startScan(BleMeshManager.MESH_PROVISIONING_UUID);
                     }
 

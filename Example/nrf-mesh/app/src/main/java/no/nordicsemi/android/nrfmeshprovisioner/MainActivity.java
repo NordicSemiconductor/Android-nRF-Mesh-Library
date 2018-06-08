@@ -154,11 +154,6 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == Utils.PROVISIONING_SUCCESS){
@@ -175,13 +170,11 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         final int id = item.getItemId();
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        boolean flag = false;
         switch (id) {
             case R.id.action_network:
                 ft.show(mNetworkFragment).hide(mScannerFragment).hide(mSettingsFragment);
                 break;
             case R.id.action_scanner:
-                flag = true;
                 ft.hide(mNetworkFragment).show(mScannerFragment).hide(mSettingsFragment);
                 break;
             case R.id.action_settings:
@@ -189,13 +182,7 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
                 break;
         }
         ft.commit();
-        if(flag){
-            mScannerFragment.startScanning();
-        } else {
-            mScannerFragment.stopScanning();
-        }
         invalidateOptionsMenu();
-
         return true;
     }
 
@@ -225,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
 
     @Override
     public void onProvisionedMeshNodeSelected() {
-        mScannerFragment.stopScanning();
+
     }
 
     @Override
