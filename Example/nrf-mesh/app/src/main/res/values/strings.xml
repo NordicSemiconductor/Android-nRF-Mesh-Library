@@ -201,15 +201,14 @@
     <string name="app_key_count">%d keys</string>
     <string name="hint_app_key">App key</string>
     <string name="no_app_keys_title">NO ADDED APP KEYS</string>
-    <string name="no_app_keys_rationale">App keys are required in order to configure a mUnprovisionedMeshNode after provisioning has been completed. Please click on the add button to add an app key </string>
+    <string name="no_app_keys_rationale">App keys are required in order to configure a UnprovisionedMeshNode after provisioning has been completed. Please click on the add button to add an app key </string>
     <string name="app_key_deleted">App key deleted.</string>
     <string name="undo">Undo</string>
     <string name="title_error_provisioning_failed">Provisioning Failed</string>
     <string name="provisioning_cancelled">Provisioning canceled!</string>
     <string name="details">Details</string>
     <string name="node_status">Node status:</string>
-    <string name="provisioned_not_configured">Provisioned, not configured</string>
-    <string name="provisioned_and_configured">Provisioned and Configured</string>
+    <string name="provisioned_not_configured">Provisioned, not configured.</string>
     <string name="configuration_state">Configuration status:</string>
     <string name="configured">Configured</string>
 
@@ -253,7 +252,8 @@
     <string name="title_bound_app_keys">Bound App Keys</string>
 
     <string name="no_elements_found">NO ELEMENTS FOUND</string>
-    <string name="no_elements_guide_info">No elements were found! \n\nTry configuring the node again to see what elements are available on this node. You may do this by going back to the main screen and connecting to the node</string>
+    <string name="no_elements_guide_info">No elements were found! \n\nTry configuring the node again to see what elements are available on this node. You may do this by going back to the main screen and connecting to the node.</string>
+    <string name="no_elements_guide_composition_data">No elements were found! \nGet composition data to see what elements are on this node.</string>
     <string name="action_connect">CONNECT</string>
     <string name="action_disconnect">Disconnect</string>
 
@@ -276,4 +276,5 @@
     <string name="dialog_summary_group_address">Group address this model should subscribe.</string>
     <string name="title_configuration_compete">Confguration Complete</string>
     <string name="configuration_complete_summary">Mesh node has been successfully configured.</string>
+    <string name="action_composition_data">GET COMPOSITION DATA</string>
 </resources>

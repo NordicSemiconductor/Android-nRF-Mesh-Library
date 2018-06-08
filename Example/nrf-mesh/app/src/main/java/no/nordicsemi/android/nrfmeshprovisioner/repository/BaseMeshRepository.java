@@ -37,6 +37,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.Map;
+
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
@@ -114,7 +116,6 @@ public abstract class BaseMeshRepository {
     //final MeshManagerApi mMeshManagerApi;
     final ProvisioningStateLiveData mProvisioningStateLiveData;
     protected final Handler mHandler;
-
     MeshService.MeshServiceBinder mBinder;
     protected MeshManagerApi mMeshManagerApi;
     private boolean mIsBound;
@@ -132,7 +133,7 @@ public abstract class BaseMeshRepository {
                     final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
                     final ProvisionedMeshNode meshNode = mBinder.getMeshNode(AddressUtils.getUnicastAddressInt(node.getUnicastAddress()));
                     if (meshNode != null) {
-                        mExtendedMeshNode = new ExtendedMeshNode(meshNode);
+                        mExtendedMeshNode.updateMeshNode(meshNode);
                     }
                 } else {
                     final ProvisionedMeshNode meshNode = mBinder.getMeshNode();

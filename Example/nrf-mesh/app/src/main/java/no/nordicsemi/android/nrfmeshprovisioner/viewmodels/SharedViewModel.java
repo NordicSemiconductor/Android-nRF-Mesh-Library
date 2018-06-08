@@ -96,8 +96,8 @@ public class SharedViewModel extends ViewModel {
         return mMeshRepository.isConnectedToMesh();
     }
 
-    public void getProvisionedNodes() {
-        mMeshRepository.getProvisionedNodes();
+    public void refreshProvisionedNodes() {
+        mMeshRepository.refreshProvisionedNodes();
     }
 
     public void setMeshNode(final ProvisionedMeshNode meshNode) {

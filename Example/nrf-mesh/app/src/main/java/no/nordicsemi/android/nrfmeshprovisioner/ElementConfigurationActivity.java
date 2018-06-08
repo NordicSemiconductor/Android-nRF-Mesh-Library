@@ -27,12 +27,14 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 import javax.inject.Inject;
 
@@ -61,7 +63,8 @@ public class ElementConfigurationActivity extends AppCompatActivity implements I
     ViewModelProvider.Factory mViewModelFactory;
     @BindView(R.id.recycler_view_elements)
     RecyclerView mRecyclerViewElements;
-
+    @BindView(R.id.composition_data_card)
+    CardView mCompostionDataCard;
     private ElementConfigurationViewModel mViewModel;
 
 
@@ -84,20 +87,27 @@ public class ElementConfigurationActivity extends AppCompatActivity implements I
         getSupportActionBar().setTitle(R.string.title_elements);
 
         // Set up views
-        final View infoNoElements = findViewById(R.id.no_elements);
+        final Button getCompostionData = findViewById(R.id.action_get_compostion_data);
+
         mRecyclerViewElements.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerViewElements.getContext(), DividerItemDecoration.VERTICAL);
         mRecyclerViewElements.addItemDecoration(dividerItemDecoration);
 
-        infoNoElements.findViewById(R.id.action_configure).setOnClickListener(v -> mViewModel.startConfiguration());
-
         mViewModel.getExtendedMeshNode().observe(this, extendedMeshNode -> {
             if(extendedMeshNode.hasElements()){
+                mCompostionDataCard.setVisibility(View.INVISIBLE);
                 final ElementAdapter adapter = new ElementAdapter(this, mViewModel.getExtendedMeshNode());
                 adapter.setOnItemClickListener(this);
                 mRecyclerViewElements.setAdapter(adapter);
                 mRecyclerViewElements.setVisibility(View.VISIBLE);
+            } else {
+                mCompostionDataCard.setVisibility(View.VISIBLE);
+                mRecyclerViewElements.setVisibility(View.INVISIBLE);
             }
+        });
+
+        getCompostionData.setOnClickListener(v -> {
+            mViewModel.sendGetCompositionData();
         });
 
         mViewModel.isConnected().observe(this, isConnected -> {

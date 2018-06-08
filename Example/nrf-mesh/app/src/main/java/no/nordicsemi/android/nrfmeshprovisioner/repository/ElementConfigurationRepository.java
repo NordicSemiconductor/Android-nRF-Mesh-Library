@@ -32,6 +32,15 @@ import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
+
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_PUBLISH_ADDRESS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_STATUS;
 
 public class ElementConfigurationRepository extends BaseMeshRepository {
 
@@ -64,12 +73,11 @@ public class ElementConfigurationRepository extends BaseMeshRepository {
 
     @Override
     public void onProvisioningStateChanged(final Intent intent) {
-
     }
 
     @Override
     public void onConfigurationStateChanged(final Intent intent) {
-
+        handleConfigurationStates(intent);
     }
 
     public LiveData<Boolean> isConnected() {
@@ -108,4 +116,33 @@ public class ElementConfigurationRepository extends BaseMeshRepository {
         mBinder.sendCompositionDataGet(mExtendedMeshNode.getMeshNode());
     }
 
+    private void handleConfigurationStates(final Intent intent){
+        final int state = intent.getExtras().getInt(EXTRA_CONFIGURATION_STATE);
+        final MeshNodeStates.MeshNodeStatus status = MeshNodeStates.MeshNodeStatus.fromStatusCode(state);
+        final ProvisionedMeshNode node = mBinder.getMeshNode();
+        switch (status) {
+            case COMPOSITION_DATA_GET_SENT:
+                mExtendedMeshNode.updateMeshNode(node);
+                break;
+            case COMPOSITION_DATA_STATUS_RECEIVED:
+                mExtendedMeshNode.updateMeshNode(node);
+                break;
+            case SENDING_BLOCK_ACKNOWLEDGEMENT:
+                mExtendedMeshNode.updateMeshNode(node);
+                break;
+            case BLOCK_ACKNOWLEDGEMENT_RECEIVED:
+                mExtendedMeshNode.updateMeshNode(node);
+                break;
+            case SENDING_APP_KEY_ADD:
+                mExtendedMeshNode.updateMeshNode(node);
+                break;
+            case APP_KEY_STATUS_RECEIVED:
+                if(intent.getExtras() != null) {
+                    final int statusCode = intent.getExtras().getInt(EXTRA_STATUS);
+                    mExtendedMeshNode.updateMeshNode(node);
+                    mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state, statusCode);
+                }
+                break;
+        }
+    }
 }

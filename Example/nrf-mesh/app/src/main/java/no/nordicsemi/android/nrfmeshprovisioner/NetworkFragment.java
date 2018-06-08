@@ -96,7 +96,7 @@ public class NetworkFragment extends Fragment implements Injectable, NodeAdapter
     @Override
     public void onStart() {
         super.onStart();
-        mViewModel.getProvisionedNodes();
+        mViewModel.refreshProvisionedNodes();
     }
 
     @Override

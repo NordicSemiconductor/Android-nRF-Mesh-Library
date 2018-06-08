@@ -75,7 +75,7 @@ public class ElementConfigurationViewModel extends ViewModel {
         return mElementConfigurationRepository;
     }
 
-    public void startConfiguration() {
+    public void sendGetCompositionData() {
         mElementConfigurationRepository.sendGetCompositionData();
     }
 

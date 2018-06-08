@@ -209,7 +209,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
-        editor.apply();
+        editor.commit();
     }
 
     @Override
@@ -490,10 +490,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @param serviceData advertised service data
      * @return true if the hashes match or false otherwise
      */
-    public boolean hashMatches(final ProvisionedMeshNode meshNode, final byte[] serviceData) {
-        if (!isAdvertisedWithNodeIdentity(serviceData))
-            return false;
-
+    public boolean nodeIdentityMatches(final ProvisionedMeshNode meshNode, final byte[] serviceData) {
         final byte[] advertisedHash = getAdvertisedHash(serviceData);
         //If there is no advertised hash return false as this is used to match against the generated hash
         if (advertisedHash == null) {
@@ -525,7 +522,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @param serviceData advertised service data
      * @return returns true if the node is advertising with Node Identity or false otherwise
      */
-    private boolean isAdvertisedWithNodeIdentity(final byte[] serviceData) {
+    public boolean isAdvertisedWithNodeIdentity(final byte[] serviceData) {
         return serviceData != null &&
                 serviceData[ADVERTISED_HASH_OFFSET - 1] == ADVERTISEMENT_TYPE_NODE_IDENTITY;
     }
@@ -566,9 +563,6 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @return returns true if the network ids match or false otherwise
      */
     public boolean networkIdMatches(final String networkId, final byte[] serviceData) {
-        if (!isAdvertisingWithNetworkIdentity(serviceData))
-            return false;
-
         final byte[] advertisedNetworkId = getAdvertisedNetworkId(serviceData);
         return advertisedNetworkId != null && networkId.equals(MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase());
     }
@@ -579,7 +573,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @param serviceData advertised service data
      * @return returns the advertised hash
      */
-    private boolean isAdvertisingWithNetworkIdentity(final byte[] serviceData) {
+    public boolean isAdvertisingWithNetworkIdentity(final byte[] serviceData) {
         return serviceData != null && serviceData[ADVERTISED_NETWWORK_ID_OFFSET - 1] == ADVERTISEMENT_TYPE_NETWORK_ID;
     }
 
