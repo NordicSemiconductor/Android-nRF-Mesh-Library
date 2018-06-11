@@ -23,7 +23,7 @@ public class GenericLevelServerModel extends SigModel {
 
     @Override
     public String getModelName() {
-        return  "Generic Level Server Model";
+        return  "Generic Level Server";
     }
 
     @Override

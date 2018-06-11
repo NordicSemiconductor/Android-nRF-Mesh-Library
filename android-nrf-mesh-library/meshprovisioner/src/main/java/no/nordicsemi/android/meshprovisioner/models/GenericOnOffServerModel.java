@@ -23,7 +23,7 @@ public class GenericOnOffServerModel extends SigModel {
 
     @Override
     public String getModelName() {
-        return "Generic On Off Server Model";
+        return "Generic On Off Server";
     }
 
     @Override

@@ -23,7 +23,7 @@ public class GenericLevelClientModel extends SigModel {
 
     @Override
     public String getModelName() {
-        return "Generic Level Client Model";
+        return "Generic Level Client";
     }
 
     @Override

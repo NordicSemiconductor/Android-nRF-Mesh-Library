@@ -23,7 +23,7 @@ public class HealthClientModel extends SigModel {
 
     @Override
     public String getModelName() {
-        return "Health Client Model";
+        return "Health Client";
     }
 
     @Override
