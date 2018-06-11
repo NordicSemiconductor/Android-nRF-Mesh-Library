@@ -279,4 +279,6 @@
     <string name="action_composition_data">GET COMPOSITION DATA</string>
 
     <string name="action_add_app_key">ADD APP KEY</string>
+    <string name="title_about">About</string>
+    <string name="summary_verion">Version</string>
 </resources>

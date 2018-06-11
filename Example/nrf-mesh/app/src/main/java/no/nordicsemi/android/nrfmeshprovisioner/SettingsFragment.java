@@ -25,6 +25,7 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -162,6 +163,17 @@ public class SettingsFragment extends Fragment implements Injectable,
         final TextView manageAppKeys = containerManageAppKeys.findViewById(R.id.title);
         manageAppKeys.setText(R.string.summary_app_keys);
         final TextView manageAppKeysView = containerManageAppKeys.findViewById(R.id.text);
+
+        final View containerAbout = rootView.findViewById(R.id.container_version);
+        containerAbout.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_approval));
+        final TextView versionTitle = containerAbout.findViewById(R.id.title);
+        versionTitle.setText(R.string.summary_verion);
+        final TextView version = containerAbout.findViewById(R.id.text);
+        try {
+            version.setText(getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0).versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
         containerManageAppKeys.setOnClickListener(v -> {
             final Intent intent = new Intent(getActivity(), ManageAppKeysActivity.class);
