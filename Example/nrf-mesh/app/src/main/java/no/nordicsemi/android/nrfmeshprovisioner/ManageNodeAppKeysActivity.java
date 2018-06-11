@@ -60,8 +60,6 @@ public class ManageNodeAppKeysActivity extends AppCompatActivity implements AppK
     public static final String APP_KEYS = "APP_KEYS";
 
     //UI Bindings
-    @BindView(android.R.id.empty)
-    View mEmptyView;
     @BindView(R.id.container)
     View container;
 
@@ -97,17 +95,6 @@ public class ManageNodeAppKeysActivity extends AppCompatActivity implements AppK
         mAdapter.setOnItemClickListener(this);
         appKeysRecyclerView.setAdapter(mAdapter);
 
-        final FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(v -> {
-            final DialogFragmentAddAppKey dialogFragmentAddAppKey = DialogFragmentAddAppKey.newInstance(null);
-            dialogFragmentAddAppKey.show(getSupportFragmentManager(), null);
-        });
-        if(componentName != null) {
-            fab.setVisibility(View.GONE);
-        }
-
-        final boolean empty = mAdapter.getItemCount() == 0;
-        mEmptyView.setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 
     @Override

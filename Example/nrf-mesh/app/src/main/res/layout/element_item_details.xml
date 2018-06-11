@@ -43,7 +43,7 @@
         app:layout_constraintBottom_toTopOf="@+id/model_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_mesh_model_nordic_black"/>
+        app:srcCompat="@drawable/ic_drawing_black_24dp_alpha"/>
 
     <LinearLayout
         android:id="@+id/element_container"

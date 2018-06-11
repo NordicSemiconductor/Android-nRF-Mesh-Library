@@ -75,6 +75,9 @@ public class Utils {
     private static final String PROVISIONED_NODES_FILE = "PROVISIONED_FILES";
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
     public static String EXTRA_UNICAST_ADDRESS = "EXTRA_UNICAST_ADDRESS";
+    public static String ACTION_ADD_APP_KEY = "ACTION_ADD_APP_KEY";
+    public static String ACTION_DELETE_APP_KEY = "ACTION_DELETE_APP_KEY";
+    public static String ACTION_VIEW_APP_KEY = "ACTION_VIEW_APP_KEY";
 
     /**
      * Checks whether Bluetooth is enabled.

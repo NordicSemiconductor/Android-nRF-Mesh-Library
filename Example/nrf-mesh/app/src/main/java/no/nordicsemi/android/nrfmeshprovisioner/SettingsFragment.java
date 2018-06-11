@@ -165,7 +165,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         final TextView manageAppKeysView = containerManageAppKeys.findViewById(R.id.text);
 
         final View containerAbout = rootView.findViewById(R.id.container_version);
-        containerAbout.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_approval));
+        containerAbout.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_puzzle));
         final TextView versionTitle = containerAbout.findViewById(R.id.title);
         versionTitle.setText(R.string.summary_verion);
         final TextView version = containerAbout.findViewById(R.id.text);
