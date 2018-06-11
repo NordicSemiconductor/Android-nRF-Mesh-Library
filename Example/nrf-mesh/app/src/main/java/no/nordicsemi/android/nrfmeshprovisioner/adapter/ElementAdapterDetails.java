@@ -74,7 +74,7 @@ public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDe
         final Element element = mElements.get(position);
         holder.mElementContainer.setTag(element);
         final int modelCount = element.getSigModelCount() + element.getVendorModelCount();
-        holder.mElementTitle.setText(mContext.getString(R.string.element_count, position));
+        holder.mElementTitle.setText(mContext.getString(R.string.element_address, position));
         holder.mElementSubtitle.setText(mContext.getString(R.string.model_count, modelCount));
 
         int noOfChildTextViews = holder.mModelContainer.getChildCount();

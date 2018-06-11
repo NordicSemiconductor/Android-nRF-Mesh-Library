@@ -28,16 +28,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -58,10 +58,10 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
 
-public class ElementConfigurationActivity extends AppCompatActivity implements Injectable,
+public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
         ElementAdapter.OnItemClickListener {
 
-    private final static String TAG = ElementConfigurationActivity.class.getSimpleName();
+    private final static String TAG = NodeConfigurationActivity.class.getSimpleName();
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -87,31 +87,52 @@ public class ElementConfigurationActivity extends AppCompatActivity implements I
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.title_elements);
+        getSupportActionBar().setTitle(R.string.title_node_configuration);
+        getSupportActionBar().setSubtitle(node.getNodeName());
 
         // Set up views
         final Button getCompostionData = findViewById(R.id.action_get_compostion_data);
+        final Button actionAddAppkey = findViewById(R.id.action_add_app_keys);
+        final TextView noElementsFound = findViewById(R.id.no_elements);
+        final View compositionActionContainer = findViewById(R.id.composition_action_container);
+        final TextView appKeyView = findViewById(R.id.app_key_index);
 
         mRecyclerViewElements.setLayoutManager(new LinearLayoutManager(this));
-        final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerViewElements.getContext(), DividerItemDecoration.VERTICAL);
-        mRecyclerViewElements.addItemDecoration(dividerItemDecoration);
 
         mViewModel.getExtendedMeshNode().observe(this, extendedMeshNode -> {
             if(extendedMeshNode.hasElements()){
                 invalidateOptionsMenu();
-                mCompostionDataCard.setVisibility(View.INVISIBLE);
+                compositionActionContainer.setVisibility(View.GONE);
+                noElementsFound.setVisibility(View.INVISIBLE);
                 final ElementAdapter adapter = new ElementAdapter(this, mViewModel.getExtendedMeshNode());
                 adapter.setOnItemClickListener(this);
                 mRecyclerViewElements.setAdapter(adapter);
                 mRecyclerViewElements.setVisibility(View.VISIBLE);
             } else {
-                mCompostionDataCard.setVisibility(View.VISIBLE);
+                noElementsFound.setVisibility(View.VISIBLE);
+                compositionActionContainer.setVisibility(View.VISIBLE);
                 mRecyclerViewElements.setVisibility(View.INVISIBLE);
+            }
+
+            if(extendedMeshNode.hasAddedAppKeys()){
+                final Map<Integer, String> appKeys = extendedMeshNode.getMeshNode().getAddedAppKeys();
+                if (!appKeys.isEmpty()) {
+                    appKeyView.setText(getString(R.string.app_keys_added, appKeys.size()));
+                } else {
+                    appKeyView.setText(getString(R.string.no_app_keys_added));
+                }
             }
         });
 
         getCompostionData.setOnClickListener(v -> {
             mViewModel.sendGetCompositionData();
+        });
+
+        actionAddAppkey.setOnClickListener(v -> {
+            final Map<Integer, String> appKeys = mViewModel.getProvisioningData().getAppKeys();
+            final Intent manageAppKeys = new Intent(NodeConfigurationActivity.this, ManageAppKeysActivity.class);
+            manageAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys.values()));
+            startActivityForResult(manageAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
         mViewModel.isConnected().observe(this, isConnected -> {
@@ -122,26 +143,10 @@ public class ElementConfigurationActivity extends AppCompatActivity implements I
     }
 
     @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
-        if(node != null && node.getAddedAppKeyIndexes().isEmpty()) {
-            getMenuInflater().inflate(R.menu.app_key_add, menu);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
-                return true;
-            case R.id.action_app_key_add:
-                final Map<Integer, String> appKeys = mViewModel.getProvisioningData().getAppKeys();
-                final Intent manageAppKeys = new Intent(ElementConfigurationActivity.this, ManageAppKeysActivity.class);
-                manageAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys.values()));
-                startActivityForResult(manageAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
                 return true;
         }
         return false;
@@ -154,9 +159,6 @@ public class ElementConfigurationActivity extends AppCompatActivity implements I
             if(resultCode == RESULT_OK){
                 final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT);
                 if(appKey != null){
-                    /*mViewModel.getProvisioningData().setSelectedAppKey(appKey);
-                    mViewModel.getProvisioningData().setSelectedAppKeyIndex(appKeyIndex);*/
-
                     final int appKeyIndex = Utils.getKey(mViewModel.getProvisioningData().getAppKeys(), appKey);
                     mViewModel.setSelectedAppKey(appKeyIndex, appKey);
                     mViewModel.sendAppKeyAdd(appKeyIndex, appKey);

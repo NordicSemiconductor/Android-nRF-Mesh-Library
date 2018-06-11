@@ -222,14 +222,13 @@
     <string name="title_appkey_status">AppKey Status</string>
     <string name="app_key_item">App key %d</string>
     <string name="error_node_name">Node name cannot be empty!</string>
-    <string name="element_count">Element %d</string>
+    <string name="element_address">Element : %s</string>
     <string name="model_count">%d Models</string>
     <string name="title_model_configuration">Model Configuration</string>
     <string name="subtitle_model_configuration">%s %s</string>
     <string name="format_sig_model_id">SIG Model ID: %s</string>
     <string name="format_vendor_model_id">Vendor Model ID: %s</string>
     <string name="model_id_type_vendor">Vendor Model ID:</string>
-
 
     <string name="title_publish_address">Publish Address</string>
     <string name="title_subscription_addresseses">Subscription Addresses</string>
@@ -278,7 +277,13 @@
     <string name="configuration_complete_summary">Mesh node has been successfully configured.</string>
     <string name="action_composition_data">GET COMPOSITION DATA</string>
 
-    <string name="action_add_app_key">ADD APP KEY</string>
+    <string name="action_manage_app_keys">MANAGE</string>
     <string name="title_about">About</string>
     <string name="summary_verion">Version</string>
+    <string name="title_node_configuration">Node Configuration</string>
+    <string name="title_added_app_keys">Added App Keys</string>
+    <string name="action_view_added_keys">VIEW</string>
+
+    <string name="no_app_keys_added">0 app keys added</string>
+    <string name="app_keys_added">%d app keys added</string>
 </resources>

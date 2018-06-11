@@ -103,7 +103,7 @@ public class NetworkFragment extends Fragment implements Injectable, NodeAdapter
     public void onConfigureClicked(final ProvisionedMeshNode node) {
         if(mViewModel.isConenctedToMesh()) {
             ((NetworkFragmentListener) getActivity()).onProvisionedMeshNodeSelected();
-            final Intent meshConfigurationIntent = new Intent(getActivity(), ElementConfigurationActivity.class);
+            final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
             meshConfigurationIntent.putExtra(Utils.EXTRA_DEVICE, node);
             getActivity().startActivity(meshConfigurationIntent);
         } else {

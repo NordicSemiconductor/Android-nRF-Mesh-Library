@@ -43,7 +43,7 @@
         app:layout_constraintBottom_toTopOf="@+id/model_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_mesh_model_nordic_blue"/>
+        app:srcCompat="@drawable/ic_mesh_model_nordic_black"/>
 
     <LinearLayout
         android:id="@+id/element_container"
@@ -63,7 +63,8 @@
             android:ellipsize="end"
             android:gravity="top"
             android:singleLine="true"
-            android:textSize="24sp"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
             tools:text="Element 0"/>
 
         <TextView

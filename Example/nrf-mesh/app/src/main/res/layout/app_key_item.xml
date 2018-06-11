@@ -63,6 +63,7 @@
             android:orientation="vertical">
             <TextView
                 android:id="@+id/app_key_id"
+                android:text="AppKey 0"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
@@ -83,6 +84,5 @@
                 android:singleLine="true"
                 android:textSize="12sp"/>
         </LinearLayout>
-
     </LinearLayout>
 </FrameLayout>

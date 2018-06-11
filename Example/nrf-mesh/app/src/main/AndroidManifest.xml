@@ -77,7 +77,7 @@
             android:launchMode="singleTop">
         </activity>
         <activity
-            android:name=".ElementConfigurationActivity"
+            android:name=".NodeConfigurationActivity"
             android:launchMode="singleTop">
         </activity>
         <activity

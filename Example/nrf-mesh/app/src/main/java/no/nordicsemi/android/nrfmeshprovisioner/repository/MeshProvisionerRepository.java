@@ -193,7 +193,7 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
         switch (status) {
             case COMPOSITION_DATA_GET_SENT:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
-                mExtendedMeshNode.updateMeshNode(node);
+                mExtendedMeshNode = new ExtendedMeshNode(node);
                 break;
             case COMPOSITION_DATA_STATUS_RECEIVED:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);

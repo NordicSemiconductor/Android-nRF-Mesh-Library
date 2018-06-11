@@ -204,10 +204,6 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         this.nodeIdentifier = nodeIdentifier;
     }
 
-    public final List<Integer> getAddedAppKeyIndexes() {
-        return Collections.unmodifiableList(mAddedAppKeyIndexes);
-    }
-
     public final Map<Integer, String> getAddedAppKeys() {
         return Collections.unmodifiableMap(mAddedAppKeys);
     }

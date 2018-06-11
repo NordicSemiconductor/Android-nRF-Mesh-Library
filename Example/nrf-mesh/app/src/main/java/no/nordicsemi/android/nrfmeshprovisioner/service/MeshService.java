@@ -890,6 +890,13 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             mMeshManagerApi.addAppKey(mMeshNode, appKeyIndex, appKey);
         }
 
+        public void sendAppKeyAdd(final ProvisionedMeshNode meshNode, final int appKeyIndex, final String appKey) {
+            mMeshNode = meshNode;
+            mAppKeyIndex = appKeyIndex;
+            mAppKey = appKey;
+            mMeshManagerApi.addAppKey(mMeshNode, appKeyIndex, appKey);
+        }
+
         /**
          * Binds appkey to model
          * @param meshNode corresponding mesh node

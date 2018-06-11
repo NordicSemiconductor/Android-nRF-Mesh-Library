@@ -51,4 +51,9 @@ public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {
         final Map<Integer, Element> elements = mMeshNode.getElements();
         return elements != null && !elements.isEmpty();
     }
+
+    public boolean hasAddedAppKeys(){
+        final Map<Integer, String> appKeys = mMeshNode.getAddedAppKeys();
+        return appKeys != null && !appKeys.isEmpty();
+    }
 }

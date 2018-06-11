@@ -44,6 +44,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 
@@ -79,7 +80,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         final Element element = mElements.get(position);
         holder.mElementContainer.setTag(element);
         final int modelCount = element.getSigModelCount() + element.getVendorModelCount();
-        holder.mElementTitle.setText(mContext.getString(R.string.element_count, position));
+        holder.mElementTitle.setText(mContext.getString(R.string.element_address, MeshParserUtils.bytesToHex(element.getElementAddress(), false)));
         holder.mElementSubtitle.setText(mContext.getString(R.string.model_count, modelCount));
 
         int noOfChildTextViews = holder.mModelContainer.getChildCount();
@@ -95,7 +96,6 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
             final View childView = holder.mModelContainer.getChildAt(index);
             final TextView modelNameView = childView.findViewById(R.id.model_name);
             final TextView modelIdView = childView.findViewById(R.id.model_id);
-
             modelNameView.setText(model.getModelName());
             if(model instanceof VendorModel){
                 modelIdView.setText(mContext.getString(R.string.format_vendor_model_id, CompositionDataParser.formatModelIdentifier(model.getModelId(), true)));

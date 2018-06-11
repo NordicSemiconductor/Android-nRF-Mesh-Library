@@ -326,6 +326,6 @@ public abstract class BaseMeshRepository {
     }
 
     public void addAppKey(final int appKeyIndex, final String appKey) {
-        mBinder.sendAppKeyAdd(appKeyIndex, appKey);
+        mBinder.sendAppKeyAdd(mExtendedMeshNode.getMeshNode(), appKeyIndex, appKey);
     }
 }
