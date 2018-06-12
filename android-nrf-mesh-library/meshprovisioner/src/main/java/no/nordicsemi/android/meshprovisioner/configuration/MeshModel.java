@@ -14,16 +14,16 @@ import java.util.Map;
 public abstract class MeshModel implements Parcelable {
 
     protected final int mModelId;
-    protected List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
-    protected Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
+    private List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
+    private Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
     protected byte[] publishAddress;
     protected byte[] appKeyIndex;
-    protected int credentialFlag;
-    protected int publishTtl;
-    protected int publishPeriod;
-    protected int publishRetransmitCount;
-    protected int publishRetransmitIntervalSteps;
-    protected List<byte[]> mSubscriptionAddress = new ArrayList<>();
+    private int credentialFlag;
+    private int publishTtl;
+    private int publishPeriod;
+    private int publishRetransmitCount;
+    private int publishRetransmitIntervalSteps;
+    private List<byte[]> mSubscriptionAddress = new ArrayList<>();
 
     public MeshModel(final int modelId) {
         this.mModelId = modelId;
