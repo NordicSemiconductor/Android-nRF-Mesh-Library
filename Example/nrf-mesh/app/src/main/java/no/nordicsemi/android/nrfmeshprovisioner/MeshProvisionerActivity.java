@@ -230,9 +230,6 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             if(resultCode == RESULT_OK){
                 final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT);
                 if(appKey != null){
-                    /*mViewModel.getProvisioningData().setSelectedAppKey(appKey);
-                    mViewModel.getProvisioningData().setSelectedAppKeyIndex(appKeyIndex);*/
-
                     final int appKeyIndex = Utils.getKey(mViewModel.getProvisioningData().getAppKeys(), appKey);
                     mViewModel.setSelectedAppKey(appKeyIndex, appKey);
                 }
