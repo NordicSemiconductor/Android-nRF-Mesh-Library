@@ -194,8 +194,6 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
         provisioner.setOnClickListener(v -> {
             mProvisioningProgressBar.setVisibility(View.VISIBLE);
-            final String appKey = appKeyView.getText().toString();
-            final int appKeyIndex = Utils.getKey(mViewModel.getProvisioningData().getAppKeys(), appKey);
             mViewModel.provisionNode(mViewModel.getProvisioningData().getNodeName());
         });
         setupProvisionerStateObservers(provisioningStatusContainer);
