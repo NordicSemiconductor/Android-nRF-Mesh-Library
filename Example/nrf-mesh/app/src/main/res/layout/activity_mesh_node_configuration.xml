@@ -200,8 +200,8 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:logo="@drawable/ic_vpn_key_black_alpha_24dp"
-                            app:title="@string/title_app_key"
+                            app:logo="@drawable/ic_folder_key_black_24dp_alpha"
+                            app:title="@string/title_added_app_keys"
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
                         <android.support.constraint.ConstraintLayout
@@ -209,47 +209,36 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="?selectableItemBackground"
-                            android:paddingBottom="@dimen/item_padding_bottom"
-                            android:paddingEnd="@dimen/activity_horizontal_margin"
-                            android:paddingStart="@dimen/activity_horizontal_margin"
                             android:paddingTop="@dimen/item_padding_top"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/app_key_tool_bar">
 
                             <TextView
-                                android:id="@+id/app_key_title"
+                                android:id="@+id/no_app_keys"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:paddingStart="@dimen/activity_horizontal_margin"
-                                android:text="@string/title_added_app_keys"
-                                android:textColor="@android:color/black"
-                                android:textSize="16sp"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toEndOf="@id/image"
+                                android:text="@string/no_app_keys_added"
+                                app:layout_constraintLeft_toLeftOf="parent"
+                                app:layout_constraintRight_toRightOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
-                                tools:ignore="RtlSymmetry"/>
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:paddingEnd="@dimen/activity_horizontal_margin"
+                                android:paddingBottom="@dimen/activity_vertical_margin"/>
 
-                            <TextView
-                                android:id="@+id/app_key_index"
+
+                            <android.support.v7.widget.RecyclerView
+                                android:id="@+id/recycler_view_app_keys"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:paddingStart="@dimen/activity_horizontal_margin"
-                                android:text="None"
-                                android:textSize="12sp"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toEndOf="@id/image"
-                                app:layout_constraintTop_toBottomOf="@id/app_key_title"
-                                tools:ignore="HardcodedText"/>
-
-                            <ImageView
-                                android:id="@+id/image"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                app:layout_constraintBottom_toBottomOf="@+id/app_key_index"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="@+id/app_key_title"
-                                app:srcCompat="@drawable/ic_index"/>
+                                android:clipToPadding="false"
+                                android:scrollbars="none"
+                                app:layout_constraintLeft_toLeftOf="parent"
+                                app:layout_constraintRight_toRightOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                android:visibility="gone"
+                                tools:visibility="visible"
+                                android:paddingBottom="@dimen/activity_vertical_margin"/>
 
                         </android.support.constraint.ConstraintLayout>
 
@@ -261,21 +250,6 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/icon"
                             app:layout_constraintTop_toBottomOf="@id/container_app_key_bind"/>
-
-                        <Button
-                            android:id="@+id/action_view_app_keys"
-                            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginEnd="@dimen/item_padding_start"
-                            android:layout_marginStart="@dimen/item_padding_end"
-                            android:padding="@dimen/activity_horizontal_margin"
-                            android:text="@string/action_view_added_keys"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/div2"
-                            android:visibility="gone"/>
 
                         <Button
                             android:id="@+id/action_add_app_keys"

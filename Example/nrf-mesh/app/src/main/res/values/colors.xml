@@ -28,4 +28,5 @@
     <color name="background">#FFF5F5F5</color>
     <color name="nav_item_unselected">#a1a1a1</color>
     <color name="background_swipe_delete">#FF999999</color>
+    <color name="textColorSecondary">#727272</color>
 </resources>

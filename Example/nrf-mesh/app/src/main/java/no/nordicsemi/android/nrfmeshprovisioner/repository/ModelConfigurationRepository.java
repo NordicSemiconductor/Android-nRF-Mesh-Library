@@ -25,10 +25,12 @@ package no.nordicsemi.android.nrfmeshprovisioner.repository;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 
@@ -181,8 +183,12 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
         final Element element = mElement.getValue();
         final MeshModel model = mMeshModel.getValue();
-        final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-        mBinder.sendConfigModelPublishAddressSet(node, element, model, appKeyIndex, publishAddress);
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+            mBinder.sendConfigModelPublishAddressSet(node, element, model, appKeyIndex, publishAddress);
+        } else {
+            Toast.makeText(mContext, mContext.getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void sendConfigModelSubscriptionAdd(final byte[] subscriptionAddress) {

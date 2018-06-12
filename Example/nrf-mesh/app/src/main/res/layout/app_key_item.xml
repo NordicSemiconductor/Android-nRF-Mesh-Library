@@ -28,7 +28,7 @@
              android:background="@color/background_swipe_delete"
              tools:ignore="ContentDescription">
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
         android:id="@+id/icon_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
         android:paddingTop="@dimen/item_padding_top"
         tools:ignore="ContentDescription">
 
-        <ImageView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/icon"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -71,7 +71,8 @@
                 android:layout_centerVertical="true"
                 android:ellipsize="end"
                 android:singleLine="true"
-                android:textSize="16sp"/>
+                android:textSize="16sp"
+                android:textColor="@android:color/black"/>
 
             <TextView
                 android:id="@+id/app_key"
@@ -82,7 +83,8 @@
                 android:layout_centerVertical="true"
                 android:ellipsize="end"
                 android:singleLine="true"
-                android:textSize="12sp"/>
+                android:textSize="12sp"
+                android:textColor="@color/textColorSecondary"/>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

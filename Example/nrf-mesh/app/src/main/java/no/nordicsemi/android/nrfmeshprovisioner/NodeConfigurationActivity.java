@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -48,12 +49,14 @@ import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddedAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAppKeyAddStatus;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMessage;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ElementConfigurationViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA_MODEL_NAME;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
@@ -61,7 +64,8 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
 
 public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
-        ElementAdapter.OnItemClickListener, DialogFragmentAppKeyAddStatus.DialogFragmentAppKeyAddStatusListener {
+        ElementAdapter.OnItemClickListener, DialogFragmentAppKeyAddStatus.DialogFragmentAppKeyAddStatusListener,
+        AddedAppKeyAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
     private final static String TAG = NodeConfigurationActivity.class.getSimpleName();
     private static final String DIALOG_FRAGMENT_APP_KEY_STATUS = "DIALOG_FRAGMENT_APP_KEY_STATUS";
@@ -73,11 +77,12 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @BindView(R.id.composition_data_card)
     CardView mCompostionDataCard;
     private ElementConfigurationViewModel mViewModel;
+    private AddedAppKeyAdapter mAdapter;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mesh_element_configuration);
+        setContentView(R.layout.activity_mesh_node_configuration);
         ButterKnife.bind(this);
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ElementConfigurationViewModel.class);
 
@@ -98,15 +103,21 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
         final Button getCompostionData = findViewById(R.id.action_get_compostion_data);
         final Button actionAddAppkey = findViewById(R.id.action_add_app_keys);
-        final Button actionViewAdddedAppKeys = findViewById(R.id.action_view_app_keys);
         final TextView noElementsFound = findViewById(R.id.no_elements);
+        final TextView noAppKeysFound = findViewById(R.id.no_app_keys);
         final View compositionActionContainer = findViewById(R.id.composition_action_container);
-        final TextView appKeyView = findViewById(R.id.app_key_index);
         mRecyclerViewElements.setLayoutManager(new LinearLayoutManager(this));
         final ElementAdapter adapter = new ElementAdapter(this, mViewModel.getExtendedMeshNode());
         adapter.setHasStableIds(true);
         adapter.setOnItemClickListener(this);
         mRecyclerViewElements.setAdapter(adapter);
+
+
+        final RecyclerView recyclerViewAppKeys = findViewById(R.id.recycler_view_app_keys);
+        recyclerViewAppKeys.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewAppKeys.setItemAnimator(new DefaultItemAnimator());
+        mAdapter = new AddedAppKeyAdapter(this, mViewModel.getExtendedMeshNode());
+        recyclerViewAppKeys.setAdapter(mAdapter);
 
         mViewModel.getExtendedMeshNode().observe(this, extendedMeshNode -> {
             if(extendedMeshNode.hasElements()){
@@ -122,11 +133,11 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             if(extendedMeshNode.hasAddedAppKeys()){
                 final Map<Integer, String> appKeys = extendedMeshNode.getMeshNode().getAddedAppKeys();
                 if (!appKeys.isEmpty()) {
-                    actionViewAdddedAppKeys.setVisibility(View.VISIBLE);
-                    appKeyView.setText(getString(R.string.app_keys_added, appKeys.size()));
+                    noAppKeysFound.setVisibility(View.GONE);
+                    recyclerViewAppKeys.setVisibility(View.VISIBLE);
                 } else {
-                    actionViewAdddedAppKeys.setVisibility(View.INVISIBLE);
-                    appKeyView.setText(getString(R.string.no_app_keys_added));
+                    noAppKeysFound.setVisibility(View.VISIBLE);
+                    recyclerViewAppKeys.setVisibility(View.GONE);
                 }
             }
         });
@@ -140,13 +151,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageNodeAppKeysActivity.class);
             addAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys.values()));
             startActivityForResult(addAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
-        });
-
-        actionViewAdddedAppKeys.setOnClickListener(v -> {
-            final Intent viewAppKeysIntent = new Intent(NodeConfigurationActivity.this, ViewAddedAppKeysActivity.class);
-            final ProvisionedMeshNode meshNode = mViewModel.getExtendedMeshNode().getMeshNode();
-            viewAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(meshNode.getAddedAppKeys().values()));
-            startActivity(viewAppKeysIntent);
         });
 
         mViewModel.getAppKeyAddStatus().observe(this, appKeyStatusLiveData -> {
@@ -184,7 +188,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
                 if(appKey != null){
-                    mViewModel.setSelectedAppKey(appKeyIndex, appKey);
                     mViewModel.sendAppKeyAdd(appKeyIndex, appKey);
                 }
             }
@@ -207,7 +210,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     @Override
-    public void onItemClick(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model) {
+    public void onElementItemClick(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model) {
         mViewModel.getElementConfigurationRepository().setModel(meshNode, AddressUtils.getUnicastAddressInt(element.getElementAddress()), model.getModelId());
         final Intent intent = new Intent(this, ModelConfigurationActivity.class);
         intent.putExtra(EXTRA_DEVICE, meshNode);
@@ -219,6 +222,16 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     @Override
     public void onAppKeyAddStatusReceived() {
+
+    }
+
+    @Override
+    public void onItemDismiss(final RemovableViewHolder viewHolder) {
+
+    }
+
+    @Override
+    public void onItemClick(final String appKey) {
 
     }
 }

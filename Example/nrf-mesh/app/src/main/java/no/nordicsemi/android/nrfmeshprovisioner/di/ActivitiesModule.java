@@ -33,7 +33,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeDetailsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ProvisionedNodesScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ReconnectActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.ViewAddedAppKeysActivity;
 
 @Module
 abstract class ActivitiesModule {
@@ -64,7 +63,4 @@ abstract class ActivitiesModule {
 
 	@ContributesAndroidInjector()
 	abstract BindAppKeysActivity contributeBindAppKeysActivity();
-
-	@ContributesAndroidInjector()
-	abstract ViewAddedAppKeysActivity contributeViewAddedAppKeysActivity();
 }

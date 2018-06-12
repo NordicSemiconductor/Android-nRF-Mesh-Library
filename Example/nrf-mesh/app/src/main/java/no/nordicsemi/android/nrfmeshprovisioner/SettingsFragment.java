@@ -159,7 +159,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         });
 
         final View containerManageAppKeys = rootView.findViewById(R.id.container_app_keys);
-        containerManageAppKeys.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_key_variant));
+        containerManageAppKeys.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_folder_key_black_24dp_alpha));
         final TextView manageAppKeys = containerManageAppKeys.findViewById(R.id.title);
         manageAppKeys.setText(R.string.summary_app_keys);
         final TextView manageAppKeysView = containerManageAppKeys.findViewById(R.id.text);

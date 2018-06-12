@@ -86,10 +86,6 @@ public class ElementConfigurationViewModel extends ViewModel {
         return mElementConfigurationRepository.getProvisioningData();
     }
 
-    public void setSelectedAppKey(final int appKeyIndex, final String appkey) {
-        mElementConfigurationRepository.setSelectedAppKey(appKeyIndex, appkey);
-    }
-
     public void sendAppKeyAdd(final int appKeyIndex, final String appKey) {
         mElementConfigurationRepository.addAppKey(appKeyIndex, appKey);
     }

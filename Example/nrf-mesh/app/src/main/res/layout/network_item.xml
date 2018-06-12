@@ -118,6 +118,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="@string/nordic_semiconductor_asa"
+                    android:paddingEnd="@dimen/item_padding_end"
                     android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@+id/unicast"

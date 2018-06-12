@@ -24,9 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +34,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -113,7 +110,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
                 final int position = holder.getAdapterPosition();
                 final Element element = mElements.get(position);
                 final MeshModel model1 = element.getMeshModels().get(v.getTag());
-                mOnItemClickListener.onItemClick(mProvisionedMeshNode, element, model1);
+                mOnItemClickListener.onElementItemClick(mProvisionedMeshNode, element, model1);
             });
             holder.mModelContainer.addView(modelView);
         }
@@ -139,7 +136,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model);
+        void onElementItemClick(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model);
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{

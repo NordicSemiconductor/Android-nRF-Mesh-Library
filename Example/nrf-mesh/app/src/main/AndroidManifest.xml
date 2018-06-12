@@ -94,10 +94,6 @@
             android:launchMode="singleTop">
         </activity>
         <activity
-            android:name=".ViewAddedAppKeysActivity"
-            android:launchMode="singleTop">
-        </activity>
-        <activity
             android:name=".BindAppKeysActivity"
             android:launchMode="singleTop">
         </activity>
