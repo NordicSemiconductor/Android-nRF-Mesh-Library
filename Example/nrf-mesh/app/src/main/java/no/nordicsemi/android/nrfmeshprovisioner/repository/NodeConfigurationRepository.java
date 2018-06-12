@@ -36,19 +36,16 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_NET_KEY_INDEX;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_PUBLISH_ADDRESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_STATUS;
 
-public class ElementConfigurationRepository extends BaseMeshRepository {
+public class NodeConfigurationRepository extends BaseMeshRepository {
 
-    private static final String TAG = ElementConfigurationRepository.class.getSimpleName();
+    private static final String TAG = NodeConfigurationRepository.class.getSimpleName();
 
     @Inject
-    public ElementConfigurationRepository(final Context context){
+    public NodeConfigurationRepository(final Context context){
         super(context);
     }
 

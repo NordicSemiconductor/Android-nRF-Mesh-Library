@@ -54,7 +54,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAppKeyAddStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ElementConfigurationViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
@@ -76,7 +76,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     RecyclerView mRecyclerViewElements;
     @BindView(R.id.composition_data_card)
     CardView mCompostionDataCard;
-    private ElementConfigurationViewModel mViewModel;
+    private NodeConfigurationViewModel mViewModel;
     private AddedAppKeyAdapter mAdapter;
 
     @Override
@@ -84,7 +84,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mesh_node_configuration);
         ButterKnife.bind(this);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ElementConfigurationViewModel.class);
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(NodeConfigurationViewModel.class);
 
         final Intent intent = getIntent();
         final ProvisionedMeshNode node = intent.getParcelableExtra(Utils.EXTRA_DEVICE);
