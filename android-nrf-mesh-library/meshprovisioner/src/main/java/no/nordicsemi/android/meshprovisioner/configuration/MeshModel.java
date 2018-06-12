@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +15,7 @@ public abstract class MeshModel implements Parcelable {
 
     protected final int mModelId;
     protected List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
-    protected Map<Integer, String> mBoundAppKeys = new HashMap<>();
+    protected Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
     protected byte[] publishAddress;
     protected byte[] appKeyIndex;
     protected int credentialFlag;
@@ -47,13 +47,21 @@ public abstract class MeshModel implements Parcelable {
      * Returns bound appkey index
      */
     public List<Integer> getBoundAppKeyIndexes() {
-        return mBoundAppKeyIndexes;
+        return Collections.unmodifiableList(mBoundAppKeyIndexes);
     }
 
-    public void setBoundAppKey(final int appKeyIndex, final String appKey) {
+    protected void setBoundAppKey(final int appKeyIndex, final String appKey) {
         if (!mBoundAppKeyIndexes.contains(appKeyIndex))
             mBoundAppKeyIndexes.add(appKeyIndex);
         mBoundAppKeys.put(appKeyIndex, appKey);
+    }
+
+    /**
+     * Returns an unmodifiable map of bound app keys for this model.
+     * @return LinkedHashMap containing the bound app keys for this model
+     */
+    public Map<Integer, String> getBoundAppkeys(){
+        return Collections.unmodifiableMap(mBoundAppKeys);
     }
 
     public String getBoundAppKey(final int appKeyIndex) {
