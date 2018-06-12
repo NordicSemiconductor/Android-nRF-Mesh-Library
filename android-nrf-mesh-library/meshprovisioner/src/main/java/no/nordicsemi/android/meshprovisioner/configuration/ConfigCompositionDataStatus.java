@@ -5,7 +5,6 @@ import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -189,7 +188,6 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
             mUnicastAddress = unicastAddress;
         }
     }
-
 
     public int getCompanyIdentifier() {
         return companyIdentifier;
