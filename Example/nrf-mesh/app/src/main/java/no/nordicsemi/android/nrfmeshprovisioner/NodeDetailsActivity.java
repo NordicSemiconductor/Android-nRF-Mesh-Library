@@ -113,11 +113,11 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
             view.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.INVISIBLE);
         } else {
-            view.setVisibility(View.INVISIBLE);
+            view.setVisibility(View.GONE);
             mRecyclerView.setVisibility(View.VISIBLE);
             final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
             mRecyclerView.setLayoutManager(linearLayoutManager);
-            final ElementAdapterDetails adapter = new ElementAdapterDetails(this, node/*new ArrayList<>(node.getElements().values())*/);
+            final ElementAdapterDetails adapter = new ElementAdapterDetails(this, node);
             adapter.setOnItemClickListener(this);
             mRecyclerView.setAdapter(adapter);
         }

@@ -7,8 +7,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.models.SigModel;
@@ -35,7 +38,8 @@ public class Element implements Parcelable {
         locationDescriptor = in.readInt();
         sigModelCount = in.readInt();
         vendorModelCount = in.readInt();
-        meshModels = in.readHashMap(MeshModel.class.getClassLoader());
+        meshModels = new LinkedHashMap<>();
+        sortModels(in.readHashMap(MeshModel.class.getClassLoader()));
     }
 
     @Override
@@ -45,6 +49,20 @@ public class Element implements Parcelable {
         dest.writeInt(sigModelCount);
         dest.writeInt(vendorModelCount);
         dest.writeMap(meshModels);
+    }
+
+
+    private void sortModels(final HashMap<Integer, MeshModel> unorderedElements){
+        final Set<Integer> unorderedKeys =  unorderedElements.keySet();
+
+        final List<Integer> orderedKeys = new ArrayList<>();
+        for(int key : unorderedKeys) {
+            orderedKeys.add(key);
+        }
+        Collections.sort(orderedKeys);
+        for(int key : orderedKeys) {
+            meshModels.put(key, unorderedElements.get(key));
+        }
     }
 
     public static final Creator<Element> CREATOR = new Creator<Element>() {

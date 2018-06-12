@@ -54,7 +54,7 @@ public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDe
     public ElementAdapterDetails(final Context mContext, final ProvisionedMeshNode node) {
         this.mContext = mContext;
         if(node != null  && node.getElements() != null) {
-            mElements.addAll(new ArrayList<>(node.getElements().values()));
+            mElements.addAll(node.getElements().values());
         }
     }
 
@@ -77,37 +77,26 @@ public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDe
         holder.mElementTitle.setText(mContext.getString(R.string.element_address, position));
         holder.mElementSubtitle.setText(mContext.getString(R.string.model_count, modelCount));
 
-        int noOfChildTextViews = holder.mModelContainer.getChildCount();
-        if (modelCount < noOfChildTextViews) {
-            holder.mModelContainer.setVisibility(View.GONE);
-        }
-
         final List<MeshModel> models = new ArrayList<>(element.getMeshModels().values());
         inflateModelViews(holder, models);
 
-        int index = 0;
-        for(MeshModel model : models) {
-            final View childView = holder.mModelContainer.getChildAt(index);
-            final TextView modelNameView = childView.findViewById(R.id.model_name);
-            final TextView modelIdView = childView.findViewById(R.id.model_id);
+    }
 
+    private void inflateModelViews(final ElementAdapterDetails.ViewHolder holder, final List<MeshModel> models){
+        //Remove all child views to avoid duplicating
+        holder.mModelContainer.removeAllViews();
+        for(MeshModel model : models) {
+            final View modelView = LayoutInflater.from(mContext).inflate(R.layout.model_item, holder.mElementContainer, false);
+            modelView.setTag(model.getModelId());
+            final TextView modelNameView = modelView.findViewById(R.id.model_name);
+            final TextView modelIdView = modelView.findViewById(R.id.model_id);
             modelNameView.setText(model.getModelName());
             if(model instanceof VendorModel){
                 modelIdView.setText(mContext.getString(R.string.format_vendor_model_id, CompositionDataParser.formatModelIdentifier(model.getModelId(), true)));
             } else {
                 modelIdView.setText(mContext.getString(R.string.format_sig_model_id, CompositionDataParser.formatModelIdentifier((short) model.getModelId(), true)));
             }
-            index++;
-        }
-    }
 
-    private void inflateModelViews(final ViewHolder holder, final List<MeshModel> models){
-
-        for (int indexView = 0; indexView < models.size(); indexView++) {
-            final View modelView = LayoutInflater.from(mContext).inflate(R.layout.model_item_details, holder.mElementContainer, false);
-            //modelView.setId(indexView);
-            modelView.setTag(models.get(indexView));
-            holder.mElementExpand.setVisibility(View.VISIBLE);
             holder.mModelContainer.addView(modelView);
         }
     }

@@ -3,9 +3,14 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 import android.os.Parcel;
 import android.support.annotation.VisibleForTesting;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
@@ -63,7 +68,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         friendFeatureSupported = in.readByte() != 0;
         lowPowerFeatureSupported = in.readByte() != 0;
         generatedNetworkId = in.createByteArray();
-        mElements.putAll(in.readHashMap(Element.class.getClassLoader()));
+        sortElements(in.readHashMap(Element.class.getClassLoader()));
         mAddedAppKeys = in.readHashMap(String.class.getClassLoader());
         mAddedAppKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mTimeStampInMillis = in.readLong();
@@ -260,4 +265,16 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         return mConfigurationSrc;
     }
 
+    private void sortElements(final HashMap<Integer, Element> unorderedElements){
+        final Set<Integer> unorderedKeys =  unorderedElements.keySet();
+
+        final List<Integer> orderedKeys = new ArrayList<>();
+        for(int key : unorderedKeys) {
+            orderedKeys.add(key);
+        }
+        Collections.sort(orderedKeys);
+        for(int key : orderedKeys) {
+            mElements.put(key, unorderedElements.get(key));
+        }
+    }
 }
