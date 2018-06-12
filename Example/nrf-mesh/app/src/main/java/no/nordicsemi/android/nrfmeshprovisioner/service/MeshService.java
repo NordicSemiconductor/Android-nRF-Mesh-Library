@@ -782,6 +782,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
          * Disconnects from peripheral
          */
         public void disconnect() {
+            stopScan();
             mHandler.removeCallbacks(mReconnectRunnable);
             mIsReconnecting = false;
             mIsProvisioningComplete = false;
