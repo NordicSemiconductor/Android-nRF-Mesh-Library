@@ -26,6 +26,7 @@ import android.content.Context;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,8 +54,8 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
 
     private final Context mContext;
     private final List<Element> mElements = new ArrayList<>();
+    private final String TAG = ElementAdapter.class.getSimpleName();
     private OnItemClickListener mOnItemClickListener;
-    private int mSelectedPosition;
     private ProvisionedMeshNode mProvisionedMeshNode;
 
     public ElementAdapter(final NodeConfigurationActivity nodeConfigurationActivity, final ExtendedMeshNode extendedMeshnode) {
@@ -62,12 +63,9 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         extendedMeshnode.observe(nodeConfigurationActivity, extendedMeshNode -> {
             if(extendedMeshNode.getMeshNode() != null) {
                 mProvisionedMeshNode = extendedMeshnode.getMeshNode();
-                final Map<Integer, Element> tempElements = mProvisionedMeshNode.getElements();
-                if (tempElements != null && !tempElements.isEmpty()) {
-                    mElements.clear();
-                    mElements.addAll(tempElements.values());
-                    notifyDataSetChanged();
-                }
+                mElements.clear();
+                mElements.addAll(mProvisionedMeshNode.getElements().values());
+                notifyDataSetChanged();
             }
         });
     }
@@ -88,30 +86,22 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         final Element element = mElements.get(position);
         holder.mElementContainer.setTag(element.getElementAddressInt());
         final int modelCount = element.getSigModelCount() + element.getVendorModelCount();
-        holder.mIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_drawing_black_24dp_alpha));
         holder.mElementTitle.setText(mContext.getString(R.string.element_address, MeshParserUtils.bytesToHex(element.getElementAddress(), false)));
         holder.mElementSubtitle.setText(mContext.getString(R.string.model_count, modelCount));
-        holder.mElementExpand.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_round_expand_more_black_alpha_24dp));
 
-        int noOfChildTextViews = holder.mModelContainer.getChildCount();
-        if (modelCount < noOfChildTextViews) {
-            holder.mModelContainer.setVisibility(View.GONE);
-        }
         final List<MeshModel> models = new ArrayList<>(element.getMeshModels().values());
         inflateModelViews(holder, models);
     }
 
-    private void inflateModelViews(final ViewHolder holder, final List<MeshModel> models){
 
-        int index = 0;
+    private void inflateModelViews(final ViewHolder holder, final List<MeshModel> models){
+        //Remove all child views to avoid duplicating
+        holder.mModelContainer.removeAllViews();
         for(MeshModel model : models) {
             final View modelView = LayoutInflater.from(mContext).inflate(R.layout.model_item, holder.mElementContainer, false);
-            holder.mModelContainer.addView(modelView);
-
-            final View childView = holder.mModelContainer.getChildAt(index);
-            childView.setTag(models.get(index).getModelId());
-            final TextView modelNameView = childView.findViewById(R.id.model_name);
-            final TextView modelIdView = childView.findViewById(R.id.model_id);
+            modelView.setTag(model.getModelId());
+            final TextView modelNameView = modelView.findViewById(R.id.model_name);
+            final TextView modelIdView = modelView.findViewById(R.id.model_id);
             modelNameView.setText(model.getModelName());
             if(model instanceof VendorModel){
                 modelIdView.setText(mContext.getString(R.string.format_vendor_model_id, CompositionDataParser.formatModelIdentifier(model.getModelId(), true)));
@@ -119,39 +109,33 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
                 modelIdView.setText(mContext.getString(R.string.format_sig_model_id, CompositionDataParser.formatModelIdentifier((short) model.getModelId(), true)));
             }
 
-            childView.setOnClickListener(v -> {
+            modelView.setOnClickListener(v -> {
                 final int position = holder.getAdapterPosition();
                 final Element element = mElements.get(position);
                 final MeshModel model1 = element.getMeshModels().get(v.getTag());
                 mOnItemClickListener.onItemClick(mProvisionedMeshNode, element, model1);
             });
-
-            index = index + 1;
+            holder.mModelContainer.addView(modelView);
         }
     }
 
     @Override
     public int getItemCount() {
+        if(mElements == null)
+            return 0;
         return mElements.size();
+    }
+
+    @Override
+    public long getItemId(final int position) {
+        if(mElements != null)
+            mElements.get(position).getElementAddressInt();
+        return super.getItemId(position);
     }
 
     public boolean isEmpty() {
         return getItemCount() == 0;
     }
-
-    /*@Override
-    public void onClick(final View v) {
-        switch (v.getId()){
-            case R.id.mesh_model_container:
-                if (mOnItemClickListener != null) {
-                    final ElementAdapter.ViewHolder holder = v;
-                    final Element element = mElements.get(mSelectedPosition);
-                    final MeshModel model = element.getMeshModels().get(v.getTag());
-                    mOnItemClickListener.onItemClick(mProvisionedMeshNode, mElements.get(mSelectedPosition), model);
-                }
-                break;
-        }
-    }*/
 
     @FunctionalInterface
     public interface OnItemClickListener {
@@ -184,10 +168,10 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
             switch (v.getId()){
                 case R.id.element_item_container:
                     if(mModelContainer.getVisibility() == View.VISIBLE){
-                        mElementExpand.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_round_expand_more_black_alpha_24dp));
+                        mElementExpand.setImageResource(R.drawable.ic_round_expand_more_black_alpha_24dp);
                         mModelContainer.setVisibility(View.GONE);
                     } else {
-                        mElementExpand.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_round_expand_less_black_alpha_24dp));
+                        mElementExpand.setImageResource(R.drawable.ic_round_expand_less_black_alpha_24dp);
                         mModelContainer.setVisibility(View.VISIBLE);
                     }
                     break;

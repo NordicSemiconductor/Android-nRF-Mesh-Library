@@ -145,7 +145,8 @@ public class ProvisioningLiveData extends LiveData<ProvisioningLiveData>  {
     }
 
     public String getSelectedAppKey() {
-        selectedAppKey = mProvisioningSettings.getAppKeys().get(0);
+        if(selectedAppKey == null)
+            selectedAppKey = mProvisioningSettings.getAppKeys().get(0);
         return selectedAppKey;
     }
 

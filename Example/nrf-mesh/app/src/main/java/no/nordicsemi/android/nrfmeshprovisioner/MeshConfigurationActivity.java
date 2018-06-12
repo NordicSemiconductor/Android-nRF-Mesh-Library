@@ -228,12 +228,9 @@ public class MeshConfigurationActivity extends AppCompatActivity implements Inje
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ManageAppKeysActivity.SELECT_APP_KEY){
             if(resultCode == RESULT_OK){
-                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT);
+                final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
+                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 if(appKey != null){
-                    /*mViewModel.getProvisioningData().setSelectedAppKey(appKey);
-                    mViewModel.getProvisioningData().setSelectedAppKeyIndex(appKeyIndex);*/
-
-                    final int appKeyIndex = Utils.getKey(mViewModel.getProvisioningData().getAppKeys(), appKey);
                     mViewModel.setSelectedAppKey(appKeyIndex, appKey);
                 }
             }

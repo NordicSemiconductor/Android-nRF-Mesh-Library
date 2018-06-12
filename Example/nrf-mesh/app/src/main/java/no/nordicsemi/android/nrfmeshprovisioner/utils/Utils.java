@@ -68,7 +68,7 @@ public class Utils {
     public static final String EXTRA_DATA_MODEL_NAME = "EXTRA_DATA_MODEL_NAME";
 
     public static final String EXTRA_DEVICE = "EXTRA_DEVICE";
-    public static final String ACTIVITY_RESULT = "RESULT";
+    public static final String ACTIVITY_RESULT = "RESULT_APP_KEY";
     private static final String PREFS_LOCATION_NOT_REQUIRED = "location_not_required";
     private static final String PREFS_PERMISSION_REQUESTED = "permission_requested";
     public static final int PROVISIONING_SUCCESS = 2112;

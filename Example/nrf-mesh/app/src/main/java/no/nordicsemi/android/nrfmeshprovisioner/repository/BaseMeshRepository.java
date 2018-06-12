@@ -45,6 +45,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyBindStatusLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshModel;
@@ -97,6 +98,9 @@ public abstract class BaseMeshRepository {
 
     /** Mesh model to configure **/
     final MutableLiveData<Element> mElement = new MutableLiveData<>();
+
+    /** App key add status **/
+    final AppKeyStatusLiveData mAppKeyStatus = new AppKeyStatusLiveData();
 
     /** App key bind status **/
     final AppKeyBindStatusLiveData mAppKeyBindStatus = new AppKeyBindStatusLiveData();
@@ -294,6 +298,10 @@ public abstract class BaseMeshRepository {
     }
 
 
+    public AppKeyStatusLiveData getAppKeyStatus() {
+        return mAppKeyStatus;
+    }
+
     public AppKeyBindStatusLiveData getAppKeyBindStatus() {
         return mAppKeyBindStatus;
     }
@@ -319,6 +327,7 @@ public abstract class BaseMeshRepository {
 
     public void setSelectedAppKey(final int appKeyIndex, final String appkey) {
         mBinder.setSelectedAppkey(appKeyIndex, appkey);
+        mProvisioningLiveData.setSelectedAppKey(appkey);
     }
 
     public String getSelectedAppKey() {

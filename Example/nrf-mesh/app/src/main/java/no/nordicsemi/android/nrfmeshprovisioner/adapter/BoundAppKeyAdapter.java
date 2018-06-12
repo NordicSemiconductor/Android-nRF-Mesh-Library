@@ -30,39 +30,37 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class AppKeyAdapter extends RecyclerView.Adapter<AppKeyAdapter.ViewHolder> {
+public class BoundAppKeyAdapter extends RecyclerView.Adapter<BoundAppKeyAdapter.ViewHolder> {
 
     private final SparseArray<String> appKeys;
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public AppKeyAdapter(final Context context, final SparseArray<String> appKeys) {
+    public BoundAppKeyAdapter(final Context context, final SparseArray<String> appKeys) {
         this.mContext = context;
         this.appKeys = appKeys;
     }
 
-    public void setOnItemClickListener(final AppKeyAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(final BoundAppKeyAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
     @Override
-    public AppKeyAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public BoundAppKeyAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.app_key_item, parent, false);
-        return new AppKeyAdapter.ViewHolder(layoutView);
+        return new BoundAppKeyAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final AppKeyAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final BoundAppKeyAdapter.ViewHolder holder, final int position) {
         if(appKeys.size() > 0) {
             holder.appKeyId.setText(mContext.getString(R.string.app_key_item , position + 1));
-            final String appKey = appKeys.get(position);
+            final String appKey = appKeys.get(appKeys.keyAt(position));
             holder.appKey.setText(appKey.toUpperCase());
         }
     }

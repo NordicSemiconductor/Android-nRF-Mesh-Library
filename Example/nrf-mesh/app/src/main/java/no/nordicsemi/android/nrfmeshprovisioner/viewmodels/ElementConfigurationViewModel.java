@@ -29,6 +29,7 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
@@ -91,5 +92,9 @@ public class ElementConfigurationViewModel extends ViewModel {
 
     public void sendAppKeyAdd(final int appKeyIndex, final String appKey) {
         mElementConfigurationRepository.addAppKey(appKeyIndex, appKey);
+    }
+
+    public AppKeyStatusLiveData getAppKeyAddStatus() {
+        return mElementConfigurationRepository.getAppKeyStatus();
     }
 }

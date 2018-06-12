@@ -26,37 +26,27 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.SparseArray;
 import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AppKeyAdapter;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAddAppKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentEditAppKey;
-import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
-import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
-import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.BindAppKeysActivity.RESULT_APP_KEY_INDEX;
 
-public class ManageNodeAppKeysActivity extends AppCompatActivity implements AppKeyAdapter.OnItemClickListener {
+public class ViewAddedAppKeysActivity extends AppCompatActivity {
 
     public static final String RESULT = "RESULT_APP_KEY";
     public static final String APP_KEYS = "APP_KEYS";
@@ -71,15 +61,16 @@ public class ManageNodeAppKeysActivity extends AppCompatActivity implements AppK
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_manage_node_app_keys);
+        setContentView(R.layout.activity_view_added_app_keys);
         final ArrayList<String> tempAppKeys = getIntent().getStringArrayListExtra(APP_KEYS);
         populateAppKeysMap(tempAppKeys);
+
         //Bind ui
         ButterKnife.bind(this);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.title_select_app_key);
+        getSupportActionBar().setTitle(R.string.title_added_app_keys);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         final RecyclerView appKeysRecyclerView = findViewById(R.id.recycler_view_app_keys);
@@ -88,7 +79,6 @@ public class ManageNodeAppKeysActivity extends AppCompatActivity implements AppK
         appKeysRecyclerView.addItemDecoration(dividerItemDecoration);
         appKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mAdapter = new AppKeyAdapter(this, mAppKeysMap);
-        mAdapter.setOnItemClickListener(this);
         appKeysRecyclerView.setAdapter(mAdapter);
 
     }
@@ -107,15 +97,6 @@ public class ManageNodeAppKeysActivity extends AppCompatActivity implements AppK
     public void onBackPressed() {
         super.onBackPressed();
 
-    }
-
-    @Override
-    public void onItemClick(final int keyIndex, final String appKey) {
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra(RESULT_APP_KEY_INDEX, keyIndex);
-        returnIntent.putExtra(RESULT, appKey);
-        setResult(Activity.RESULT_OK, returnIntent);
-        finish();
     }
 
     private void populateAppKeysMap(final ArrayList<String> tempAppKeys){

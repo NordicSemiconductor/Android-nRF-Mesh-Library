@@ -102,7 +102,9 @@ public class ConfigAppKeyStatus extends ConfigMessage {
                     Log.v(TAG, "Received config app key status");
                     final int offset = +2; //Ignoring the opcode and the parameter received
                     parseConfigAppKeyStatus(accessPayload, offset);
-                    mProvisionedMeshNode.setAddedAppKey(getAppKeyIndexInt(), appKey);
+                    if(isSuccessful) {
+                        mProvisionedMeshNode.setAddedAppKey(getAppKeyIndexInt(), appKey);
+                    }
                     mConfigStatusCallbacks.onAppKeyStatusReceived(mProvisionedMeshNode, isSuccessful, status, getNetkeyIndexInt(), getAppKeyIndexInt());
                     updateSavedProvisionedNode(mContext, mProvisionedMeshNode);
                 } else {
@@ -120,6 +122,8 @@ public class ConfigAppKeyStatus extends ConfigMessage {
         statusMessage = parseStatusMessage(mContext, status);
         netKeyIndex = new byte[]{(byte) (accessPayload[4] & 0x0F), accessPayload[3]};
         appKeyIndex = new byte[]{(byte) ((accessPayload[5] & 0xF0) >> 4), (byte) (accessPayload[5] << 4 | ((accessPayload[4] & 0xF0) >> 4))};
+        Log.v(TAG, "Status: " + status);
+        Log.v(TAG, "Status message: " + statusMessage);
         Log.v(TAG, "Net key index: " + MeshParserUtils.bytesToHex(netKeyIndex, false));
         Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
     }

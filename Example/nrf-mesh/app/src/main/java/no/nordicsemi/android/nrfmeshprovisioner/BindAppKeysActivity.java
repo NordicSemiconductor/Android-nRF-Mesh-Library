@@ -41,25 +41,25 @@ import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AppKeyAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAddAppKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentEditAppKey;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class ManageAppKeysActivity extends AppCompatActivity implements AppKeyAdapter.OnItemClickListener,
-        DialogFragmentAddAppKey.DialogFragmentAddAppKeysListener,
-        DialogFragmentEditAppKey.DialogFragmentEditAppKeysListener,
-        ItemTouchHelperAdapter {
+public class BindAppKeysActivity extends AppCompatActivity implements BoundAppKeyAdapter.OnItemClickListener {
 
     public static final String RESULT_APP_KEY = "RESULT_APP_KEY";
     public static final String RESULT_APP_KEY_INDEX = "RESULT_APP_KEY_INDEX";
     public static final String APP_KEYS = "APP_KEYS";
-    public static final int SELECT_APP_KEY = 2011; //Random number
 
     //UI Bindings
     @BindView(android.R.id.empty)
@@ -68,48 +68,32 @@ public class ManageAppKeysActivity extends AppCompatActivity implements AppKeyAd
     View container;
 
     private SparseArray<String> mAppKeysMap = new SparseArray<>();
-    private AppKeyAdapter mAdapter;
+    private BoundAppKeyAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_manage_app_keys);
-        final ArrayList<String> tempAppKeys = getIntent().getStringArrayListExtra(APP_KEYS);
+        setContentView(R.layout.activity_bind_app_keys);
+        final HashMap<Integer, String> tempAppKeys = (HashMap<Integer, String>) getIntent().getSerializableExtra(APP_KEYS);
         populateAppKeysMap(tempAppKeys);
-        //If the component name is not null then we know that the activity requested a result
-        final ComponentName componentName = getCallingActivity();
 
         //Bind ui
         ButterKnife.bind(this);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if(componentName == null) {
-            getSupportActionBar().setTitle(R.string.title_manage_app_keys);
-        } else {
-            getSupportActionBar().setTitle(R.string.title_select_app_key);
-        }
+        getSupportActionBar().setTitle(R.string.title_select_app_key);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         final RecyclerView appKeysRecyclerView = findViewById(R.id.recycler_view_app_keys);
         appKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(appKeysRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
         appKeysRecyclerView.addItemDecoration(dividerItemDecoration);
         appKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new AppKeyAdapter(this, mAppKeysMap);
+        mAdapter = new BoundAppKeyAdapter(this, mAppKeysMap);
         mAdapter.setOnItemClickListener(this);
         appKeysRecyclerView.setAdapter(mAdapter);
 
-        final FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(v -> {
-            final DialogFragmentAddAppKey dialogFragmentAddAppKey = DialogFragmentAddAppKey.newInstance(null);
-            dialogFragmentAddAppKey.show(getSupportFragmentManager(), null);
-        });
-        if(componentName != null) {
-            fab.setVisibility(View.GONE);
-        }
-        final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
-        final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
         final boolean empty = mAdapter.getItemCount() == 0;
         mEmptyView.setVisibility(empty ? View.VISIBLE : View.GONE);
     }
@@ -131,60 +115,19 @@ public class ManageAppKeysActivity extends AppCompatActivity implements AppKeyAd
     }
 
     @Override
-    public void onItemClick(final int position, final String appKey) {
-        if(getCallingActivity() == null) {
-            final DialogFragmentEditAppKey dialogFragmentEditAppKey = DialogFragmentEditAppKey.newInstance(position, appKey);
-            dialogFragmentEditAppKey.show(getSupportFragmentManager(), null);
-        } else {
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra(RESULT_APP_KEY_INDEX, position);
-            returnIntent.putExtra(RESULT_APP_KEY, appKey);
-            setResult(Activity.RESULT_OK, returnIntent);
-            finish();
+    public void onItemClick(final int keyIndex, final String appKey) {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra(RESULT_APP_KEY_INDEX, keyIndex);
+        returnIntent.putExtra(RESULT_APP_KEY, appKey);
+        setResult(Activity.RESULT_OK, returnIntent);
+        finish();
+    }
+
+    private void populateAppKeysMap(final HashMap<Integer, String> tempAppKeys){
+        final Set<Integer> appKeyIndexes = tempAppKeys.keySet();
+
+        for(Integer keyIndex : appKeyIndexes){
+            mAppKeysMap.put(keyIndex,tempAppKeys.get(keyIndex));
         }
-    }
-
-    @Override
-    public void onAppKeysUpdated(final int position, final String appKey) {
-        mAppKeysMap.put(position, appKey);
-        mAdapter.notifyItemChanged(position);
-    }
-
-    @Override
-    public void onAppKeyAdded(final String appKey) {
-        mAppKeysMap.put(mAppKeysMap.size(), appKey);
-        mAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onItemDismiss(final RemovableViewHolder viewHolder) {
-        final int position = viewHolder.getAdapterPosition();
-        final String appKey = mAppKeysMap.get(position);
-        mAppKeysMap.remove(position);
-        mAdapter.notifyItemRemoved(position);
-        displaySnackBar(position, appKey);
-        // Show the empty view
-        final boolean empty = mAdapter.getItemCount() == 0;
-        if (empty) {
-            mEmptyView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void populateAppKeysMap(final ArrayList<String> tempAppKeys){
-        for ( int i=0; i < tempAppKeys.size(); i++ ) {
-            mAppKeysMap.put(i,tempAppKeys.get(i));
-        }
-    }
-
-    private void displaySnackBar(final int position, final String appKey){
-
-        Snackbar.make(container, getString(R.string.app_key_deleted), Snackbar.LENGTH_LONG)
-                .setAction(getString(R.string.undo), view -> {
-                    mEmptyView.setVisibility(View.INVISIBLE);
-                    mAppKeysMap.put(position, appKey);
-                    mAdapter.notifyItemInserted(position);
-                })
-                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
-                .show();
     }
 }

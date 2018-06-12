@@ -39,6 +39,7 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGU
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_NET_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_PUBLISH_ADDRESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_STATUS;
 
@@ -122,25 +123,28 @@ public class ElementConfigurationRepository extends BaseMeshRepository {
         final ProvisionedMeshNode node = mBinder.getMeshNode();
         switch (status) {
             case COMPOSITION_DATA_GET_SENT:
-                mExtendedMeshNode.updateMeshNode(node);
+                mExtendedMeshNode.setMeshNode(node);
                 break;
             case COMPOSITION_DATA_STATUS_RECEIVED:
                 mExtendedMeshNode.updateMeshNode(node);
                 break;
             case SENDING_BLOCK_ACKNOWLEDGEMENT:
-                mExtendedMeshNode.updateMeshNode(node);
+                mExtendedMeshNode.setMeshNode(node);
                 break;
             case BLOCK_ACKNOWLEDGEMENT_RECEIVED:
-                mExtendedMeshNode.updateMeshNode(node);
+                mExtendedMeshNode.setMeshNode(node);
                 break;
             case SENDING_APP_KEY_ADD:
-                mExtendedMeshNode.updateMeshNode(node);
+                mExtendedMeshNode.setMeshNode(node);
                 break;
             case APP_KEY_STATUS_RECEIVED:
                 if(intent.getExtras() != null) {
+                    final boolean success = intent.getExtras().getBoolean(EXTRA_IS_SUCCESS);
                     final int statusCode = intent.getExtras().getInt(EXTRA_STATUS);
+                    final int netKeyIndex = intent.getExtras().getInt(EXTRA_NET_KEY_INDEX);
+                    final int appKeyIndex = intent.getExtras().getInt(EXTRA_APP_KEY_INDEX);
                     mExtendedMeshNode.updateMeshNode(node);
-                    mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state, statusCode);
+                    mAppKeyStatus.onStatusChanged(success, statusCode, netKeyIndex, appKeyIndex);
                 }
                 break;
         }

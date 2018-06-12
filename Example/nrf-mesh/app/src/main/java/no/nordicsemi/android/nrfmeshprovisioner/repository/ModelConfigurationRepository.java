@@ -181,7 +181,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
         final Element element = mElement.getValue();
         final MeshModel model = mMeshModel.getValue();
-        final int appKeyIndex = 0;//model.getBoundAppKeyIndexes().get(0);
+        final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
         mBinder.sendConfigModelPublishAddressSet(node, element, model, appKeyIndex, publishAddress);
     }
 

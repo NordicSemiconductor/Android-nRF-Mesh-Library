@@ -22,12 +22,40 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.livedata;
 
+import android.arch.lifecycle.LiveData;
+
 /**
  * Created by RoshanRajaratnam on 04/05/2018.
  */
-public class AppKeyStatusLiveData extends ProvisioningStateLiveData {
+public class AppKeyStatusLiveData extends LiveData<AppKeyStatusLiveData> {
 
-    public ProvisioningLiveDataState getState() {
-        return ProvisioningLiveDataState.APP_KEY_STATUS_RECEIVED;
+    private boolean mSuccess;
+    private int mStatus;
+    private int mNetKeyIndex;
+    private int mAppKeyIndex;
+
+
+    public void onStatusChanged(final boolean success, final int status, final int netKeyIndex, final int appKeyIndex) {
+        this.mSuccess = success;
+        this.mStatus = status;
+        this.mNetKeyIndex = netKeyIndex;
+        this.mAppKeyIndex = appKeyIndex;
+        postValue(this);
+    }
+
+    public boolean isSuccess() {
+        return mSuccess;
+    }
+
+    public int getStatus() {
+        return mStatus;
+    }
+
+    public int getNetKeyIndex() {
+        return mNetKeyIndex;
+    }
+
+    public int getAppKeyIndex() {
+        return mAppKeyIndex;
     }
 }

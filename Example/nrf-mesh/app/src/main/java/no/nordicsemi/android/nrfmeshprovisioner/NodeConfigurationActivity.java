@@ -37,22 +37,23 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAppKeyAddStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMessage;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ElementConfigurationViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.widgets.CustomLinearLayoutManager;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA_MODEL_NAME;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
@@ -60,9 +61,10 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
 
 public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
-        ElementAdapter.OnItemClickListener {
+        ElementAdapter.OnItemClickListener, DialogFragmentAppKeyAddStatus.DialogFragmentAppKeyAddStatusListener {
 
     private final static String TAG = NodeConfigurationActivity.class.getSimpleName();
+    private static final String DIALOG_FRAGMENT_APP_KEY_STATUS = "DIALOG_FRAGMENT_APP_KEY_STATUS";
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -100,10 +102,9 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         final TextView noElementsFound = findViewById(R.id.no_elements);
         final View compositionActionContainer = findViewById(R.id.composition_action_container);
         final TextView appKeyView = findViewById(R.id.app_key_index);
-        final CustomLinearLayoutManager customLinearLayoutManager = new CustomLinearLayoutManager(this);
-        customLinearLayoutManager.setScrollEnabled(false);
         mRecyclerViewElements.setLayoutManager(new LinearLayoutManager(this));
         final ElementAdapter adapter = new ElementAdapter(this, mViewModel.getExtendedMeshNode());
+        adapter.setHasStableIds(true);
         adapter.setOnItemClickListener(this);
         mRecyclerViewElements.setAdapter(adapter);
 
@@ -142,10 +143,20 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         });
 
         actionViewAdddedAppKeys.setOnClickListener(v -> {
-            final Intent viewAppKeysIntent = new Intent(NodeConfigurationActivity.this, ManageNodeAppKeysActivity.class);
+            final Intent viewAppKeysIntent = new Intent(NodeConfigurationActivity.this, ViewAddedAppKeysActivity.class);
             final ProvisionedMeshNode meshNode = mViewModel.getExtendedMeshNode().getMeshNode();
             viewAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(meshNode.getAddedAppKeys().values()));
             startActivity(viewAppKeysIntent);
+        });
+
+        mViewModel.getAppKeyAddStatus().observe(this, appKeyStatusLiveData -> {
+            if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_APP_KEY_STATUS) == null) {
+                if(!appKeyStatusLiveData.isSuccess()) {
+                    final DialogFragmentAppKeyAddStatus fragmentAppKeyAddStatus = DialogFragmentAppKeyAddStatus.
+                            newInstance(getString(R.string.title_appkey_status), ConfigAppKeyStatus.parseStatusMessage(this, appKeyStatusLiveData.getStatus()));
+                    fragmentAppKeyAddStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_APP_KEY_STATUS);
+                }
+            }
         });
 
         mViewModel.isConnected().observe(this, isConnected -> {
@@ -170,9 +181,9 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ManageAppKeysActivity.SELECT_APP_KEY){
             if(resultCode == RESULT_OK){
-                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT);
+                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
+                final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
                 if(appKey != null){
-                    final int appKeyIndex = Utils.getKey(mViewModel.getProvisioningData().getAppKeys(), appKey);
                     mViewModel.setSelectedAppKey(appKeyIndex, appKey);
                     mViewModel.sendAppKeyAdd(appKeyIndex, appKey);
                 }
@@ -204,5 +215,10 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         intent.putExtra(EXTRA_MODEL_ID, model.getModelId());
         intent.putExtra(EXTRA_DATA_MODEL_NAME, model.getModelName());
         startActivity(intent);
+    }
+
+    @Override
+    public void onAppKeyAddStatusReceived() {
+
     }
 }
