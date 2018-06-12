@@ -59,9 +59,9 @@ public class ProvisioningSettings extends NetworkSettings {
                 appKeys.put(i, String.valueOf(keys.get(String.valueOf(i))));
             }
         } else {
-            appKeys.put(0, "63964771734fbd76e3b40519d1d94a48".toUpperCase());
-            appKeys.put(1, "63964771734fbd76e3b40519d1d94a49".toUpperCase());
-            appKeys.put(2, "63964771734fbd76e3b40519d1d94a50".toUpperCase());
+            appKeys.put(0, SecureUtils.generateRandomApplicationKey().toUpperCase());
+            appKeys.put(1, SecureUtils.generateRandomApplicationKey().toUpperCase());
+            appKeys.put(2, SecureUtils.generateRandomApplicationKey().toUpperCase());
         }
         saveApplicationKeys();
     }
