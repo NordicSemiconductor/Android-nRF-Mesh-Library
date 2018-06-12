@@ -936,6 +936,8 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             mMeshNode = null;
             mElement = null;
             mMeshModel = null;
+            mAppKeyIndex = 0;
+            mAppKey = null;
         }
 
         public void setSelectedAppkey(final int appKeyIndex, final String appkey) {
