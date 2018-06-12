@@ -50,7 +50,7 @@ public abstract class BaseMeshNode implements Parcelable {
     protected boolean lowPowerFeatureSupported;
     protected final Map<Integer, Element> mElements = new LinkedHashMap<>();
     protected List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
-    protected Map<Integer, String> mAddedAppKeys = new HashMap<>(); //Map containing the key as the app key index and the app key as the value
+    protected Map<Integer, String> mAddedAppKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
     protected byte[] generatedNetworkId;
     private String bluetoothDeviceAddress;
     protected long mTimeStampInMillis;
