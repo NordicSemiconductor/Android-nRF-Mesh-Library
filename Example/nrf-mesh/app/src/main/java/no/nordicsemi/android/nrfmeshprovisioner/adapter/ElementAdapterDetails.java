@@ -43,6 +43,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDetails.ViewHolder> {
@@ -74,7 +75,7 @@ public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDe
         final Element element = mElements.get(position);
         holder.mElementContainer.setTag(element);
         final int modelCount = element.getSigModelCount() + element.getVendorModelCount();
-        holder.mElementTitle.setText(mContext.getString(R.string.element_address, position));
+        holder.mElementTitle.setText(mContext.getString(R.string.element_address, MeshParserUtils.bytesToHex(element.getElementAddress(), false)));
         holder.mElementSubtitle.setText(mContext.getString(R.string.model_count, modelCount));
 
         final List<MeshModel> models = new ArrayList<>(element.getMeshModels().values());

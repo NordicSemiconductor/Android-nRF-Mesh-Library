@@ -217,7 +217,7 @@
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:logo="@drawable/ic_info_outline_black_alpha"
+                            app:logo="@drawable/ic_widgets_black_24dp_alpha"
                             app:title="@string/title_node_element_details"
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
