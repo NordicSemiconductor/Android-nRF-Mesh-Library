@@ -67,7 +67,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:clipToPadding="false"
-            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingBottom="@dimen/item_padding_bottom"
             android:scrollbars="none"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -197,11 +197,12 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:layout_marginBottom="@dimen/item_padding_bottom"
                     android:background="@android:color/white"
                     app:cardElevation="1dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/node_details_card">
 
                     <android.support.constraint.ConstraintLayout
@@ -216,16 +217,32 @@
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:logo="@drawable/ic_info_outline_black_alpha"
+                            app:logo="@drawable/ic_widgets_black_24dp_alpha"
                             app:title="@string/title_node_element_details"
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+                        <TextView
+                            android:id="@+id/no_elements_view"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/no_elements_guide_info"
+                            android:textColor="@android:color/black"
+                            android:textSize="14sp"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingBottom="@dimen/activity_vertical_margin"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
+                            android:paddingStart="@dimen/activity_horizontal_margin"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/elements_tool_bar"
+                            android:visibility="gone"
+                            tools:visibility="visible"/>
 
                         <android.support.v7.widget.RecyclerView
                             android:id="@+id/recycler_view_elements"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:clipToPadding="false"
-                            android:paddingBottom="@dimen/activity_vertical_margin_bottom"
                             android:scrollbars="none"
                             android:visibility="visible"
                             app:layout_constraintEnd_toEndOf="parent"

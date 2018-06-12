@@ -72,9 +72,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingBottom="@dimen/item_padding_bottom"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/icon"
                 app:layout_constraintTop_toBottomOf="@id/node_name"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:visibility="visible"
+                tools:visibility="invisible">
 
                 <TextView
                     android:id="@+id/unicast_title"
@@ -90,8 +92,9 @@
                     android:id="@+id/unicast"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/item_padding_start"
+                    android:layout_marginStart="16dp"
                     android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="0x0001"
                     android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -103,68 +106,77 @@
                     android:id="@+id/company_identifier_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/item_padding_start"
                     android:text="@string/company"
                     android:textSize="14sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/unicast_title"/>
+                    app:layout_constraintStart_toStartOf="@+id/unicast_title"
+                    app:layout_constraintTop_toBottomOf="@+id/unicast"/>
 
                 <TextView
                     android:id="@+id/company_identifier"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/item_padding_start"
-                    android:ellipsize="marquee"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="@string/nordic_semiconductor_asa"
+                    android:paddingEnd="@dimen/item_padding_end"
                     android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/company_identifier_title"
-                    app:layout_constraintTop_toBottomOf="@id/unicast_title"/>
+                    app:layout_constraintStart_toStartOf="@+id/unicast"
+                    app:layout_constraintTop_toBottomOf="@+id/unicast"/>
 
                 <TextView
                     android:id="@+id/elements_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/item_padding_start"
                     android:text="@string/elements"
                     android:textSize="14sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/company_identifier_title"/>
+                    app:layout_constraintStart_toStartOf="@+id/unicast_title"
+                    app:layout_constraintTop_toBottomOf="@+id/company_identifier"/>
 
                 <TextView
                     android:id="@+id/elements"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/item_padding_start"
                     android:text="4"
                     android:textSize="14sp"
-                    app:layout_constraintStart_toEndOf="@id/elements_title"
-                    app:layout_constraintTop_toBottomOf="@id/company_identifier_title"
+                    app:layout_constraintStart_toStartOf="@+id/unicast"
+                    app:layout_constraintTop_toBottomOf="@+id/company_identifier"
                     tools:ignore="HardcodedText"/>
 
                 <TextView
                     android:id="@+id/models_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/item_padding_start"
                     android:text="@string/models"
                     android:textSize="14sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/elements_title"/>
+                    app:layout_constraintStart_toStartOf="@+id/unicast_title"
+                    app:layout_constraintTop_toBottomOf="@+id/elements"/>
 
                 <TextView
                     android:id="@+id/models"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/item_padding_start"
                     android:text="29"
                     android:textSize="14sp"
-                    app:layout_constraintStart_toEndOf="@id/models_title"
-                    app:layout_constraintTop_toBottomOf="@id/elements_title"
+                    app:layout_constraintStart_toStartOf="@+id/unicast"
+                    app:layout_constraintTop_toBottomOf="@+id/elements"
                     tools:ignore="HardcodedText"/>
 
             </android.support.constraint.ConstraintLayout>
 
+            <TextView
+                android:id="@+id/not_configured_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="@string/provisioned_not_configured"
+                android:layout_marginStart="@dimen/item_padding_start"
+                android:paddingBottom="@dimen/item_padding_bottom"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/icon"
+                app:layout_constraintTop_toBottomOf="@id/node_name"
+                android:visibility="gone"
+                tools:visibility="visible"/>
             <View
                 android:id="@+id/divider"
                 android:layout_width="0dp"

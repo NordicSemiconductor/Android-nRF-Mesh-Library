@@ -24,14 +24,13 @@ package no.nordicsemi.android.nrfmeshprovisioner.livedata;
 
 import android.arch.lifecycle.LiveData;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 
 public class ProvisionedNodesLiveData extends LiveData<ProvisionedNodesLiveData> {
-    private final Map<Integer, ProvisionedMeshNode> mProvisionedNodesMap = new HashMap<>();
+    private final LinkedHashMap<Integer, ProvisionedMeshNode> mProvisionedNodesMap = new LinkedHashMap<>();
 
     public ProvisionedNodesLiveData(){
     }
@@ -46,7 +45,6 @@ public class ProvisionedNodesLiveData extends LiveData<ProvisionedNodesLiveData>
 
     public void updateProvisionedNodes(final Map<Integer, ProvisionedMeshNode> provisionedNodes) {
         mProvisionedNodesMap.clear();
-        postValue(this);
         mProvisionedNodesMap.putAll(provisionedNodes);
         postValue(this);
     }

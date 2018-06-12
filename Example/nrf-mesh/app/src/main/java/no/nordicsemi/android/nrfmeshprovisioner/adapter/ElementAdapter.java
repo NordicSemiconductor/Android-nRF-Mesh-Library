@@ -24,7 +24,6 @@ package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,32 +34,37 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 
-public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHolder> implements View.OnClickListener {
+public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHolder> {
 
     private final Context mContext;
     private final List<Element> mElements = new ArrayList<>();
+    private final String TAG = ElementAdapter.class.getSimpleName();
     private OnItemClickListener mOnItemClickListener;
-    private int mSelectedPosition;
-    private final ProvisionedMeshNode mProvisionedMeshNode;
+    private ProvisionedMeshNode mProvisionedMeshNode;
 
-    public ElementAdapter(final Context mContext, final ExtendedMeshNode extendedMeshnode) {
-        this.mContext = mContext;
-        this.mProvisionedMeshNode = extendedMeshnode.getMeshNode();
-        final Map<Integer, Element> tempElements = mProvisionedMeshNode.getElements();
-        if(tempElements != null && !tempElements.isEmpty())
-            this.mElements.addAll(tempElements.values());
+    public ElementAdapter(final NodeConfigurationActivity nodeConfigurationActivity, final ExtendedMeshNode extendedMeshnode) {
+        this.mContext = nodeConfigurationActivity.getApplicationContext();
+        extendedMeshnode.observe(nodeConfigurationActivity, extendedMeshNode -> {
+            if(extendedMeshNode.getMeshNode() != null) {
+                mProvisionedMeshNode = extendedMeshnode.getMeshNode();
+                mElements.clear();
+                mElements.addAll(mProvisionedMeshNode.getElements().values());
+                notifyDataSetChanged();
+            }
+        });
     }
 
 
@@ -77,75 +81,69 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final Element element = mElements.get(position);
-        holder.mElementContainer.setTag(element);
+        holder.mElementContainer.setTag(element.getElementAddressInt());
         final int modelCount = element.getSigModelCount() + element.getVendorModelCount();
-        holder.mElementTitle.setText(mContext.getString(R.string.element_count, position));
+        holder.mElementTitle.setText(mContext.getString(R.string.element_address, MeshParserUtils.bytesToHex(element.getElementAddress(), false)));
         holder.mElementSubtitle.setText(mContext.getString(R.string.model_count, modelCount));
-
-        int noOfChildTextViews = holder.mModelContainer.getChildCount();
-        if (modelCount < noOfChildTextViews) {
-            holder.mModelContainer.setVisibility(View.GONE);
-        }
 
         final List<MeshModel> models = new ArrayList<>(element.getMeshModels().values());
         inflateModelViews(holder, models);
+    }
 
-        int index = 0;
+
+    private void inflateModelViews(final ViewHolder holder, final List<MeshModel> models){
+        //Remove all child views to avoid duplicating
+        holder.mModelContainer.removeAllViews();
         for(MeshModel model : models) {
-            final View childView = holder.mModelContainer.getChildAt(index);
-            final TextView modelNameView = childView.findViewById(R.id.model_name);
-            final TextView modelIdView = childView.findViewById(R.id.model_id);
-
+            final View modelView = LayoutInflater.from(mContext).inflate(R.layout.model_item, holder.mElementContainer, false);
+            modelView.setTag(model.getModelId());
+            final TextView modelNameView = modelView.findViewById(R.id.model_name);
+            final TextView modelIdView = modelView.findViewById(R.id.model_id);
             modelNameView.setText(model.getModelName());
             if(model instanceof VendorModel){
                 modelIdView.setText(mContext.getString(R.string.format_vendor_model_id, CompositionDataParser.formatModelIdentifier(model.getModelId(), true)));
             } else {
                 modelIdView.setText(mContext.getString(R.string.format_sig_model_id, CompositionDataParser.formatModelIdentifier((short) model.getModelId(), true)));
             }
-            index++;
-        }
-    }
 
-    private void inflateModelViews(final ViewHolder holder, final List<MeshModel> models){
-
-        for (int indexView = 0; indexView < models.size(); indexView++) {
-            final View modelView = LayoutInflater.from(mContext).inflate(R.layout.model_item, holder.mElementContainer, false);
-            //modelView.setId(indexView);
-            modelView.setTag(models.get(indexView));
-            modelView.findViewById(R.id.mesh_model_container).setOnClickListener(this);
-            holder.mElementExpand.setVisibility(View.VISIBLE);
+            modelView.setOnClickListener(v -> {
+                final int position = holder.getAdapterPosition();
+                final Element element = mElements.get(position);
+                final MeshModel model1 = element.getMeshModels().get(v.getTag());
+                mOnItemClickListener.onElementItemClick(mProvisionedMeshNode, element, model1);
+            });
             holder.mModelContainer.addView(modelView);
         }
     }
 
     @Override
     public int getItemCount() {
+        if(mElements == null)
+            return 0;
         return mElements.size();
+    }
+
+    @Override
+    public long getItemId(final int position) {
+        if(mElements != null)
+            mElements.get(position).getElementAddressInt();
+        return super.getItemId(position);
     }
 
     public boolean isEmpty() {
         return getItemCount() == 0;
     }
 
-    @Override
-    public void onClick(final View v) {
-        switch (v.getId()){
-            case R.id.mesh_model_container:
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(mProvisionedMeshNode, mElements.get(mSelectedPosition), (MeshModel) v.getTag());
-                }
-                break;
-        }
-    }
-
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model);
+        void onElementItemClick(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model);
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         @BindView(R.id.element_item_container)
         ConstraintLayout mElementContainer;
+        @BindView(R.id.icon)
+        ImageView mIcon;
         @BindView(R.id.element_title)
         TextView mElementTitle;
         @BindView(R.id.element_subtitle)
@@ -167,13 +165,12 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
             switch (v.getId()){
                 case R.id.element_item_container:
                     if(mModelContainer.getVisibility() == View.VISIBLE){
-                        mElementExpand.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_round_expand_more_black_alpha_24dp));
+                        mElementExpand.setImageResource(R.drawable.ic_round_expand_more_black_alpha_24dp);
                         mModelContainer.setVisibility(View.GONE);
                     } else {
-                        mElementExpand.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_round_expand_less_black_alpha_24dp));
+                        mElementExpand.setImageResource(R.drawable.ic_round_expand_less_black_alpha_24dp);
                         mModelContainer.setVisibility(View.VISIBLE);
                     }
-                    mSelectedPosition = getAdapterPosition();
                     break;
                 default:
                     break;

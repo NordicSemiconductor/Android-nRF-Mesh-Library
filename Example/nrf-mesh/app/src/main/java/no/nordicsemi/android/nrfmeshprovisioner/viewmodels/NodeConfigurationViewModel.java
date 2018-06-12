@@ -28,55 +28,68 @@ import android.arch.lifecycle.ViewModel;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ElementConfigurationRepository;
+import no.nordicsemi.android.nrfmeshprovisioner.repository.NodeConfigurationRepository;
 
-public class ElementConfigurationViewModel extends ViewModel {
+public class NodeConfigurationViewModel extends ViewModel {
 
 
-    private final ElementConfigurationRepository mElementConfigurationRepository;
+    private final NodeConfigurationRepository mNodeConfigurationRepository;
 
     @Inject
-    ElementConfigurationViewModel(final ElementConfigurationRepository elementConfigurationRepository) {
+    NodeConfigurationViewModel(final NodeConfigurationRepository nodeConfigurationRepository) {
         super();
-        this.mElementConfigurationRepository = elementConfigurationRepository;
-        mElementConfigurationRepository.registerBroadcastReceiver();
+        this.mNodeConfigurationRepository = nodeConfigurationRepository;
+        mNodeConfigurationRepository.registerBroadcastReceiver();
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        mElementConfigurationRepository.unregisterBroadcastReceiver();
-        mElementConfigurationRepository.unbindService();
+        mNodeConfigurationRepository.unregisterBroadcastReceiver();
+        mNodeConfigurationRepository.unbindService();
     }
 
     public ExtendedMeshNode getExtendedMeshNode(){
-        return mElementConfigurationRepository.getExtendedMeshNode();
+        return mNodeConfigurationRepository.getExtendedMeshNode();
     }
 
     public LiveData<Boolean> isConnected() {
-        return mElementConfigurationRepository.isConnected();
+        return mNodeConfigurationRepository.isConnected();
     }
 
     public void setMeshNode(final ProvisionedMeshNode node) {
-        mElementConfigurationRepository.setMeshNode(node);
+        mNodeConfigurationRepository.setMeshNode(node);
     }
 
     public ProvisioningStateLiveData getProvisioningState() {
-        return mElementConfigurationRepository.getProvisioningState();
+        return mNodeConfigurationRepository.getProvisioningState();
     }
 
     /**
      * Returns the Element Configuration repository
      * @return repository for configuring elements
      */
-    public ElementConfigurationRepository getElementConfigurationRepository() {
-        return mElementConfigurationRepository;
+    public NodeConfigurationRepository getElementConfigurationRepository() {
+        return mNodeConfigurationRepository;
     }
 
-    public void startConfiguration() {
-        mElementConfigurationRepository.sendGetCompositionData();
+    public void sendGetCompositionData() {
+        mNodeConfigurationRepository.sendGetCompositionData();
     }
 
+    public ProvisioningLiveData getProvisioningData() {
+        return mNodeConfigurationRepository.getProvisioningData();
+    }
+
+    public void sendAppKeyAdd(final int appKeyIndex, final String appKey) {
+        mNodeConfigurationRepository.addAppKey(appKeyIndex, appKey);
+    }
+
+    public AppKeyStatusLiveData getAppKeyAddStatus() {
+        return mNodeConfigurationRepository.getAppKeyStatus();
+    }
 }

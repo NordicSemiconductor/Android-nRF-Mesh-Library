@@ -23,7 +23,7 @@ public class ConfigurationServerModel extends SigModel {
 
     @Override
     public String getModelName() {
-        return "Configuration Server Model";
+        return "Configuration Server";
     }
 
     @Override

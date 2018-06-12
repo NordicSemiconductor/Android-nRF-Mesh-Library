@@ -5,7 +5,7 @@ import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -38,7 +38,7 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
     private boolean lowPowerFeatureSupported;
     private int mUnicastAddress;
 
-    private Map<Integer, Element> mElements = new HashMap<>();
+    private Map<Integer, Element> mElements = new LinkedHashMap<>();
 
 
     public ConfigCompositionDataStatus(final Context context, final ProvisionedMeshNode unprovisionedMeshNode,
@@ -143,7 +143,7 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
         int counter = 0;
         byte[] elementAddress = null;
         while (tempOffset < accessPayload.length) {
-            final Map<Integer, MeshModel> models = new HashMap<>();
+            final Map<Integer, MeshModel> models = new LinkedHashMap<>();
             final int locationDescriptor = accessPayload[tempOffset + 1] << 8 | accessPayload[tempOffset];
             Log.v(TAG, "Location identifier: " + String.format(Locale.US, "%04X", locationDescriptor));
 
@@ -188,7 +188,6 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
             mUnicastAddress = unicastAddress;
         }
     }
-
 
     public int getCompanyIdentifier() {
         return companyIdentifier;

@@ -37,12 +37,15 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.Map;
+
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyBindStatusLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshModel;
@@ -96,6 +99,9 @@ public abstract class BaseMeshRepository {
     /** Mesh model to configure **/
     final MutableLiveData<Element> mElement = new MutableLiveData<>();
 
+    /** App key add status **/
+    final AppKeyStatusLiveData mAppKeyStatus = new AppKeyStatusLiveData();
+
     /** App key bind status **/
     final AppKeyBindStatusLiveData mAppKeyBindStatus = new AppKeyBindStatusLiveData();
 
@@ -106,17 +112,16 @@ public abstract class BaseMeshRepository {
     final ConfigModelSubscriptionStatusLiveData mConfigModelSubscriptionStatus = new ConfigModelSubscriptionStatusLiveData();
 
     /** Contains the initial provisioning live data **/
-    ProvisioningLiveData mProvisioningLiveData;
+    final ProvisioningLiveData mProvisioningLiveData = new ProvisioningLiveData();
 
     /** Contains the provisioned nodes **/
     final ProvisionedNodesLiveData mProvisionedNodesLiveData = new ProvisionedNodesLiveData();
 
-    final MeshManagerApi mMeshManagerApi;
+    //final MeshManagerApi mMeshManagerApi;
     final ProvisioningStateLiveData mProvisioningStateLiveData;
-    private final Gson mGson;
-    private final Handler mHandler;
-
+    protected final Handler mHandler;
     MeshService.MeshServiceBinder mBinder;
+    protected MeshManagerApi mMeshManagerApi;
     private boolean mIsBound;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -125,12 +130,14 @@ public abstract class BaseMeshRepository {
             mBinder = (MeshService.MeshServiceBinder) service;
             if (mBinder != null) {
                 mIsBound = true;
+                mMeshManagerApi = mBinder.getMeshManagerApi();
+                mProvisioningLiveData.loadProvisioningData(mContext, mBinder.getProvisioningSettings());
                 mProvisionedNodesLiveData.updateProvisionedNodes(mBinder.getProvisionedNodes());
                 if(mExtendedMeshNode != null) {
                     final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
                     final ProvisionedMeshNode meshNode = mBinder.getMeshNode(AddressUtils.getUnicastAddressInt(node.getUnicastAddress()));
                     if (meshNode != null) {
-                        mExtendedMeshNode = new ExtendedMeshNode(meshNode);
+                        mExtendedMeshNode.updateMeshNode(meshNode);
                     }
                 } else {
                     final ProvisionedMeshNode meshNode = mBinder.getMeshNode();
@@ -192,15 +199,10 @@ public abstract class BaseMeshRepository {
         context.bindService(intent, mServiceConnection, 0);
         mContext = context;
         mHandler = new Handler();
-        mMeshManagerApi = MeshManagerApi.getInstance(context);
-        mProvisioningLiveData = new ProvisioningLiveData(mMeshManagerApi.getProvisioningSettings());
+        //mMeshManagerApi = MeshManagerApi.getInstance(context);
+        //mProvisioningLiveData = new ProvisioningLiveData(context, mMeshManagerApi.getProvisioningSettings());
         mProvisioningStateLiveData = new ProvisioningStateLiveData();
         mIsReconnecting.postValue(false);
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.enableComplexMapKeySerialization();
-        gsonBuilder.registerTypeAdapter(MeshModel.class, new InterfaceAdapter<MeshModel>());
-        gsonBuilder.setPrettyPrinting();
-        mGson = gsonBuilder.create();
     }
 
     public void unbindService(){
@@ -220,6 +222,10 @@ public abstract class BaseMeshRepository {
     public abstract void onProvisioningStateChanged(final Intent intent);
 
     public abstract void onConfigurationStateChanged(final Intent intent);
+
+    public ProvisioningLiveData getProvisioningData(){
+        return mProvisioningLiveData;
+    }
 
     /**
      * Registers a broadcast receiver to receive events from the {@link MeshService}
@@ -292,6 +298,10 @@ public abstract class BaseMeshRepository {
     }
 
 
+    public AppKeyStatusLiveData getAppKeyStatus() {
+        return mAppKeyStatus;
+    }
+
     public AppKeyBindStatusLiveData getAppKeyBindStatus() {
         return mAppKeyBindStatus;
     }
@@ -310,16 +320,21 @@ public abstract class BaseMeshRepository {
     public void resetMeshNetwork() {
         mBinder.disconnect();
         mBinder.resetMeshNetwork();
-        mProvisioningLiveData.refreshProvisioningData(mMeshManagerApi.getProvisioningSettings());
+        mProvisioningLiveData.refreshProvisioningData(mBinder.getProvisioningSettings());
         mProvisionedNodesLiveData.clearNodes();
         mExtendedMeshNode = null;
     }
 
     public void setSelectedAppKey(final int appKeyIndex, final String appkey) {
         mBinder.setSelectedAppkey(appKeyIndex, appkey);
+        mProvisioningLiveData.setSelectedAppKey(appkey);
     }
 
     public String getSelectedAppKey() {
         return mBinder.getSelectedAppKey();
+    }
+
+    public void addAppKey(final int appKeyIndex, final String appKey) {
+        mBinder.sendAppKeyAdd(mExtendedMeshNode.getMeshNode(), appKeyIndex, appKey);
     }
 }

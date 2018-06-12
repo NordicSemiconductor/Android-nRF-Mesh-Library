@@ -98,7 +98,8 @@ public class AppKeyAdapter extends RecyclerView.Adapter<AppKeyAdapter.ViewHolder
             ButterKnife.bind(this, view);
             view.findViewById(R.id.removable).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), appKeys.get(getAdapterPosition()));
+                    final int key = appKeys.keyAt(getAdapterPosition());
+                    mOnItemClickListener.onItemClick(key, appKeys.get(key));
                 }
             });
         }

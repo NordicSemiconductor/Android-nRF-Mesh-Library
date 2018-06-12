@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,14 +48,14 @@ public abstract class BaseMeshNode implements Parcelable {
     protected boolean proxyFeatureSupported;
     protected boolean friendFeatureSupported;
     protected boolean lowPowerFeatureSupported;
-    protected Map<Integer, Element> mElements;
+    protected final Map<Integer, Element> mElements = new LinkedHashMap<>();
     protected List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
-    protected Map<Integer, String> mAddedAppKeys = new HashMap<>(); //Map containing the key as the app key index and the app key as the value
+    protected Map<Integer, String> mAddedAppKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
     protected byte[] generatedNetworkId;
     private String bluetoothDeviceAddress;
     protected long mTimeStampInMillis;
 
-    public BaseMeshNode() {
+    protected BaseMeshNode() {
 
     }
 

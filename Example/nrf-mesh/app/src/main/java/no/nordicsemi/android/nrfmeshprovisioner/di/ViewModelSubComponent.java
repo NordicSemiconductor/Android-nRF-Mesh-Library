@@ -23,7 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import dagger.Subcomponent;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ElementConfigurationViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionedNodesScannerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ReconnectViewModel;
@@ -43,7 +43,7 @@ public interface ViewModelSubComponent {
 	}
 	SharedViewModel commonViewModel();
 	MeshProvisionerViewModel meshProvisionerViewModel();
-	ElementConfigurationViewModel meshConfigurationViewModel();
+	NodeConfigurationViewModel meshConfigurationViewModel();
 	ModelConfigurationViewModel modelConfigurationViewModel();
 	ProvisionedNodesScannerViewModel scannerViewModel();
 	ReconnectViewModel reconnectViewModule();

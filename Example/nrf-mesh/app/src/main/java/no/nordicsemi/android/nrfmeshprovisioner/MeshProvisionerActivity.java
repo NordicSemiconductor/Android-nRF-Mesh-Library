@@ -186,15 +186,15 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
         mViewModel.getProvisioningData().observe(this, provisioningLiveData -> {
             nameView.setText(provisioningLiveData.getNodeName());
-            unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningLiveData.getUnicastAddress())));
-            appKeyView.setText(provisioningLiveData.getSelectedAppKey());
+            if(provisioningLiveData.getProvisioningSettings() != null) {
+                unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningLiveData.getUnicastAddress())));
+                appKeyView.setText(provisioningLiveData.getSelectedAppKey());
+            }
         });
 
         provisioner.setOnClickListener(v -> {
             mProvisioningProgressBar.setVisibility(View.VISIBLE);
-            final String appKey = appKeyView.getText().toString();
-            final int appKeyIndex = Utils.getKey(mViewModel.getProvisioningData().getAppKeys(), appKey);
-            mViewModel.provisionNode(appKey, appKeyIndex);
+            mViewModel.provisionNode(mViewModel.getProvisioningData().getNodeName());
         });
         setupProvisionerStateObservers(provisioningStatusContainer);
     }
@@ -226,11 +226,8 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ManageAppKeysActivity.SELECT_APP_KEY){
             if(resultCode == RESULT_OK){
-                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT);
+                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 if(appKey != null){
-                    /*mViewModel.getProvisioningData().setSelectedAppKey(appKey);
-                    mViewModel.getProvisioningData().setSelectedAppKeyIndex(appKeyIndex);*/
-
                     final int appKeyIndex = Utils.getKey(mViewModel.getProvisioningData().getAppKeys(), appKey);
                     mViewModel.setSelectedAppKey(appKeyIndex, appKey);
                 }

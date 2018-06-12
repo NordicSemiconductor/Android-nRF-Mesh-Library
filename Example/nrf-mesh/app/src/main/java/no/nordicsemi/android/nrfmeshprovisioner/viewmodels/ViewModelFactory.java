@@ -45,7 +45,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
 		// view model scope.
 		creators.put(SharedViewModel.class, viewModelSubComponent::commonViewModel);
 		creators.put(MeshProvisionerViewModel.class, viewModelSubComponent::meshProvisionerViewModel);
-		creators.put(ElementConfigurationViewModel.class, viewModelSubComponent::meshConfigurationViewModel);
+		creators.put(NodeConfigurationViewModel.class, viewModelSubComponent::meshConfigurationViewModel);
 		creators.put(ModelConfigurationViewModel.class, viewModelSubComponent::modelConfigurationViewModel);
 		creators.put(ProvisionedNodesScannerViewModel.class, viewModelSubComponent::scannerViewModel);
 		creators.put(ReconnectViewModel.class, viewModelSubComponent::reconnectViewModule);

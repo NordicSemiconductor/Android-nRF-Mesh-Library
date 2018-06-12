@@ -23,7 +23,7 @@ public class GenericOnOffClientModel extends SigModel {
 
     @Override
     public String getModelName() {
-        return "Generic On Off Client Model";
+        return "Generic On Off Client";
     }
 
     @Override

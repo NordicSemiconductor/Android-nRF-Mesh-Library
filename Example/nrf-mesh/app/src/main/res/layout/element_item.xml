@@ -35,15 +35,15 @@
     android:paddingEnd="@dimen/activity_horizontal_margin"
     tools:ignore="ContentDescription">
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
         android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scaleType="center"
         app:layout_constraintBottom_toTopOf="@+id/model_container"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/element_container"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_mesh_model_nordic_blue"/>
+        app:srcCompat="@drawable/ic_drawing_black_24dp_alpha"/>
 
     <LinearLayout
         android:id="@+id/element_container"
@@ -52,40 +52,41 @@
         android:orientation="vertical"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         app:layout_constraintBottom_toBottomOf="@id/icon"
-        app:layout_constraintEnd_toStartOf="@id/element_expand"
         app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintEnd_toStartOf="@id/element_expand"
         app:layout_constraintTop_toTopOf="@id/icon">
 
         <TextView
             android:id="@+id/element_title"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:gravity="top"
             android:singleLine="true"
-            android:textSize="24sp"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
             tools:text="Element 0"/>
 
         <TextView
             android:id="@+id/element_subtitle"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            tools:text="2 Models"/>
+            tools:text="2 Models"
+            android:textColor="@color/textColorSecondary"/>
 
     </LinearLayout>
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
         android:id="@+id/element_expand"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scaleType="center"
-        app:layout_constraintBottom_toTopOf="@+id/model_container"
         app:layout_constraintStart_toEndOf="@id/element_container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_round_expand_more_black_alpha_24dp"
-        android:visibility="gone"/>
+        app:layout_constraintTop_toTopOf="@id/icon"
+        app:layout_constraintBottom_toBottomOf="@id/icon"
+        app:srcCompat="@drawable/ic_round_expand_more_black_alpha_24dp"/>
 
     <LinearLayout
         android:id="@+id/model_container"

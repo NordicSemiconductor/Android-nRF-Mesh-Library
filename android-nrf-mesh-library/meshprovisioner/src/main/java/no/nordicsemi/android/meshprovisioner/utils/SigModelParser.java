@@ -12,6 +12,8 @@ import no.nordicsemi.android.meshprovisioner.models.GenericBatteryServer;
 import no.nordicsemi.android.meshprovisioner.models.GenericClientPropertyServer;
 import no.nordicsemi.android.meshprovisioner.models.GenericDefaultTransitionTimeClient;
 import no.nordicsemi.android.meshprovisioner.models.GenericDefaultTransitionTimeServer;
+import no.nordicsemi.android.meshprovisioner.models.GenericLevelClientModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericLocationClient;
 import no.nordicsemi.android.meshprovisioner.models.GenericLocationServer;
 import no.nordicsemi.android.meshprovisioner.models.GenericLocationSetupServer;
@@ -61,15 +63,15 @@ import no.nordicsemi.android.meshprovisioner.models.TimeSetupServer;
 public class SigModelParser {
     private static final String TAG = SigModelParser.class.getSimpleName();
 
-    private static final short CONFIGURATION_SERVER_MODEL = 0x0000;
-    private static final short CONFIGURATION_CLIENT_MODEL = 0x0001;
+    private static final short CONFIGURATION_SERVER = 0x0000;
+    private static final short CONFIGURATION_CLIENT = 0x0001;
     private static final short HEALTH_SERVER_MODEL = 0x0002;
     private static final short HEALTH_CLIENT_MODEL = 0x0003;
 
-    private static final short GENERIC_ON_OFF_SERVER_MODEL = 0x1000;
-    private static final short GENERIC_ON_OFF_CLIENT_MODEL = 0x1001;
-    private static final short GENERIC_LEVEL_SERVER_MODEL = 0x1002;
-    private static final short GENERIC_LEVEL_CLIENT_MODEL = 0x1003;
+    private static final short GENERIC_ON_OFF_SERVER = 0x1000;
+    private static final short GENERIC_ON_OFF_CLIENT = 0x1001;
+    private static final short GENERIC_LEVEL_SERVER = 0x1002;
+    private static final short GENERIC_LEVEL_CLIENT = 0x1003;
 
     private static final short GENERIC_DEFAULT_TRANSITION_TIME_SERVER = 0x1004;
     private static final short GENERIC_DEFAULT_TRANSITION_TIME_CLIENT = 0x1005;
@@ -134,22 +136,22 @@ public class SigModelParser {
      */
     public static SigModel getSigModel(final int sigModelId) {
         switch (sigModelId) {
-            case CONFIGURATION_SERVER_MODEL:
+            case CONFIGURATION_SERVER:
                 return new ConfigurationServerModel(sigModelId);
-            case CONFIGURATION_CLIENT_MODEL:
+            case CONFIGURATION_CLIENT:
                 return new ConfigurationClientModel(sigModelId);
             case HEALTH_SERVER_MODEL:
                 return new HealthServerModel(sigModelId);
             case HEALTH_CLIENT_MODEL:
                 return new HealthClientModel(sigModelId);
-            case GENERIC_ON_OFF_SERVER_MODEL:
+            case GENERIC_ON_OFF_SERVER:
                 return new GenericOnOffServerModel(sigModelId);
-            case GENERIC_ON_OFF_CLIENT_MODEL:
+            case GENERIC_ON_OFF_CLIENT:
                 return new GenericOnOffClientModel(sigModelId);
-            case GENERIC_LEVEL_SERVER_MODEL:
-                return new GenericOnOffServerModel(sigModelId);
-            case GENERIC_LEVEL_CLIENT_MODEL:
-                return new GenericOnOffClientModel(sigModelId);
+            case GENERIC_LEVEL_SERVER:
+                return new GenericLevelServerModel(sigModelId);
+            case GENERIC_LEVEL_CLIENT:
+                return new GenericLevelClientModel(sigModelId);
             case GENERIC_DEFAULT_TRANSITION_TIME_SERVER:
                 return new GenericDefaultTransitionTimeServer(sigModelId);
             case GENERIC_DEFAULT_TRANSITION_TIME_CLIENT:
@@ -248,36 +250,6 @@ public class SigModelParser {
                 return new LightLightnessClient(sigModelId);
             default:
                 Log.v(TAG, "Model ID: " + String.format(Locale.US, "%04X", sigModelId));
-        }
-        return null;
-    }
-
-    /**
-     * Returns the Bluetooth sig model based on the model id.
-     *
-     * @param model bluetooth sig model id
-     * @return SigModel
-     */
-    public static SigModel getModelType(final MeshModel model) {
-        switch (model.getModelId()) {
-            case CONFIGURATION_SERVER_MODEL:
-                return (ConfigurationServerModel) model;
-            case CONFIGURATION_CLIENT_MODEL:
-                return (ConfigurationClientModel) model;
-            case HEALTH_SERVER_MODEL:
-                return (HealthServerModel) model;
-            case HEALTH_CLIENT_MODEL:
-                return (HealthClientModel) model;
-            case GENERIC_ON_OFF_SERVER_MODEL:
-                return (GenericOnOffServerModel) model;
-            case GENERIC_ON_OFF_CLIENT_MODEL:
-                return (GenericOnOffClientModel) model;
-            case GENERIC_LEVEL_SERVER_MODEL:
-                return (GenericOnOffServerModel) model;
-            case GENERIC_LEVEL_CLIENT_MODEL:
-                return (GenericOnOffClientModel) model;
-            default:
-                Log.v(TAG, "Model ID: " + String.format(Locale.US, "%04X", model.getModelId()));
         }
         return null;
     }

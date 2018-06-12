@@ -94,10 +94,6 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
         return mProvisioningStateLiveData;
     }
 
-    public ProvisioningLiveData getProvisioningData(){
-        return mProvisioningLiveData;
-    }
-
     public ExtendedMeshNode getExtendedMeshNode() {
         return mExtendedMeshNode.getValue();
     }
@@ -263,8 +259,8 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
         mContext.startService(intent);
     }
 
-    public void startProvisioning() {
-        mBinder.startProvisioning();
+    public void startProvisioning(final String nodeName) {
+        mBinder.startProvisioning(nodeName);
     }
 
     public void confirmProvisioning(final String pin) {

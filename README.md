@@ -52,7 +52,7 @@ See example projects in this repository.
 
 To start using the library in your own project take a look at the followign snippet.
 ```java
-        MeshManagerApi mMeshManagerApi = MeshManagerApi.getInstance(this);
+        MeshManagerApi mMeshManagerApi = new MeshManagerApi(this);
         mMeshManagerApi.setProvisionerManagerTransportCallbacks(this);
         mMeshManagerApi.setProvisioningStatusCallbacks(this);
         mMeshManagerApi.setConfigurationCallbacks(this);

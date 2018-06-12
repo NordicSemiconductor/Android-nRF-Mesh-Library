@@ -68,13 +68,16 @@ public class Utils {
     public static final String EXTRA_DATA_MODEL_NAME = "EXTRA_DATA_MODEL_NAME";
 
     public static final String EXTRA_DEVICE = "EXTRA_DEVICE";
-    public static final String ACTIVITY_RESULT = "RESULT";
+    public static final String ACTIVITY_RESULT = "RESULT_APP_KEY";
     private static final String PREFS_LOCATION_NOT_REQUIRED = "location_not_required";
     private static final String PREFS_PERMISSION_REQUESTED = "permission_requested";
     public static final int PROVISIONING_SUCCESS = 2112;
     private static final String PROVISIONED_NODES_FILE = "PROVISIONED_FILES";
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
     public static String EXTRA_UNICAST_ADDRESS = "EXTRA_UNICAST_ADDRESS";
+    public static String ACTION_ADD_APP_KEY = "ACTION_ADD_APP_KEY";
+    public static String ACTION_DELETE_APP_KEY = "ACTION_DELETE_APP_KEY";
+    public static String ACTION_VIEW_APP_KEY = "ACTION_VIEW_APP_KEY";
 
     /**
      * Checks whether Bluetooth is enabled.

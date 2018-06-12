@@ -32,10 +32,12 @@ import android.os.ParcelUuid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ScannerLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -49,7 +51,7 @@ import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 import static no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager.MESH_PROXY_UUID;
 
 @Singleton
-public class ProvisionedNodesScannerRepository extends BaseMeshRepository{
+public class ProvisionedNodesScannerRepository extends BaseMeshRepository {
 
     private final Context mContext;
     private String mNetworkId;
@@ -196,10 +198,12 @@ public class ProvisionedNodesScannerRepository extends BaseMeshRepository{
      * stop scanning for bluetooth devices.
      */
     public void stopScanning() {
-        mScannerLiveData.stopScanning();
-        final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
-        scanner.stopScan(scanCallbackForProvisionedDevices);
-        mScannerLiveData.scanningStopped();
+        if(mScannerLiveData.isScanning()) {
+            mScannerLiveData.stopScanning();
+            final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
+            scanner.stopScan(scanCallbackForProvisionedDevices);
+            mScannerLiveData.scanningStopped();
+        }
     }
 
     private final ScanCallback scanCallbackForProvisionedDevices = new ScanCallback() {
@@ -213,8 +217,16 @@ public class ProvisionedNodesScannerRepository extends BaseMeshRepository{
             if (scanRecord != null) {
                 final byte[] serviceData = scanRecord.getServiceData(new ParcelUuid((MESH_PROXY_UUID)));
                 if (serviceData != null) {
-                    if (mMeshManagerApi.networkIdMatches(mNetworkId, serviceData)) {
-                        mScannerLiveData.deviceDiscovered(result);
+                    if (mMeshManagerApi != null) {
+                        if (mMeshManagerApi.isAdvertisingWithNetworkIdentity(serviceData)) {
+                            if(mMeshManagerApi.networkIdMatches(mNetworkId, serviceData)) {
+                                mScannerLiveData.deviceDiscovered(result);
+                            }
+                        } else if (mMeshManagerApi.isAdvertisedWithNodeIdentity(serviceData)) {
+                            if(checkIfNodeIdentityMatches(serviceData)){
+                                mScannerLiveData.deviceDiscovered(result);
+                            }
+                        }
                     }
                 }
             }
@@ -231,4 +243,18 @@ public class ProvisionedNodesScannerRepository extends BaseMeshRepository{
             mScannerLiveData.scanningStopped();
         }
     };
+
+    private boolean checkIfNodeIdentityMatches(final byte[] serviceData){
+        if(mBinder != null) {
+            for(Map.Entry<Integer, ProvisionedMeshNode> node : mProvisionedNodesLiveData.getProvisionedNodes().entrySet()){
+                if(mMeshManagerApi != null) {
+                    if(mMeshManagerApi.nodeIdentityMatches(node.getValue(), serviceData)){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+
+    }
 }

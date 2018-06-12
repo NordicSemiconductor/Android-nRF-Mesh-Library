@@ -26,7 +26,6 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -42,8 +41,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,7 +56,8 @@ public class ManageAppKeysActivity extends AppCompatActivity implements AppKeyAd
         DialogFragmentEditAppKey.DialogFragmentEditAppKeysListener,
         ItemTouchHelperAdapter {
 
-    public static final String RESULT = "RESULT";
+    public static final String RESULT_APP_KEY = "RESULT_APP_KEY";
+    public static final String RESULT_APP_KEY_INDEX = "RESULT_APP_KEY_INDEX";
     public static final String APP_KEYS = "APP_KEYS";
     public static final int SELECT_APP_KEY = 2011; //Random number
 
@@ -139,7 +137,8 @@ public class ManageAppKeysActivity extends AppCompatActivity implements AppKeyAd
             dialogFragmentEditAppKey.show(getSupportFragmentManager(), null);
         } else {
             Intent returnIntent = new Intent();
-            returnIntent.putExtra(RESULT, appKey);
+            returnIntent.putExtra(RESULT_APP_KEY_INDEX, position);
+            returnIntent.putExtra(RESULT_APP_KEY, appKey);
             setResult(Activity.RESULT_OK, returnIntent);
             finish();
         }

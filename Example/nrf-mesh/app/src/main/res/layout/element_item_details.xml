@@ -43,7 +43,7 @@
         app:layout_constraintBottom_toTopOf="@+id/model_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_mesh_model_nordic_black"/>
+        app:srcCompat="@drawable/ic_drawing_black_24dp_alpha"/>
 
     <LinearLayout
         android:id="@+id/element_container"
@@ -72,11 +72,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            tools:text="2 Models"/>
+            tools:text="2 Models"
+            android:textColor="@color/textColorSecondary"/>
 
     </LinearLayout>
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
         android:id="@+id/element_expand"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

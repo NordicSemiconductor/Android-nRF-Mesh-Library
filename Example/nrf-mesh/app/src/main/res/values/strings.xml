@@ -118,6 +118,7 @@
     <string name="node_replay_protection_count">Replay Protection Count</string>
     <string name="node_features">Node Features</string>
 
+    <string name="title_elements">Elements</string>
     <string name="title_node_element_details">Element Details</string>
 
     <string name="title_node_app_keys">Application Keys</string>
@@ -186,7 +187,7 @@
     <string name="configure">Configure</string>
     <string name="node_id">Node ID: %d</string>
     <string name="network">Network</string>
-    <string name="action_settings">settings</string>
+    <string name="action_settings">Settings</string>
     <string name="action_scanner">Scanner</string>
     <string name="no_networks_configured_title">NO NETWORKS CONFIGURED</string>
     <string name="no_networks_configured_rationale">In order to configure a network start by scanning, provisioning and then configuring the device from the scanner tab.</string>
@@ -200,15 +201,14 @@
     <string name="app_key_count">%d keys</string>
     <string name="hint_app_key">App key</string>
     <string name="no_app_keys_title">NO ADDED APP KEYS</string>
-    <string name="no_app_keys_rationale">App keys are required in order to configure a mUnprovisionedMeshNode after provisioning has been completed. Please click on the add button to add an app key </string>
+    <string name="no_app_keys_rationale">App keys are required in order to configure a UnprovisionedMeshNode after provisioning has been completed. Please click on the add button to add an app key </string>
     <string name="app_key_deleted">App key deleted.</string>
     <string name="undo">Undo</string>
     <string name="title_error_provisioning_failed">Provisioning Failed</string>
     <string name="provisioning_cancelled">Provisioning canceled!</string>
     <string name="details">Details</string>
     <string name="node_status">Node status:</string>
-    <string name="provisioned_not_configured">Provisioned, not configured</string>
-    <string name="provisioned_and_configured">Provisioned and Configured</string>
+    <string name="provisioned_not_configured">Provisioned, not configured.</string>
     <string name="configuration_state">Configuration status:</string>
     <string name="configured">Configured</string>
 
@@ -222,14 +222,13 @@
     <string name="title_appkey_status">AppKey Status</string>
     <string name="app_key_item">App key %d</string>
     <string name="error_node_name">Node name cannot be empty!</string>
-    <string name="element_count">Element %d</string>
+    <string name="element_address">Element : %s</string>
     <string name="model_count">%d Models</string>
     <string name="title_model_configuration">Model Configuration</string>
     <string name="subtitle_model_configuration">%s %s</string>
     <string name="format_sig_model_id">SIG Model ID: %s</string>
     <string name="format_vendor_model_id">Vendor Model ID: %s</string>
     <string name="model_id_type_vendor">Vendor Model ID:</string>
-
 
     <string name="title_publish_address">Publish Address</string>
     <string name="title_subscription_addresseses">Subscription Addresses</string>
@@ -252,7 +251,8 @@
     <string name="title_bound_app_keys">Bound App Keys</string>
 
     <string name="no_elements_found">NO ELEMENTS FOUND</string>
-    <string name="no_elements_guide_info">Try configuring the node again to see what elements are available on this node</string>
+    <string name="no_elements_guide_info">No elements were found! \n\nTry configuring the node again to see what elements are available on this node. You may do this by going back to the main screen and connecting to the node.</string>
+    <string name="no_elements_guide_composition_data">No elements were found! \nGet composition data to see what elements are on this node.</string>
     <string name="action_connect">CONNECT</string>
     <string name="action_disconnect">Disconnect</string>
 
@@ -270,9 +270,22 @@
     <string name="action_reset_network">Reset Network</string>
     <string name="title_reset_network">Reset Mesh Network</string>
     <string name="message_reset_network">This will clear all the data stored related to this network and will not be recoverable. Would you like to continue?</string>
-    <string name="not_subscribed_to_groups">Not subscribed to to any group addresses.</string>
+    <string name="not_subscribed_to_groups">Not subscribed to any group addresses.</string>
     <string name="title_group_address">Group Address</string>
     <string name="dialog_summary_group_address">Group address this model should subscribe.</string>
     <string name="title_configuration_compete">Confguration Complete</string>
     <string name="configuration_complete_summary">Mesh node has been successfully configured.</string>
+    <string name="action_composition_data">GET COMPOSITION DATA</string>
+
+    <string name="action_add_app_keys">ADD</string>
+    <string name="action_view_app_keys">VIEW</string>
+    <string name="title_about">About</string>
+    <string name="summary_verion">App Version</string>
+    <string name="title_node_configuration">Node Configuration</string>
+    <string name="title_added_app_keys">Added App Keys</string>
+    <string name="action_view_added_keys">VIEW</string>
+
+    <string name="no_app_keys_added">No app keys are added to this node!</string>
+    <string name="app_keys_added">%d app keys added</string>
+    <string name="error_no_app_keys_bound">No app keys are bound for this model. Please bind an app key first!</string>
 </resources>

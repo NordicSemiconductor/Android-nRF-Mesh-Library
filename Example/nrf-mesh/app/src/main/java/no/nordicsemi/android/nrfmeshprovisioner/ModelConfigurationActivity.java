@@ -25,11 +25,10 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -39,6 +38,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -127,9 +127,9 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         mAppKeyView.setText(R.string.none);
 
         findViewById(R.id.action_bind_app_key).setOnClickListener(v -> {
-            final Intent manageAppKeys = new Intent(ModelConfigurationActivity.this, ManageAppKeysActivity.class);
-            manageAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(mViewModel.getExtendedMeshNode().getMeshNode().getAddedAppKeys().values()));
-            startActivityForResult(manageAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
+            final Intent bindAppKeysIntent = new Intent(ModelConfigurationActivity.this, BindAppKeysActivity.class);
+            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) mViewModel.getExtendedMeshNode().getMeshNode().getAddedAppKeys());
+            startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
         mPublishAddressView.setText(R.string.none);
@@ -229,9 +229,9 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ManageAppKeysActivity.SELECT_APP_KEY){
             if(resultCode == RESULT_OK){
-                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT);
+                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
+                final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
                 if(appKey != null){
-                    final int appKeyIndex = Utils.getKey(mViewModel.getExtendedMeshNode().getMeshNode().getAddedAppKeys(), appKey);
                     mViewModel.bindAppKey(appKeyIndex);
                     showProgressbar();
                 }

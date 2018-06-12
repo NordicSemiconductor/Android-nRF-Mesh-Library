@@ -38,6 +38,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -45,6 +47,7 @@ import butterknife.ButterKnife;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNetwork;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -154,11 +157,6 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == Utils.PROVISIONING_SUCCESS){
@@ -175,13 +173,11 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         final int id = item.getItemId();
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        boolean flag = false;
         switch (id) {
             case R.id.action_network:
                 ft.show(mNetworkFragment).hide(mScannerFragment).hide(mSettingsFragment);
                 break;
             case R.id.action_scanner:
-                flag = true;
                 ft.hide(mNetworkFragment).show(mScannerFragment).hide(mSettingsFragment);
                 break;
             case R.id.action_settings:
@@ -189,13 +185,7 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
                 break;
         }
         ft.commit();
-        if(flag){
-            mScannerFragment.startScanning();
-        } else {
-            mScannerFragment.stopScanning();
-        }
         invalidateOptionsMenu();
-
         return true;
     }
 
@@ -225,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
 
     @Override
     public void onProvisionedMeshNodeSelected() {
-        mScannerFragment.stopScanning();
+
     }
 
     @Override

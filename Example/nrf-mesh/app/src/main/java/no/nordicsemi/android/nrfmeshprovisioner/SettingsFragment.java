@@ -25,6 +25,7 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -158,10 +159,21 @@ public class SettingsFragment extends Fragment implements Injectable,
         });
 
         final View containerManageAppKeys = rootView.findViewById(R.id.container_app_keys);
-        containerManageAppKeys.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_key_variant));
+        containerManageAppKeys.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_folder_key_black_24dp_alpha));
         final TextView manageAppKeys = containerManageAppKeys.findViewById(R.id.title);
         manageAppKeys.setText(R.string.summary_app_keys);
         final TextView manageAppKeysView = containerManageAppKeys.findViewById(R.id.text);
+
+        final View containerAbout = rootView.findViewById(R.id.container_version);
+        containerAbout.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_puzzle));
+        final TextView versionTitle = containerAbout.findViewById(R.id.title);
+        versionTitle.setText(R.string.summary_verion);
+        final TextView version = containerAbout.findViewById(R.id.text);
+        try {
+            version.setText(getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0).versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
         containerManageAppKeys.setOnClickListener(v -> {
             final Intent intent = new Intent(getActivity(), ManageAppKeysActivity.class);
@@ -171,15 +183,17 @@ public class SettingsFragment extends Fragment implements Injectable,
         });
 
        mViewModel.getProvisioningData().observe(this, provisioningData -> {
-           networkNameView.setText(provisioningData.getNetworkName());
-           globalTtlView.setText(String.valueOf(provisioningData.getGlobalTtl()));
-           keyView.setText(getString(R.string.hex_format, provisioningData.getNetworkKey()));
-           keyIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%03X", provisioningData.getKeyIndex())));
-           flagsView.setText(parseFlagsMessage(provisioningData.getFlags()));
-           ivIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%08X", provisioningData.getIvIndex())));
-           mViewModel.saveApplicationKeys(provisioningData.getAppKeys());
-           unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningData.getUnicastAddress())));
-           manageAppKeysView.setText(getString(R.string.app_key_count, provisioningData.getAppKeys().size()));
+           if(provisioningData.getProvisioningSettings() != null) {
+               networkNameView.setText(provisioningData.getNetworkName());
+               globalTtlView.setText(String.valueOf(provisioningData.getGlobalTtl()));
+               keyView.setText(getString(R.string.hex_format, provisioningData.getNetworkKey()));
+               keyIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%03X", provisioningData.getKeyIndex())));
+               flagsView.setText(parseFlagsMessage(provisioningData.getFlags()));
+               ivIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%08X", provisioningData.getIvIndex())));
+               mViewModel.saveApplicationKeys(provisioningData.getAppKeys());
+               unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningData.getUnicastAddress())));
+               manageAppKeysView.setText(getString(R.string.app_key_count, provisioningData.getAppKeys().size()));
+           }
        });
         return rootView;
 
@@ -205,7 +219,7 @@ public class SettingsFragment extends Fragment implements Injectable,
 
     @Override
     public void onNetworkNameEntered(final String networkName) {
-        mViewModel.getProvisioningData().setNetworkName(networkName);
+        mViewModel.getProvisioningData().setNetworkName(getContext(), networkName);
     }
 
     @Override

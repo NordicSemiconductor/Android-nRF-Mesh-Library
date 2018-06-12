@@ -6,8 +6,12 @@ import android.os.Parcelable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.models.SigModel;
@@ -15,17 +19,6 @@ import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 
 public class Element implements Parcelable {
 
-    public static final Creator<Element> CREATOR = new Creator<Element>() {
-        @Override
-        public Element createFromParcel(Parcel in) {
-            return new Element(in);
-        }
-
-        @Override
-        public Element[] newArray(int size) {
-            return new Element[size];
-        }
-    };
     private final byte[] elementAddress;
     private final int locationDescriptor;
     private final int sigModelCount;
@@ -45,7 +38,8 @@ public class Element implements Parcelable {
         locationDescriptor = in.readInt();
         sigModelCount = in.readInt();
         vendorModelCount = in.readInt();
-        meshModels = in.readHashMap(MeshModel.class.getClassLoader());
+        meshModels = new LinkedHashMap<>();
+        sortModels(in.readHashMap(MeshModel.class.getClassLoader()));
     }
 
     @Override
@@ -56,6 +50,32 @@ public class Element implements Parcelable {
         dest.writeInt(vendorModelCount);
         dest.writeMap(meshModels);
     }
+
+
+    private void sortModels(final HashMap<Integer, MeshModel> unorderedElements){
+        final Set<Integer> unorderedKeys =  unorderedElements.keySet();
+
+        final List<Integer> orderedKeys = new ArrayList<>();
+        for(int key : unorderedKeys) {
+            orderedKeys.add(key);
+        }
+        Collections.sort(orderedKeys);
+        for(int key : orderedKeys) {
+            meshModels.put(key, unorderedElements.get(key));
+        }
+    }
+
+    public static final Creator<Element> CREATOR = new Creator<Element>() {
+        @Override
+        public Element createFromParcel(Parcel in) {
+            return new Element(in);
+        }
+
+        @Override
+        public Element[] newArray(int size) {
+            return new Element[size];
+        }
+    };
 
     @Override
     public int describeContents() {
@@ -78,38 +98,12 @@ public class Element implements Parcelable {
         return vendorModelCount;
     }
 
-    public Map<Integer, MeshModel> getMeshModels() {
-        return meshModels;
-    }
-
-
     /**
      * Returns a list of sig models avaialable in this element
      * @return List containing sig models
      */
-    public List<SigModel> getSigModels() {
-        final List<SigModel> sigModels = new ArrayList<>();
-        for(Map.Entry<Integer, MeshModel> entry : meshModels.entrySet()) {
-            if(entry.getValue() instanceof SigModel){
-                sigModels.add((SigModel) entry.getValue());
-            }
-        }
-
-        return sigModels;
-    }
-
-    /**
-     * Returns a list of vendor models avaialable in this element
-     * @return List containing vendor models
-     */
-    public List<VendorModel> getVendorModels() {
-        final List<VendorModel> vendorModels = new ArrayList<>();
-        for(Map.Entry<Integer, MeshModel> entry : meshModels.entrySet()) {
-            if(entry.getValue() instanceof VendorModel){
-                vendorModels.add((VendorModel) entry.getValue());
-            }
-        }
-        return vendorModels;
+    public Map<Integer, MeshModel> getMeshModels() {
+        return Collections.unmodifiableMap(meshModels);
     }
 
     public int getElementAddressInt() {

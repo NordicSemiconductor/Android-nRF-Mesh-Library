@@ -30,7 +30,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ElementConfigurationRepository;
+import no.nordicsemi.android.nrfmeshprovisioner.repository.NodeConfigurationRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshProvisionerRepository;
@@ -64,8 +64,8 @@ public class ViewModelModule {
 	}
 
 	@Provides
-	static ElementConfigurationRepository provideElementConfigurationRepository(final Context context) {
-		return new ElementConfigurationRepository(context);
+	static NodeConfigurationRepository provideElementConfigurationRepository(final Context context) {
+		return new NodeConfigurationRepository(context);
 	}
 
 
