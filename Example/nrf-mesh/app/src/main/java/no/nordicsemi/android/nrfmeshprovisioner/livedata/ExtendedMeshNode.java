@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.livedata;
 
 import android.arch.lifecycle.LiveData;
+import android.util.Log;
 
 import java.util.Map;
 
@@ -32,6 +33,7 @@ import no.nordicsemi.android.meshprovisioner.utils.Element;
 public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {
 
     private ProvisionedMeshNode mMeshNode;
+    private static final String TAG = ExtendedMeshNode.class.getSimpleName();
 
     public ExtendedMeshNode(final ProvisionedMeshNode meshNode) {
         this.mMeshNode = meshNode;
@@ -42,9 +44,21 @@ public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {
         return mMeshNode;
     }
 
+    /**
+     * Updates the mesh node and posts the value
+     * @param meshNode Provisioned mesh node
+     */
     public void updateMeshNode(final ProvisionedMeshNode meshNode) {
         this.mMeshNode = meshNode;
         postValue(this);
+    }
+
+    /**
+     * Sets the mesh node without posting live data
+     * @param meshNode Provisioned mesh node
+     */
+    public void setMeshNode(final ProvisionedMeshNode meshNode){
+        this.mMeshNode = meshNode;
     }
 
     public boolean hasElements(){
