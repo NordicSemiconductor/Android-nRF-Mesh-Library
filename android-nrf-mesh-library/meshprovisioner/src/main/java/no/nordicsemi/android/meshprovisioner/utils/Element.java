@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
-import no.nordicsemi.android.meshprovisioner.models.SigModel;
-import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 
 public class Element implements Parcelable {
 
