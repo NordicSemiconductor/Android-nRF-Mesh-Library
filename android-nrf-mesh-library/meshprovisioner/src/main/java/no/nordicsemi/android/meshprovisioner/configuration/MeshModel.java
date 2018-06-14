@@ -1,5 +1,6 @@
 package no.nordicsemi.android.meshprovisioner.configuration;
 
+import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.nio.ByteBuffer;
@@ -11,23 +12,69 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class MeshModel implements Parcelable {
 
     protected final int mModelId;
-    private List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
-    private Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
+    protected final List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
+    protected final Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
     protected byte[] publishAddress;
     protected byte[] appKeyIndex;
-    private int credentialFlag;
-    private int publishTtl;
-    private int publishPeriod;
-    private int publishRetransmitCount;
-    private int publishRetransmitIntervalSteps;
-    private List<byte[]> mSubscriptionAddress = new ArrayList<>();
+    protected int credentialFlag;
+    protected int publishTtl;
+    protected int publishPeriod;
+    protected int publishRetransmitCount;
+    protected int publishRetransmitIntervalSteps;
+    protected List<byte[]> mSubscriptionAddress = new ArrayList<>();
 
     public MeshModel(final int modelId) {
         this.mModelId = modelId;
+    }
+
+    protected MeshModel(final Parcel in) {
+
+        final int modelId = in.readInt();
+        if(modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
+            mModelId = modelId;
+        } else {
+            mModelId = (short)modelId;
+        }
+        in.readList(mBoundAppKeyIndexes, Integer.class.getClassLoader());
+        sortAppKeys(in.readHashMap(String.class.getClassLoader()));
+        publishAddress = in.createByteArray();
+        appKeyIndex = in.createByteArray();
+        credentialFlag = in.readInt();
+        publishTtl = in.readInt();
+        publishPeriod = in.readInt();
+        publishRetransmitIntervalSteps = in.readInt();
+        in.readList(mSubscriptionAddress, byte[].class.getClassLoader());
+    }
+
+    protected final void writeToMeshModelParcel(final Parcel dest, final int flags){
+        dest.writeInt(mModelId);
+        dest.writeList(mBoundAppKeyIndexes);
+        dest.writeMap(mBoundAppKeys);
+        dest.writeByteArray(publishAddress);
+        dest.writeByteArray(appKeyIndex);
+        dest.writeInt(credentialFlag);
+        dest.writeInt(publishTtl);
+        dest.writeInt(publishPeriod);
+        dest.writeInt(publishRetransmitIntervalSteps);
+        dest.writeList(mSubscriptionAddress);
+    }
+
+    private void sortAppKeys(final HashMap<Integer, String> unorderedBoundAppKeys){
+        final Set<Integer> unorderedKeys =  unorderedBoundAppKeys.keySet();
+
+        final List<Integer> orderedKeys = new ArrayList<>();
+        for(int key : unorderedKeys) {
+            orderedKeys.add(key);
+        }
+        Collections.sort(orderedKeys);
+        for(int key : orderedKeys) {
+            mBoundAppKeys.put(key, unorderedBoundAppKeys.get(key));
+        }
     }
 
     /**
