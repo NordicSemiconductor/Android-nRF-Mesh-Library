@@ -51,7 +51,7 @@ public abstract class MeshModel implements Parcelable {
         in.readList(mSubscriptionAddress, byte[].class.getClassLoader());
     }
 
-    protected final void writeToMeshModelParcel(final Parcel dest, final int flags){
+    protected final void parcelMeshModel(final Parcel dest, final int flags){
         dest.writeInt(mModelId);
         dest.writeList(mBoundAppKeyIndexes);
         dest.writeMap(mBoundAppKeys);

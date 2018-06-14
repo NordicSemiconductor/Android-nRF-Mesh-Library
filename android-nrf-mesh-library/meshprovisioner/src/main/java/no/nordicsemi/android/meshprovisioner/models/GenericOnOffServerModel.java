@@ -8,7 +8,7 @@ public class GenericOnOffServerModel extends SigModel {
     public static final Parcelable.Creator<GenericOnOffServerModel> CREATOR = new Parcelable.Creator<GenericOnOffServerModel>() {
         @Override
         public GenericOnOffServerModel createFromParcel(final Parcel source) {
-            return new GenericOnOffServerModel((short) source.readInt());
+            return new GenericOnOffServerModel(source);
         }
 
         @Override
@@ -19,6 +19,10 @@ public class GenericOnOffServerModel extends SigModel {
 
     public GenericOnOffServerModel(final int modelId) {
         super(modelId);
+    }
+
+    private GenericOnOffServerModel(Parcel in){
+        super(in);
     }
 
     @Override
@@ -33,7 +37,7 @@ public class GenericOnOffServerModel extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeInt(mModelId);
+        super.parcelMeshModel(dest, flags);
     }
 
 }

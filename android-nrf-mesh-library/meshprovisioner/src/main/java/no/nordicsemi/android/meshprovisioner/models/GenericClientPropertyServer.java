@@ -7,7 +7,7 @@ public class GenericClientPropertyServer extends SigModel {
     public static final Creator<GenericClientPropertyServer> CREATOR = new Creator<GenericClientPropertyServer>() {
         @Override
         public GenericClientPropertyServer createFromParcel(final Parcel source) {
-            return new GenericClientPropertyServer((short) source.readInt());
+            return new GenericClientPropertyServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class GenericClientPropertyServer extends SigModel {
 
     public GenericClientPropertyServer(final int modelId) {
         super(modelId);
+    }
+
+    public GenericClientPropertyServer(final Parcel source) {
+        super(source);
     }
 
     @Override
@@ -32,6 +36,6 @@ public class GenericClientPropertyServer extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeInt(mModelId);
+        super.parcelMeshModel(dest, flags);
     }
 }

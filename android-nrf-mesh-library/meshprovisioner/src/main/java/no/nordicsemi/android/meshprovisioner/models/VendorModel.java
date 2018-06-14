@@ -10,6 +10,8 @@ import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 
 public class VendorModel extends MeshModel {
+
+
     public static final Parcelable.Creator<VendorModel> CREATOR = new Parcelable.Creator<VendorModel>() {
         @Override
         public VendorModel createFromParcel(final Parcel source) {
@@ -58,7 +60,7 @@ public class VendorModel extends MeshModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeInt(mModelId);
+        super.parcelMeshModel(dest, flags);
     }
 
 }

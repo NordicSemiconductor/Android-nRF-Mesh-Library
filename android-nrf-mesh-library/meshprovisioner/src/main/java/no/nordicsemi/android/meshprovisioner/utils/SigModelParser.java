@@ -4,8 +4,8 @@ import android.util.Log;
 
 import java.util.Locale;
 
-import no.nordicsemi.android.meshprovisioner.models.ConfigurationClientModel;
-import no.nordicsemi.android.meshprovisioner.models.ConfigurationServerModel;
+import no.nordicsemi.android.meshprovisioner.models.ConfigurationClient;
+import no.nordicsemi.android.meshprovisioner.models.ConfigurationServer;
 import no.nordicsemi.android.meshprovisioner.models.GenericAdminPropertyServer;
 import no.nordicsemi.android.meshprovisioner.models.GenericBatteryClient;
 import no.nordicsemi.android.meshprovisioner.models.GenericBatteryServer;
@@ -46,7 +46,6 @@ import no.nordicsemi.android.meshprovisioner.models.LightLightnessSetupServer;
 import no.nordicsemi.android.meshprovisioner.models.LightXylClient;
 import no.nordicsemi.android.meshprovisioner.models.LightXylServer;
 import no.nordicsemi.android.meshprovisioner.models.LightXylSetupServer;
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.models.SceneClient;
 import no.nordicsemi.android.meshprovisioner.models.SceneServer;
 import no.nordicsemi.android.meshprovisioner.models.SceneSetupServer;
@@ -137,9 +136,9 @@ public class SigModelParser {
     public static SigModel getSigModel(final int sigModelId) {
         switch (sigModelId) {
             case CONFIGURATION_SERVER:
-                return new ConfigurationServerModel(sigModelId);
+                return new ConfigurationServer(sigModelId);
             case CONFIGURATION_CLIENT:
-                return new ConfigurationClientModel(sigModelId);
+                return new ConfigurationClient(sigModelId);
             case HEALTH_SERVER_MODEL:
                 return new HealthServerModel(sigModelId);
             case HEALTH_CLIENT_MODEL:

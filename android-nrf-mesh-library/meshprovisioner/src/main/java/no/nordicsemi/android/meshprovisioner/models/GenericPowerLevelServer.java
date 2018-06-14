@@ -32,6 +32,6 @@ public class GenericPowerLevelServer extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeInt(mModelId);
+        super.parcelMeshModel(dest, flags);
     }
 }

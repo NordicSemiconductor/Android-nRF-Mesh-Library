@@ -8,7 +8,7 @@ public class HealthServerModel extends SigModel {
     public static final Parcelable.Creator<HealthServerModel> CREATOR = new Parcelable.Creator<HealthServerModel>() {
         @Override
         public HealthServerModel createFromParcel(final Parcel source) {
-            return new HealthServerModel((short) source.readInt());
+            return new HealthServerModel(source);
         }
 
         @Override
@@ -19,6 +19,10 @@ public class HealthServerModel extends SigModel {
 
     public HealthServerModel(final int modelId) {
         super(modelId);
+    }
+
+    private HealthServerModel(Parcel in) {
+        super(in);
     }
 
     @Override
@@ -33,7 +37,7 @@ public class HealthServerModel extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeInt(mModelId);
+        super.parcelMeshModel(dest, flags);
     }
 
 }

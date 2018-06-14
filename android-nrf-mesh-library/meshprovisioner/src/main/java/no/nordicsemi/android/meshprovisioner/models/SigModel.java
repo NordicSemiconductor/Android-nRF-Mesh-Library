@@ -1,5 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.models;
 
+import android.os.Parcel;
+
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 
 public abstract class SigModel extends MeshModel {
@@ -8,6 +10,10 @@ public abstract class SigModel extends MeshModel {
 
     public SigModel(final int sigModelId) {
         super(sigModelId);
+    }
+
+    SigModel(final Parcel in) {
+        super(in);
     }
 
     @Override

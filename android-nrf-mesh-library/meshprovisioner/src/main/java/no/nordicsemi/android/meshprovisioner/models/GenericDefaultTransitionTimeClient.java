@@ -7,7 +7,7 @@ public class GenericDefaultTransitionTimeClient extends SigModel {
     public static final Creator<GenericDefaultTransitionTimeClient> CREATOR = new Creator<GenericDefaultTransitionTimeClient>() {
         @Override
         public GenericDefaultTransitionTimeClient createFromParcel(final Parcel source) {
-            return new GenericDefaultTransitionTimeClient((short) source.readInt());
+            return new GenericDefaultTransitionTimeClient(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class GenericDefaultTransitionTimeClient extends SigModel {
 
     public GenericDefaultTransitionTimeClient(final int sigModelId) {
         super(sigModelId);
+    }
+
+    public GenericDefaultTransitionTimeClient(final Parcel source) {
+        super(source);
     }
 
     @Override
@@ -32,6 +36,6 @@ public class GenericDefaultTransitionTimeClient extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeInt(mModelId);
+        super.parcelMeshModel(dest, flags);
     }
 }

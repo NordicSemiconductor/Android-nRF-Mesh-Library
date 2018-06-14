@@ -7,7 +7,7 @@ public class GenericBatteryClient extends SigModel {
     public static final Creator<GenericBatteryClient> CREATOR = new Creator<GenericBatteryClient>() {
         @Override
         public GenericBatteryClient createFromParcel(final Parcel source) {
-            return new GenericBatteryClient((short) source.readInt());
+            return new GenericBatteryClient(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class GenericBatteryClient extends SigModel {
 
     public GenericBatteryClient(final int sigModelId) {
         super(sigModelId);
+    }
+
+    public GenericBatteryClient(final Parcel source) {
+        super(source);
     }
 
     @Override
@@ -32,6 +36,6 @@ public class GenericBatteryClient extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeInt(mModelId);
+        super.parcelMeshModel(dest, flags);
     }
 }

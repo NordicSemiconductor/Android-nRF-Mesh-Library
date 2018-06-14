@@ -20,6 +20,10 @@ public class GenericAdminPropertyServer extends SigModel {
         super(modelId);
     }
 
+    private GenericAdminPropertyServer(Parcel in){
+        super(in);
+    }
+
     @Override
     public String getModelName() {
         return "Generic Admin Property Server";
@@ -32,6 +36,6 @@ public class GenericAdminPropertyServer extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeInt(mModelId);
+        super.parcelMeshModel(dest, flags);
     }
 }
