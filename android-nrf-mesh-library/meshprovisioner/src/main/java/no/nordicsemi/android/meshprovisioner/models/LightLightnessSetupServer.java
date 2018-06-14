@@ -7,7 +7,7 @@ public class LightLightnessSetupServer extends SigModel {
     public static final Creator<LightLightnessSetupServer> CREATOR = new Creator<LightLightnessSetupServer>() {
         @Override
         public LightLightnessSetupServer createFromParcel(final Parcel source) {
-            return new LightLightnessSetupServer((short) source.readInt());
+            return new LightLightnessSetupServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class LightLightnessSetupServer extends SigModel {
 
     public LightLightnessSetupServer(final int modelId) {
         super(modelId);
+    }
+
+    private LightLightnessSetupServer(final Parcel source) {
+        super(source);
     }
 
     @Override

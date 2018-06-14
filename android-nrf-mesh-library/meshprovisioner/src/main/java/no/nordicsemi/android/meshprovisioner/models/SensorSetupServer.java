@@ -7,7 +7,7 @@ public class SensorSetupServer extends SigModel {
     public static final Creator<SensorSetupServer> CREATOR = new Creator<SensorSetupServer>() {
         @Override
         public SensorSetupServer createFromParcel(final Parcel source) {
-            return new SensorSetupServer((short) source.readInt());
+            return new SensorSetupServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class SensorSetupServer extends SigModel {
 
     public SensorSetupServer(final int modelId) {
         super(modelId);
+    }
+
+    private SensorSetupServer(final Parcel source) {
+        super(source);
     }
 
     @Override

@@ -7,7 +7,7 @@ public class SchedulerClient extends SigModel {
     public static final Creator<SchedulerClient> CREATOR = new Creator<SchedulerClient>() {
         @Override
         public SchedulerClient createFromParcel(final Parcel source) {
-            return new SchedulerClient((short) source.readInt());
+            return new SchedulerClient(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class SchedulerClient extends SigModel {
 
     public SchedulerClient(final int modelId) {
         super(modelId);
+    }
+
+    private SchedulerClient(final Parcel source) {
+        super(source);
     }
 
     @Override

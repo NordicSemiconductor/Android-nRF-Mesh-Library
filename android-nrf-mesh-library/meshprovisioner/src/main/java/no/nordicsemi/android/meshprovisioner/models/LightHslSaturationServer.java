@@ -7,7 +7,7 @@ public class LightHslSaturationServer extends SigModel {
     public static final Creator<LightHslSaturationServer> CREATOR = new Creator<LightHslSaturationServer>() {
         @Override
         public LightHslSaturationServer createFromParcel(final Parcel source) {
-            return new LightHslSaturationServer((short) source.readInt());
+            return new LightHslSaturationServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class LightHslSaturationServer extends SigModel {
 
     public LightHslSaturationServer(final int modelId) {
         super(modelId);
+    }
+
+    private LightHslSaturationServer(final Parcel source) {
+        super(source);
     }
 
     @Override

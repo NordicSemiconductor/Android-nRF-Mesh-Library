@@ -7,7 +7,7 @@ public class GenericPowerOnOffSetupServer extends SigModel {
     public static final Creator<GenericPowerOnOffSetupServer> CREATOR = new Creator<GenericPowerOnOffSetupServer>() {
         @Override
         public GenericPowerOnOffSetupServer createFromParcel(final Parcel source) {
-            return new GenericPowerOnOffSetupServer((short) source.readInt());
+            return new GenericPowerOnOffSetupServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class GenericPowerOnOffSetupServer extends SigModel {
 
     public GenericPowerOnOffSetupServer(final int sigModelId) {
         super(sigModelId);
+    }
+
+    private GenericPowerOnOffSetupServer(final Parcel source) {
+        super(source);
     }
 
     @Override

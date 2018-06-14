@@ -7,7 +7,7 @@ public class SensorClient extends SigModel {
     public static final Creator<SensorClient> CREATOR = new Creator<SensorClient>() {
         @Override
         public SensorClient createFromParcel(final Parcel source) {
-            return new SensorClient((short) source.readInt());
+            return new SensorClient(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class SensorClient extends SigModel {
 
     public SensorClient(final int modelId) {
         super(modelId);
+    }
+
+    private SensorClient(final Parcel source) {
+        super(source);
     }
 
     @Override

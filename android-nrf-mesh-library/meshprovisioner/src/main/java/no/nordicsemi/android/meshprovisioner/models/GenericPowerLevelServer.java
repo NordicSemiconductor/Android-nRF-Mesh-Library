@@ -7,7 +7,7 @@ public class GenericPowerLevelServer extends SigModel {
     public static final Creator<GenericPowerLevelServer> CREATOR = new Creator<GenericPowerLevelServer>() {
         @Override
         public GenericPowerLevelServer createFromParcel(final Parcel source) {
-            return new GenericPowerLevelServer((short) source.readInt());
+            return new GenericPowerLevelServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class GenericPowerLevelServer extends SigModel {
 
     public GenericPowerLevelServer(final int sigModelId) {
         super(sigModelId);
+    }
+
+    private GenericPowerLevelServer(final Parcel source) {
+        super(source);
     }
 
     @Override

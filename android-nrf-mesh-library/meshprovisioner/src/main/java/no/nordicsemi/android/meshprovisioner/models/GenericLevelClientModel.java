@@ -8,7 +8,7 @@ public class GenericLevelClientModel extends SigModel {
     public static final Parcelable.Creator<GenericLevelClientModel> CREATOR = new Parcelable.Creator<GenericLevelClientModel>() {
         @Override
         public GenericLevelClientModel createFromParcel(final Parcel source) {
-            return new GenericLevelClientModel((short) source.readInt());
+            return new GenericLevelClientModel(source);
         }
 
         @Override
@@ -19,6 +19,10 @@ public class GenericLevelClientModel extends SigModel {
 
     public GenericLevelClientModel(final int modelId) {
         super(modelId);
+    }
+
+    private GenericLevelClientModel(final Parcel source) {
+        super(source);
     }
 
     @Override

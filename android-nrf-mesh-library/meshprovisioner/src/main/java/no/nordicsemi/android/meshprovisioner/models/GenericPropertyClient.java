@@ -7,7 +7,7 @@ public class GenericPropertyClient extends SigModel {
     public static final Creator<GenericPropertyClient> CREATOR = new Creator<GenericPropertyClient>() {
         @Override
         public GenericPropertyClient createFromParcel(final Parcel source) {
-            return new GenericPropertyClient((short) source.readInt());
+            return new GenericPropertyClient(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class GenericPropertyClient extends SigModel {
 
     public GenericPropertyClient(final int modelId) {
         super(modelId);
+    }
+
+    private GenericPropertyClient(final Parcel source) {
+        super(source);
     }
 
     @Override

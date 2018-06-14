@@ -16,11 +16,11 @@ public class GenericClientPropertyServer extends SigModel {
         }
     };
 
-    public GenericClientPropertyServer(final int modelId) {
+    GenericClientPropertyServer(final int modelId) {
         super(modelId);
     }
 
-    public GenericClientPropertyServer(final Parcel source) {
+    private GenericClientPropertyServer(final Parcel source) {
         super(source);
     }
 

@@ -8,7 +8,7 @@ public class GenericDefaultTransitionTimeServer extends SigModel {
     public static final Parcelable.Creator<GenericDefaultTransitionTimeServer> CREATOR = new Parcelable.Creator<GenericDefaultTransitionTimeServer>() {
         @Override
         public GenericDefaultTransitionTimeServer createFromParcel(final Parcel source) {
-            return new GenericDefaultTransitionTimeServer((short) source.readInt());
+            return new GenericDefaultTransitionTimeServer(source);
         }
 
         @Override
@@ -19,6 +19,10 @@ public class GenericDefaultTransitionTimeServer extends SigModel {
 
     public GenericDefaultTransitionTimeServer(final int sigModelId) {
         super(sigModelId);
+    }
+
+    private GenericDefaultTransitionTimeServer(final Parcel source) {
+       super(source);
     }
 
     @Override

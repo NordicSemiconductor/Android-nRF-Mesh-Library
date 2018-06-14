@@ -7,7 +7,7 @@ public class GenericLocationSetupServer extends SigModel {
     public static final Creator<GenericLocationSetupServer> CREATOR = new Creator<GenericLocationSetupServer>() {
         @Override
         public GenericLocationSetupServer createFromParcel(final Parcel source) {
-            return new GenericLocationSetupServer((short) source.readInt());
+            return new GenericLocationSetupServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class GenericLocationSetupServer extends SigModel {
 
     public GenericLocationSetupServer(final int sigModelId) {
         super(sigModelId);
+    }
+
+    private GenericLocationSetupServer(final Parcel source) {
+        super(source);
     }
 
     @Override

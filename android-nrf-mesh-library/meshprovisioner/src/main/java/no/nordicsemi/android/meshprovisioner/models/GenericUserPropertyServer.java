@@ -7,7 +7,7 @@ public class GenericUserPropertyServer extends SigModel {
     public static final Creator<GenericUserPropertyServer> CREATOR = new Creator<GenericUserPropertyServer>() {
         @Override
         public GenericUserPropertyServer createFromParcel(final Parcel source) {
-            return new GenericUserPropertyServer((short) source.readInt());
+            return new GenericUserPropertyServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class GenericUserPropertyServer extends SigModel {
 
     public GenericUserPropertyServer(final int modelId) {
         super(modelId);
+    }
+
+    private GenericUserPropertyServer(final Parcel source) {
+        super(source);
     }
 
     @Override

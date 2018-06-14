@@ -7,7 +7,7 @@ public class SceneClient extends SigModel {
     public static final Creator<SceneClient> CREATOR = new Creator<SceneClient>() {
         @Override
         public SceneClient createFromParcel(final Parcel source) {
-            return new SceneClient((short) source.readInt());
+            return new SceneClient(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class SceneClient extends SigModel {
 
     public SceneClient(final int modelId) {
         super(modelId);
+    }
+
+    private SceneClient(final Parcel source) {
+        super(source);
     }
 
     @Override

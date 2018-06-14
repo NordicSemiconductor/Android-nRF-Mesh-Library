@@ -20,7 +20,7 @@ public class GenericDefaultTransitionTimeClient extends SigModel {
         super(sigModelId);
     }
 
-    public GenericDefaultTransitionTimeClient(final Parcel source) {
+    private GenericDefaultTransitionTimeClient(final Parcel source) {
         super(source);
     }
 

@@ -11,11 +11,13 @@ import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 
 public class VendorModel extends MeshModel {
 
+    private final short companyIdentifier;
+    private final String companyName;
 
     public static final Parcelable.Creator<VendorModel> CREATOR = new Parcelable.Creator<VendorModel>() {
         @Override
         public VendorModel createFromParcel(final Parcel source) {
-            return new VendorModel(source.readInt());
+            return new VendorModel(source);
         }
 
         @Override
@@ -23,13 +25,20 @@ public class VendorModel extends MeshModel {
             return new VendorModel[size];
         }
     };
-    private final short companyIdentifier;
-    private final String companyName;
 
     public VendorModel(final int modelIdentifier) {
         super(modelIdentifier);
         final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
         buffer.putInt(modelIdentifier);
+        buffer.position(2);
+        this.companyIdentifier = buffer.getShort();
+        this.companyName = CompanyIdentifiers.getCompanyName(companyIdentifier);
+    }
+
+    private VendorModel(final Parcel source) {
+        super(source);
+        final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
+        buffer.putInt(mModelId);
         buffer.position(2);
         this.companyIdentifier = buffer.getShort();
         this.companyName = CompanyIdentifiers.getCompanyName(companyIdentifier);

@@ -1,63 +1,8 @@
-package no.nordicsemi.android.meshprovisioner.utils;
+package no.nordicsemi.android.meshprovisioner.models;
 
 import android.util.Log;
 
 import java.util.Locale;
-
-import no.nordicsemi.android.meshprovisioner.models.ConfigurationClient;
-import no.nordicsemi.android.meshprovisioner.models.ConfigurationServer;
-import no.nordicsemi.android.meshprovisioner.models.GenericAdminPropertyServer;
-import no.nordicsemi.android.meshprovisioner.models.GenericBatteryClient;
-import no.nordicsemi.android.meshprovisioner.models.GenericBatteryServer;
-import no.nordicsemi.android.meshprovisioner.models.GenericClientPropertyServer;
-import no.nordicsemi.android.meshprovisioner.models.GenericDefaultTransitionTimeClient;
-import no.nordicsemi.android.meshprovisioner.models.GenericDefaultTransitionTimeServer;
-import no.nordicsemi.android.meshprovisioner.models.GenericLevelClientModel;
-import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
-import no.nordicsemi.android.meshprovisioner.models.GenericLocationClient;
-import no.nordicsemi.android.meshprovisioner.models.GenericLocationServer;
-import no.nordicsemi.android.meshprovisioner.models.GenericLocationSetupServer;
-import no.nordicsemi.android.meshprovisioner.models.GenericManufacturerPropertyServer;
-import no.nordicsemi.android.meshprovisioner.models.GenericOnOffClientModel;
-import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
-import no.nordicsemi.android.meshprovisioner.models.GenericPowerLevelClient;
-import no.nordicsemi.android.meshprovisioner.models.GenericPowerLevelServer;
-import no.nordicsemi.android.meshprovisioner.models.GenericPowerOnOffClient;
-import no.nordicsemi.android.meshprovisioner.models.GenericPowerOnOffServer;
-import no.nordicsemi.android.meshprovisioner.models.GenericPowerOnOffSetupServer;
-import no.nordicsemi.android.meshprovisioner.models.GenericPropertyClient;
-import no.nordicsemi.android.meshprovisioner.models.GenericUserPropertyServer;
-import no.nordicsemi.android.meshprovisioner.models.HealthClientModel;
-import no.nordicsemi.android.meshprovisioner.models.HealthServerModel;
-import no.nordicsemi.android.meshprovisioner.models.LightCtlClient;
-import no.nordicsemi.android.meshprovisioner.models.LightCtlServer;
-import no.nordicsemi.android.meshprovisioner.models.LightCtlSetupServer;
-import no.nordicsemi.android.meshprovisioner.models.LightCtlTemperatureServer;
-import no.nordicsemi.android.meshprovisioner.models.LightHslClient;
-import no.nordicsemi.android.meshprovisioner.models.LightHslHueServer;
-import no.nordicsemi.android.meshprovisioner.models.LightHslSaturationServer;
-import no.nordicsemi.android.meshprovisioner.models.LightHslServer;
-import no.nordicsemi.android.meshprovisioner.models.LightHslSetupServer;
-import no.nordicsemi.android.meshprovisioner.models.LightLcServer;
-import no.nordicsemi.android.meshprovisioner.models.LightLcSetupServer;
-import no.nordicsemi.android.meshprovisioner.models.LightLightnessClient;
-import no.nordicsemi.android.meshprovisioner.models.LightLightnessServer;
-import no.nordicsemi.android.meshprovisioner.models.LightLightnessSetupServer;
-import no.nordicsemi.android.meshprovisioner.models.LightXylClient;
-import no.nordicsemi.android.meshprovisioner.models.LightXylServer;
-import no.nordicsemi.android.meshprovisioner.models.LightXylSetupServer;
-import no.nordicsemi.android.meshprovisioner.models.SceneClient;
-import no.nordicsemi.android.meshprovisioner.models.SceneServer;
-import no.nordicsemi.android.meshprovisioner.models.SceneSetupServer;
-import no.nordicsemi.android.meshprovisioner.models.SchedulerClient;
-import no.nordicsemi.android.meshprovisioner.models.SchedulerServer;
-import no.nordicsemi.android.meshprovisioner.models.SchedulerSetupServer;
-import no.nordicsemi.android.meshprovisioner.models.SensorClient;
-import no.nordicsemi.android.meshprovisioner.models.SensorServer;
-import no.nordicsemi.android.meshprovisioner.models.SigModel;
-import no.nordicsemi.android.meshprovisioner.models.TimeClient;
-import no.nordicsemi.android.meshprovisioner.models.TimeServer;
-import no.nordicsemi.android.meshprovisioner.models.TimeSetupServer;
 
 public class SigModelParser {
     private static final String TAG = SigModelParser.class.getSimpleName();
@@ -136,9 +81,9 @@ public class SigModelParser {
     public static SigModel getSigModel(final int sigModelId) {
         switch (sigModelId) {
             case CONFIGURATION_SERVER:
-                return new ConfigurationServer(sigModelId);
+                return new ConfigurationServerModel(sigModelId);
             case CONFIGURATION_CLIENT:
-                return new ConfigurationClient(sigModelId);
+                return new ConfigurationClientModel(sigModelId);
             case HEALTH_SERVER_MODEL:
                 return new HealthServerModel(sigModelId);
             case HEALTH_CLIENT_MODEL:
@@ -164,7 +109,7 @@ public class SigModelParser {
             case GENERIC_POWER_LEVEL_SERVER:
                 return new GenericPowerLevelServer(sigModelId);
             case GENERIC_POWER_LEVEL_SETUP_SERVER:
-                return new GenericPowerOnOffSetupServer(sigModelId);
+                return new GenericPowerLevelSetupServer(sigModelId);
             case GENERIC_POWER_LEVEL_CLIENT:
                 return new GenericPowerLevelClient(sigModelId);
             case GENERIC_BATTERY_SERVER:
@@ -190,7 +135,7 @@ public class SigModelParser {
             case SENSOR_SERVER:
                 return new SensorServer(sigModelId);
             case SENSOR_SETUP_SERVER:
-                return new SceneSetupServer(sigModelId);
+                return new SensorSetupServer(sigModelId);
             case SENSOR_CLIENT:
                 return new SensorClient(sigModelId);
             case TIME_SERVER:

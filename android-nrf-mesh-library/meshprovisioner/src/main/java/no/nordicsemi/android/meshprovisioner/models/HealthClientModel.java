@@ -8,7 +8,7 @@ public class HealthClientModel extends SigModel {
     public static final Parcelable.Creator<HealthClientModel> CREATOR = new Parcelable.Creator<HealthClientModel>() {
         @Override
         public HealthClientModel createFromParcel(final Parcel source) {
-            return new HealthClientModel((short) source.readInt());
+            return new HealthClientModel(source);
         }
 
         @Override
@@ -19,6 +19,10 @@ public class HealthClientModel extends SigModel {
 
     public HealthClientModel(final int modelId) {
         super(modelId);
+    }
+
+    private HealthClientModel(final Parcel source) {
+        super(source);
     }
 
     @Override

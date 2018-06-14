@@ -7,7 +7,7 @@ public class LightXylServer extends SigModel {
     public static final Creator<LightXylServer> CREATOR = new Creator<LightXylServer>() {
         @Override
         public LightXylServer createFromParcel(final Parcel source) {
-            return new LightXylServer((short) source.readInt());
+            return new LightXylServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class LightXylServer extends SigModel {
 
     public LightXylServer(final int modelId) {
         super(modelId);
+    }
+
+    private LightXylServer(final Parcel source) {
+        super(source);
     }
 
     @Override

@@ -7,7 +7,7 @@ public class TimeClient extends SigModel {
     public static final Creator<TimeClient> CREATOR = new Creator<TimeClient>() {
         @Override
         public TimeClient createFromParcel(final Parcel source) {
-            return new TimeClient((short) source.readInt());
+            return new TimeClient(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class TimeClient extends SigModel {
 
     public TimeClient(final int modelId) {
         super(modelId);
+    }
+
+    private TimeClient(final Parcel source) {
+        super(source);
     }
 
     @Override

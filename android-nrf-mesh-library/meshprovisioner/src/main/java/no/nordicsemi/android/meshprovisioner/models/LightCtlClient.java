@@ -7,7 +7,7 @@ public class LightCtlClient extends SigModel {
     public static final Creator<LightCtlClient> CREATOR = new Creator<LightCtlClient>() {
         @Override
         public LightCtlClient createFromParcel(final Parcel source) {
-            return new LightCtlClient((short) source.readInt());
+            return new LightCtlClient(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class LightCtlClient extends SigModel {
 
     public LightCtlClient(final int modelId) {
         super(modelId);
+    }
+
+    private LightCtlClient(final Parcel source) {
+        super(source);
     }
 
     @Override

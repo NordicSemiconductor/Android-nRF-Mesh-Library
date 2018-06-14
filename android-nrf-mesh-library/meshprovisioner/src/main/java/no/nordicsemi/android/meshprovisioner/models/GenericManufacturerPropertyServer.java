@@ -7,7 +7,7 @@ public class GenericManufacturerPropertyServer extends SigModel {
     public static final Creator<GenericManufacturerPropertyServer> CREATOR = new Creator<GenericManufacturerPropertyServer>() {
         @Override
         public GenericManufacturerPropertyServer createFromParcel(final Parcel source) {
-            return new GenericManufacturerPropertyServer((short) source.readInt());
+            return new GenericManufacturerPropertyServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class GenericManufacturerPropertyServer extends SigModel {
 
     public GenericManufacturerPropertyServer(final int modelId) {
         super(modelId);
+    }
+
+    private GenericManufacturerPropertyServer(final Parcel source) {
+        super(source);
     }
 
     @Override

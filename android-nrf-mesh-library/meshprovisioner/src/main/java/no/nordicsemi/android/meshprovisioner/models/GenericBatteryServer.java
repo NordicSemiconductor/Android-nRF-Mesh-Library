@@ -20,7 +20,7 @@ public class GenericBatteryServer extends SigModel {
         super(sigModelId);
     }
 
-    public GenericBatteryServer(final Parcel source) {
+    private GenericBatteryServer(final Parcel source) {
         super(source);
     }
 

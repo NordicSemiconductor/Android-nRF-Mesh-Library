@@ -7,7 +7,7 @@ public class TimeSetupServer extends SigModel {
     public static final Creator<TimeSetupServer> CREATOR = new Creator<TimeSetupServer>() {
         @Override
         public TimeSetupServer createFromParcel(final Parcel source) {
-            return new TimeSetupServer((short) source.readInt());
+            return new TimeSetupServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class TimeSetupServer extends SigModel {
 
     public TimeSetupServer(final int modelId) {
         super(modelId);
+    }
+
+    private TimeSetupServer(final Parcel source) {
+        super(source);
     }
 
     @Override

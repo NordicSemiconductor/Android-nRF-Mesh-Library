@@ -7,7 +7,7 @@ public class LightCtlTemperatureServer extends SigModel {
     public static final Creator<LightCtlTemperatureServer> CREATOR = new Creator<LightCtlTemperatureServer>() {
         @Override
         public LightCtlTemperatureServer createFromParcel(final Parcel source) {
-            return new LightCtlTemperatureServer((short) source.readInt());
+            return new LightCtlTemperatureServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class LightCtlTemperatureServer extends SigModel {
 
     public LightCtlTemperatureServer(final int modelId) {
         super(modelId);
+    }
+
+    private LightCtlTemperatureServer(final Parcel source) {
+        super(source);
     }
 
     @Override

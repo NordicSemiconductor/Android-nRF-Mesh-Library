@@ -7,7 +7,7 @@ public class LightLcServer extends SigModel {
     public static final Creator<LightLcServer> CREATOR = new Creator<LightLcServer>() {
         @Override
         public LightLcServer createFromParcel(final Parcel source) {
-            return new LightLcServer((short) source.readInt());
+            return new LightLcServer(source);
         }
 
         @Override
@@ -18,6 +18,10 @@ public class LightLcServer extends SigModel {
 
     public LightLcServer(final int modelId) {
         super(modelId);
+    }
+
+    private LightLcServer(final Parcel source) {
+        super(source);
     }
 
     @Override

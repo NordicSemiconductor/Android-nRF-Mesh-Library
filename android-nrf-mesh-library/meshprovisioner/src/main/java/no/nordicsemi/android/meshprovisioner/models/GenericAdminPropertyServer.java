@@ -7,7 +7,7 @@ public class GenericAdminPropertyServer extends SigModel {
     public static final Creator<GenericAdminPropertyServer> CREATOR = new Creator<GenericAdminPropertyServer>() {
         @Override
         public GenericAdminPropertyServer createFromParcel(final Parcel source) {
-            return new GenericAdminPropertyServer((short) source.readInt());
+            return new GenericAdminPropertyServer(source);
         }
 
         @Override

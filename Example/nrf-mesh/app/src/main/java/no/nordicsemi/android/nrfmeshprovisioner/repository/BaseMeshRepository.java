@@ -262,12 +262,12 @@ public abstract class BaseMeshRepository {
 
         final Element element = meshNode.getElements().get(elementAddress);
         if(element != null) {
-            mElement.postValue(element);
+            mElement.setValue(element);
         }
 
         final MeshModel model = element.getMeshModels().get(modelId);
         if(model != null) {
-            mMeshModel.postValue(model);
+            mMeshModel.setValue(model);
         }
     }
 
