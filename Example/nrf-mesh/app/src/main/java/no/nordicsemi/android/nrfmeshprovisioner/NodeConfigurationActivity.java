@@ -211,7 +211,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     @Override
     public void onElementItemClick(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model) {
-        mViewModel.getElementConfigurationRepository().setModel(meshNode, AddressUtils.getUnicastAddressInt(element.getElementAddress()), model.getModelId());
         final Intent intent = new Intent(this, ModelConfigurationActivity.class);
         intent.putExtra(EXTRA_DEVICE, meshNode);
         intent.putExtra(EXTRA_ELEMENT_ADDRESS, AddressUtils.getUnicastAddressInt(element.getElementAddress()));
