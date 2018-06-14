@@ -20,7 +20,7 @@ import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.DeviceFeatureUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.SigModelParser;
+import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 
 public final class ConfigCompositionDataStatus extends ConfigMessage {
 
