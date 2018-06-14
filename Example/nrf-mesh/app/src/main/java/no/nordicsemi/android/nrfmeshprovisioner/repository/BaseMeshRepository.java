@@ -133,28 +133,6 @@ public abstract class BaseMeshRepository {
                 mMeshManagerApi = mBinder.getMeshManagerApi();
                 mProvisioningLiveData.loadProvisioningData(mContext, mBinder.getProvisioningSettings());
                 mProvisionedNodesLiveData.updateProvisionedNodes(mBinder.getProvisionedNodes());
-                if(mExtendedMeshNode != null) {
-                    final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
-                    final ProvisionedMeshNode meshNode = mBinder.getMeshNode(AddressUtils.getUnicastAddressInt(node.getUnicastAddress()));
-                    if (meshNode != null) {
-                        mExtendedMeshNode.updateMeshNode(meshNode);
-                    }
-                } else {
-                    final ProvisionedMeshNode meshNode = mBinder.getMeshNode();
-                    if (meshNode != null) {
-                        mExtendedMeshNode = new ExtendedMeshNode(meshNode);
-                    }
-                }
-
-                final Element element = mBinder.getElement();
-                if(element != null) {
-                    mElement.postValue(element);
-                }
-
-                final MeshModel meshModel = mBinder.getMeshModel();
-                if(meshModel != null) {
-                    mMeshModel.postValue(mBinder.getMeshModel());
-                }
             }
         }
 
@@ -276,21 +254,21 @@ public abstract class BaseMeshRepository {
      * @param meshNode mesh node to configure
      */
     public void setModel(final ProvisionedMeshNode meshNode, final int elementAddress, final int modelId) {
-        if(mBinder != null) {
-            mBinder.setMeshNode(meshNode);
+        if(mExtendedMeshNode == null) {
+            mExtendedMeshNode = new ExtendedMeshNode(meshNode);
+        } else {
+            mExtendedMeshNode.updateMeshNode(meshNode);
         }
-        mExtendedMeshNode = new ExtendedMeshNode(meshNode);
+
         final Element element = meshNode.getElements().get(elementAddress);
-        if(mBinder != null) {
-            mBinder.setElement(element);
+        if(element != null) {
+            mElement.postValue(element);
         }
-        mElement.postValue(element);
 
         final MeshModel model = element.getMeshModels().get(modelId);
-        if(mBinder != null) {
-            mBinder.setMeshModel(model);
+        if(model != null) {
+            mMeshModel.postValue(model);
         }
-        mMeshModel.postValue(model);
     }
 
     public ExtendedMeshNode getExtendedMeshNode() {
