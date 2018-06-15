@@ -319,7 +319,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
             if(model instanceof GenericOnOffClientModel) {
                 final CardView cardView = findViewById(R.id.node_controls_card);
                 final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, cardView);
-                cardView.addView(nodeControlsContainer);
                 final TextView stepResolutionHint = nodeControlsContainer.findViewById(R.id.resolution_hint);
                 final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
                 final SeekBar seekBar = nodeControlsContainer.findViewById(R.id.seekbar);
