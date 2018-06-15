@@ -75,8 +75,8 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessage {
     }
 
     @Override
-    public ConfigMessageState getState() {
-        return ConfigMessageState.CONFIG_MODEL_SUBSCRIPTION_ADD;
+    public MessageState getState() {
+        return MessageState.CONFIG_MODEL_SUBSCRIPTION_ADD;
     }
 
     /**

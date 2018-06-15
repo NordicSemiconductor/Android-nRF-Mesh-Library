@@ -71,8 +71,8 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
     }
 
     @Override
-    public ConfigMessageState getState() {
-        return ConfigMessageState.COMPOSITION_DATA_STATUS;
+    public MessageState getState() {
+        return MessageState.COMPOSITION_DATA_STATUS;
     }
 
     public void parseData(final byte[] pdu) {

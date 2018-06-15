@@ -34,8 +34,6 @@ import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -79,8 +77,8 @@ public final class ConfigModelAppBind extends ConfigMessage {
     }
 
     @Override
-    public ConfigMessageState getState() {
-        return ConfigMessageState.CONFIG_MODEL_APP_BIND;
+    public MessageState getState() {
+        return MessageState.CONFIG_MODEL_APP_BIND;
     }
 
     /**

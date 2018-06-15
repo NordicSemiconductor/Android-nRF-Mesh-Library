@@ -101,8 +101,8 @@ public class ConfigAppKeyStatus extends ConfigMessage {
     }
 
     @Override
-    public ConfigMessageState getState() {
-        return ConfigMessageState.APP_KEY_STATUS;
+    public MessageState getState() {
+        return MessageState.APP_KEY_STATUS;
     }
 
     public final void parseData(final byte[] pdu) {

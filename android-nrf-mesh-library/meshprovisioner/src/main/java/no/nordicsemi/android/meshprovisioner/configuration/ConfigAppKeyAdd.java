@@ -65,8 +65,8 @@ public class ConfigAppKeyAdd extends ConfigMessage {
     }
 
     @Override
-    public ConfigMessageState getState() {
-        return ConfigMessageState.APP_KEY_ADD;
+    public MessageState getState() {
+        return MessageState.APP_KEY_ADD;
     }
 
     public void parseData(final byte[] pdu) {

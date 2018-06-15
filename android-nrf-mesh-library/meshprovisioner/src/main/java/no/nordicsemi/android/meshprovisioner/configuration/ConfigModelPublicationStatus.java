@@ -112,8 +112,8 @@ public class ConfigModelPublicationStatus extends ConfigMessage {
     }
 
     @Override
-    public ConfigMessageState getState() {
-        return ConfigMessageState.CONFIG_MODEL_PUBLICATION_STATUS;
+    public MessageState getState() {
+        return MessageState.CONFIG_MODEL_PUBLICATION_STATUS;
     }
 
     public final void parseData(final byte[] pdu) {

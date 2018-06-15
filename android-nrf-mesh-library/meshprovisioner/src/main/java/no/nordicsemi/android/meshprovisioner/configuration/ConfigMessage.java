@@ -37,6 +37,7 @@ import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
+import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
@@ -55,11 +56,11 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
     MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
     private Gson mGson;
 
-    public ConfigMessage(final Context context, final ProvisionedMeshNode unprovisionedMeshNode) {
+    public ConfigMessage(final Context context, final ProvisionedMeshNode provisionedMeshNode) {
         this.mContext = context;
-        this.mProvisionedMeshNode = unprovisionedMeshNode;
+        this.mProvisionedMeshNode = provisionedMeshNode;
         this.mSrc = mProvisionedMeshNode.getConfigurationSrc();
-        this.mMeshTransport = new MeshTransport(context, unprovisionedMeshNode);
+        this.mMeshTransport = new MeshTransport(context, provisionedMeshNode);
         this.mMeshTransport.setCallbacks(this);
         initGson();
     }
@@ -73,7 +74,7 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
         mGson = gsonBuilder.create();
     }
 
-    public abstract ConfigMessageState getState();
+    public abstract MessageState getState();
 
     /**
      * Parses control message and returns the underlying configuration message
@@ -108,7 +109,8 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
         editor.commit();
     }
 
-    public enum ConfigMessageState {
+    public enum MessageState {
+        //Configuration message states
         COMPOSITION_DATA_GET(ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_GET),
         COMPOSITION_DATA_STATUS(ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS),
         APP_KEY_ADD(ConfigMessageOpCodes.CONFIG_APPKEY_ADD),
@@ -119,11 +121,17 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
         CONFIG_MODEL_PUBLICATION_STATUS(ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS),
         CONFIG_MODEL_SUBSCRIPTION_ADD(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD),
         CONFIG_MODEL_SUBSCRIPTION_DELETE(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE),
-        CONFIG_MODEL_SUBSCRIPTION_STATUS(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_STATUS);
+        CONFIG_MODEL_SUBSCRIPTION_STATUS(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_STATUS),
+
+        //Application message states
+        GENERIC_ON_OFF_GET(ApplicationMessageOpCodes.GENERIC_ON_OFF_GET),
+        GENERIC_ON_OFF_SET(ApplicationMessageOpCodes.GENERIC_ON_OFF_SET),
+        GENERIC_ON_OFF_SET_UNACKNOWLEDGED(ApplicationMessageOpCodes.GENERIC_ON_OFF_SET_UNACKNOWLEDGED),
+        GENERIC_ON_OFF_STATUS(ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS);
 
         private int state;
 
-        ConfigMessageState(final int state) {
+        MessageState(final int state) {
             this.state = state;
         }
 

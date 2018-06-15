@@ -108,8 +108,8 @@ public class ConfigModelSubscriptionStatus extends ConfigMessage {
     }
 
     @Override
-    public ConfigMessageState getState() {
-        return ConfigMessageState.CONFIG_MODEL_SUBSCRIPTION_STATUS;
+    public MessageState getState() {
+        return MessageState.CONFIG_MODEL_SUBSCRIPTION_STATUS;
     }
 
     public final void parseData(final byte[] pdu) {

@@ -108,8 +108,8 @@ public final class ConfigModelAppStatus extends ConfigMessage {
     }
 
     @Override
-    public ConfigMessageState getState() {
-        return ConfigMessageState.CONFIG_MODEL_APP_STATUS;
+    public MessageState getState() {
+        return MessageState.CONFIG_MODEL_APP_STATUS;
     }
 
     public void parseData(final byte[] pdu) {
