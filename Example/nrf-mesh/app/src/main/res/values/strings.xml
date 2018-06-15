@@ -288,4 +288,13 @@
     <string name="no_app_keys_added">No app keys are added to this node!</string>
     <string name="app_keys_added">%d app keys added</string>
     <string name="error_no_app_keys_bound">No app keys are bound for this model. Please bind an app key first!</string>
+    <string name="action_generic_on">ON</string>
+    <string name="action_generic_off">OFF</string>
+    <string name="transition_time_interval">%s %s</string>
+    <string name="hint_unsubscribe">Hint: Swipe address to unsubscribe</string>
+    <string name="hint_step_resolution_ms">Currently on 100 ms resolution</string>
+    <string name="hint_step_resolution_s">Currently on 1 s resolution</string>
+    <string name="hint_step_resolution_ten_s">Currently on 10 s resolution</string>
+    <string name="hint_step_resolution_min">Currently on 10 min resolution</string>
+    <string name="title_generic_on_off">Generic On Off Controls</string>
 </resources>

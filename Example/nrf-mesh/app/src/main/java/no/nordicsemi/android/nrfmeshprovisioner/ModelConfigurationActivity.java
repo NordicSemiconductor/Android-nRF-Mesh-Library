@@ -27,15 +27,19 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.Serializable;
@@ -49,6 +53,7 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericOnOffClientModel;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
@@ -56,7 +61,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSubscriptionAddress;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
@@ -73,6 +77,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener, AddressAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
+    private static final String TAG = ModelConfigurationActivity.class.getSimpleName();
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -87,6 +92,9 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     TextView mSubscribeHint;
     @BindView(R.id.configuration_progress_bar)
     ProgressBar mProgressbar;
+
+    private int mTransitionStepResolution;
+    private int mTransitionStep;
 
     private Handler mHandler;
     private  ModelConfigurationViewModel mViewModel;
@@ -212,6 +220,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
             }
         });
 
+        addNodeControlsUi();
+
     }
 
     @Override
@@ -301,5 +311,104 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     @Override
     public void onItemClick(final int position, final byte[] address) {
 
+    }
+
+    private void addNodeControlsUi(){
+        final MeshModel model = mViewModel.getMeshModel().getValue();
+        if(model != null){
+            if(model instanceof GenericOnOffClientModel) {
+                final CardView cardView = findViewById(R.id.node_controls_card);
+                final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, cardView);
+                cardView.addView(nodeControlsContainer);
+                final TextView stepResolutionHint = nodeControlsContainer.findViewById(R.id.resolution_hint);
+                final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
+                final SeekBar seekBar = nodeControlsContainer.findViewById(R.id.seekbar);
+                seekBar.setProgress(0);
+                seekBar.incrementProgressBy(1);
+                seekBar.setMax(230);
+
+                final Button actionOnOff = nodeControlsContainer.findViewById(R.id.action_on_off);
+                actionOnOff.setOnClickListener(v -> {
+                    time.getText().toString();
+                    final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
+                    if(actionOnOff.getText().toString().equals(getString(R.string.action_generic_on))){
+                        mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, true);
+                    } else {
+                        mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, false);
+                    }
+                });
+
+                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    int lastValue = 0;
+                    int resolution1 = 6;
+                    int resolution2 = 6;
+                    int resolution3 = 6;
+                    double res = 0.0;
+                    @Override
+                    public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
+
+                        Log.v(TAG, "Progress: " + progress);
+                        if(progress >= 0 && progress <= 62) {
+                            resolution1 = 6;
+                            resolution2 = 6;
+                            resolution3 = 6;
+                            lastValue = progress;
+                            mTransitionStepResolution = 0;
+                            mTransitionStep = progress;
+                            res = progress / 10.0;
+                            time.setText(getString(R.string.transition_time_interval, String.valueOf(res), "s"));
+                            stepResolutionHint.setText(R.string.hint_step_resolution_ms);
+                        } else if(progress >= 63 && progress <= 118) {
+                            resolution2 = 6;
+                            resolution3 = 6;
+                            if(progress > lastValue) {
+                                resolution1 = progress - 56;
+                                lastValue = progress;
+                            } else if (progress < lastValue){
+                                resolution1 = -(56 - progress);
+                            }
+                            mTransitionStepResolution = 1;
+                            mTransitionStep = resolution3;
+                            time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution1), "s"));
+                            stepResolutionHint.setText(R.string.hint_step_resolution_s);
+
+                        } else if(progress >= 119 && progress <= 174) {
+                            resolution3 = 6;
+                            if(progress > lastValue) {
+                                resolution2 = progress - 112;
+                                lastValue = progress;
+                            } else if (progress < lastValue){
+                                resolution2 = -(112 - progress);
+                            }
+                            mTransitionStepResolution = 2;
+                            mTransitionStep = resolution2;
+                            time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution2 * 10), "s"));
+                            stepResolutionHint.setText(R.string.hint_step_resolution_ten_s);
+                        } else if(progress >= 175 && progress <= 230){
+                            if(progress >= lastValue) {
+                                resolution3 = progress - 168;
+                                lastValue = progress;
+                            } else if (progress < lastValue){
+                                resolution3 = -(168 - progress);
+                            }
+                            mTransitionStepResolution = 3;
+                            mTransitionStep = resolution3;
+                            time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution3 * 10), "min"));
+                            stepResolutionHint.setText(R.string.hint_step_resolution_min);
+                        }
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(final SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(final SeekBar seekBar) {
+
+                    }
+                });
+            }
+        }
     }
 }
