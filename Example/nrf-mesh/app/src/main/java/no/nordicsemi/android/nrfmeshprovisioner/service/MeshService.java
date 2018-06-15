@@ -51,11 +51,11 @@ import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshManagerTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -99,67 +99,115 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         MeshManagerTransportCallbacks {
 
 
-    private static String TAG = MeshProvisionerRepository.class.getSimpleName();
-
+    public static final String NRF_MESH_GROUP_ID = "NRF_MESH_GROUP_ID";
     private static final String PRIMARY_CHANNEL = "PRIMARY_CHANNEL";
     private static final String PRIMARY_CHANNEL_ID = "no.nordicsemi.android.nrfmeshprovisioner";
     private static final int FOREGROUND_NOTIFICATION_ID = 1102;
-    public static final String NRF_MESH_GROUP_ID = "NRF_MESH_GROUP_ID";
-
-    /** Connection states Connecting, Connected, Disconnecting, Disconnected etc. **/
-    private boolean mIsConnected;
-
-    /** Flag to determine if the device is ready **/
-    private boolean mOnDeviceReady;
-
-    /** Flag to determine if a reconnection is in the progress when provisioning has completed **/
-    private boolean mIsReconnecting;
-
-    /** Flag to determine if provisioning was completed **/
-    private boolean mIsProvisioningComplete = false;
-
-    /** Flag to determine if the intial configuration was completed **/
-    private boolean mIsConfigurationComplete = false;
-
-    /** Contains the {@link UnprovisionedMeshNode} **/
-    private ProvisionedMeshNode mMeshNode;
-
-    /** Mesh model to configure **/
-    private MeshModel mMeshModel;
-
-    /** Mesh model to configure **/
-    private Element mElement;
-
-    /** App key bind status **/
-    private ConfigModelPublicationStatusLiveData mConfigModelPublicationStatus = new ConfigModelPublicationStatusLiveData();
-
-    /** Contains the initial provisioning live data **/
-    private ProvisioningSettings mProvisioningSettings;
-
-    /** app key index**/
-    private int mAppKeyIndex;
-
-    /** app key**/
-    private String mAppKey;
-
-    /** flag to avoid adding app key when requesting composition data only as the initial provisioning steps of the app will continue adding app key after a composition data get **/
-    private boolean mShouldAddAppKeyBeAdded = false;
-
-    /** Mesh ble manager handles the ble operations **/
+    private static String TAG = MeshProvisionerRepository.class.getSimpleName();
+    /**
+     * Mesh ble manager handles the ble operations
+     **/
     @Inject
     BleMeshManager mBleMeshManager;
-
     MeshManagerApi mMeshManagerApi;
+    /**
+     * Connection states Connecting, Connected, Disconnecting, Disconnected etc.
+     **/
+    private boolean mIsConnected;
+    /**
+     * Flag to determine if the device is ready
+     **/
+    private boolean mOnDeviceReady;
+    /**
+     * Flag to determine if a reconnection is in the progress when provisioning has completed
+     **/
+    private boolean mIsReconnecting;
+    /**
+     * Flag to determine if provisioning was completed
+     **/
+    private boolean mIsProvisioningComplete = false;
+    /**
+     * Flag to determine if the intial configuration was completed
+     **/
+    private boolean mIsConfigurationComplete = false;
+    /**
+     * Contains the {@link UnprovisionedMeshNode}
+     **/
+    private ProvisionedMeshNode mMeshNode;
+    /**
+     * Mesh model to configure
+     **/
+    private MeshModel mMeshModel;
+    /**
+     * Mesh model to configure
+     **/
+    private Element mElement;
+    /**
+     * App key bind status
+     **/
+    private ConfigModelPublicationStatusLiveData mConfigModelPublicationStatus = new ConfigModelPublicationStatusLiveData();
+    /**
+     * Contains the initial provisioning live data
+     **/
+    private ProvisioningSettings mProvisioningSettings;
+    /**
+     * app key index
+     **/
+    private int mAppKeyIndex;
+    /**
+     * app key
+     **/
+    private String mAppKey;
+    /**
+     * flag to avoid adding app key when requesting composition data only as the initial provisioning steps of the app will continue adding app key after a composition data get
+     **/
+    private boolean mShouldAddAppKeyBeAdded = false;
     private BluetoothDevice mBluetoothDevice;
     private String mDeviceName;
     private Handler mHandler;
     private boolean mIsScanning;
+    private final ScanCallback scanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(final int callbackType, final ScanResult result) {
+            //In order to connect to the correct device, the hash advertised in the advertisement data should be matched.
+            //This is to make sure we connect to the same device as device addresses could change after provisioning.
+            final ScanRecord scanRecord = result.getScanRecord();
+            if (scanRecord != null) {
+                final byte[] serviceData = scanRecord.getServiceData(new ParcelUuid((MESH_PROXY_UUID)));
+                if (serviceData != null) {
+                    if (mMeshManagerApi.isAdvertisedWithNodeIdentity(serviceData)) {
+                        final ProvisionedMeshNode node = mMeshNode;
+                        if (mMeshManagerApi.nodeIdentityMatches(node, serviceData)) {
+                            stopScan();
+                            sendBroadcastConnectivityState(getString(R.string.state_scanning_provisioned_node_found, scanRecord.getDeviceName()));
+                            onProvisionedDeviceFound(node, new ExtendedBluetoothDevice(result));
+                        }
+                    }
+                }
+            }
+        }
 
-    /** Flag to verify if we are connecting to a mesh network or an unprovisioned devices **/
+        @Override
+        public void onBatchScanResults(final List<ScanResult> results) {
+            // Batch scan is disabled (report delay = 0)
+        }
+
+        @Override
+        public void onScanFailed(final int errorCode) {
+
+        }
+    };
+    private final Runnable mScannerTimeout = () -> {
+        Toast.makeText(getApplicationContext(), "Unable to find provisioned device", Toast.LENGTH_SHORT).show();
+        stopScan();
+    };
+    private final Runnable mReconnectRunnable = () -> startScan();
+    /**
+     * Flag to verify if we are connecting to a mesh network or an unprovisioned devices
+     **/
     private boolean mConnectToMeshNetwork;
     private NotificationManager mNotificationManager;
     private NotificationChannel mNotificationChannel;
-
 
     @Override
     public void onCreate() {
@@ -184,7 +232,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
         createForegroundNotification();
-        if(intent.getExtras() != null){
+        if (intent.getExtras() != null) {
             final String action = intent.getAction();
             final ExtendedBluetoothDevice device = intent.getExtras().getParcelable(EXTRA_DEVICE);
             switch (action) {
@@ -205,10 +253,10 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         return START_NOT_STICKY;
     }
 
-    private void createNotificationPrerequisites(){
+    private void createNotificationPrerequisites() {
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if(Utils.checkIfVersionIsOreoOrAbove()) {
-            if(mNotificationChannel == null) {
+        if (Utils.checkIfVersionIsOreoOrAbove()) {
+            if (mNotificationChannel == null) {
                 mNotificationChannel = new NotificationChannel(PRIMARY_CHANNEL_ID, PRIMARY_CHANNEL, NotificationManager.IMPORTANCE_LOW);
             }
             mNotificationManager.createNotificationChannel(mNotificationChannel);
@@ -297,7 +345,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         mOnDeviceReady = true;
         sendBroadcastDeviceReady(true);
 
-        if(!mConnectToMeshNetwork) {
+        if (!mConnectToMeshNetwork) {
             if (mBleMeshManager.isProvisioningComplete()) {
                 if (!mIsConfigurationComplete) {
                     //We update the bluetooth device after a startScan because some devices may start advertising with different mac address
@@ -308,7 +356,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
                         //We set this to true so that once provisioning is complete, it will
                         // continue to with the app key add configuration after the Composition data is received
                         mShouldAddAppKeyBeAdded = true;
-                        }, 2000);
+                    }, 2000);
                 }
             }
         }
@@ -518,7 +566,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.COMPOSITION_DATA_STATUS_RECEIVED.getState());
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
-        if(mShouldAddAppKeyBeAdded) {
+        if (mShouldAddAppKeyBeAdded) {
             //We send app key add after composition is complete. Adding a delay so that we don't send anything before the acknowledgement is sent out.
             mHandler.postDelayed(() -> {
                 final int appKeyIndex = mAppKeyIndex;
@@ -625,19 +673,19 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    private void handleConnectivityStates(final boolean connected){
+    private void handleConnectivityStates(final boolean connected) {
         //Check if provisioning is complete
-        if(mIsProvisioningComplete) {
+        if (mIsProvisioningComplete) {
             //We do a startScan upon provisioning is complete so check for that
-            if(mIsReconnecting){
+            if (mIsReconnecting) {
                 sendBroadcastReconnecting(true);
-            } else if(mIsConfigurationComplete && !connected){
+            } else if (mIsConfigurationComplete && !connected) {
                 //If its not reconnecting, may be the device died/linkloss
                 mIsConnected = false;
                 sendBroadcastIsConnected(false);
             }
         } else {
-            if(!connected) {
+            if (!connected) {
                 mIsConnected = false;
                 sendBroadcastIsConnected(false);
             }
@@ -646,6 +694,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
     /**
      * Broadcast the device connected state
+     *
      * @param isConnected boolean containing connected/disconnected state
      */
     private void sendBroadcastIsConnected(final boolean isConnected) {
@@ -656,6 +705,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
     /**
      * Broadcast the device ready state
+     *
      * @param isReady boolean containing the ready state
      */
     private void sendBroadcastDeviceReady(final boolean isReady) {
@@ -666,6 +716,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
     /**
      * Broadcast the reconnecting state
+     *
      * @param isReconnecting boolean containing the reconnecting state
      */
     private void sendBroadcastReconnecting(final boolean isReconnecting) {
@@ -676,6 +727,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
     /**
      * Broadcast the connectivity state
+     *
      * @param connectionState string containing the state
      */
     private void sendBroadcastConnectivityState(final String connectionState) {
@@ -688,7 +740,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
      * Starts reconnecting to the device
      */
     private void startScan() {
-        if(mIsScanning)
+        if (mIsScanning)
             return;
 
         mIsScanning = true;
@@ -724,53 +776,34 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         mIsScanning = false;
     }
 
-    private final Runnable mReconnectRunnable = () -> startScan();
+    private void onProvisionedDeviceFound(final ProvisionedMeshNode node, final ExtendedBluetoothDevice device) {
+        node.setBluetoothDeviceAddress(device.getAddress());
+        mMeshNode = node;
+        connect(device);
+    }
 
-    private final Runnable mScannerTimeout = () -> {
-        Toast.makeText(getApplicationContext(), "Unable to find provisioned device", Toast.LENGTH_SHORT).show();
-        stopScan();
-    };
-
-    private final ScanCallback scanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(final int callbackType, final ScanResult result) {
-            //In order to connect to the correct device, the hash advertised in the advertisement data should be matched.
-            //This is to make sure we connect to the same device as device addresses could change after provisioning.
-            final ScanRecord scanRecord = result.getScanRecord();
-            if(scanRecord != null) {
-                final byte[] serviceData = scanRecord.getServiceData(new ParcelUuid((MESH_PROXY_UUID)));
-                if (serviceData != null) {
-                    if (mMeshManagerApi.isAdvertisedWithNodeIdentity(serviceData)) {
-                        final ProvisionedMeshNode node = mMeshNode;
-                        if(mMeshManagerApi.nodeIdentityMatches(node, serviceData)) {
-                            stopScan();
-                            sendBroadcastConnectivityState(getString(R.string.state_scanning_provisioned_node_found, scanRecord.getDeviceName()));
-                            onProvisionedDeviceFound(node, new ExtendedBluetoothDevice(result));
-                        }
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void onBatchScanResults(final List<ScanResult> results) {
-            // Batch scan is disabled (report delay = 0)
-        }
-
-        @Override
-        public void onScanFailed(final int errorCode) {
-
-        }
-    };
+    /**
+     * Connect to peripheral
+     *
+     * @param device bluetooth device
+     */
+    public void connect(final ExtendedBluetoothDevice device) {
+        final LogSession logSession = Logger.newSession(getApplicationContext(), null, device.getAddress(), device.getName());
+        mBleMeshManager.setLogger(logSession);
+        mBluetoothDevice = device.getDevice();
+        mDeviceName = device.getName();
+        mBleMeshManager.connect(device.getDevice());
+    }
 
     public class MeshServiceBinder extends Binder {
 
-        public MeshManagerApi getMeshManagerApi(){
+        public MeshManagerApi getMeshManagerApi() {
             return mMeshManagerApi;
         }
 
         /**
          * Connect to peripheral
+         *
          * @param device bluetooth device
          */
         public void connect(final ExtendedBluetoothDevice device) {
@@ -793,12 +826,13 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             mBleMeshManager.disconnect();
         }
 
-        public Map<Integer, ProvisionedMeshNode> getProvisionedNodes(){
+        public Map<Integer, ProvisionedMeshNode> getProvisionedNodes() {
             return mMeshManagerApi.getProvisionedNodes();
         }
 
         /**
          * Send composition data get message
+         *
          * @param meshNode meshnode
          */
         public void sendCompositionDataGet(final ProvisionedMeshNode meshNode) {
@@ -815,38 +849,40 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             return mMeshManagerApi.generateNetworkId(networkKey);
         }
 
-        public void setMeshNode(final ProvisionedMeshNode node) {
-            if(node != null) {
-                mMeshNode = node;
-            }
-        }
-
         public ProvisionedMeshNode getMeshNode() {
             return mMeshNode;
         }
 
+        public void setMeshNode(final ProvisionedMeshNode node) {
+            if (node != null) {
+                mMeshNode = node;
+            }
+        }
+
+        public Element getElement() {
+            return mElement;
+        }
+
         /**
          * Selects the mesh model to be configured
+         *
          * @param element element belonging to the node
          */
         public void setElement(final Element element) {
             mElement = element;
         }
 
-        public Element getElement(){
-            return mElement;
+        public MeshModel getMeshModel() {
+            return mMeshModel;
         }
 
         /**
          * Selects the mesh model to be configured
+         *
          * @param meshModel updates the mesh model
          */
         public void setMeshModel(final MeshModel meshModel) {
             mMeshModel = meshModel;
-        }
-
-        public MeshModel getMeshModel() {
-            return mMeshModel;
         }
 
         public ConfigModelPublicationStatusLiveData getConfigModelPublicationStatus() {
@@ -881,6 +917,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
         /**
          * Get composition data from the node
+         *
          * @param node corresponding mesh node
          */
         public void sendGetCompositionData(final ProvisionedMeshNode node) {
@@ -888,7 +925,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             mMeshManagerApi.getCompositionData(node);
         }
 
-        public void sendAppKeyAdd(final int appKeyIndex, final String appKey){
+        public void sendAppKeyAdd(final int appKeyIndex, final String appKey) {
             mAppKeyIndex = appKeyIndex;
             mAppKey = appKey;
             mMeshManagerApi.addAppKey(mMeshNode, appKeyIndex, appKey);
@@ -903,10 +940,11 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
         /**
          * Binds appkey to model
-         * @param meshNode corresponding mesh node
+         *
+         * @param meshNode       corresponding mesh node
          * @param elementAddress element address in the node
-         * @param meshModel mesh model
-         * @param appKeyIndex index of the application key that has already been added to the mesh node
+         * @param meshModel      mesh model
+         * @param appKeyIndex    index of the application key that has already been added to the mesh node
          */
         public void sendBindAppKey(final ProvisionedMeshNode meshNode, final byte[] elementAddress, final MeshModel meshModel, final int appKeyIndex) {
             mMeshManagerApi.bindAppKey(meshNode, elementAddress, meshModel, appKeyIndex);
@@ -914,7 +952,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
         public void sendConfigModelPublishAddressSet(final ProvisionedMeshNode node, final Element element, final MeshModel meshModel, final int appKeyIndex, final byte[] publishAddress) {
             mMeshManagerApi.setConfigModelPublishAddress(node,
-                    element.getElementAddress(), publishAddress, appKeyIndex, meshModel.getModelId(), 0, 0xFF, 0, 0, 0 );
+                    element.getElementAddress(), publishAddress, appKeyIndex, meshModel.getModelId(), 0, 0xFF, 0, 0, 0);
         }
 
         public void sendConfigModelSubscriptionAdd(final ProvisionedMeshNode node, final Element element, final MeshModel meshModel, final byte[] subsciptionAddress) {
@@ -955,23 +993,24 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         public ProvisioningSettings getProvisioningSettings() {
             return mMeshManagerApi.getProvisioningSettings();
         }
-    }
 
-    private void onProvisionedDeviceFound(final ProvisionedMeshNode node, final ExtendedBluetoothDevice device) {
-        node.setBluetoothDeviceAddress(device.getAddress());
-        mMeshNode = node;
-        connect(device);
-    }
-
-    /**
-     * Connect to peripheral
-     * @param device bluetooth device
-     */
-    public void connect(final ExtendedBluetoothDevice device) {
-        final LogSession logSession = Logger.newSession(getApplicationContext(), null, device.getAddress(), device.getName());
-        mBleMeshManager.setLogger(logSession);
-        mBluetoothDevice = device.getDevice();
-        mDeviceName = device.getName();
-        mBleMeshManager.connect(device.getDevice());
+        /**
+         * Send generic on off to mesh node
+         *
+         * @param node                 mesh node to send to
+         * @param elementAddress       address to which the message must be sent to to which this model belongs to
+         * @param model                model identifier
+         * @param transitionSteps      the number of steps
+         * @param transitionResolution the resolution for the number of steps
+         * @param state                on off state
+         */
+        public void sendGenericOnOff(final ProvisionedMeshNode node, final byte[] elementAddress, final MeshModel model, final Integer transitionSteps, final Integer transitionResolution, final boolean state) {
+            if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+                mMeshManagerApi.setGenericOnOff(node, elementAddress, model, appKeyIndex, transitionSteps, transitionResolution, state);
+            } else {
+                Toast.makeText(getApplicationContext(), R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();;
+            }
+        }
     }
 }

@@ -58,6 +58,7 @@ public class ModelConfigurationViewModel extends ViewModel {
 
     /**
      * Returns the Mesh repository
+     *
      * @return mesh repository
      */
     public ModelConfigurationRepository getMeshRepository() {
@@ -66,13 +67,14 @@ public class ModelConfigurationViewModel extends ViewModel {
 
     /**
      * Returns the selected mesh model
+     *
      * @return meshmodel live data object
      */
     public LiveData<MeshModel> getMeshModel() {
         return mModelConfigurationRepository.getMeshModel();
     }
 
-    public ExtendedMeshNode getExtendedMeshNode(){
+    public ExtendedMeshNode getExtendedMeshNode() {
         return mModelConfigurationRepository.getExtendedMeshNode();
     }
 
@@ -106,5 +108,17 @@ public class ModelConfigurationViewModel extends ViewModel {
 
     public void setModel(final ProvisionedMeshNode meshNode, final int elementAddress, final int modelId) {
         mModelConfigurationRepository.setModel(meshNode, elementAddress, modelId);
+    }
+
+    /**
+     * Send generic on off to mesh node
+     *
+     * @param node                 mesh node to send to
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param state                on off state
+     */
+    public void sendGenericOnOff(final ProvisionedMeshNode node, final Integer transitionSteps, final Integer transitionResolution, final boolean state) {
+        mModelConfigurationRepository.sendGenericOnOff(node, transitionSteps, transitionResolution, state);
     }
 }

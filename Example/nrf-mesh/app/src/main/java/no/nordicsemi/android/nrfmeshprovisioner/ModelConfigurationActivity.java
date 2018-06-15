@@ -33,7 +33,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,7 +52,7 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
-import no.nordicsemi.android.meshprovisioner.models.GenericOnOffClientModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
@@ -316,12 +315,12 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     private void addNodeControlsUi(){
         final MeshModel model = mViewModel.getMeshModel().getValue();
         if(model != null){
-            if(model instanceof GenericOnOffClientModel) {
+            if(model instanceof GenericOnOffServerModel) {
                 final CardView cardView = findViewById(R.id.node_controls_card);
                 final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, cardView);
                 final TextView stepResolutionHint = nodeControlsContainer.findViewById(R.id.resolution_hint);
                 final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
-                final SeekBar seekBar = nodeControlsContainer.findViewById(R.id.seekbar);
+                final SeekBar seekBar = nodeControlsContainer.findViewById(R.id.transition_seekbar);
                 seekBar.setProgress(0);
                 seekBar.incrementProgressBy(1);
                 seekBar.setMax(230);
@@ -331,8 +330,12 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     time.getText().toString();
                     final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
                     if(actionOnOff.getText().toString().equals(getString(R.string.action_generic_on))){
+                        actionOnOff.setText(R.string.action_generic_off);
+                        //TODO wait for sdk implementation to test this
                         mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, true);
                     } else {
+                        actionOnOff.setText(R.string.action_generic_on);
+                        //TODO wait for sdk implementation to test this
                         mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, false);
                     }
                 });
@@ -346,7 +349,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     @Override
                     public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
 
-                        Log.v(TAG, "Progress: " + progress);
                         if(progress >= 0 && progress <= 62) {
                             resolution1 = 6;
                             resolution2 = 6;

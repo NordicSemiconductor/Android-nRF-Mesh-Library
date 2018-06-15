@@ -27,8 +27,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
@@ -85,7 +85,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         handleConfigurationStates(intent);
     }
 
-    private void handleConfigurationStates(final Intent intent){
+    private void handleConfigurationStates(final Intent intent) {
         final int state = intent.getExtras().getInt(EXTRA_CONFIGURATION_STATE);
         final MeshNodeStates.MeshNodeStatus status = MeshNodeStates.MeshNodeStatus.fromStatusCode(state);
         final ProvisionedMeshNode node = mBinder.getMeshNode();
@@ -112,7 +112,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
                 break;
             case APP_KEY_STATUS_RECEIVED:
-                if(intent.getExtras() != null) {
+                if (intent.getExtras() != null) {
                     final int statusCode = intent.getExtras().getInt(EXTRA_STATUS);
                     mExtendedMeshNode.updateMeshNode(node);
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state, statusCode);
@@ -173,6 +173,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
 
     /**
      * Binds appkey to model
+     *
      * @param appKeyIndex index of the application key that has already been added to the mesh node
      */
     public void bindAppKey(final int appKeyIndex) {
@@ -203,5 +204,19 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         final Element element = mElement.getValue();
         final MeshModel model = mMeshModel.getValue();
         mBinder.sendConfigModelSubscriptionDelete(node, element, model, subscriptionAddress);
+    }
+
+    /**
+     * Send generic on off to mesh node
+     *
+     * @param node                 mesh node to send to
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param state                on off state
+     */
+    public void sendGenericOnOff(final ProvisionedMeshNode node, final Integer transitionSteps, final Integer transitionResolution, final boolean state) {
+        final Element element = mElement.getValue();
+        final MeshModel model = mMeshModel.getValue();
+        mBinder.sendGenericOnOff(node, element.getElementAddress(), model, transitionSteps, transitionResolution, state);
     }
 }

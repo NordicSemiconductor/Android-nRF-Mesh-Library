@@ -36,6 +36,8 @@ import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelPublicatio
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionDelete;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffSet;
+import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 
@@ -138,7 +140,7 @@ class MeshConfigurationHandler {
         }
     }
 
-    public ConfigMessage.ConfigMessageState getConfigurationState() {
+    public ConfigMessage.MessageState getConfigurationState() {
         return configMessage.getState();
     }
 
@@ -169,7 +171,8 @@ class MeshConfigurationHandler {
 
     /**
      * Binds app key to a specified model
-     *  @param meshNode        mesh node containing the model
+     *
+     * @param meshNode        mesh node containing the model
      * @param aszmic          application size, if 0 uses 32-bit encryption and 64-bit otherwise
      * @param elementAddress  address of the element containing the model
      * @param modelIdentifier identifier of the model. This could be 16-bit SIG Model or a 32-bit Vendor model identifier
@@ -187,6 +190,7 @@ class MeshConfigurationHandler {
 
     /**
      * Set a publish address for configuration model
+     *
      * @param meshNode                       Mesh node containing the model
      * @param elementAddress                 Address of the element containing the model
      * @param publishAddress                 Address to which the model must publish
@@ -241,5 +245,25 @@ class MeshConfigurationHandler {
         configModelSubscriptionDelete.setConfigurationStatusCallbacks(mStatusCallbacks);
         configModelSubscriptionDelete.executeSend();
         configMessage = new ConfigModelSubscriptionStatus(mContext, meshNode, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE, mInternalTransportCallbacks, mStatusCallbacks);
+    }
+
+    /**
+     * Send generic on off to mesh node
+     *
+     * @param node                 mesh node to send to
+     * @param model                Mesh model to control
+     * @param address              this address could be the unicast address of the element or the subscribe address
+     * @param aszmic               if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
+     * @param appKeyIndex          index of the app key to encrypt the message with
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param state                on off state
+     */
+    public void setGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final boolean state) {
+        final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(mContext, node, model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, state);
+        genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
+        genericOnOffSet.setConfigurationStatusCallbacks(mStatusCallbacks);
+        genericOnOffSet.executeSend();
+        configMessage = genericOnOffSet;
     }
 }
