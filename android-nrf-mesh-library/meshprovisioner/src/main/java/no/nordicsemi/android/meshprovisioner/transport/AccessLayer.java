@@ -61,8 +61,14 @@ public abstract class AccessLayer {
         final int opCode = accessMessage.getOpCode();
         final byte[] opCodes = MeshParserUtils.getOpCodes(opCode);
         final byte[] parameters = accessMessage.getParameters();
-        final ByteBuffer accessMessageBuffer = ByteBuffer.allocate(opCodes.length + parameters.length);
-        accessMessageBuffer.put(opCodes).put(parameters);
+        final ByteBuffer accessMessageBuffer;
+        if(parameters != null) {
+            accessMessageBuffer = ByteBuffer.allocate(opCodes.length + parameters.length);
+            accessMessageBuffer.put(opCodes).put(parameters);
+        } else {
+            accessMessageBuffer = ByteBuffer.allocate(opCodes.length);
+            accessMessageBuffer.put(opCodes);
+        }
         accessMessage.setAccessPdu(accessMessageBuffer.array());
     }
 
