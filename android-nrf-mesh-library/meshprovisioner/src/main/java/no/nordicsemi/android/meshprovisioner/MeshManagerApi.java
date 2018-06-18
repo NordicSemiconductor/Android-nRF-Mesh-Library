@@ -721,6 +721,28 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     }
 
     /**
+     * Send generic on off get to mesh node
+     *
+     * @param node        mesh node to send generic on off get
+     * @param model       model to control
+     * @param appKeyIndex application key index
+     */
+    public void getGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex) {
+
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshConfigurationHandler.getGenericOnOff(node, model, dstAddress, false, appKeyIndex);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+    /**
      * Send generic on off set to mesh node
      *
      * @param node                 mesh node to send generic on off get
@@ -747,21 +769,25 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         }
     }
 
-
     /**
-     * Send generic on off get to mesh node
+     * Send generic on off set unacknowledged message to mesh node
      *
-     * @param node        mesh node to send generic on off get
-     * @param model       model to control
-     * @param appKeyIndex application key index
+     * @param node                 mesh node to send generic on off get
+     * @param model                model to control
+     * @param dstAddress           address of the element the mesh model belongs to
+     * @param appKeyIndex          application key index
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     * @param state                on off state
      */
-    public void getGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex) {
-
+    public void setGenericOnOffUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
+                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state) {
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
             if (appKeyIndex >= 0) {
                 if (dstAddress == null)
                     throw new IllegalArgumentException("Destination address cannot be null!");
-                mMeshConfigurationHandler.getGenericOnOff(node, model, dstAddress, false, appKeyIndex);
+                mMeshConfigurationHandler.setGenericOnOffUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
             } else {
                 throw new IllegalArgumentException("Invalid app key index!");
             }
@@ -769,4 +795,5 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
         }
     }
+
 }

@@ -1008,6 +1008,18 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         }
 
         /**
+         * Send generic on off get to mesh node
+         *
+         * @param node                 mesh node to send generic on off get
+         * @param model                model identifier
+         * @param address              address to which the message must be sent to to which this model belongs to
+         */
+        public void sendGenericOnOffGet(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex) {
+
+            mMeshManagerApi.getGenericOnOff(node, model, address, appKeyIndex);
+        }
+
+        /**
          * Send generic on off set to mesh node
          *
          * @param node                 mesh node to send generic on off get
@@ -1025,15 +1037,20 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         }
 
         /**
-         * Send generic on off get to mesh node
+         * Send generic on off set unacknowledged to mesh node
          *
          * @param node                 mesh node to send generic on off get
          * @param model                model identifier
          * @param address              address to which the message must be sent to to which this model belongs to
+         * @param transitionSteps      the number of steps
+         * @param transitionResolution the resolution for the number of steps
+         * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+         * @param state                on off state
          */
-        public void sendGenericOnOffGet(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex) {
+        public void sendGenericOnOffSetUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex,
+                                        final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
 
-            mMeshManagerApi.getGenericOnOff(node, model, address, appKeyIndex);
+            mMeshManagerApi.setGenericOnOffUnacknowledged(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
         }
     }
 }

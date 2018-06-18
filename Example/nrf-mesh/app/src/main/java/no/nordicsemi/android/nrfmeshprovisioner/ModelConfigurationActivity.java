@@ -346,14 +346,16 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     try {
                         final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
                         if(mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on))){
-                            //TODO wait for sdk implementation to test this
+                            mActionOnOff.setText(R.string.action_generic_off);
+                            onOffState.setText(R.string.generic_state_on);
+                            //TODO wait for sdk implementation to test for transition state
                             mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), true);
                         } else {
-                            //TODO wait for sdk implementation to test this
+                            mActionOnOff.setText(R.string.action_generic_on);
+                            onOffState.setText(R.string.generic_state_off);
+                            //TODO wait for sdk implementation to test for transition state
                             mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), false);
                         }
-                        mActionOnOff.setEnabled(false);
-                        showProgressbar();
                     } catch (IllegalArgumentException ex) {
                         Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
                     }
