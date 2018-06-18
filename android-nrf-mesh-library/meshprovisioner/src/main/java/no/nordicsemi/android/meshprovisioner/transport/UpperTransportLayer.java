@@ -36,24 +36,24 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 abstract class UpperTransportLayer extends AccessLayer {
 
-    protected static final int APPLICATION_KEY_IDENTIFIER = 0; //Identifies that the device key is to be used
-    protected static final int MAX_UNSEGMENTED_ACCESS_PAYLOAD_LENGTH = 15;
-    protected static final int MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH = 12;
-    protected static final int MAX_UNSEGMENTED_CONTROL_PAYLOAD_LENGTH = 11;
-    protected static final int MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH = 8;
+    private static final int APPLICATION_KEY_IDENTIFIER = 0; //Identifies that the device key is to be used
+    private static final int MAX_UNSEGMENTED_ACCESS_PAYLOAD_LENGTH = 15;
+    static final int MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH = 12;
+    static final int MAX_UNSEGMENTED_CONTROL_PAYLOAD_LENGTH = 11;
+    static final int MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH = 8;
     /**
      * Nonce types
      **/
-    protected static final int NONCE_TYPE_NETWORK = 0x00;
-    protected static final int NONCE_TYPE_APPLICATION = 0x01;
-    protected static final int NONCE_TYPE_DEVICE = 0x02;
-    protected static final int NONCE_TYPE_PROXY = 0x03;
+    static final int NONCE_TYPE_NETWORK = 0x00;
+    private static final int NONCE_TYPE_APPLICATION = 0x01;
+    private static final int NONCE_TYPE_DEVICE = 0x02;
+    static final int NONCE_TYPE_PROXY = 0x03;
     /**
      * Nonce paddings
      **/
-    protected static final int PAD_NETWORK_NONCE = 0x00;
-    protected static final int PAD_APPLICATION_DEVICE_NONCE = 0b0000000;
-    protected static final int PAD_PROXY_NONCE = 0x00;
+    static final int PAD_NETWORK_NONCE = 0x00;
+    private static final int PAD_APPLICATION_DEVICE_NONCE = 0b0000000;
+    static final int PAD_PROXY_NONCE = 0x00;
     private static final String TAG = UpperTransportLayer.class.getSimpleName();
     private static final int SZMIC = 1; //Transmic becomes 8 bytes
     private static final int TRANSPORT_SAR_SEQZERO_MASK = 8191;
@@ -61,10 +61,16 @@ abstract class UpperTransportLayer extends AccessLayer {
     private static final int MINIMUM_TRANSMIC_LENGTH = 4; // bytes
     private static final int MAXIMUM_TRANSMIC_LENGTH = 8; // bytes
 
+
+    private UpperTransportLayerCallbacks mUpperTransportLayerCallbacks;
+
+    protected void setUpperTransportLayerCallbacks(final UpperTransportLayerCallbacks callbacks) {
+        mUpperTransportLayerCallbacks = callbacks;
+    }
+
     /**
      * Creates a mesh message containing an upper transport access pdu
      * @param message The access message required to create the encrypted upper transport pdu
-     * @return Encrypted upper transport PDU
      */
     void createMeshMessage(final Message message) { //Access message
         super.createMeshMessage(message);
@@ -77,7 +83,6 @@ abstract class UpperTransportLayer extends AccessLayer {
     /**
      * Creates the upper transport access pdu
      * @param accessMessage The access message required to create the encrypted upper transport pdu
-     * @return Encrypted upper transport PDU
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public void createUpperTransportPDU(final AccessMessage accessMessage) { //Access message
@@ -116,7 +121,7 @@ abstract class UpperTransportLayer extends AccessLayer {
      *
      * @param message access message containing the upper transport pdu
      */
-    protected final void parseUpperTransportPDU(final AccessMessage message) {
+    final void parseUpperTransportPDU(final AccessMessage message) {
         final int ctl = message.getCtl();
         if (ctl == 0) { //Access message
             reassembleLowerTransportAccessPDU(message);
@@ -139,8 +144,7 @@ abstract class UpperTransportLayer extends AccessLayer {
         } else {
             nonce = createApplicationNonce(aszmic, sequenceNumber, src, dst, ivIndex);
         }
-        final byte[] encryptedUpperTransportPDU = SecureUtils.encryptCCM(accessPDU, key, nonce, transMicLength);
-        return encryptedUpperTransportPDU;
+        return SecureUtils.encryptCCM(accessPDU, key, nonce, transMicLength);
     }
 
     /**
@@ -178,8 +182,7 @@ abstract class UpperTransportLayer extends AccessLayer {
             transMicLength = SecureUtils.getTransMicLength(message.getAszmic());
         }
 
-        final byte[] encryptedUpperTransportPDU = SecureUtils.encryptCCM(accessPDU, key, nonce, transMicLength);
-        return encryptedUpperTransportPDU;
+        return SecureUtils.encryptCCM(accessPDU, key, nonce, transMicLength);
     }
 
     /**
@@ -189,14 +192,31 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @return decrypted upper transport pdu
      */
     private byte[] decryptUpperTransportPDU(final AccessMessage accessMessage) {
-        byte[] decryptedUpperTansportPDU = null;
-        final byte[] deviceKey = mMeshNode.getDeviceKey();
-
-        final byte[] deviceNonce = createDeviceNonce(accessMessage.getAszmic(), accessMessage.getSequenceNumber(), accessMessage.getSrc(), accessMessage.getDst(), accessMessage.getIvIndex());
-        if (accessMessage.getAszmic() == SZMIC) {
-            decryptedUpperTansportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), deviceKey, deviceNonce, MAXIMUM_TRANSMIC_LENGTH);
+        byte[] decryptedUpperTansportPDU;
+        final byte[] key;
+        //Check if the key used for encryption is an application key or a device key
+        final byte[] nonce;
+        if(APPLICATION_KEY_IDENTIFIER == accessMessage.getAkf()) {
+            key = mMeshNode.getDeviceKey();
+            //If its a device key that was used to encrypt the message we need to create a device nonce to decrypt it
+            nonce = createDeviceNonce(accessMessage.getAszmic(), accessMessage.getSequenceNumber(), accessMessage.getSrc(), accessMessage.getDst(), accessMessage.getIvIndex());
         } else {
-            decryptedUpperTansportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), deviceKey, deviceNonce, MINIMUM_TRANSMIC_LENGTH);
+            key = mUpperTransportLayerCallbacks.getApplicationKey();
+            if(key == null)
+                throw new IllegalArgumentException("Unable to find the app key to decrypt the message");
+
+            final int aid = SecureUtils.calculateK4(key);
+            if(aid != accessMessage.getAid()) {
+                throw new IllegalArgumentException("Unable to decrypt the message, invalid application key identifier");
+            }
+            //If its an application key that was used to encrypt the message we need to create a application nonce to decrypt it
+            nonce = createApplicationNonce(accessMessage.getAszmic(), accessMessage.getSequenceNumber(), accessMessage.getSrc(), accessMessage.getDst(), accessMessage.getIvIndex());
+        }
+
+        if (accessMessage.getAszmic() == SZMIC) {
+            decryptedUpperTansportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, MAXIMUM_TRANSMIC_LENGTH);
+        } else {
+            decryptedUpperTansportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, MINIMUM_TRANSMIC_LENGTH);
         }
 
         final byte[] tempBytes = new byte[decryptedUpperTansportPDU.length];
@@ -254,7 +274,7 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @param seqZero                    the lower 13 bits of the sequence number. This is a part of the lower transport pdu header and is the same value for all segments
      * @return original transport layer sequence number that was used to encrypt the transport layer pdu
      */
-    protected final int getTransportLayerSequenceNumber(final int networkLayerSequenceNumber, final int seqZero) {
+    final int getTransportLayerSequenceNumber(final int networkLayerSequenceNumber, final int seqZero) {
         if ((networkLayerSequenceNumber & TRANSPORT_SAR_SEQZERO_MASK) < seqZero) {
             return ((networkLayerSequenceNumber - ((networkLayerSequenceNumber & TRANSPORT_SAR_SEQZERO_MASK) - seqZero) - (TRANSPORT_SAR_SEQZERO_MASK + 1)));
         } else {

@@ -53,13 +53,14 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
     private final Map<Integer, byte[]> segmentedControlMessageMap = new HashMap<>();
 
     private LowerTransportLayerCallbacks mLowerTransportLayerCallbacks;
+
     private boolean mSegmentedAccessAcknowledgementTimerStarted;
     private Integer mSegmentedAccessBlockAck;
 
     private boolean mSegmentedControlAcknowledgementTimerStarted;
     private Integer mSegmentedControlBlockAck;
 
-    protected void setCallbacks(final LowerTransportLayerCallbacks callbacks) {
+    protected void setLowerTransportLayerCallbacks(final LowerTransportLayerCallbacks callbacks) {
         mLowerTransportLayerCallbacks = callbacks;
     }
 
@@ -353,7 +354,19 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
                 final HashMap<Integer, byte[]> messages = new HashMap<>();
                 messages.put(0, lowerTransportPDU);
                 message.setSegmented(false);
-                message.setAszmic(0);
+                message.setAszmic(0); //aszmic is always 0 for unsegmented access messages
+                message.setAkf(akf);
+                message.setAid(aid);
+                message.setLowerTransportAccessPdu(messages);
+            } else {
+                final int lowerTransportPduLength = pdu.length - 10;
+                final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(lowerTransportPduLength).order(ByteOrder.BIG_ENDIAN);
+                lowerTransportBuffer.put(pdu, 10, lowerTransportPduLength);
+                final byte[] lowerTransportPDU = lowerTransportBuffer.array();
+                final HashMap<Integer, byte[]> messages = new HashMap<>();
+                messages.put(0, lowerTransportPDU);
+                message.setSegmented(false);
+                message.setAszmic(0); //aszmic is always 0 for unsegmented access messages
                 message.setAkf(akf);
                 message.setAid(aid);
                 message.setLowerTransportAccessPdu(messages);
