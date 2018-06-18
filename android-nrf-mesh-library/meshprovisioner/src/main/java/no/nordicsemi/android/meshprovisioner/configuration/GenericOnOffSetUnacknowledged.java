@@ -36,10 +36,10 @@ public class GenericOnOffSetUnacknowledged extends ConfigMessage implements Lowe
     private final int mAppKeyIndex;
 
     public GenericOnOffSetUnacknowledged(final Context context, final ProvisionedMeshNode provisionedMeshNode, final MeshModel model, final boolean aszmic,
-                                         final byte[] elementAddress, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
+                                         final byte[] dstAddress, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
         super(context, provisionedMeshNode);
         this.mAszmic = aszmic ? 1 : 0;
-        this.dstAddress = elementAddress;
+        this.dstAddress = dstAddress;
         this.mMeshModel = model;
         this.mAppKeyIndex = appKeyIndex;
         this.mTransitionSteps = transitionSteps;
