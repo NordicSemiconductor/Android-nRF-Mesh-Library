@@ -85,12 +85,11 @@
             android:paddingStart="@dimen/item_padding_start"
             android:paddingEnd="@dimen/item_padding_end"
             android:textSize="18sp"
-            android:text="@string/delay"
+            android:text="@string/generic_on_off_step_delay"
             android:gravity="start"
             app:layout_constraintTop_toBottomOf="@id/transition_seekbar"
             app:layout_constraintStart_toStartOf="@id/delay_seekbar"
-            app:layout_constraintEnd_toStartOf="@id/transition_time"
-            tools:ignore="HardcodedText"/>
+            app:layout_constraintEnd_toStartOf="@id/transition_time"/>
 
         <TextView
             android:id="@+id/delay_time"
