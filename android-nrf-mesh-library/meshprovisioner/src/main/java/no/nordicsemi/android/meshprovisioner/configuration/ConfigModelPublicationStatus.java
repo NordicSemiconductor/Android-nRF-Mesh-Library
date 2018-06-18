@@ -171,7 +171,7 @@ public class ConfigModelPublicationStatus extends ConfigMessage {
                         model.setSubscriptionAddress(this);
                     }
                     mConfigStatusCallbacks.onPublicationStatusReceived(mProvisionedMeshNode, isSuccessful, status, elementAddress, publishAddress, getModelIdentifierInt());
-                    updateSavedProvisionedNode(mContext, mProvisionedMeshNode);
+                    mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
@@ -239,24 +239,6 @@ public class ConfigModelPublicationStatus extends ConfigMessage {
 
     public int getPublishRetransmitIntervalSteps() {
         return publishRetransmitIntervalSteps;
-    }
-
-    /**
-     * Returns the bound app key indexes
-     *
-     * @return appkeyindex int
-     */
-    public byte[] getAppKeyIndex() {
-        return appKeyIndex;
-    }
-
-    /**
-     * Returns the appkeyindex as int
-     *
-     * @return appkeyindex int
-     */
-    public int getAppKeyIndexInt() {
-        return ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 
     /**

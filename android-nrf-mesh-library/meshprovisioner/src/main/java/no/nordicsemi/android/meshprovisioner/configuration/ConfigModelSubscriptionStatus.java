@@ -158,7 +158,7 @@ public class ConfigModelSubscriptionStatus extends ConfigMessage {
                             model.removeSubscriptionAddress(mSubscriptionAddress);
                         }
                     }
-                    updateSavedProvisionedNode(mContext, mProvisionedMeshNode);
+                    mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
                     mConfigStatusCallbacks.onSubscriptionStatusReceived(mProvisionedMeshNode, isSuccessful, status, elementAddress, mSubscriptionAddress, getModelIdentifierInt());
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);

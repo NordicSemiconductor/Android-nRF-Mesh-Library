@@ -131,4 +131,8 @@ public class ModelConfigurationViewModel extends ViewModel {
     public void sendGenericOnOffGet(final ProvisionedMeshNode node) {
         mModelConfigurationRepository.sendGenericOnOffGet(node);
     }
+
+    public LiveData<Boolean> getGenericOnOffState() {
+        return mModelConfigurationRepository.getGenericOnOffState();
+    }
 }

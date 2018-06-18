@@ -2,6 +2,7 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 
 
 import android.content.Context;
+import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
@@ -12,14 +13,13 @@ import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallba
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-public class GenericOnOffGet extends ConfigMessage implements LowerTransportLayerCallbacks{
+public class GenericOnOffGet extends ConfigMessage {
 
 
     private static final String TAG = GenericOnOffGet.class.getSimpleName();
 
     private final int mAszmic;
     private final byte[] dstAddress;
-    private final MeshModel mMeshModel;
     private final int mAppKeyIndex;
 
     public GenericOnOffGet(final Context context, final ProvisionedMeshNode provisionedMeshNode, final MeshModel model, final boolean aszmic,
@@ -52,7 +52,7 @@ public class GenericOnOffGet extends ConfigMessage implements LowerTransportLaye
         int akf = 1;
         int aid = SecureUtils.calculateK4(key);
         final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, dstAddress, key, akf, aid, mAszmic,
-                ApplicationMessageOpCodes.GENERIC_ON_OFF_SET, null);
+                ApplicationMessageOpCodes.GENERIC_ON_OFF_GET, null);
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 
@@ -72,6 +72,9 @@ public class GenericOnOffGet extends ConfigMessage implements LowerTransportLaye
 
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
-
+        final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
+        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
+        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
+        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 }

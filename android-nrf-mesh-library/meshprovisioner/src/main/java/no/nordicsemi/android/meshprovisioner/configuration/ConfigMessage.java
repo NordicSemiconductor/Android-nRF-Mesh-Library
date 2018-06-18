@@ -23,7 +23,6 @@
 package no.nordicsemi.android.meshprovisioner.configuration;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -40,8 +39,8 @@ import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallbacks;
+import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
 
@@ -55,13 +54,15 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
     private Gson mGson;
+    protected MeshModel mMeshModel;
+    protected int mAppKeyIndex;
 
     public ConfigMessage(final Context context, final ProvisionedMeshNode provisionedMeshNode) {
         this.mContext = context;
         this.mProvisionedMeshNode = provisionedMeshNode;
         this.mSrc = mProvisionedMeshNode.getConfigurationSrc();
         this.mMeshTransport = new MeshTransport(context, provisionedMeshNode);
-        this.mMeshTransport.setCallbacks(this);
+        this.mMeshTransport.setLowerTransportLayerCallbacks(this);
         initGson();
     }
 
@@ -97,16 +98,16 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
         }
     }
 
-    /**
-     * Serialize and save provisioned nodes
-     */
-    final void updateSavedProvisionedNode(final Context context, final ProvisionedMeshNode node) {
-        SharedPreferences preferences = context.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
-        final String provisionedNode = mGson.toJson(node);
-        editor.putString(unicastAddress, provisionedNode);
-        editor.commit();
+    public ProvisionedMeshNode getMeshNode() {
+        return mProvisionedMeshNode;
+    }
+
+    public MeshModel getMeshModel() {
+        return mMeshModel;
+    }
+
+    public int getAppKeyIndex() {
+        return mAppKeyIndex;
     }
 
     public enum MessageState {

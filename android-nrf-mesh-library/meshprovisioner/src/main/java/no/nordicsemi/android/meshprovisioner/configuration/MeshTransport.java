@@ -31,6 +31,7 @@ import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkLayer;
+import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 final class MeshTransport extends NetworkLayer {
@@ -50,8 +51,13 @@ final class MeshTransport extends NetworkLayer {
     }
 
     @Override
-    public void setCallbacks(final LowerTransportLayerCallbacks callbacks) {
-        super.setCallbacks(callbacks);
+    public final void setLowerTransportLayerCallbacks(final LowerTransportLayerCallbacks callbacks) {
+        super.setLowerTransportLayerCallbacks(callbacks);
+    }
+
+    @Override
+    public final void setUpperTransportLayerCallbacks(final UpperTransportLayerCallbacks callbacks) {
+        super.setUpperTransportLayerCallbacks(callbacks);
     }
 
     @Override

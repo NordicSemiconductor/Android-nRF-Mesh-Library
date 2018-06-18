@@ -59,6 +59,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONFIGURATION_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONNECTION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_ON_OFF_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_CONNECTED;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_RECONNECTING;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_ON_DEVICE_READY;
@@ -167,6 +168,9 @@ public abstract class BaseMeshRepository {
                 case ACTION_CONFIGURATION_STATE:
                     onConfigurationStateChanged(intent);
                     break;
+                case ACTION_GENERIC_ON_OFF_STATE:
+                    onGenericOnOfStateReceived(intent);
+                    break;
             }
         }
     };
@@ -177,8 +181,6 @@ public abstract class BaseMeshRepository {
         context.bindService(intent, mServiceConnection, 0);
         mContext = context;
         mHandler = new Handler();
-        //mMeshManagerApi = MeshManagerApi.getInstance(context);
-        //mProvisioningLiveData = new ProvisioningLiveData(context, mMeshManagerApi.getProvisioningSettings());
         mProvisioningStateLiveData = new ProvisioningStateLiveData();
         mIsReconnecting.postValue(false);
     }
@@ -200,6 +202,10 @@ public abstract class BaseMeshRepository {
     public abstract void onProvisioningStateChanged(final Intent intent);
 
     public abstract void onConfigurationStateChanged(final Intent intent);
+
+    protected void onGenericOnOfStateReceived(final Intent intent){
+
+    }
 
     public ProvisioningLiveData getProvisioningData(){
         return mProvisioningLiveData;

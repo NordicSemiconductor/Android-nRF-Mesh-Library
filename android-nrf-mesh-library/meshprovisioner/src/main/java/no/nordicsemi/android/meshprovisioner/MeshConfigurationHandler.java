@@ -88,11 +88,11 @@ class MeshConfigurationHandler {
                 break;
             case GENERIC_ON_OFF_GET:
                 //Switch the state to Generic on off status generic on off get is an acknowledged message.
-                configMessage = new GenericOnOffStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                configMessage = new GenericOnOffStatus(mContext, configMessage.getMeshNode(), configMessage.getMeshModel(), configMessage.getAppKeyIndex(), mInternalTransportCallbacks, mStatusCallbacks);
                 break;
             case GENERIC_ON_OFF_SET:
                 //Switch the state to Generic on off status generic on off set is an acknowledged message.
-                configMessage = new GenericOnOffStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                configMessage = new GenericOnOffStatus(mContext, configMessage.getMeshNode(), configMessage.getMeshModel(), configMessage.getAppKeyIndex(), mInternalTransportCallbacks, mStatusCallbacks);
                 break;
             case GENERIC_ON_OFF_SET_UNACKNOWLEDGED:
                 //We don't expect a generic on off status as this is an unacknowledged message

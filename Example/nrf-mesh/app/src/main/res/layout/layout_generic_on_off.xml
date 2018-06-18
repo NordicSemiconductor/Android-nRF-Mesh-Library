@@ -176,7 +176,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginEnd="@dimen/item_padding_start"
-        android:layout_marginStart="@dimen/item_padding_end"
         android:padding="@dimen/activity_horizontal_margin"
         android:text="@string/action_generic_on"
         app:layout_constraintBottom_toBottomOf="parent"

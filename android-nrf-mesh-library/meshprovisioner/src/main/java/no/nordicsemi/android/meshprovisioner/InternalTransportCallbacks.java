@@ -22,8 +22,15 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+
 public interface InternalTransportCallbacks {
 
-    void sendPdu(final BaseMeshNode meshnode, final byte[] pdu);
+    void sendPdu(final BaseMeshNode meshNode, final byte[] pdu);
 
+    /**
+     * Update mesh node
+     * @param meshNode
+     */
+    void updateMeshNode(final ProvisionedMeshNode meshNode);
 }

@@ -91,7 +91,7 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
                     pareCompositionDataPages(accessMessage, offset);
                     mProvisionedMeshNode.setCompositionData(this);
                     mConfigStatusCallbacks.onCompositionDataStatusReceived(mProvisionedMeshNode);
-                    updateSavedProvisionedNode(mContext, mProvisionedMeshNode);
+                    mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }

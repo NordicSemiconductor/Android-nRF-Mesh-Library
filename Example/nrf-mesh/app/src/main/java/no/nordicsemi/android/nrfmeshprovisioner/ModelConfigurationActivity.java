@@ -100,6 +100,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     private  ModelConfigurationViewModel mViewModel;
     private List<byte[]> mGroupAddress = new ArrayList<>();
     private AddressAdapter mAddressAdapter;
+    private Button mActionOnOff;
+    private Button mActionRead;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -186,7 +188,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_appkey_status), statusMessage);
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             } else {
-                hide();
+                hideProgressBar();
                 final int elementAdd = appKeyBindStatusLiveData.getElementAddress();
                 final int modelIdentifier = appKeyBindStatusLiveData.getModelIdentifier();
                 final Element element = mViewModel.getExtendedMeshNode().getMeshNode().getElements().get(elementAdd);
@@ -202,7 +204,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_publlish_address_status), statusMessage);
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             } else {
-                hide();
+                hideProgressBar();
                 final int elementAdd = configModelPublicationStatusLiveData.getElementAddressInt();
                 final int modelIdentifier = configModelPublicationStatusLiveData.getModelIdentifier();
                 final Element element = mViewModel.getExtendedMeshNode().getMeshNode().getElements().get(elementAdd);
@@ -286,7 +288,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         mHandler.postDelayed(mOperationTimeout, 2500);
     }
 
-    private void hide(){
+    private void hideProgressBar(){
         mProgressbar.setVisibility(View.INVISIBLE);
         mHandler.removeCallbacks(mOperationTimeout);
     }
@@ -295,6 +297,13 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         @Override
         public void run() {
             mProgressbar.setVisibility(View.INVISIBLE);
+
+            if(mActionOnOff != null && !mActionOnOff.isEnabled())
+                mActionOnOff.setEnabled(true);
+
+
+            if(mActionRead != null && !mActionRead.isEnabled())
+                mActionRead.setEnabled(true);
         }
     };
 
@@ -320,6 +329,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 final CardView cardView = findViewById(R.id.node_controls_card);
                 final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, cardView);
                 final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
+                final TextView onOffState = nodeControlsContainer.findViewById(R.id.on_off_state);
                 final SeekBar transitionTimeSeekBar = nodeControlsContainer.findViewById(R.id.transition_seekbar);
                 transitionTimeSeekBar.setProgress(0);
                 transitionTimeSeekBar.incrementProgressBy(1);
@@ -330,28 +340,30 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 delaySeekBar.incrementProgressBy(5);
                 delaySeekBar.setMax(255);
 
-                final Button actionOnOff = nodeControlsContainer.findViewById(R.id.action_on_off);
-                final Button actionRead = nodeControlsContainer.findViewById(R.id.action_read);
-                actionOnOff.setOnClickListener(v -> {
+                mActionOnOff = nodeControlsContainer.findViewById(R.id.action_on_off);
+                mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
+                mActionOnOff.setOnClickListener(v -> {
                     try {
                         final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
-                        if(actionOnOff.getText().toString().equals(getString(R.string.action_generic_on))){
-                            actionOnOff.setText(R.string.action_generic_off);
+                        if(mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on))){
                             //TODO wait for sdk implementation to test this
                             mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), true);
                         } else {
-                            actionOnOff.setText(R.string.action_generic_on);
                             //TODO wait for sdk implementation to test this
                             mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), false);
                         }
+                        mActionOnOff.setEnabled(false);
+                        showProgressbar();
                     } catch (IllegalArgumentException ex) {
                         Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
 
-                actionRead.setOnClickListener(v -> {
+                mActionRead.setOnClickListener(v -> {
                     final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
                     mViewModel.sendGenericOnOffGet(node);
+                    showProgressbar();
+                    mActionRead.setEnabled(false);
                 });
 
                 transitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -417,6 +429,20 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     @Override
                     public void onStopTrackingTouch(final SeekBar seekBar) {
 
+                    }
+                });
+
+
+                mViewModel.getGenericOnOffState().observe(this, presentState -> {
+                    hideProgressBar();
+                    mActionOnOff.setEnabled(true);
+                    mActionRead.setEnabled(true);
+                    if(presentState){
+                        onOffState.setText(R.string.generic_state_on);
+                        mActionOnOff.setText(R.string.action_generic_off);
+                    } else {
+                        onOffState.setText(R.string.generic_state_off);
+                        mActionOnOff.setText(R.string.action_generic_on);
                     }
                 });
             }

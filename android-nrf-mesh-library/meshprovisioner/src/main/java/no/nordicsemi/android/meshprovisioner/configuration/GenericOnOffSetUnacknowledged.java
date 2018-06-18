@@ -2,6 +2,7 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 
 
 import android.content.Context;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -15,7 +16,7 @@ import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallba
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-public class GenericOnOffSetUnacknowledged extends ConfigMessage implements LowerTransportLayerCallbacks{
+public class GenericOnOffSetUnacknowledged extends ConfigMessage {
 
 
     private static final String TAG = GenericOnOffSetUnacknowledged.class.getSimpleName();
@@ -51,7 +52,7 @@ public class GenericOnOffSetUnacknowledged extends ConfigMessage implements Lowe
 
     @Override
     public MessageState getState() {
-        return MessageState.GENERIC_ON_OFF_SET;
+        return MessageState.GENERIC_ON_OFF_SET_UNACKNOWLEDGED;
     }
 
     public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
@@ -104,6 +105,9 @@ public class GenericOnOffSetUnacknowledged extends ConfigMessage implements Lowe
 
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
-
+        final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
+        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
+        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
+        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 }

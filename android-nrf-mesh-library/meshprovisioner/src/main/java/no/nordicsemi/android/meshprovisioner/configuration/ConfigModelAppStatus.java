@@ -153,7 +153,7 @@ public final class ConfigModelAppStatus extends ConfigMessage {
                     mProvisionedMeshNode.setConfigModelAppStatus(this);
                     mConfigStatusCallbacks.onAppKeyBindStatusReceived(mProvisionedMeshNode, isSuccessful, status,
                             AddressUtils.getUnicastAddressInt(elementAddress), getAppKeyIndexInt(), getModelIdentifierInt());
-                    updateSavedProvisionedNode(mContext, mProvisionedMeshNode);
+                    mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
@@ -188,15 +188,6 @@ public final class ConfigModelAppStatus extends ConfigMessage {
      */
     public int getElementAddressInt() {
         return ByteBuffer.wrap(elementAddress).order(ByteOrder.BIG_ENDIAN).getShort();
-    }
-
-    /**
-     * Returns the bound app key indexes
-     *
-     * @return appkeyindex int
-     */
-    public byte[] getAppKeyIndex() {
-        return appKeyIndex;
     }
 
     /**

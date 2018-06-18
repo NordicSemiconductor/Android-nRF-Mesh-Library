@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.repository;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -37,9 +38,11 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_ON_OFF_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_PRESENT_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_PUBLISH_ADDRESS;
@@ -49,9 +52,14 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_SUBSCRI
 public class ModelConfigurationRepository extends BaseMeshRepository {
 
     private static final String TAG = ModelConfigurationRepository.class.getSimpleName();
+    private MutableLiveData<Boolean> mPresentState = new MutableLiveData<>();
 
     public ModelConfigurationRepository(final Context context) {
         super(context);
+    }
+
+    public LiveData<Boolean> getGenericOnOffState() {
+        return mPresentState;
     }
 
     public LiveData<Boolean> isConnected() {
@@ -86,6 +94,12 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
     @Override
     public void onConfigurationStateChanged(final Intent intent) {
         handleConfigurationStates(intent);
+    }
+
+    @Override
+    protected void onGenericOnOfStateReceived(final Intent intent) {
+        super.onGenericOnOfStateReceived(intent);
+        handleGenericOnOffState(intent);
     }
 
     private void handleConfigurationStates(final Intent intent) {
@@ -160,6 +174,19 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
                     mMeshModel.postValue(model);
                     mConfigModelSubscriptionStatus.onStatusChanged(success, statusCode, elementAddress, subscriptionAddress, modelId);
                 }
+                break;
+        }
+    }
+
+    private void handleGenericOnOffState(final Intent intent) {
+        final String action = intent.getAction();
+        final ProvisionedMeshNode node = mBinder.getMeshNode();
+        final MeshModel model = mBinder.getMeshModel();
+        switch (action) {
+            case ACTION_GENERIC_ON_OFF_STATE:
+                final boolean presentState = intent.getExtras().getBoolean(EXTRA_GENERIC_ON_OFF_PRESENT_STATE);
+                //TODO implement target state and remaining state.
+                mPresentState.postValue(presentState);
                 break;
         }
     }

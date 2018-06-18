@@ -42,6 +42,6 @@ public class ApplicationMessageOpCodes {
     /**
      * Opcode for the "Generic OnOff Status" message.
      */
-    public static final int GENERIC_ON_OFF_STATUS = 0x8204;
+    public static final short GENERIC_ON_OFF_STATUS = (short) 0x8204;
 
 }

@@ -48,6 +48,7 @@ public class ConfigAppKeyStatus extends ConfigMessage {
     private String statusMessage;
     private byte[] netKeyIndex;
     private byte[] appKeyIndex;
+
     public ConfigAppKeyStatus(final Context context, final ProvisionedMeshNode meshNode, final byte[] src, final String appKey, final InternalTransportCallbacks transportCallbacks, final MeshConfigurationStatusCallbacks statusCallbacks) {
         super(context, meshNode);
         this.appKey = appKey;
@@ -124,11 +125,13 @@ public class ConfigAppKeyStatus extends ConfigMessage {
                     Log.v(TAG, "Received config app key status");
                     final int offset = +2; //Ignoring the opcode and the parameter received
                     parseConfigAppKeyStatus(accessPayload, offset);
-                    if(isSuccessful) {
-                        mProvisionedMeshNode.setAddedAppKey(getAppKeyIndexInt(), appKey);
+                    if (isSuccessful) {
+                        mProvisionedMeshNode.setAddedAppKey(ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort(), appKey);
                     }
-                    mConfigStatusCallbacks.onAppKeyStatusReceived(mProvisionedMeshNode, isSuccessful, status, getNetkeyIndexInt(), getAppKeyIndexInt());
-                    updateSavedProvisionedNode(mContext, mProvisionedMeshNode);
+                    mConfigStatusCallbacks.onAppKeyStatusReceived(mProvisionedMeshNode, isSuccessful, status,
+                            ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort(),
+                            ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort());
+                    mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
@@ -176,32 +179,6 @@ public class ConfigAppKeyStatus extends ConfigMessage {
 
     public String getStatusMessage() {
         return statusMessage;
-    }
-
-    public byte[] getNetKeyIndex() {
-        return netKeyIndex;
-    }
-
-    public byte[] getAppKeyIndex() {
-        return appKeyIndex;
-    }
-
-    /**
-     * Returns the added app key index
-     *
-     * @return appkeyindex int
-     */
-    private int getAppKeyIndexInt() {
-        return ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
-    }
-
-    /**
-     * Returns the netKeyIndex as int
-     *
-     * @return netKeyIndex int
-     */
-    private int getNetkeyIndexInt() {
-        return ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 
     public enum AppKeyStatuses {

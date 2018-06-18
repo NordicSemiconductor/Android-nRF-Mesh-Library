@@ -25,6 +25,8 @@ package no.nordicsemi.android.meshprovisioner;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -113,6 +115,10 @@ public abstract class BaseMeshNode implements Parcelable {
 
     public final byte[] getUnicastAddress() {
         return unicastAddress;
+    }
+
+    public final int getUnicastAddressInt() {
+        return ByteBuffer.wrap(unicastAddress).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 
     public final void setUnicastAddress(final byte[] unicastAddress) {

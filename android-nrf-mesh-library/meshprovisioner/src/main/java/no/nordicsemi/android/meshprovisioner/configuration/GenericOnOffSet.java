@@ -2,6 +2,7 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 
 
 import android.content.Context;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -28,7 +29,6 @@ public class GenericOnOffSet extends ConfigMessage implements LowerTransportLaye
 
     private final int mAszmic;
     private final byte[] dstAddress;
-    private final MeshModel mMeshModel;
     private final Integer mTransitionSteps;
     private final Integer mTransitionResolution;
     private final Integer mDelay;
@@ -104,6 +104,9 @@ public class GenericOnOffSet extends ConfigMessage implements LowerTransportLaye
 
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
-
+        final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
+        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
+        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
+        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 }

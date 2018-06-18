@@ -77,6 +77,7 @@ import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 import static no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager.MESH_PROXY_UUID;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONFIGURATION_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONNECTION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_ON_OFF_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_CONNECTED;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_RECONNECTING;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_ON_DEVICE_READY;
@@ -86,6 +87,9 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGU
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_PRESENT_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_REMAINING_TIME;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_TARGET_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_NET_KEY_INDEX;
@@ -649,7 +653,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
     @Override
     public void onSubscriptionAddSent(final ProvisionedMeshNode node) {
-
         mMeshNode = node;
         final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
         intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.SUBSCRIPTION_ADD_SENT.getState());
@@ -670,6 +673,16 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         intent.putExtra(EXTRA_ELEMENT_ADDRESS, elementAddress);
         intent.putExtra(EXTRA_PUBLISH_ADDRESS, subscriptionAddress);
         intent.putExtra(EXTRA_MODEL_ID, modelIdentifier);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
+    public void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime) {
+        mMeshNode = node;
+        final Intent intent = new Intent(ACTION_GENERIC_ON_OFF_STATE);
+        intent.putExtra(EXTRA_GENERIC_ON_OFF_PRESENT_STATE, presentOnOff);
+        intent.putExtra(EXTRA_GENERIC_ON_OFF_TARGET_STATE, targetOnOff);
+        intent.putExtra(EXTRA_GENERIC_ON_OFF_REMAINING_TIME, remainingTime);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -995,10 +1008,11 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         }
 
         /**
-         * Send generic on off to mesh node
-         * @param node                 mesh node to send to
+         * Send generic on off set to mesh node
+         *
+         * @param node                 mesh node to send generic on off get
          * @param model                model identifier
-         * @param address       address to which the message must be sent to to which this model belongs to
+         * @param address              address to which the message must be sent to to which this model belongs to
          * @param transitionSteps      the number of steps
          * @param transitionResolution the resolution for the number of steps
          * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
@@ -1008,6 +1022,18 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
                                         final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
 
             mMeshManagerApi.setGenericOnOff(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+        }
+
+        /**
+         * Send generic on off get to mesh node
+         *
+         * @param node                 mesh node to send generic on off get
+         * @param model                model identifier
+         * @param address              address to which the message must be sent to to which this model belongs to
+         */
+        public void sendGenericOnOffGet(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex) {
+
+            mMeshManagerApi.getGenericOnOff(node, model, address, appKeyIndex);
         }
     }
 }
