@@ -25,7 +25,8 @@
         android:background="?selectableItemBackground"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/node_controls_tool_bar">
+        app:layout_constraintTop_toBottomOf="@+id/node_controls_tool_bar"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/transition"
@@ -123,6 +124,37 @@
 
     </android.support.constraint.ConstraintLayout>
 
+    <TextView
+        android:id="@+id/state"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:text="@string/state"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/on_off_state"
+        app:layout_constraintTop_toBottomOf="@id/node_controls_tool_bar"
+        android:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/on_off_state"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:text="@string/button_unknown"
+        android:gravity="end"
+        app:layout_constraintBottom_toBottomOf="@+id/state"
+        app:layout_constraintBottom_toTopOf="@+id/div3"
+        app:layout_constraintStart_toEndOf="@id/state"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/state"/>
+
     <include
         android:id="@+id/div3"
         layout="@layout/layout_divider"
@@ -130,31 +162,8 @@
         android:layout_height="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/icon"
-        app:layout_constraintTop_toBottomOf="@id/container_controls"/>
+        app:layout_constraintTop_toBottomOf="@id/state"/>
 
-    <TextView
-        android:id="@+id/state"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/item_padding_end"
-        android:padding="@dimen/activity_horizontal_margin"
-        android:text="@string/state"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/div3"
-        android:visibility="visible"/>
-
-    <TextView
-        android:id="@+id/on_off_state"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/activity_horizontal_margin"
-        android:paddingBottom="@dimen/activity_horizontal_margin"
-        android:text="@string/button_unknown"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/state"
-        app:layout_constraintTop_toTopOf="@+id/state"/>
 
     <Button
         android:id="@+id/action_read"

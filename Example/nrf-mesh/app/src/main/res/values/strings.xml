@@ -31,7 +31,7 @@
     <string name="turn_off">Off</string>
     <string name="title_led_state">LED</string>
     <string name="title_button_state">Button</string>
-    <string name="state">State:</string>
+    <string name="state">On Off State:</string>
     <string name="button_pressed">PRESSED</string>
     <string name="button_released">RELEASED</string>
     <string name="button_unknown">UNKNOWN</string>
