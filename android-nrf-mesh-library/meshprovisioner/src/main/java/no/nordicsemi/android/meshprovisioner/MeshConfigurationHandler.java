@@ -257,10 +257,11 @@ class MeshConfigurationHandler {
      * @param appKeyIndex          index of the app key to encrypt the message with
      * @param transitionSteps      the number of steps
      * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      * @param state                on off state
      */
-    public void setGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final boolean state) {
-        final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(mContext, node, model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, state);
+    public void setGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
+        final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(mContext, node, model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
         genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
         genericOnOffSet.setConfigurationStatusCallbacks(mStatusCallbacks);
         genericOnOffSet.executeSend();

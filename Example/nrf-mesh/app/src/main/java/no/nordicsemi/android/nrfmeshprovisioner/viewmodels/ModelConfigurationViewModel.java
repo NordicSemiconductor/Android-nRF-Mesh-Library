@@ -116,9 +116,10 @@ public class ModelConfigurationViewModel extends ViewModel {
      * @param node                 mesh node to send to
      * @param transitionSteps      the number of steps
      * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      * @param state                on off state
      */
-    public void sendGenericOnOff(final ProvisionedMeshNode node, final Integer transitionSteps, final Integer transitionResolution, final boolean state) {
-        mModelConfigurationRepository.sendGenericOnOff(node, transitionSteps, transitionResolution, state);
+    public void sendGenericOnOff(final ProvisionedMeshNode node, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
+        mModelConfigurationRepository.sendGenericOnOff(node, transitionSteps, transitionResolution, delay, state);
     }
 }

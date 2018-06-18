@@ -201,7 +201,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         Toast.makeText(getApplicationContext(), "Unable to find provisioned device", Toast.LENGTH_SHORT).show();
         stopScan();
     };
-    private final Runnable mReconnectRunnable = () -> startScan();
+    private final Runnable mReconnectRunnable = this::startScan;
     /**
      * Flag to verify if we are connecting to a mesh network or an unprovisioned devices
      **/
@@ -996,21 +996,18 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
         /**
          * Send generic on off to mesh node
-         *
          * @param node                 mesh node to send to
-         * @param elementAddress       address to which the message must be sent to to which this model belongs to
          * @param model                model identifier
+         * @param address       address to which the message must be sent to to which this model belongs to
          * @param transitionSteps      the number of steps
          * @param transitionResolution the resolution for the number of steps
+         * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
          * @param state                on off state
          */
-        public void sendGenericOnOff(final ProvisionedMeshNode node, final byte[] elementAddress, final MeshModel model, final Integer transitionSteps, final Integer transitionResolution, final boolean state) {
-            if (!model.getBoundAppKeyIndexes().isEmpty()) {
-                final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                mMeshManagerApi.setGenericOnOff(node, elementAddress, model, appKeyIndex, transitionSteps, transitionResolution, state);
-            } else {
-                Toast.makeText(getApplicationContext(), R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();;
-            }
+        public void sendGenericOnOffSet(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex,
+                                        final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
+
+            mMeshManagerApi.setGenericOnOff(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
         }
     }
 }

@@ -298,5 +298,5 @@
     <string name="hint_step_resolution_min">Currently on 10 min step resolution</string>
     <string name="title_generic_on_off">Generic On Off Controls</string>
     <string name="transition_time">Transition time</string>
-    <string name="delay">Delay</string>
+    <string name="generic_on_off_step_delay">Delay (5ms steps)</string>
 </resources>

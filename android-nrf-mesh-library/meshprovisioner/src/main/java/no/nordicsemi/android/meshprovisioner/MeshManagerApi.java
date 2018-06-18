@@ -25,6 +25,7 @@ package no.nordicsemi.android.meshprovisioner;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -47,7 +48,6 @@ import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.SequenceNumber;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -533,9 +533,6 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
 
         //if generated hash is null return false
         final byte[] generatedHash = SecureUtils.calculateHash(meshNode.getIdentityKey(), random, meshNode.getUnicastAddress());
-        if (generatedHash == null) {
-            return false;
-        }
 
         final boolean flag = Arrays.equals(advertisedHash, generatedHash);
         if (flag) {
@@ -715,30 +712,28 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
 
     /**
      * Send generic on off to mesh node
-     *  @param node                 mesh node to send to
-     * @param dstAddress           address of the element the mesh model belongs to
+     *
+     * @param node                 mesh node to send to
      * @param model                model to control
-     * @param appKeyIndex
+     * @param dstAddress           address of the element the mesh model belongs to
+     * @param appKeyIndex          application key index
      * @param transitionSteps      the number of steps
      * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      * @param state                on off state
      */
-    public void setGenericOnOff(final ProvisionedMeshNode node, final byte[] dstAddress, final MeshModel model, final int appKeyIndex, final Integer transitionSteps,
-                                final Integer transitionResolution, final boolean state) {
+    public void setGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
+                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state) {
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
-            if(appKeyIndex < 0) {
-                if (!model.getSubscriptionAddresses().isEmpty()) {
-                    byte[] address = model.getSubscriptionAddresses().get(0);
-                    Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                            + ". Sending message to subscription address: " + MeshParserUtils.bytesToHex(dstAddress, true));
-                    mMeshConfigurationHandler.setGenericOnOff(node, model, address, false, appKeyIndex, transitionSteps, transitionResolution, state);
-                } else {
-                    byte[] address = dstAddress;
-                    Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                            + ". Sending message to unicast address: " + MeshParserUtils.bytesToHex(dstAddress, true));
-                    mMeshConfigurationHandler.setGenericOnOff(node, model, address, false, appKeyIndex, transitionSteps, transitionResolution, state);
-                }
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshConfigurationHandler.setGenericOnOff(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
             }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
         }
     }
 }

@@ -25,11 +25,14 @@ package no.nordicsemi.android.nrfmeshprovisioner.repository;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
 
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
@@ -208,15 +211,32 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
 
     /**
      * Send generic on off to mesh node
-     *
-     * @param node                 mesh node to send to
+     *  @param node                 mesh node to send to
      * @param transitionSteps      the number of steps
      * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      * @param state                on off state
      */
-    public void sendGenericOnOff(final ProvisionedMeshNode node, final Integer transitionSteps, final Integer transitionResolution, final boolean state) {
+    public void sendGenericOnOff(final ProvisionedMeshNode node, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
         final Element element = mElement.getValue();
         final MeshModel model = mMeshModel.getValue();
-        mBinder.sendGenericOnOff(node, element.getElementAddress(), model, transitionSteps, transitionResolution, state);
+
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+            if (!model.getSubscriptionAddresses().isEmpty()) {
+                final byte[] address = model.getSubscriptionAddresses().get(0);
+                Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                        + ". Sending message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
+                mBinder.sendGenericOnOffSet(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+            } else {
+                final byte[] address = element.getElementAddress();
+                Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                        + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
+
+                mBinder.sendGenericOnOffSet(node, model, address,  appKeyIndex, transitionSteps, transitionResolution, delay, state);
+            }
+        } else {
+            Toast.makeText(mContext, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+        }
     }
 }

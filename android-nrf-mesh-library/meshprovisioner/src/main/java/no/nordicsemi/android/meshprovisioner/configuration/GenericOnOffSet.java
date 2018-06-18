@@ -19,40 +19,32 @@ public class GenericOnOffSet extends ConfigMessage implements LowerTransportLaye
 
 
     private static final String TAG = GenericOnOffSet.class.getSimpleName();
-    private static final int GENERIC_ON_OFF_SET_PARAMS_LENGTH = 4;
+    private static final int GENERIC_ON_OFF_SET_TRANSITION_PARAMS_LENGTH = 4;
+    private static final int GENERIC_ON_OFF_SET_PARAMS_LENGTH = 2;
     public static final int GENERIC_ON_OFF_TRANSITION_STEP_0 = 0;
     public static final int GENERIC_ON_OFF_TRANSITION_STEP_1 = 1;
     public static final int GENERIC_ON_OFF_TRANSITION_STEP_2 = 2;
     public static final int GENERIC_ON_OFF_TRANSITION_STEP_3 = 3;
 
     private final int mAszmic;
-    private final byte[] mElementAddress;
+    private final byte[] dstAddress;
     private final MeshModel mMeshModel;
-    private Integer mTransitionSteps = null;
-    private Integer mTransitionResolution = null;
+    private final Integer mTransitionSteps;
+    private final Integer mTransitionResolution;
+    private final Integer mDelay;
     private final boolean mState;
     private final int mAppKeyIndex;
 
     public GenericOnOffSet(final Context context, final ProvisionedMeshNode provisionedMeshNode, final MeshModel model, final boolean aszmic,
-                           final byte[] elementAddress, final int appKeyIndex, final int transitionSteps, final int transitionResolution, final boolean state) {
+                           final byte[] elementAddress, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
         super(context, provisionedMeshNode);
         this.mAszmic = aszmic ? 1 : 0;
-        this.mElementAddress = elementAddress;
+        this.dstAddress = elementAddress;
         this.mMeshModel = model;
         this.mAppKeyIndex = appKeyIndex;
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
-        this.mState = state;
-        createAccessMessage();
-    }
-
-    public GenericOnOffSet(final Context context, final ProvisionedMeshNode provisionedMeshNode, final MeshModel model, final boolean aszmic,
-                            final byte[] elementAddress, final int appKeyIndex, final boolean state) {
-        super(context, provisionedMeshNode);
-        this.mAszmic = aszmic ? 1 : 0;
-        this.mElementAddress = elementAddress;
-        this.mMeshModel = model;
-        this.mAppKeyIndex = appKeyIndex;
+        this.mDelay = delay;
         this.mState = state;
         createAccessMessage();
     }
@@ -75,17 +67,24 @@ public class GenericOnOffSet extends ConfigMessage implements LowerTransportLaye
     private void createAccessMessage() {
         ByteBuffer paramsBuffer;
         byte[] parameters;
-        paramsBuffer = ByteBuffer.allocate(GENERIC_ON_OFF_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-        paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
-        paramsBuffer.put((byte) mProvisionedMeshNode.getSequenceNumber());
-        paramsBuffer.put((byte) (mTransitionSteps << 6 | mTransitionResolution));
-        paramsBuffer.put((byte) 5);
+        if(mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
+            paramsBuffer = ByteBuffer.allocate(GENERIC_ON_OFF_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
+            paramsBuffer.put((byte) mProvisionedMeshNode.getSequenceNumber());
+        } else {
+            paramsBuffer = ByteBuffer.allocate(GENERIC_ON_OFF_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
+            paramsBuffer.put((byte) mProvisionedMeshNode.getSequenceNumber());
+            paramsBuffer.put((byte) (mTransitionSteps << 6 | mTransitionResolution));
+            final int delay = mDelay;
+            paramsBuffer.put((byte) delay);
+        }
         parameters = paramsBuffer.array();
 
         final byte[] key = MeshParserUtils.toByteArray(mMeshModel.getBoundAppkeys().get(mAppKeyIndex));
         int akf = 1;
         int aid = SecureUtils.calculateK4(key);
-        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ApplicationMessageOpCodes.GENERIC_ON_OFF_SET, parameters);
+        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, dstAddress, key, akf, aid, mAszmic, ApplicationMessageOpCodes.GENERIC_ON_OFF_SET, parameters);
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 
