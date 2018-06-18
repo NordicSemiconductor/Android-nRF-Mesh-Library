@@ -36,6 +36,8 @@ import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelPublicatio
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionDelete;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigNodeReset;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffGet;
 import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffSet;
 import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffSetUnacknowledged;
@@ -97,6 +99,10 @@ class MeshConfigurationHandler {
             case GENERIC_ON_OFF_SET_UNACKNOWLEDGED:
                 //We don't expect a generic on off status as this is an unacknowledged message
                 break;
+            case CONFIG_NODE_RESET:
+                //Switch to config node reset status since we are expecting a status back
+                configMessage = new ConfigNodeResetStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                break;
         }
     }
 
@@ -153,6 +159,10 @@ class MeshConfigurationHandler {
             case GENERIC_ON_OFF_STATUS:
                 final GenericOnOffStatus genericOnOffStatus = (GenericOnOffStatus) configMessage;
                 genericOnOffStatus.parseData(pdu);
+                break;
+            case CONFIG_NODE_RESET_STATUS:
+                final ConfigNodeResetStatus configNodeResetStatus = (ConfigNodeResetStatus) configMessage;
+                configNodeResetStatus.parseData(pdu);
                 break;
         }
     }
@@ -321,5 +331,17 @@ class MeshConfigurationHandler {
         genericOnOffSet.setConfigurationStatusCallbacks(mStatusCallbacks);
         genericOnOffSet.executeSend();
         configMessage = genericOnOffSet;
+    }
+
+
+    /**
+     * Resets the specific mesh node
+     *
+     * @param provisionedMeshNode mesh node to be reset
+     */
+    public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
+       final ConfigNodeReset configNodeReset = new ConfigNodeReset(mContext, provisionedMeshNode, false, mInternalTransportCallbacks, mStatusCallbacks);
+       configNodeReset.executeSend();
+       configMessage = configNodeReset;
     }
 }

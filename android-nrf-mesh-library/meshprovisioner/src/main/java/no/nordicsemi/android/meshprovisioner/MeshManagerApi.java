@@ -223,7 +223,18 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
         final String provisionedNode = mGson.toJson(node);
         editor.putString(unicastAddress, provisionedNode);
-        editor.apply();
+        editor.commit();
+    }
+
+    /**
+     * Serialize and save provisioned node
+     */
+    private void deleteProvisionedNode(final ProvisionedMeshNode node) {
+        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = preferences.edit();
+        final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
+        editor.remove(unicastAddress);
+        editor.commit();
     }
 
     /**
@@ -356,6 +367,15 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             //We update the mesh node in our map of mesh nodes
             mProvisionedNodes.put(unicast, meshNode);
             saveProvisionedNode(meshNode);
+        }
+    }
+
+    @Override
+    public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
+        if (meshNode != null) {
+            final int unicast = AddressUtils.getUnicastAddressInt(meshNode.getUnicastAddress());
+            deleteProvisionedNode(meshNode);
+            mProvisionedNodes.remove(unicast);
         }
     }
 
@@ -782,7 +802,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @param state                on off state
      */
     public void setGenericOnOffUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state) {
+                                              @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state) {
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
             if (appKeyIndex >= 0) {
                 if (dstAddress == null)
@@ -796,4 +816,14 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         }
     }
 
+    /**
+     * Resets the specific mesh node
+     *
+     * @param provisionedMeshNode mesh node to be reset
+     */
+    public void resetMeshNode(@NonNull final ProvisionedMeshNode provisionedMeshNode) {
+        if(provisionedMeshNode == null)
+            throw new IllegalArgumentException("Mesh node cannot be null!");
+        mMeshConfigurationHandler.resetMeshNode(provisionedMeshNode);
+    }
 }

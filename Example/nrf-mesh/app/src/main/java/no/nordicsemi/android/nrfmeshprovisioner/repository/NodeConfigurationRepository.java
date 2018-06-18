@@ -138,10 +138,16 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
                     mAppKeyStatus.onStatusChanged(success, statusCode, netKeyIndex, appKeyIndex);
                 }
                 break;
+            case NODE_RESET_STATUS_RECEIVED:
+                break;
         }
 
 
         //Update the live data upon receiving a broadcast
         mExtendedMeshNode.updateMeshNode(node);
+    }
+
+    public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
+        mBinder.resetMeshNode(provisionedMeshNode);
     }
 }

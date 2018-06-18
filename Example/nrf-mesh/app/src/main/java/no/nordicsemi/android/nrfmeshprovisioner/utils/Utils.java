@@ -67,6 +67,7 @@ public class Utils {
     public static final String EXTRA_MODEL_ID = "EXTRA_MODEL_ID";
     public static final String EXTRA_ELEMENT_ADDRESS = "EXTRA_ELEMENT_ADDRESS";
     public static final String EXTRA_DATA_MODEL_NAME = "EXTRA_DATA_MODEL_NAME";
+    public static final String EXTRA_DATA_NODE_RESET_STATUS = "EXTRA_DATA_NODE_RESET_STATUS";
 
     public static final String EXTRA_DEVICE = "EXTRA_DEVICE";
     public static final String ACTIVITY_RESULT = "RESULT_APP_KEY";
