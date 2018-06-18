@@ -92,4 +92,8 @@ public class NodeConfigurationViewModel extends ViewModel {
     public AppKeyStatusLiveData getAppKeyAddStatus() {
         return mNodeConfigurationRepository.getAppKeyStatus();
     }
+
+    public void resetNode(final ProvisionedMeshNode provisionedMeshNode) {
+        mNodeConfigurationRepository.resetMeshNode(provisionedMeshNode);
+    }
 }

@@ -123,6 +123,8 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
         CONFIG_MODEL_SUBSCRIPTION_ADD(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD),
         CONFIG_MODEL_SUBSCRIPTION_DELETE(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE),
         CONFIG_MODEL_SUBSCRIPTION_STATUS(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_STATUS),
+        CONFIG_NODE_RESET(ConfigMessageOpCodes.CONFIG_NODE_RESET),
+        CONFIG_NODE_RESET_STATUS(ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS),
 
         //Application message states
         GENERIC_ON_OFF_GET(ApplicationMessageOpCodes.GENERIC_ON_OFF_GET),

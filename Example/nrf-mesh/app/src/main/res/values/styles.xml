@@ -49,4 +49,8 @@
     <style name="AppTheme.NoActionBar">
         <item name="coordinatorLayoutStyle">@style/Widget.Design.CoordinatorLayout</item>
     </style>
+
+    <style name="ResetButton" parent="Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:textColor">@android:color/holo_red_dark</item>
+    </style>
 </resources>

@@ -357,7 +357,7 @@ public class ConfigMessageOpCodes {
     /**
      * Opcode for the "UnprovisionedMeshNode Reset Status" message.
      */
-    public static final int CONFIG_NODE_RESET_STATUS = 0x804A;
+    public static final short CONFIG_NODE_RESET_STATUS = (short) 0x804A;
 
     /**
      * Opcode for the "SIG Model App Get" message.

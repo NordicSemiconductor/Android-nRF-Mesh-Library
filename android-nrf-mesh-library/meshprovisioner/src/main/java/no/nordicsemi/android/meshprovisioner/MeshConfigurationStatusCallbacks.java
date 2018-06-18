@@ -52,4 +52,8 @@ public interface MeshConfigurationStatusCallbacks {
     void onSubscriptionStatusReceived(final ProvisionedMeshNode node, final boolean success, final int status, final byte[] elementAddress, final byte[] subscriptionAddress, final int modelIdentifier);
 
     void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime);
+
+    void onMeshNodeResetSent(final ProvisionedMeshNode node);
+
+    void onMeshNodeResetStatusReceived(final ProvisionedMeshNode node);
 }

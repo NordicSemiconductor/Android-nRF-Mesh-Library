@@ -39,6 +39,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -85,6 +86,7 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_PROVIS
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA_NODE_RESET_STATUS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_PRESENT_STATE;
@@ -686,6 +688,23 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
+    @Override
+    public void onMeshNodeResetSent(final ProvisionedMeshNode node) {
+        mMeshNode = node;
+    }
+
+    @Override
+    public void onMeshNodeResetStatusReceived(final ProvisionedMeshNode node) {
+        if(node != null) {
+            mMeshNode = null;
+            mElement = null;
+            mMeshModel = null;
+            final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
+            intent.putExtra(EXTRA_DATA_NODE_RESET_STATUS, MeshNodeStates.MeshNodeStatus.NODE_RESET_STATUS_RECEIVED.getState());
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
+    }
+
     private void handleConnectivityStates(final boolean connected) {
         //Check if provisioning is complete
         if (mIsProvisioningComplete) {
@@ -1048,9 +1067,13 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
          * @param state                on off state
          */
         public void sendGenericOnOffSetUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex,
-                                        final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
+                                                      final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
 
             mMeshManagerApi.setGenericOnOffUnacknowledged(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+        }
+
+        public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
+            mMeshManagerApi.resetMeshNode(provisionedMeshNode);
         }
     }
 }

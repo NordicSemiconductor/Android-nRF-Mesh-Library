@@ -302,4 +302,8 @@
     <string name="generic_on_off_step_delay">Delay (5ms steps)</string>
     <string name="generic_state_on">LED ON</string>
     <string name="generic_state_off">LED OFF</string>
+
+    <string name="title_reset_node">Reset Node</string>
+    <string name="action_reset_node">RESET</string>
+    <string name="reset_node_rationale">Resetting this node will change its provisioned state back to un-provisioned state.</string>
 </resources>
