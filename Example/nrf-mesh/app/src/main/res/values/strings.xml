@@ -31,7 +31,7 @@
     <string name="turn_off">Off</string>
     <string name="title_led_state">LED</string>
     <string name="title_button_state">Button</string>
-    <string name="state">State</string>
+    <string name="state">State:</string>
     <string name="button_pressed">PRESSED</string>
     <string name="button_released">RELEASED</string>
     <string name="button_unknown">UNKNOWN</string>
@@ -288,6 +288,7 @@
     <string name="no_app_keys_added">No app keys are added to this node!</string>
     <string name="app_keys_added">%d app keys added</string>
     <string name="error_no_app_keys_bound">No app keys are bound for this model. Please bind an app key first!</string>
+    <string name="action_generic_read_state">READ</string>
     <string name="action_generic_on">ON</string>
     <string name="action_generic_off">OFF</string>
     <string name="transition_time_interval">%s %s</string>

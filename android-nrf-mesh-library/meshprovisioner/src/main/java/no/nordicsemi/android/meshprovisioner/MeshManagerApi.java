@@ -223,7 +223,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
         final String provisionedNode = mGson.toJson(node);
         editor.putString(unicastAddress, provisionedNode);
-        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -347,6 +347,16 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     public void sendPdu(final BaseMeshNode meshNode, byte[] pdu) {
         final int mtu = mTransportCallbacks.getMtu();
         mTransportCallbacks.sendPdu(meshNode, applySegmentation(mtu, pdu));
+    }
+
+    @Override
+    public void updateMeshNode(final ProvisionedMeshNode meshNode) {
+        if (meshNode != null) {
+            final int unicast = AddressUtils.getUnicastAddressInt(meshNode.getUnicastAddress());
+            //We update the mesh node in our map of mesh nodes
+            mProvisionedNodes.put(unicast, meshNode);
+            saveProvisionedNode(meshNode);
+        }
     }
 
     private boolean shouldWaitForMoreData(final byte[] pdu) {
@@ -711,9 +721,9 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     }
 
     /**
-     * Send generic on off to mesh node
+     * Send generic on off set to mesh node
      *
-     * @param node                 mesh node to send to
+     * @param node                 mesh node to send generic on off get
      * @param model                model to control
      * @param dstAddress           address of the element the mesh model belongs to
      * @param appKeyIndex          application key index
@@ -729,6 +739,29 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
                 if (dstAddress == null)
                     throw new IllegalArgumentException("Destination address cannot be null!");
                 mMeshConfigurationHandler.setGenericOnOff(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+
+    /**
+     * Send generic on off get to mesh node
+     *
+     * @param node        mesh node to send generic on off get
+     * @param model       model to control
+     * @param appKeyIndex application key index
+     */
+    public void getGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex) {
+
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshConfigurationHandler.getGenericOnOff(node, model, dstAddress, false, appKeyIndex);
             } else {
                 throw new IllegalArgumentException("Invalid app key index!");
             }

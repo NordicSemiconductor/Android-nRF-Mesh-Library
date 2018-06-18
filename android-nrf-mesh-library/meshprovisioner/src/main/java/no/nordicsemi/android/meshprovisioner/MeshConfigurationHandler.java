@@ -36,8 +36,10 @@ import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelPublicatio
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionDelete;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffGet;
 import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffSet;
 import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffSetUnacknowledged;
+import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
@@ -76,7 +78,6 @@ class MeshConfigurationHandler {
                 //Block ack for app key status sent
                 break;
             case CONFIG_MODEL_APP_BIND:
-                final ConfigModelAppBind appBind = (ConfigModelAppBind) configMessage;
                 configMessage = new ConfigModelAppStatus(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks);
                 break;
             case CONFIG_MODEL_APP_STATUS:
@@ -84,6 +85,17 @@ class MeshConfigurationHandler {
             case CONFIG_MODEL_PUBLICATION_SET:
                 break;
             case CONFIG_MODEL_SUBSCRIPTION_ADD:
+                break;
+            case GENERIC_ON_OFF_GET:
+                //Switch the state to Generic on off status generic on off get is an acknowledged message.
+                configMessage = new GenericOnOffStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                break;
+            case GENERIC_ON_OFF_SET:
+                //Switch the state to Generic on off status generic on off set is an acknowledged message.
+                configMessage = new GenericOnOffStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                break;
+            case GENERIC_ON_OFF_SET_UNACKNOWLEDGED:
+                //We don't expect a generic on off status as this is an unacknowledged message
                 break;
         }
     }
@@ -137,6 +149,10 @@ class MeshConfigurationHandler {
             case CONFIG_MODEL_SUBSCRIPTION_STATUS:
                 final ConfigModelSubscriptionStatus configModelSubscriptionStatus = (ConfigModelSubscriptionStatus) configMessage;
                 configModelSubscriptionStatus.parseData(pdu);
+                break;
+            case GENERIC_ON_OFF_STATUS:
+                final GenericOnOffStatus genericOnOffStatus = (GenericOnOffStatus) configMessage;
+                genericOnOffStatus.parseData(pdu);
                 break;
         }
     }
@@ -246,6 +262,23 @@ class MeshConfigurationHandler {
         configModelSubscriptionDelete.setConfigurationStatusCallbacks(mStatusCallbacks);
         configModelSubscriptionDelete.executeSend();
         configMessage = new ConfigModelSubscriptionStatus(mContext, meshNode, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE, mInternalTransportCallbacks, mStatusCallbacks);
+    }
+
+    /**
+     * Send generic on off get to mesh node, this message sent is an acknowledged message.
+     *
+     * @param node                 mesh node to send to
+     * @param model                Mesh model to control
+     * @param address              this address could be the unicast address of the element or the subscribe address
+     * @param aszmic               if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
+     * @param appKeyIndex          index of the app key to encrypt the message with
+     */
+    public void getGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex) {
+        final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(mContext, node, model, aszmic, address, appKeyIndex);
+        genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
+        genericOnOffSet.setConfigurationStatusCallbacks(mStatusCallbacks);
+        genericOnOffSet.executeSend();
+        configMessage = genericOnOffSet;
     }
 
     /**

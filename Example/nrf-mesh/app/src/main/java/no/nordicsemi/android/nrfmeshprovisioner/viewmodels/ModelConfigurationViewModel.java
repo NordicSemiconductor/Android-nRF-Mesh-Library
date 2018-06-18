@@ -111,15 +111,24 @@ public class ModelConfigurationViewModel extends ViewModel {
     }
 
     /**
-     * Send generic on off to mesh node
+     * Send generic on off set to mesh node
      *
-     * @param node                 mesh node to send to
+     * @param node                 mesh node to send generic on off message
      * @param transitionSteps      the number of steps
      * @param transitionResolution the resolution for the number of steps
      * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      * @param state                on off state
      */
     public void sendGenericOnOff(final ProvisionedMeshNode node, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
-        mModelConfigurationRepository.sendGenericOnOff(node, transitionSteps, transitionResolution, delay, state);
+        mModelConfigurationRepository.sendGenericOnOffSet(node, transitionSteps, transitionResolution, delay, state);
+    }
+
+    /**
+     * Send generic on off get to mesh node
+     *
+     * @param node mesh node to send generic on off get
+     */
+    public void sendGenericOnOffGet(final ProvisionedMeshNode node) {
+        mModelConfigurationRepository.sendGenericOnOffGet(node);
     }
 }

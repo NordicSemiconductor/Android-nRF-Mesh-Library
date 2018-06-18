@@ -319,13 +319,11 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
             if(model instanceof GenericOnOffServerModel) {
                 final CardView cardView = findViewById(R.id.node_controls_card);
                 final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, cardView);
-                final TextView stepResolutionHint = nodeControlsContainer.findViewById(R.id.resolution_hint);
                 final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
                 final SeekBar transitionTimeSeekBar = nodeControlsContainer.findViewById(R.id.transition_seekbar);
                 transitionTimeSeekBar.setProgress(0);
                 transitionTimeSeekBar.incrementProgressBy(1);
                 transitionTimeSeekBar.setMax(230);
-
 
                 final SeekBar delaySeekBar = nodeControlsContainer.findViewById(R.id.delay_seekbar);
                 delaySeekBar.setProgress(0);
@@ -333,6 +331,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 delaySeekBar.setMax(255);
 
                 final Button actionOnOff = nodeControlsContainer.findViewById(R.id.action_on_off);
+                final Button actionRead = nodeControlsContainer.findViewById(R.id.action_read);
                 actionOnOff.setOnClickListener(v -> {
                     try {
                         final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
@@ -348,6 +347,11 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     } catch (IllegalArgumentException ex) {
                         Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
                     }
+                });
+
+                actionRead.setOnClickListener(v -> {
+                    final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
+                    mViewModel.sendGenericOnOffGet(node);
                 });
 
                 transitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -368,7 +372,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                             mTransitionStep = progress;
                             res = progress / 10.0;
                             time.setText(getString(R.string.transition_time_interval, String.valueOf(res), "s"));
-                            stepResolutionHint.setText(R.string.hint_step_resolution_ms);
                         } else if(progress >= 63 && progress <= 118) {
                             resolution2 = 6;
                             resolution3 = 6;
@@ -381,7 +384,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                             mTransitionStepResolution = 1;
                             mTransitionStep = resolution3;
                             time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution1), "s"));
-                            stepResolutionHint.setText(R.string.hint_step_resolution_s);
 
                         } else if(progress >= 119 && progress <= 174) {
                             resolution3 = 6;
@@ -394,7 +396,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                             mTransitionStepResolution = 2;
                             mTransitionStep = resolution2;
                             time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution2 * 10), "s"));
-                            stepResolutionHint.setText(R.string.hint_step_resolution_ten_s);
                         } else if(progress >= 175 && progress <= 230){
                             if(progress >= lastValue) {
                                 resolution3 = progress - 168;
@@ -405,25 +406,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                             mTransitionStepResolution = 3;
                             mTransitionStep = resolution3;
                             time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution3 * 10), "min"));
-                            stepResolutionHint.setText(R.string.hint_step_resolution_min);
                         }
-                    }
-
-                    @Override
-                    public void onStartTrackingTouch(final SeekBar seekBar) {
-
-                    }
-
-                    @Override
-                    public void onStopTrackingTouch(final SeekBar seekBar) {
-
-                    }
-                });
-
-                delaySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
-
                     }
 
                     @Override
