@@ -37,6 +37,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscripti
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionDelete;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffSet;
+import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffSetUnacknowledged;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
@@ -248,7 +249,7 @@ class MeshConfigurationHandler {
     }
 
     /**
-     * Send generic on off to mesh node
+     * Send generic on off set to mesh node, this message sent is an acknowledged message.
      *
      * @param node                 mesh node to send to
      * @param model                Mesh model to control
@@ -262,6 +263,27 @@ class MeshConfigurationHandler {
      */
     public void setGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(mContext, node, model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+        genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
+        genericOnOffSet.setConfigurationStatusCallbacks(mStatusCallbacks);
+        genericOnOffSet.executeSend();
+        configMessage = genericOnOffSet;
+    }
+
+    /**
+     * Send generic on off to mesh node
+     *
+     * @param node                 mesh node to send to
+     * @param model                Mesh model to control
+     * @param address              this address could be the unicast address of the element or the subscribe address
+     * @param aszmic               if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
+     * @param appKeyIndex          index of the app key to encrypt the message with
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     * @param state                on off state
+     */
+    public void setGenericOnOffUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
+        final GenericOnOffSetUnacknowledged genericOnOffSet = new GenericOnOffSetUnacknowledged(mContext, node, model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
         genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
         genericOnOffSet.setConfigurationStatusCallbacks(mStatusCallbacks);
         genericOnOffSet.executeSend();
