@@ -223,7 +223,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
         final String provisionedNode = mGson.toJson(node);
         editor.putString(unicastAddress, provisionedNode);
-        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -234,7 +234,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final SharedPreferences.Editor editor = preferences.edit();
         final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
         editor.remove(unicastAddress);
-        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -244,7 +244,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
-        editor.commit();
+        editor.apply();
     }
 
     @Override
