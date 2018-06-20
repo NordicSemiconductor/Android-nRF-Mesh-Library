@@ -308,4 +308,7 @@
     <string name="reset_node_rationale">Resetting this node will change its provisioned state back to un-provisioned state.</string>
     <string name="reset_node_rationale_summary">Resetting this node will change its provisioned state back to un-provisioned
         state. Any stored data related to the node will be deleted from the app. Do you wish to continue?</string>
+    <string name="node_device_key">Device Key</string>
+    <string name="device_key_clipboard_copied">Device key copied to clipboard</string>
+    <string name="unavailable">Unavailable</string>
 </resources>
