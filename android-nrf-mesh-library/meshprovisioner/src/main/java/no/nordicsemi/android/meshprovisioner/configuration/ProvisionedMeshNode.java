@@ -78,11 +78,11 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         bluetoothAddress = in.readString();
         k2Output = in.readParcelable(SecureUtils.K2Output.class.getClassLoader());
         nodeIdentifier = in.readString();
-        companyIdentifier = in.readInt();
-        productIdentifier = in.readInt();
-        versionIdentifier = in.readInt();
-        crpl = in.readInt();
-        features = in.readInt();
+        companyIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
+        productIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
+        versionIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
+        crpl = (Integer) in.readValue(Integer.class.getClassLoader());
+        features = (Integer) in.readValue(Integer.class.getClassLoader());
         relayFeatureSupported = in.readByte() != 0;
         proxyFeatureSupported = in.readByte() != 0;
         friendFeatureSupported = in.readByte() != 0;
@@ -111,11 +111,11 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         dest.writeString(bluetoothAddress);
         dest.writeParcelable(k2Output, flags);
         dest.writeString(nodeIdentifier);
-        dest.writeInt(companyIdentifier);
-        dest.writeInt(productIdentifier);
-        dest.writeInt(versionIdentifier);
-        dest.writeInt(crpl);
-        dest.writeInt(features);
+        dest.writeValue(companyIdentifier);
+        dest.writeValue(productIdentifier);
+        dest.writeValue(versionIdentifier);
+        dest.writeValue(crpl);
+        dest.writeValue(features);
         dest.writeByte((byte) (relayFeatureSupported ? 1 : 0));
         dest.writeByte((byte) (proxyFeatureSupported ? 1 : 0));
         dest.writeByte((byte) (friendFeatureSupported ? 1 : 0));
@@ -181,23 +181,23 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         this.k2Output = k2Output;
     }
 
-    public final int getCompanyIdentifier() {
+    public final Integer getCompanyIdentifier() {
         return companyIdentifier;
     }
 
-    public final int getProductIdentifier() {
+    public final Integer getProductIdentifier() {
         return productIdentifier;
     }
 
-    public final int getVersionIdentifier() {
+    public final Integer getVersionIdentifier() {
         return versionIdentifier;
     }
 
-    public final int getCrpl() {
+    public final Integer getCrpl() {
         return crpl;
     }
 
-    public final int getFeatures() {
+    public final Integer getFeatures() {
         return features;
     }
 
@@ -288,10 +288,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
     private void sortElements(final HashMap<Integer, Element> unorderedElements){
         final Set<Integer> unorderedKeys =  unorderedElements.keySet();
 
-        final List<Integer> orderedKeys = new ArrayList<>();
-        for(int key : unorderedKeys) {
-            orderedKeys.add(key);
-        }
+        final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
         Collections.sort(orderedKeys);
         for(int key : orderedKeys) {
             mElements.put(key, unorderedElements.get(key));

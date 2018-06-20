@@ -75,10 +75,7 @@ public class Element implements Parcelable {
     private void sortModels(final HashMap<Integer, MeshModel> unorderedElements){
         final Set<Integer> unorderedKeys =  unorderedElements.keySet();
 
-        final List<Integer> orderedKeys = new ArrayList<>();
-        for(int key : unorderedKeys) {
-            orderedKeys.add(key);
-        }
+        final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
         Collections.sort(orderedKeys);
         for(int key : orderedKeys) {
             meshModels.put(key, unorderedElements.get(key));

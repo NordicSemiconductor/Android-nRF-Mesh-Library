@@ -62,11 +62,11 @@ public abstract class BaseMeshNode implements Parcelable {
     protected int mReceivedSequenceNumber;
     protected String bluetoothAddress;
     protected String nodeIdentifier;
-    protected int companyIdentifier;
-    protected int productIdentifier;
-    protected int versionIdentifier;
-    protected int crpl;
-    protected int features;
+    protected Integer companyIdentifier = null;
+    protected Integer productIdentifier = null;
+    protected Integer versionIdentifier = null;
+    protected Integer crpl = null;
+    protected Integer features = null;
     protected boolean relayFeatureSupported;
     protected boolean proxyFeatureSupported;
     protected boolean friendFeatureSupported;

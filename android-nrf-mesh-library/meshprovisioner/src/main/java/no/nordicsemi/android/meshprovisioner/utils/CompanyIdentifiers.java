@@ -1606,6 +1606,7 @@ public class CompanyIdentifiers {
      * @return company name;
      */
     public static String getCompanyName(final short companyIdentifier) {
-        return vendorModels.get(companyIdentifier);
+        final String companyName = vendorModels.get(companyIdentifier);
+        return companyName == null ? "Company ID unavailable" : companyName;
     }
 }

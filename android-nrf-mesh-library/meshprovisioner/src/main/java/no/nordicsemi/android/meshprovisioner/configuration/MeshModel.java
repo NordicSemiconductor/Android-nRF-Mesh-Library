@@ -89,10 +89,7 @@ public abstract class MeshModel implements Parcelable {
     private void sortAppKeys(final HashMap<Integer, String> unorderedBoundAppKeys){
         final Set<Integer> unorderedKeys =  unorderedBoundAppKeys.keySet();
 
-        final List<Integer> orderedKeys = new ArrayList<>();
-        for(int key : unorderedKeys) {
-            orderedKeys.add(key);
-        }
+        final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
         Collections.sort(orderedKeys);
         for(int key : orderedKeys) {
             mBoundAppKeys.put(key, unorderedBoundAppKeys.get(key));

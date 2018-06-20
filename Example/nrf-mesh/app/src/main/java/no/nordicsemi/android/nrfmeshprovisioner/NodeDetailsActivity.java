@@ -108,27 +108,47 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         final View containerCompanyIdentifier = findViewById(R.id.container_company_identifier);
         containerCompanyIdentifier.setClickable(false);
         final TextView companyIdentifier = containerCompanyIdentifier.findViewById(R.id.text);
-        companyIdentifier.setText(CompanyIdentifiers.getCompanyName((short) node.getCompanyIdentifier()));
+        if(node.getCompanyIdentifier() != null) {
+            companyIdentifier.setText(CompanyIdentifiers.getCompanyName(node.getCompanyIdentifier().shortValue()));
+        } else {
+            companyIdentifier.setText(R.string.unavailable);
+        }
 
         final View containerProductIdentifier = findViewById(R.id.container_product_identifier);
         containerProductIdentifier.setClickable(false);
         final TextView productIdentifier = containerProductIdentifier.findViewById(R.id.text);
-        productIdentifier.setText(CompositionDataParser.formatProductIdentifier(node.getProductIdentifier(), false));
+        if(node.getProductIdentifier() != null) {
+            productIdentifier.setText(CompositionDataParser.formatProductIdentifier(node.getProductIdentifier().shortValue(), false));
+        } else {
+            productIdentifier.setText(R.string.unavailable);
+        }
 
         final View containerProductVersion = findViewById(R.id.container_product_version);
         containerProductVersion.setClickable(false);
         final TextView productVersion = containerProductVersion.findViewById(R.id.text);
-        productVersion.setText(CompositionDataParser.formatVersionIdentifier(node.getVersionIdentifier(), false));
+        if(node.getVersionIdentifier() != null) {
+            productVersion.setText(CompositionDataParser.formatVersionIdentifier(node.getVersionIdentifier().shortValue(), false));
+        } else {
+            productVersion.setText(R.string.unavailable);
+        }
 
         final View containerCrpl = findViewById(R.id.container_crpl);
         containerCrpl.setClickable(false);
         final TextView crpl = containerCrpl.findViewById(R.id.text);
-        crpl.setText(CompositionDataParser.formatReplayProtectionCount(node.getCrpl(), false));
+        if(node.getCrpl() != null) {
+            crpl.setText(CompositionDataParser.formatReplayProtectionCount(node.getCrpl().shortValue(), false));
+        } else {
+            crpl.setText(R.string.unavailable);
+        }
 
         final View containerFeatures = findViewById(R.id.container_features);
         containerFeatures.setClickable(false);
         final TextView features = containerFeatures.findViewById(R.id.text);
-        features.setText(CompositionDataParser.formatFeatures(node.getFeatures(), false));
+        if(node.getFeatures() != null) {
+            features.setText(CompositionDataParser.formatFeatures(node.getFeatures().shortValue(), false));
+        } else {
+            features.setText(R.string.unavailable);
+        }
 
         final TextView view =  findViewById(R.id.no_elements_view);
         mRecyclerView = findViewById(R.id.recycler_view_elements);
