@@ -22,30 +22,29 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapterDetails;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 public class NodeDetailsActivity extends AppCompatActivity implements Injectable, ElementAdapterDetails.OnItemClickListener {
@@ -64,46 +63,70 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         if(node == null)
             finish();
 
+        final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(node.getNodeName());
 
         final View containerNodeName = findViewById(R.id.container_name);
+        containerNodeName.setClickable(false);
         final TextView nodeName = containerNodeName.findViewById(R.id.text);
         nodeName.setText(node.getNodeName());
 
         final View containerProvisioningTimeStamp = findViewById(R.id.container_timestamp);
+        containerProvisioningTimeStamp.setClickable(false);
         final TextView timestamp = containerProvisioningTimeStamp.findViewById(R.id.text);
         final String format = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(node.getTimeStamp());
         timestamp.setText(format);
 
         final View containerNodeIdentifier = findViewById(R.id.container_identifier);
+        containerNodeIdentifier.setClickable(false);
         final TextView nodeIdentifier = containerNodeIdentifier.findViewById(R.id.text);
         nodeIdentifier.setText(node.getNodeIdentifier());
 
         final View containerUnicastAddress = findViewById(R.id.container_unicast_address);
+        containerUnicastAddress.setClickable(false);
         final TextView unicastAddress = containerUnicastAddress.findViewById(R.id.text);
         unicastAddress.setText(MeshParserUtils.bytesToHex(node.getUnicastAddress(), false));
 
+        final View containerDeviceKey = findViewById(R.id.container_device_key);
+        containerDeviceKey.setClickable(false);
+        final TextView deviceKey = containerDeviceKey.findViewById(R.id.text);
+        deviceKey.setText(MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
+
+        final View copyDeviceKey = findViewById(R.id.copy);
+        copyDeviceKey.setOnClickListener(v -> {
+            if(clipboard != null) {
+                final ClipData clipDeviceKey = ClipData.newPlainText("Device Key", MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
+                clipboard.setPrimaryClip(clipDeviceKey);
+                Toast.makeText(NodeDetailsActivity.this, R.string.device_key_clipboard_copied, Toast.LENGTH_SHORT).show();
+            }
+        });
+
         final View containerCompanyIdentifier = findViewById(R.id.container_company_identifier);
+        containerCompanyIdentifier.setClickable(false);
         final TextView companyIdentifier = containerCompanyIdentifier.findViewById(R.id.text);
         companyIdentifier.setText(CompanyIdentifiers.getCompanyName((short) node.getCompanyIdentifier()));
 
         final View containerProductIdentifier = findViewById(R.id.container_product_identifier);
+        containerProductIdentifier.setClickable(false);
         final TextView productIdentifier = containerProductIdentifier.findViewById(R.id.text);
         productIdentifier.setText(CompositionDataParser.formatProductIdentifier(node.getProductIdentifier(), false));
 
         final View containerProductVersion = findViewById(R.id.container_product_version);
+        containerProductVersion.setClickable(false);
         final TextView productVersion = containerProductVersion.findViewById(R.id.text);
         productVersion.setText(CompositionDataParser.formatVersionIdentifier(node.getVersionIdentifier(), false));
 
-        node.getVersionIdentifier();
         final View containerCrpl = findViewById(R.id.container_crpl);
+        containerCrpl.setClickable(false);
         final TextView crpl = containerCrpl.findViewById(R.id.text);
         crpl.setText(CompositionDataParser.formatReplayProtectionCount(node.getCrpl(), false));
 
         final View containerFeatures = findViewById(R.id.container_features);
+        containerFeatures.setClickable(false);
         final TextView features = containerFeatures.findViewById(R.id.text);
         features.setText(CompositionDataParser.formatFeatures(node.getFeatures(), false));
 
