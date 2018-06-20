@@ -53,6 +53,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddedAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAppKeyAddStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
@@ -64,7 +65,7 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
 
 public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
-        ElementAdapter.OnItemClickListener, DialogFragmentAppKeyAddStatus.DialogFragmentAppKeyAddStatusListener,
+        ElementAdapter.OnItemClickListener, DialogFragmentAppKeyAddStatus.DialogFragmentAppKeyAddStatusListener, DialogFragmentResetNode.DialogFragmentNodeResetListener,
         AddedAppKeyAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
     private final static String TAG = NodeConfigurationActivity.class.getSimpleName();
@@ -148,9 +149,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             }
         });
 
-        getCompostionData.setOnClickListener(v -> {
-            mViewModel.sendGetCompositionData();
-        });
+        getCompostionData.setOnClickListener(v -> mViewModel.sendGetCompositionData());
 
         actionAddAppkey.setOnClickListener(v -> {
             final Map<Integer, String> appKeys = mViewModel.getProvisioningData().getAppKeys();
@@ -159,12 +158,10 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             startActivityForResult(addAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
-        actionResetNode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                final ProvisionedMeshNode provisionedMeshNode = mViewModel.getExtendedMeshNode().getMeshNode();
-                mViewModel.resetNode(provisionedMeshNode);
-            }
+        actionResetNode.setOnClickListener(v -> {
+            final DialogFragmentResetNode resetNodeFragment = DialogFragmentResetNode.
+                    newInstance(getString(R.string.title_reset_node), getString(R.string.reset_node_rationale_summary));
+            resetNodeFragment.show(getSupportFragmentManager(), null);
         });
 
         mViewModel.getAppKeyAddStatus().observe(this, appKeyStatusLiveData -> {
@@ -246,5 +243,11 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @Override
     public void onItemClick(final String appKey) {
 
+    }
+
+    @Override
+    public void onNodeReset() {
+        final ProvisionedMeshNode provisionedMeshNode = mViewModel.getExtendedMeshNode().getMeshNode();
+        mViewModel.resetNode(provisionedMeshNode);
     }
 }
