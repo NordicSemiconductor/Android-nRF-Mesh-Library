@@ -42,8 +42,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -63,10 +63,10 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisioningFailedErrorMessage;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.ProvisioningProgress;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 
 public class MeshProvisionerActivity extends AppCompatActivity implements Injectable,
         DialogFragmentAuthenticationInput.ProvisionerInputFragmentListener,
@@ -149,9 +149,9 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         appKeyTitle.setText(R.string.summary_app_keys);
         final TextView appKeyView = containerAppKey.findViewById(R.id.text);
         containerAppKey.setOnClickListener(v -> {
-            final Map<Integer, String> appKeys = mViewModel.getProvisioningData().getAppKeys();
+            final List<String> appKeys = mViewModel.getProvisioningData().getAppKeys();
             final Intent manageAppKeys = new Intent(MeshProvisionerActivity.this, ManageAppKeysActivity.class);
-            manageAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys.values()));
+            manageAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
             startActivityForResult(manageAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
@@ -228,7 +228,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             if(resultCode == RESULT_OK){
                 final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 if(appKey != null){
-                    final int appKeyIndex = Utils.getKey(mViewModel.getProvisioningData().getAppKeys(), appKey);
+                    final int appKeyIndex = mViewModel.getProvisioningData().getAppKeys().indexOf(appKey);//Utils.getKey(mViewModel.getProvisioningData().getAppKeys(), appKey);
                     mViewModel.setSelectedAppKey(appKeyIndex, appKey);
                 }
             }

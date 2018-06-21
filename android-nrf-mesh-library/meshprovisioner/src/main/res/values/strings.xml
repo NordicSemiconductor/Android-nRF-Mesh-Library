@@ -80,7 +80,7 @@
     <string name="default_network_name">My Network</string>
 
     <string name="error_empty_app_key">App key cannot be empty!</string>
-    <string name="error_invalid_app_key">App key must be 16 bytes long!</string>
+    <string name="error_invalid_app_key">App key must be 16 bytes long and must be a valid hex value!</string>
     <string name="error_invalid_key">Key must be a hex value!</string>
     <string name="error_null_key">App key cannot be null!</string>
 

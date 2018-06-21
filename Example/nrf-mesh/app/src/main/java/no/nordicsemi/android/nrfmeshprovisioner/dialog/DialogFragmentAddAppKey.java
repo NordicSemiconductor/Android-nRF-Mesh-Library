@@ -32,7 +32,6 @@ import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -44,7 +43,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AppKeyAdapter;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 public class DialogFragmentAddAppKey extends DialogFragment implements AppKeyAdapter.OnItemClickListener {
 
@@ -106,7 +104,7 @@ public class DialogFragmentAddAppKey extends DialogFragment implements AppKeyAda
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null)
-                .setNeutralButton(R.string.generate_app_key, null);;
+                .setNeutralButton(R.string.generate_app_key, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
         alertDialogBuilder.setTitle(R.string.title_manage_app_keys);
@@ -116,13 +114,15 @@ public class DialogFragmentAddAppKey extends DialogFragment implements AppKeyAda
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String appKey = appKeyInput.getText().toString();
             if (validateInput(appKey)) {
-                ((DialogFragmentAddAppKeysListener) getContext()).onAppKeyAdded(appKey);
-                dismiss();
+                try {
+                    ((DialogFragmentAddAppKeysListener) getContext()).onAppKeyAdded(appKey);
+                    dismiss();
+                } catch (IllegalArgumentException ex) {
+                    appKeysInputLayout.setError(ex.getMessage());
+                }
             }
         });
-        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> {
-            appKeyInput.setText(SecureUtils.generateRandomNetworkKey());
-        });
+        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> appKeyInput.setText(SecureUtils.generateRandomNetworkKey()));
         return alertDialog;
     }
 

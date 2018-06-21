@@ -37,12 +37,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFlags;
@@ -53,6 +52,9 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentKeyIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
+
+import static android.app.Activity.RESULT_OK;
+import static no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity.RESULT_APP_KEY_LIST_SIZE;
 
 public class SettingsFragment extends Fragment implements Injectable,
         DialogFragmentGlobalNetworkName.DialogFragmentNetworkNameListener,
@@ -67,6 +69,7 @@ public class SettingsFragment extends Fragment implements Injectable,
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
+    private TextView manageAppKeysView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -162,7 +165,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         containerManageAppKeys.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_folder_key_black_24dp_alpha));
         final TextView manageAppKeys = containerManageAppKeys.findViewById(R.id.title);
         manageAppKeys.setText(R.string.summary_app_keys);
-        final TextView manageAppKeysView = containerManageAppKeys.findViewById(R.id.text);
+        manageAppKeysView = containerManageAppKeys.findViewById(R.id.text);
 
         final View containerAbout = rootView.findViewById(R.id.container_version);
         containerAbout.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_puzzle));
@@ -177,26 +180,36 @@ public class SettingsFragment extends Fragment implements Injectable,
 
         containerManageAppKeys.setOnClickListener(v -> {
             final Intent intent = new Intent(getActivity(), ManageAppKeysActivity.class);
-            final Map<Integer, String> appkeys = mViewModel.getProvisioningData().getAppKeys();
-            intent.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appkeys.values()));
-            startActivity(intent);
+            final List<String> appkeys = mViewModel.getProvisioningData().getAppKeys();
+            intent.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appkeys));
+            startActivityForResult(intent,  ManageAppKeysActivity.MANAGE_APP_KEYS);
         });
 
-       mViewModel.getProvisioningData().observe(this, provisioningData -> {
-           if(provisioningData.getProvisioningSettings() != null) {
-               networkNameView.setText(provisioningData.getNetworkName());
-               globalTtlView.setText(String.valueOf(provisioningData.getGlobalTtl()));
-               keyView.setText(getString(R.string.hex_format, provisioningData.getNetworkKey()));
-               keyIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%03X", provisioningData.getKeyIndex())));
-               flagsView.setText(parseFlagsMessage(provisioningData.getFlags()));
-               ivIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%08X", provisioningData.getIvIndex())));
-               mViewModel.saveApplicationKeys(provisioningData.getAppKeys());
-               unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningData.getUnicastAddress())));
-               manageAppKeysView.setText(getString(R.string.app_key_count, provisioningData.getAppKeys().size()));
-           }
-       });
+        mViewModel.getProvisioningData().observe(this, provisioningData -> {
+            if(provisioningData.getProvisioningSettings() != null) {
+                networkNameView.setText(provisioningData.getNetworkName());
+                globalTtlView.setText(String.valueOf(provisioningData.getGlobalTtl()));
+                keyView.setText(getString(R.string.hex_format, provisioningData.getNetworkKey()));
+                keyIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%03X", provisioningData.getKeyIndex())));
+                flagsView.setText(parseFlagsMessage(provisioningData.getFlags()));
+                ivIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%08X", provisioningData.getIvIndex())));
+                unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningData.getUnicastAddress())));
+                manageAppKeysView.setText(getString(R.string.app_key_count, provisioningData.getAppKeys().size()));
+            }
+        });
         return rootView;
 
+    }
+
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == ManageAppKeysActivity.MANAGE_APP_KEYS){
+            if(resultCode == RESULT_OK){
+                final int size = data.getExtras().getInt(RESULT_APP_KEY_LIST_SIZE);
+                manageAppKeysView.setText(getString(R.string.app_key_count, size));
+            }
+        }
     }
 
     private String parseFlagsMessage(final int flags) {

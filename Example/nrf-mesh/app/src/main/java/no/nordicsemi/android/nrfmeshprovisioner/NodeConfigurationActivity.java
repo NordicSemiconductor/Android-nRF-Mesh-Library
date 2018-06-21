@@ -38,6 +38,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -152,9 +153,9 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         getCompostionData.setOnClickListener(v -> mViewModel.sendGetCompositionData());
 
         actionAddAppkey.setOnClickListener(v -> {
-            final Map<Integer, String> appKeys = mViewModel.getProvisioningData().getAppKeys();
+            final List<String> appKeys = mViewModel.getProvisioningData().getAppKeys();
             final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageNodeAppKeysActivity.class);
-            addAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys.values()));
+            addAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
             startActivityForResult(addAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 

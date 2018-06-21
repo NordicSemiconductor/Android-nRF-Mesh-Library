@@ -25,9 +25,10 @@ package no.nordicsemi.android.meshprovisioner;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-import no.nordicsemi.android.meshprovisioner.utils.NetworkSettings;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 public class ProvisioningSettings extends NetworkSettings {
@@ -48,12 +49,13 @@ public class ProvisioningSettings extends NetworkSettings {
         this.mContext = context;
         generateProvisioningData();
         addAppKeys();
+        saveProvisioningData();
     }
 
     /**
      * Generates initial provisioning data
      */
-    protected void generateProvisioningData() {
+    void generateProvisioningData() {
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONING_DATA, Context.MODE_PRIVATE);
         networkKey = preferences.getString(NETWORK_KEY, SecureUtils.generateRandomNetworkKey());
         unicastAddress = preferences.getInt(UNICAST_ADDRESS, 1);
@@ -66,7 +68,7 @@ public class ProvisioningSettings extends NetworkSettings {
     /**
      * Clear provisioning data
      */
-    protected void clearProvisioningData() {
+    void clearProvisioningData() {
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONING_DATA, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
@@ -78,12 +80,12 @@ public class ProvisioningSettings extends NetworkSettings {
         final Map<String, ?> keys = preferences.getAll();
         if (!keys.isEmpty()) {
             for (int i = 0; i < keys.size(); i++) {
-                appKeys.put(i, String.valueOf(keys.get(String.valueOf(i))));
+                appKeys.add(i, String.valueOf(keys.get(String.valueOf(i))));
             }
         } else {
-            appKeys.put(0, SecureUtils.generateRandomApplicationKey().toUpperCase());
-            appKeys.put(1, SecureUtils.generateRandomApplicationKey().toUpperCase());
-            appKeys.put(2, SecureUtils.generateRandomApplicationKey().toUpperCase());
+            appKeys.add(SecureUtils.generateRandomApplicationKey().toUpperCase());
+            appKeys.add(SecureUtils.generateRandomApplicationKey().toUpperCase());
+            appKeys.add(SecureUtils.generateRandomApplicationKey().toUpperCase());
         }
         saveApplicationKeys();
     }
@@ -97,8 +99,67 @@ public class ProvisioningSettings extends NetworkSettings {
         saveNetowrkKey();
     }
 
-    public Map<Integer, String> getAppKeys() {
-        return appKeys;
+    /**
+     * Returns an unmodifiable list of application keys available in the provisioning settings
+     *
+     * @return Map of application keys where the key is used as the application key index for a given application key in the map
+     */
+    public List<String> getAppKeys() {
+        return Collections.unmodifiableList(appKeys);
+    }
+
+    /**
+     * Adds an application key to the application keys list
+     *
+     * @param applicationKey application key to be added in the specified position
+     */
+    public void addAppKey(final String applicationKey) throws IllegalArgumentException {
+        if(this.appKeys.contains(applicationKey))
+            throw new IllegalArgumentException("App key already exists");
+
+        this.appKeys.add(applicationKey);
+        saveApplicationKeys();
+    }
+
+    /**
+     * Adds an application key to the application keys list
+     *
+     * @param position       Position would be used as the key for the application key. Also during configuration steps position value would be used as the index for the application key index.
+     * @param applicationKey application key to be added in the specified position
+     */
+    public void addAppKey(final int position, final String applicationKey) {
+        if(this.appKeys.contains(applicationKey))
+            throw new IllegalArgumentException("App key already exists");
+
+        this.appKeys.add(position, applicationKey);
+        saveApplicationKeys();
+    }
+
+    /**
+     * Updates an application key
+     *
+     * @param position       Position would be used as the key for the application key. Also during configuration steps position value would be used as the index for the application key index.
+     * @param applicationKey application key to be added in the specified position
+     */
+    public void updateAppKey(final int position, final String applicationKey) {
+        if(this.appKeys.contains(applicationKey))
+            throw new IllegalArgumentException("App key already exists");
+
+        this.appKeys.set(position, applicationKey);
+        saveApplicationKeys();
+    }
+
+    /**
+     * Removes the specified app key from the app key
+     *
+     * @param appKey App key to be removed
+     */
+    public void removeAppKey(final String appKey) {
+        if (appKeys.contains(appKey)) {
+            final int index = appKeys.indexOf(appKey);
+            appKeys.remove(index);
+            saveApplicationKeys();
+        }
     }
 
     public int getKeyIndex() {
@@ -146,6 +207,7 @@ public class ProvisioningSettings extends NetworkSettings {
         this.globalTtl = globalTtl;
         saveGlobalTtl();
     }
+
     private void saveNetowrkKey() {
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONING_DATA, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = preferences.edit();
@@ -191,9 +253,23 @@ public class ProvisioningSettings extends NetworkSettings {
     private void saveApplicationKeys() {
         final SharedPreferences preferences = mContext.getSharedPreferences(APPLICATION_KEYS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        for (int i = 0; i < appKeys.size(); i++) {
-            editor.putString(String.valueOf(i), appKeys.get(i));
+        if(appKeys.isEmpty()){
+            editor.clear();
+        } else {
+            for (int i = 0; i < appKeys.size(); i++) {
+                editor.putString(String.valueOf(i), appKeys.get(i));
+            }
         }
         editor.apply();
+    }
+
+    private void saveProvisioningData(){
+        saveNetowrkKey();
+        saveUnicastAddress();
+        saveKeyIndex();
+        saveIvIndex();
+        saveFlags();
+        saveGlobalTtl();
+        saveApplicationKeys();
     }
 }
