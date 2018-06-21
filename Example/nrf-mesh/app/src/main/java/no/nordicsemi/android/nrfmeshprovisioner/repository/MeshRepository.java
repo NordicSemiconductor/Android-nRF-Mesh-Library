@@ -116,9 +116,7 @@ public class MeshRepository extends BaseMeshRepository {
     public void refreshProvisionedNodes(){
         if(mBinder != null) {
             Map<Integer, ProvisionedMeshNode> nodes = mBinder.getProvisionedNodes();
-            if(!nodes.isEmpty()) {
-                mProvisionedNodesLiveData.updateProvisionedNodes(nodes);
-            }
+            mProvisionedNodesLiveData.updateProvisionedNodes(nodes);
         }
     }
 }
