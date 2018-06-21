@@ -20,15 +20,15 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.meshprovisioner.utils;
+package no.nordicsemi.android.meshprovisioner;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class NetworkSettings {
 
     protected String networkKey;
-    protected Map<Integer, String> appKeys = new HashMap<>();
+    protected List<String> appKeys = new ArrayList<>();
     protected int keyIndex = 0;
     protected int ivIndex = 0;
     protected int unicastAddress = 1;
@@ -39,5 +39,5 @@ public abstract class NetworkSettings {
 
     }
 
-    protected abstract void generateProvisioningData();
+    abstract void generateProvisioningData();
 }
