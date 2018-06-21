@@ -44,6 +44,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
 		// we cannot inject view models directly because they won't be bound to the owner's
 		// view model scope.
 		creators.put(SharedViewModel.class, viewModelSubComponent::commonViewModel);
+        creators.put(ManageAppKeysViewModel.class, viewModelSubComponent::manageAppKeysViewModel);
 		creators.put(MeshProvisionerViewModel.class, viewModelSubComponent::meshProvisionerViewModel);
 		creators.put(NodeConfigurationViewModel.class, viewModelSubComponent::meshConfigurationViewModel);
 		creators.put(ModelConfigurationViewModel.class, viewModelSubComponent::modelConfigurationViewModel);

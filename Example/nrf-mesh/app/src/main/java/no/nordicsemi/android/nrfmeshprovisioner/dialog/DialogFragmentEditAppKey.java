@@ -32,7 +32,6 @@ import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -43,7 +42,6 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AppKeyAdapter;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 public class DialogFragmentEditAppKey extends DialogFragment implements AppKeyAdapter.OnItemClickListener {
 
@@ -118,8 +116,12 @@ public class DialogFragmentEditAppKey extends DialogFragment implements AppKeyAd
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String appKey = appKeyInput.getText().toString();
             if (validateInput(appKey)) {
-                ((DialogFragmentEditAppKeysListener) getContext()).onAppKeysUpdated(mPosition, appKey);
-                dismiss();
+                try {
+                    ((DialogFragmentEditAppKeysListener) getContext()).onAppKeysUpdated(mPosition, appKey);
+                    dismiss();
+                } catch (IllegalArgumentException ex) {
+                    appKeysInputLayout.setError(ex.getMessage());
+                }
             }
         });
 

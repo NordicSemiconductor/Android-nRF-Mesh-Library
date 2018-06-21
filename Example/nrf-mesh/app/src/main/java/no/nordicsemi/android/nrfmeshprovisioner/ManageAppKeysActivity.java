@@ -23,6 +23,8 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.app.Activity;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,30 +38,39 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.SparseArray;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
-import java.util.ArrayList;
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.AppKeyAdapter;
+import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
+import no.nordicsemi.android.nrfmeshprovisioner.adapter.ManageAppKeyAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAddAppKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentEditAppKey;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ManageAppKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class ManageAppKeysActivity extends AppCompatActivity implements AppKeyAdapter.OnItemClickListener,
+public class ManageAppKeysActivity extends AppCompatActivity implements Injectable, ManageAppKeyAdapter.OnItemClickListener,
         DialogFragmentAddAppKey.DialogFragmentAddAppKeysListener,
         DialogFragmentEditAppKey.DialogFragmentEditAppKeysListener,
         ItemTouchHelperAdapter {
 
     public static final String RESULT_APP_KEY = "RESULT_APP_KEY";
     public static final String RESULT_APP_KEY_INDEX = "RESULT_APP_KEY_INDEX";
+    public static final String RESULT_APP_KEY_LIST_SIZE = "RESULT_APP_KEY_LIST_SIZE";
     public static final String APP_KEYS = "APP_KEYS";
     public static final int SELECT_APP_KEY = 2011; //Random number
+    public static final int MANAGE_APP_KEYS = 2012; //Random number
+    private static final String CALLING_ACTIVITY = ".MainActivity";
+
+    @Inject
+    ViewModelProvider.Factory mViewModelFactory;
 
     //UI Bindings
     @BindView(android.R.id.empty)
@@ -67,15 +78,15 @@ public class ManageAppKeysActivity extends AppCompatActivity implements AppKeyAd
     @BindView(R.id.container)
     View container;
 
-    private SparseArray<String> mAppKeysMap = new SparseArray<>();
-    private AppKeyAdapter mAdapter;
+    private ManageAppKeysViewModel mViewModel;
+    private ManageAppKeyAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_app_keys);
-        final ArrayList<String> tempAppKeys = getIntent().getStringArrayListExtra(APP_KEYS);
-        populateAppKeysMap(tempAppKeys);
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ManageAppKeysViewModel.class);
+
         //If the component name is not null then we know that the activity requested a result
         final ComponentName componentName = getCallingActivity();
 
@@ -84,10 +95,12 @@ public class ManageAppKeysActivity extends AppCompatActivity implements AppKeyAd
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if(componentName == null) {
+        final FloatingActionButton fab = findViewById(R.id.fab);
+        if(componentName != null && componentName.getShortClassName().equals(CALLING_ACTIVITY)) {
             getSupportActionBar().setTitle(R.string.title_manage_app_keys);
         } else {
             getSupportActionBar().setTitle(R.string.title_select_app_key);
+            fab.setVisibility(View.GONE);
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         final RecyclerView appKeysRecyclerView = findViewById(R.id.recycler_view_app_keys);
@@ -95,23 +108,24 @@ public class ManageAppKeysActivity extends AppCompatActivity implements AppKeyAd
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(appKeysRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
         appKeysRecyclerView.addItemDecoration(dividerItemDecoration);
         appKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new AppKeyAdapter(this, mAppKeysMap);
+        mAdapter = new ManageAppKeyAdapter(this, mViewModel.getProvisioningLiveData());
         mAdapter.setOnItemClickListener(this);
         appKeysRecyclerView.setAdapter(mAdapter);
 
-        final FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(v -> {
             final DialogFragmentAddAppKey dialogFragmentAddAppKey = DialogFragmentAddAppKey.newInstance(null);
             dialogFragmentAddAppKey.show(getSupportFragmentManager(), null);
         });
-        if(componentName != null) {
-            fab.setVisibility(View.GONE);
-        }
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
-        final boolean empty = mAdapter.getItemCount() == 0;
-        mEmptyView.setVisibility(empty ? View.VISIBLE : View.GONE);
+
+        mViewModel.getProvisioningLiveData().observe(this, provisioningLiveData -> {
+            final ProvisioningSettings settings = provisioningLiveData.getProvisioningSettings();
+            if(settings != null) {
+                mEmptyView.setVisibility(settings.getAppKeys().isEmpty() ? View.VISIBLE : View.GONE);
+            }
+        });
     }
 
     @Override
@@ -126,13 +140,21 @@ public class ManageAppKeysActivity extends AppCompatActivity implements AppKeyAd
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-
+        final ComponentName componentName = getCallingActivity();
+        if(componentName != null && componentName.getShortClassName().equals(CALLING_ACTIVITY)) {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(RESULT_APP_KEY_LIST_SIZE, mAdapter.getItemCount());
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
     public void onItemClick(final int position, final String appKey) {
-        if(getCallingActivity() == null) {
+        final ComponentName componentName = getCallingActivity();
+        if(componentName != null && componentName.getShortClassName().equals(CALLING_ACTIVITY)) {
             final DialogFragmentEditAppKey dialogFragmentEditAppKey = DialogFragmentEditAppKey.newInstance(position, appKey);
             dialogFragmentEditAppKey.show(getSupportFragmentManager(), null);
         } else {
@@ -146,23 +168,20 @@ public class ManageAppKeysActivity extends AppCompatActivity implements AppKeyAd
 
     @Override
     public void onAppKeysUpdated(final int position, final String appKey) {
-        mAppKeysMap.put(position, appKey);
-        mAdapter.notifyItemChanged(position);
+        mViewModel.getProvisioningLiveData().updateAppKey(position, appKey);
     }
 
     @Override
     public void onAppKeyAdded(final String appKey) {
-        mAppKeysMap.put(mAppKeysMap.size(), appKey);
-        mAdapter.notifyDataSetChanged();
+        mViewModel.getProvisioningLiveData().addAppKey(appKey);
     }
 
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
-        final int position = viewHolder.getAdapterPosition();
-        final String appKey = mAppKeysMap.get(position);
-        mAppKeysMap.remove(position);
-        mAdapter.notifyItemRemoved(position);
-        displaySnackBar(position, appKey);
+        final TextView textView = viewHolder.getSwipeableView().findViewById(R.id.app_key);
+        final String appKey = textView.getText().toString();
+        mViewModel.getProvisioningLiveData().removeAppKey(appKey);
+        displaySnackBar(viewHolder.getAdapterPosition(), appKey);
         // Show the empty view
         final boolean empty = mAdapter.getItemCount() == 0;
         if (empty) {
@@ -170,19 +189,13 @@ public class ManageAppKeysActivity extends AppCompatActivity implements AppKeyAd
         }
     }
 
-    private void populateAppKeysMap(final ArrayList<String> tempAppKeys){
-        for ( int i=0; i < tempAppKeys.size(); i++ ) {
-            mAppKeysMap.put(i,tempAppKeys.get(i));
-        }
-    }
 
-    private void displaySnackBar(final int position, final String appKey){
+    private void displaySnackBar(final int key, final String appKey){
 
         Snackbar.make(container, getString(R.string.app_key_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
                     mEmptyView.setVisibility(View.INVISIBLE);
-                    mAppKeysMap.put(position, appKey);
-                    mAdapter.notifyItemInserted(position);
+                    mViewModel.getProvisioningLiveData().addAppKey(key, appKey);
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
                 .show();

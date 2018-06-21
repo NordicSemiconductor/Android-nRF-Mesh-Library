@@ -23,6 +23,8 @@
 package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import dagger.Subcomponent;
+import  no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ViewModelFactory;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ManageAppKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionedNodesScannerViewModel;
@@ -42,6 +44,7 @@ public interface ViewModelSubComponent {
 		ViewModelSubComponent build();
 	}
 	SharedViewModel commonViewModel();
+	ManageAppKeysViewModel manageAppKeysViewModel();
 	MeshProvisionerViewModel meshProvisionerViewModel();
 	NodeConfigurationViewModel meshConfigurationViewModel();
 	ModelConfigurationViewModel modelConfigurationViewModel();

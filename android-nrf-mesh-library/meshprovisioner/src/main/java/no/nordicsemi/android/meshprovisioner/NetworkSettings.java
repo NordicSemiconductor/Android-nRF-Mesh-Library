@@ -20,32 +20,24 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-apply plugin: 'com.android.library'
+package no.nordicsemi.android.meshprovisioner;
 
-android {
-    compileSdkVersion 27
-    defaultConfig {
-        minSdkVersion 18
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
+import java.util.ArrayList;
+import java.util.List;
 
-dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:27.0.2'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    // Log Bluetooth LE events in nRF Logger
-    implementation 'no.nordicsemi.android:log:2.1.1'
-    implementation project(':ble')
+public abstract class NetworkSettings {
+
+    protected String networkKey;
+    protected List<String> appKeys = new ArrayList<>();
+    protected int keyIndex = 0;
+    protected int ivIndex = 0;
+    protected int unicastAddress = 1;
+    protected int flags = 0;
+    protected int globalTtl = 5; //Random value
+
+    public NetworkSettings() {
+
+    }
+
+    abstract void generateProvisioningData();
 }

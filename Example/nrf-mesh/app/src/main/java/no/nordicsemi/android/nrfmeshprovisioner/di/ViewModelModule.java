@@ -29,11 +29,10 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-
-import no.nordicsemi.android.nrfmeshprovisioner.repository.NodeConfigurationRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshProvisionerRepository;
+import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshRepository;
+import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
+import no.nordicsemi.android.nrfmeshprovisioner.repository.NodeConfigurationRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ProvisionedNodesScannerRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ReconnectRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ScannerRepository;
