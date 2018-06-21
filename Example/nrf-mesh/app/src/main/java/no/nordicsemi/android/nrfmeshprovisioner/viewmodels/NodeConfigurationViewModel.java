@@ -86,7 +86,7 @@ public class NodeConfigurationViewModel extends ViewModel {
     }
 
     public void sendAppKeyAdd(final int appKeyIndex, final String appKey) {
-        mNodeConfigurationRepository.addAppKey(appKeyIndex, appKey);
+        mNodeConfigurationRepository.sendAppKeyAdd(appKeyIndex, appKey);
     }
 
     public AppKeyStatusLiveData getAppKeyAddStatus() {
