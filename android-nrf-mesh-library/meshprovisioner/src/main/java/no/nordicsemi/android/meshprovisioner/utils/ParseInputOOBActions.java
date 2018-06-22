@@ -22,7 +22,10 @@
 
 package no.nordicsemi.android.meshprovisioner.utils;
 
+import android.util.Log;
+
 public class ParseInputOOBActions {
+    private static final String TAG = ParseInputOOBActions.class.getSimpleName();
 
     private static final int NO_INPUT = 0x00;
     private static final int PUSH = 0x01;
@@ -50,6 +53,15 @@ public class ParseInputOOBActions {
                 return "Input alpha numeric";
             default:
                 return "Unknown";
+        }
+    }
+
+    public static void calculateInputActionsFromBitMask(final int outputAction) {
+        final byte[] outputActions = {PUSH, TWIST, INPUT_NUMBER, INPUT_ALPHA_NUMBERIC};
+        for(byte action : outputActions){
+            if((outputAction & action) == action){
+                Log.v(TAG, "Output oob action type value: " + getInputOOBActionDescription(action));
+            }
         }
     }
 

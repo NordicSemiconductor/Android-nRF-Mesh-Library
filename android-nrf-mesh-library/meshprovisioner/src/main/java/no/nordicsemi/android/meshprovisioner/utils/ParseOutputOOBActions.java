@@ -22,12 +22,17 @@
 
 package no.nordicsemi.android.meshprovisioner.utils;
 
+import android.util.Log;
+
+import java.util.ArrayList;
+
 public class ParseOutputOOBActions {
+    private static final String TAG = ParseOutputOOBActions.class.getSimpleName();
 
     /**
      * Input OOB Actions
      */
-    protected static final int NO_OUTPUT = 0x0000;
+    public static final int NO_OUTPUT = 0x0000;
     protected static final int BLINK = 0x0001;
     protected static final int BEEP = 0x0002;
     protected static final int VIBRATE = 0x0004;
@@ -81,6 +86,23 @@ public class ParseOutputOOBActions {
                 return 10;
             default:
                 return -1;
+        }
+    }
+
+    public static int calculateOutputActionsFromBitMask(final int outputAction) {
+        final byte[] outputActions = {BLINK, BEEP, VIBRATE, OUTPUT_NUMERIC, OUTPUT_ALPHA_NUMERIC};
+        final ArrayList<Byte> suppportedActionValues = new ArrayList<>();
+        for(byte action : outputActions){
+            if((outputAction & action) == action){
+                suppportedActionValues.add(action);
+                Log.v(TAG, "Supported output oob action type: " + getOuputOOBActionDescription(action));
+            }
+        }
+
+        if(!suppportedActionValues.isEmpty()) {
+            return suppportedActionValues.get(0);
+        } else {
+            return NO_OUTPUT;
         }
     }
 

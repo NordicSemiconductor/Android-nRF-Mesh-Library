@@ -78,9 +78,17 @@ public class ProvisioningStart extends ProvisioningState {
         provisioningPDU[1] = TYPE_PROVISIONING_START;
         provisioningPDU[2] = ParseProvisioningAlgorithm.getAlgorithmValue(algorithm);
         provisioningPDU[3] = 0;//(byte) publicKeyType;
-        provisioningPDU[4] = getAuthenticationMethod(); //So far its Output OOB
-        provisioningPDU[5] = (byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOOBAction);
-        provisioningPDU[6] = (byte) outputOOBSize;
+        final int outputOobActionType = (byte) ParseOutputOOBActions.calculateOutputActionsFromBitMask(outputOOBAction);
+        if(outputOobActionType == ParseOutputOOBActions.NO_OUTPUT){
+            provisioningPDU[4] = 0;
+            //prefer no oob
+            provisioningPDU[5] = 0;
+            provisioningPDU[6] = 0;
+        } else {
+            provisioningPDU[4] = 0x02;
+            provisioningPDU[5] = (byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOobActionType);//(byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOOBAction);
+            provisioningPDU[6] = (byte) outputOOBSize;
+        }
         Log.v(TAG, "Provisioning start PDU: " + MeshParserUtils.bytesToHex(provisioningPDU, true));
 
         return provisioningPDU;

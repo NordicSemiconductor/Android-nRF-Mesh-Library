@@ -457,9 +457,17 @@ public class MeshProvisioningHandler {
         final byte[] startData = new byte[5];
         startData[0] = ParseProvisioningAlgorithm.getAlgorithmValue(algorithm);
         startData[1] = 0;//(byte) publicKeyType;
-        startData[2] = getAuthenticationMethod();
-        startData[3] = (byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOOBAction);
-        startData[4] = (byte) outputOOBSize;
+        final int outputOobActionType = (byte) ParseOutputOOBActions.calculateOutputActionsFromBitMask(outputOOBAction);
+        if(outputOobActionType == ParseOutputOOBActions.NO_OUTPUT){
+            startData[2] = 0;
+            //prefer no oob
+            startData[3] = 0;
+            startData[4] = 0;
+        } else {
+            startData[2] = 0x02;
+            startData[3] = (byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOobActionType);//(byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOOBAction);
+            startData[4] = (byte) outputOOBSize;
+        }
 
         return startData;
     }
