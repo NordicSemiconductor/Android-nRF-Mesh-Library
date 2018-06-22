@@ -134,6 +134,11 @@
     <string name="summary_ttl">Enter a global TTL value.</string>
     <string name="hint_global_ttl">Global TTL</string>
 
+    <string name="title_src_address">Source Address</string>
+    <string name="summary_src_address">Source address</string>
+    <string name="dialog_summary_src">Enter a unicast address that could be used as an address for the provisioner.</string>
+    <string name="hint_src_address">Source Address</string>
+
     <string name="network_settings">Network Settings</string>
     <string name="summary_flags">Flags</string>
     <string name="summary_key">Key</string>

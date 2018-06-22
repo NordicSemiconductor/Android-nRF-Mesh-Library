@@ -40,7 +40,7 @@ public abstract class BaseMeshNode implements Parcelable {
 
     protected static final String TAG = BaseMeshNode.class.getSimpleName();
 
-    protected final byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
+    protected byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
     protected byte[] ivIndex;
     protected boolean isProvisioned;
     protected boolean isConfigured;
@@ -171,5 +171,13 @@ public abstract class BaseMeshNode implements Parcelable {
 
     public long getTimeStamp() {
         return mTimeStampInMillis;
+    }
+
+    public final byte[] getConfigurationSrc() {
+        return mConfigurationSrc;
+    }
+
+    public final void setConfigurationSrc(final byte[] src) {
+        mConfigurationSrc = src;
     }
 }

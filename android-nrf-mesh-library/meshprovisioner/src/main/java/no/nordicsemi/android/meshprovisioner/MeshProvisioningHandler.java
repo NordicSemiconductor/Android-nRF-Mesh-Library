@@ -179,9 +179,10 @@ public class MeshProvisioningHandler {
      * @param flags           2 byte flags
      * @param ivIndex         1 byte ivIndex - starts at 1
      * @param unicastAddress  2 byte unicast address
+     * @param srcAddress
      * @return {@link MeshModel} to be provisioned
      */
-    private final UnprovisionedMeshNode initializeMeshNode(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl) throws IllegalArgumentException {
+    private UnprovisionedMeshNode initializeMeshNode(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl, final byte[] srcAddress) throws IllegalArgumentException {
         if (!BluetoothAdapter.checkBluetoothAddress(address)) {
             throw new IllegalArgumentException(mContext.getString(R.string.invalid_bluetooth_address));
         }
@@ -208,6 +209,7 @@ public class MeshProvisioningHandler {
             if (MeshParserUtils.validateUnicastAddressInput(mContext, unicastAddress)) {
                 unicastBytes = new byte[]{(byte) ((unicastAddress >> 8) & 0xFF), (byte) (unicastAddress & 0xFF)};
             }
+
             final UnprovisionedMeshNode unprovisionedMeshNode = new UnprovisionedMeshNode();
             unprovisionedMeshNode.setBluetoothDeviceAddress(address);
             unprovisionedMeshNode.setNodeName(nodeName);
@@ -217,6 +219,7 @@ public class MeshProvisioningHandler {
             unprovisionedMeshNode.setIvIndex(ivIndexBytes);
             unprovisionedMeshNode.setUnicastAddress(unicastBytes);
             unprovisionedMeshNode.setTtl(globalTtl);
+            unprovisionedMeshNode.setConfigurationSrc(srcAddress);
             return unprovisionedMeshNode;
         }
         return null;
@@ -256,9 +259,8 @@ public class MeshProvisioningHandler {
     /**
      * Start provisioning.
      */
-    public void startProvisioning(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl) throws IllegalArgumentException {
-        final UnprovisionedMeshNode meshNode = initializeMeshNode(address ,nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl);
-        mUnprovisionedMeshNode = meshNode;
+    protected void startProvisioning(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl, final byte[] configuratorSrc) throws IllegalArgumentException {
+        mUnprovisionedMeshNode = initializeMeshNode(address ,nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl, configuratorSrc);
         this.attentionTimer = 0x0A;
         sendProvisioningInvite();
     }

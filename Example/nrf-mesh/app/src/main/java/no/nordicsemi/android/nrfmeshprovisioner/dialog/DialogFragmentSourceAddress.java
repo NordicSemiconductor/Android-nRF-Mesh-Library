@@ -48,7 +48,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 
-public class DialogFragmentUnicastAddress extends DialogFragment {
+public class DialogFragmentSourceAddress extends DialogFragment {
 
     private static final String UNICAST_ADDRESS = "UNICAST_ADDRESS";
     //UI Bindings
@@ -59,8 +59,8 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
 
     private int mUnicastAddress;
 
-    public static DialogFragmentUnicastAddress newInstance(final int unicastAddress) {
-        DialogFragmentUnicastAddress fragmentIvIndex = new DialogFragmentUnicastAddress();
+    public static DialogFragmentSourceAddress newInstance(final int unicastAddress) {
+        DialogFragmentSourceAddress fragmentIvIndex = new DialogFragmentSourceAddress();
         final Bundle args = new Bundle();
         args.putInt(UNICAST_ADDRESS, unicastAddress);
         fragmentIvIndex.setArguments(args);
@@ -85,7 +85,7 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
 
         final KeyListener hexKeyListener = new HexKeyListener();
         final String unicastAddress = String.format(Locale.US, "%04X", mUnicastAddress);
-        unicastAddressInputLayout.setHint(getString((R.string.hint_unicast_address)));
+        unicastAddressInputLayout.setHint(getString((R.string.hint_src_address)));
         unicastAddressInput.setText(unicastAddress);
         unicastAddressInput.setSelection(unicastAddress.length());
         unicastAddressInput.setKeyListener(hexKeyListener);
@@ -114,19 +114,26 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
-        alertDialogBuilder.setTitle(R.string.title_unicast_address);
-        alertDialogBuilder.setMessage(R.string.dialog_summary_unicast_address);
+        alertDialogBuilder.setTitle(R.string.title_src_address);
+        alertDialogBuilder.setMessage(R.string.dialog_summary_src);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String unicast = unicastAddressInput.getText().toString();
             if (validateInput(unicast)) {
-                if (getParentFragment() == null) {
-                    ((DialogFragmentUnicastAddressListener) getActivity()).setUnicastAddress(Integer.parseInt(unicast, 16));
-                } else {
-                    ((DialogFragmentUnicastAddressListener) getParentFragment()).setUnicastAddress(Integer.parseInt(unicast, 16));
+                try {
+                    if (getParentFragment() == null) {
+                        if(((DialogFragmentSourceAddressListener) getActivity()).setSourceAddress(Integer.parseInt(unicast, 16))){
+                            dismiss();
+                        }
+                    } else {
+                        if(((DialogFragmentSourceAddressListener) getParentFragment()).setSourceAddress(Integer.parseInt(unicast, 16))){
+                            dismiss();
+                        }
+                    }
+                } catch (IllegalArgumentException ex) {
+                    unicastAddressInputLayout.setError(ex.getMessage());
                 }
-                dismiss();
             }
         });
 
@@ -152,9 +159,10 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
         return false;
     }
 
-    public interface DialogFragmentUnicastAddressListener {
 
-        void setUnicastAddress(final int unicastAddress);
+    public interface DialogFragmentSourceAddressListener {
+
+        boolean setSourceAddress(final int sourceAddress);
 
     }
 }
