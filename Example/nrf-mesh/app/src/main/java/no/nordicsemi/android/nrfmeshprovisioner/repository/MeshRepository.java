@@ -119,4 +119,8 @@ public class MeshRepository extends BaseMeshRepository {
             mProvisionedNodesLiveData.updateProvisionedNodes(nodes);
         }
     }
+
+    public boolean setConfiguratorSrc(final byte[] configuratorSrc) {
+        return mBinder != null && mMeshManagerApi.setConfiguratorSrc(configuratorSrc);
+    }
 }

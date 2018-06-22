@@ -60,6 +60,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         ttl = unprovisionedMeshNode.getTtl();
         k2Output = SecureUtils.calculateK2(networkKey, SecureUtils.K2_MASTER_INPUT);
         mTimeStampInMillis = unprovisionedMeshNode.getTimeStamp();
+        mConfigurationSrc = unprovisionedMeshNode.getConfigurationSrc();
     }
 
     protected ProvisionedMeshNode(Parcel in) {
@@ -92,6 +93,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         mAddedAppKeys = in.readHashMap(String.class.getClassLoader());
         mAddedAppKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mTimeStampInMillis = in.readLong();
+        mConfigurationSrc = in.createByteArray();
     }
 
     @Override
@@ -125,6 +127,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         dest.writeMap(mAddedAppKeys);
         dest.writeList(mAddedAppKeyIndexes);
         dest.writeLong(mTimeStampInMillis);
+        dest.writeByteArray(mConfigurationSrc);
     }
 
 
@@ -279,10 +282,6 @@ public class ProvisionedMeshNode extends BaseMeshNode {
                 model.setBoundAppKey(appKeyIndex, appKey);
             }
         }
-    }
-
-    public final byte[] getConfigurationSrc() {
-        return mConfigurationSrc;
     }
 
     private void sortElements(final HashMap<Integer, Element> unorderedElements){

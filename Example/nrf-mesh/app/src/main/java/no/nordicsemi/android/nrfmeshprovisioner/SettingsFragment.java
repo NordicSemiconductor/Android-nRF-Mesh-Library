@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -50,6 +51,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentIvIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentKeyIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSourceAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
@@ -63,7 +65,8 @@ public class SettingsFragment extends Fragment implements Injectable,
         DialogFragmentKeyIndex.DialogFragmentKeyIndexListener,
         DialogFragmentFlags.DialogFragmentFlagsListener,
         DialogFragmentIvIndex.DialogFragmentIvIndexListener,
-        DialogFragmentUnicastAddress.DialogFragmentUnicastAddressListener {
+        DialogFragmentUnicastAddress.DialogFragmentUnicastAddressListener,
+        DialogFragmentSourceAddress.DialogFragmentSourceAddressListener {
 
     SharedViewModel mViewModel;
 
@@ -102,6 +105,18 @@ public class SettingsFragment extends Fragment implements Injectable,
         containerGlobalTtl.setOnClickListener(v -> {
             final DialogFragmentGlobalTtl dialogFragmentGlobalTtl = DialogFragmentGlobalTtl.newInstance(globalTtlView.getText().toString());
             dialogFragmentGlobalTtl.show(getChildFragmentManager(), null);
+        });
+
+        final View containerSourceAddress = rootView.findViewById(R.id.container_src_address);
+        containerSourceAddress.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_lan_black_alpha_24dp));
+        final TextView containerSource = containerSourceAddress.findViewById(R.id.title);
+        containerSource.setText(R.string.summary_src_address);
+        final TextView sourceAddressView = containerSourceAddress.findViewById(R.id.text);
+        containerSourceAddress.setOnClickListener(v -> {
+            final byte[] configuratorSrc = mViewModel.getConfigurationSrcLiveData().getValue();
+            final int src = (configuratorSrc[0] & 0xFF) << 8 | (configuratorSrc[1] & 0xFF);
+            final DialogFragmentSourceAddress dialogFragmentSrc = DialogFragmentSourceAddress.newInstance(src);
+            dialogFragmentSrc.show(getChildFragmentManager(), null);
         });
 
         final View containerKey = rootView.findViewById(R.id.container_key);
@@ -197,8 +212,25 @@ public class SettingsFragment extends Fragment implements Injectable,
                 manageAppKeysView.setText(getString(R.string.app_key_count, provisioningData.getAppKeys().size()));
             }
         });
+
+        mViewModel.getConfigurationSrcLiveData().observe(this, new Observer<byte[]>() {
+            @Override
+            public void onChanged(@Nullable final byte[] configurationSrc) {
+
+            }
+        });
+
+        mViewModel.getConfigurationSrcLiveData().observe(this, configuratorSrc -> {
+            sourceAddressView.setText(MeshParserUtils.bytesToHex(configuratorSrc, true));
+        });
         return rootView;
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mViewModel.refreshProvisioningData();
     }
 
     @Override
@@ -263,5 +295,10 @@ public class SettingsFragment extends Fragment implements Injectable,
     @Override
     public void setUnicastAddress(final int unicastAddress) {
         mViewModel.getProvisioningData().setUnicastAddress(unicastAddress);
+    }
+
+    @Override
+    public boolean setSourceAddress(final int sourceAddress) {
+        return mViewModel.setConfiguratorSrouce(new byte[]{(byte) ((sourceAddress >> 8) & 0xFF), (byte) (sourceAddress & 0xFF)});
     }
 }

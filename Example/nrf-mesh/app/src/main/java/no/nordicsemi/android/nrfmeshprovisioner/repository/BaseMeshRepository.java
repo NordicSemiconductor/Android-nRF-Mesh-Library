@@ -34,6 +34,7 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
@@ -76,6 +77,9 @@ public abstract class BaseMeshRepository {
 
     /** Flag to determine if a reconnection is in the progress when provisioning has completed **/
     final MutableLiveData<Boolean> mIsReconnecting = new MutableLiveData<>();
+
+    /** Flag to determine if a reconnection is in the progress when provisioning has completed **/
+    private final MutableLiveData<byte[]> mConfigurationSrc = new MutableLiveData<>();
 
     /** Flag to determine if provisioning was completed **/
     boolean mIsProvisioningComplete = false;
@@ -124,6 +128,7 @@ public abstract class BaseMeshRepository {
                 mIsBound = true;
                 mMeshManagerApi = mBinder.getMeshManagerApi();
                 mProvisioningLiveData.loadProvisioningData(mContext, mBinder.getProvisioningSettings());
+                mConfigurationSrc.postValue(mMeshManagerApi.getConfiguratorSrc());
                 mProvisionedNodesLiveData.updateProvisionedNodes(mBinder.getProvisionedNodes());
             }
         }
@@ -310,5 +315,16 @@ public abstract class BaseMeshRepository {
 
     public void sendAppKeyAdd(final int appKeyIndex, final String appKey) {
         mBinder.sendAppKeyAdd(mExtendedMeshNode.getMeshNode(), appKeyIndex, appKey);
+    }
+
+    public void refreshProvisioningData() {
+        if(mBinder != null) {
+            final ProvisioningSettings settings = mMeshManagerApi.getProvisioningSettings();
+            mProvisioningLiveData.update(settings);
+        }
+    }
+
+    public LiveData<byte[]> getConfigurationSrc() {
+        return mConfigurationSrc;
     }
 }

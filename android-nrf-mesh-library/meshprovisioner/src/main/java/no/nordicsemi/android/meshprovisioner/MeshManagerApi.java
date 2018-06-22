@@ -62,6 +62,8 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     public final static UUID MESH_PROXY_UUID = UUID.fromString("00001828-0000-1000-8000-00805F9B34FB");
     private static final String TAG = MeshManagerApi.class.getSimpleName();
     private static final String PROVISIONED_NODES_FILE = "PROVISIONED_FILES";
+    private static final String CONFIGURATION_SRC = "CONFIGURATION_SRC";
+    private static final String SRC = "SRC";
     //PDU types
     private static final byte PDU_TYPE_NETWORK = 0x00;
     private static final byte PDU_TYPE_MESH_BEACON = 0x01;
@@ -109,7 +111,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     private final ProvisioningSettings mProvisioningSettings;
     private Context mContext;
     private Gson mGson;
-    private int mGlobalTtl = 7;
+    private byte[] mConfigurationSrc = {0x07, (byte) 0xFF}; //0x07FF;
     private MeshManagerTransportCallbacks mTransportCallbacks;
     private MeshProvisioningHandler mMeshProvisioningHandler;
     private MeshConfigurationHandler mMeshConfigurationHandler;
@@ -123,8 +125,16 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         this.mProvisioningSettings = new ProvisioningSettings(context);
         initGson();
         initProvisionedNodes();
+        intiConfigurationSrc();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, this, this);
         mMeshConfigurationHandler = new MeshConfigurationHandler(context, this, this);
+    }
+
+    private void intiConfigurationSrc() {
+        final SharedPreferences preferences = mContext.getSharedPreferences(CONFIGURATION_SRC, Context.MODE_PRIVATE);
+        final int tempSrc = preferences.getInt(SRC, 0);
+        if(tempSrc != 0)
+            mConfigurationSrc = new byte[]{(byte) ((tempSrc >> 8) & 0xFF), (byte) (tempSrc & 0xFF)};
     }
 
     public void setProvisionerManagerTransportCallbacks(final MeshManagerTransportCallbacks transportCallbacks) {
@@ -156,8 +166,40 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         return mProvisioningSettings;
     }
 
-    public int getGlobalTtl() {
-        return mGlobalTtl;
+    /**
+     * Returns the source unicast address set to the the library in the mesh network
+     *
+     * @return byte array containing the address
+     */
+    public byte[] getConfiguratorSrc() {
+        return mConfigurationSrc;
+    }
+
+    /**
+     * Set the source unicast address to the the library in the mesh network. This method will check if the addres is already taken by a node
+     *
+     * @return true is successful
+     */
+    public boolean setConfiguratorSrc(final byte[] configurationSrc) throws IllegalArgumentException {
+        final int tempSrc = (configurationSrc[0] & 0xFF) << 8 | (configurationSrc[1] & 0xFF);
+        if(MeshParserUtils.validateUnicastAddressInput(mContext, tempSrc)) {
+            if(!mProvisionedNodes.containsKey(tempSrc)){
+                mConfigurationSrc = configurationSrc;
+                saveSrc();
+
+                //Set the configuration source for all provisioned nodes
+                for(Map.Entry<Integer, ProvisionedMeshNode> entry : mProvisionedNodes.entrySet()) {
+                    entry.getValue().setConfigurationSrc(mConfigurationSrc);
+                }
+
+                //Save all nodes
+                saveProvisionedNodes();
+                return true;
+            } else {
+                throw new IllegalArgumentException("Address already occupied by a node");
+            }
+        }
+        return false;
     }
 
     private void initGson() {
@@ -214,6 +256,13 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         saveProvisionedNode(meshNode);
     }
 
+    private void saveSrc() {
+        final SharedPreferences preferences = mContext.getSharedPreferences(CONFIGURATION_SRC, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(SRC, (mConfigurationSrc[0] & 0xFF) << 8 | (mConfigurationSrc[1] & 0xFF));
+        editor.apply();
+    }
+
     /**
      * Serialize and save provisioned node
      */
@@ -223,6 +272,21 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
         final String provisionedNode = mGson.toJson(node);
         editor.putString(unicastAddress, provisionedNode);
+        editor.apply();
+    }
+
+    /**
+     * Serialize and save all provisioned nodes
+     */
+    private void saveProvisionedNodes() {
+        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = preferences.edit();
+        for(Map.Entry<Integer, ProvisionedMeshNode> entry : mProvisionedNodes.entrySet()) {
+            final ProvisionedMeshNode node = entry.getValue();
+            final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
+            final String provisionedNode = mGson.toJson(node);
+            editor.putString(unicastAddress, provisionedNode);
+        }
         editor.apply();
     }
 
@@ -251,8 +315,14 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     public void onUnicastAddressChanged(final int unicastAddress) {
         //Now that we have received the unicast addresses assigned to element addresses,
         //increment it here again so the next node to be provisioned will have the next available address in the network
-        final int unicastAdd = unicastAddress + 1;
+        int unicastAdd = unicastAddress + 1;
+        //We check if the incremented unicast address is already taken by the app/configurator
+        final int tempSrc = (mConfigurationSrc[0] & 0xFF) << 8 | (mConfigurationSrc[1] & 0xFF);
+        if(unicastAdd == tempSrc) {
+            unicastAdd = unicastAddress + 1;
+        }
         mProvisioningSettings.setUnicastAddress(unicastAdd);
+
     }
 
     /**
@@ -520,7 +590,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         mProvisioningSettings.setIvIndex(ivIndex);
         mProvisioningSettings.setUnicastAddress(unicastAddress);
         mProvisioningSettings.setGlobalTtl(globalTtl);
-        mMeshProvisioningHandler.startProvisioning(address, nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl);
+        mMeshProvisioningHandler.startProvisioning(address, nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl, mConfigurationSrc);
     }
 
     /**
