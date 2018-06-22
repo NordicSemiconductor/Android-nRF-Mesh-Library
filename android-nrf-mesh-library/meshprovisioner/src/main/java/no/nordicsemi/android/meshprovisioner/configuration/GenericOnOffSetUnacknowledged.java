@@ -33,7 +33,6 @@ public class GenericOnOffSetUnacknowledged extends ConfigMessage {
     private final Integer mTransitionResolution;
     private final Integer mDelay;
     private final boolean mState;
-    private final int mAppKeyIndex;
 
     public GenericOnOffSetUnacknowledged(final Context context, final ProvisionedMeshNode provisionedMeshNode, final MeshModel model, final boolean aszmic,
                                          final byte[] dstAddress, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
