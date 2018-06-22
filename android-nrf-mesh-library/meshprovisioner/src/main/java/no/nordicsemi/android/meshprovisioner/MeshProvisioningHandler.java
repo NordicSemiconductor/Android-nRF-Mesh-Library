@@ -28,8 +28,8 @@ import android.support.annotation.NonNull;
 
 import java.nio.ByteBuffer;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.states.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.states.ProvisioningComplete;
 import no.nordicsemi.android.meshprovisioner.states.ProvisioningConfirmation;
@@ -42,7 +42,6 @@ import no.nordicsemi.android.meshprovisioner.states.ProvisioningStart;
 import no.nordicsemi.android.meshprovisioner.states.ProvisioningState;
 import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseProvisioningAlgorithm;
 
@@ -179,7 +178,7 @@ public class MeshProvisioningHandler {
      * @param flags           2 byte flags
      * @param ivIndex         1 byte ivIndex - starts at 1
      * @param unicastAddress  2 byte unicast address
-     * @param srcAddress
+     * @param srcAddress       source address for the configurator
      * @return {@link MeshModel} to be provisioned
      */
     private UnprovisionedMeshNode initializeMeshNode(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl, final byte[] srcAddress) throws IllegalArgumentException {
@@ -457,21 +456,19 @@ public class MeshProvisioningHandler {
         final byte[] startData = new byte[5];
         startData[0] = ParseProvisioningAlgorithm.getAlgorithmValue(algorithm);
         startData[1] = 0;//(byte) publicKeyType;
-        startData[2] = getAuthenticationMethod();
-        startData[3] = (byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOOBAction);
-        startData[4] = (byte) outputOOBSize;
+        final int outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
+        if(outputOobActionType == ParseOutputOOBActions.NO_OUTPUT){
+            startData[2] = 0;
+            //prefer no oob
+            startData[3] = 0;
+            startData[4] = 0;
+        } else {
+            startData[2] = 0x02;
+            startData[3] = (byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOobActionType);//(byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOOBAction);
+            startData[4] = (byte) outputOOBSize;
+        }
 
         return startData;
-    }
-
-    private byte getAuthenticationMethod() {
-        if (ParseOutputOOBActions.parseOuputOOBActionValue(outputOOBAction) == 0 && ParseInputOOBActions.parseInputOOBActionValue(inputOOBAction) > 0) {
-            return 3;
-        } else if (ParseOutputOOBActions.parseOuputOOBActionValue(outputOOBAction) > 0 && ParseInputOOBActions.parseInputOOBActionValue(inputOOBAction) == 0) {
-            return 2;
-        } else {
-            return 0;
-        }
     }
 
     public UnprovisionedMeshNode getMeshNode() {

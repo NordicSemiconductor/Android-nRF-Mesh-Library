@@ -22,17 +22,22 @@
 
 package no.nordicsemi.android.meshprovisioner.utils;
 
+import android.util.Log;
+
+import java.util.ArrayList;
+
 public class ParseOutputOOBActions {
+    private static final String TAG = ParseOutputOOBActions.class.getSimpleName();
 
     /**
      * Input OOB Actions
      */
-    protected static final int NO_OUTPUT = 0x0000;
-    protected static final int BLINK = 0x0001;
-    protected static final int BEEP = 0x0002;
-    protected static final int VIBRATE = 0x0004;
-    protected static final int OUTPUT_NUMERIC = 0x0008;
-    protected static final int OUTPUT_ALPHA_NUMERIC = 0x0010;
+    public static final int NO_OUTPUT = 0x0000;
+    private static final int BLINK = 0x0001;
+    private static final int BEEP = 0x0002;
+    private static final int VIBRATE = 0x0004;
+    private static final int OUTPUT_NUMERIC = 0x0008;
+    private static final int OUTPUT_ALPHA_NUMERIC = 0x0010;
 
     /**
      * Returns the Output OOB Action description
@@ -81,6 +86,29 @@ public class ParseOutputOOBActions {
                 return 10;
             default:
                 return -1;
+        }
+    }
+
+    /**
+     * Selects the output oob action value
+     *
+     * @param outputAction type of output action
+     * @return selected output action type
+     */
+    public static int selectOutputActionsFromBitMask(final int outputAction) {
+        final byte[] outputActions = {BLINK, BEEP, VIBRATE, OUTPUT_NUMERIC, OUTPUT_ALPHA_NUMERIC};
+        final ArrayList<Byte> suppportedActionValues = new ArrayList<>();
+        for(byte action : outputActions){
+            if((outputAction & action) == action){
+                suppportedActionValues.add(action);
+                Log.v(TAG, "Supported output oob action type: " + getOuputOOBActionDescription(action));
+            }
+        }
+
+        if(!suppportedActionValues.isEmpty()) {
+            return suppportedActionValues.get(0);
+        } else {
+            return NO_OUTPUT;
         }
     }
 
