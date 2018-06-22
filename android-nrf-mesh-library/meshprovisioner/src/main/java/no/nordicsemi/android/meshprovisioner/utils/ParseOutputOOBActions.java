@@ -33,11 +33,11 @@ public class ParseOutputOOBActions {
      * Input OOB Actions
      */
     public static final int NO_OUTPUT = 0x0000;
-    protected static final int BLINK = 0x0001;
-    protected static final int BEEP = 0x0002;
-    protected static final int VIBRATE = 0x0004;
-    protected static final int OUTPUT_NUMERIC = 0x0008;
-    protected static final int OUTPUT_ALPHA_NUMERIC = 0x0010;
+    private static final int BLINK = 0x0001;
+    private static final int BEEP = 0x0002;
+    private static final int VIBRATE = 0x0004;
+    private static final int OUTPUT_NUMERIC = 0x0008;
+    private static final int OUTPUT_ALPHA_NUMERIC = 0x0010;
 
     /**
      * Returns the Output OOB Action description
@@ -89,7 +89,13 @@ public class ParseOutputOOBActions {
         }
     }
 
-    public static int calculateOutputActionsFromBitMask(final int outputAction) {
+    /**
+     * Selects the output oob action value
+     *
+     * @param outputAction type of output action
+     * @return selected output action type
+     */
+    public static int selectOutputActionsFromBitMask(final int outputAction) {
         final byte[] outputActions = {BLINK, BEEP, VIBRATE, OUTPUT_NUMERIC, OUTPUT_ALPHA_NUMERIC};
         final ArrayList<Byte> suppportedActionValues = new ArrayList<>();
         for(byte action : outputActions){

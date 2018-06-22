@@ -28,7 +28,6 @@ import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseProvisioningAlgorithm;
 
@@ -78,7 +77,7 @@ public class ProvisioningStart extends ProvisioningState {
         provisioningPDU[1] = TYPE_PROVISIONING_START;
         provisioningPDU[2] = ParseProvisioningAlgorithm.getAlgorithmValue(algorithm);
         provisioningPDU[3] = 0;//(byte) publicKeyType;
-        final int outputOobActionType = (byte) ParseOutputOOBActions.calculateOutputActionsFromBitMask(outputOOBAction);
+        final int outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
         if(outputOobActionType == ParseOutputOOBActions.NO_OUTPUT){
             provisioningPDU[4] = 0;
             //prefer no oob
@@ -92,16 +91,6 @@ public class ProvisioningStart extends ProvisioningState {
         Log.v(TAG, "Provisioning start PDU: " + MeshParserUtils.bytesToHex(provisioningPDU, true));
 
         return provisioningPDU;
-    }
-
-    private byte getAuthenticationMethod() {
-        if (ParseOutputOOBActions.parseOuputOOBActionValue(outputOOBAction) == 0 && ParseInputOOBActions.parseInputOOBActionValue(inputOOBAction) > 0) {
-            return 3;
-        } else if (ParseOutputOOBActions.parseOuputOOBActionValue(outputOOBAction) > 0 && ParseInputOOBActions.parseInputOOBActionValue(inputOOBAction) == 0) {
-            return 2;
-        } else {
-            return 0;
-        }
     }
 
     public void setProvisioningCapabilities(final int numberOfElements, final int algorithm, final int publicKeyType, final int staticOOBType, final int outputOOBSize, final int outputOOBAction, final int inputOOBSize, final int inputOOBAction) {
