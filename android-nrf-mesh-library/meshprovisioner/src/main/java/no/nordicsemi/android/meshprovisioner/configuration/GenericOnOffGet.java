@@ -9,7 +9,6 @@ import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -20,7 +19,6 @@ public class GenericOnOffGet extends ConfigMessage {
 
     private final int mAszmic;
     private final byte[] dstAddress;
-    private final int mAppKeyIndex;
 
     public GenericOnOffGet(final Context context, final ProvisionedMeshNode provisionedMeshNode, final MeshModel model, final boolean aszmic,
                            final byte[] dstAddress, final int appKeyIndex) {

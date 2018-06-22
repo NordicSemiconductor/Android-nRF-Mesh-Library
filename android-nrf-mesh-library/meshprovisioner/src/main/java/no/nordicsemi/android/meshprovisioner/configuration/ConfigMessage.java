@@ -25,9 +25,6 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,13 +36,10 @@ import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallbacks;
-import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
-import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 
 public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
 
     private static final String TAG = ConfigCompositionDataStatus.class.getSimpleName();
-    private static final String PROVISIONED_NODES_FILE = "PROVISIONED_FILES";
     protected final Context mContext;
     protected final ProvisionedMeshNode mProvisionedMeshNode;
     final MeshTransport mMeshTransport;
@@ -53,7 +47,6 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
     final byte[] mSrc;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
-    private Gson mGson;
     protected MeshModel mMeshModel;
     protected int mAppKeyIndex;
 
@@ -63,18 +56,7 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
         this.mSrc = mProvisionedMeshNode.getConfigurationSrc();
         this.mMeshTransport = new MeshTransport(context, provisionedMeshNode);
         this.mMeshTransport.setLowerTransportLayerCallbacks(this);
-        initGson();
     }
-
-
-    private void initGson() {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.enableComplexMapKeySerialization();
-        gsonBuilder.registerTypeAdapter(MeshModel.class, new InterfaceAdapter<MeshModel>());
-        gsonBuilder.setPrettyPrinting();
-        mGson = gsonBuilder.create();
-    }
-
     public abstract MessageState getState();
 
     /**
