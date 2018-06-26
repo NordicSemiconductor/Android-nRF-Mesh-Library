@@ -90,6 +90,23 @@ public class ParseOutputOOBActions {
     }
 
     /**
+     * Parses the output oob action value
+     *
+     * @param outputAction type of output action
+     * @return selected output action type
+     */
+    public static void parseOutputActionsFromBitMask(final int outputAction) {
+        final byte[] outputActions = {BLINK, BEEP, VIBRATE, OUTPUT_NUMERIC, OUTPUT_ALPHA_NUMERIC};
+        final ArrayList<Byte> suppportedActionValues = new ArrayList<>();
+        for(byte action : outputActions){
+            if((outputAction & action) == action){
+                suppportedActionValues.add(action);
+                Log.v(TAG, "Supported output oob action type: " + getOuputOOBActionDescription(action));
+            }
+        }
+    }
+
+    /**
      * Selects the output oob action value
      *
      * @param outputAction type of output action
