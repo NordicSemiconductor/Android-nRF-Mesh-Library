@@ -475,10 +475,6 @@ public class MeshProvisioningHandler {
         return mUnprovisionedMeshNode;
     }
 
-    public void setMeshNode(final UnprovisionedMeshNode unprovisionedMeshNode) {
-        this.mUnprovisionedMeshNode = unprovisionedMeshNode;
-    }
-
     public void setProvisioningCallbacks(MeshProvisioningStatusCallbacks provisioningCallbacks) {
         this.mProvisoningStatusCallbacks = provisioningCallbacks;
     }
