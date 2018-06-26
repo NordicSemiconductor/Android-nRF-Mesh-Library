@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) 2018, Nordic Semiconductor
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package no.nordicsemi.android.meshprovisioner;
 
 import android.bluetooth.BluetoothAdapter;
@@ -6,8 +28,8 @@ import android.support.annotation.NonNull;
 
 import java.nio.ByteBuffer;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.states.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.states.ProvisioningComplete;
 import no.nordicsemi.android.meshprovisioner.states.ProvisioningConfirmation;
@@ -20,7 +42,6 @@ import no.nordicsemi.android.meshprovisioner.states.ProvisioningStart;
 import no.nordicsemi.android.meshprovisioner.states.ProvisioningState;
 import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseProvisioningAlgorithm;
 
@@ -157,9 +178,10 @@ public class MeshProvisioningHandler {
      * @param flags           2 byte flags
      * @param ivIndex         1 byte ivIndex - starts at 1
      * @param unicastAddress  2 byte unicast address
+     * @param srcAddress       source address for the configurator
      * @return {@link MeshModel} to be provisioned
      */
-    private final UnprovisionedMeshNode initializeMeshNode(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl) throws IllegalArgumentException {
+    private UnprovisionedMeshNode initializeMeshNode(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl, final byte[] srcAddress) throws IllegalArgumentException {
         if (!BluetoothAdapter.checkBluetoothAddress(address)) {
             throw new IllegalArgumentException(mContext.getString(R.string.invalid_bluetooth_address));
         }
@@ -186,6 +208,7 @@ public class MeshProvisioningHandler {
             if (MeshParserUtils.validateUnicastAddressInput(mContext, unicastAddress)) {
                 unicastBytes = new byte[]{(byte) ((unicastAddress >> 8) & 0xFF), (byte) (unicastAddress & 0xFF)};
             }
+
             final UnprovisionedMeshNode unprovisionedMeshNode = new UnprovisionedMeshNode();
             unprovisionedMeshNode.setBluetoothDeviceAddress(address);
             unprovisionedMeshNode.setNodeName(nodeName);
@@ -195,6 +218,7 @@ public class MeshProvisioningHandler {
             unprovisionedMeshNode.setIvIndex(ivIndexBytes);
             unprovisionedMeshNode.setUnicastAddress(unicastBytes);
             unprovisionedMeshNode.setTtl(globalTtl);
+            unprovisionedMeshNode.setConfigurationSrc(srcAddress);
             return unprovisionedMeshNode;
         }
         return null;
@@ -234,9 +258,8 @@ public class MeshProvisioningHandler {
     /**
      * Start provisioning.
      */
-    public void startProvisioning(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl) throws IllegalArgumentException {
-        final UnprovisionedMeshNode meshNode = initializeMeshNode(address ,nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl);
-        mUnprovisionedMeshNode = meshNode;
+    protected void startProvisioning(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl, final byte[] configuratorSrc) throws IllegalArgumentException {
+        mUnprovisionedMeshNode = initializeMeshNode(address ,nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl, configuratorSrc);
         this.attentionTimer = 0x0A;
         sendProvisioningInvite();
     }
@@ -433,29 +456,23 @@ public class MeshProvisioningHandler {
         final byte[] startData = new byte[5];
         startData[0] = ParseProvisioningAlgorithm.getAlgorithmValue(algorithm);
         startData[1] = 0;//(byte) publicKeyType;
-        startData[2] = getAuthenticationMethod();
-        startData[3] = (byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOOBAction);
-        startData[4] = (byte) outputOOBSize;
+        final int outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
+        if(outputOobActionType == ParseOutputOOBActions.NO_OUTPUT){
+            startData[2] = 0;
+            //prefer no oob
+            startData[3] = 0;
+            startData[4] = 0;
+        } else {
+            startData[2] = 0x02;
+            startData[3] = (byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOobActionType);//(byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOOBAction);
+            startData[4] = (byte) outputOOBSize;
+        }
 
         return startData;
     }
 
-    private byte getAuthenticationMethod() {
-        if (ParseOutputOOBActions.parseOuputOOBActionValue(outputOOBAction) == 0 && ParseInputOOBActions.parseInputOOBActionValue(inputOOBAction) > 0) {
-            return 3;
-        } else if (ParseOutputOOBActions.parseOuputOOBActionValue(outputOOBAction) > 0 && ParseInputOOBActions.parseInputOOBActionValue(inputOOBAction) == 0) {
-            return 2;
-        } else {
-            return 0;
-        }
-    }
-
     public UnprovisionedMeshNode getMeshNode() {
         return mUnprovisionedMeshNode;
-    }
-
-    public void setMeshNode(final UnprovisionedMeshNode unprovisionedMeshNode) {
-        this.mUnprovisionedMeshNode = unprovisionedMeshNode;
     }
 
     public void setProvisioningCallbacks(MeshProvisioningStatusCallbacks provisioningCallbacks) {

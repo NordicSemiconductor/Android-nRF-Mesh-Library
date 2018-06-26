@@ -86,10 +86,14 @@ public class NodeConfigurationViewModel extends ViewModel {
     }
 
     public void sendAppKeyAdd(final int appKeyIndex, final String appKey) {
-        mNodeConfigurationRepository.addAppKey(appKeyIndex, appKey);
+        mNodeConfigurationRepository.sendAppKeyAdd(appKeyIndex, appKey);
     }
 
     public AppKeyStatusLiveData getAppKeyAddStatus() {
         return mNodeConfigurationRepository.getAppKeyStatus();
+    }
+
+    public void resetNode(final ProvisionedMeshNode provisionedMeshNode) {
+        mNodeConfigurationRepository.resetMeshNode(provisionedMeshNode);
     }
 }

@@ -1,8 +1,31 @@
+/*
+ * Copyright (c) 2018, Nordic Semiconductor
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -39,6 +62,8 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     public final static UUID MESH_PROXY_UUID = UUID.fromString("00001828-0000-1000-8000-00805F9B34FB");
     private static final String TAG = MeshManagerApi.class.getSimpleName();
     private static final String PROVISIONED_NODES_FILE = "PROVISIONED_FILES";
+    private static final String CONFIGURATION_SRC = "CONFIGURATION_SRC";
+    private static final String SRC = "SRC";
     //PDU types
     private static final byte PDU_TYPE_NETWORK = 0x00;
     private static final byte PDU_TYPE_MESH_BEACON = 0x01;
@@ -86,7 +111,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     private final ProvisioningSettings mProvisioningSettings;
     private Context mContext;
     private Gson mGson;
-    private int mGlobalTtl = 7;
+    private byte[] mConfigurationSrc = {0x07, (byte) 0xFF}; //0x07FF;
     private MeshManagerTransportCallbacks mTransportCallbacks;
     private MeshProvisioningHandler mMeshProvisioningHandler;
     private MeshConfigurationHandler mMeshConfigurationHandler;
@@ -100,8 +125,16 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         this.mProvisioningSettings = new ProvisioningSettings(context);
         initGson();
         initProvisionedNodes();
+        intiConfigurationSrc();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, this, this);
         mMeshConfigurationHandler = new MeshConfigurationHandler(context, this, this);
+    }
+
+    private void intiConfigurationSrc() {
+        final SharedPreferences preferences = mContext.getSharedPreferences(CONFIGURATION_SRC, Context.MODE_PRIVATE);
+        final int tempSrc = preferences.getInt(SRC, 0);
+        if(tempSrc != 0)
+            mConfigurationSrc = new byte[]{(byte) ((tempSrc >> 8) & 0xFF), (byte) (tempSrc & 0xFF)};
     }
 
     public void setProvisionerManagerTransportCallbacks(final MeshManagerTransportCallbacks transportCallbacks) {
@@ -116,7 +149,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         mMeshConfigurationHandler.setConfigurationCallbacks(callbacks);
     }
 
-    public ConfigMessage.ConfigMessageState getConfigurationState() {
+    public ConfigMessage.MessageState getConfigurationState() {
         return mMeshConfigurationHandler.getConfigurationState();
     }
 
@@ -133,8 +166,40 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         return mProvisioningSettings;
     }
 
-    public int getGlobalTtl() {
-        return mGlobalTtl;
+    /**
+     * Returns the source unicast address set to the the library in the mesh network
+     *
+     * @return byte array containing the address
+     */
+    public byte[] getConfiguratorSrc() {
+        return mConfigurationSrc;
+    }
+
+    /**
+     * Set the source unicast address to the the library in the mesh network. This method will check if the addres is already taken by a node
+     *
+     * @return true is successful
+     */
+    public boolean setConfiguratorSrc(final byte[] configurationSrc) throws IllegalArgumentException {
+        final int tempSrc = (configurationSrc[0] & 0xFF) << 8 | (configurationSrc[1] & 0xFF);
+        if(MeshParserUtils.validateUnicastAddressInput(mContext, tempSrc)) {
+            if(!mProvisionedNodes.containsKey(tempSrc)){
+                mConfigurationSrc = configurationSrc;
+                saveSrc();
+
+                //Set the configuration source for all provisioned nodes
+                for(Map.Entry<Integer, ProvisionedMeshNode> entry : mProvisionedNodes.entrySet()) {
+                    entry.getValue().setConfigurationSrc(mConfigurationSrc);
+                }
+
+                //Save all nodes
+                saveProvisionedNodes();
+                return true;
+            } else {
+                throw new IllegalArgumentException("Address already occupied by a node");
+            }
+        }
+        return false;
     }
 
     private void initGson() {
@@ -155,10 +220,10 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         if (!nodes.isEmpty()) {
             final List<Integer> orderedKeys = reOrderProvisionedNodes(nodes);
             mProvisionedNodes.clear();
-            for(int orderedKey : orderedKeys) {
+            for (int orderedKey : orderedKeys) {
                 final String key = String.format(Locale.US, "0x%04X", orderedKey);
                 final String json = preferences.getString(key, null);
-                if(json != null) {
+                if (json != null) {
                     final ProvisionedMeshNode node = mGson.fromJson(json, ProvisionedMeshNode.class);
                     final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
                     mProvisionedNodes.put(unicastAddress, node);
@@ -169,13 +234,14 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
 
     /**
      * Order the keys so that the nodes are read in insertion order
+     *
      * @param nodes list containing unordered nodes
      * @return node list
      */
-    private List<Integer> reOrderProvisionedNodes(final Map<String, ?> nodes){
-        final Set<String> unorderedKeys =  nodes.keySet();
+    private List<Integer> reOrderProvisionedNodes(final Map<String, ?> nodes) {
+        final Set<String> unorderedKeys = nodes.keySet();
         final List<Integer> orderedKeys = new ArrayList<>();
-        for(String k : unorderedKeys) {
+        for (String k : unorderedKeys) {
             final int key = Integer.decode(k);
             orderedKeys.add(key);
         }
@@ -190,6 +256,13 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         saveProvisionedNode(meshNode);
     }
 
+    private void saveSrc() {
+        final SharedPreferences preferences = mContext.getSharedPreferences(CONFIGURATION_SRC, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(SRC, (mConfigurationSrc[0] & 0xFF) << 8 | (mConfigurationSrc[1] & 0xFF));
+        editor.apply();
+    }
+
     /**
      * Serialize and save provisioned node
      */
@@ -199,7 +272,33 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
         final String provisionedNode = mGson.toJson(node);
         editor.putString(unicastAddress, provisionedNode);
-        editor.commit();
+        editor.apply();
+    }
+
+    /**
+     * Serialize and save all provisioned nodes
+     */
+    private void saveProvisionedNodes() {
+        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = preferences.edit();
+        for(Map.Entry<Integer, ProvisionedMeshNode> entry : mProvisionedNodes.entrySet()) {
+            final ProvisionedMeshNode node = entry.getValue();
+            final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
+            final String provisionedNode = mGson.toJson(node);
+            editor.putString(unicastAddress, provisionedNode);
+        }
+        editor.apply();
+    }
+
+    /**
+     * Serialize and save provisioned node
+     */
+    private void deleteProvisionedNode(final ProvisionedMeshNode node) {
+        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = preferences.edit();
+        final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
+        editor.remove(unicastAddress);
+        editor.apply();
     }
 
     /**
@@ -209,15 +308,21 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
-        editor.commit();
+        editor.apply();
     }
 
     @Override
     public void onUnicastAddressChanged(final int unicastAddress) {
         //Now that we have received the unicast addresses assigned to element addresses,
         //increment it here again so the next node to be provisioned will have the next available address in the network
-        final int unicastAdd = unicastAddress + 1;
+        int unicastAdd = unicastAddress + 1;
+        //We check if the incremented unicast address is already taken by the app/configurator
+        final int tempSrc = (mConfigurationSrc[0] & 0xFF) << 8 | (mConfigurationSrc[1] & 0xFF);
+        if(unicastAdd == tempSrc) {
+            unicastAdd = unicastAddress + 1;
+        }
         mProvisioningSettings.setUnicastAddress(unicastAdd);
+
     }
 
     /**
@@ -226,8 +331,10 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * This method will check if the library should wait for more data in case of a gatt layer segmentation.
      * If its required the method will remove the segmentation bytes and combine the data together.
      * </p>
-     *  @param meshNode mesh node that the pdu was received from
-     * @param data     pdu received by the client*/
+     *
+     * @param meshNode mesh node that the pdu was received from
+     * @param data     pdu received by the client
+     */
     public final void handleNotifications(BaseMeshNode meshNode, final int mtuSize, final byte[] data) {
         byte[] unsegmentedPdu;
         if (!shouldWaitForMoreData(data)) {
@@ -246,7 +353,8 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
 
     /**
      * Parses notifications received by the client.
-     *  @param meshNode       mesh node that the pdu was received from
+     *
+     * @param meshNode       mesh node that the pdu was received from
      * @param unsegmentedPdu pdu received by the client.
      */
     private void parseNotifications(final BaseMeshNode meshNode, final byte[] unsegmentedPdu) {
@@ -289,8 +397,9 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
 
     /**
      * Handles callbacks after writing to characteristics to maintain/update the state machine
-     *  @param meshNode mesh node
-     * @param data written to the peripheral
+     *
+     * @param meshNode mesh node
+     * @param data     written to the peripheral
      */
     private void handleWriteCallbacks(final BaseMeshNode meshNode, final byte[] data) {
         switch (data[0]) {
@@ -319,6 +428,25 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     public void sendPdu(final BaseMeshNode meshNode, byte[] pdu) {
         final int mtu = mTransportCallbacks.getMtu();
         mTransportCallbacks.sendPdu(meshNode, applySegmentation(mtu, pdu));
+    }
+
+    @Override
+    public void updateMeshNode(final ProvisionedMeshNode meshNode) {
+        if (meshNode != null) {
+            final int unicast = AddressUtils.getUnicastAddressInt(meshNode.getUnicastAddress());
+            //We update the mesh node in our map of mesh nodes
+            mProvisionedNodes.put(unicast, meshNode);
+            saveProvisionedNode(meshNode);
+        }
+    }
+
+    @Override
+    public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
+        if (meshNode != null) {
+            final int unicast = AddressUtils.getUnicastAddressInt(meshNode.getUnicastAddress());
+            deleteProvisionedNode(meshNode);
+            mProvisionedNodes.remove(unicast);
+        }
     }
 
     private boolean shouldWaitForMoreData(final byte[] pdu) {
@@ -462,7 +590,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         mProvisioningSettings.setIvIndex(ivIndex);
         mProvisioningSettings.setUnicastAddress(unicastAddress);
         mProvisioningSettings.setGlobalTtl(globalTtl);
-        mMeshProvisioningHandler.startProvisioning(address ,nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl);
+        mMeshProvisioningHandler.startProvisioning(address, nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl, mConfigurationSrc);
     }
 
     /**
@@ -505,9 +633,6 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
 
         //if generated hash is null return false
         final byte[] generatedHash = SecureUtils.calculateHash(meshNode.getIdentityKey(), random, meshNode.getUnicastAddress());
-        if (generatedHash == null) {
-            return false;
-        }
 
         final boolean flag = Arrays.equals(advertisedHash, generatedHash);
         if (flag) {
@@ -593,6 +718,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
 
     /**
      * Get composition data of the node
+     *
      * @param meshNode corresponding mesh node
      */
     public void getCompositionData(final ProvisionedMeshNode meshNode) {
@@ -602,6 +728,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
 
     /**
      * adds the given the app key to the global app key list on the node
+     *
      * @param meshNode    corresponding mesh node
      * @param appKeyIndex index of the app key in the global app key list
      * @param appKey      application key
@@ -614,19 +741,20 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
 
     /**
      * binding the app key
-     *  @param meshNode       corresponding mesh node
+     *
+     * @param meshNode       corresponding mesh node
      * @param elementAddress elementAddress
      * @param model          16-bit SIG Model Identifier or 32-bit Vendor Model identifier
      * @param appKeyIndex    index of the app key
      */
     public void bindAppKey(final ProvisionedMeshNode meshNode, final byte[] elementAddress, final MeshModel model, final int appKeyIndex) {
-        final byte[] src = {0x7F, (byte) 0xFF};
         mMeshConfigurationHandler.bindAppKey(meshNode, 0, elementAddress, model.getModelId(), appKeyIndex);
     }
 
     /**
      * Set a publish address for configuration model
-     * @param provisionedMeshNode                       Mesh node containing the model
+     *
+     * @param provisionedMeshNode            Mesh node containing the model
      * @param elementAddress                 Address of the element containing the model
      * @param publishAddress                 Address to which the model must publish
      * @param appKeyIndex                    Application key index
@@ -640,7 +768,6 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     public void setConfigModelPublishAddress(final ProvisionedMeshNode provisionedMeshNode, final byte[] elementAddress, final byte[] publishAddress,
                                              final int appKeyIndex, final int modelIdentifier, final int credentialFlag, final int publishTtl,
                                              final int publishPeriod, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
-        final byte[] src = {0x7F, (byte) 0xFF};
         mMeshConfigurationHandler.setConfigModelPublishAddress(provisionedMeshNode, 0, elementAddress, publishAddress,
                 appKeyIndex, modelIdentifier, credentialFlag, publishTtl, publishPeriod, publishRetransmitCount, publishRetransmitIntervalSteps);
     }
@@ -655,7 +782,6 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      */
     public void addSubscriptionAddress(final ProvisionedMeshNode meshNode, final byte[] elementAddress, final byte[] subscriptionAddress,
                                        final int modelIdentifier) {
-        final byte[] src = {0x7F, (byte) 0xFF};
         mMeshConfigurationHandler.addSubscriptionAddress(meshNode, 0, elementAddress, subscriptionAddress, modelIdentifier);
     }
 
@@ -669,7 +795,6 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      */
     public void deleteSubscriptionAddress(final ProvisionedMeshNode meshNode, final byte[] elementAddress, final byte[] subscriptionAddress,
                                           final int modelIdentifier) {
-        final byte[] src = {0x7F, (byte) 0xFF};
         mMeshConfigurationHandler.deleteSubscriptionAddress(meshNode, 0, elementAddress, subscriptionAddress, modelIdentifier);
     }
 
@@ -679,5 +804,92 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         SequenceNumber.resetSequenceNumber(mContext);
         mProvisioningSettings.clearProvisioningData();
         mProvisioningSettings.generateProvisioningData();
+    }
+
+    /**
+     * Send generic on off get to mesh node
+     *
+     * @param node        mesh node to send generic on off get
+     * @param model       model to control
+     * @param appKeyIndex application key index
+     */
+    public void getGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex) {
+
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshConfigurationHandler.getGenericOnOff(node, model, dstAddress, false, appKeyIndex);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+    /**
+     * Send generic on off set to mesh node
+     *
+     * @param node                 mesh node to send generic on off get
+     * @param model                model to control
+     * @param dstAddress           address of the element the mesh model belongs to
+     * @param appKeyIndex          application key index
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     * @param state                on off state
+     */
+    public void setGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
+                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state) {
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshConfigurationHandler.setGenericOnOff(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+    /**
+     * Send generic on off set unacknowledged message to mesh node
+     *
+     * @param node                 mesh node to send generic on off get
+     * @param model                model to control
+     * @param dstAddress           address of the element the mesh model belongs to
+     * @param appKeyIndex          application key index
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     * @param state                on off state
+     */
+    public void setGenericOnOffUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
+                                              @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state) {
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshConfigurationHandler.setGenericOnOffUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+    /**
+     * Resets the specific mesh node
+     *
+     * @param provisionedMeshNode mesh node to be reset
+     */
+    public void resetMeshNode(@NonNull final ProvisionedMeshNode provisionedMeshNode) {
+        if(provisionedMeshNode == null)
+            throw new IllegalArgumentException("Mesh node cannot be null!");
+        mMeshConfigurationHandler.resetMeshNode(provisionedMeshNode);
     }
 }

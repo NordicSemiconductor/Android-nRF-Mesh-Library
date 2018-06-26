@@ -41,7 +41,7 @@ public class SharedViewModel extends ViewModel {
     private final MeshRepository mMeshRepository;
 
     @Inject
-    public SharedViewModel(final ScannerRepository scannerRepository, final MeshRepository meshRepository) {
+    SharedViewModel(final ScannerRepository scannerRepository, final MeshRepository meshRepository) {
         this.mScannerRepository = scannerRepository;
         this.mMeshRepository = meshRepository;
         scannerRepository.registerBroadcastReceivers();
@@ -106,5 +106,17 @@ public class SharedViewModel extends ViewModel {
 
     public void resetMeshNetwork() {
         mMeshRepository.resetMeshNetwork();
+    }
+
+    public void refreshProvisioningData() {
+        mMeshRepository.refreshProvisioningData();
+    }
+
+    public LiveData<byte[]> getConfigurationSrcLiveData() {
+        return mMeshRepository.getConfigurationSrc();
+    }
+
+    public boolean setConfiguratorSrouce(final byte[] configuratorSource) {
+        return mMeshRepository.setConfiguratorSrc(configuratorSource);
     }
 }

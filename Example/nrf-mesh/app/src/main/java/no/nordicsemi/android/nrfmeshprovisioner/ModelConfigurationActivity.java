@@ -27,16 +27,20 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -49,6 +53,7 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
@@ -56,7 +61,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSubscriptionAddress;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
@@ -73,6 +77,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener, AddressAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
+    private static final String TAG = ModelConfigurationActivity.class.getSimpleName();
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -88,10 +93,15 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     @BindView(R.id.configuration_progress_bar)
     ProgressBar mProgressbar;
 
+    private int mTransitionStepResolution;
+    private int mTransitionStep;
+
     private Handler mHandler;
     private  ModelConfigurationViewModel mViewModel;
     private List<byte[]> mGroupAddress = new ArrayList<>();
     private AddressAdapter mAddressAdapter;
+    private Button mActionOnOff;
+    private Button mActionRead;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -178,7 +188,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_appkey_status), statusMessage);
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             } else {
-                hide();
+                hideProgressBar();
                 final int elementAdd = appKeyBindStatusLiveData.getElementAddress();
                 final int modelIdentifier = appKeyBindStatusLiveData.getModelIdentifier();
                 final Element element = mViewModel.getExtendedMeshNode().getMeshNode().getElements().get(elementAdd);
@@ -194,7 +204,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_publlish_address_status), statusMessage);
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             } else {
-                hide();
+                hideProgressBar();
                 final int elementAdd = configModelPublicationStatusLiveData.getElementAddressInt();
                 final int modelIdentifier = configModelPublicationStatusLiveData.getModelIdentifier();
                 final Element element = mViewModel.getExtendedMeshNode().getMeshNode().getElements().get(elementAdd);
@@ -211,6 +221,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
         });
+
+        addNodeControlsUi();
 
     }
 
@@ -276,7 +288,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         mHandler.postDelayed(mOperationTimeout, 2500);
     }
 
-    private void hide(){
+    private void hideProgressBar(){
         mProgressbar.setVisibility(View.INVISIBLE);
         mHandler.removeCallbacks(mOperationTimeout);
     }
@@ -285,6 +297,13 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         @Override
         public void run() {
             mProgressbar.setVisibility(View.INVISIBLE);
+
+            if(mActionOnOff != null && !mActionOnOff.isEnabled())
+                mActionOnOff.setEnabled(true);
+
+
+            if(mActionRead != null && !mActionRead.isEnabled())
+                mActionRead.setEnabled(true);
         }
     };
 
@@ -301,5 +320,136 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     @Override
     public void onItemClick(final int position, final byte[] address) {
 
+    }
+
+    private void addNodeControlsUi(){
+        final MeshModel model = mViewModel.getMeshModel().getValue();
+        if(model != null){
+            if(model instanceof GenericOnOffServerModel) {
+                final CardView cardView = findViewById(R.id.node_controls_card);
+                final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, cardView);
+                final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
+                final TextView onOffState = nodeControlsContainer.findViewById(R.id.on_off_state);
+                final SeekBar transitionTimeSeekBar = nodeControlsContainer.findViewById(R.id.transition_seekbar);
+                transitionTimeSeekBar.setProgress(0);
+                transitionTimeSeekBar.incrementProgressBy(1);
+                transitionTimeSeekBar.setMax(230);
+
+                final SeekBar delaySeekBar = nodeControlsContainer.findViewById(R.id.delay_seekbar);
+                delaySeekBar.setProgress(0);
+                delaySeekBar.incrementProgressBy(5);
+                delaySeekBar.setMax(255);
+
+                mActionOnOff = nodeControlsContainer.findViewById(R.id.action_on_off);
+                mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
+                mActionOnOff.setOnClickListener(v -> {
+                    try {
+                        final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
+                        if(mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on))){
+                            /*mActionOnOff.setText(R.string.action_generic_off);
+                            onOffState.setText(R.string.generic_state_on);*/
+                            //TODO wait for sdk implementation to test for transition state
+                            mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), true);
+                        } else {
+                            /*mActionOnOff.setText(R.string.action_generic_on);
+                            onOffState.setText(R.string.generic_state_off);*/
+                            //TODO wait for sdk implementation to test for transition state
+                            mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), false);
+                        }
+                        mActionOnOff.setEnabled(false);
+                        showProgressbar();
+                    } catch (IllegalArgumentException ex) {
+                        Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                mActionRead.setOnClickListener(v -> {
+                    final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
+                    mViewModel.sendGenericOnOffGet(node);
+                    showProgressbar();
+                    mActionRead.setEnabled(false);
+                });
+
+                transitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    int lastValue = 0;
+                    int resolution1 = 6;
+                    int resolution2 = 6;
+                    int resolution3 = 6;
+                    double res = 0.0;
+                    @Override
+                    public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
+
+                        if(progress >= 0 && progress <= 62) {
+                            resolution1 = 6;
+                            resolution2 = 6;
+                            resolution3 = 6;
+                            lastValue = progress;
+                            mTransitionStepResolution = 0;
+                            mTransitionStep = progress;
+                            res = progress / 10.0;
+                            time.setText(getString(R.string.transition_time_interval, String.valueOf(res), "s"));
+                        } else if(progress >= 63 && progress <= 118) {
+                            resolution2 = 6;
+                            resolution3 = 6;
+                            if(progress > lastValue) {
+                                resolution1 = progress - 56;
+                                lastValue = progress;
+                            } else if (progress < lastValue){
+                                resolution1 = -(56 - progress);
+                            }
+                            mTransitionStepResolution = 1;
+                            mTransitionStep = resolution3;
+                            time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution1), "s"));
+
+                        } else if(progress >= 119 && progress <= 174) {
+                            resolution3 = 6;
+                            if(progress > lastValue) {
+                                resolution2 = progress - 112;
+                                lastValue = progress;
+                            } else if (progress < lastValue){
+                                resolution2 = -(112 - progress);
+                            }
+                            mTransitionStepResolution = 2;
+                            mTransitionStep = resolution2;
+                            time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution2 * 10), "s"));
+                        } else if(progress >= 175 && progress <= 230){
+                            if(progress >= lastValue) {
+                                resolution3 = progress - 168;
+                                lastValue = progress;
+                            } else if (progress < lastValue){
+                                resolution3 = -(168 - progress);
+                            }
+                            mTransitionStepResolution = 3;
+                            mTransitionStep = resolution3;
+                            time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution3 * 10), "min"));
+                        }
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(final SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(final SeekBar seekBar) {
+
+                    }
+                });
+
+
+                mViewModel.getGenericOnOffState().observe(this, presentState -> {
+                    hideProgressBar();
+                    mActionOnOff.setEnabled(true);
+                    mActionRead.setEnabled(true);
+                    if(presentState){
+                        onOffState.setText(R.string.generic_state_on);
+                        mActionOnOff.setText(R.string.action_generic_off);
+                    } else {
+                        onOffState.setText(R.string.generic_state_off);
+                        mActionOnOff.setText(R.string.action_generic_on);
+                    }
+                });
+            }
+        }
     }
 }

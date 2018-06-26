@@ -30,35 +30,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.util.Map;
-
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyBindStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshModel;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONFIGURATION_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONNECTION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_ON_OFF_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_CONNECTED;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_RECONNECTING;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_ON_DEVICE_READY;
@@ -83,6 +77,9 @@ public abstract class BaseMeshRepository {
 
     /** Flag to determine if a reconnection is in the progress when provisioning has completed **/
     final MutableLiveData<Boolean> mIsReconnecting = new MutableLiveData<>();
+
+    /** Flag to determine if a reconnection is in the progress when provisioning has completed **/
+    final MutableLiveData<byte[]> mConfigurationSrc = new MutableLiveData<>();
 
     /** Flag to determine if provisioning was completed **/
     boolean mIsProvisioningComplete = false;
@@ -119,9 +116,8 @@ public abstract class BaseMeshRepository {
 
     //final MeshManagerApi mMeshManagerApi;
     final ProvisioningStateLiveData mProvisioningStateLiveData;
-    protected final Handler mHandler;
     MeshService.MeshServiceBinder mBinder;
-    protected MeshManagerApi mMeshManagerApi;
+    MeshManagerApi mMeshManagerApi;
     private boolean mIsBound;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -132,29 +128,8 @@ public abstract class BaseMeshRepository {
                 mIsBound = true;
                 mMeshManagerApi = mBinder.getMeshManagerApi();
                 mProvisioningLiveData.loadProvisioningData(mContext, mBinder.getProvisioningSettings());
+                mConfigurationSrc.postValue(mMeshManagerApi.getConfiguratorSrc());
                 mProvisionedNodesLiveData.updateProvisionedNodes(mBinder.getProvisionedNodes());
-                if(mExtendedMeshNode != null) {
-                    final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
-                    final ProvisionedMeshNode meshNode = mBinder.getMeshNode(AddressUtils.getUnicastAddressInt(node.getUnicastAddress()));
-                    if (meshNode != null) {
-                        mExtendedMeshNode.updateMeshNode(meshNode);
-                    }
-                } else {
-                    final ProvisionedMeshNode meshNode = mBinder.getMeshNode();
-                    if (meshNode != null) {
-                        mExtendedMeshNode = new ExtendedMeshNode(meshNode);
-                    }
-                }
-
-                final Element element = mBinder.getElement();
-                if(element != null) {
-                    mElement.postValue(element);
-                }
-
-                final MeshModel meshModel = mBinder.getMeshModel();
-                if(meshModel != null) {
-                    mMeshModel.postValue(mBinder.getMeshModel());
-                }
             }
         }
 
@@ -189,6 +164,9 @@ public abstract class BaseMeshRepository {
                 case ACTION_CONFIGURATION_STATE:
                     onConfigurationStateChanged(intent);
                     break;
+                case ACTION_GENERIC_ON_OFF_STATE:
+                    onGenericOnOfStateReceived(intent);
+                    break;
             }
         }
     };
@@ -198,9 +176,6 @@ public abstract class BaseMeshRepository {
         context.startService(intent);
         context.bindService(intent, mServiceConnection, 0);
         mContext = context;
-        mHandler = new Handler();
-        //mMeshManagerApi = MeshManagerApi.getInstance(context);
-        //mProvisioningLiveData = new ProvisioningLiveData(context, mMeshManagerApi.getProvisioningSettings());
         mProvisioningStateLiveData = new ProvisioningStateLiveData();
         mIsReconnecting.postValue(false);
     }
@@ -222,6 +197,10 @@ public abstract class BaseMeshRepository {
     public abstract void onProvisioningStateChanged(final Intent intent);
 
     public abstract void onConfigurationStateChanged(final Intent intent);
+
+    protected void onGenericOnOfStateReceived(final Intent intent){
+
+    }
 
     public ProvisioningLiveData getProvisioningData(){
         return mProvisioningLiveData;
@@ -276,21 +255,21 @@ public abstract class BaseMeshRepository {
      * @param meshNode mesh node to configure
      */
     public void setModel(final ProvisionedMeshNode meshNode, final int elementAddress, final int modelId) {
-        if(mBinder != null) {
-            mBinder.setMeshNode(meshNode);
+        if(mExtendedMeshNode == null) {
+            mExtendedMeshNode = new ExtendedMeshNode(meshNode);
+        } else {
+            mExtendedMeshNode.updateMeshNode(meshNode);
         }
-        mExtendedMeshNode = new ExtendedMeshNode(meshNode);
+
         final Element element = meshNode.getElements().get(elementAddress);
-        if(mBinder != null) {
-            mBinder.setElement(element);
+        if(element != null) {
+            mElement.setValue(element);
         }
-        mElement.postValue(element);
 
         final MeshModel model = element.getMeshModels().get(modelId);
-        if(mBinder != null) {
-            mBinder.setMeshModel(model);
+        if(model != null) {
+            mMeshModel.setValue(model);
         }
-        mMeshModel.postValue(model);
     }
 
     public ExtendedMeshNode getExtendedMeshNode() {
@@ -334,7 +313,18 @@ public abstract class BaseMeshRepository {
         return mBinder.getSelectedAppKey();
     }
 
-    public void addAppKey(final int appKeyIndex, final String appKey) {
+    public void sendAppKeyAdd(final int appKeyIndex, final String appKey) {
         mBinder.sendAppKeyAdd(mExtendedMeshNode.getMeshNode(), appKeyIndex, appKey);
+    }
+
+    public void refreshProvisioningData() {
+        if(mBinder != null) {
+            final ProvisioningSettings settings = mMeshManagerApi.getProvisioningSettings();
+            mProvisioningLiveData.update(settings);
+        }
+    }
+
+    public LiveData<byte[]> getConfigurationSrc() {
+        return mConfigurationSrc;
     }
 }

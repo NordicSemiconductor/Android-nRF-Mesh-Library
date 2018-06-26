@@ -33,12 +33,11 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONNECT_TO_UNPROVISIONED_NODE;
@@ -179,6 +178,8 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
                 break;
             case PROVISIONING_FAILED:
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                break;
             default:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
                 break;

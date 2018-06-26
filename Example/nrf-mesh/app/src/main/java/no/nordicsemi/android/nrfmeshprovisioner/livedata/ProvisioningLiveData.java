@@ -26,14 +26,14 @@ import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import java.util.Map;
+import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 
 public class ProvisioningLiveData extends LiveData<ProvisioningLiveData>  {
 
     private ProvisioningSettings mProvisioningSettings;
-    protected String networkName = "nRF Mesh Network";
+    String networkName = "nRF Mesh Network";
     private String nodeName = "nRF Mesh Node";
     private String selectedAppKey;
     private String NETWORK_NAME_PREFS = "NETWORK_NAME_PREFS";
@@ -90,7 +90,7 @@ public class ProvisioningLiveData extends LiveData<ProvisioningLiveData>  {
         postValue(this);
     }
 
-    public Map<Integer, String> getAppKeys() {
+    public List<String> getAppKeys() {
         return mProvisioningSettings.getAppKeys();
     }
 
@@ -165,5 +165,33 @@ public class ProvisioningLiveData extends LiveData<ProvisioningLiveData>  {
         final SharedPreferences.Editor editor = preferences.edit();
         editor.putString(NETWORK_NAME, networkName);
         editor.apply();
+    }
+
+    public void addAppKey(final String applicationKey) {
+        if(mProvisioningSettings != null) {
+            mProvisioningSettings.addAppKey(applicationKey);
+        }
+        postValue(this);
+    }
+
+    public void addAppKey(final int position, final String applicationKey) {
+        if(mProvisioningSettings != null) {
+            mProvisioningSettings.addAppKey(position, applicationKey);
+        }
+        postValue(this);
+    }
+
+    public void updateAppKey(final int position, final String applicationKey) {
+        if(mProvisioningSettings != null) {
+            mProvisioningSettings.updateAppKey(position, applicationKey);
+        }
+        postValue(this);
+    }
+
+    public void removeAppKey(final String appKey) {
+        if(mProvisioningSettings != null) {
+            mProvisioningSettings.removeAppKey(appKey);
+        }
+        postValue(this);
     }
 }

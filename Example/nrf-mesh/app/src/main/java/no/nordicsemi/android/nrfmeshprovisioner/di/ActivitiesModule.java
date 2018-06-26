@@ -26,6 +26,7 @@ import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import no.nordicsemi.android.nrfmeshprovisioner.BindAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MainActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ManageNodeAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MeshProvisionerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
@@ -39,6 +40,9 @@ abstract class ActivitiesModule {
 
 	@ContributesAndroidInjector(modules = FragmentBuildersModule.class)
 	abstract MainActivity contributeMainActivity();
+
+	@ContributesAndroidInjector()
+	abstract ManageAppKeysActivity contributeManageAppKeysActivity();
 
 	@ContributesAndroidInjector()
 	abstract MeshProvisionerActivity contributeMeshProvisionerActivity();

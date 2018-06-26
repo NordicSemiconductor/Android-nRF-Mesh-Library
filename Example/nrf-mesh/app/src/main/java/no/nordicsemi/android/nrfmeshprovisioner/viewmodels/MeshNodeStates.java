@@ -51,7 +51,8 @@ public class MeshNodeStates {
         PUBLISH_ADDRESS_SET_SENT(23),
         PUBLISH_ADDRESS_STATUS_RECEIVED(25),
         SUBSCRIPTION_ADD_SENT(26),
-        SUBSCRIPTION_STATUS_RECEIVED(27);
+        SUBSCRIPTION_STATUS_RECEIVED(28),
+        NODE_RESET_STATUS_RECEIVED(29);
 
         private int state;
 

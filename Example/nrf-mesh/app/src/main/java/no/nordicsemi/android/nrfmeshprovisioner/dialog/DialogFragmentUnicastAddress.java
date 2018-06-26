@@ -137,8 +137,8 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
 
         try {
 
-            if(!input.matches(Utils.HEX_PATTERN)) {
-                unicastAddressInputLayout.setError(getString(R.string.invalid_hex_value));
+            if(input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
+                unicastAddressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }
 

@@ -1,13 +1,33 @@
+/*
+ * Copyright (c) 2018, Nordic Semiconductor
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package no.nordicsemi.android.meshprovisioner.configuration;
 
 import android.os.Parcel;
 import android.support.annotation.VisibleForTesting;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +60,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         ttl = unprovisionedMeshNode.getTtl();
         k2Output = SecureUtils.calculateK2(networkKey, SecureUtils.K2_MASTER_INPUT);
         mTimeStampInMillis = unprovisionedMeshNode.getTimeStamp();
+        mConfigurationSrc = unprovisionedMeshNode.getConfigurationSrc();
     }
 
     protected ProvisionedMeshNode(Parcel in) {
@@ -58,11 +79,11 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         bluetoothAddress = in.readString();
         k2Output = in.readParcelable(SecureUtils.K2Output.class.getClassLoader());
         nodeIdentifier = in.readString();
-        companyIdentifier = in.readInt();
-        productIdentifier = in.readInt();
-        versionIdentifier = in.readInt();
-        crpl = in.readInt();
-        features = in.readInt();
+        companyIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
+        productIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
+        versionIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
+        crpl = (Integer) in.readValue(Integer.class.getClassLoader());
+        features = (Integer) in.readValue(Integer.class.getClassLoader());
         relayFeatureSupported = in.readByte() != 0;
         proxyFeatureSupported = in.readByte() != 0;
         friendFeatureSupported = in.readByte() != 0;
@@ -72,6 +93,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         mAddedAppKeys = in.readHashMap(String.class.getClassLoader());
         mAddedAppKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mTimeStampInMillis = in.readLong();
+        mConfigurationSrc = in.createByteArray();
     }
 
     @Override
@@ -91,11 +113,11 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         dest.writeString(bluetoothAddress);
         dest.writeParcelable(k2Output, flags);
         dest.writeString(nodeIdentifier);
-        dest.writeInt(companyIdentifier);
-        dest.writeInt(productIdentifier);
-        dest.writeInt(versionIdentifier);
-        dest.writeInt(crpl);
-        dest.writeInt(features);
+        dest.writeValue(companyIdentifier);
+        dest.writeValue(productIdentifier);
+        dest.writeValue(versionIdentifier);
+        dest.writeValue(crpl);
+        dest.writeValue(features);
         dest.writeByte((byte) (relayFeatureSupported ? 1 : 0));
         dest.writeByte((byte) (proxyFeatureSupported ? 1 : 0));
         dest.writeByte((byte) (friendFeatureSupported ? 1 : 0));
@@ -105,6 +127,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         dest.writeMap(mAddedAppKeys);
         dest.writeList(mAddedAppKeyIndexes);
         dest.writeLong(mTimeStampInMillis);
+        dest.writeByteArray(mConfigurationSrc);
     }
 
 
@@ -161,23 +184,23 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         this.k2Output = k2Output;
     }
 
-    public final int getCompanyIdentifier() {
+    public final Integer getCompanyIdentifier() {
         return companyIdentifier;
     }
 
-    public final int getProductIdentifier() {
+    public final Integer getProductIdentifier() {
         return productIdentifier;
     }
 
-    public final int getVersionIdentifier() {
+    public final Integer getVersionIdentifier() {
         return versionIdentifier;
     }
 
-    public final int getCrpl() {
+    public final Integer getCrpl() {
         return crpl;
     }
 
-    public final int getFeatures() {
+    public final Integer getFeatures() {
         return features;
     }
 
@@ -261,17 +284,10 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         }
     }
 
-    public final byte[] getConfigurationSrc() {
-        return mConfigurationSrc;
-    }
-
     private void sortElements(final HashMap<Integer, Element> unorderedElements){
         final Set<Integer> unorderedKeys =  unorderedElements.keySet();
 
-        final List<Integer> orderedKeys = new ArrayList<>();
-        for(int key : unorderedKeys) {
-            orderedKeys.add(key);
-        }
+        final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
         Collections.sort(orderedKeys);
         for(int key : orderedKeys) {
             mElements.put(key, unorderedElements.get(key));

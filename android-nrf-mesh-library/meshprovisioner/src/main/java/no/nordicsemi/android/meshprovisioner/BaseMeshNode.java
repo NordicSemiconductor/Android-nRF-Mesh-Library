@@ -1,10 +1,33 @@
+/*
+ * Copyright (c) 2018, Nordic Semiconductor
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package no.nordicsemi.android.meshprovisioner;
 
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +40,7 @@ public abstract class BaseMeshNode implements Parcelable {
 
     protected static final String TAG = BaseMeshNode.class.getSimpleName();
 
-    protected final byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
+    protected byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
     protected byte[] ivIndex;
     protected boolean isProvisioned;
     protected boolean isConfigured;
@@ -39,11 +62,11 @@ public abstract class BaseMeshNode implements Parcelable {
     protected int mReceivedSequenceNumber;
     protected String bluetoothAddress;
     protected String nodeIdentifier;
-    protected int companyIdentifier;
-    protected int productIdentifier;
-    protected int versionIdentifier;
-    protected int crpl;
-    protected int features;
+    protected Integer companyIdentifier = null;
+    protected Integer productIdentifier = null;
+    protected Integer versionIdentifier = null;
+    protected Integer crpl = null;
+    protected Integer features = null;
     protected boolean relayFeatureSupported;
     protected boolean proxyFeatureSupported;
     protected boolean friendFeatureSupported;
@@ -92,6 +115,10 @@ public abstract class BaseMeshNode implements Parcelable {
 
     public final byte[] getUnicastAddress() {
         return unicastAddress;
+    }
+
+    public final int getUnicastAddressInt() {
+        return ByteBuffer.wrap(unicastAddress).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 
     public final void setUnicastAddress(final byte[] unicastAddress) {
@@ -144,5 +171,13 @@ public abstract class BaseMeshNode implements Parcelable {
 
     public long getTimeStamp() {
         return mTimeStampInMillis;
+    }
+
+    public final byte[] getConfigurationSrc() {
+        return mConfigurationSrc;
+    }
+
+    public final void setConfigurationSrc(final byte[] src) {
+        mConfigurationSrc = src;
     }
 }

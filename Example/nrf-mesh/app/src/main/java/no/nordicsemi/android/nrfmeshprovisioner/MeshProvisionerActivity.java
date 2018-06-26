@@ -42,14 +42,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.ConfigAppKeyStatus;
+import no.nordicsemi.android.meshprovisioner.states.ProvisioningFailed;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ProvisioningProgressAdapter;
@@ -63,10 +63,10 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisioningFailedErrorMessage;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.ProvisioningProgress;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 
 public class MeshProvisionerActivity extends AppCompatActivity implements Injectable,
         DialogFragmentAuthenticationInput.ProvisionerInputFragmentListener,
@@ -149,9 +149,9 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         appKeyTitle.setText(R.string.summary_app_keys);
         final TextView appKeyView = containerAppKey.findViewById(R.id.text);
         containerAppKey.setOnClickListener(v -> {
-            final Map<Integer, String> appKeys = mViewModel.getProvisioningData().getAppKeys();
+            final List<String> appKeys = mViewModel.getProvisioningData().getAppKeys();
             final Intent manageAppKeys = new Intent(MeshProvisionerActivity.this, ManageAppKeysActivity.class);
-            manageAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys.values()));
+            manageAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
             startActivityForResult(manageAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
@@ -228,7 +228,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             if(resultCode == RESULT_OK){
                 final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 if(appKey != null){
-                    final int appKeyIndex = Utils.getKey(mViewModel.getProvisioningData().getAppKeys(), appKey);
+                    final int appKeyIndex = mViewModel.getProvisioningData().getAppKeys().indexOf(appKey);//Utils.getKey(mViewModel.getProvisioningData().getAppKeys(), appKey);
                     mViewModel.setSelectedAppKey(appKeyIndex, appKey);
                 }
             }
@@ -301,21 +301,19 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 switch (state) {
                     case PROVISIONING_FAILED:
                         if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_PROVISIONING_FAILED) == null) {
-                            final String statusMessage = ConfigAppKeyStatus.parseStatusMessage(getApplicationContext(), provisionerProgress.getStatusReceived());
+                            final String statusMessage = ProvisioningFailed.parseProvisioningFailure(getApplicationContext(), provisionerProgress.getStatusReceived());
                             DialogFragmentProvisioningFailedErrorMessage message = DialogFragmentProvisioningFailedErrorMessage.newInstance(getString(R.string.title_error_provisioning_failed), statusMessage);
                             message.show(getSupportFragmentManager(), DIALOG_FRAGMENT_PROVISIONING_FAILED);
                         }
                         break;
                     case PROVISIONING_AUTHENTICATION_INPUT_WAITING:
-                        final android.support.v4.app.Fragment fragment = getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG);
-                        if (fragment == null) {
+                        if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
                             DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.newInstance();
                             dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
                         }
                         break;
                     case APP_KEY_STATUS_RECEIVED:
                         if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_APP_KEY_STATUS) == null) {
-                            final String statusMessage = ConfigAppKeyStatus.parseStatusMessage(getApplicationContext(), provisionerProgress.getStatusReceived());
                             DialogFragmentAppKeyAddStatus fragmentAppKeyAddStatus = DialogFragmentAppKeyAddStatus.newInstance(getString(R.string.title_configuration_compete), getString(R.string.configuration_complete_summary));
                             fragmentAppKeyAddStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_APP_KEY_STATUS);
                         }

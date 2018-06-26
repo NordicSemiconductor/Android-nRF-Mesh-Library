@@ -120,19 +120,14 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
         final ProvisionedMeshNode node = mBinder.getMeshNode();
         switch (status) {
             case COMPOSITION_DATA_GET_SENT:
-                mExtendedMeshNode.setMeshNode(node);
                 break;
             case COMPOSITION_DATA_STATUS_RECEIVED:
-                mExtendedMeshNode.updateMeshNode(node);
                 break;
             case SENDING_BLOCK_ACKNOWLEDGEMENT:
-                mExtendedMeshNode.setMeshNode(node);
                 break;
             case BLOCK_ACKNOWLEDGEMENT_RECEIVED:
-                mExtendedMeshNode.setMeshNode(node);
                 break;
             case SENDING_APP_KEY_ADD:
-                mExtendedMeshNode.setMeshNode(node);
                 break;
             case APP_KEY_STATUS_RECEIVED:
                 if(intent.getExtras() != null) {
@@ -140,10 +135,19 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
                     final int statusCode = intent.getExtras().getInt(EXTRA_STATUS);
                     final int netKeyIndex = intent.getExtras().getInt(EXTRA_NET_KEY_INDEX);
                     final int appKeyIndex = intent.getExtras().getInt(EXTRA_APP_KEY_INDEX);
-                    mExtendedMeshNode.updateMeshNode(node);
                     mAppKeyStatus.onStatusChanged(success, statusCode, netKeyIndex, appKeyIndex);
                 }
                 break;
+            case NODE_RESET_STATUS_RECEIVED:
+                break;
         }
+
+
+        //Update the live data upon receiving a broadcast
+        mExtendedMeshNode.updateMeshNode(node);
+    }
+
+    public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
+        mBinder.resetMeshNode(provisionedMeshNode);
     }
 }

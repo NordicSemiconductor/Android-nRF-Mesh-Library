@@ -1,5 +1,28 @@
+/*
+ * Copyright (c) 2018, Nordic Semiconductor
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package no.nordicsemi.android.meshprovisioner.configuration;
 
+import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.nio.ByteBuffer;
@@ -11,23 +34,66 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class MeshModel implements Parcelable {
 
     protected final int mModelId;
-    private List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
-    private Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
+    protected final List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
+    protected final Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
     protected byte[] publishAddress;
     protected byte[] appKeyIndex;
-    private int credentialFlag;
-    private int publishTtl;
-    private int publishPeriod;
-    private int publishRetransmitCount;
-    private int publishRetransmitIntervalSteps;
-    private List<byte[]> mSubscriptionAddress = new ArrayList<>();
+    protected int credentialFlag;
+    protected int publishTtl;
+    protected int publishPeriod;
+    protected int publishRetransmitCount;
+    protected int publishRetransmitIntervalSteps;
+    protected List<byte[]> mSubscriptionAddress = new ArrayList<>();
 
     public MeshModel(final int modelId) {
         this.mModelId = modelId;
+    }
+
+    protected MeshModel(final Parcel in) {
+
+        final int modelId = in.readInt();
+        if(modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
+            mModelId = modelId;
+        } else {
+            mModelId = (short)modelId;
+        }
+        in.readList(mBoundAppKeyIndexes, Integer.class.getClassLoader());
+        sortAppKeys(in.readHashMap(String.class.getClassLoader()));
+        publishAddress = in.createByteArray();
+        appKeyIndex = in.createByteArray();
+        credentialFlag = in.readInt();
+        publishTtl = in.readInt();
+        publishPeriod = in.readInt();
+        publishRetransmitIntervalSteps = in.readInt();
+        in.readList(mSubscriptionAddress, byte[].class.getClassLoader());
+    }
+
+    protected final void parcelMeshModel(final Parcel dest, final int flags){
+        dest.writeInt(mModelId);
+        dest.writeList(mBoundAppKeyIndexes);
+        dest.writeMap(mBoundAppKeys);
+        dest.writeByteArray(publishAddress);
+        dest.writeByteArray(appKeyIndex);
+        dest.writeInt(credentialFlag);
+        dest.writeInt(publishTtl);
+        dest.writeInt(publishPeriod);
+        dest.writeInt(publishRetransmitIntervalSteps);
+        dest.writeList(mSubscriptionAddress);
+    }
+
+    private void sortAppKeys(final HashMap<Integer, String> unorderedBoundAppKeys){
+        final Set<Integer> unorderedKeys =  unorderedBoundAppKeys.keySet();
+
+        final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
+        Collections.sort(orderedKeys);
+        for(int key : orderedKeys) {
+            mBoundAppKeys.put(key, unorderedBoundAppKeys.get(key));
+        }
     }
 
     /**
