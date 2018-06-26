@@ -121,6 +121,12 @@ public class MeshRepository extends BaseMeshRepository {
     }
 
     public boolean setConfiguratorSrc(final byte[] configuratorSrc) {
-        return mBinder != null && mMeshManagerApi.setConfiguratorSrc(configuratorSrc);
+        if(mMeshManagerApi != null) {
+            if(mMeshManagerApi.setConfiguratorSrc(configuratorSrc)) {
+                mConfigurationSrc.postValue(configuratorSrc);
+                return true;
+            }
+        }
+        return false;
     }
 }
