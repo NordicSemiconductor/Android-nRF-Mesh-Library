@@ -48,34 +48,34 @@ public class ProvisioningFailed extends ProvisioningState {
 
     @Override
     public boolean parseData(final byte[] data) {
-        error = parseProvisioningFailure(data);
+        final int errorCode = data[2];
+        error = parseProvisioningFailure(mContext, errorCode);
         return true;
     }
 
-    public String parseProvisioningFailure(final byte[] pdu) {
-        final int errorCode = pdu[2];
+    public static String parseProvisioningFailure(final Context context, final int errorCode) {
         switch (ProvisioningFailureCode.fromErrorCode(errorCode)) {
             case PROHIBITED:
-                return mContext.getString(R.string.error_prohibited);
+                return context.getString(R.string.error_prohibited);
             case INVALID_PDU:
-                return mContext.getString(R.string.error_invalid_pdu);
+                return context.getString(R.string.error_invalid_pdu);
             case INVALID_FORMAT:
-                return mContext.getString(R.string.error_invalid_format);
+                return context.getString(R.string.error_invalid_format);
             case UNEXPECTED_PDU:
-                return mContext.getString(R.string.error_prohibited);
+                return context.getString(R.string.error_prohibited);
             case CONFIRMATION_FAILED:
-                return mContext.getString(R.string.error_confirmation_failed);
+                return context.getString(R.string.error_confirmation_failed);
             case OUT_OF_RESOURCES:
-                return mContext.getString(R.string.error_prohibited);
+                return context.getString(R.string.error_prohibited);
             case DECRYPTION_FAILED:
-                return mContext.getString(R.string.error_decryption_failed);
+                return context.getString(R.string.error_decryption_failed);
             case UNEXPECTED_ERROR:
-                return mContext.getString(R.string.error_unexpected_error);
+                return context.getString(R.string.error_unexpected_error);
             case CANNOT_ASSIGN_ADDRESSES:
-                return mContext.getString(R.string.error_cannot_assign_addresses);
+                return context.getString(R.string.error_cannot_assign_addresses);
             case UNKNOWN_ERROR_CODE:
             default:
-                return mContext.getString(R.string.error_rfu);
+                return context.getString(R.string.error_rfu);
         }
     }
 
