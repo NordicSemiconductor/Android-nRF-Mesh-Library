@@ -26,6 +26,7 @@ import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
+import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParsePublicKeyInformation;
 import no.nordicsemi.android.meshprovisioner.utils.ParseStaticOutputOOBInformation;
 
@@ -110,21 +111,22 @@ public class ProvisioningCapabilities extends ProvisioningState {
         Log.v(TAG, "Algorithm: " + algorithm);
 
         publicKeyType = (provisioningCapabilities[5]); // 0 is unavailable and 1 is available
-        Log.v(TAG, "Public key type: " + ParsePublicKeyInformation.getPublicKeyInformation(publicKeyType));
+        Log.v(TAG, "Public key type: " + ParsePublicKeyInformation.parsePublicKeyInformation(publicKeyType));
 
         staticOOBType = (provisioningCapabilities[6]); // 0 is unavailable and 1 is available
-        Log.v(TAG, "Static OOB type: " + ParseStaticOutputOOBInformation.getStaticOOBActionInformationAvailability(staticOOBType));
+        Log.v(TAG, "Static OOB type: " + ParseStaticOutputOOBInformation.parseStaticOOBActionInformation(staticOOBType));
 
         outputOOBSize = (provisioningCapabilities[7]);
         Log.v(TAG, "Output OOB size: " + outputOOBSize);
 
         outputOOBAction = ((provisioningCapabilities[8] & 0xff) << 8) | (provisioningCapabilities[9] & 0xff);
+        ParseOutputOOBActions.parseOutputActionsFromBitMask(outputOOBAction);
 
         inputOOBSize = (provisioningCapabilities[10]);
         Log.v(TAG, "Input OOB size: " + inputOOBSize);
 
         inputOOBAction = (((provisioningCapabilities[11] & 0xff) << 8) | (provisioningCapabilities[12] & 0xff));
-        Log.v(TAG, "Input OOB action: " + ParseInputOOBActions.getInputOOBActionDescription(inputOOBAction));
+        ParseInputOOBActions.parseInputActionsFromBitMask(inputOOBAction);
 
 
         return true;

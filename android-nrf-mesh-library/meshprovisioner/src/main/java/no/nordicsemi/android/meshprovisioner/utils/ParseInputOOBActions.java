@@ -56,11 +56,11 @@ public class ParseInputOOBActions {
         }
     }
 
-    public static void calculateInputActionsFromBitMask(final int outputAction) {
-        final byte[] outputActions = {PUSH, TWIST, INPUT_NUMBER, INPUT_ALPHA_NUMBERIC};
-        for(byte action : outputActions){
-            if((outputAction & action) == action){
-                Log.v(TAG, "Output oob action type value: " + getInputOOBActionDescription(action));
+    public static void parseInputActionsFromBitMask(final int inputAction) {
+        final byte[] inputActions = {PUSH, TWIST, INPUT_NUMBER, INPUT_ALPHA_NUMBERIC};
+        for(byte action : inputActions){
+            if((inputAction & action) == action){
+                Log.v(TAG, "Input oob action type value: " + getInputOOBActionDescription(action));
             }
         }
     }
