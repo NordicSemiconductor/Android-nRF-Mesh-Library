@@ -122,12 +122,11 @@ public class ConfigModelPublicationSet extends ConfigMessage {
             parameters = paramsBuffer.array();
         }
 
-        final byte[] src = {0x7F, (byte) 0xFF};
         final byte[] key = mProvisionedMeshNode.getDeviceKey();
         final int akf = 0;
         final int aid = 0b000;
         final int aszmic = 0;
-        mAccessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, src, key, akf, aid, aszmic, ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_SET, parameters);
+        mAccessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, aszmic, ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_SET, parameters);
         mPayloads.putAll(mAccessMessage.getNetworkPdu());
     }
 

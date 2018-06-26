@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -212,16 +211,10 @@ public class SettingsFragment extends Fragment implements Injectable,
                 manageAppKeysView.setText(getString(R.string.app_key_count, provisioningData.getAppKeys().size()));
             }
         });
-
-        mViewModel.getConfigurationSrcLiveData().observe(this, new Observer<byte[]>() {
-            @Override
-            public void onChanged(@Nullable final byte[] configurationSrc) {
-
-            }
-        });
-
         mViewModel.getConfigurationSrcLiveData().observe(this, configuratorSrc -> {
-            sourceAddressView.setText(MeshParserUtils.bytesToHex(configuratorSrc, true));
+            if(configuratorSrc != null) {
+                sourceAddressView.setText(MeshParserUtils.bytesToHex(configuratorSrc, true));
+            }
         });
         return rootView;
 

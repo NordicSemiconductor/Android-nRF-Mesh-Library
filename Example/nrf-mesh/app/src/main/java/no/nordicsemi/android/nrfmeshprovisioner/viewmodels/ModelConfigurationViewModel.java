@@ -120,7 +120,7 @@ public class ModelConfigurationViewModel extends ViewModel {
      * @param state                on off state
      */
     public void sendGenericOnOff(final ProvisionedMeshNode node, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
-        mModelConfigurationRepository.sendGenericOnOffSetUnacknowledged(node, transitionSteps, transitionResolution, delay, state);
+        mModelConfigurationRepository.sendGenericOnOffSet(node, transitionSteps, transitionResolution, delay, state);
     }
 
     /**

@@ -748,7 +748,6 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @param appKeyIndex    index of the app key
      */
     public void bindAppKey(final ProvisionedMeshNode meshNode, final byte[] elementAddress, final MeshModel model, final int appKeyIndex) {
-        final byte[] src = {0x7F, (byte) 0xFF};
         mMeshConfigurationHandler.bindAppKey(meshNode, 0, elementAddress, model.getModelId(), appKeyIndex);
     }
 
@@ -769,7 +768,6 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     public void setConfigModelPublishAddress(final ProvisionedMeshNode provisionedMeshNode, final byte[] elementAddress, final byte[] publishAddress,
                                              final int appKeyIndex, final int modelIdentifier, final int credentialFlag, final int publishTtl,
                                              final int publishPeriod, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
-        final byte[] src = {0x7F, (byte) 0xFF};
         mMeshConfigurationHandler.setConfigModelPublishAddress(provisionedMeshNode, 0, elementAddress, publishAddress,
                 appKeyIndex, modelIdentifier, credentialFlag, publishTtl, publishPeriod, publishRetransmitCount, publishRetransmitIntervalSteps);
     }
@@ -784,7 +782,6 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      */
     public void addSubscriptionAddress(final ProvisionedMeshNode meshNode, final byte[] elementAddress, final byte[] subscriptionAddress,
                                        final int modelIdentifier) {
-        final byte[] src = {0x7F, (byte) 0xFF};
         mMeshConfigurationHandler.addSubscriptionAddress(meshNode, 0, elementAddress, subscriptionAddress, modelIdentifier);
     }
 
@@ -798,7 +795,6 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      */
     public void deleteSubscriptionAddress(final ProvisionedMeshNode meshNode, final byte[] elementAddress, final byte[] subscriptionAddress,
                                           final int modelIdentifier) {
-        final byte[] src = {0x7F, (byte) 0xFF};
         mMeshConfigurationHandler.deleteSubscriptionAddress(meshNode, 0, elementAddress, subscriptionAddress, modelIdentifier);
     }
 
