@@ -52,12 +52,16 @@ public final class ConfigModelAppStatus extends ConfigMessage {
     private byte[] modelIdentifier; //16-bit SIG Model or 32-bit Vendor Model identifier
     private boolean isSuccessful;
     private String statusMessage;
+    private final int previiousMessageType;
 
     public ConfigModelAppStatus(Context context,
                                 final ProvisionedMeshNode unprovisionedMeshNode,
+                                final int previousMessageType,
                                 final InternalTransportCallbacks internalTransportCallbacks,
                                 final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks) {
         super(context, unprovisionedMeshNode);
+        this.messageType = previousMessageType;
+        this.previiousMessageType = previousMessageType;
         this.mInternalTransportCallbacks = internalTransportCallbacks;
         this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
     }
@@ -150,7 +154,12 @@ public final class ConfigModelAppStatus extends ConfigMessage {
                     Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
                     Log.v(TAG, "Model Identifier: " + MeshParserUtils.bytesToHex(modelIdentifier, false));
 
-                    mProvisionedMeshNode.setConfigModelAppStatus(this);
+                    if(previiousMessageType == ConfigMessageOpCodes.CONFIG_MODEL_APP_BIND) {
+                        mProvisionedMeshNode.setAppKeyBindStatus(this);
+                    } else {
+                        mProvisionedMeshNode.setAppKeyUnbindStatus(this);
+                    }
+
                     mConfigStatusCallbacks.onAppKeyBindStatusReceived(mProvisionedMeshNode, isSuccessful, status,
                             AddressUtils.getUnicastAddressInt(elementAddress), getAppKeyIndexInt(), getModelIdentifierInt());
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
