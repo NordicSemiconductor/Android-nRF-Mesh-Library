@@ -123,6 +123,14 @@ public abstract class MeshModel implements Parcelable {
         mBoundAppKeys.put(appKeyIndex, appKey);
     }
 
+    protected void removeBoundAppKey(final int appKeyIndex, final String appKey) {
+        if (mBoundAppKeyIndexes.contains(appKeyIndex)) {
+            final int position = mBoundAppKeyIndexes.indexOf(appKeyIndex);
+            mBoundAppKeyIndexes.remove(position);
+        }
+        mBoundAppKeys.remove(appKeyIndex);
+    }
+
     /**
      * Returns an unmodifiable map of bound app keys for this model.
      * @return LinkedHashMap containing the bound app keys for this model

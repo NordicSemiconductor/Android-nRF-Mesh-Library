@@ -23,39 +23,27 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.SparseArray;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.AppKeyAdapter;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeyAdapter;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAddAppKey;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentEditAppKey;
-import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
-import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
-import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
+import no.nordicsemi.android.nrfmeshprovisioner.adapter.BindAppKeyAdapter;
 
-public class BindAppKeysActivity extends AppCompatActivity implements BoundAppKeyAdapter.OnItemClickListener {
+public class BindAppKeysActivity extends AppCompatActivity implements BindAppKeyAdapter.OnItemClickListener {
 
     public static final String RESULT_APP_KEY = "RESULT_APP_KEY";
     public static final String RESULT_APP_KEY_INDEX = "RESULT_APP_KEY_INDEX";
@@ -68,7 +56,7 @@ public class BindAppKeysActivity extends AppCompatActivity implements BoundAppKe
     View container;
 
     private SparseArray<String> mAppKeysMap = new SparseArray<>();
-    private BoundAppKeyAdapter mAdapter;
+    private BindAppKeyAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -90,7 +78,7 @@ public class BindAppKeysActivity extends AppCompatActivity implements BoundAppKe
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(appKeysRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
         appKeysRecyclerView.addItemDecoration(dividerItemDecoration);
         appKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new BoundAppKeyAdapter(this, mAppKeysMap);
+        mAdapter = new BindAppKeyAdapter(this, mAppKeysMap);
         mAdapter.setOnItemClickListener(this);
         appKeysRecyclerView.setAdapter(mAdapter);
 
