@@ -124,8 +124,10 @@ public abstract class MeshModel implements Parcelable {
     }
 
     protected void removeBoundAppKey(final int appKeyIndex, final String appKey) {
-        if (mBoundAppKeyIndexes.contains(appKeyIndex))
-            mBoundAppKeyIndexes.remove(appKeyIndex);
+        if (mBoundAppKeyIndexes.contains(appKeyIndex)) {
+            final int position = mBoundAppKeyIndexes.indexOf(appKeyIndex);
+            mBoundAppKeyIndexes.remove(position);
+        }
         mBoundAppKeys.remove(appKeyIndex);
     }
 

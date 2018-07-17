@@ -752,6 +752,18 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     }
 
     /**
+     * Unbinds a previously bound the app key.
+     *
+     * @param meshNode       corresponding mesh node
+     * @param elementAddress elementAddress
+     * @param model          16-bit SIG Model Identifier or 32-bit Vendor Model identifier
+     * @param appKeyIndex    index of the app key
+     */
+    public void unbindAppKey(final ProvisionedMeshNode meshNode, final byte[] elementAddress, final MeshModel model, final int appKeyIndex) {
+        mMeshConfigurationHandler.unbindAppKey(meshNode, 0, elementAddress, model.getModelId(), appKeyIndex);
+    }
+
+    /**
      * Set a publish address for configuration model
      *
      * @param provisionedMeshNode            Mesh node containing the model

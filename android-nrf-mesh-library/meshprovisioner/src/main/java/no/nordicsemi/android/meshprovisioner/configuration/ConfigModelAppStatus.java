@@ -150,20 +150,28 @@ public final class ConfigModelAppStatus extends ConfigMessage {
                     statusMessage = parseStatusMessage(mContext, status);
                     parseStatus(status);
                     Log.v(TAG, "Status: " + isSuccessful);
-                    Log.v(TAG, "Status message: " + statusMessage);
-                    Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
-                    Log.v(TAG, "Model Identifier: " + MeshParserUtils.bytesToHex(modelIdentifier, false));
 
                     if(previiousMessageType == ConfigMessageOpCodes.CONFIG_MODEL_APP_BIND) {
-                        mProvisionedMeshNode.setAppKeyBindStatus(this);
+                        if(isSuccessful) {
+                            mProvisionedMeshNode.setAppKeyBindStatus(this);
+                            statusMessage = "App key was successfully bound";
+                            Log.v(TAG, "Status message: " + statusMessage);
+                        }
                     } else {
-                        mProvisionedMeshNode.setAppKeyUnbindStatus(this);
+                        if(isSuccessful) {
+                            mProvisionedMeshNode.setAppKeyUnbindStatus(this);
+                            statusMessage = "App key was successfully unbound";
+                            Log.v(TAG, "Status message: " + statusMessage);
+                        }
                     }
+                    Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
+                    Log.v(TAG, "Model Identifier: " + MeshParserUtils.bytesToHex(modelIdentifier, false));
 
                     mConfigStatusCallbacks.onAppKeyBindStatusReceived(mProvisionedMeshNode, isSuccessful, status,
                             AddressUtils.getUnicastAddressInt(elementAddress), getAppKeyIndexInt(), getModelIdentifierInt());
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
                 } else {
+                    Log.v(TAG, "Unknown pdu received!");
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
