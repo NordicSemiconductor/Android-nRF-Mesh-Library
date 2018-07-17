@@ -219,7 +219,9 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(1 + encryptedUpperTransportPDU.length).order(ByteOrder.BIG_ENDIAN);
         lowerTransportBuffer.put(header);
         lowerTransportBuffer.put(encryptedUpperTransportPDU);
-        return lowerTransportBuffer.array();
+        final byte [] lowerTransportPDU = lowerTransportBuffer.array();
+        Log.v(TAG, "Unsegmented Lower transport access PDU " + MeshParserUtils.bytesToHex(lowerTransportPDU, false));
+        return lowerTransportPDU;
     }
 
     /**
@@ -250,7 +252,9 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
             offset += MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH;
             length = encryptedUpperTransportPDU.length - offset;
 
-            lowerTransportPduMap.put(segO, lowerTransportBuffer.array());
+            final byte [] lowerTransportPDU = lowerTransportBuffer.array();
+            Log.v(TAG, "Segmented Lower transport access PDU: " + MeshParserUtils.bytesToHex(lowerTransportPDU, false) + " " + segO + " of " + numberOfSegments);
+            lowerTransportPduMap.put(segO, lowerTransportPDU);
         }
         return lowerTransportPduMap;
     }
