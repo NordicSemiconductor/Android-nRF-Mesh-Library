@@ -72,7 +72,7 @@ public abstract class AccessLayer {
         }
         final byte [] accessPdu = accessMessageBuffer.array();
 
-        Log.v(TAG, "Access PDU " + MeshParserUtils.bytesToHex(accessPdu, false));
+        Log.v(TAG, "Created Access PDU " + MeshParserUtils.bytesToHex(accessPdu, false));
         accessMessage.setAccessPdu(accessMessageBuffer.array());
     }
 
@@ -110,6 +110,6 @@ public abstract class AccessLayer {
         final ByteBuffer paramsBuffer = ByteBuffer.allocate(length).order(ByteOrder.BIG_ENDIAN);
         paramsBuffer.put(accessPayload, opCodeLength, length);
         message.setParameters(paramsBuffer.array());
-        Log.v("AccessLayer", "Access PDU " + MeshParserUtils.bytesToHex(accessPayload, false));
+        Log.v(TAG, "Received Access PDU " + MeshParserUtils.bytesToHex(accessPayload, false));
     }
 }

@@ -149,7 +149,7 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
             mMeshProvisioningDataInCharacteristic = null;
             mMeshProvisioningDataOutCharacteristic = null;
             mMeshProxyDataInCharacteristic = null;
-            mMeshProxyDataOutCharacteristic = mMeshProvisioningDataOutCharacteristic;
+            mMeshProxyDataOutCharacteristic = null;
         }
 
         @Override
@@ -166,6 +166,7 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
         @Override
         public void onCharacteristicNotified(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
             final byte[] data = characteristic.getValue();
+            Log.v(TAG, "Characteristic notified: " + MeshParserUtils.bytesToHex(data, true));
             mCallbacks.onDataReceived(gatt.getDevice(), mtuSize, data);
         }
 
