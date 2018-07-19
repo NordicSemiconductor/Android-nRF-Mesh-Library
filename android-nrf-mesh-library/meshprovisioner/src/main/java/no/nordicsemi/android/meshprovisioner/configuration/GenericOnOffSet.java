@@ -93,6 +93,7 @@ public class GenericOnOffSet extends ConfigMessage implements LowerTransportLaye
     public void executeSend() {
         if (!mPayloads.isEmpty()) {
             for (int i = 0; i < mPayloads.size(); i++) {
+                Log.v(TAG, "Sending Generic OnOff set: " + (mState ? "ON" : "OFF"));
                 mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
             }
 

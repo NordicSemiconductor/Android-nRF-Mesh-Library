@@ -187,8 +187,8 @@ class MeshConfigurationHandler {
         final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet(mContext,
                 meshNode, aszmic, mInternalTransportCallbacks, mStatusCallbacks);
         configMessage = compositionDataGet;
-        compositionDataGet.executeSend();
         configMessage = new ConfigCompositionDataStatus(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks);
+        compositionDataGet.executeSend();
     }
 
     /**
@@ -283,8 +283,8 @@ class MeshConfigurationHandler {
         final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(mContext, meshNode, aszmic, elementAddress, subscriptionAddress, modelIdentifier);
         configModelSubscriptionAdd.setTransportCallbacks(mInternalTransportCallbacks);
         configModelSubscriptionAdd.setConfigurationStatusCallbacks(mStatusCallbacks);
-        configModelSubscriptionAdd.executeSend();
         configMessage = new ConfigModelSubscriptionStatus(mContext, meshNode, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD, mInternalTransportCallbacks, mStatusCallbacks);
+        configModelSubscriptionAdd.executeSend();
     }
 
     /**
@@ -309,11 +309,11 @@ class MeshConfigurationHandler {
      * @param appKeyIndex          index of the app key to encrypt the message with
      */
     public void getGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex) {
-        final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(mContext, node, model, aszmic, address, appKeyIndex);
-        genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
-        genericOnOffSet.setConfigurationStatusCallbacks(mStatusCallbacks);
-        genericOnOffSet.executeSend();
-        configMessage = genericOnOffSet;
+        final GenericOnOffGet genericOnOffGet = new GenericOnOffGet(mContext, node, model, aszmic, address, appKeyIndex);
+        genericOnOffGet.setTransportCallbacks(mInternalTransportCallbacks);
+        genericOnOffGet.setConfigurationStatusCallbacks(mStatusCallbacks);
+        configMessage = genericOnOffGet;
+        genericOnOffGet.executeSend();
     }
 
     /**
@@ -333,8 +333,8 @@ class MeshConfigurationHandler {
         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(mContext, node, model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
         genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
         genericOnOffSet.setConfigurationStatusCallbacks(mStatusCallbacks);
-        genericOnOffSet.executeSend();
         configMessage = genericOnOffSet;
+        genericOnOffSet.executeSend();
     }
 
     /**
@@ -351,11 +351,11 @@ class MeshConfigurationHandler {
      * @param state                on off state
      */
     public void setGenericOnOffUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
-        final GenericOnOffSetUnacknowledged genericOnOffSet = new GenericOnOffSetUnacknowledged(mContext, node, model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
-        genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
-        genericOnOffSet.setConfigurationStatusCallbacks(mStatusCallbacks);
-        genericOnOffSet.executeSend();
-        configMessage = genericOnOffSet;
+        final GenericOnOffSetUnacknowledged genericOnOffSetUnAcked = new GenericOnOffSetUnacknowledged(mContext, node, model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+        genericOnOffSetUnAcked.setTransportCallbacks(mInternalTransportCallbacks);
+        genericOnOffSetUnAcked.setConfigurationStatusCallbacks(mStatusCallbacks);
+        configMessage = genericOnOffSetUnAcked;
+        genericOnOffSetUnAcked.executeSend();
     }
 
 
@@ -366,7 +366,7 @@ class MeshConfigurationHandler {
      */
     public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
         final ConfigNodeReset configNodeReset = new ConfigNodeReset(mContext, provisionedMeshNode, false, mInternalTransportCallbacks, mStatusCallbacks);
-        configNodeReset.executeSend();
         configMessage = configNodeReset;
+        configNodeReset.executeSend();
     }
 }
