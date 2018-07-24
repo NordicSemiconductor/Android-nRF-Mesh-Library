@@ -39,7 +39,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public abstract class LowerTransportLayer extends UpperTransportLayer {
 
-    public static final int NETWORK_PDU = 0x00;
+    protected static final int NETWORK_PDU = 0x00;
     private static final String TAG = LowerTransportLayer.class.getSimpleName();
     private static final int UNSEGMENTED_HEADER = 0;
     private static final int SEGMENTED_HEADER = 1;
@@ -286,6 +286,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
 
         lowerTransportBuffer.put(upperTransportControlPDU);
         final byte[] lowerTransportPDU = lowerTransportBuffer.array();
+        Log.v(TAG, "Unsegmented Lower transport control PDU " + MeshParserUtils.bytesToHex(lowerTransportPDU, false));
         final HashMap<Integer, byte[]> lowerTransportControlPduMap = new HashMap<>();
         lowerTransportControlPduMap.put(0, lowerTransportPDU);
         message.setLowerTransportControlPdu(lowerTransportControlPduMap);
@@ -320,7 +321,9 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
             offset += MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH;
             length = upperTransportControlPDU.length - offset;
 
-            lowerTransportControlPduMap.put(segO, lowerTransportBuffer.array());
+            final byte [] lowerTransportPDU = lowerTransportBuffer.array();
+            Log.v(TAG, "Segmented Lower transport access PDU: " + MeshParserUtils.bytesToHex(lowerTransportPDU, false) + " " + segO + " of " + numberOfSegments);
+            lowerTransportControlPduMap.put(segO, lowerTransportPDU);
         }
         controlMessage.setLowerTransportControlPdu(lowerTransportControlPduMap);
         return lowerTransportControlPduMap;
