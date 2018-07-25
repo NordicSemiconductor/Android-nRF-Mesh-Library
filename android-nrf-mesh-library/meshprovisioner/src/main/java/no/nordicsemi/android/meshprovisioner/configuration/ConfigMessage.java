@@ -34,7 +34,9 @@ import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
+import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
+import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallbacks;
@@ -42,7 +44,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
 
-    private static final String TAG = ConfigCompositionDataStatus.class.getSimpleName();
+    private static final String TAG = ConfigMessage.class.getSimpleName();
     protected final Context mContext;
     protected final ProvisionedMeshNode mProvisionedMeshNode;
     final MeshTransport mMeshTransport;
@@ -54,6 +56,7 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
     protected MeshModel mMeshModel;
     protected int mAppKeyIndex;
     int messageType;
+    protected Message accessMessage;
 
     public ConfigMessage(final Context context, final ProvisionedMeshNode provisionedMeshNode) {
         this.mContext = context;
@@ -64,6 +67,35 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
     }
 
     public abstract MessageState getState();
+
+    public final boolean isRetransmissionRequired(final byte[] pdu) {
+        parseMessage(pdu);
+        return !mRetransmitPayloads.isEmpty();
+    }
+
+    /**
+     * Resends the mesh pdu segments that were lost in flight
+     */
+    public final void executeResend() {
+        if (!mPayloads.isEmpty() && !mRetransmitPayloads.isEmpty()) {
+            for (int i = 0; i < mRetransmitPayloads.size(); i++) {
+                final int segO = mRetransmitPayloads.get(i);
+                if (mPayloads.containsKey(segO)) {
+                    final byte[] pdu = mPayloads.get(segO);
+                    Log.v(TAG, "Resending segment " + segO + " : " + MeshParserUtils.bytesToHex(pdu, false));
+                    final AccessMessage retransmitMeshMessage = (AccessMessage) mMeshTransport.createRetransmitMeshMessage(accessMessage, segO);
+                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, retransmitMeshMessage.getNetworkPdu().get(segO));
+                }
+            }
+        }
+    }
+
+    /**
+     * Parses the mesh pdu
+     *
+     * @param pdu mesh pdu to be parsed
+     */
+    protected abstract void parseMessage(final byte[] pdu);
 
     /**
      * Parses control message and returns the underlying configuration message

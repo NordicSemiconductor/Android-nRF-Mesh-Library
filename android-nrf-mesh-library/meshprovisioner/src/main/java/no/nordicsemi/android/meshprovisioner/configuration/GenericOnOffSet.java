@@ -53,6 +53,11 @@ public class GenericOnOffSet extends ConfigMessage implements LowerTransportLaye
         return MessageState.GENERIC_ON_OFF_SET;
     }
 
+    @Override
+    protected void parseMessage(final byte[] pdu) {
+        //Do nothing here
+    }
+
     public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
         this.mInternalTransportCallbacks = callbacks;
     }
@@ -92,9 +97,11 @@ public class GenericOnOffSet extends ConfigMessage implements LowerTransportLaye
      */
     public void executeSend() {
         if (!mPayloads.isEmpty()) {
+            Log.v(TAG, "Sending Generic OnOff set acknowledged: " + (mState ? "ON" : "OFF"));
             for (int i = 0; i < mPayloads.size(); i++) {
-                Log.v(TAG, "Sending Generic OnOff set: " + (mState ? "ON" : "OFF"));
-                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+                if (mInternalTransportCallbacks != null) {
+                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+                }
             }
 
             if (mConfigStatusCallbacks != null)

@@ -23,6 +23,7 @@
 package no.nordicsemi.android.meshprovisioner.configuration;
 
 import android.content.Context;
+import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
@@ -32,7 +33,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 
 public class ConfigCompositionDataGet extends ConfigMessage {
 
-    private static final String TAG = ConfigCompositionDataStatus.class.getSimpleName();
+    private static final String TAG = ConfigCompositionDataGet.class.getSimpleName();
     private int mAszmic;
     private int akf = 0;
     private int aid = 0;
@@ -51,6 +52,11 @@ public class ConfigCompositionDataGet extends ConfigMessage {
         return MessageState.COMPOSITION_DATA_GET;
     }
 
+    @Override
+    protected void parseMessage(final byte[] pdu) {
+        //Do nothing here
+    }
+
 
     /**
      * Creates the access message to be sent to the node
@@ -67,11 +73,10 @@ public class ConfigCompositionDataGet extends ConfigMessage {
      * Starts sending the mesh pdu
      */
     public void executeSend() {
+        Log.v(TAG, "Sending composition data get");
         if (!mPayloads.isEmpty()) {
             for (int i = 0; i < mPayloads.size(); i++) {
-                if (mInternalTransportCallbacks != null) {
-                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-                }
+                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
             }
 
             if (mConfigStatusCallbacks != null)
