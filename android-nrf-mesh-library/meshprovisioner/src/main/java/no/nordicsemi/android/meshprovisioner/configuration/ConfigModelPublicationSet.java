@@ -135,8 +135,11 @@ public class ConfigModelPublicationSet extends ConfigMessage {
      */
     public void executeSend() {
         if (!mPayloads.isEmpty()) {
+            Log.v(TAG, "Sending config model publication set");
             for (int i = 0; i < mPayloads.size(); i++) {
-                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+                if (mInternalTransportCallbacks != null) {
+                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+                }
             }
 
             if (mConfigStatusCallbacks != null)
@@ -148,7 +151,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
         parseMessage(pdu);
     }
 
-    private void parseMessage(final byte[] pdu) {
+    protected void parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {

@@ -46,7 +46,6 @@ public class ConfigAppKeyAdd extends ConfigMessage {
     private final int mAszmic;
     private final String mAppKey;
     private final int mAppKeyIndex;
-    private AccessMessage accessMessage;
 
     public ConfigAppKeyAdd(final Context context, final ProvisionedMeshNode unprovisionedMeshNode,
                            final int aszmic, final String appKey, final int appKeyIndex) {
@@ -70,9 +69,6 @@ public class ConfigAppKeyAdd extends ConfigMessage {
         return MessageState.APP_KEY_ADD;
     }
 
-    public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
-    }
 
     /**
      * Creates the access message to be sent to the node
@@ -102,6 +98,7 @@ public class ConfigAppKeyAdd extends ConfigMessage {
      */
     public void executeSend() {
         if (!mPayloads.isEmpty()) {
+            Log.v(TAG, "Sending config app key add");
             for (int i = 0; i < mPayloads.size(); i++) {
                 mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
             }
@@ -111,24 +108,7 @@ public class ConfigAppKeyAdd extends ConfigMessage {
         }
     }
 
-    /**
-     * Resends the mesh pdu segments that were lost in flight
-     */
-    public void executeResend() {
-        if (!mPayloads.isEmpty() && !mRetransmitPayloads.isEmpty()) {
-            for (int i = 0; i < mRetransmitPayloads.size(); i++) {
-                final int segO = mRetransmitPayloads.get(i);
-                if(mPayloads.containsKey(segO)) {
-                    final byte[] pdu = mPayloads.get(segO);
-                    Log.v(TAG, "Resending segment " + segO + " : " + MeshParserUtils.bytesToHex(pdu, false));
-                    mMeshTransport.createRetransmitMeshMessage(accessMessage, segO);
-                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, accessMessage.getNetworkPdu().get(segO));
-                }
-            }
-        }
-    }
-
-    private boolean parseMessage(final byte[] pdu) {
+    protected void parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -137,10 +117,8 @@ public class ConfigAppKeyAdd extends ConfigMessage {
             } else {
                 Log.v(TAG, "Control message received");
                 parseControlMessage((ControlMessage) message, mPayloads.size());
-                return !mRetransmitPayloads.isEmpty();
             }
         }
-        return false;
     }
 
     @Override

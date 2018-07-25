@@ -53,6 +53,11 @@ public class GenericOnOffSetUnacknowledged extends ConfigMessage {
         return MessageState.GENERIC_ON_OFF_SET_UNACKNOWLEDGED;
     }
 
+    @Override
+    protected void parseMessage(final byte[] pdu) {
+        //Do nothing here
+    }
+
     public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
         this.mInternalTransportCallbacks = callbacks;
     }
@@ -91,13 +96,16 @@ public class GenericOnOffSetUnacknowledged extends ConfigMessage {
      * Starts sending the mesh pdu
      */
     public void executeSend() {
+        Log.v(TAG, "Sending Generic OnOff set unacknowledged: " + (mState ? "ON" : "OFF"));
         if (!mPayloads.isEmpty()) {
             for (int i = 0; i < mPayloads.size(); i++) {
-                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+                if (mInternalTransportCallbacks != null) {
+                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+                }
             }
 
             if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onAppKeyAddSent(mProvisionedMeshNode);
+                mConfigStatusCallbacks.onPublicationSetSent(mProvisionedMeshNode);
         }
     }
 

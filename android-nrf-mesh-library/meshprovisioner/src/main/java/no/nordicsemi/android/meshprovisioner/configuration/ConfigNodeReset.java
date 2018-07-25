@@ -36,6 +36,11 @@ public class ConfigNodeReset extends ConfigMessage {
         return MessageState.CONFIG_NODE_RESET;
     }
 
+    @Override
+    protected void parseMessage(final byte[] pdu) {
+        //Do nothing here
+    }
+
     /**
      * Creates the access message to be sent to the node
      */
@@ -53,8 +58,11 @@ public class ConfigNodeReset extends ConfigMessage {
      */
     public void executeSend() {
         if (!mPayloads.isEmpty()) {
+            Log.v(TAG, "Sending config node reset");
             for (int i = 0; i < mPayloads.size(); i++) {
-                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+                if (mInternalTransportCallbacks != null) {
+                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+                }
             }
 
             if (mConfigStatusCallbacks != null)

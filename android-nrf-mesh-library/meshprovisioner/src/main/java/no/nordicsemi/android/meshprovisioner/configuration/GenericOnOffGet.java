@@ -35,6 +35,11 @@ public class GenericOnOffGet extends ConfigMessage {
         return MessageState.GENERIC_ON_OFF_GET;
     }
 
+    @Override
+    protected void parseMessage(final byte[] pdu) {
+        //Do nothing here
+    }
+
     public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
         this.mInternalTransportCallbacks = callbacks;
     }
@@ -59,8 +64,11 @@ public class GenericOnOffGet extends ConfigMessage {
      */
     public void executeSend() {
         if (!mPayloads.isEmpty()) {
+            Log.v(TAG, "Sending Generic OnOff get");
             for (int i = 0; i < mPayloads.size(); i++) {
-                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+                if (mInternalTransportCallbacks != null) {
+                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+                }
             }
 
             if (mConfigStatusCallbacks != null)
