@@ -109,7 +109,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     private static final String PRIMARY_CHANNEL = "PRIMARY_CHANNEL";
     private static final String PRIMARY_CHANNEL_ID = "no.nordicsemi.android.nrfmeshprovisioner";
     private static final int FOREGROUND_NOTIFICATION_ID = 1102;
-    private static String TAG = MeshProvisionerRepository.class.getSimpleName();
+    private static String TAG = MeshService.class.getSimpleName();
     /**
      * Mesh ble manager handles the ble operations
      **/
@@ -604,7 +604,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         intent.putExtra(EXTRA_NET_KEY_INDEX, netKeyIndex);
         intent.putExtra(EXTRA_APP_KEY_INDEX, appKeyIndex);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        Log.v(TAG, "App key status received: seq" + node.getSequenceNumber());
     }
 
     @Override
