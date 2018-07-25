@@ -136,7 +136,7 @@ public class ConfigAppKeyStatus extends ConfigMessage {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
-                parseControlMessage((ControlMessage) message);
+                parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         }
     }
@@ -156,8 +156,8 @@ public class ConfigAppKeyStatus extends ConfigMessage {
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
-        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
+        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 

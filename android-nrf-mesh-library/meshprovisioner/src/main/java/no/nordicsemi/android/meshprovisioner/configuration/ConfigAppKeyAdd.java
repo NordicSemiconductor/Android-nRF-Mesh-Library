@@ -46,6 +46,7 @@ public class ConfigAppKeyAdd extends ConfigMessage {
     private final int mAszmic;
     private final String mAppKey;
     private final int mAppKeyIndex;
+    private AccessMessage accessMessage;
 
     public ConfigAppKeyAdd(final Context context, final ProvisionedMeshNode unprovisionedMeshNode,
                            final int aszmic, final String appKey, final int appKeyIndex) {
@@ -92,7 +93,7 @@ public class ConfigAppKeyAdd extends ConfigMessage {
         final byte[] key = mProvisionedMeshNode.getDeviceKey();
         final int akf = 0;
         final int aid = 0;
-        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_APPKEY_ADD, parameters);
+        accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_APPKEY_ADD, parameters);
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 
@@ -110,16 +111,36 @@ public class ConfigAppKeyAdd extends ConfigMessage {
         }
     }
 
-    private void parseMessage(final byte[] pdu) {
+    /**
+     * Resends the mesh pdu segments that were lost in flight
+     */
+    public void executeResend() {
+        if (!mPayloads.isEmpty() && !mRetransmitPayloads.isEmpty()) {
+            for (int i = 0; i < mRetransmitPayloads.size(); i++) {
+                final int segO = mRetransmitPayloads.get(i);
+                if(mPayloads.containsKey(segO)) {
+                    final byte[] pdu = mPayloads.get(segO);
+                    Log.v(TAG, "Resending segment " + segO + " : " + MeshParserUtils.bytesToHex(pdu, false));
+                    mMeshTransport.createRetransmitMeshMessage(accessMessage, segO);
+                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, accessMessage.getNetworkPdu().get(segO));
+                }
+            }
+        }
+    }
+
+    private boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
                 final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
                 Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
             } else {
-                parseControlMessage((ControlMessage) message);
+                Log.v(TAG, "Control message received");
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return !mRetransmitPayloads.isEmpty();
             }
         }
+        return false;
     }
 
     @Override

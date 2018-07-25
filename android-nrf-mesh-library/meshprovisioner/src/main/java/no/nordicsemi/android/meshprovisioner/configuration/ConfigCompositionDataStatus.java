@@ -96,7 +96,7 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
-                parseControlMessage((ControlMessage) message);
+                parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         }
     }

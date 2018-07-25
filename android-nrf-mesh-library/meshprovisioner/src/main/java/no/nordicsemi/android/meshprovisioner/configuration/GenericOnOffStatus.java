@@ -40,7 +40,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public final class GenericOnOffStatus extends ConfigMessage implements UpperTransportLayerCallbacks{
 
     private static final String TAG = GenericOnOffStatus.class.getSimpleName();
-    public static final int GENERIC_ON_OFF_STATE_ON = 0x01;
+    private static final int GENERIC_ON_OFF_STATE_ON = 0x01;
     private boolean mPresentOn;
     private boolean mTargetOn;
     private int mRemainingTime;
@@ -87,10 +87,10 @@ public final class GenericOnOffStatus extends ConfigMessage implements UpperTran
                     Log.v(TAG, "Received generic on off status");
                     final ByteBuffer buffer = ByteBuffer.wrap(accessMessage.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
                     buffer.position(0);
-                    mPresentOn = buffer.get() == GENERIC_ON_OFF_STATE_ON ? true : false;
+                    mPresentOn = buffer.get() == GENERIC_ON_OFF_STATE_ON;
                     Log.v(TAG, "Present on: " + mPresentOn);
                     if(buffer.limit() > 1) {
-                        mTargetOn = buffer.get() == GENERIC_ON_OFF_STATE_ON ? true : false;
+                        mTargetOn = buffer.get() == GENERIC_ON_OFF_STATE_ON;
                         mRemainingTime = buffer.get();
                         Log.v(TAG, "Target on: " + mTargetOn);
                         Log.v(TAG, "Remaining time: " + mRemainingTime);
@@ -102,7 +102,7 @@ public final class GenericOnOffStatus extends ConfigMessage implements UpperTran
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
-                parseControlMessage((ControlMessage) message);
+                parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
