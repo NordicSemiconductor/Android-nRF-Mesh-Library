@@ -23,6 +23,7 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
+import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigAppKeyStatus;
@@ -121,11 +122,12 @@ class MeshConfigurationHandler {
                 //TODO check for acknowledged message if the peer has received everything.
                 // Since we don't check right now the app may try to decrypt the appkey status message in the app key add message causing the decryption to fail
                 // but that does not matter here because when the node retransmits we have changed the status to appkeystatus and it will parse the status message
-                final ConfigAppKeyAdd configAppKeyAdd = ((ConfigAppKeyAdd) configMessage);
-                configAppKeyAdd.parseData(pdu);
 
-                //App key add block ack received, switch to next app key add status state.
-                configMessage = new ConfigAppKeyStatus(mContext, meshNode, configAppKeyAdd.getSrc(), configAppKeyAdd.getAppKey(), mInternalTransportCallbacks, mStatusCallbacks);
+                final ConfigAppKeyAdd configAppKeyAdd = ((ConfigAppKeyAdd) configMessage);
+                //Create the next corresponding state
+                final ConfigAppKeyStatus configAppKeyStatus = new ConfigAppKeyStatus(mContext, meshNode, configAppKeyAdd.getSrc(),
+                        configAppKeyAdd.getAppKey(), mInternalTransportCallbacks, mStatusCallbacks);
+                switchStates(configAppKeyStatus, pdu);
                 break;
             case APP_KEY_STATUS:
                 ((ConfigAppKeyStatus) configMessage).parseData(pdu);
@@ -170,6 +172,29 @@ class MeshConfigurationHandler {
                 final ConfigNodeResetStatus configNodeResetStatus = (ConfigNodeResetStatus) configMessage;
                 configNodeResetStatus.parseData(pdu);
                 break;
+        }
+    }
+
+    /**
+     * Switch the current state of the mesh configuration handler
+     * <p>
+     * This method will switch the current state of the configuration handler based on the corresponding block acknowledgement pdu received.
+     * The block acknowledgement pdu explains if certain segments were lost on flight, based on this pdu we retransmit the messages that were lost on flight.
+     * If there were no segments lost and the message that was sent was an acknowledged message we switch the state to the corresponding message state.
+     * </p>
+     *
+     * @param newState new state that is to be switched to
+     * @param pdu      pdu received
+     * @return true if the state was switched successfully
+     */
+    private boolean switchStates(final ConfigMessage newState, final byte[] pdu) {
+        if (configMessage.isRetransmissionRequired(pdu)) {
+            configMessage.executeResend();
+            return false;
+        } else {
+            Log.v(TAG, "Switching current state " + configMessage.getState().name() + " to " + newState.getState().name());
+            configMessage = newState;
+            return true;
         }
     }
 
@@ -302,11 +327,11 @@ class MeshConfigurationHandler {
     /**
      * Send generic on off get to mesh node, this message sent is an acknowledged message.
      *
-     * @param node                 mesh node to send to
-     * @param model                Mesh model to control
-     * @param address              this address could be the unicast address of the element or the subscribe address
-     * @param aszmic               if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
-     * @param appKeyIndex          index of the app key to encrypt the message with
+     * @param node        mesh node to send to
+     * @param model       Mesh model to control
+     * @param address     this address could be the unicast address of the element or the subscribe address
+     * @param aszmic      if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
+     * @param appKeyIndex index of the app key to encrypt the message with
      */
     public void getGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex) {
         final GenericOnOffGet genericOnOffGet = new GenericOnOffGet(mContext, node, model, aszmic, address, appKeyIndex);
