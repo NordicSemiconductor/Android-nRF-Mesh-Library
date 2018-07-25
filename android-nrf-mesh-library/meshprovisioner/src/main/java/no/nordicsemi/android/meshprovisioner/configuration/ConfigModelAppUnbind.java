@@ -145,7 +145,7 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
             } else {
                 final ControlMessage controlMessage = (ControlMessage) message;
                 Log.v(TAG, "Control message received: " + MeshParserUtils.bytesToHex(pdu, false));
-                parseControlMessage(controlMessage);
+                parseControlMessage(controlMessage, mPayloads.size());
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");

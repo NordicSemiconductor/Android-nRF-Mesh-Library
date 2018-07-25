@@ -155,7 +155,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
                 final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
                 Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
             } else {
-                parseControlMessage((ControlMessage) message);
+                parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");

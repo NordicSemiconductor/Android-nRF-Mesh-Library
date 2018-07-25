@@ -600,7 +600,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         switch (opCode) {
             case TransportLayerOpCodes.SAR_ACK_OPCODE:
                 offset = 0;
-                final BlockAcknowledgementMessage acknowledgement = new BlockAcknowledgementMessage(transportControlPdu, offset);
+                final BlockAcknowledgementMessage acknowledgement = new BlockAcknowledgementMessage(transportControlPdu);
                 controlMessage.setTransportControlMessage(acknowledgement);
             default:
                 break;

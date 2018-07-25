@@ -184,6 +184,11 @@ final class MeshTransport extends NetworkLayer {
         return message;
     }
 
+    Message createRetransmitMeshMessage(final Message message, final int segment){
+        createRetransmitNetworkLayerPDU(message, segment);
+        return message;
+    }
+
     /**
      * Parses the received pdu
      *

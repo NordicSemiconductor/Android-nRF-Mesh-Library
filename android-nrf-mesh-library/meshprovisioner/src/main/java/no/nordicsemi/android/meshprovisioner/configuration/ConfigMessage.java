@@ -25,7 +25,9 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
@@ -36,6 +38,7 @@ import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallbacks;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
 
@@ -44,12 +47,13 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
     protected final ProvisionedMeshNode mProvisionedMeshNode;
     final MeshTransport mMeshTransport;
     final Map<Integer, byte[]> mPayloads = new HashMap<>();
+    final List<Integer> mRetransmitPayloads = new ArrayList<>();
     final byte[] mSrc;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
     protected MeshModel mMeshModel;
     protected int mAppKeyIndex;
-    protected int messageType;
+    int messageType;
 
     public ConfigMessage(final Context context, final ProvisionedMeshNode provisionedMeshNode) {
         this.mContext = context;
@@ -58,21 +62,23 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
         this.mMeshTransport = new MeshTransport(context, provisionedMeshNode);
         this.mMeshTransport.setLowerTransportLayerCallbacks(this);
     }
+
     public abstract MessageState getState();
 
     /**
      * Parses control message and returns the underlying configuration message
      *
      * @param controlMessage control message to be passed
+     * @param segmentCount   number of segments
      */
-    final void parseControlMessage(final ControlMessage controlMessage) {
+    protected final void parseControlMessage(final ControlMessage controlMessage, final int segmentCount) {
         final TransportControlMessage transportControlMessage = controlMessage.getTransportControlMessage();
         switch (transportControlMessage.getState()) {
             case LOWER_TRANSPORT_BLOCK_ACKNOWLEDGEMENT:
-                if (controlMessage.getTransportControlMessage().getState() == TransportControlMessage.TransportControlMessageState.LOWER_TRANSPORT_BLOCK_ACKNOWLEDGEMENT) {
-                    final BlockAcknowledgementMessage blockAcknowledgementMessage = (BlockAcknowledgementMessage) controlMessage.getTransportControlMessage();
-                    mConfigStatusCallbacks.onBlockAcknowledgementReceived(mProvisionedMeshNode);
-                }
+                Log.v(TAG, "Acknowledgement payload: " + MeshParserUtils.bytesToHex(controlMessage.getTransportControlPdu(), false));
+                mRetransmitPayloads.clear();
+                mRetransmitPayloads.addAll(BlockAcknowledgementMessage.getSegmentsToBeRetransmitted(controlMessage.getTransportControlPdu(), segmentCount));
+                mConfigStatusCallbacks.onBlockAcknowledgementReceived(mProvisionedMeshNode);
                 break;
             default:
                 Log.v(TAG, "Unexpected control message received, ignoring message");

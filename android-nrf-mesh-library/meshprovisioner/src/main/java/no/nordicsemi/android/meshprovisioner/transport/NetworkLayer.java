@@ -144,6 +144,64 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         return message;
     }
 
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    public final Message createRetransmitNetworkLayerPDU(final Message message, final int segment) {
+        final SecureUtils.K2Output k2Output = mMeshNode.getK2Output();
+        final int nid = k2Output.getNid();
+        final byte[] encryptionKey = mEncryptionKey = k2Output.getEncryptionKey();
+        Log.v(TAG, "Encryption key: " + MeshParserUtils.bytesToHex(encryptionKey, false));
+
+        final byte[] privacyKey = mPrivacyKey = k2Output.getPrivacyKey();
+        Log.v(TAG, "Privacy key: " + MeshParserUtils.bytesToHex(privacyKey, false));
+        final int ctl = message.getCtl();
+        final int ttl = message.getTtl();
+        final int ivi = message.getIvIndex()[3] & 0x01; // least significant bit of IV Index
+        final byte iviNID = (byte) ((ivi << 7) | nid);
+        final byte ctlTTL = (byte) ((ctl << 7) | ttl);
+
+        final byte[] src = message.getSrc();
+        final Map<Integer, byte[]> lowerTransportPduMap;
+        if (ctl == 0) {
+            lowerTransportPduMap = message.getLowerTransportAccessPdu();
+        } else {
+            lowerTransportPduMap = message.getLowerTransportControlPdu();
+        }
+
+        byte[] encryptedNetworkPayload = null;
+        final int pduType = message.getPduType();
+        switch (message.getPduType()) {
+            case NETWORK_PDU:
+                final byte[] lowerTransportPdu = lowerTransportPduMap.get(segment);
+                final int sequenceNumber = incrementSequenceNumber(message.getSequenceNumber());
+                final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
+                message.setSequenceNumber(sequenceNum);
+
+                Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNum, false));
+                encryptedNetworkPayload = encryptNetworkPduPayload(message, sequenceNum, lowerTransportPdu, encryptionKey);
+                Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedNetworkPayload, false));
+                break;
+            case PROXY_CONFIGURATION_PDU:
+                break;
+        }
+
+        final HashMap<Integer, byte[]> networkPduMap = new HashMap<>();
+        final byte[] privacyRandom = createPrivacyRandom(encryptedNetworkPayload);
+        //Next we create the PECB
+        final byte[] pecb = createPECB(message.getIvIndex(), privacyRandom, privacyKey);
+
+
+        final byte[] header = obfuscateNetworkHeader(ctlTTL, message.getSequenceNumber(), src, pecb);
+        final byte[] networkPdu = ByteBuffer.allocate(1 + 1 + header.length + encryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN)
+                .put((byte) pduType)
+                .put(iviNID)
+                .put(header)
+                .put(encryptedNetworkPayload)
+                .array();
+        networkPduMap.put(segment, networkPdu);
+        message.setNetworkPdu(networkPduMap);
+        return message;
+    }
+
     /**
      * Encrypts the network payload of a network pdu
      *

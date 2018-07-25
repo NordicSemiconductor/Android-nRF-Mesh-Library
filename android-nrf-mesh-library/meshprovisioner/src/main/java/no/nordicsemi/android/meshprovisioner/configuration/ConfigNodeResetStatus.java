@@ -23,7 +23,6 @@
 package no.nordicsemi.android.meshprovisioner.configuration;
 
 import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
@@ -81,7 +80,7 @@ public final class ConfigNodeResetStatus extends ConfigMessage implements UpperT
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
-                parseControlMessage((ControlMessage) message);
+                parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
