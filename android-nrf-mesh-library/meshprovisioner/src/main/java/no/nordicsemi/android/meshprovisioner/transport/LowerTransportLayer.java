@@ -484,7 +484,9 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         payloadBuffer.put(pdu, 10, payloadLength);
         segmentedControlMessageMap.put(segO, payloadBuffer.array());
 
-        if (segO == segN) {
+        //Check the message count against the zero-based segN;
+        final int receivedSegmentedMessageCount = segmentedControlMessageMap.size() - 1;
+        if (segN == receivedSegmentedMessageCount) {
             final int upperTransportSequenceNumber = getTransportLayerSequenceNumber(MeshParserUtils.getSequenceNumberFromPDU(pdu), seqZero);
             final byte[] sequenceNumber = MeshParserUtils.getSequenceNumberBytes(upperTransportSequenceNumber);
             final ControlMessage accessMessage = new ControlMessage();
