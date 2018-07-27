@@ -147,7 +147,6 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
                     final int appKeyIndex = intent.getExtras().getInt(EXTRA_APP_KEY_INDEX);
                     final int modelId = intent.getExtras().getInt(EXTRA_MODEL_ID);
                     mExtendedMeshNode.updateMeshNode(node);
-                    mMeshModel.postValue(model);
                     mAppKeyBindStatus.onStatusChanged(success, statusCode, elementAddress, appKeyIndex, modelId);
                 }
                 break;
@@ -209,17 +208,8 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
      *
      * @param appKeyIndex index of the application key that has already been added to the mesh node
      */
-    public void sendBindAppKey(final int appKeyIndex) {
+    public void bindAppKey(final int appKeyIndex) {
         mBinder.sendBindAppKey(mExtendedMeshNode.getMeshNode(), mElement.getValue().getElementAddress(), mMeshModel.getValue(), appKeyIndex);
-    }
-
-    /**
-     * Unbbinds appkey to model
-     *
-     * @param appKeyIndex index of the application key that has already been added to the mesh node
-     */
-    public void sendUnbindAppKey(final int appKeyIndex) {
-        mBinder.sendUnbindAppKey(mExtendedMeshNode.getMeshNode(), mElement.getValue().getElementAddress(), mMeshModel.getValue(), appKeyIndex);
     }
 
     public void sendConfigModelPublishAddressSet(final byte[] publishAddress) {

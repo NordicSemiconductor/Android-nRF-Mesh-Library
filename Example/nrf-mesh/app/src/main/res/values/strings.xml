@@ -226,7 +226,6 @@
     <string name="get_composition_data_action">Get Composition Data</string>
     <string name="title_appkey_status">AppKey Status</string>
     <string name="app_key_item">App key %d</string>
-    <string name="app_key_index_item">Key Index: %d</string>
     <string name="error_node_name">Node name cannot be empty!</string>
     <string name="element_address">Element : %s</string>
     <string name="model_count">%d Models</string>
@@ -237,9 +236,9 @@
     <string name="model_id_type_vendor">Vendor Model ID:</string>
 
     <string name="title_publish_address">Publish Address</string>
-    <string name="title_subscription_addresses">Subscription Addresses</string>
+    <string name="title_subscription_addresseses">Subscription Addresses</string>
     <string name="none">None</string>
-    <string name="no_app_keys_bound">No app keys are bound to this model.</string>
+    <string name="no_app_keys_bound">0 app keys bound</string>
     <string name="app_keys_bound">%d app keys bound</string>
     <string name="no_publish_addresses">Publish address not set</string>
     <string name="no_subscription_addresses">No subscription address</string>
@@ -317,5 +316,4 @@
     <string name="node_device_key">Device Key</string>
     <string name="device_key_clipboard_copied">Device key copied to clipboard</string>
     <string name="unavailable">Unavailable</string>
-    <string name="hint_unbind">Hint: Swipe key to unbind.</string>
 </resources>

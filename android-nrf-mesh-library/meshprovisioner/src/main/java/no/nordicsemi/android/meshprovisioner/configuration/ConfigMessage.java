@@ -49,7 +49,6 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
     MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
     protected MeshModel mMeshModel;
     protected int mAppKeyIndex;
-    protected int messageType;
 
     public ConfigMessage(final Context context, final ProvisionedMeshNode provisionedMeshNode) {
         this.mContext = context;
@@ -93,10 +92,6 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
         return mAppKeyIndex;
     }
 
-    public int getMessageType() {
-        return messageType;
-    }
-
     public enum MessageState {
         //Configuration message states
         COMPOSITION_DATA_GET(ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_GET),
@@ -104,7 +99,6 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
         APP_KEY_ADD(ConfigMessageOpCodes.CONFIG_APPKEY_ADD),
         APP_KEY_STATUS(ConfigMessageOpCodes.CONFIG_APPKEY_STATUS),
         CONFIG_MODEL_APP_BIND(ConfigMessageOpCodes.CONFIG_MODEL_APP_BIND),
-        CONFIG_MODEL_APP_UNBIND(ConfigMessageOpCodes.CONFIG_MODEL_APP_UNBIND),
         CONFIG_MODEL_APP_STATUS(ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS),
         CONFIG_MODEL_PUBLICATION_SET(ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_SET),
         CONFIG_MODEL_PUBLICATION_STATUS(ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS),

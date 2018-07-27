@@ -22,75 +22,47 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
-import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapter.ViewHolder> {
+public class BoundAppKeyAdapter extends RecyclerView.Adapter<BoundAppKeyAdapter.ViewHolder> {
 
-    private final ArrayList<String> mAppKeys = new ArrayList<>();
+    private final SparseArray<String> appKeys;
     private final Context mContext;
-    private Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
     private OnItemClickListener mOnItemClickListener;
 
-    public BoundAppKeysAdapter(final ModelConfigurationActivity activity, final LiveData<MeshModel> meshModelLiveData) {
-        this.mContext = activity;
-        meshModelLiveData.observe(activity, meshModel -> {
-            if(meshModel != null) {
-                if (meshModel.getBoundAppkeys() != null) {
-                    mBoundAppKeys.putAll(meshModel.getBoundAppkeys());
-                    mAppKeys.clear();
-                    mAppKeys.addAll(meshModel.getBoundAppkeys().values());
-                    notifyDataSetChanged();
-                }
-            }
-        });
+    public BoundAppKeyAdapter(final Context context, final SparseArray<String> appKeys) {
+        this.mContext = context;
+        this.appKeys = appKeys;
     }
 
-    public void setOnItemClickListener(final BoundAppKeysAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(final BoundAppKeyAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
     @Override
-    public BoundAppKeysAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.bound_app_key_item, parent, false);
-        return new BoundAppKeysAdapter.ViewHolder(layoutView);
+    public BoundAppKeyAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.app_key_item, parent, false);
+        return new BoundAppKeyAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final BoundAppKeysAdapter.ViewHolder holder, final int position) {
-        if(mAppKeys.size() > 0) {
-            final String appKey = mAppKeys.get(position);
-            final Integer appKeyIndex = getAppKeyIndex(appKey);
-            if(appKeyIndex != null) {
-                holder.appKeyId.setText(mContext.getString(R.string.app_key_index_item, appKeyIndex));
-                holder.appKey.setText(appKey.toUpperCase());
-            }
+    public void onBindViewHolder(final BoundAppKeyAdapter.ViewHolder holder, final int position) {
+        if(appKeys.size() > 0) {
+            holder.appKeyId.setText(mContext.getString(R.string.app_key_item , position + 1));
+            final String appKey = appKeys.get(appKeys.keyAt(position));
+            holder.appKey.setText(appKey.toUpperCase());
         }
-    }
-
-    private Integer getAppKeyIndex(final String appKey){
-        for(Integer key : mBoundAppKeys.keySet()){
-            if(mBoundAppKeys.get(key).equals(appKey)){
-                return key;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -100,18 +72,11 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
 
     @Override
     public int getItemCount() {
-        return mAppKeys.size();
+        return appKeys.size();
     }
 
     public boolean isEmpty() {
         return getItemCount() == 0;
-    }
-
-    public String getAppKey(final int position) {
-        if(!mAppKeys.isEmpty()){
-            return mAppKeys.get(position);
-        }
-        return null;
     }
 
     @FunctionalInterface
@@ -119,7 +84,7 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
         void onItemClick(final int position, final String appKey);
     }
 
-    public final class ViewHolder extends RemovableViewHolder {
+    final class ViewHolder extends RemovableViewHolder {
 
         @BindView(R.id.app_key_id)
         TextView appKeyId;
@@ -131,7 +96,8 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
             ButterKnife.bind(this, view);
             view.findViewById(R.id.removable).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), mAppKeys.get(getAdapterPosition()));
+                    final int key = appKeys.keyAt(getAdapterPosition());
+                    mOnItemClickListener.onItemClick(key, appKeys.get(key));
                 }
             });
         }

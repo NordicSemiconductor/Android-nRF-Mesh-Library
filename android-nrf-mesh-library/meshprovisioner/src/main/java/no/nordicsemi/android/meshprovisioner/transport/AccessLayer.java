@@ -37,7 +37,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public abstract class AccessLayer {
 
-    private static final String TAG = AccessLayer.class.getSimpleName();
     protected Context mContext;
     protected ProvisionedMeshNode mMeshNode;
     protected int sequenceNumber;
@@ -70,9 +69,6 @@ public abstract class AccessLayer {
             accessMessageBuffer = ByteBuffer.allocate(opCodes.length);
             accessMessageBuffer.put(opCodes);
         }
-        final byte [] accessPdu = accessMessageBuffer.array();
-
-        Log.v(TAG, "Created Access PDU " + MeshParserUtils.bytesToHex(accessPdu, false));
         accessMessage.setAccessPdu(accessMessageBuffer.array());
     }
 
@@ -110,6 +106,6 @@ public abstract class AccessLayer {
         final ByteBuffer paramsBuffer = ByteBuffer.allocate(length).order(ByteOrder.BIG_ENDIAN);
         paramsBuffer.put(accessPayload, opCodeLength, length);
         message.setParameters(paramsBuffer.array());
-        Log.v(TAG, "Received Access PDU " + MeshParserUtils.bytesToHex(accessPayload, false));
+        Log.v("AccessLayer", "Access PDU " + MeshParserUtils.bytesToHex(accessPayload, false));
     }
 }
