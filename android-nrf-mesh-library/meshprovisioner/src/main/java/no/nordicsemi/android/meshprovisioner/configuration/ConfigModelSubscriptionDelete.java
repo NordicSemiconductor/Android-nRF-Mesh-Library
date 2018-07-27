@@ -76,7 +76,7 @@ public final class ConfigModelSubscriptionDelete extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_MODEL_SUBSCRIPTION_ADD;
+        return MessageState.CONFIG_MODEL_SUBSCRIPTION_DELETE;
     }
 
     /**
@@ -109,7 +109,7 @@ public final class ConfigModelSubscriptionDelete extends ConfigMessage {
         }
 
         final byte[] key = mProvisionedMeshNode.getDeviceKey();
-        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE, parameters);
+        accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE, parameters);
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 

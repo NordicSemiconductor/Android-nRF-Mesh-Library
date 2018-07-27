@@ -48,7 +48,7 @@ public class ConfigNodeReset extends ConfigMessage {
         final byte[] key = mProvisionedMeshNode.getDeviceKey();
         int akf = 0;
         int aid = 0;
-        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic,
+        accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic,
                 ConfigMessageOpCodes.CONFIG_NODE_RESET, null);
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }

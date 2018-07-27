@@ -109,7 +109,7 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessage {
         }
 
         final byte[] key = mProvisionedMeshNode.getDeviceKey();
-        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD, parameters);
+        accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD, parameters);
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 

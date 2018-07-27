@@ -112,7 +112,7 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
         }
         messageType = ConfigMessageOpCodes.CONFIG_MODEL_APP_UNBIND;
         final byte[] key = mProvisionedMeshNode.getDeviceKey();
-        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, messageType, parameters);
+        accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, messageType, parameters);
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 
