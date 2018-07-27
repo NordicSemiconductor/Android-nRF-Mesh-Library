@@ -240,17 +240,17 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         final int segN = numberOfSegments - 1; //Zero based segN
         final HashMap<Integer, byte[]> lowerTransportPduMap = new HashMap<>();
         int offset = 0;
-        int length = MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH;
+        int length;
         for (int segO = 0; segO < numberOfSegments; segO++) {
-
+            //Here we calculate the size of the segments based on the offset and the maximum payload of a segment access message
+            length = Math.min(encryptedUpperTransportPDU.length - offset, MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH);
             final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(SEGMENTED_MESSAGE_HEADER_LENGTH + length).order(ByteOrder.BIG_ENDIAN);
             lowerTransportBuffer.put((byte) ((SEGMENTED_HEADER << 7) | akfAid));
             lowerTransportBuffer.put((byte) ((aszmic << 7) | ((seqZero >> 6) & 0x7F)));
             lowerTransportBuffer.put((byte) (((seqZero << 2) & 0xFC) | ((segO >> 3) & 0x03)));
             lowerTransportBuffer.put((byte) (((segO << 5) & 0xE0) | ((segN) & 0x1F)));
             lowerTransportBuffer.put(encryptedUpperTransportPDU, offset, length);
-            offset += MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH;
-            length = encryptedUpperTransportPDU.length - offset;
+            offset += length;
 
             final byte [] lowerTransportPDU = lowerTransportBuffer.array();
             Log.v(TAG, "Segmented Lower transport access PDU: " + MeshParserUtils.bytesToHex(lowerTransportPDU, false) + " " + segO + " of " + numberOfSegments);
@@ -299,26 +299,27 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      */
     private HashMap<Integer, byte[]> createSegmentedControlMessage(final ControlMessage controlMessage) {
         controlMessage.setSegmented(false);
-        final byte[] upperTransportControlPDU = controlMessage.getTransportControlPdu();
+        final byte[] encryptedUpperTransportControlPDU = controlMessage.getTransportControlPdu();
         final int opCode = controlMessage.getOpCode();
         final int rfu = 0;
         final byte[] sequenceNumber = controlMessage.getSequenceNumber();
         final int seqZero = MeshParserUtils.calculateSeqZero(sequenceNumber);
 
-        final int numberOfSegments = (upperTransportControlPDU.length  + (MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH - 1)) / MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH;
+        final int numberOfSegments = (encryptedUpperTransportControlPDU.length  + (MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH - 1)) / MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH;
         final int segN = numberOfSegments - 1; //Zero based segN
         final HashMap<Integer, byte[]> lowerTransportControlPduMap = new HashMap<>();
         int offset = 0;
-        int length = MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH;
+        int length;
         for (int segO = 0; segO < numberOfSegments; segO++) {
-            final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(SEGMENTED_MESSAGE_HEADER_LENGTH + MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH).order(ByteOrder.BIG_ENDIAN);
+            //Here we calculate the size of the segments based on the offset and the maximum payload of a segment access message
+            length = Math.min(encryptedUpperTransportControlPDU.length - offset, MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH);
+            final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(SEGMENTED_MESSAGE_HEADER_LENGTH + length).order(ByteOrder.BIG_ENDIAN);
             lowerTransportBuffer.put((byte) ((SEGMENTED_HEADER << 7) | opCode));
             lowerTransportBuffer.put((byte) ((rfu << 7) | ((seqZero >> 6) & 0x7F)));
             lowerTransportBuffer.put((byte) (((seqZero << 2) & 0xFC) | ((segO >> 3) & 0x03)));
             lowerTransportBuffer.put((byte) (((segO << 5) & 0xE0) | (segN & 0x1F)));
-            lowerTransportBuffer.put(upperTransportControlPDU, offset, length);
-            offset += MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH;
-            length = upperTransportControlPDU.length - offset;
+            lowerTransportBuffer.put(encryptedUpperTransportControlPDU, offset, length);
+            offset += length;
 
             lowerTransportControlPduMap.put(segO, lowerTransportBuffer.array());
         }
