@@ -68,6 +68,15 @@ class MeshConfigurationHandler {
         this.mStatusCallbacks = statusCallbacks;
     }
 
+    /**
+     * Handle configuration states on write call back complete
+     * <p>
+     * This method will jump to the current state and switch the current state according to the message that has been sent.
+     * </p>
+     *
+     * @param meshNode Corresponding mesh node
+     * @param pdu      mesh pdu that was sent
+     */
     protected void handleConfigurationWriteCallbacks(final ProvisionedMeshNode meshNode, final byte[] pdu) {
         switch (configMessage.getState()) {
             case COMPOSITION_DATA_GET:
@@ -76,41 +85,84 @@ class MeshConfigurationHandler {
                 //configMessage = new ConfigCompositionDataStatus(mContext, mMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
                 break;
             case APP_KEY_ADD:
-                break;
-            case APP_KEY_STATUS:
-                //TODO check app key status block ack
-                //Block ack for app key status sent
+                final ConfigAppKeyAdd configAppKeyAdd = ((ConfigAppKeyAdd) configMessage);
+                //Create the next corresponding status state
+                final ConfigAppKeyStatus configAppKeyStatus = new ConfigAppKeyStatus(mContext, meshNode, configAppKeyAdd.getSrc(),
+                        configAppKeyAdd.getAppKey(), mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnWriteComplete(configAppKeyStatus);
                 break;
             case CONFIG_MODEL_APP_BIND:
-                configMessage = new ConfigModelAppStatus(mContext, meshNode, configMessage.getState().getState(), mInternalTransportCallbacks, mStatusCallbacks);
+                final ConfigModelAppBind configModelAppBind = ((ConfigModelAppBind) configMessage);
+                //Create the next corresponding status state
+                final ConfigModelAppStatus configModelAppBindStatus = new ConfigModelAppStatus(mContext, meshNode, configModelAppBind.getState().getState(),
+                        mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnWriteComplete(configModelAppBindStatus);
                 break;
             case CONFIG_MODEL_APP_UNBIND:
-                configMessage = new ConfigModelAppStatus(mContext, meshNode, configMessage.getState().getState(), mInternalTransportCallbacks, mStatusCallbacks);
-                break;
-            case CONFIG_MODEL_APP_STATUS:
+                final ConfigModelAppUnbind configModelAppUnbind = ((ConfigModelAppUnbind) configMessage);
+                //Create the next corresponding status state
+                final ConfigModelAppStatus configModelAppUnbindStatus = new ConfigModelAppStatus(mContext, meshNode, configModelAppUnbind.getState().getState(),
+                        mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnWriteComplete(configModelAppUnbindStatus);
                 break;
             case CONFIG_MODEL_PUBLICATION_SET:
+                // Create the corresponding status state
+                final ConfigModelPublicationStatus configModelPublicationStatus = new ConfigModelPublicationStatus(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnWriteComplete(configModelPublicationStatus);
                 break;
             case CONFIG_MODEL_SUBSCRIPTION_ADD:
+                // Create the corresponding status state
+                final ConfigModelSubscriptionStatus subscriptionAddStatus = new ConfigModelSubscriptionStatus(mContext, meshNode,
+                        ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD, mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnWriteComplete(subscriptionAddStatus);
+                break;
+            case CONFIG_MODEL_SUBSCRIPTION_DELETE:
+                //Create the next corresponding status state
+                final ConfigModelSubscriptionStatus subscriptionDeleteStatus = new ConfigModelSubscriptionStatus(mContext, meshNode,
+                        ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE, mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnWriteComplete(subscriptionDeleteStatus);
                 break;
             case GENERIC_ON_OFF_GET:
-                //Switch the state to Generic on off status generic on off get is an acknowledged message.
-                configMessage = new GenericOnOffStatus(mContext, configMessage.getMeshNode(), configMessage.getMeshModel(), configMessage.getAppKeyIndex(), mInternalTransportCallbacks, mStatusCallbacks);
+                //Create the next corresponding status state
+                final GenericOnOffStatus genericOnOffGetStatus = new GenericOnOffStatus(mContext, configMessage.getMeshNode(), configMessage.getMeshModel(),
+                        configMessage.getAppKeyIndex(), mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnWriteComplete(genericOnOffGetStatus);
                 break;
             case GENERIC_ON_OFF_SET:
-                //Switch the state to Generic on off status generic on off set is an acknowledged message.
-                configMessage = new GenericOnOffStatus(mContext, configMessage.getMeshNode(), configMessage.getMeshModel(), configMessage.getAppKeyIndex(), mInternalTransportCallbacks, mStatusCallbacks);
+                //Create the next corresponding status state
+                final GenericOnOffStatus genericOnOffSetStatus = new GenericOnOffStatus(mContext, configMessage.getMeshNode(), configMessage.getMeshModel(),
+                        configMessage.getAppKeyIndex(), mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnWriteComplete(genericOnOffSetStatus);
                 break;
             case GENERIC_ON_OFF_SET_UNACKNOWLEDGED:
-                //We don't expect a generic on off status as this is an unacknowledged message
+                //We don't expect a generic on off status as this is an unacknowledged message so we don't have to switch states here
                 break;
             case CONFIG_NODE_RESET:
-                //Switch to config node reset status since we are expecting a status back
-                configMessage = new ConfigNodeResetStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                //Create the next corresponding status state
+                final ConfigNodeResetStatus configNodeResetStatus = new ConfigNodeResetStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnWriteComplete(configNodeResetStatus);
                 break;
         }
     }
 
+    /**
+     * Handle configuration states on receiving mesh message notifications
+     * <p>
+     * This method will jump to the current state and switch the state depending on the expected and the next message received.
+     * </p>
+     *
+     * @param meshNode Corresponding mesh node
+     * @param pdu      mesh pdu that was sent
+     */
     protected void parseConfigurationNotifications(final ProvisionedMeshNode meshNode, final byte[] pdu) {
         switch (configMessage.getState()) {
             case COMPOSITION_DATA_STATUS:
@@ -119,58 +171,88 @@ class MeshConfigurationHandler {
                 mInternalMeshManagerCallbacks.onUnicastAddressChanged(compositionDataStatus.getUnicastAddress());
                 break;
             case APP_KEY_ADD:
-                //TODO check for acknowledged message if the peer has received everything.
-                // Since we don't check right now the app may try to decrypt the appkey status message in the app key add message causing the decryption to fail
-                // but that does not matter here because when the node retransmits we have changed the status to appkeystatus and it will parse the status message
-
                 final ConfigAppKeyAdd configAppKeyAdd = ((ConfigAppKeyAdd) configMessage);
-                //Create the next corresponding state
+                //Create the next corresponding status state
                 final ConfigAppKeyStatus configAppKeyStatus = new ConfigAppKeyStatus(mContext, meshNode, configAppKeyAdd.getSrc(),
                         configAppKeyAdd.getAppKey(), mInternalTransportCallbacks, mStatusCallbacks);
-                switchStates(configAppKeyStatus, pdu);
+                switchStateOnNotificationReceived(configAppKeyStatus, pdu);
                 break;
             case APP_KEY_STATUS:
                 ((ConfigAppKeyStatus) configMessage).parseData(pdu);
                 break;
             case CONFIG_MODEL_APP_BIND:
-                /*final ConfigModelAppBind configModelAppBind = ((ConfigModelAppBind) configMessage);
-                configModelAppBind.parseData(pdu);
-                //publication set block ack received, switch to next state.
-                configMessage = new ConfigModelAppStatus(mContext, meshNode, configMessage.getMessageType(), mInternalTransportCallbacks, mStatusCallbacks);*/
+                final ConfigModelAppBind configModelAppBind = ((ConfigModelAppBind) configMessage);
+                //Create the next corresponding status state
+                final ConfigModelAppStatus configModelAppStatus = new ConfigModelAppStatus(mContext, meshNode, configModelAppBind.getState().getState(),
+                        mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnNotificationReceived(configModelAppStatus, pdu);
+                break;
             case CONFIG_MODEL_APP_UNBIND:
+                final ConfigModelAppUnbind configModelAppUnbind = ((ConfigModelAppUnbind) configMessage);
+                //Create the next corresponding status state
+                final ConfigModelAppStatus configModelAppStatus1 = new ConfigModelAppStatus(mContext, meshNode, configModelAppUnbind.getState().getState(),
+                        mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnNotificationReceived(configModelAppStatus1, pdu);
                 break;
             case CONFIG_MODEL_APP_STATUS:
                 ((ConfigModelAppStatus) configMessage).parseData(pdu);
                 break;
             case CONFIG_MODEL_PUBLICATION_SET:
-                final ConfigModelPublicationSet configModelPublicationSet = ((ConfigModelPublicationSet) configMessage);
-                configModelPublicationSet.parseData(pdu);
-                //TODO check for acknowledged message if the peer has received everything
-                //publication set block ack received, switch to next state.
-                configMessage = new ConfigModelPublicationStatus(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks);
+                // Create the corresponding status state
+                final ConfigModelPublicationStatus configModelPublicationStatus = new ConfigModelPublicationStatus(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnNotificationReceived(configModelPublicationStatus, pdu);
                 break;
             case CONFIG_MODEL_PUBLICATION_STATUS:
-                final ConfigModelPublicationStatus configModelPublicationStatus = (ConfigModelPublicationStatus) configMessage;
-                configModelPublicationStatus.parseData(pdu);
+                ((ConfigModelPublicationStatus) configMessage).parseData(pdu);
                 break;
             case CONFIG_MODEL_SUBSCRIPTION_ADD:
-                //TODO check for acknowledged message if the peer has received everything
-                //subscription add block ack received, switch to next state.
-                //configMessage = new ConfigModelSubscriptionStatus(mContext, meshNode, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD, mInternalTransportCallbacks, mStatusCallbacks);
+                // Create the corresponding status state
+                final ConfigModelSubscriptionStatus configModelSubscriptionStatus = new ConfigModelSubscriptionStatus(mContext, meshNode,
+                        ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD, mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnNotificationReceived(configModelSubscriptionStatus, pdu);
                 break;
             case CONFIG_MODEL_SUBSCRIPTION_DELETE:
+                //Create the next corresponding status state
+                final ConfigModelSubscriptionStatus configModelSubscriptionStatus1 = new ConfigModelSubscriptionStatus(mContext, meshNode,
+                        ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE, mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnNotificationReceived(configModelSubscriptionStatus1, pdu);
                 break;
             case CONFIG_MODEL_SUBSCRIPTION_STATUS:
-                final ConfigModelSubscriptionStatus configModelSubscriptionStatus = (ConfigModelSubscriptionStatus) configMessage;
-                configModelSubscriptionStatus.parseData(pdu);
+                ((ConfigModelSubscriptionStatus) configMessage).parseData(pdu);
+                break;
+            case GENERIC_ON_OFF_GET:
+                //Create the next corresponding status state
+                final GenericOnOffStatus genericOnOffGetStatus = new GenericOnOffStatus(mContext, configMessage.getMeshNode(), configMessage.getMeshModel(),
+                        configMessage.getAppKeyIndex(), mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnNotificationReceived(genericOnOffGetStatus, pdu);
+                break;
+            case GENERIC_ON_OFF_SET_UNACKNOWLEDGED:
+                //We do nothing here since there is no status involved for unacknowledged messages
+                break;
+            case GENERIC_ON_OFF_SET:
+                //Create the next corresponding status state
+                final GenericOnOffStatus genericOnOffSetStatus = new GenericOnOffStatus(mContext, configMessage.getMeshNode(), configMessage.getMeshModel(),
+                        configMessage.getAppKeyIndex(), mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnNotificationReceived(genericOnOffSetStatus, pdu);
                 break;
             case GENERIC_ON_OFF_STATUS:
-                final GenericOnOffStatus genericOnOffStatus = (GenericOnOffStatus) configMessage;
-                genericOnOffStatus.parseData(pdu);
+                ((GenericOnOffStatus) configMessage).parseData(pdu);
+                break;
+            case CONFIG_NODE_RESET:
+                //Create the next corresponding status state
+                final ConfigNodeResetStatus configNodeResetStatus = new ConfigNodeResetStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                //Switch states
+                switchStateOnNotificationReceived(configNodeResetStatus, pdu);
                 break;
             case CONFIG_NODE_RESET_STATUS:
-                final ConfigNodeResetStatus configNodeResetStatus = (ConfigNodeResetStatus) configMessage;
-                configNodeResetStatus.parseData(pdu);
+                ((ConfigNodeResetStatus) configMessage).parseData(pdu);
                 break;
         }
     }
@@ -178,17 +260,35 @@ class MeshConfigurationHandler {
     /**
      * Switch the current state of the mesh configuration handler
      * <p>
+     * This method will switch the current state to the corresponding next state if the message sent was not a segmented message.
+     * </p>
+     *
+     * @param newState new state that is to be switched to
+     * @return true if the state was switched successfully
+     */
+    private boolean switchStateOnWriteComplete(final ConfigMessage newState) {
+        if (!configMessage.isSegmented()) {
+            Log.v(TAG, "Switching current state " + configMessage.getState().name() + " to " + newState.getState().name());
+            configMessage = newState;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Switch the current state of the mesh configuration handler
+     * <p>
      * This method will switch the current state of the configuration handler based on the corresponding block acknowledgement pdu received.
-     * The block acknowledgement pdu explains if certain segments were lost on flight, based on this pdu we retransmit the messages that were lost on flight.
-     * If there were no segments lost and the message that was sent was an acknowledged message we switch the state to the corresponding message state.
+     * The block acknowledgement pdu explains if certain segments were lost on flight, based on this we retransmit the segments that were lost on flight.
+     * If there were no segments lost and the message that was sent was an acknowledged message, we switch the state to the corresponding message state.
      * </p>
      *
      * @param newState new state that is to be switched to
      * @param pdu      pdu received
      * @return true if the state was switched successfully
      */
-    private boolean switchStates(final ConfigMessage newState, final byte[] pdu) {
-        if (configMessage.isRetransmissionRequired(pdu)) {
+    private boolean switchStateOnNotificationReceived(final ConfigMessage newState, final byte[] pdu) {
+        if (configMessage.isSegmented() && configMessage.isRetransmissionRequired(pdu)) {
             configMessage.executeResend();
             return false;
         } else {
@@ -308,7 +408,7 @@ class MeshConfigurationHandler {
         final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(mContext, meshNode, aszmic, elementAddress, subscriptionAddress, modelIdentifier);
         configModelSubscriptionAdd.setTransportCallbacks(mInternalTransportCallbacks);
         configModelSubscriptionAdd.setConfigurationStatusCallbacks(mStatusCallbacks);
-        configMessage = new ConfigModelSubscriptionStatus(mContext, meshNode, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD, mInternalTransportCallbacks, mStatusCallbacks);
+        configMessage = configModelSubscriptionAdd;//new ConfigModelSubscriptionStatus(mContext, meshNode, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD, mInternalTransportCallbacks, mStatusCallbacks);
         configModelSubscriptionAdd.executeSend();
     }
 
@@ -320,8 +420,8 @@ class MeshConfigurationHandler {
         final ConfigModelSubscriptionDelete configModelSubscriptionDelete = new ConfigModelSubscriptionDelete(mContext, meshNode, aszmic, elementAddress, subscriptionAddress, modelIdentifier);
         configModelSubscriptionDelete.setTransportCallbacks(mInternalTransportCallbacks);
         configModelSubscriptionDelete.setConfigurationStatusCallbacks(mStatusCallbacks);
+        configMessage = configModelSubscriptionDelete;//new ConfigModelSubscriptionStatus(mContext, meshNode, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE, mInternalTransportCallbacks, mStatusCallbacks);
         configModelSubscriptionDelete.executeSend();
-        configMessage = new ConfigModelSubscriptionStatus(mContext, meshNode, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE, mInternalTransportCallbacks, mStatusCallbacks);
     }
 
     /**

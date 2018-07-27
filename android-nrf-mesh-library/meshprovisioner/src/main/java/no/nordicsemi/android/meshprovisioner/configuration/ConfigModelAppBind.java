@@ -112,7 +112,7 @@ public final class ConfigModelAppBind extends ConfigMessage {
         }
 
         final byte[] key = mProvisionedMeshNode.getDeviceKey();
-        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_MODEL_APP_BIND, parameters);
+        accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_MODEL_APP_BIND, parameters);
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 

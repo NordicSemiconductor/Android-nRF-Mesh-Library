@@ -45,11 +45,12 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
 
     private static final String TAG = ConfigMessage.class.getSimpleName();
+
     protected final Context mContext;
     protected final ProvisionedMeshNode mProvisionedMeshNode;
     final MeshTransport mMeshTransport;
     final Map<Integer, byte[]> mPayloads = new HashMap<>();
-    final List<Integer> mRetransmitPayloads = new ArrayList<>();
+    private final List<Integer> mRetransmitPayloads = new ArrayList<>();
     final byte[] mSrc;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
@@ -74,7 +75,7 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
     }
 
     /**
-     * Resends the mesh pdu segments that were lost in flight
+     * Re-sends the mesh pdu segments that were lost in flight
      */
     public final void executeResend() {
         if (!mPayloads.isEmpty() && !mRetransmitPayloads.isEmpty()) {
@@ -133,6 +134,10 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
 
     public int getMessageType() {
         return messageType;
+    }
+
+    public boolean isSegmented() {
+        return mPayloads.size() > 1;
     }
 
     public enum MessageState {
