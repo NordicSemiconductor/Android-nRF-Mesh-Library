@@ -22,60 +22,46 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHolder> {
+public class BindAppKeyAdapter extends RecyclerView.Adapter<BindAppKeyAdapter.ViewHolder> {
 
-    private final ArrayList<byte[]> mAddresses = new ArrayList<>();
+    private final SparseArray<String> appKeys;
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public AddressAdapter(final ModelConfigurationActivity context, final LiveData<MeshModel> meshModelLiveData) {
+    public BindAppKeyAdapter(final Context context, final SparseArray<String> appKeys) {
         this.mContext = context;
-        meshModelLiveData.observe(context, meshModel -> {
-            if(meshModel != null) {
-                final List<byte[]> tempAddresses = meshModel.getSubscriptionAddresses();
-                if (tempAddresses != null) {
-                    mAddresses.clear();
-                    mAddresses.addAll(tempAddresses);
-                    notifyDataSetChanged();
-                }
-            }
-        });
+        this.appKeys = appKeys;
     }
 
-    public void setOnItemClickListener(final AddressAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(final BindAppKeyAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
     @Override
-    public AddressAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.address_item, parent, false);
-        return new AddressAdapter.ViewHolder(layoutView);
+    public BindAppKeyAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.app_key_item, parent, false);
+        return new BindAppKeyAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final AddressAdapter.ViewHolder holder, final int position) {
-        if(mAddresses.size() > 0) {
-            final String address = MeshParserUtils.bytesToHex(mAddresses.get(position), true);
-            holder.address.setText(address);
+    public void onBindViewHolder(final BindAppKeyAdapter.ViewHolder holder, final int position) {
+        if(appKeys.size() > 0) {
+            holder.appKeyId.setText(mContext.getString(R.string.app_key_item , position + 1));
+            final String appKey = appKeys.get(appKeys.keyAt(position));
+            holder.appKey.setText(appKey.toUpperCase());
         }
     }
 
@@ -86,7 +72,7 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return mAddresses.size();
+        return appKeys.size();
     }
 
     public boolean isEmpty() {
@@ -95,20 +81,23 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHold
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final int position, final byte[] address);
+        void onItemClick(final int position, final String appKey);
     }
 
-    public final class ViewHolder extends RemovableViewHolder {
+    final class ViewHolder extends RemovableViewHolder {
 
-        @BindView(R.id.address)
-        TextView address;
+        @BindView(R.id.app_key_id)
+        TextView appKeyId;
+        @BindView(R.id.app_key)
+        TextView appKey;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
             view.findViewById(R.id.removable).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), mAddresses.get(getAdapterPosition()));
+                    final int key = appKeys.keyAt(getAdapterPosition());
+                    mOnItemClickListener.onItemClick(key, appKeys.get(key));
                 }
             });
         }

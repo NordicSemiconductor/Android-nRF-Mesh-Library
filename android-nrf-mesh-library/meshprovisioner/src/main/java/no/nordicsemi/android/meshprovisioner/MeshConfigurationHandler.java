@@ -31,6 +31,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.ConfigCompositionData
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessage;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppStatus;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppUnbind;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelPublicationSet;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionAdd;
@@ -80,7 +81,10 @@ class MeshConfigurationHandler {
                 //Block ack for app key status sent
                 break;
             case CONFIG_MODEL_APP_BIND:
-                configMessage = new ConfigModelAppStatus(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks);
+                configMessage = new ConfigModelAppStatus(mContext, meshNode, configMessage.getState().getState(), mInternalTransportCallbacks, mStatusCallbacks);
+                break;
+            case CONFIG_MODEL_APP_UNBIND:
+                configMessage = new ConfigModelAppStatus(mContext, meshNode, configMessage.getState().getState(), mInternalTransportCallbacks, mStatusCallbacks);
                 break;
             case CONFIG_MODEL_APP_STATUS:
                 break;
@@ -127,10 +131,12 @@ class MeshConfigurationHandler {
                 ((ConfigAppKeyStatus) configMessage).parseData(pdu);
                 break;
             case CONFIG_MODEL_APP_BIND:
-                final ConfigModelAppBind configModelAppBind = ((ConfigModelAppBind) configMessage);
+                /*final ConfigModelAppBind configModelAppBind = ((ConfigModelAppBind) configMessage);
                 configModelAppBind.parseData(pdu);
                 //publication set block ack received, switch to next state.
-                configMessage = new ConfigModelAppStatus(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks);
+                configMessage = new ConfigModelAppStatus(mContext, meshNode, configMessage.getMessageType(), mInternalTransportCallbacks, mStatusCallbacks);*/
+            case CONFIG_MODEL_APP_UNBIND:
+                break;
             case CONFIG_MODEL_APP_STATUS:
                 ((ConfigModelAppStatus) configMessage).parseData(pdu);
                 break;
@@ -181,8 +187,8 @@ class MeshConfigurationHandler {
         final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet(mContext,
                 meshNode, aszmic, mInternalTransportCallbacks, mStatusCallbacks);
         configMessage = compositionDataGet;
-        compositionDataGet.executeSend();
         configMessage = new ConfigCompositionDataStatus(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks);
+        compositionDataGet.executeSend();
     }
 
     /**
@@ -208,6 +214,25 @@ class MeshConfigurationHandler {
     public void bindAppKey(final ProvisionedMeshNode meshNode, final int aszmic,
                            final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
         final ConfigModelAppBind configModelAppBind = new ConfigModelAppBind(mContext, meshNode, aszmic,
+                elementAddress, modelIdentifier, appKeyIndex);
+        configModelAppBind.setTransportCallbacks(mInternalTransportCallbacks);
+        configModelAppBind.setConfigurationStatusCallbacks(mStatusCallbacks);
+        configMessage = configModelAppBind;
+        configModelAppBind.executeSend();
+    }
+
+    /**
+     * Unbinds a previously bound app key from a specified model
+     *
+     * @param meshNode        mesh node containing the model
+     * @param aszmic          application mic size, if 0 uses 32-bit encryption and 64-bit otherwise
+     * @param elementAddress  address of the element containing the model
+     * @param modelIdentifier identifier of the model. This could be 16-bit SIG Model or a 32-bit Vendor model identifier
+     * @param appKeyIndex     application key index
+     */
+    public void unbindAppKey(final ProvisionedMeshNode meshNode, final int aszmic,
+                             final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
+        final ConfigModelAppUnbind configModelAppBind = new ConfigModelAppUnbind(mContext, meshNode, aszmic,
                 elementAddress, modelIdentifier, appKeyIndex);
         configModelAppBind.setTransportCallbacks(mInternalTransportCallbacks);
         configModelAppBind.setConfigurationStatusCallbacks(mStatusCallbacks);
@@ -258,8 +283,8 @@ class MeshConfigurationHandler {
         final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(mContext, meshNode, aszmic, elementAddress, subscriptionAddress, modelIdentifier);
         configModelSubscriptionAdd.setTransportCallbacks(mInternalTransportCallbacks);
         configModelSubscriptionAdd.setConfigurationStatusCallbacks(mStatusCallbacks);
-        configModelSubscriptionAdd.executeSend();
         configMessage = new ConfigModelSubscriptionStatus(mContext, meshNode, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD, mInternalTransportCallbacks, mStatusCallbacks);
+        configModelSubscriptionAdd.executeSend();
     }
 
     /**
@@ -284,11 +309,11 @@ class MeshConfigurationHandler {
      * @param appKeyIndex          index of the app key to encrypt the message with
      */
     public void getGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex) {
-        final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(mContext, node, model, aszmic, address, appKeyIndex);
-        genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
-        genericOnOffSet.setConfigurationStatusCallbacks(mStatusCallbacks);
-        genericOnOffSet.executeSend();
-        configMessage = genericOnOffSet;
+        final GenericOnOffGet genericOnOffGet = new GenericOnOffGet(mContext, node, model, aszmic, address, appKeyIndex);
+        genericOnOffGet.setTransportCallbacks(mInternalTransportCallbacks);
+        genericOnOffGet.setConfigurationStatusCallbacks(mStatusCallbacks);
+        configMessage = genericOnOffGet;
+        genericOnOffGet.executeSend();
     }
 
     /**
@@ -308,8 +333,8 @@ class MeshConfigurationHandler {
         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(mContext, node, model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
         genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
         genericOnOffSet.setConfigurationStatusCallbacks(mStatusCallbacks);
-        genericOnOffSet.executeSend();
         configMessage = genericOnOffSet;
+        genericOnOffSet.executeSend();
     }
 
     /**
@@ -326,11 +351,11 @@ class MeshConfigurationHandler {
      * @param state                on off state
      */
     public void setGenericOnOffUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
-        final GenericOnOffSetUnacknowledged genericOnOffSet = new GenericOnOffSetUnacknowledged(mContext, node, model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
-        genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
-        genericOnOffSet.setConfigurationStatusCallbacks(mStatusCallbacks);
-        genericOnOffSet.executeSend();
-        configMessage = genericOnOffSet;
+        final GenericOnOffSetUnacknowledged genericOnOffSetUnAcked = new GenericOnOffSetUnacknowledged(mContext, node, model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+        genericOnOffSetUnAcked.setTransportCallbacks(mInternalTransportCallbacks);
+        genericOnOffSetUnAcked.setConfigurationStatusCallbacks(mStatusCallbacks);
+        configMessage = genericOnOffSetUnAcked;
+        genericOnOffSetUnAcked.executeSend();
     }
 
 
@@ -340,8 +365,8 @@ class MeshConfigurationHandler {
      * @param provisionedMeshNode mesh node to be reset
      */
     public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
-       final ConfigNodeReset configNodeReset = new ConfigNodeReset(mContext, provisionedMeshNode, false, mInternalTransportCallbacks, mStatusCallbacks);
-       configNodeReset.executeSend();
-       configMessage = configNodeReset;
+        final ConfigNodeReset configNodeReset = new ConfigNodeReset(mContext, provisionedMeshNode, false, mInternalTransportCallbacks, mStatusCallbacks);
+        configMessage = configNodeReset;
+        configNodeReset.executeSend();
     }
 }

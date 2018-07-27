@@ -78,8 +78,12 @@ public class ModelConfigurationViewModel extends ViewModel {
         return mModelConfigurationRepository.getExtendedMeshNode();
     }
 
-    public void bindAppKey(final int appKeyIndex) {
-        mModelConfigurationRepository.bindAppKey(appKeyIndex);
+    public void sendBindAppKey(final int appKeyIndex) {
+        mModelConfigurationRepository.sendBindAppKey(appKeyIndex);
+    }
+
+    public void sendUnbindAppKey(final int appKeyIndex) {
+        mModelConfigurationRepository.sendUnbindAppKey(appKeyIndex);
     }
 
     public LiveData<AppKeyBindStatusLiveData> getAppKeyBindStatusLiveData() {
