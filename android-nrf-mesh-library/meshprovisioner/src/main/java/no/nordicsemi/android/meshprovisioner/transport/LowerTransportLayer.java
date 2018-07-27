@@ -219,9 +219,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(1 + encryptedUpperTransportPDU.length).order(ByteOrder.BIG_ENDIAN);
         lowerTransportBuffer.put(header);
         lowerTransportBuffer.put(encryptedUpperTransportPDU);
-        final byte [] lowerTransportPDU = lowerTransportBuffer.array();
-        Log.v(TAG, "Unsegmented Lower transport access PDU " + MeshParserUtils.bytesToHex(lowerTransportPDU, false));
-        return lowerTransportPDU;
+        return lowerTransportBuffer.array();
     }
 
     /**
@@ -252,9 +250,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
             offset += MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH;
             length = encryptedUpperTransportPDU.length - offset;
 
-            final byte [] lowerTransportPDU = lowerTransportBuffer.array();
-            Log.v(TAG, "Segmented Lower transport access PDU: " + MeshParserUtils.bytesToHex(lowerTransportPDU, false) + " " + segO + " of " + numberOfSegments);
-            lowerTransportPduMap.put(segO, lowerTransportPDU);
+            lowerTransportPduMap.put(segO, lowerTransportBuffer.array());
         }
         return lowerTransportPduMap;
     }
@@ -484,9 +480,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         payloadBuffer.put(pdu, 10, payloadLength);
         segmentedControlMessageMap.put(segO, payloadBuffer.array());
 
-        //Check the message count against the zero-based segN;
-        final int receivedSegmentedMessageCount = segmentedControlMessageMap.size() - 1;
-        if (segN == receivedSegmentedMessageCount) {
+        if (segO == segN) {
             final int upperTransportSequenceNumber = getTransportLayerSequenceNumber(MeshParserUtils.getSequenceNumberFromPDU(pdu), seqZero);
             final byte[] sequenceNumber = MeshParserUtils.getSequenceNumberBytes(upperTransportSequenceNumber);
             final ControlMessage accessMessage = new ControlMessage();

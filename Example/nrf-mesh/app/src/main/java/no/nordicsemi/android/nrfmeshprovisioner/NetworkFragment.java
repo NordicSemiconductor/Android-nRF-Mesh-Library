@@ -29,7 +29,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -67,18 +66,14 @@ public class NetworkFragment extends Fragment implements Injectable, NodeAdapter
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_network, null);
+
         // Configure the recycler view
         final RecyclerView recyclerView = rootView.findViewById(R.id.recycler_view_provisioned_nodes);
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
 
         mViewModel = ViewModelProviders.of(getActivity(), mViewModelFactory).get(SharedViewModel.class);
 
-        boolean isTablet = getResources().getBoolean(R.bool.isTablet);
-        if(isTablet){
-            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2)); //If its a tablet we use a grid layout with 2 columns
-        } else {
-            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        }
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mAdapter = new NodeAdapter(getActivity(), mViewModel.getMeshRepository().getProvisionedNodesLiveData());
         mAdapter.setOnItemClickListener(this);
         recyclerView.setAdapter(mAdapter);

@@ -57,7 +57,6 @@ import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishAddress;
@@ -75,7 +74,7 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_I
 public class ModelConfigurationActivity extends AppCompatActivity implements Injectable,
         DialogFragmentConfigurationStatus.DialogFragmentAppKeyBindStatusListener,
         DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
-        DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener, AddressAdapter.OnItemClickListener, BoundAppKeysAdapter.OnItemClickListener, ItemTouchHelperAdapter {
+        DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener, AddressAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final String TAG = ModelConfigurationActivity.class.getSimpleName();
@@ -83,9 +82,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
-    @BindView(R.id.unbind_hint)
-    TextView mUnbindHint;
-    @BindView(R.id.bound_keys)
+    @BindView(R.id.app_key_index)
     TextView mAppKeyView;
     @BindView(R.id.publish_address)
     TextView mPublishAddressView;
@@ -102,9 +99,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     private Handler mHandler;
     private  ModelConfigurationViewModel mViewModel;
     private List<byte[]> mGroupAddress = new ArrayList<>();
-    private List<Integer> mKeyIndexes = new ArrayList<>();
     private AddressAdapter mAddressAdapter;
-    private BoundAppKeysAdapter mBoundAppkeyAdapter;
     private Button mActionOnOff;
     private Button mActionRead;
 
@@ -125,13 +120,10 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         final String modelName = intent.getStringExtra(EXTRA_DATA_MODEL_NAME);
         mViewModel.setModel(meshNode, elementAddress, modelId);
 
-        // Set up views
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(modelName);
-
-
         final RecyclerView recyclerViewAddresses = findViewById(R.id.recycler_view_addresses);
         recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(this));
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
@@ -141,14 +133,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         recyclerViewAddresses.setAdapter(mAddressAdapter);
         mAddressAdapter.setOnItemClickListener(this);
 
-        final RecyclerView recyclerViewBoundKeys = findViewById(R.id.recycler_view_bound_keys);
-        recyclerViewBoundKeys.setLayoutManager(new LinearLayoutManager(this));
-        final ItemTouchHelper.Callback itemTouchHelperCallbackKeys = new RemovableItemTouchHelperCallback(this);
-        final ItemTouchHelper itemTouchHelperKeys = new ItemTouchHelper(itemTouchHelperCallbackKeys);
-        itemTouchHelperKeys.attachToRecyclerView(recyclerViewBoundKeys);
-        mBoundAppkeyAdapter = new BoundAppKeysAdapter(this, mViewModel.getMeshModel());
-        recyclerViewBoundKeys.setAdapter(mBoundAppkeyAdapter);
-        mBoundAppkeyAdapter.setOnItemClickListener(this);
+        // Set up views
+        mAppKeyView.setText(R.string.none);
 
         findViewById(R.id.action_bind_app_key).setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(ModelConfigurationActivity.this, BindAppKeysActivity.class);
@@ -169,17 +155,11 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
         mViewModel.getMeshModel().observe(this, meshModel -> {
             if(meshModel != null) {
-                final List<Integer> keys = meshModel.getBoundAppKeyIndexes();
-                mKeyIndexes.clear();
-                mKeyIndexes.addAll(keys);
-                if (!keys.isEmpty()) {
-                    mUnbindHint.setVisibility(View.VISIBLE);
-                    mAppKeyView.setVisibility(View.GONE);
-                    recyclerViewBoundKeys.setVisibility(View.VISIBLE);
+                final List<Integer> appKeys = meshModel.getBoundAppKeyIndexes();
+                if (!appKeys.isEmpty()) {
+                    mAppKeyView.setText(getString(R.string.app_keys_bound, appKeys.size()));
                 } else {
-                    mUnbindHint.setVisibility(View.GONE);
-                    mAppKeyView.setVisibility(View.VISIBLE);
-                    recyclerViewBoundKeys.setVisibility(View.GONE);
+                    mAppKeyView.setText(getString(R.string.no_app_keys_bound));
                 }
 
                 final byte[] publishAddress = meshModel.getPublishAddress();
@@ -207,8 +187,15 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 final String statusMessage = ConfigModelAppStatus.parseStatusMessage(this, appKeyBindStatusLiveData.getStatus());
                 DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_appkey_status), statusMessage);
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+            } else {
+                hideProgressBar();
+                final int elementAdd = appKeyBindStatusLiveData.getElementAddress();
+                final int modelIdentifier = appKeyBindStatusLiveData.getModelIdentifier();
+                final Element element = mViewModel.getExtendedMeshNode().getMeshNode().getElements().get(elementAdd);
+                final MeshModel model = element.getMeshModels().get(modelIdentifier);
+                final int boundAppKeySize = model.getBoundAppKeyIndexes().size();
+                mAppKeyView.setText(getString(R.string.app_key_count, boundAppKeySize));
             }
-            hideProgressBar();
         });
 
         mViewModel.getConfigModelPublicationStatusLiveData().observe(this, configModelPublicationStatusLiveData -> {
@@ -217,6 +204,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_publlish_address_status), statusMessage);
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             } else {
+                hideProgressBar();
                 final int elementAdd = configModelPublicationStatusLiveData.getElementAddressInt();
                 final int modelIdentifier = configModelPublicationStatusLiveData.getModelIdentifier();
                 final Element element = mViewModel.getExtendedMeshNode().getMeshNode().getElements().get(elementAdd);
@@ -224,7 +212,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 final byte[] publishAddress = model.getPublishAddress();
                 mPublishAddressView.setText(MeshParserUtils.bytesToHex(publishAddress, true));
             }
-            hideProgressBar();
         });
 
         mViewModel.getConfigModelSubscriptionStatusLiveData().observe(this, configModelSubscriptionStatus -> {
@@ -233,7 +220,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_publlish_address_status), statusMessage);
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
-            hideProgressBar();
         });
 
         addNodeControlsUi();
@@ -258,7 +244,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
                 if(appKey != null){
-                    mViewModel.sendBindAppKey(appKeyIndex);
+                    mViewModel.bindAppKey(appKeyIndex);
                     showProgressbar();
                 }
             }
@@ -324,19 +310,10 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         final int position = viewHolder.getAdapterPosition();
-        if(viewHolder instanceof AddressAdapter.ViewHolder) {
-            if (mAddressAdapter.getItemCount() != 0) {
-                final byte[] address = mGroupAddress.get(position);
-                mViewModel.sendConfigModelSubscriptionDelete(address);
-                showProgressbar();
-            }
-        } else if(viewHolder instanceof BoundAppKeysAdapter.ViewHolder) {
-            if (mBoundAppkeyAdapter.getItemCount() != 0) {
-                final String appKey = mBoundAppkeyAdapter.getAppKey(position);
-                final int keyIndex = getAppKeyIndex(appKey);
-                mViewModel.sendUnbindAppKey(keyIndex);
-                showProgressbar();
-            }
+        if(!mGroupAddress.isEmpty()) {
+            final byte[] address = mGroupAddress.get(position);
+            mViewModel.sendConfigModelSubscriptionDelete(address);
+            showProgressbar();
         }
     }
 
@@ -474,20 +451,5 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 });
             }
         }
-    }
-
-    @Override
-    public void onItemClick(final int position, final String appKey) {
-
-    }
-
-    private Integer getAppKeyIndex(final String appKey){
-        final MeshModel model = mViewModel.getMeshModel().getValue();
-        for(Integer key : model.getBoundAppkeys().keySet()){
-            if(model.getBoundAppkeys().get(key).equals(appKey)){
-                return key;
-            }
-        }
-        return null;
     }
 }

@@ -25,7 +25,6 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
@@ -107,16 +106,6 @@ final class MeshTransport extends NetworkLayer {
         final int sequenceNumber = incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
-        Log.v(TAG, "Src address: " + MeshParserUtils.bytesToHex(src, false));
-        Log.v(TAG, "Dst address: " + MeshParserUtils.bytesToHex(provisionedMeshNode.getUnicastAddress(), false));
-        Log.v(TAG, "Key: " + MeshParserUtils.bytesToHex(key, false));
-        Log.v(TAG, "akf: " + akf);
-        Log.v(TAG, "aid: " + aid);
-        Log.v(TAG, "aszmic: " + aszmic);
-        Log.v(TAG, "Access message opcode: " + accessOpCode);
-        Log.v(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
-
-
         final AccessMessage message = new AccessMessage();
         message.setSrc(src);
         message.setDst(provisionedMeshNode.getUnicastAddress());
@@ -157,15 +146,6 @@ final class MeshTransport extends NetworkLayer {
 
         final int sequenceNumber = incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
-
-        Log.v(TAG, "Src address: " + MeshParserUtils.bytesToHex(src, false));
-        Log.v(TAG, "Dst address: " + MeshParserUtils.bytesToHex(dst, false));
-        Log.v(TAG, "Key: " + MeshParserUtils.bytesToHex(key, false));
-        Log.v(TAG, "akf: " + akf);
-        Log.v(TAG, "aid: " + aid);
-        Log.v(TAG, "aszmic: " + aszmic);
-        Log.v(TAG, "Access message opcode: " + Integer.toHexString(accessOpCode));
-        Log.v(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
 
         final AccessMessage message = new AccessMessage();
         message.setSrc(src);
