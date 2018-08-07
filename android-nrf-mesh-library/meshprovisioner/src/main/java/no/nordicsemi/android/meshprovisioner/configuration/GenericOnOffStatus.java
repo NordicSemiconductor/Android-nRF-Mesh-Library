@@ -64,11 +64,7 @@ public final class GenericOnOffStatus extends ConfigMessage implements UpperTran
         return MessageState.GENERIC_ON_OFF_STATUS;
     }
 
-    public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
-    }
-
-    protected void parseMessage(final byte[] pdu) {
+    public final void parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {

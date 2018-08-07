@@ -106,11 +106,8 @@ public class ConfigAppKeyStatus extends ConfigMessage {
         return MessageState.APP_KEY_STATUS;
     }
 
-    public final void parseData(final byte[] pdu) {
-        parseMessage(pdu);
-    }
 
-    protected void parseMessage(final byte[] pdu) {
+    public final void parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {

@@ -4,15 +4,11 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 import android.content.Context;
 import android.util.Log;
 
-import no.nordicsemi.android.meshprovisioner.InternalMeshManagerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
-import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
-import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 public class ConfigNodeReset extends ConfigMessage {
 

@@ -57,7 +57,7 @@ public final class ConfigNodeResetStatus extends ConfigMessage implements UpperT
         parseMessage(pdu);
     }
 
-    protected void parseMessage(final byte[] pdu) {
+    public final void parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {

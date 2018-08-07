@@ -112,11 +112,7 @@ public class ConfigModelSubscriptionStatus extends ConfigMessage {
         return MessageState.CONFIG_MODEL_SUBSCRIPTION_STATUS;
     }
 
-    public final void parseData(final byte[] pdu) {
-        parseMessage(pdu);
-    }
-
-    protected void parseMessage(final byte[] pdu) {
+    public final void parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
