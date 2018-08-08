@@ -116,7 +116,7 @@ public final class ConfigModelAppStatus extends ConfigMessage {
         return MessageState.CONFIG_MODEL_APP_STATUS;
     }
 
-    public final void parseMessage(final byte[] pdu) {
+    public final boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -166,6 +166,7 @@ public final class ConfigModelAppStatus extends ConfigMessage {
                     mConfigStatusCallbacks.onAppKeyBindStatusReceived(mProvisionedMeshNode, isSuccessful, status,
                             AddressUtils.getUnicastAddressInt(elementAddress), getAppKeyIndexInt(), getModelIdentifierInt());
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    return true;
                 } else {
                     Log.v(TAG, "Unknown pdu received!");
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
@@ -176,6 +177,7 @@ public final class ConfigModelAppStatus extends ConfigMessage {
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
         }
+        return false;
     }
 
     @Override

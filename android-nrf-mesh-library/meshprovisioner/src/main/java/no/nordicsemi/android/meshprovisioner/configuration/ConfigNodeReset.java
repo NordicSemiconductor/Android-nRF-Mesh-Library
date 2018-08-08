@@ -32,11 +32,6 @@ public class ConfigNodeReset extends ConfigMessage {
         return MessageState.CONFIG_NODE_RESET;
     }
 
-    @Override
-    protected void parseMessage(final byte[] pdu) {
-        //Do nothing here
-    }
-
     /**
      * Creates the access message to be sent to the node
      */

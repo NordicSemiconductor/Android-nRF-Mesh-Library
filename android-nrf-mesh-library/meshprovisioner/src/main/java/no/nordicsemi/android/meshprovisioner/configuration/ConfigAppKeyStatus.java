@@ -107,7 +107,7 @@ public class ConfigAppKeyStatus extends ConfigMessage {
     }
 
 
-    public final void parseMessage(final byte[] pdu) {
+    public final boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -129,6 +129,7 @@ public class ConfigAppKeyStatus extends ConfigMessage {
                             ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort(),
                             ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort());
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    return true;
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
@@ -136,6 +137,7 @@ public class ConfigAppKeyStatus extends ConfigMessage {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         }
+        return false;
     }
 
     private void parseConfigAppKeyStatus(final byte[] accessPayload, final int offset) {

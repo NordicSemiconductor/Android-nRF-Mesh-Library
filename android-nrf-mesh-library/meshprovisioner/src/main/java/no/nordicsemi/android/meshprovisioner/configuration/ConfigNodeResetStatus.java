@@ -57,7 +57,7 @@ public final class ConfigNodeResetStatus extends ConfigMessage implements UpperT
         parseMessage(pdu);
     }
 
-    public final void parseMessage(final byte[] pdu) {
+    public final boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -76,6 +76,7 @@ public final class ConfigNodeResetStatus extends ConfigMessage implements UpperT
                     Log.v(TAG, "Received node reset status");
                     mInternalTransportCallbacks.onMeshNodeReset(mProvisionedMeshNode);
                     mConfigStatusCallbacks.onMeshNodeResetStatusReceived(mProvisionedMeshNode);
+                    return true;
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
@@ -85,6 +86,7 @@ public final class ConfigNodeResetStatus extends ConfigMessage implements UpperT
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
         }
+        return false;
     }
 
     @Override

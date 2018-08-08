@@ -52,11 +52,6 @@ public class GenericOnOffSet extends ConfigMessage implements LowerTransportLaye
         return MessageState.GENERIC_ON_OFF_SET;
     }
 
-    @Override
-    protected void parseMessage(final byte[] pdu) {
-        //Do nothing here
-    }
-
     public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
         this.mInternalTransportCallbacks = callbacks;
     }

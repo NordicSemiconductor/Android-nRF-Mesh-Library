@@ -108,19 +108,6 @@ public class ConfigAppKeyAdd extends ConfigMessage {
         }
     }
 
-    protected void parseMessage(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-            } else {
-                Log.v(TAG, "Control message received");
-                parseControlMessage((ControlMessage) message, mPayloads.size());
-            }
-        }
-    }
-
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);

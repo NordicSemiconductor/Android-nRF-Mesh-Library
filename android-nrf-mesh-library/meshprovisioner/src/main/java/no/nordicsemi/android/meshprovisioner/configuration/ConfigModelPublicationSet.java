@@ -151,20 +151,6 @@ public class ConfigModelPublicationSet extends ConfigMessage {
         parseMessage(pdu);
     }
 
-    protected void parseMessage(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-            } else {
-                parseControlMessage((ControlMessage) message, mPayloads.size());
-            }
-        } else {
-            Log.v(TAG, "Message reassembly may not be complete yet");
-        }
-    }
-
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);

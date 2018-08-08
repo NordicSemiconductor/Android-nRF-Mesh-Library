@@ -96,7 +96,9 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
      *
      * @param pdu mesh pdu to be parsed
      */
-    protected abstract void parseMessage(final byte[] pdu);
+    protected boolean parseMessage(final byte[] pdu){
+        return false;
+    }
 
     /**
      * Parses control message and returns the underlying configuration message

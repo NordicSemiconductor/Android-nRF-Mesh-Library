@@ -64,7 +64,7 @@ public final class GenericOnOffStatus extends ConfigMessage implements UpperTran
         return MessageState.GENERIC_ON_OFF_STATUS;
     }
 
-    public final void parseMessage(final byte[] pdu) {
+    public final boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -94,6 +94,7 @@ public final class GenericOnOffStatus extends ConfigMessage implements UpperTran
 
                     mConfigStatusCallbacks.onGenericOnOffStatusReceived(mProvisionedMeshNode, mPresentOn, mTargetOn, mRemainingTime);
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    return true;
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
@@ -103,6 +104,7 @@ public final class GenericOnOffStatus extends ConfigMessage implements UpperTran
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
         }
+        return false;
     }
 
     @Override

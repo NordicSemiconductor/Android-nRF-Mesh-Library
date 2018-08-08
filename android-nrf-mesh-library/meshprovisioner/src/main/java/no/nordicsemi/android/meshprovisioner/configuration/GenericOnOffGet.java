@@ -34,11 +34,6 @@ public class GenericOnOffGet extends ConfigMessage {
         return MessageState.GENERIC_ON_OFF_GET;
     }
 
-    @Override
-    protected void parseMessage(final byte[] pdu) {
-        //Do nothing here
-    }
-
     public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
         this.mInternalTransportCallbacks = callbacks;
     }

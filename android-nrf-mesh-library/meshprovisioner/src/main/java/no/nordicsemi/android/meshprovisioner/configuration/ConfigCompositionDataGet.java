@@ -51,12 +51,6 @@ public class ConfigCompositionDataGet extends ConfigMessage {
         return MessageState.COMPOSITION_DATA_GET;
     }
 
-    @Override
-    protected void parseMessage(final byte[] pdu) {
-        //Do nothing here
-    }
-
-
     /**
      * Creates the access message to be sent to the node
      */

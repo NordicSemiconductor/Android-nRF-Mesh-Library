@@ -52,11 +52,6 @@ public class GenericOnOffSetUnacknowledged extends ConfigMessage {
         return MessageState.GENERIC_ON_OFF_SET_UNACKNOWLEDGED;
     }
 
-    @Override
-    protected void parseMessage(final byte[] pdu) {
-        //Do nothing here
-    }
-
     public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
         this.mInternalTransportCallbacks = callbacks;
     }

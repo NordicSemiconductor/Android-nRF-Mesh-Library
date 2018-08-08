@@ -116,7 +116,7 @@ public class ConfigModelPublicationStatus extends ConfigMessage {
         return MessageState.CONFIG_MODEL_PUBLICATION_STATUS;
     }
 
-    public final void parseMessage(final byte[] pdu) {
+    public final boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -168,6 +168,7 @@ public class ConfigModelPublicationStatus extends ConfigMessage {
                     }
                     mConfigStatusCallbacks.onPublicationStatusReceived(mProvisionedMeshNode, isSuccessful, status, elementAddress, publishAddress, getModelIdentifierInt());
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    return true;
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
@@ -177,6 +178,7 @@ public class ConfigModelPublicationStatus extends ConfigMessage {
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
         }
+        return false;
     }
 
     @Override

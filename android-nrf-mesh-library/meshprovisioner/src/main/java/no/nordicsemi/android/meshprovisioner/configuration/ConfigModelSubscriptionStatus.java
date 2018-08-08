@@ -112,7 +112,7 @@ public class ConfigModelSubscriptionStatus extends ConfigMessage {
         return MessageState.CONFIG_MODEL_SUBSCRIPTION_STATUS;
     }
 
-    public final void parseMessage(final byte[] pdu) {
+    public final boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -156,6 +156,7 @@ public class ConfigModelSubscriptionStatus extends ConfigMessage {
                     }
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
                     mConfigStatusCallbacks.onSubscriptionStatusReceived(mProvisionedMeshNode, isSuccessful, status, elementAddress, mSubscriptionAddress, getModelIdentifierInt());
+                    return true;
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
@@ -165,6 +166,7 @@ public class ConfigModelSubscriptionStatus extends ConfigMessage {
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
         }
+        return false;
     }
 
     @Override

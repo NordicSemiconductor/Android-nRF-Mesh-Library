@@ -75,7 +75,7 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
         return MessageState.COMPOSITION_DATA_STATUS;
     }
 
-    public final void parseMessage(final byte[] pdu) {
+    public final boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -88,6 +88,7 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
                     mProvisionedMeshNode.setCompositionData(this);
                     mConfigStatusCallbacks.onCompositionDataStatusReceived(mProvisionedMeshNode);
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    return true;
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
@@ -95,6 +96,7 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         }
+        return false;
     }
 
     /**
