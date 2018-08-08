@@ -44,7 +44,7 @@ import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 
-public final class ConfigCompositionDataStatus extends ConfigMessage {
+public final class ConfigCompositionDataStatus extends ConfigMessageState {
 
     private static final String TAG = ConfigCompositionDataStatus.class.getSimpleName();
 
@@ -72,7 +72,7 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.COMPOSITION_DATA_STATUS;
+        return MessageState.COMPOSITION_DATA_STATUS_STATE;
     }
 
     public final boolean parseMessage(final byte[] pdu) {
@@ -95,6 +95,8 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
             }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
         }
         return false;
     }

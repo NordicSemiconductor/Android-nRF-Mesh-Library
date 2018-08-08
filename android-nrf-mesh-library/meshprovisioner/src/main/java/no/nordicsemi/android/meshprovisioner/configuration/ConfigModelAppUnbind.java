@@ -40,7 +40,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
  * This class handles binding application keys to a specific model where the mode could be,
  * a 16-bit Bluetooth SigModel or a 32-bit Vendor Model
  */
-public final class ConfigModelAppUnbind extends ConfigMessage {
+public final class ConfigModelAppUnbind extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppUnbind.class.getSimpleName();
 
@@ -78,7 +78,24 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_MODEL_APP_UNBIND;
+        return MessageState.CONFIG_MODEL_APP_UNBIND_STATE;
+    }
+
+    @Override
+    protected boolean parseMessage(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
+            }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+        }
+        return false;
     }
 
     /**
@@ -116,21 +133,10 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 
-    /**
-     * Starts sending the mesh pdu
-     */
-    public void executeSend() {
-        if (!mPayloads.isEmpty()) {
-            Log.v(TAG, "Sending config app unbind");
-            for (int i = 0; i < mPayloads.size(); i++) {
-                if (mInternalTransportCallbacks != null) {
-                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-                }
-            }
-
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onAppKeyBindSent(mProvisionedMeshNode);
-        }
+    @Override
+    public final void executeSend() {
+        Log.v(TAG, "Sending config app unbind");
+        super.executeSend();
     }
 
     public void parseData(final byte[] pdu) {

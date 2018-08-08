@@ -37,7 +37,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class GenericOnOffStatus extends ConfigMessage implements UpperTransportLayerCallbacks{
+public final class GenericOnOffStatus extends ConfigMessageState implements UpperTransportLayerCallbacks{
 
     private static final String TAG = GenericOnOffStatus.class.getSimpleName();
     private static final int GENERIC_ON_OFF_STATE_ON = 0x01;
@@ -61,7 +61,7 @@ public final class GenericOnOffStatus extends ConfigMessage implements UpperTran
 
     @Override
     public MessageState getState() {
-        return MessageState.GENERIC_ON_OFF_STATUS;
+        return MessageState.GENERIC_ON_OFF_STATUS_STATE;
     }
 
     public final boolean parseMessage(final byte[] pdu) {

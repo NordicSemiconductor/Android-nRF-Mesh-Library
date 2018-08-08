@@ -39,7 +39,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 import static no.nordicsemi.android.meshprovisioner.configuration.ConfigAppKeyStatus.AppKeyStatuses.fromStatusCode;
 
-public class ConfigAppKeyStatus extends ConfigMessage {
+public class ConfigAppKeyStatus extends ConfigMessageState {
 
     private static final String TAG = ConfigAppKeyStatus.class.getSimpleName();
     private String appKey;
@@ -103,7 +103,7 @@ public class ConfigAppKeyStatus extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.APP_KEY_STATUS;
+        return MessageState.APP_KEY_STATUS_STATE;
     }
 
 
@@ -136,6 +136,8 @@ public class ConfigAppKeyStatus extends ConfigMessage {
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
             }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
         }
         return false;
     }

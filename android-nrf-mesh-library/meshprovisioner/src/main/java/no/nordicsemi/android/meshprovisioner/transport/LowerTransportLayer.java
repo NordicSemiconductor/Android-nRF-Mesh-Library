@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.os.CountDownTimer;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
@@ -29,6 +30,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
@@ -59,6 +65,12 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
 
     private boolean mSegmentedControlAcknowledgementTimerStarted;
     private Integer mSegmentedControlBlockAck;
+    private Runnable mBlockAcknowledgementRunnable;
+    private boolean mBlockAckSent;
+
+    private final ScheduledExecutorService mScheduler = Executors.newScheduledThreadPool(0);
+    private ScheduledFuture<?> mScheduledBlockAck;
+    private long mDuration;
 
     protected void setLowerTransportLayerCallbacks(final LowerTransportLayerCallbacks callbacks) {
         mLowerTransportLayerCallbacks = callbacks;
@@ -402,8 +414,8 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         final byte[] src = MeshParserUtils.getDstAddress(pdu); //Destination of the received packet would be the source for the ack
         final byte[] dst = MeshParserUtils.getSrcAddress(pdu); //Source of the received packet would be the destination for the ack
 
-        Log.v(TAG, "SEGO: " + segO);
-        Log.v(TAG, "SEGN: " + segN);
+        Log.v(TAG, "SEG O: " + segO);
+        Log.v(TAG, "SEG N: " + segN);
 
         //Start the timer irrespective of which segment was received first
         initSegmentedAccessAcknowledgementTimer(seqZero, ttl, src, dst);
@@ -418,6 +430,17 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         //Check the message count against the zero-based segN;
         final int receivedSegmentedMessageCount = segmentedAccessMessageMap.size() - 1;
         if (segN == receivedSegmentedMessageCount) {
+            Log.v(TAG, "All segments received" );
+            if(mDuration > System.currentTimeMillis() && !mBlockAckSent){
+                Log.v(TAG, "Scheduled block ack is not sent yet, therefore sending an immediate block ack");
+                mHandler.removeCallbacksAndMessages(null);
+                Log.v(TAG, "Removing callbacks");
+                sendBlockAck(seqZero, ttl, src, dst);
+                Log.v(TAG, "Block ack sent");
+
+                //mHandler.post(mBlockAcknowledgementRunnable);
+                //mBlockAckSent = false;
+            }
             final int upperTransportSequenceNumber = getTransportLayerSequenceNumber(MeshParserUtils.getSequenceNumberFromPDU(pdu), seqZero);
             final byte[] sequenceNumber = MeshParserUtils.getSequenceNumberBytes(upperTransportSequenceNumber);
             final AccessMessage accessMessage = new AccessMessage();
@@ -481,6 +504,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         //Start the timer irrespective of which segment was received first
         initSegmentedControlAcknowledgementTimer(seqZero, ttl, src, dst);
         mSegmentedControlBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedControlBlockAck, segO);
+        Log.v(TAG, "Block acknowledgement value for " + mSegmentedControlBlockAck + " Seg O " + segO);
 
         final int payloadLength = pdu.length - 10;
 
@@ -518,7 +542,9 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
     private void initSegmentedAccessAcknowledgementTimer(final int seqZero, final int ttl, final byte[] src, final byte[] dst) {
         if (!mSegmentedAccessAcknowledgementTimerStarted) {
             final int duration = (150 + (50 * ttl));
+            mDuration = System.currentTimeMillis() + duration;
             mHandler.postDelayed(() -> {
+                Log.v(TAG, "Executing send block ack");
                 final int blockAck = mSegmentedAccessBlockAck;
                 final byte[] upperTransportControlPdu = createAcknowledgementPayload(seqZero, blockAck);
                 Log.v(TAG, "Block acknowledgement payload: " + MeshParserUtils.bytesToHex(upperTransportControlPdu, false));
@@ -533,12 +559,34 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
                 final int sequenceNumber = incrementSequenceNumber();
                 final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
                 controlMessage.setSequenceNumber(sequenceNum);
+                mBlockAckSent = true;
                 mLowerTransportLayerCallbacks.sendSegmentAcknowledgementMessage(controlMessage);
                 mSegmentedAccessAcknowledgementTimerStarted = false;
                 mSegmentedAccessBlockAck = null;
             }, duration);
             mSegmentedAccessAcknowledgementTimerStarted = true;
         }
+    }
+
+    private void sendBlockAck(final int seqZero, final int ttl, final byte[] src, final byte[] dst){
+        final int blockAck = mSegmentedAccessBlockAck;
+        final byte[] upperTransportControlPdu = createAcknowledgementPayload(seqZero, blockAck);
+        Log.v(TAG, "Block acknowledgement payload: " + MeshParserUtils.bytesToHex(upperTransportControlPdu, false));
+        final ControlMessage controlMessage = new ControlMessage();
+        controlMessage.setOpCode(TransportLayerOpCodes.SAR_ACK_OPCODE);
+        controlMessage.setTransportControlPdu(upperTransportControlPdu);
+        controlMessage.setTtl(ttl);
+        controlMessage.setPduType(NETWORK_PDU);
+        controlMessage.setSrc(src);
+        controlMessage.setDst(dst);
+        controlMessage.setIvIndex(mMeshNode.getIvIndex());
+        final int sequenceNumber = incrementSequenceNumber();
+        final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
+        controlMessage.setSequenceNumber(sequenceNum);
+        mBlockAckSent = true;
+        mLowerTransportLayerCallbacks.sendSegmentAcknowledgementMessage(controlMessage);
+        mSegmentedAccessAcknowledgementTimerStarted = false;
+        mSegmentedAccessBlockAck = null;
     }
 
     /**
@@ -549,6 +597,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      */
     private void initSegmentedControlAcknowledgementTimer(final int seqZero, final int ttl, final byte[] src, final byte[] dst) {
         if (!mSegmentedControlAcknowledgementTimerStarted) {
+            mSegmentedControlAcknowledgementTimerStarted = true;
             final int duration = (150 + (50 * ttl));
             mHandler.postDelayed(() -> {
                 final int blockAck = mSegmentedControlBlockAck;
@@ -569,7 +618,6 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
                 mSegmentedControlAcknowledgementTimerStarted = false;
                 mSegmentedAccessBlockAck = null;
             }, duration);
-            mSegmentedControlAcknowledgementTimerStarted = true;
         }
     }
 

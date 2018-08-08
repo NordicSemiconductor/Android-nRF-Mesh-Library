@@ -1,25 +1,3 @@
-/*
- * Copyright (c) 2018, Nordic Semiconductor
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package no.nordicsemi.android.meshprovisioner.configuration;
 
 import android.content.Context;
@@ -42,9 +20,17 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
+/**
+ * This generic class handles the mesh messages received or sent.
+ * <p>
+ *     This class handles sending, resending and parsing mesh messages. Each message sent by the library has its own state.
+ *     {@link ConfigMessageState} and {@link GenericMessageState} extends this class based on the type of the message.
+ *     Currently the library supports basic Configuration and Generic Messages.
+ * </p>
+ */
+public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
-    private static final String TAG = ConfigMessage.class.getSimpleName();
+    private static final String TAG = MeshMessageState.class.getSimpleName();
 
     protected final Context mContext;
     protected final ProvisionedMeshNode mProvisionedMeshNode;
@@ -53,13 +39,13 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
     private final List<Integer> mRetransmitPayloads = new ArrayList<>();
     final byte[] mSrc;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
-    MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
+    protected MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
     protected MeshModel mMeshModel;
     protected int mAppKeyIndex;
     int messageType;
     protected Message accessMessage;
 
-    public ConfigMessage(final Context context, final ProvisionedMeshNode provisionedMeshNode) {
+    public MeshMessageState(final Context context, final ProvisionedMeshNode provisionedMeshNode) {
         this.mContext = context;
         this.mProvisionedMeshNode = provisionedMeshNode;
         this.mSrc = mProvisionedMeshNode.getConfigurationSrc();
@@ -75,9 +61,23 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
     }
 
     /**
+     * Starts sending the mesh pdu
+     */
+    public void executeSend() {
+        if (!mPayloads.isEmpty()) {
+            for (int i = 0; i < mPayloads.size(); i++) {
+                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+            }
+
+            if (mConfigStatusCallbacks != null)
+                mConfigStatusCallbacks.onGetCompositionDataSent(mProvisionedMeshNode);
+        }
+    }
+
+    /**
      * Re-sends the mesh pdu segments that were lost in flight
      */
-    public final void executeResend() {
+    public void executeResend() {
         if (!mPayloads.isEmpty() && !mRetransmitPayloads.isEmpty()) {
             for (int i = 0; i < mRetransmitPayloads.size(); i++) {
                 final int segO = mRetransmitPayloads.get(i);
@@ -144,26 +144,26 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
 
     public enum MessageState {
         //Configuration message states
-        COMPOSITION_DATA_GET(ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_GET),
-        COMPOSITION_DATA_STATUS(ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS),
-        APP_KEY_ADD(ConfigMessageOpCodes.CONFIG_APPKEY_ADD),
-        APP_KEY_STATUS(ConfigMessageOpCodes.CONFIG_APPKEY_STATUS),
-        CONFIG_MODEL_APP_BIND(ConfigMessageOpCodes.CONFIG_MODEL_APP_BIND),
-        CONFIG_MODEL_APP_UNBIND(ConfigMessageOpCodes.CONFIG_MODEL_APP_UNBIND),
-        CONFIG_MODEL_APP_STATUS(ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS),
-        CONFIG_MODEL_PUBLICATION_SET(ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_SET),
-        CONFIG_MODEL_PUBLICATION_STATUS(ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS),
-        CONFIG_MODEL_SUBSCRIPTION_ADD(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD),
-        CONFIG_MODEL_SUBSCRIPTION_DELETE(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE),
-        CONFIG_MODEL_SUBSCRIPTION_STATUS(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_STATUS),
-        CONFIG_NODE_RESET(ConfigMessageOpCodes.CONFIG_NODE_RESET),
-        CONFIG_NODE_RESET_STATUS(ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS),
+        COMPOSITION_DATA_GET_STATE(ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_GET),
+        COMPOSITION_DATA_STATUS_STATE(ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS),
+        APP_KEY_ADD_STATE(ConfigMessageOpCodes.CONFIG_APPKEY_ADD),
+        APP_KEY_STATUS_STATE(ConfigMessageOpCodes.CONFIG_APPKEY_STATUS),
+        CONFIG_MODEL_APP_BIND_STATE(ConfigMessageOpCodes.CONFIG_MODEL_APP_BIND),
+        CONFIG_MODEL_APP_UNBIND_STATE(ConfigMessageOpCodes.CONFIG_MODEL_APP_UNBIND),
+        CONFIG_MODEL_APP_STATUS_STATE(ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS),
+        CONFIG_MODEL_PUBLICATION_SET_STATE(ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_SET),
+        CONFIG_MODEL_PUBLICATION_STATUS_STATE(ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS),
+        CONFIG_MODEL_SUBSCRIPTION_ADD_STATE(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD),
+        CONFIG_MODEL_SUBSCRIPTION_DELETE_STATE(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE),
+        CONFIG_MODEL_SUBSCRIPTION_STATUS_STATE(ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_STATUS),
+        CONFIG_NODE_RESET_STATE(ConfigMessageOpCodes.CONFIG_NODE_RESET),
+        CONFIG_NODE_RESET_STATUS_STATE(ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS),
 
         //Application message states
-        GENERIC_ON_OFF_GET(ApplicationMessageOpCodes.GENERIC_ON_OFF_GET),
-        GENERIC_ON_OFF_SET(ApplicationMessageOpCodes.GENERIC_ON_OFF_SET),
-        GENERIC_ON_OFF_SET_UNACKNOWLEDGED(ApplicationMessageOpCodes.GENERIC_ON_OFF_SET_UNACKNOWLEDGED),
-        GENERIC_ON_OFF_STATUS(ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS);
+        GENERIC_ON_OFF_GET_STATE(ApplicationMessageOpCodes.GENERIC_ON_OFF_GET),
+        GENERIC_ON_OFF_SET_STATE(ApplicationMessageOpCodes.GENERIC_ON_OFF_SET),
+        GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE(ApplicationMessageOpCodes.GENERIC_ON_OFF_SET_UNACKNOWLEDGED),
+        GENERIC_ON_OFF_STATUS_STATE(ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS);
 
         private int state;
 

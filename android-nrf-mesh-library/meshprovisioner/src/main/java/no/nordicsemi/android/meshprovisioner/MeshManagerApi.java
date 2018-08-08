@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessage;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessageState;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.SequenceNumber;
@@ -149,7 +149,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         mMeshConfigurationHandler.setConfigurationCallbacks(callbacks);
     }
 
-    public ConfigMessage.MessageState getConfigurationState() {
+    public ConfigMessageState.MessageState getConfigurationState() {
         return mMeshConfigurationHandler.getConfigurationState();
     }
 

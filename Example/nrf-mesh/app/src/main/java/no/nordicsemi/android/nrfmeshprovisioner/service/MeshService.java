@@ -573,6 +573,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
         if (mShouldAddAppKeyBeAdded) {
+            mShouldAddAppKeyBeAdded = false; //set it to false once the message is set on the handler
             //We send app key add after composition is complete. Adding a delay so that we don't send anything before the acknowledgement is sent out.
             mHandler.postDelayed(() -> {
                 final int appKeyIndex = mAppKeyIndex;
@@ -580,7 +581,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
                 mMeshManagerApi.addAppKey(node, appKeyIndex, appKey);
                 mAppKeyIndex = 0;
                 mAppKey = null;
-                mShouldAddAppKeyBeAdded = false; //set it to false once the message is sent
             }, 1500);
         }
     }

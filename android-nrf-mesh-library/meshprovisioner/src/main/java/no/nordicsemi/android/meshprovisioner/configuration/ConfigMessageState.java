@@ -20,62 +20,22 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.meshprovisioner.messages;
+package no.nordicsemi.android.meshprovisioner.configuration;
 
-import java.util.HashMap;
-import java.util.Map;
+import android.content.Context;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessageState;
+public abstract class ConfigMessageState extends MeshMessageState {
 
-public class AccessMessage extends Message {
+    private static final String TAG = ConfigMessageState.class.getSimpleName();
 
-    private byte[] accessPdu;
-    private byte[] transportPdu;
-    private ConfigMessageState configMessage;
-
-    public AccessMessage() {
-        this.ctl = 0;
+    public ConfigMessageState(final Context context, final ProvisionedMeshNode provisionedMeshNode) {
+        super(context, provisionedMeshNode);
     }
+
+    public abstract MessageState getState();
 
     @Override
-    public Map<Integer, byte[]> getNetworkPdu() {
-        return networkPdu;
-    }
-
-    @Override
-    public void setNetworkPdu(final HashMap<Integer, byte[]> pdu) {
-        networkPdu = pdu;
-    }
-
-    public byte[] getAccessPdu() {
-        return accessPdu;
-    }
-
-    public void setAccessPdu(final byte[] accessPdu) {
-        this.accessPdu = accessPdu;
-    }
-
-    public byte[] getUpperTransportPdu() {
-        return transportPdu;
-    }
-
-    public void setUpperTransportPdu(final byte[] transportPdu) {
-        this.transportPdu = transportPdu;
-    }
-
-    public HashMap<Integer, byte[]> getLowerTransportAccessPdu() {
-        return super.getLowerTransportAccessPdu();
-    }
-
-    public void setLowerTransportAccessPdu(final HashMap<Integer, byte[]> lowerTransportAccessPdu) {
-        super.setLowerTransportAccessPdu(lowerTransportAccessPdu);
-    }
-
-    public ConfigMessageState getConfigMessage() {
-        return configMessage;
-    }
-
-    public void setConfigMessage(final ConfigMessageState configMessage) {
-        this.configMessage = configMessage;
+    public void executeResend() {
+        super.executeResend();
     }
 }

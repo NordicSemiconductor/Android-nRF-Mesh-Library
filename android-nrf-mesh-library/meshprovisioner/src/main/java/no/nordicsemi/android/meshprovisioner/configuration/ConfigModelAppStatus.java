@@ -41,7 +41,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 import static no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppStatus.AppKeyBindStatuses.fromStatusCode;
 
-public final class ConfigModelAppStatus extends ConfigMessage {
+public final class ConfigModelAppStatus extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppStatus.class.getSimpleName();
     private static final int CONFIG_MODEL_APP_BIND_STATUS_SIG_MODEL = 9;
@@ -113,7 +113,7 @@ public final class ConfigModelAppStatus extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_MODEL_APP_STATUS;
+        return MessageState.CONFIG_MODEL_APP_STATUS_STATE;
     }
 
     public final boolean parseMessage(final byte[] pdu) {

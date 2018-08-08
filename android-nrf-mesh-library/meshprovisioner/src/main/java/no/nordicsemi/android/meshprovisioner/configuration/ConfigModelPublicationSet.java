@@ -37,7 +37,7 @@ import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public class ConfigModelPublicationSet extends ConfigMessage {
+public class ConfigModelPublicationSet extends ConfigMessageState {
 
     private static final String TAG = ConfigModelPublicationSet.class.getSimpleName();
 
@@ -75,7 +75,24 @@ public class ConfigModelPublicationSet extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_MODEL_PUBLICATION_SET;
+        return MessageState.CONFIG_MODEL_PUBLICATION_SET_STATE;
+    }
+
+    @Override
+    protected boolean parseMessage(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
+            }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+        }
+        return false;
     }
 
     /**
@@ -130,21 +147,10 @@ public class ConfigModelPublicationSet extends ConfigMessage {
         mPayloads.putAll(mAccessMessage.getNetworkPdu());
     }
 
-    /**
-     * Starts sending the mesh pdu
-     */
-    public void executeSend() {
-        if (!mPayloads.isEmpty()) {
-            Log.v(TAG, "Sending config model publication set");
-            for (int i = 0; i < mPayloads.size(); i++) {
-                if (mInternalTransportCallbacks != null) {
-                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-                }
-            }
-
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onPublicationSetSent(mProvisionedMeshNode);
-        }
+    @Override
+    public final void executeSend() {
+        Log.v(TAG, "Sending config model publication set");
+        super.executeSend();
     }
 
     public void parseData(final byte[] pdu) {

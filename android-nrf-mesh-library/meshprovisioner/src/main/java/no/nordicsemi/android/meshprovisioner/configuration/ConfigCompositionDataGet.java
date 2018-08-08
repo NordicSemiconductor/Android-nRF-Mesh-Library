@@ -27,10 +27,13 @@ import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
+import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public class ConfigCompositionDataGet extends ConfigMessage {
+public class ConfigCompositionDataGet extends ConfigMessageState {
 
     private static final String TAG = ConfigCompositionDataGet.class.getSimpleName();
     private int mAszmic;
@@ -48,7 +51,24 @@ public class ConfigCompositionDataGet extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.COMPOSITION_DATA_GET;
+        return MessageState.COMPOSITION_DATA_GET_STATE;
+    }
+
+    @Override
+    protected boolean parseMessage(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
+            }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+        }
+        return false;
     }
 
     /**
@@ -62,19 +82,10 @@ public class ConfigCompositionDataGet extends ConfigMessage {
 
     }
 
-    /**
-     * Starts sending the mesh pdu
-     */
-    public void executeSend() {
+    @Override
+    public final void executeSend() {
         Log.v(TAG, "Sending composition data get");
-        if (!mPayloads.isEmpty()) {
-            for (int i = 0; i < mPayloads.size(); i++) {
-                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-            }
-
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onGetCompositionDataSent(mProvisionedMeshNode);
-        }
+        super.executeSend();
     }
 
     @Override

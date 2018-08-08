@@ -6,11 +6,13 @@ import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
+import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public class ConfigNodeReset extends ConfigMessage {
+public class ConfigNodeReset extends ConfigMessageState {
 
 
     private static final String TAG = ConfigNodeReset.class.getSimpleName();
@@ -29,7 +31,24 @@ public class ConfigNodeReset extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_NODE_RESET;
+        return MessageState.CONFIG_NODE_RESET_STATE;
+    }
+
+    @Override
+    protected boolean parseMessage(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
+            }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+        }
+        return false;
     }
 
     /**
@@ -44,21 +63,10 @@ public class ConfigNodeReset extends ConfigMessage {
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 
-    /**
-     * Starts sending the mesh pdu
-     */
-    public void executeSend() {
-        if (!mPayloads.isEmpty()) {
-            Log.v(TAG, "Sending config node reset");
-            for (int i = 0; i < mPayloads.size(); i++) {
-                if (mInternalTransportCallbacks != null) {
-                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-                }
-            }
-
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onMeshNodeResetSent(mProvisionedMeshNode);
-        }
+    @Override
+    public final void executeSend() {
+        Log.v(TAG, "Sending config node reset");
+        super.executeSend();
     }
 
     @Override

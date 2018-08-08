@@ -34,7 +34,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class ConfigNodeResetStatus extends ConfigMessage implements UpperTransportLayerCallbacks{
+public final class ConfigNodeResetStatus extends ConfigMessageState implements UpperTransportLayerCallbacks{
 
     private static final String TAG = ConfigNodeResetStatus.class.getSimpleName();
 
@@ -50,7 +50,7 @@ public final class ConfigNodeResetStatus extends ConfigMessage implements UpperT
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_NODE_RESET_STATUS;
+        return MessageState.CONFIG_NODE_RESET_STATUS_STATE;
     }
 
     public void parseData(final byte[] pdu) {

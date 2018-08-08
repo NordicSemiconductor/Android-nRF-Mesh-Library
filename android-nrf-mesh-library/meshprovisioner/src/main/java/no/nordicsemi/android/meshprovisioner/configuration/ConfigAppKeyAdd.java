@@ -39,7 +39,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * This class handles adding a application keys to a specific a mesh node.
  */
-public class ConfigAppKeyAdd extends ConfigMessage {
+public class ConfigAppKeyAdd extends ConfigMessageState {
 
     private final String TAG = ConfigAppKeyAdd.class.getSimpleName();
 
@@ -66,9 +66,25 @@ public class ConfigAppKeyAdd extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.APP_KEY_ADD;
+        return MessageState.APP_KEY_ADD_STATE;
     }
 
+    @Override
+    protected boolean parseMessage(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
+            }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+        }
+        return false;
+    }
 
     /**
      * Creates the access message to be sent to the node
@@ -93,19 +109,10 @@ public class ConfigAppKeyAdd extends ConfigMessage {
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 
-    /**
-     * Starts sending the mesh pdu
-     */
-    public void executeSend() {
-        if (!mPayloads.isEmpty()) {
-            Log.v(TAG, "Sending config app key add");
-            for (int i = 0; i < mPayloads.size(); i++) {
-                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-            }
-
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onAppKeyAddSent(mProvisionedMeshNode);
-        }
+    @Override
+    public final void executeSend() {
+        Log.v(TAG, "Sending config app key add");
+        super.executeSend();
     }
 
     @Override

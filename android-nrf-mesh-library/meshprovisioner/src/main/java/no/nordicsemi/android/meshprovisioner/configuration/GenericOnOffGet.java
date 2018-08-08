@@ -6,12 +6,14 @@ import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
+import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-public class GenericOnOffGet extends ConfigMessage {
+public class GenericOnOffGet extends ConfigMessageState {
 
 
     private static final String TAG = GenericOnOffGet.class.getSimpleName();
@@ -31,7 +33,7 @@ public class GenericOnOffGet extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.GENERIC_ON_OFF_GET;
+        return MessageState.GENERIC_ON_OFF_GET_STATE;
     }
 
     public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
@@ -41,6 +43,24 @@ public class GenericOnOffGet extends ConfigMessage {
     public void setConfigurationStatusCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
         this.mConfigStatusCallbacks = callbacks;
     }
+
+    @Override
+    protected boolean parseMessage(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
+            }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+        }
+        return false;
+    }
+
     /**
      * Creates the access message to be sent to the node
      */
@@ -53,21 +73,10 @@ public class GenericOnOffGet extends ConfigMessage {
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 
-    /**
-     * Starts sending the mesh pdu
-     */
+    @Override
     public void executeSend() {
-        if (!mPayloads.isEmpty()) {
-            Log.v(TAG, "Sending Generic OnOff get");
-            for (int i = 0; i < mPayloads.size(); i++) {
-                if (mInternalTransportCallbacks != null) {
-                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-                }
-            }
-
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onAppKeyAddSent(mProvisionedMeshNode);
-        }
+        Log.v(TAG, "Sending Generic OnOff get");
+        super.executeSend();
     }
 
     @Override

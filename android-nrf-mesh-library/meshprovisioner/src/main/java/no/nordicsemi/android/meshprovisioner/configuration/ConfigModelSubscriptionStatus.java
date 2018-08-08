@@ -42,7 +42,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import static no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionStatus.SubscriptionStatus.fromStatusCode;
 
 
-public class ConfigModelSubscriptionStatus extends ConfigMessage {
+public class ConfigModelSubscriptionStatus extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppStatus.class.getSimpleName();
     private static final int CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH = 9;
@@ -109,7 +109,7 @@ public class ConfigModelSubscriptionStatus extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_MODEL_SUBSCRIPTION_STATUS;
+        return MessageState.CONFIG_MODEL_SUBSCRIPTION_STATUS_STATE;
     }
 
     public final boolean parseMessage(final byte[] pdu) {
