@@ -245,6 +245,17 @@ class MeshConfigurationHandler {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks));
                     }
                     break;
+                case CONFIG_NODE_RESET_STATE:
+                    //Create the next corresponding status state
+                    final ConfigNodeResetStatus configNodeResetStatus = new ConfigNodeResetStatus(mContext, mMeshMessageState.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                    //Switch states
+                    switchState(configNodeResetStatus, pdu);
+                    break;
+                case CONFIG_NODE_RESET_STATUS_STATE:
+                    if(((ConfigNodeResetStatus) mMeshMessageState).parseMessage(pdu)){
+                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks));
+                    }
+                    break;
             }
         } else if(mMeshMessageState instanceof GenericMessageState){
             final GenericMessageState message = (GenericMessageState) mMeshMessageState;
@@ -269,17 +280,6 @@ class MeshConfigurationHandler {
                     break;
                 case GENERIC_ON_OFF_STATUS_STATE:
                     if(((GenericOnOffStatus) mMeshMessageState).parseMessage(pdu)){
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks));
-                    }
-                    break;
-                case CONFIG_NODE_RESET_STATE:
-                    //Create the next corresponding status state
-                    final ConfigNodeResetStatus configNodeResetStatus = new ConfigNodeResetStatus(mContext, mMeshMessageState.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
-                    //Switch states
-                    switchState(configNodeResetStatus, pdu);
-                    break;
-                case CONFIG_NODE_RESET_STATUS_STATE:
-                    if(((ConfigNodeResetStatus) mMeshMessageState).parseMessage(pdu)){
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks));
                     }
                     break;

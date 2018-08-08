@@ -16,7 +16,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-public class GenericOnOffSetUnacknowledged extends ConfigMessageState {
+public class GenericOnOffSetUnacknowledged extends GenericMessageState {
 
 
     private static final String TAG = GenericOnOffSetUnacknowledged.class.getSimpleName();

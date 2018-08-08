@@ -17,7 +17,7 @@ import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallba
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-public class GenericOnOffSet extends ConfigMessageState implements LowerTransportLayerCallbacks{
+public class GenericOnOffSet extends GenericMessageState implements LowerTransportLayerCallbacks{
 
 
     private static final String TAG = GenericOnOffSet.class.getSimpleName();
