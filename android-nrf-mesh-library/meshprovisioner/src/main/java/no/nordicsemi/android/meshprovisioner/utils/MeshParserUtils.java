@@ -233,7 +233,7 @@ public class MeshParserUtils {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
         }
 
-        if (isValidIvIndex(ivIndex)) {
+        if (!isValidIvIndex(ivIndex)) {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
         }
 
