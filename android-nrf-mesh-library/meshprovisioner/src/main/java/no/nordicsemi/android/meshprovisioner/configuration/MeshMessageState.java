@@ -10,7 +10,7 @@ import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
@@ -41,7 +41,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     private final List<Integer> mRetransmitPayloads = new ArrayList<>();
     final byte[] mSrc;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
-    protected MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
+    protected MeshStatusCallbacks mConfigStatusCallbacks;
     protected final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
     protected MeshModel mMeshModel;
     protected int mAppKeyIndex;
@@ -72,7 +72,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
      *
      * @param callbacks callbacks
      */
-    public void setStatusCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
+    public void setStatusCallbacks(final MeshStatusCallbacks callbacks) {
         this.mConfigStatusCallbacks = callbacks;
     }
 
@@ -165,11 +165,11 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         if (meshMessageHandlerCallbacks != null) {
 
             final byte[] src = mSrc; //The destination of the message sent would be src address of the device
-            meshMessageHandlerCallbacks.onIncompleteTimerExpired(mProvisionedMeshNode, src, isIncompleteTimerExpired);
+            meshMessageHandlerCallbacks.onIncompleteTimerExpired(mProvisionedMeshNode, src, true);
 
             if (mConfigStatusCallbacks != null) {
                 final int srcAddress = AddressUtils.getUnicastAddressInt(src);
-                mConfigStatusCallbacks.onTransactionFailed(mProvisionedMeshNode, srcAddress, isIncompleteTimerExpired);
+                mConfigStatusCallbacks.onTransactionFailed(mProvisionedMeshNode, srcAddress, true);
             }
         }
     }

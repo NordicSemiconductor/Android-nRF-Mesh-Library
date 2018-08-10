@@ -27,7 +27,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.*;
 /**
  * Callbacks to notify the status of the mesh messgaes
  */
-public interface MeshConfigurationStatusCallbacks {
+public interface MeshStatusCallbacks {
 
     /**
      * Notifies if a transaction has failed

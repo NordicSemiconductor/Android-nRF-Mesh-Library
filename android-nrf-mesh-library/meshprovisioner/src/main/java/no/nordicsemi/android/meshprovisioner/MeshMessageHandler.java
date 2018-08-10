@@ -51,28 +51,28 @@ import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 
-class MeshConfigurationHandler implements InternalMeshMsgHandlerCallbacks {
+class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
 
-    private static final String TAG = MeshConfigurationHandler.class.getSimpleName();
+    private static final String TAG = MeshMessageHandler.class.getSimpleName();
 
     private final Context mContext;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
     private final InternalMeshManagerCallbacks mInternalMeshManagerCallbacks;
-    private MeshConfigurationStatusCallbacks mStatusCallbacks;
+    private MeshStatusCallbacks mStatusCallbacks;
     private MeshMessageState mMeshMessageState;
 
-    MeshConfigurationHandler(final Context context, final InternalTransportCallbacks internalTransportCallbacks, final InternalMeshManagerCallbacks internalMeshManagerCallbacks) {
+    MeshMessageHandler(final Context context, final InternalTransportCallbacks internalTransportCallbacks, final InternalMeshManagerCallbacks internalMeshManagerCallbacks) {
         this.mContext = context;
         this.mInternalTransportCallbacks = internalTransportCallbacks;
         this.mInternalMeshManagerCallbacks = internalMeshManagerCallbacks;
     }
 
-    public void setConfigurationCallbacks(final MeshConfigurationStatusCallbacks statusCallbacks) {
+    public void setMeshStatusCallbacks(final MeshStatusCallbacks statusCallbacks) {
         this.mStatusCallbacks = statusCallbacks;
     }
 
     /**
-     * Handle configuration states on write call back complete
+     * Handle mesh message states on write callback complete
      * <p>
      * This method will jump to the current state and switch the current state according to the message that has been sent.
      * </p>
@@ -80,7 +80,7 @@ class MeshConfigurationHandler implements InternalMeshMsgHandlerCallbacks {
      * @param meshNode Corresponding mesh node
      * @param pdu      mesh pdu that was sent
      */
-    protected void handleConfigurationWriteCallbacks(final ProvisionedMeshNode meshNode, final byte[] pdu) {
+    protected void handleMeshMsgWriteCallbacks(final ProvisionedMeshNode meshNode, final byte[] pdu) {
         if (mMeshMessageState.getState() == null)
             return;
 
@@ -181,7 +181,7 @@ class MeshConfigurationHandler implements InternalMeshMsgHandlerCallbacks {
     }
 
     /**
-     * Handle configuration states on receiving mesh message notifications
+     * Handle mesh states on receiving mesh message notifications
      * <p>
      * This method will jump to the current state and switch the state depending on the expected and the next message received.
      * </p>
@@ -189,7 +189,7 @@ class MeshConfigurationHandler implements InternalMeshMsgHandlerCallbacks {
      * @param meshNode Corresponding mesh node
      * @param pdu      mesh pdu that was sent
      */
-    protected void parseConfigurationNotifications(final ProvisionedMeshNode meshNode, final byte[] pdu) {
+    protected void parseMeshMsgNotifications(final ProvisionedMeshNode meshNode, final byte[] pdu) {
         if (mMeshMessageState instanceof ConfigMessageState) {
             final ConfigMessageState message = (ConfigMessageState) mMeshMessageState;
             switch (message.getState()) {

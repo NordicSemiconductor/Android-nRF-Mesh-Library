@@ -5,8 +5,6 @@ import android.content.Context;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;

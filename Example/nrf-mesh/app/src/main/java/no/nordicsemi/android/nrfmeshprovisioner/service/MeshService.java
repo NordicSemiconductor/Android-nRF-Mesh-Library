@@ -48,7 +48,7 @@ import dagger.android.AndroidInjection;
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
 import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshManagerTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
@@ -78,7 +78,7 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.*;
 
 public class MeshService extends Service implements BleMeshManagerCallbacks,
         MeshProvisioningStatusCallbacks,
-        MeshConfigurationStatusCallbacks,
+        MeshStatusCallbacks,
         MeshManagerTransportCallbacks {
 
 
@@ -199,7 +199,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         mMeshManagerApi = new MeshManagerApi(this);
         mMeshManagerApi.setProvisionerManagerTransportCallbacks(this);
         mMeshManagerApi.setProvisioningStatusCallbacks(this);
-        mMeshManagerApi.setConfigurationCallbacks(this);
+        mMeshManagerApi.setMeshStatusCallbacks(this);
 
         mBleMeshManager.setGattCallbacks(this);
 
