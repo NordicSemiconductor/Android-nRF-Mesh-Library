@@ -190,7 +190,8 @@ class MeshConfigurationHandler {
                     switchState(configAppKeyStatus, pdu);
                     break;
                 case APP_KEY_STATUS_STATE:
-                    if(((ConfigAppKeyStatus) mMeshMessageState).parseMessage(pdu)){
+                    final ConfigAppKeyStatus status = ((ConfigAppKeyStatus) mMeshMessageState);
+                    if(status.isIncompleteTimerExpired() || (status.parseMessage(pdu))){
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks));
                     }
                     break;

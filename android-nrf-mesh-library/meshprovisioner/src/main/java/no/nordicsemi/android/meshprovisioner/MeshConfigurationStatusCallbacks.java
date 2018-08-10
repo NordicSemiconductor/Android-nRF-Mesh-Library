@@ -25,6 +25,7 @@ package no.nordicsemi.android.meshprovisioner;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 
 public interface MeshConfigurationStatusCallbacks {
+
     void onUnknownPduReceived(final ProvisionedMeshNode node);
 
     void onBlockAcknowledgementSent(final ProvisionedMeshNode node);

@@ -44,6 +44,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     protected int mAppKeyIndex;
     int messageType;
     protected Message accessMessage;
+    private boolean isIncompleteTimerExpired;
 
     public MeshMessageState(final Context context, final ProvisionedMeshNode provisionedMeshNode) {
         this.mContext = context;
@@ -134,12 +135,18 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         return mAppKeyIndex;
     }
 
-    public int getMessageType() {
-        return messageType;
-    }
-
     public boolean isSegmented() {
         return mPayloads.size() > 1;
+    }
+
+    @Override
+    public void onIncompleteTimerExpired() {
+        isIncompleteTimerExpired = true;
+        Log.v(TAG, "Incomplete timer has expired, all segments were not received!");
+    }
+
+    public boolean isIncompleteTimerExpired() {
+        return isIncompleteTimerExpired;
     }
 
     public enum MessageState {
