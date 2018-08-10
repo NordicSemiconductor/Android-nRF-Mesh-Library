@@ -94,13 +94,13 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
     }
 
     @Override
-    public void onConfigurationStateChanged(final Intent intent) {
+    public void onConfigurationMessageStateChanged(final Intent intent) {
         handleConfigurationStates(intent);
     }
 
     @Override
-    protected void onGenericOnOfStateReceived(final Intent intent) {
-        super.onGenericOnOfStateReceived(intent);
+    protected void onGenericMessageStateChanged(final Intent intent) {
+        super.onGenericMessageStateChanged(intent);
         handleGenericOnOffState(intent);
     }
 

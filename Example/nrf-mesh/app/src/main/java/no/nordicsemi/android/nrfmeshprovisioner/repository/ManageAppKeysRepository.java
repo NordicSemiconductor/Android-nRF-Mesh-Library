@@ -36,7 +36,7 @@ public class ManageAppKeysRepository extends BaseMeshRepository {
     }
 
     @Override
-    public void onConfigurationStateChanged(final Intent intent) {
+    public void onConfigurationMessageStateChanged(final Intent intent) {
 
     }
 }

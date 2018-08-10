@@ -39,7 +39,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +64,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManagerCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshProvisionerRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
@@ -83,6 +81,7 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_CON
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_RECONNECTING;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_ON_DEVICE_READY;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_PROVISIONING_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_TRANSACTION_FAILED;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
@@ -533,6 +532,17 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         mBleMeshManager.disconnect();
         mBleMeshManager.refreshDeviceCache();
         mHandler.postDelayed(mReconnectRunnable, 1500); //Added a slight delay to disconnect and refresh the cache
+    }
+
+    @Override
+    public void onTransactionFailed(final ProvisionedMeshNode node, final byte[] src, final boolean hasIncompleteTimerExpired) {
+        Log.v(TAG, "Transaction with source device " + MeshParserUtils.bytesToHex(src, false) + " failed, did incomplete timer expired? " + hasIncompleteTimerExpired);
+
+        mMeshNode = node;
+        final Intent intent = new Intent(ACTION_TRANSACTION_FAILED);
+        intent.putExtra(EXTRA_ELEMENT_ADDRESS, src);
+        intent.putExtra(EXTRA_DATA, hasIncompleteTimerExpired);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override

@@ -20,30 +20,21 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package no.nordicsemi.android.meshprovisioner;
 
-buildscript {
-    
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
-        
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
+/**
+ * Callbacks to notify the mesh message handler to notify events from transport layers.
+ */
+public interface InternalMeshMsgHandlerCallbacks {
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    /**
+     * Callback to notify the incomplete timer has expired
+     *
+     * @param meshNode               mesh node
+     * @param src                    address of the source device
+     * @param incompleteTimerExpired state of the incomplete timer
+     */
+    void onIncompleteTimerExpired(final ProvisionedMeshNode meshNode, final byte[] src, final boolean incompleteTimerExpired);
 }

@@ -57,7 +57,10 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_CON
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_RECONNECTING;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_ON_DEVICE_READY;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_PROVISIONING_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_TRANSACTION_FAILED;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_PRESENT_STATE;
 
 public abstract class BaseMeshRepository {
 
@@ -114,7 +117,6 @@ public abstract class BaseMeshRepository {
     /** Contains the provisioned nodes **/
     final ProvisionedNodesLiveData mProvisionedNodesLiveData = new ProvisionedNodesLiveData();
 
-    //final MeshManagerApi mMeshManagerApi;
     final ProvisioningStateLiveData mProvisioningStateLiveData;
     MeshService.MeshServiceBinder mBinder;
     MeshManagerApi mMeshManagerApi;
@@ -162,10 +164,13 @@ public abstract class BaseMeshRepository {
                     onProvisioningStateChanged(intent);
                     break;
                 case ACTION_CONFIGURATION_STATE:
-                    onConfigurationStateChanged(intent);
+                    onConfigurationMessageStateChanged(intent);
                     break;
                 case ACTION_GENERIC_ON_OFF_STATE:
-                    onGenericOnOfStateReceived(intent);
+                    onGenericMessageStateChanged(intent);
+                    break;
+                case ACTION_TRANSACTION_FAILED:
+                    onTransactionFailed(intent);
                     break;
             }
         }
@@ -196,10 +201,23 @@ public abstract class BaseMeshRepository {
 
     public abstract void onProvisioningStateChanged(final Intent intent);
 
-    public abstract void onConfigurationStateChanged(final Intent intent);
+    public abstract void onConfigurationMessageStateChanged(final Intent intent);
 
-    protected void onGenericOnOfStateReceived(final Intent intent){
+    protected void onGenericMessageStateChanged(final Intent intent){
 
+    }
+
+    protected void onTransactionFailed(final Intent intent){
+        final String action = intent.getAction();
+        final ProvisionedMeshNode node = mBinder.getMeshNode();
+        final MeshModel model = mBinder.getMeshModel();
+        switch (action) {
+            case ACTION_TRANSACTION_FAILED:
+                final byte[] elementAddress = intent.getExtras().getByteArray(EXTRA_ELEMENT_ADDRESS);
+                final boolean incompleteTimerExpired = intent.getBooleanExtra(EXTRA_DATA, false);
+
+                break;
+        }
     }
 
     public ProvisioningLiveData getProvisioningData(){

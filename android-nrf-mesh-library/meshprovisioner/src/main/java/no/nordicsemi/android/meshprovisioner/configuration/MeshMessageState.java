@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
@@ -40,6 +41,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     final byte[] mSrc;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     protected MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
+    protected InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
     protected MeshModel mMeshModel;
     protected int mAppKeyIndex;
     int messageType;
@@ -52,6 +54,10 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         this.mSrc = mProvisionedMeshNode.getConfigurationSrc();
         this.mMeshTransport = new MeshTransport(context, provisionedMeshNode);
         this.mMeshTransport.setLowerTransportLayerCallbacks(this);
+    }
+
+    public void setInternalMeshMessageHandlerCallbacks(final InternalMeshMsgHandlerCallbacks callbacks){
+        this.meshMessageHandlerCallbacks = callbacks;
     }
 
     public abstract MessageState getState();
@@ -141,8 +147,16 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
     @Override
     public void onIncompleteTimerExpired() {
-        isIncompleteTimerExpired = true;
         Log.v(TAG, "Incomplete timer has expired, all segments were not received!");
+        isIncompleteTimerExpired = true;
+        if(meshMessageHandlerCallbacks != null){
+
+            final byte[] src = accessMessage.getDst(); //The destination of the message sent would be src address of the device
+            meshMessageHandlerCallbacks.onIncompleteTimerExpired(mProvisionedMeshNode, src, isIncompleteTimerExpired);
+
+            if(mConfigStatusCallbacks != null)
+                mConfigStatusCallbacks.onTransactionFailed(mProvisionedMeshNode, src, isIncompleteTimerExpired);
+        }
     }
 
     public boolean isIncompleteTimerExpired() {

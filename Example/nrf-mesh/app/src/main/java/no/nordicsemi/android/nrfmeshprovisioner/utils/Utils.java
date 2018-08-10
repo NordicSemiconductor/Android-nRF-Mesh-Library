@@ -53,6 +53,7 @@ public class Utils {
     public static final String ACTION_PROVISIONING_STATE = "ACTION_PROVISIONING_STATE";
     public static final String ACTION_CONFIGURATION_STATE = "ACTION_CONFIGURATION_STATE";
     public static final String ACTION_GENERIC_ON_OFF_STATE = "ACTION_GENERIC_ON_OFF_STATE";
+    public static final String ACTION_TRANSACTION_FAILED = "ACTION_TRANSACTION_FAILED";
     public static final String ACTION_UPDATE_PROVISIONED_NODES = "ACTION_UPDATE_PROVISIONED_NODES";
 
     public static final String EXTRA_DATA = "EXTRA_DATA";
@@ -194,15 +195,15 @@ public class Utils {
     public static void saveApplicationKeys(final Context context, final Map<Integer, String> appKeys) {
         SharedPreferences preferences = context.getSharedPreferences(APPLICATION_KEYS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        for(int i = 0; i < appKeys.size(); i++) {
+        for (int i = 0; i < appKeys.size(); i++) {
             editor.putString(String.valueOf(i), appKeys.get(i));
         }
         editor.commit();
     }
 
     public static int getKey(final Map<Integer, String> appKeys, final String appKey) {
-        for(Map.Entry<Integer, String> entry : appKeys.entrySet()) {
-            if(entry.getValue().equals(appKey)){
+        for (Map.Entry<Integer, String> entry : appKeys.entrySet()) {
+            if (entry.getValue().equals(appKey)) {
                 return entry.getKey();
             }
         }
@@ -211,9 +212,10 @@ public class Utils {
 
     /**
      * Create the intent filters to listen for events on the {@link MeshService}
+     *
      * @return intent filter
      */
-    public static IntentFilter createIntentFilters(){
+    public static IntentFilter createIntentFilters() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_CONNECTION_STATE);
         intentFilter.addAction(ACTION_IS_CONNECTED);

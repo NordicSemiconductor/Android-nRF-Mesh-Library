@@ -51,7 +51,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.GenericMessageState;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 
-class MeshConfigurationHandler {
+class MeshConfigurationHandler implements InternalMeshMsgHandlerCallbacks {
 
     private static final String TAG = MeshConfigurationHandler.class.getSimpleName();
 
@@ -268,6 +268,7 @@ class MeshConfigurationHandler {
                     //Switch states
                     switchState(genericOnOffGetStatus, pdu);
                     break;
+                    //TODO
                 /*case GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE:
                     //We do nothing here since there is no status involved for unacknowledged messages
                     switchState(new DefaultNoOperationMessageState(mContext, meshNode), null);
@@ -288,6 +289,13 @@ class MeshConfigurationHandler {
         } else {
             ((DefaultNoOperationMessageState)mMeshMessageState).parseMessage(pdu);
         }
+    }
+
+    @Override
+    public void onIncompleteTimerExpired(final ProvisionedMeshNode meshNode, final byte[] src, final boolean incompleteTimerExpired) {
+        //We switch no operation state if the incomplete timer has expired so that we don't wait on the same state if a particular message fails.
+        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks));
+
     }
 
     /**
