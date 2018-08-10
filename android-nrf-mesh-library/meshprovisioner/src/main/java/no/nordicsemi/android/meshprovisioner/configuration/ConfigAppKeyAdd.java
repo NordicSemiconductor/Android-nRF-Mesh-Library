@@ -28,6 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
@@ -48,20 +49,12 @@ public class ConfigAppKeyAdd extends ConfigMessageState {
     private final int mAppKeyIndex;
 
     public ConfigAppKeyAdd(final Context context, final ProvisionedMeshNode unprovisionedMeshNode,
-                           final int aszmic, final String appKey, final int appKeyIndex) {
-        super(context, unprovisionedMeshNode);
+                           final InternalMeshMsgHandlerCallbacks callbacks, final int aszmic, final String appKey, final int appKeyIndex) {
+        super(context, unprovisionedMeshNode, callbacks);
         this.mAszmic = aszmic == 1 ? 1 : 0;
         this.mAppKey = appKey;
         this.mAppKeyIndex = appKeyIndex;
         createAccessMessage();
-    }
-
-    public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
-        this.mInternalTransportCallbacks = callbacks;
-    }
-
-    public void setConfigurationStatusCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
-        this.mConfigStatusCallbacks = callbacks;
     }
 
     @Override
@@ -113,6 +106,10 @@ public class ConfigAppKeyAdd extends ConfigMessageState {
     public final void executeSend() {
         Log.v(TAG, "Sending config app key add");
         super.executeSend();
+        if (!mPayloads.isEmpty()) {
+            if (mConfigStatusCallbacks != null)
+                mConfigStatusCallbacks.onAppKeyAddSent(mProvisionedMeshNode);
+        }
     }
 
     @Override

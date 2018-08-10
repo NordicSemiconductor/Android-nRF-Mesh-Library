@@ -28,6 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
@@ -56,22 +57,15 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessageState {
 
     public ConfigModelSubscriptionAdd(final Context context,
                                       final ProvisionedMeshNode meshNode,
+                                      final InternalMeshMsgHandlerCallbacks callbacks,
                                       final int aszmic,
                                       final byte[] elementAddress, final byte[] subscriptionAddress, final int modelIdentifier) {
-        super(context, meshNode);
+        super(context, meshNode, callbacks);
         this.mAszmic = aszmic == 1 ? 1 : 0;
         this.mElementAddress = elementAddress;
         this.mModelIdentifier = modelIdentifier;
         this.mSubscriptionAddress = subscriptionAddress;
         createAccessMessage();
-    }
-
-    public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
-        this.mInternalTransportCallbacks = callbacks;
-    }
-
-    public void setConfigurationStatusCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
-        this.mConfigStatusCallbacks = callbacks;
     }
 
     @Override
@@ -134,6 +128,11 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessageState {
     public final void executeSend() {
         Log.v(TAG, "Sending config model subscription add");
         super.executeSend();
+
+        if (!mPayloads.isEmpty()) {
+            if (mConfigStatusCallbacks != null)
+                mConfigStatusCallbacks.onSubscriptionAddSent(mProvisionedMeshNode);
+        }
     }
 
     public void parseData(final byte[] pdu) {

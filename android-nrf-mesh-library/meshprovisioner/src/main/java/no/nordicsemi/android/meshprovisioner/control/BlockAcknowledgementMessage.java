@@ -85,4 +85,22 @@ public class BlockAcknowledgementMessage extends TransportControlMessage {
         }
         return retransmitSegments;
     }
+
+    /**
+     * Checks if all segments are received based on the segment count
+     *
+     * @param blockAcknowledgement acknowledgement payload received
+     * @param segmentCount         number of segments
+     */
+    public static boolean hasAllSegmentsBeenReceived(final Integer blockAcknowledgement, final int segmentCount) {
+        final int blockAck = blockAcknowledgement;
+        int setBitCount = 0;
+        for (int i = 0; i < segmentCount; i++) {
+            int bit = (blockAck >> i) & 1;
+            if(bit == 1) {
+                setBitCount++;
+            }
+        }
+        return setBitCount == segmentCount;
+    }
 }

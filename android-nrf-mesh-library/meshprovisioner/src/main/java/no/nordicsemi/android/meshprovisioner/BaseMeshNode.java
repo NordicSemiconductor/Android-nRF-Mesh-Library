@@ -24,7 +24,7 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.SparseArray;
+import android.util.SparseIntArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -35,6 +35,7 @@ import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
+import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
 
 public abstract class BaseMeshNode implements Parcelable {
@@ -78,7 +79,7 @@ public abstract class BaseMeshNode implements Parcelable {
     protected byte[] generatedNetworkId;
     private String bluetoothDeviceAddress;
     protected long mTimeStampInMillis;
-    protected SparseArray<Object> mSeqAuth = new SparseArray();
+    protected SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
 
     protected BaseMeshNode() {
 

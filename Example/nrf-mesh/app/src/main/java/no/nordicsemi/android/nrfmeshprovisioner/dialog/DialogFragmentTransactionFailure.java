@@ -20,24 +20,38 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.meshprovisioner.configuration;
+package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.content.Context;
+import android.app.Dialog;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 
-import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public abstract class ConfigMessageState extends MeshMessageState {
+public class DialogFragmentTransactionFailure extends DialogFragmentMessage {
 
-    private static final String TAG = ConfigMessageState.class.getSimpleName();
-
-    public ConfigMessageState(final Context context, final ProvisionedMeshNode provisionedMeshNode, final InternalMeshMsgHandlerCallbacks callbacks) {
-        super(context, provisionedMeshNode, callbacks);
+    public static DialogFragmentTransactionFailure newInstance(final String title, final String message) {
+        Bundle args = new Bundle();
+        DialogFragmentTransactionFailure fragment = new DialogFragmentTransactionFailure();
+        args.putString(TITLE, title);
+        args.putString(MESSAGE, message);
+        fragment.setArguments(args);
+        return fragment;
     }
 
-    public abstract MessageState getState();
-
     @Override
-    public void executeResend() {
-        super.executeResend();
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
+        alertDialogBuilder.setPositiveButton(getString(R.string.ok), null);
+
+        return super.onCreateDialog(savedInstanceState);
     }
 }

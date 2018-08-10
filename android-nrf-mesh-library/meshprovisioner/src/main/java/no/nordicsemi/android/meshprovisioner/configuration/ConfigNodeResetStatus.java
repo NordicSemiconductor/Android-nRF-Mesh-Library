@@ -25,6 +25,7 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 import android.content.Context;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
@@ -40,11 +41,8 @@ public final class ConfigNodeResetStatus extends ConfigMessageState implements U
 
     public ConfigNodeResetStatus(Context context,
                                  final ProvisionedMeshNode provisionedMeshNode,
-                                 final InternalTransportCallbacks internalTransportCallbacks,
-                                 final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks) {
-        super(context, provisionedMeshNode);
-        this.mInternalTransportCallbacks = internalTransportCallbacks;
-        this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
+                                 final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, provisionedMeshNode, callbacks);
         this.mMeshTransport.setUpperTransportLayerCallbacks(this);
     }
 

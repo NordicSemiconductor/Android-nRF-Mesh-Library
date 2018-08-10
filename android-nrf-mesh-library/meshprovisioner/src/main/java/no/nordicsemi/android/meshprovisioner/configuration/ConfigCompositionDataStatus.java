@@ -31,8 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
@@ -63,11 +62,8 @@ public final class ConfigCompositionDataStatus extends ConfigMessageState {
     private Map<Integer, Element> mElements = new LinkedHashMap<>();
 
 
-    public ConfigCompositionDataStatus(final Context context, final ProvisionedMeshNode unprovisionedMeshNode,
-                                       InternalTransportCallbacks transportCallbacks, final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks) {
-        super(context, unprovisionedMeshNode);
-        this.mInternalTransportCallbacks = transportCallbacks;
-        this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
+    public ConfigCompositionDataStatus(final Context context, final ProvisionedMeshNode unprovisionedMeshNode, final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, unprovisionedMeshNode, callbacks);
     }
 
     @Override

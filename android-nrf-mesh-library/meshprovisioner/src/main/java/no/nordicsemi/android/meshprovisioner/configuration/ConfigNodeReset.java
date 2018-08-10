@@ -4,6 +4,7 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 import android.content.Context;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
@@ -20,12 +21,9 @@ public class ConfigNodeReset extends ConfigMessageState {
     private final int mAszmic;
 
     public ConfigNodeReset(final Context context, final ProvisionedMeshNode provisionedMeshNode, final boolean aszmic,
-                           final InternalTransportCallbacks mInternalTransportCallbacks,
-                           final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks)  {
-        super(context, provisionedMeshNode);
+                           final InternalMeshMsgHandlerCallbacks callbacks)  {
+        super(context, provisionedMeshNode, callbacks);
         this.mAszmic = aszmic ? 1 : 0;
-        this.mInternalTransportCallbacks = mInternalTransportCallbacks;
-        this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
         createAccessMessage();
     }
 
@@ -67,6 +65,11 @@ public class ConfigNodeReset extends ConfigMessageState {
     public final void executeSend() {
         Log.v(TAG, "Sending config node reset");
         super.executeSend();
+
+        if (!mPayloads.isEmpty()) {
+            if (mConfigStatusCallbacks != null)
+                mConfigStatusCallbacks.onMeshNodeResetSent(mProvisionedMeshNode);
+        }
     }
 
     @Override

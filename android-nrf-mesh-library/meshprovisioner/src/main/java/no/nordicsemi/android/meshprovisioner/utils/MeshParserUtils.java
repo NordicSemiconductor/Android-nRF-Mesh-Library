@@ -100,7 +100,7 @@ public class MeshParserUtils {
     public static boolean isValidUnicastAddress(final byte[] value) {
         if(value == null)
             return false;
-        final Integer address = ((value[0] << 8) & 0xFF) | value[1];
+        final int address = ((value[0] & 0xFF) << 8) | value[1] & 0xFF;
         return address == (address & 0x7FFF);
     }
 

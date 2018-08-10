@@ -47,6 +47,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
@@ -116,6 +117,8 @@ public abstract class BaseMeshRepository {
 
     /** Contains the provisioned nodes **/
     final ProvisionedNodesLiveData mProvisionedNodesLiveData = new ProvisionedNodesLiveData();
+
+    final TransactionFailedLiveData mTransactionFailedLiveData = new TransactionFailedLiveData();
 
     final ProvisioningStateLiveData mProvisioningStateLiveData;
     MeshService.MeshServiceBinder mBinder;
@@ -210,18 +213,24 @@ public abstract class BaseMeshRepository {
     protected void onTransactionFailed(final Intent intent){
         final String action = intent.getAction();
         final ProvisionedMeshNode node = mBinder.getMeshNode();
-        final MeshModel model = mBinder.getMeshModel();
         switch (action) {
             case ACTION_TRANSACTION_FAILED:
-                final byte[] elementAddress = intent.getExtras().getByteArray(EXTRA_ELEMENT_ADDRESS);
-                final boolean incompleteTimerExpired = intent.getBooleanExtra(EXTRA_DATA, false);
-
+                if(mExtendedMeshNode != null) {
+                    mExtendedMeshNode.updateMeshNode(node);
+                    final int elementAddress = intent.getExtras().getInt(EXTRA_ELEMENT_ADDRESS);
+                    final boolean incompleteTimerExpired = intent.getBooleanExtra(EXTRA_DATA, false);
+                    mTransactionFailedLiveData.onTransactionFailed(elementAddress, incompleteTimerExpired);
+                }
                 break;
         }
     }
 
     public ProvisioningLiveData getProvisioningData(){
         return mProvisioningLiveData;
+    }
+
+    public TransactionFailedLiveData getTransactionFailedLiveData() {
+        return mTransactionFailedLiveData;
     }
 
     /**

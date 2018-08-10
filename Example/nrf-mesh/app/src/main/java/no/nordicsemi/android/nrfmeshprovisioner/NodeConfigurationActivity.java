@@ -55,6 +55,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAppKeyAddStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNode;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionFailure;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
@@ -173,6 +174,18 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                     fragmentAppKeyAddStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_APP_KEY_STATUS);
                 }
             }
+        });
+
+        mViewModel.getTransactionStatus().observe(this, transactionFailedLiveData -> {
+            //hideProgressBar();
+            final String message;
+            if(transactionFailedLiveData.isIncompleteTimerExpired()){
+                message = "All message segments were not received, operation timed out!";
+            } else {
+                message = "Operation timed out";
+            }
+            DialogFragmentTransactionFailure fragmentMessage = DialogFragmentTransactionFailure.newInstance("Transaction Failed", message);
+            fragmentMessage.show(getSupportFragmentManager(), null);
         });
 
         mViewModel.isConnected().observe(this, isConnected -> {

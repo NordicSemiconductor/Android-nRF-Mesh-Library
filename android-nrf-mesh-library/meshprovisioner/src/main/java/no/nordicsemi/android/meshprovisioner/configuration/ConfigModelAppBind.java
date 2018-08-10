@@ -28,8 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
@@ -57,23 +56,16 @@ public final class ConfigModelAppBind extends ConfigMessageState {
 
     public ConfigModelAppBind(final Context context,
                               final ProvisionedMeshNode meshNode,
+                              final InternalMeshMsgHandlerCallbacks callbacks,
                               final int aszmic,
                               final byte[] elementAddress, final int modelIdentifier,
                               final int appKeyIndex) {
-        super(context, meshNode);
+        super(context, meshNode, callbacks);
         this.mAszmic = aszmic == 1 ? 1 : 0;
         this.mElementAddress = elementAddress;
         this.mModelIdentifier = modelIdentifier;
         this.mAppKeyIndex = appKeyIndex;
         createAccessMessage();
-    }
-
-    public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
-        this.mInternalTransportCallbacks = callbacks;
-    }
-
-    public void setConfigurationStatusCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
-        this.mConfigStatusCallbacks = callbacks;
     }
 
     @Override
@@ -137,6 +129,11 @@ public final class ConfigModelAppBind extends ConfigMessageState {
     public final void executeSend() {
         Log.v(TAG, "Sending config app bind");
         super.executeSend();
+
+        if (!mPayloads.isEmpty()) {
+            if (mConfigStatusCallbacks != null)
+                mConfigStatusCallbacks.onAppKeyBindSent(mProvisionedMeshNode);
+        }
     }
 
     public void parseData(final byte[] pdu) {

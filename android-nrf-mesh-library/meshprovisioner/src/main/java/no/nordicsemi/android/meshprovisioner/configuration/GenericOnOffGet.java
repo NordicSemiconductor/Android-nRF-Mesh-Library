@@ -4,6 +4,7 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 import android.content.Context;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
@@ -21,9 +22,12 @@ public class GenericOnOffGet extends GenericMessageState {
     private final int mAszmic;
     private final byte[] dstAddress;
 
-    public GenericOnOffGet(final Context context, final ProvisionedMeshNode provisionedMeshNode, final MeshModel model, final boolean aszmic,
+    public GenericOnOffGet(final Context context,
+                           final ProvisionedMeshNode provisionedMeshNode,
+                           final InternalMeshMsgHandlerCallbacks callbacks,
+                           final MeshModel model, final boolean aszmic,
                            final byte[] dstAddress, final int appKeyIndex) {
-        super(context, provisionedMeshNode);
+        super(context, provisionedMeshNode, callbacks);
         this.mAszmic = aszmic ? 1 : 0;
         this.dstAddress = dstAddress;
         this.mMeshModel = model;
@@ -34,14 +38,6 @@ public class GenericOnOffGet extends GenericMessageState {
     @Override
     public MessageState getState() {
         return MessageState.GENERIC_ON_OFF_GET_STATE;
-    }
-
-    public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
-        this.mInternalTransportCallbacks = callbacks;
-    }
-
-    public void setConfigurationStatusCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
-        this.mConfigStatusCallbacks = callbacks;
     }
 
     @Override
@@ -77,6 +73,11 @@ public class GenericOnOffGet extends GenericMessageState {
     public void executeSend() {
         Log.v(TAG, "Sending Generic OnOff get");
         super.executeSend();
+
+        if (!mPayloads.isEmpty()) {
+            if (mConfigStatusCallbacks != null)
+                mConfigStatusCallbacks.onGenericOnOffGetSent(mProvisionedMeshNode);
+        }
     }
 
     @Override

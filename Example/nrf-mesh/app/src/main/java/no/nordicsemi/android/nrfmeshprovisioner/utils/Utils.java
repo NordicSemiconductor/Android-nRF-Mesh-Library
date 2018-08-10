@@ -52,6 +52,7 @@ public class Utils {
     public static final String ACTION_IS_RECONNECTING = "ACTION_IS_RECONNECTING";
     public static final String ACTION_PROVISIONING_STATE = "ACTION_PROVISIONING_STATE";
     public static final String ACTION_CONFIGURATION_STATE = "ACTION_CONFIGURATION_STATE";
+    public static final String ACTION_GENERIC_STATE = "ACTION_GENERIC_STATE";
     public static final String ACTION_GENERIC_ON_OFF_STATE = "ACTION_GENERIC_ON_OFF_STATE";
     public static final String ACTION_TRANSACTION_FAILED = "ACTION_TRANSACTION_FAILED";
     public static final String ACTION_UPDATE_PROVISIONED_NODES = "ACTION_UPDATE_PROVISIONED_NODES";
@@ -59,6 +60,12 @@ public class Utils {
     public static final String EXTRA_DATA = "EXTRA_DATA";
     public static final String EXTRA_PROVISIONING_STATE = "EXTRA_PROVISIONING_STATE";
     public static final String EXTRA_CONFIGURATION_STATE = "EXTRA_CONFIGURATION_STATE";
+
+    public static final String EXTRA_GENERIC_ON_OFF_GET = "EXTRA_GENERIC_ON_OFF_GET";
+    public static final String EXTRA_GENERIC_ON_OFF_SET = "EXTRA_GENERIC_ON_OFF_SET";
+    public static final String EXTRA_GENERIC_ON_OFF_SET_UNACK = "EXTRA_GENERIC_ON_OFF_SET_UNACK";
+    public static final String EXTRA_GENERIC_ON_OFF_STATE = "EXTRA_GENERIC_ON_OFF_STATE";
+
     public static final String EXTRA_STATUS = "EXTRA_STATUS";
     public static final String EXTRA_IS_SUCCESS = "EXTRA_IS_SUCCESS";
     public static final String EXTRA_NET_KEY_INDEX = "EXTRA_APP_KEY_INDEX";
@@ -68,6 +75,8 @@ public class Utils {
     public static final String EXTRA_MODEL_ID = "EXTRA_MODEL_ID";
     public static final String EXTRA_ELEMENT_ADDRESS = "EXTRA_ELEMENT_ADDRESS";
     public static final String EXTRA_DATA_MODEL_NAME = "EXTRA_DATA_MODEL_NAME";
+
+    public static final String EXTRA_DATA_NODE_RESET = "EXTRA_DATA_NODE_RESET";
     public static final String EXTRA_DATA_NODE_RESET_STATUS = "EXTRA_DATA_NODE_RESET_STATUS";
 
     public static final String EXTRA_DEVICE = "EXTRA_DEVICE";
@@ -223,6 +232,7 @@ public class Utils {
         intentFilter.addAction(ACTION_ON_DEVICE_READY);
         intentFilter.addAction(ACTION_PROVISIONING_STATE);
         intentFilter.addAction(ACTION_CONFIGURATION_STATE);
+        intentFilter.addAction(ACTION_TRANSACTION_FAILED);
         intentFilter.addAction(ACTION_GENERIC_ON_OFF_STATE);
         return intentFilter;
     }

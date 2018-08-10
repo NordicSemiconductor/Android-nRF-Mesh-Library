@@ -25,6 +25,7 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 import android.content.Context;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
@@ -40,12 +41,11 @@ public class ConfigCompositionDataGet extends ConfigMessageState {
     private int akf = 0;
     private int aid = 0;
 
-    public ConfigCompositionDataGet(final Context context, final ProvisionedMeshNode provisionedMeshNode, final int aszmic, final InternalTransportCallbacks internalTransportCallbacks,
-                                    final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks) {
-        super(context, provisionedMeshNode);
+    public ConfigCompositionDataGet(final Context context, final ProvisionedMeshNode provisionedMeshNode,
+                                    final InternalMeshMsgHandlerCallbacks callbacks,
+                                    final int aszmic) {
+        super(context, provisionedMeshNode, callbacks);
         this.mAszmic = aszmic == 1 ? 1 : 0;
-        this.mInternalTransportCallbacks = internalTransportCallbacks;
-        this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
         createAccessMessage();
     }
 
@@ -86,6 +86,10 @@ public class ConfigCompositionDataGet extends ConfigMessageState {
     public final void executeSend() {
         Log.v(TAG, "Sending composition data get");
         super.executeSend();
+        if (!mPayloads.isEmpty()) {
+            if (mConfigStatusCallbacks != null)
+                mConfigStatusCallbacks.onGetCompositionDataSent(mProvisionedMeshNode);
+        }
     }
 
     @Override

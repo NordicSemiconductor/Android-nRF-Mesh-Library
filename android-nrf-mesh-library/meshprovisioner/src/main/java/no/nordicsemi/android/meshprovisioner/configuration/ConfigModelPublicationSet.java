@@ -29,6 +29,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
@@ -57,7 +58,7 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
     private AccessMessage mAccessMessage;
 
     ConfigModelPublicationSet(final Builder configModelPublicationSetBuilder) {
-        super(configModelPublicationSetBuilder.mContext, configModelPublicationSetBuilder.meshNode);
+        super(configModelPublicationSetBuilder.mContext, configModelPublicationSetBuilder.meshNode, configModelPublicationSetBuilder.mCallbacks);
         this.aszmic = configModelPublicationSetBuilder.aszmic;
         this.elementAddress = configModelPublicationSetBuilder.elementAddress;
         this.publishAddress = configModelPublicationSetBuilder.publishAddress;
@@ -68,8 +69,6 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
         this.publishRetransmitCount = configModelPublicationSetBuilder.publishRetransmitCount;
         this.publishRetransmitIntervalSteps = configModelPublicationSetBuilder.publishRetransmitIntervalSteps;
         this.mModelIdentifier = configModelPublicationSetBuilder.modelIdentifier;
-        this.mInternalTransportCallbacks = configModelPublicationSetBuilder.mInternalTransportCallbacks;
-        this.mConfigStatusCallbacks = configModelPublicationSetBuilder.mConfigStatusCallbacks;
         createAccessMessage();
     }
 
@@ -151,6 +150,11 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
     public final void executeSend() {
         Log.v(TAG, "Sending config model publication set");
         super.executeSend();
+
+        if (!mPayloads.isEmpty()) {
+            if (mConfigStatusCallbacks != null)
+                mConfigStatusCallbacks.onPublicationSetSent(mProvisionedMeshNode);
+        }
     }
 
     public void parseData(final byte[] pdu) {
@@ -178,8 +182,7 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
 
         private Context mContext;
         private ProvisionedMeshNode meshNode;
-        private InternalTransportCallbacks mInternalTransportCallbacks;
-        private MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
+        private InternalMeshMsgHandlerCallbacks mCallbacks;
         private byte[] src;
         private int aszmic;
         private byte[] elementAddress;
@@ -194,13 +197,12 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
 
         public Builder(@NonNull final Context context,
                        @NonNull final ProvisionedMeshNode mProvisionedMeshNode,
-                       @NonNull final InternalTransportCallbacks transportCallbacks,
-                       final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks) {
+                       final InternalMeshMsgHandlerCallbacks callbacks) {
             this.mContext = context;
             this.meshNode = mProvisionedMeshNode;
+            this.mCallbacks = callbacks;
             this.src = mProvisionedMeshNode.getConfigurationSrc();
-            this.mInternalTransportCallbacks = transportCallbacks;
-            this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
+
         }
 
         public Builder withAszmic(final int aszmic) {

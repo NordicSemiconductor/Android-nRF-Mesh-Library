@@ -28,6 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
@@ -57,23 +58,15 @@ public final class ConfigModelAppUnbind extends ConfigMessageState {
 
     public ConfigModelAppUnbind(final Context context,
                                 final ProvisionedMeshNode meshNode,
-                                final int aszmic,
+                                final InternalMeshMsgHandlerCallbacks callbacks, final int aszmic,
                                 final byte[] elementAddress, final int modelIdentifier,
                                 final int appKeyIndex) {
-        super(context, meshNode);
+        super(context, meshNode, callbacks);
         this.mAszmic = aszmic == 1 ? 1 : 0;
         this.mElementAddress = elementAddress;
         this.mModelIdentifier = modelIdentifier;
         this.mAppKeyIndex = appKeyIndex;
         createAccessMessage();
-    }
-
-    public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
-        this.mInternalTransportCallbacks = callbacks;
-    }
-
-    public void setConfigurationStatusCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
-        this.mConfigStatusCallbacks = callbacks;
     }
 
     @Override
@@ -137,6 +130,11 @@ public final class ConfigModelAppUnbind extends ConfigMessageState {
     public final void executeSend() {
         Log.v(TAG, "Sending config app unbind");
         super.executeSend();
+
+        if (!mPayloads.isEmpty()) {
+            if (mConfigStatusCallbacks != null)
+                mConfigStatusCallbacks.onAppKeyUnbindSent(mProvisionedMeshNode);
+        }
     }
 
     public void parseData(final byte[] pdu) {

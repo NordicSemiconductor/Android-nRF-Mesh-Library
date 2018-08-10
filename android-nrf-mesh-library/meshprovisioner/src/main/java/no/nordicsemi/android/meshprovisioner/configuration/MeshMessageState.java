@@ -19,14 +19,15 @@ import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallbacks;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
  * This generic class handles the mesh messages received or sent.
  * <p>
- *     This class handles sending, resending and parsing mesh messages. Each message sent by the library has its own state.
- *     {@link ConfigMessageState} and {@link GenericMessageState} extends this class based on the type of the message.
- *     Currently the library supports basic Configuration and Generic Messages.
+ * This class handles sending, resending and parsing mesh messages. Each message sent by the library has its own state.
+ * {@link ConfigMessageState} and {@link GenericMessageState} extends this class based on the type of the message.
+ * Currently the library supports basic Configuration and Generic Messages.
  * </p>
  */
 public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
@@ -41,23 +42,38 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     final byte[] mSrc;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     protected MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
-    protected InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
+    protected final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
     protected MeshModel mMeshModel;
     protected int mAppKeyIndex;
     int messageType;
     protected Message accessMessage;
     private boolean isIncompleteTimerExpired;
 
-    public MeshMessageState(final Context context, final ProvisionedMeshNode provisionedMeshNode) {
+    MeshMessageState(final Context context, final ProvisionedMeshNode provisionedMeshNode, final InternalMeshMsgHandlerCallbacks callbacks) {
         this.mContext = context;
         this.mProvisionedMeshNode = provisionedMeshNode;
+        this.meshMessageHandlerCallbacks = callbacks;
         this.mSrc = mProvisionedMeshNode.getConfigurationSrc();
         this.mMeshTransport = new MeshTransport(context, provisionedMeshNode);
         this.mMeshTransport.setLowerTransportLayerCallbacks(this);
     }
 
-    public void setInternalMeshMessageHandlerCallbacks(final InternalMeshMsgHandlerCallbacks callbacks){
-        this.meshMessageHandlerCallbacks = callbacks;
+    /**
+     * Set transport callbacks
+     *
+     * @param callbacks callbacks
+     */
+    public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
+        this.mInternalTransportCallbacks = callbacks;
+    }
+
+    /**
+     * Set mesh status call backs
+     *
+     * @param callbacks callbacks
+     */
+    public void setStatusCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
+        this.mConfigStatusCallbacks = callbacks;
     }
 
     public abstract MessageState getState();
@@ -75,9 +91,6 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
             for (int i = 0; i < mPayloads.size(); i++) {
                 mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
             }
-
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onGetCompositionDataSent(mProvisionedMeshNode);
         }
     }
 
@@ -103,7 +116,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
      *
      * @param pdu mesh pdu to be parsed
      */
-    protected boolean parseMessage(final byte[] pdu){
+    protected boolean parseMessage(final byte[] pdu) {
         return false;
     }
 
@@ -149,13 +162,15 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     public void onIncompleteTimerExpired() {
         Log.v(TAG, "Incomplete timer has expired, all segments were not received!");
         isIncompleteTimerExpired = true;
-        if(meshMessageHandlerCallbacks != null){
+        if (meshMessageHandlerCallbacks != null) {
 
-            final byte[] src = accessMessage.getDst(); //The destination of the message sent would be src address of the device
+            final byte[] src = mSrc; //The destination of the message sent would be src address of the device
             meshMessageHandlerCallbacks.onIncompleteTimerExpired(mProvisionedMeshNode, src, isIncompleteTimerExpired);
 
-            if(mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onTransactionFailed(mProvisionedMeshNode, src, isIncompleteTimerExpired);
+            if (mConfigStatusCallbacks != null) {
+                final int srcAddress = AddressUtils.getUnicastAddressInt(src);
+                mConfigStatusCallbacks.onTransactionFailed(mProvisionedMeshNode, srcAddress, isIncompleteTimerExpired);
+            }
         }
     }
 

@@ -28,6 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.R;
@@ -55,11 +56,9 @@ public class ConfigModelSubscriptionStatus extends ConfigMessageState {
     private String statusMessage;
     private final int messageType;
 
-    public ConfigModelSubscriptionStatus(Context context, final ProvisionedMeshNode meshNode, final int messageType, final InternalTransportCallbacks transportCallbacks, final MeshConfigurationStatusCallbacks mMeshConfigurationStatusCallbacks) {
-        super(context, meshNode);
+    public ConfigModelSubscriptionStatus(Context context, final ProvisionedMeshNode meshNode, final int messageType,final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, meshNode, callbacks);
         this.messageType = messageType;
-        this.mInternalTransportCallbacks = transportCallbacks;
-        this.mConfigStatusCallbacks = mMeshConfigurationStatusCallbacks;
     }
 
     public static String parseStatusMessage(final Context context, final int status) {

@@ -37,6 +37,7 @@ import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
+import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
 public class ProvisionedMeshNode extends BaseMeshNode {
 
@@ -95,7 +96,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         mAddedAppKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mTimeStampInMillis = in.readLong();
         mConfigurationSrc = in.createByteArray();
-        mSeqAuth = in.readSparseArray(Integer.class.getClassLoader());
+        mSeqAuth = in.readParcelable(SparseIntArrayParcelable.class.getClassLoader());
     }
 
     @Override
@@ -130,7 +131,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         dest.writeList(mAddedAppKeyIndexes);
         dest.writeLong(mTimeStampInMillis);
         dest.writeByteArray(mConfigurationSrc);
-        dest.writeSparseArray(mSeqAuth);
+        dest.writeParcelable(mSeqAuth, flags);
     }
 
     private void sortElements(final HashMap<Integer, Element> unorderedElements){
@@ -325,7 +326,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
             return null;
         }
 
-        final int srcAddress = ((src[0] << 8) & 0xFF) | src[1] ;
+        final int srcAddress = ((src[0] & 0xFF) << 8) | (src[1] & 0xFF) ;
         return (int) mSeqAuth.get(srcAddress);
     }
 }

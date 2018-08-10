@@ -33,6 +33,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyBindStatusLiveDat
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
 
 public class ModelConfigurationViewModel extends ViewModel {
@@ -84,6 +85,10 @@ public class ModelConfigurationViewModel extends ViewModel {
 
     public void sendUnbindAppKey(final int appKeyIndex) {
         mModelConfigurationRepository.sendUnbindAppKey(appKeyIndex);
+    }
+
+    public LiveData<TransactionFailedLiveData> getTransactionStatus() {
+        return mModelConfigurationRepository.getTransactionFailedLiveData();
     }
 
     public LiveData<AppKeyBindStatusLiveData> getAppKeyBindStatusLiveData() {

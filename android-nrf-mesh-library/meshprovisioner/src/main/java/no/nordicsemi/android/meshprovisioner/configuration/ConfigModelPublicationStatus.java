@@ -28,6 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.R;
@@ -60,10 +61,8 @@ public class ConfigModelPublicationStatus extends ConfigMessageState {
     private boolean isSuccessful;
     private String statusMessage;
 
-    public ConfigModelPublicationStatus(Context context, final ProvisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks transportCallbacks, final MeshConfigurationStatusCallbacks mMeshConfigurationStatusCallbacks) {
-        super(context, unprovisionedMeshNode);
-        this.mInternalTransportCallbacks = transportCallbacks;
-        this.mConfigStatusCallbacks = mMeshConfigurationStatusCallbacks;
+    public ConfigModelPublicationStatus(Context context, final ProvisionedMeshNode unprovisionedMeshNode, final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, unprovisionedMeshNode, callbacks);
     }
 
     public static String parseStatusMessage(final Context context, final int status) {

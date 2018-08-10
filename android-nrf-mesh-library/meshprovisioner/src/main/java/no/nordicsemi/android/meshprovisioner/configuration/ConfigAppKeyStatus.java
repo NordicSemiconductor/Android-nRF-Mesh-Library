@@ -28,8 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.R;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
@@ -49,11 +48,9 @@ public class ConfigAppKeyStatus extends ConfigMessageState {
     private byte[] netKeyIndex;
     private byte[] appKeyIndex;
 
-    public ConfigAppKeyStatus(final Context context, final ProvisionedMeshNode meshNode, final byte[] src, final String appKey, final InternalTransportCallbacks transportCallbacks, final MeshConfigurationStatusCallbacks statusCallbacks) {
-        super(context, meshNode);
+    public ConfigAppKeyStatus(final Context context, final ProvisionedMeshNode meshNode, final byte[] src, final String appKey, final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, meshNode, callbacks);
         this.appKey = appKey;
-        this.mInternalTransportCallbacks = transportCallbacks;
-        this.mConfigStatusCallbacks = statusCallbacks;
     }
 
     public static String parseStatusMessage(final Context context, final int status) {

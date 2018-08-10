@@ -28,6 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
@@ -47,15 +48,12 @@ public final class GenericOnOffStatus extends GenericMessageState implements Upp
 
     public GenericOnOffStatus(Context context,
                               final ProvisionedMeshNode unprovisionedMeshNode,
+                              final InternalMeshMsgHandlerCallbacks callbacks,
                               final MeshModel meshModel,
-                              final int appKeyIndex,
-                              final InternalTransportCallbacks internalTransportCallbacks,
-                              final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks) {
-        super(context, unprovisionedMeshNode);
+                              final int appKeyIndex) {
+        super(context, unprovisionedMeshNode, callbacks);
         this.mMeshModel = meshModel;
         this.mAppKeyIndex = appKeyIndex;
-        this.mInternalTransportCallbacks = internalTransportCallbacks;
-        this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
         this.mMeshTransport.setUpperTransportLayerCallbacks(this);
     }
 

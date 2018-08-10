@@ -150,4 +150,9 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
     public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
         mBinder.resetMeshNode(provisionedMeshNode);
     }
+
+    @Override
+    protected void onTransactionFailed(final Intent intent) {
+        super.onTransactionFailed(intent);
+    }
 }

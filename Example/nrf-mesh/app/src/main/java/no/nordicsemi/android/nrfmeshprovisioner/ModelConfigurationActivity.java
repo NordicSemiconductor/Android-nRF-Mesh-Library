@@ -60,8 +60,10 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMessage;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSubscriptionAddress;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionFailure;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
@@ -234,6 +236,19 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
             hideProgressBar();
+        });
+
+        mViewModel.getTransactionStatus().observe(this, transactionFailedLiveData -> {
+            hideProgressBar();
+
+            final String message;
+            if(transactionFailedLiveData.isIncompleteTimerExpired()){
+                message = "All message segments were not received, operation timed out!";
+            } else {
+                message = "Operation timed out";
+            }
+            DialogFragmentTransactionFailure fragmentMessage = DialogFragmentTransactionFailure.newInstance("Transaction Failed", message);
+            fragmentMessage.show(getSupportFragmentManager(), null);
         });
 
         addNodeControlsUi();
