@@ -454,6 +454,9 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         final int receivedSegmentedMessageCount = segmentedAccessMessageMap.size() - 1;
         if (segN == receivedSegmentedMessageCount) {
             Log.v(TAG, "All segments received" );
+            //Remove the incomplete timer if all segments were received
+            mHandler.removeCallbacks(mIncompleteTimerRunnable);
+            Log.v(TAG, "Block ack sent? " + mBlockAckSent);
             if(mDuration > System.currentTimeMillis() && !mBlockAckSent) {
                 if (MeshParserUtils.isValidUnicastAddress(dst)) {
                     mHandler.removeCallbacksAndMessages(null);
@@ -621,6 +624,8 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         final int blockAck = mSegmentedAccessBlockAck;
         if(BlockAcknowledgementMessage.hasAllSegmentsBeenReceived(blockAck, segN)){
             mHandler.removeCallbacks(mIncompleteTimerRunnable);
+        } else {
+            Log.v(TAG, "Not cancelling");
         }
 
         final byte[] upperTransportControlPdu = createAcknowledgementPayload(seqZero, blockAck);
@@ -639,6 +644,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         mBlockAckSent = true;
         mLowerTransportLayerCallbacks.sendSegmentAcknowledgementMessage(controlMessage);
         mSegmentedAccessAcknowledgementTimerStarted = false;
+        Log.v(TAG, "Block ack: " + blockAck);
         mSegmentedAccessBlockAck = null;
     }
 

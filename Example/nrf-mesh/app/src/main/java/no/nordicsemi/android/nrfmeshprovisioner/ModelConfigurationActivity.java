@@ -60,10 +60,9 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationStatus;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMessage;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSubscriptionAddress;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionFailure;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
@@ -79,22 +78,32 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
         DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener, AddressAdapter.OnItemClickListener, BoundAppKeysAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
-    private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final String TAG = ModelConfigurationActivity.class.getSimpleName();
+    private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
+    private static final long DELAY = 10000;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
     @BindView(R.id.unbind_hint)
     TextView mUnbindHint;
+    @BindView(R.id.action_bind_app_key)
+    Button mActionBindAppKey;
     @BindView(R.id.bound_keys)
     TextView mAppKeyView;
+
+    @BindView(R.id.action_publish_Address)
+    Button mActionPublish;
     @BindView(R.id.publish_address)
     TextView mPublishAddressView;
+
+    @BindView(R.id.action_subscribe_address)
+    Button mActionSubscribe;
     @BindView(R.id.subscribe_addresses)
     TextView mSubscribeAddressView;
     @BindView(R.id.subscribe_hint)
     TextView mSubscribeHint;
+
     @BindView(R.id.configuration_progress_bar)
     ProgressBar mProgressbar;
 
@@ -102,11 +111,11 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     private int mTransitionStep;
 
     private Handler mHandler;
-    private  ModelConfigurationViewModel mViewModel;
+    private ModelConfigurationViewModel mViewModel;
     private List<byte[]> mGroupAddress = new ArrayList<>();
     private List<Integer> mKeyIndexes = new ArrayList<>();
     private AddressAdapter mAddressAdapter;
-    private BoundAppKeysAdapter mBoundAppkeyAdapter;
+    private BoundAppKeysAdapter mBoundAppKeyAdapter;
     private Button mActionOnOff;
     private Button mActionRead;
 
@@ -148,23 +157,23 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         final ItemTouchHelper.Callback itemTouchHelperCallbackKeys = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelperKeys = new ItemTouchHelper(itemTouchHelperCallbackKeys);
         itemTouchHelperKeys.attachToRecyclerView(recyclerViewBoundKeys);
-        mBoundAppkeyAdapter = new BoundAppKeysAdapter(this, mViewModel.getMeshModel());
-        recyclerViewBoundKeys.setAdapter(mBoundAppkeyAdapter);
-        mBoundAppkeyAdapter.setOnItemClickListener(this);
+        mBoundAppKeyAdapter = new BoundAppKeysAdapter(this, mViewModel.getMeshModel());
+        recyclerViewBoundKeys.setAdapter(mBoundAppKeyAdapter);
+        mBoundAppKeyAdapter.setOnItemClickListener(this);
 
-        findViewById(R.id.action_bind_app_key).setOnClickListener(v -> {
+        mActionBindAppKey.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(ModelConfigurationActivity.this, BindAppKeysActivity.class);
             bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) mViewModel.getExtendedMeshNode().getMeshNode().getAddedAppKeys());
             startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
         mPublishAddressView.setText(R.string.none);
-        findViewById(R.id.action_publish_Address).setOnClickListener(v -> {
+        mActionPublish.setOnClickListener(v -> {
             final DialogFragmentPublishAddress fragmentPublishAddress = DialogFragmentPublishAddress.newInstance();
             fragmentPublishAddress.show(getSupportFragmentManager(), null);
         });
 
-        findViewById(R.id.action_subscribe_address).setOnClickListener(v -> {
+        mActionSubscribe.setOnClickListener(v -> {
             final DialogFragmentSubscriptionAddress fragmentSubscriptionAddress = DialogFragmentSubscriptionAddress.newInstance();
             fragmentSubscriptionAddress.show(getSupportFragmentManager(), null);
         });
@@ -240,14 +249,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
         mViewModel.getTransactionStatus().observe(this, transactionFailedLiveData -> {
             hideProgressBar();
-
-            final String message;
-            if(transactionFailedLiveData.isIncompleteTimerExpired()){
-                message = "All message segments were not received, operation timed out!";
-            } else {
-                message = "Operation timed out";
-            }
-            DialogFragmentTransactionFailure fragmentMessage = DialogFragmentTransactionFailure.newInstance("Transaction Failed", message);
+            final String message = getString(R.string.operation_timed_out);
+            DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", message);
             fragmentMessage.show(getSupportFragmentManager(), null);
         });
 
@@ -313,28 +316,47 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     }
 
     private void showProgressbar(){
+        disableClickableViews();
         mProgressbar.setVisibility(View.VISIBLE);
-        mHandler.postDelayed(mOperationTimeout, 2500);
+        mHandler.postDelayed(mOperationTimeout, DELAY);
     }
 
     private void hideProgressBar(){
+        enableClickableViews();
         mProgressbar.setVisibility(View.INVISIBLE);
         mHandler.removeCallbacks(mOperationTimeout);
     }
 
-    private final Runnable mOperationTimeout = new Runnable() {
-        @Override
-        public void run() {
-            mProgressbar.setVisibility(View.INVISIBLE);
-
-            if(mActionOnOff != null && !mActionOnOff.isEnabled())
-                mActionOnOff.setEnabled(true);
-
-
-            if(mActionRead != null && !mActionRead.isEnabled())
-                mActionRead.setEnabled(true);
-        }
+    private final Runnable mOperationTimeout = () -> {
+        hideProgressBar();
+        DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
+        fragmentMessage.show(getSupportFragmentManager(), null);
     };
+
+    private void enableClickableViews(){
+        mActionBindAppKey.setEnabled(true);
+        mActionPublish.setEnabled(true);
+        mActionSubscribe.setEnabled(true);
+
+        if(mActionOnOff != null && !mActionOnOff.isEnabled())
+            mActionOnOff.setEnabled(true);
+
+        if(mActionRead != null && !mActionRead.isEnabled())
+            mActionRead.setEnabled(true);
+    }
+
+    private void disableClickableViews(){
+        mActionBindAppKey.setEnabled(false);
+        mActionPublish.setEnabled(false);
+        mActionSubscribe.setEnabled(false);
+
+        if(mActionOnOff != null)
+            mActionOnOff.setEnabled(false);
+
+        if(mActionRead != null)
+            mActionRead.setEnabled(false);
+
+    }
 
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
@@ -346,8 +368,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 showProgressbar();
             }
         } else if(viewHolder instanceof BoundAppKeysAdapter.ViewHolder) {
-            if (mBoundAppkeyAdapter.getItemCount() != 0) {
-                final String appKey = mBoundAppkeyAdapter.getAppKey(position);
+            if (mBoundAppKeyAdapter.getItemCount() != 0) {
+                final String appKey = mBoundAppKeyAdapter.getAppKey(position);
                 final int keyIndex = getAppKeyIndex(appKey);
                 mViewModel.sendUnbindAppKey(keyIndex);
                 showProgressbar();
@@ -394,7 +416,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                             //TODO wait for sdk implementation to test for transition state
                             mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), false);
                         }
-                        mActionOnOff.setEnabled(false);
+                        //mActionOnOff.setEnabled(false);
                         showProgressbar();
                     } catch (IllegalArgumentException ex) {
                         Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
@@ -404,8 +426,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 mActionRead.setOnClickListener(v -> {
                     final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
                     mViewModel.sendGenericOnOffGet(node);
+                    //mActionRead.setEnabled(false);
                     showProgressbar();
-                    mActionRead.setEnabled(false);
                 });
 
                 transitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -477,8 +499,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
                 mViewModel.getGenericOnOffState().observe(this, presentState -> {
                     hideProgressBar();
-                    mActionOnOff.setEnabled(true);
-                    mActionRead.setEnabled(true);
+                    /*mActionOnOff.setEnabled(true);
+                    mActionRead.setEnabled(true);*/
                     if(presentState){
                         onOffState.setText(R.string.generic_state_on);
                         mActionOnOff.setText(R.string.action_generic_off);

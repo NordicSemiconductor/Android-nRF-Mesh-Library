@@ -29,6 +29,7 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyStatusLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.CompositionDataStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
@@ -90,6 +91,10 @@ public class NodeConfigurationViewModel extends ViewModel {
         mNodeConfigurationRepository.sendAppKeyAdd(appKeyIndex, appKey);
     }
 
+    public CompositionDataStatusLiveData getCompositionDataStatus() {
+        return mNodeConfigurationRepository.getCompositionDataStatus();
+    }
+
     public AppKeyStatusLiveData getAppKeyAddStatus() {
         return mNodeConfigurationRepository.getAppKeyStatus();
     }
@@ -101,4 +106,5 @@ public class NodeConfigurationViewModel extends ViewModel {
     public LiveData<TransactionFailedLiveData> getTransactionStatus() {
         return mNodeConfigurationRepository.getTransactionFailedLiveData();
     }
+
 }

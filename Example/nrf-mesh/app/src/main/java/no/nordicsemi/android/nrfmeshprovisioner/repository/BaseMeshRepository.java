@@ -40,6 +40,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyBindStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyStatusLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.CompositionDataStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshModel;
@@ -61,7 +62,6 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_PROVIS
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_TRANSACTION_FAILED;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_PRESENT_STATE;
 
 public abstract class BaseMeshRepository {
 
@@ -99,6 +99,9 @@ public abstract class BaseMeshRepository {
 
     /** Mesh model to configure **/
     final MutableLiveData<Element> mElement = new MutableLiveData<>();
+
+    /** App key add status **/
+    final CompositionDataStatusLiveData mCompositionDataStatus = new CompositionDataStatusLiveData();
 
     /** App key add status **/
     final AppKeyStatusLiveData mAppKeyStatus = new AppKeyStatusLiveData();
@@ -303,6 +306,9 @@ public abstract class BaseMeshRepository {
         return mExtendedMeshNode;
     }
 
+    public CompositionDataStatusLiveData getCompositionDataStatus() {
+        return mCompositionDataStatus;
+    }
 
     public AppKeyStatusLiveData getAppKeyStatus() {
         return mAppKeyStatus;

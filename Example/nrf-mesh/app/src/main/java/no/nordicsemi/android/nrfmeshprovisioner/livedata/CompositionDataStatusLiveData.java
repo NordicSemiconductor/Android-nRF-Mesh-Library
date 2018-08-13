@@ -20,38 +20,21 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
+package no.nordicsemi.android.nrfmeshprovisioner.livedata;
 
-import android.app.Dialog;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
+/**
+ * Created by RoshanRajaratnam on 04/05/2018.
+ */
+public class CompositionDataStatusLiveData extends SingleLiveEvent<CompositionDataStatusLiveData> {
 
-import no.nordicsemi.android.nrfmeshprovisioner.R;
+    private boolean mSuccess;
 
-public class DialogFragmentTransactionFailure extends DialogFragmentMessage {
-
-    public static DialogFragmentTransactionFailure newInstance(final String title, final String message) {
-        Bundle args = new Bundle();
-        DialogFragmentTransactionFailure fragment = new DialogFragmentTransactionFailure();
-        args.putString(TITLE, title);
-        args.putString(MESSAGE, message);
-        fragment.setArguments(args);
-        return fragment;
+    public void onStatusChanged(final boolean success) {
+        this.mSuccess = success;
+        postValue(this);
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
-        alertDialogBuilder.setPositiveButton(getString(R.string.ok), null);
-
-        return super.onCreateDialog(savedInstanceState);
+    public boolean isSuccess() {
+        return mSuccess;
     }
 }
