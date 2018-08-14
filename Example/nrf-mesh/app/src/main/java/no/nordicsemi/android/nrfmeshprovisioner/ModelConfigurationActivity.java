@@ -78,7 +78,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
         DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener, AddressAdapter.OnItemClickListener, BoundAppKeysAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
-    private static final String TAG = ModelConfigurationActivity.class.getSimpleName();
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final long DELAY = 10000;
 
