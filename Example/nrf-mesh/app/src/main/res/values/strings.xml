@@ -318,4 +318,7 @@
     <string name="device_key_clipboard_copied">Device key copied to clipboard</string>
     <string name="unavailable">Unavailable</string>
     <string name="hint_unbind">Hint: Swipe key to unbind.</string>
+    <string name="title_transaction_failed">Transaction Failed</string>
+    <string name="segments_not_received_timed_out">All message segments were not received, operation timed out!</string>
+    <string name="operation_timed_out">Operation timed out</string>
 </resources>

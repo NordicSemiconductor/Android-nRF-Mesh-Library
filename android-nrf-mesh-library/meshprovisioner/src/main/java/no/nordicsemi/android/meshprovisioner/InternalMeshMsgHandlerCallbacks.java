@@ -24,36 +24,17 @@ package no.nordicsemi.android.meshprovisioner;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 
-public interface MeshConfigurationStatusCallbacks {
-    void onUnknownPduReceived(final ProvisionedMeshNode node);
+/**
+ * Callbacks to notify the mesh message handler to notify events from transport layers.
+ */
+public interface InternalMeshMsgHandlerCallbacks {
 
-    void onBlockAcknowledgementSent(final ProvisionedMeshNode node);
-
-    void onBlockAcknowledgementReceived(final ProvisionedMeshNode node);
-
-    void onGetCompositionDataSent(final ProvisionedMeshNode node);
-
-    void onCompositionDataStatusReceived(final ProvisionedMeshNode node);
-
-    void onAppKeyAddSent(final ProvisionedMeshNode node);
-
-    void onAppKeyStatusReceived(final ProvisionedMeshNode node, final boolean success, int status, final int netKeyIndex, final int appKeyIndex);
-
-    void onAppKeyBindSent(final ProvisionedMeshNode node);
-
-    void onAppKeyBindStatusReceived(final ProvisionedMeshNode node, final boolean success, int status, final int elementAddress, final int appKeyIndex, final int modelIdentifier);
-
-    void onPublicationSetSent(final ProvisionedMeshNode node);
-
-    void onPublicationStatusReceived(final ProvisionedMeshNode node, final boolean success, final int status, final byte[] elementAddress, final byte[] publishAddress, final int modelIdentifier);
-
-    void onSubscriptionAddSent(final ProvisionedMeshNode node);
-
-    void onSubscriptionStatusReceived(final ProvisionedMeshNode node, final boolean success, final int status, final byte[] elementAddress, final byte[] subscriptionAddress, final int modelIdentifier);
-
-    void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime);
-
-    void onMeshNodeResetSent(final ProvisionedMeshNode node);
-
-    void onMeshNodeResetStatusReceived(final ProvisionedMeshNode node);
+    /**
+     * Callback to notify the incomplete timer has expired
+     *
+     * @param meshNode               mesh node
+     * @param src                    address of the source device
+     * @param incompleteTimerExpired state of the incomplete timer
+     */
+    void onIncompleteTimerExpired(final ProvisionedMeshNode meshNode, final byte[] src, final boolean incompleteTimerExpired);
 }

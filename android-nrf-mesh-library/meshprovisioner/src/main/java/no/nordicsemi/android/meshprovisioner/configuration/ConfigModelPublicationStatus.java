@@ -28,8 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.R;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
@@ -42,7 +41,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import static no.nordicsemi.android.meshprovisioner.configuration.ConfigModelPublicationStatus.PublicationStatus.fromStatusCode;
 
 
-public class ConfigModelPublicationStatus extends ConfigMessage {
+public class ConfigModelPublicationStatus extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppStatus.class.getSimpleName();
     private static final int CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH = 14;
@@ -60,10 +59,8 @@ public class ConfigModelPublicationStatus extends ConfigMessage {
     private boolean isSuccessful;
     private String statusMessage;
 
-    public ConfigModelPublicationStatus(Context context, final ProvisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks transportCallbacks, final MeshConfigurationStatusCallbacks mMeshConfigurationStatusCallbacks) {
-        super(context, unprovisionedMeshNode);
-        this.mInternalTransportCallbacks = transportCallbacks;
-        this.mConfigStatusCallbacks = mMeshConfigurationStatusCallbacks;
+    public ConfigModelPublicationStatus(Context context, final ProvisionedMeshNode unprovisionedMeshNode, final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, unprovisionedMeshNode, callbacks);
     }
 
     public static String parseStatusMessage(final Context context, final int status) {
@@ -113,14 +110,10 @@ public class ConfigModelPublicationStatus extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_MODEL_PUBLICATION_STATUS;
+        return MessageState.CONFIG_MODEL_PUBLICATION_STATUS_STATE;
     }
 
-    public final void parseData(final byte[] pdu) {
-        parseMessage(pdu);
-    }
-
-    private void parseMessage(final byte[] pdu) {
+    public final boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -172,15 +165,17 @@ public class ConfigModelPublicationStatus extends ConfigMessage {
                     }
                     mConfigStatusCallbacks.onPublicationStatusReceived(mProvisionedMeshNode, isSuccessful, status, elementAddress, publishAddress, getModelIdentifierInt());
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    return true;
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
-                parseControlMessage((ControlMessage) message);
+                parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
         }
+        return false;
     }
 
     @Override

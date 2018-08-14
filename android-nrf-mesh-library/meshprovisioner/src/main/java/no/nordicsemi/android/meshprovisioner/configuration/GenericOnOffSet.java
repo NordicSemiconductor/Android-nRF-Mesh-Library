@@ -7,16 +7,17 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
+import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-public class GenericOnOffSet extends ConfigMessage implements LowerTransportLayerCallbacks{
+
+public class GenericOnOffSet extends GenericMessageState implements LowerTransportLayerCallbacks{
 
 
     private static final String TAG = GenericOnOffSet.class.getSimpleName();
@@ -34,9 +35,12 @@ public class GenericOnOffSet extends ConfigMessage implements LowerTransportLaye
     private final Integer mDelay;
     private final boolean mState;
 
-    public GenericOnOffSet(final Context context, final ProvisionedMeshNode provisionedMeshNode, final MeshModel model, final boolean aszmic,
-                           final byte[] dstAddress, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
-        super(context, provisionedMeshNode);
+    public GenericOnOffSet(final Context context, final ProvisionedMeshNode provisionedMeshNode,
+                           final InternalMeshMsgHandlerCallbacks callbacks,
+                           final MeshModel model, final boolean aszmic,
+                           final byte[] dstAddress, final int appKeyIndex,
+                           final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
+        super(context, provisionedMeshNode, callbacks);
         this.mAszmic = aszmic ? 1 : 0;
         this.dstAddress = dstAddress;
         this.mMeshModel = model;
@@ -50,16 +54,26 @@ public class GenericOnOffSet extends ConfigMessage implements LowerTransportLaye
 
     @Override
     public MessageState getState() {
-        return MessageState.GENERIC_ON_OFF_SET;
+        return MessageState.GENERIC_ON_OFF_SET_STATE;
     }
 
-    public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
-        this.mInternalTransportCallbacks = callbacks;
+    @Override
+    protected boolean parseMessage(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
+            }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+        }
+        return false;
     }
 
-    public void setConfigurationStatusCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
-        this.mConfigStatusCallbacks = callbacks;
-    }
     /**
      * Creates the access message to be sent to the node
      */
@@ -83,23 +97,14 @@ public class GenericOnOffSet extends ConfigMessage implements LowerTransportLaye
         final byte[] key = MeshParserUtils.toByteArray(mMeshModel.getBoundAppkeys().get(mAppKeyIndex));
         int akf = 1;
         int aid = SecureUtils.calculateK4(key);
-        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, dstAddress, key, akf, aid, mAszmic, ApplicationMessageOpCodes.GENERIC_ON_OFF_SET, parameters);
+        accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, dstAddress, key, akf, aid, mAszmic, ApplicationMessageOpCodes.GENERIC_ON_OFF_SET, parameters);
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 
-    /**
-     * Starts sending the mesh pdu
-     */
-    public void executeSend() {
-        if (!mPayloads.isEmpty()) {
-            for (int i = 0; i < mPayloads.size(); i++) {
-                Log.v(TAG, "Sending Generic OnOff set: " + (mState ? "ON" : "OFF"));
-                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-            }
-
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onAppKeyAddSent(mProvisionedMeshNode);
-        }
+    @Override
+    public final void executeSend() {
+        Log.v(TAG, "Sending Generic OnOff set acknowledged: " + (mState ? "ON" : "OFF"));
+        super.executeSend();
     }
 
     @Override

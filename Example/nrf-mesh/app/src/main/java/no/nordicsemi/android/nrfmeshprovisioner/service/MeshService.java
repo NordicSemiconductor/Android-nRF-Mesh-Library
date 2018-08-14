@@ -39,7 +39,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +48,7 @@ import dagger.android.AndroidInjection;
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
 import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshManagerTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
@@ -65,7 +64,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManagerCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshProvisionerRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
@@ -76,32 +74,11 @@ import no.nordicsemi.android.support.v18.scanner.ScanResult;
 import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager.MESH_PROXY_UUID;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONFIGURATION_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONNECTION_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_ON_OFF_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_CONNECTED;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_RECONNECTING;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_ON_DEVICE_READY;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_PROVISIONING_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA_NODE_RESET_STATUS;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_PRESENT_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_REMAINING_TIME;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_TARGET_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_NET_KEY_INDEX;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_PROVISIONING_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_PUBLISH_ADDRESS;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_STATUS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.*;
 
 public class MeshService extends Service implements BleMeshManagerCallbacks,
         MeshProvisioningStatusCallbacks,
-        MeshConfigurationStatusCallbacks,
+        MeshStatusCallbacks,
         MeshManagerTransportCallbacks {
 
 
@@ -109,7 +86,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     private static final String PRIMARY_CHANNEL = "PRIMARY_CHANNEL";
     private static final String PRIMARY_CHANNEL_ID = "no.nordicsemi.android.nrfmeshprovisioner";
     private static final int FOREGROUND_NOTIFICATION_ID = 1102;
-    private static String TAG = MeshProvisionerRepository.class.getSimpleName();
+    private static String TAG = MeshService.class.getSimpleName();
     /**
      * Mesh ble manager handles the ble operations
      **/
@@ -222,7 +199,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         mMeshManagerApi = new MeshManagerApi(this);
         mMeshManagerApi.setProvisionerManagerTransportCallbacks(this);
         mMeshManagerApi.setProvisioningStatusCallbacks(this);
-        mMeshManagerApi.setConfigurationCallbacks(this);
+        mMeshManagerApi.setMeshStatusCallbacks(this);
 
         mBleMeshManager.setGattCallbacks(this);
 
@@ -536,6 +513,15 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
+    public void onTransactionFailed(final ProvisionedMeshNode node, final int src, final boolean hasIncompleteTimerExpired) {
+        mMeshNode = node;
+        final Intent intent = new Intent(ACTION_TRANSACTION_FAILED);
+        intent.putExtra(EXTRA_ELEMENT_ADDRESS, src);
+        intent.putExtra(EXTRA_DATA, hasIncompleteTimerExpired);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
     public void onUnknownPduReceived(ProvisionedMeshNode node) {
         //According to the spec we can disconnect if we receive an unexpected pdu
         //Well why don't we gracefully handle this J
@@ -573,6 +559,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
         if (mShouldAddAppKeyBeAdded) {
+            mShouldAddAppKeyBeAdded = false; //set it to false once the message is set on the handler
             //We send app key add after composition is complete. Adding a delay so that we don't send anything before the acknowledgement is sent out.
             mHandler.postDelayed(() -> {
                 final int appKeyIndex = mAppKeyIndex;
@@ -580,7 +567,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
                 mMeshManagerApi.addAppKey(node, appKeyIndex, appKey);
                 mAppKeyIndex = 0;
                 mAppKey = null;
-                mShouldAddAppKeyBeAdded = false; //set it to false once the message is sent
             }, 1500);
         }
     }
@@ -604,12 +590,22 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         intent.putExtra(EXTRA_NET_KEY_INDEX, netKeyIndex);
         intent.putExtra(EXTRA_APP_KEY_INDEX, appKeyIndex);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        Log.v(TAG, "App key status received: seq" + node.getSequenceNumber());
     }
 
     @Override
     public void onAppKeyBindSent(final ProvisionedMeshNode node) {
         mMeshNode = node;
+        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
+        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.APP_BIND_SENT.getState());
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
+    public void onAppKeyUnbindSent(final ProvisionedMeshNode node) {
+        mMeshNode = node;
+        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
+        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.APP_UNBIND_SENT.getState());
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override
@@ -662,6 +658,13 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
+    public void onSubscriptionDeleteSent(final ProvisionedMeshNode node) {
+        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
+        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.SUBSCRIPTION_DELETE_SENT.getState());
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
     public void onSubscriptionStatusReceived(final ProvisionedMeshNode node, final boolean success, final int status, final byte[] elementAddress, final byte[] subscriptionAddress, final int modelIdentifier) {
         mMeshNode = node;
         final Element element = mMeshNode.getElements().get(AddressUtils.getUnicastAddressInt(elementAddress));
@@ -679,6 +682,30 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
+    public void onGenericOnOffGetSent(final ProvisionedMeshNode node) {
+        mMeshNode = node;
+        final Intent intent = new Intent(ACTION_GENERIC_STATE);
+        intent.putExtra(EXTRA_GENERIC_ON_OFF_GET, "");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
+    public void onGenericOnOffSetSent(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime) {
+        mMeshNode = node;
+        final Intent intent = new Intent(ACTION_GENERIC_STATE);
+        intent.putExtra(EXTRA_GENERIC_ON_OFF_SET, "");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
+    public void onGenericOnOffSetUnacknowledgedSent(final ProvisionedMeshNode node) {
+        mMeshNode = node;
+        final Intent intent = new Intent(ACTION_GENERIC_STATE);
+        intent.putExtra(EXTRA_GENERIC_ON_OFF_SET_UNACK, "");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
     public void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime) {
         mMeshNode = node;
         final Intent intent = new Intent(ACTION_GENERIC_ON_OFF_STATE);
@@ -691,6 +718,9 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     @Override
     public void onMeshNodeResetSent(final ProvisionedMeshNode node) {
         mMeshNode = node;
+        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
+        intent.putExtra(EXTRA_DATA_NODE_RESET, "");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override
@@ -1038,7 +1068,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
          * @param address              address to which the message must be sent to to which this model belongs to
          */
         public void sendGenericOnOffGet(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex) {
-
             mMeshManagerApi.getGenericOnOff(node, model, address, appKeyIndex);
         }
 
@@ -1055,7 +1084,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
          */
         public void sendGenericOnOffSet(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex,
                                         final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
-
             mMeshManagerApi.setGenericOnOff(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
         }
 
@@ -1072,7 +1100,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
          */
         public void sendGenericOnOffSetUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex,
                                                       final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
-
             mMeshManagerApi.setGenericOnOffUnacknowledged(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
         }
 

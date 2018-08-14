@@ -20,62 +20,38 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.meshprovisioner.messages;
+package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import java.util.HashMap;
-import java.util.Map;
+import android.app.Dialog;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessageState;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public class AccessMessage extends Message {
+public class DialogFragmentTransactionStatus extends DialogFragmentMessage {
 
-    private byte[] accessPdu;
-    private byte[] transportPdu;
-    private ConfigMessageState configMessage;
-
-    public AccessMessage() {
-        this.ctl = 0;
+    public static DialogFragmentTransactionStatus newInstance(final String title, final String message) {
+        Bundle args = new Bundle();
+        DialogFragmentTransactionStatus fragment = new DialogFragmentTransactionStatus();
+        args.putString(TITLE, title);
+        args.putString(MESSAGE, message);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
-    public Map<Integer, byte[]> getNetworkPdu() {
-        return networkPdu;
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
+    @NonNull
     @Override
-    public void setNetworkPdu(final HashMap<Integer, byte[]> pdu) {
-        networkPdu = pdu;
-    }
+    public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
+        alertDialogBuilder.setPositiveButton(getString(R.string.ok), null);
 
-    public byte[] getAccessPdu() {
-        return accessPdu;
-    }
-
-    public void setAccessPdu(final byte[] accessPdu) {
-        this.accessPdu = accessPdu;
-    }
-
-    public byte[] getUpperTransportPdu() {
-        return transportPdu;
-    }
-
-    public void setUpperTransportPdu(final byte[] transportPdu) {
-        this.transportPdu = transportPdu;
-    }
-
-    public HashMap<Integer, byte[]> getLowerTransportAccessPdu() {
-        return super.getLowerTransportAccessPdu();
-    }
-
-    public void setLowerTransportAccessPdu(final HashMap<Integer, byte[]> lowerTransportAccessPdu) {
-        super.setLowerTransportAccessPdu(lowerTransportAccessPdu);
-    }
-
-    public ConfigMessageState getConfigMessage() {
-        return configMessage;
-    }
-
-    public void setConfigMessage(final ConfigMessageState configMessage) {
-        this.configMessage = configMessage;
+        return super.onCreateDialog(savedInstanceState);
     }
 }

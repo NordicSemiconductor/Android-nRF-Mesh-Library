@@ -28,8 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.R;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
@@ -41,7 +40,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 import static no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppStatus.AppKeyBindStatuses.fromStatusCode;
 
-public final class ConfigModelAppStatus extends ConfigMessage {
+public final class ConfigModelAppStatus extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppStatus.class.getSimpleName();
     private static final int CONFIG_MODEL_APP_BIND_STATUS_SIG_MODEL = 9;
@@ -56,14 +55,10 @@ public final class ConfigModelAppStatus extends ConfigMessage {
 
     public ConfigModelAppStatus(Context context,
                                 final ProvisionedMeshNode unprovisionedMeshNode,
-                                final int previousMessageType,
-                                final InternalTransportCallbacks internalTransportCallbacks,
-                                final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks) {
-        super(context, unprovisionedMeshNode);
+                                final int previousMessageType, final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, unprovisionedMeshNode, callbacks);
         this.messageType = previousMessageType;
         this.previiousMessageType = previousMessageType;
-        this.mInternalTransportCallbacks = internalTransportCallbacks;
-        this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
     }
 
     public static String parseStatusMessage(final Context context, final int status) {
@@ -113,14 +108,10 @@ public final class ConfigModelAppStatus extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_MODEL_APP_STATUS;
+        return MessageState.CONFIG_MODEL_APP_STATUS_STATE;
     }
 
-    public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
-    }
-
-    private void parseMessage(final byte[] pdu) {
+    public final boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -170,16 +161,18 @@ public final class ConfigModelAppStatus extends ConfigMessage {
                     mConfigStatusCallbacks.onAppKeyBindStatusReceived(mProvisionedMeshNode, isSuccessful, status,
                             AddressUtils.getUnicastAddressInt(elementAddress), getAppKeyIndexInt(), getModelIdentifierInt());
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    return true;
                 } else {
                     Log.v(TAG, "Unknown pdu received!");
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
-                parseControlMessage((ControlMessage) message);
+                parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
         }
+        return false;
     }
 
     @Override

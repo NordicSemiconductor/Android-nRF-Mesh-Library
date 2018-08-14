@@ -28,8 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.R;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
@@ -42,7 +41,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import static no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionStatus.SubscriptionStatus.fromStatusCode;
 
 
-public class ConfigModelSubscriptionStatus extends ConfigMessage {
+public class ConfigModelSubscriptionStatus extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppStatus.class.getSimpleName();
     private static final int CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH = 9;
@@ -55,11 +54,9 @@ public class ConfigModelSubscriptionStatus extends ConfigMessage {
     private String statusMessage;
     private final int messageType;
 
-    public ConfigModelSubscriptionStatus(Context context, final ProvisionedMeshNode meshNode, final int messageType, final InternalTransportCallbacks transportCallbacks, final MeshConfigurationStatusCallbacks mMeshConfigurationStatusCallbacks) {
-        super(context, meshNode);
+    public ConfigModelSubscriptionStatus(Context context, final ProvisionedMeshNode meshNode, final int messageType,final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, meshNode, callbacks);
         this.messageType = messageType;
-        this.mInternalTransportCallbacks = transportCallbacks;
-        this.mConfigStatusCallbacks = mMeshConfigurationStatusCallbacks;
     }
 
     public static String parseStatusMessage(final Context context, final int status) {
@@ -109,14 +106,10 @@ public class ConfigModelSubscriptionStatus extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_MODEL_SUBSCRIPTION_STATUS;
+        return MessageState.CONFIG_MODEL_SUBSCRIPTION_STATUS_STATE;
     }
 
-    public final void parseData(final byte[] pdu) {
-        parseMessage(pdu);
-    }
-
-    private void parseMessage(final byte[] pdu) {
+    public final boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -160,15 +153,17 @@ public class ConfigModelSubscriptionStatus extends ConfigMessage {
                     }
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
                     mConfigStatusCallbacks.onSubscriptionStatusReceived(mProvisionedMeshNode, isSuccessful, status, elementAddress, mSubscriptionAddress, getModelIdentifierInt());
+                    return true;
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
-                parseControlMessage((ControlMessage) message);
+                parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
         }
+        return false;
     }
 
     @Override

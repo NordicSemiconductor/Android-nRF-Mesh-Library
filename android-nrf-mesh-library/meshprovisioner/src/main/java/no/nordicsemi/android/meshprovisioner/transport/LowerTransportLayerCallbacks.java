@@ -27,10 +27,14 @@ import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 public interface LowerTransportLayerCallbacks {
 
     /**
-     * Sends the transport layer acknowledgement to node
+     * Callback to notify that a block acknowledgement message be sent now.
      *
-     * @param controlMessage
+     * @param controlMessage control message to be sent
      */
     void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage);
 
+    /**
+     * Callback to notify that the incomplete timer has expired.
+     */
+    void onIncompleteTimerExpired();
 }

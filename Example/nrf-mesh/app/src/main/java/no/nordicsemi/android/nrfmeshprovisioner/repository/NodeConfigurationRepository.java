@@ -74,7 +74,7 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
     }
 
     @Override
-    public void onConfigurationStateChanged(final Intent intent) {
+    public void onConfigurationMessageStateChanged(final Intent intent) {
         handleConfigurationStates(intent);
     }
 
@@ -122,6 +122,9 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
             case COMPOSITION_DATA_GET_SENT:
                 break;
             case COMPOSITION_DATA_STATUS_RECEIVED:
+                //Update the live data upon receiving a broadcast
+                mCompositionDataStatus.onStatusChanged(true);
+                mExtendedMeshNode.updateMeshNode(node);
                 break;
             case SENDING_BLOCK_ACKNOWLEDGEMENT:
                 break;
@@ -137,17 +140,22 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
                     final int appKeyIndex = intent.getExtras().getInt(EXTRA_APP_KEY_INDEX);
                     mAppKeyStatus.onStatusChanged(success, statusCode, netKeyIndex, appKeyIndex);
                 }
+                //Update the live data upon receiving a broadcast
+                mExtendedMeshNode.updateMeshNode(node);
                 break;
             case NODE_RESET_STATUS_RECEIVED:
+                //Update the live data upon receiving a broadcast
+                mExtendedMeshNode.updateMeshNode(node);
                 break;
         }
-
-
-        //Update the live data upon receiving a broadcast
-        mExtendedMeshNode.updateMeshNode(node);
     }
 
     public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
         mBinder.resetMeshNode(provisionedMeshNode);
+    }
+
+    @Override
+    protected void onTransactionFailed(final Intent intent) {
+        super.onTransactionFailed(intent);
     }
 }

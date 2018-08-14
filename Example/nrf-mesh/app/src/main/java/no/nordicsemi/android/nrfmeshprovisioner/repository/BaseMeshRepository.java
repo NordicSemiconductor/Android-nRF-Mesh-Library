@@ -40,6 +40,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyBindStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyStatusLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.CompositionDataStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshModel;
@@ -47,6 +48,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
@@ -57,7 +59,9 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_CON
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_RECONNECTING;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_ON_DEVICE_READY;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_PROVISIONING_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_TRANSACTION_FAILED;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
 
 public abstract class BaseMeshRepository {
 
@@ -97,6 +101,9 @@ public abstract class BaseMeshRepository {
     final MutableLiveData<Element> mElement = new MutableLiveData<>();
 
     /** App key add status **/
+    final CompositionDataStatusLiveData mCompositionDataStatus = new CompositionDataStatusLiveData();
+
+    /** App key add status **/
     final AppKeyStatusLiveData mAppKeyStatus = new AppKeyStatusLiveData();
 
     /** App key bind status **/
@@ -114,7 +121,8 @@ public abstract class BaseMeshRepository {
     /** Contains the provisioned nodes **/
     final ProvisionedNodesLiveData mProvisionedNodesLiveData = new ProvisionedNodesLiveData();
 
-    //final MeshManagerApi mMeshManagerApi;
+    final TransactionFailedLiveData mTransactionFailedLiveData = new TransactionFailedLiveData();
+
     final ProvisioningStateLiveData mProvisioningStateLiveData;
     MeshService.MeshServiceBinder mBinder;
     MeshManagerApi mMeshManagerApi;
@@ -162,10 +170,13 @@ public abstract class BaseMeshRepository {
                     onProvisioningStateChanged(intent);
                     break;
                 case ACTION_CONFIGURATION_STATE:
-                    onConfigurationStateChanged(intent);
+                    onConfigurationMessageStateChanged(intent);
                     break;
                 case ACTION_GENERIC_ON_OFF_STATE:
-                    onGenericOnOfStateReceived(intent);
+                    onGenericMessageStateChanged(intent);
+                    break;
+                case ACTION_TRANSACTION_FAILED:
+                    onTransactionFailed(intent);
                     break;
             }
         }
@@ -196,14 +207,33 @@ public abstract class BaseMeshRepository {
 
     public abstract void onProvisioningStateChanged(final Intent intent);
 
-    public abstract void onConfigurationStateChanged(final Intent intent);
+    public abstract void onConfigurationMessageStateChanged(final Intent intent);
 
-    protected void onGenericOnOfStateReceived(final Intent intent){
+    protected void onGenericMessageStateChanged(final Intent intent){
 
+    }
+
+    protected void onTransactionFailed(final Intent intent){
+        final String action = intent.getAction();
+        final ProvisionedMeshNode node = mBinder.getMeshNode();
+        switch (action) {
+            case ACTION_TRANSACTION_FAILED:
+                if(mExtendedMeshNode != null) {
+                    mExtendedMeshNode.updateMeshNode(node);
+                    final int elementAddress = intent.getExtras().getInt(EXTRA_ELEMENT_ADDRESS);
+                    final boolean incompleteTimerExpired = intent.getBooleanExtra(EXTRA_DATA, false);
+                    mTransactionFailedLiveData.onTransactionFailed(elementAddress, incompleteTimerExpired);
+                }
+                break;
+        }
     }
 
     public ProvisioningLiveData getProvisioningData(){
         return mProvisioningLiveData;
+    }
+
+    public TransactionFailedLiveData getTransactionFailedLiveData() {
+        return mTransactionFailedLiveData;
     }
 
     /**
@@ -276,6 +306,9 @@ public abstract class BaseMeshRepository {
         return mExtendedMeshNode;
     }
 
+    public CompositionDataStatusLiveData getCompositionDataStatus() {
+        return mCompositionDataStatus;
+    }
 
     public AppKeyStatusLiveData getAppKeyStatus() {
         return mAppKeyStatus;

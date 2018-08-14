@@ -97,8 +97,15 @@ public class MeshParserUtils {
         return value != null && value == (value & 0x7FFF);
     }
 
+    public static boolean isValidUnicastAddress(final byte[] value) {
+        if(value == null)
+            return false;
+        final int address = ((value[0] & 0xFF) << 8) | value[1] & 0xFF;
+        return address == (address & 0x7FFF);
+    }
+
     private static boolean isValidIvIndex(final Integer value) {
-        return value != null;
+        return value != null && (value >= 0 && value <= Integer.MAX_VALUE);
     }
 
     public static byte parseUpdateFlags(final int keyRefreshFlag, final int ivUpdateFlag) {
@@ -233,7 +240,7 @@ public class MeshParserUtils {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
         }
 
-        if (isValidIvIndex(ivIndex)) {
+        if (!isValidIvIndex(ivIndex)) {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
         }
 
@@ -375,7 +382,7 @@ public class MeshParserUtils {
     }
 
     public static byte[] getSrcAddress(final byte[] pdu) {
-        return ByteBuffer.allocate(2).put(pdu, 6, 2).array(); // get dst address from pdu
+        return ByteBuffer.allocate(2).put(pdu, 6, 2).array(); // get src address from pdu
     }
 
     public static byte[] getDstAddress(final byte[] pdu) {

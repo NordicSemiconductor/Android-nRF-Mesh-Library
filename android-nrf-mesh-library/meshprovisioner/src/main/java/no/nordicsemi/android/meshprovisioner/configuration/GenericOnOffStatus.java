@@ -28,8 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
@@ -37,38 +36,31 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class GenericOnOffStatus extends ConfigMessage implements UpperTransportLayerCallbacks{
+public final class GenericOnOffStatus extends GenericMessageState implements UpperTransportLayerCallbacks {
 
     private static final String TAG = GenericOnOffStatus.class.getSimpleName();
-    public static final int GENERIC_ON_OFF_STATE_ON = 0x01;
+    private static final int GENERIC_ON_OFF_STATE_ON = 0x01;
     private boolean mPresentOn;
     private boolean mTargetOn;
     private int mRemainingTime;
 
     public GenericOnOffStatus(Context context,
                               final ProvisionedMeshNode unprovisionedMeshNode,
+                              final InternalMeshMsgHandlerCallbacks callbacks,
                               final MeshModel meshModel,
-                              final int appKeyIndex,
-                              final InternalTransportCallbacks internalTransportCallbacks,
-                              final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks) {
-        super(context, unprovisionedMeshNode);
+                              final int appKeyIndex) {
+        super(context, unprovisionedMeshNode, callbacks);
         this.mMeshModel = meshModel;
         this.mAppKeyIndex = appKeyIndex;
-        this.mInternalTransportCallbacks = internalTransportCallbacks;
-        this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
         this.mMeshTransport.setUpperTransportLayerCallbacks(this);
     }
 
     @Override
     public MessageState getState() {
-        return MessageState.GENERIC_ON_OFF_STATUS;
+        return MessageState.GENERIC_ON_OFF_STATUS_STATE;
     }
 
-    public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
-    }
-
-    private void parseMessage(final byte[] pdu) {
+    public final boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -87,10 +79,10 @@ public final class GenericOnOffStatus extends ConfigMessage implements UpperTran
                     Log.v(TAG, "Received generic on off status");
                     final ByteBuffer buffer = ByteBuffer.wrap(accessMessage.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
                     buffer.position(0);
-                    mPresentOn = buffer.get() == GENERIC_ON_OFF_STATE_ON ? true : false;
+                    mPresentOn = buffer.get() == GENERIC_ON_OFF_STATE_ON;
                     Log.v(TAG, "Present on: " + mPresentOn);
                     if(buffer.limit() > 1) {
-                        mTargetOn = buffer.get() == GENERIC_ON_OFF_STATE_ON ? true : false;
+                        mTargetOn = buffer.get() == GENERIC_ON_OFF_STATE_ON;
                         mRemainingTime = buffer.get();
                         Log.v(TAG, "Target on: " + mTargetOn);
                         Log.v(TAG, "Remaining time: " + mRemainingTime);
@@ -98,15 +90,17 @@ public final class GenericOnOffStatus extends ConfigMessage implements UpperTran
 
                     mConfigStatusCallbacks.onGenericOnOffStatusReceived(mProvisionedMeshNode, mPresentOn, mTargetOn, mRemainingTime);
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    return true;
                 } else {
                     mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
-                parseControlMessage((ControlMessage) message);
+                parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
         }
+        return false;
     }
 
     @Override

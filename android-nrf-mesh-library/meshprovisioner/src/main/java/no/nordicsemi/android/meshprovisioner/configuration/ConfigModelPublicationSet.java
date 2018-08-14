@@ -29,15 +29,14 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public class ConfigModelPublicationSet extends ConfigMessage {
+public class ConfigModelPublicationSet extends ConfigMessageState {
 
     private static final String TAG = ConfigModelPublicationSet.class.getSimpleName();
 
@@ -57,7 +56,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
     private AccessMessage mAccessMessage;
 
     ConfigModelPublicationSet(final Builder configModelPublicationSetBuilder) {
-        super(configModelPublicationSetBuilder.mContext, configModelPublicationSetBuilder.meshNode);
+        super(configModelPublicationSetBuilder.mContext, configModelPublicationSetBuilder.meshNode, configModelPublicationSetBuilder.mCallbacks);
         this.aszmic = configModelPublicationSetBuilder.aszmic;
         this.elementAddress = configModelPublicationSetBuilder.elementAddress;
         this.publishAddress = configModelPublicationSetBuilder.publishAddress;
@@ -68,14 +67,29 @@ public class ConfigModelPublicationSet extends ConfigMessage {
         this.publishRetransmitCount = configModelPublicationSetBuilder.publishRetransmitCount;
         this.publishRetransmitIntervalSteps = configModelPublicationSetBuilder.publishRetransmitIntervalSteps;
         this.mModelIdentifier = configModelPublicationSetBuilder.modelIdentifier;
-        this.mInternalTransportCallbacks = configModelPublicationSetBuilder.mInternalTransportCallbacks;
-        this.mConfigStatusCallbacks = configModelPublicationSetBuilder.mConfigStatusCallbacks;
         createAccessMessage();
     }
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_MODEL_PUBLICATION_SET;
+        return MessageState.CONFIG_MODEL_PUBLICATION_SET_STATE;
+    }
+
+    @Override
+    protected boolean parseMessage(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
+            }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+        }
+        return false;
     }
 
     /**
@@ -130,15 +144,12 @@ public class ConfigModelPublicationSet extends ConfigMessage {
         mPayloads.putAll(mAccessMessage.getNetworkPdu());
     }
 
-    /**
-     * Starts sending the mesh pdu
-     */
-    public void executeSend() {
-        if (!mPayloads.isEmpty()) {
-            for (int i = 0; i < mPayloads.size(); i++) {
-                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-            }
+    @Override
+    public final void executeSend() {
+        Log.v(TAG, "Sending config model publication set");
+        super.executeSend();
 
+        if (!mPayloads.isEmpty()) {
             if (mConfigStatusCallbacks != null)
                 mConfigStatusCallbacks.onPublicationSetSent(mProvisionedMeshNode);
         }
@@ -146,20 +157,6 @@ public class ConfigModelPublicationSet extends ConfigMessage {
 
     public void parseData(final byte[] pdu) {
         parseMessage(pdu);
-    }
-
-    private void parseMessage(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-            } else {
-                parseControlMessage((ControlMessage) message);
-            }
-        } else {
-            Log.v(TAG, "Message reassembly may not be complete yet");
-        }
     }
 
     @Override
@@ -183,8 +180,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
 
         private Context mContext;
         private ProvisionedMeshNode meshNode;
-        private InternalTransportCallbacks mInternalTransportCallbacks;
-        private MeshConfigurationStatusCallbacks mConfigStatusCallbacks;
+        private InternalMeshMsgHandlerCallbacks mCallbacks;
         private byte[] src;
         private int aszmic;
         private byte[] elementAddress;
@@ -199,13 +195,12 @@ public class ConfigModelPublicationSet extends ConfigMessage {
 
         public Builder(@NonNull final Context context,
                        @NonNull final ProvisionedMeshNode mProvisionedMeshNode,
-                       @NonNull final InternalTransportCallbacks transportCallbacks,
-                       final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks) {
+                       final InternalMeshMsgHandlerCallbacks callbacks) {
             this.mContext = context;
             this.meshNode = mProvisionedMeshNode;
+            this.mCallbacks = callbacks;
             this.src = mProvisionedMeshNode.getConfigurationSrc();
-            this.mInternalTransportCallbacks = transportCallbacks;
-            this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
+
         }
 
         public Builder withAszmic(final int aszmic) {
