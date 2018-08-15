@@ -65,7 +65,7 @@ public final class ProvisioningCapabilities implements Parcelable {
         return rawCapabilities;
     }
 
-    void setRawCapabilities(final byte[] rawCapabilities) {
+    protected void setRawCapabilities(final byte[] rawCapabilities) {
         this.rawCapabilities = rawCapabilities;
     }
 
@@ -73,7 +73,7 @@ public final class ProvisioningCapabilities implements Parcelable {
         return numberOfElements;
     }
 
-    void setNumberOfElements(final byte numberOfElements) {
+    protected void setNumberOfElements(final byte numberOfElements) {
         this.numberOfElements = numberOfElements;
     }
 
@@ -81,7 +81,7 @@ public final class ProvisioningCapabilities implements Parcelable {
         return algorithm;
     }
 
-    void setSupportedAlgorithm(final short algorithm) {
+    protected void setSupportedAlgorithm(final short algorithm) {
         this.algorithm = algorithm;
     }
 
@@ -89,7 +89,7 @@ public final class ProvisioningCapabilities implements Parcelable {
         return publicKeyType;
     }
 
-    void setPublicKeyType(final byte publicKeyType) {
+    protected void setPublicKeyType(final byte publicKeyType) {
         this.publicKeyType = publicKeyType;
     }
 
@@ -97,7 +97,7 @@ public final class ProvisioningCapabilities implements Parcelable {
         return staticOOBType;
     }
 
-    void setStaticOOBType(final byte staticOOBType) {
+    protected void setStaticOOBType(final byte staticOOBType) {
         this.staticOOBType = staticOOBType;
     }
 
@@ -105,7 +105,7 @@ public final class ProvisioningCapabilities implements Parcelable {
         return outputOOBSize;
     }
 
-    void setOutputOOBSize(final byte outputOOBSize) {
+    protected void setOutputOOBSize(final byte outputOOBSize) {
         this.outputOOBSize = outputOOBSize;
     }
 
@@ -113,7 +113,7 @@ public final class ProvisioningCapabilities implements Parcelable {
         return outputOOBAction;
     }
 
-    void setOutputOOBAction(final short outputOOBAction) {
+    protected void setOutputOOBAction(final short outputOOBAction) {
         this.outputOOBAction = outputOOBAction;
     }
 
@@ -121,7 +121,7 @@ public final class ProvisioningCapabilities implements Parcelable {
         return inputOOBSize;
     }
 
-    void setInputOOBSize(final byte inputOOBSize) {
+    protected void setInputOOBSize(final byte inputOOBSize) {
         this.inputOOBSize = inputOOBSize;
     }
 
@@ -129,7 +129,7 @@ public final class ProvisioningCapabilities implements Parcelable {
         return inputOOBAction;
     }
 
-    void setInputOOBAction(final short inputOOBAction) {
+    protected void setInputOOBAction(final short inputOOBAction) {
         this.inputOOBAction = inputOOBAction;
     }
 }

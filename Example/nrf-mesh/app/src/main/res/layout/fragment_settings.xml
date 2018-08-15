@@ -151,7 +151,7 @@
                         app:layout_constraintTop_toBottomOf="@+id/container_flags"/>
 
                     <include
-                        android:id="@+id/container_algorithm"
+                        android:id="@+id/container_supported_algorithm"
                         layout="@layout/layout_container"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"

@@ -86,7 +86,7 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         final TextView nodeIdentifier = containerNodeIdentifier.findViewById(R.id.text);
         nodeIdentifier.setText(node.getNodeIdentifier());
 
-        final View containerUnicastAddress = findViewById(R.id.container_algorithm);
+        final View containerUnicastAddress = findViewById(R.id.container_supported_algorithm);
         containerUnicastAddress.setClickable(false);
         final TextView unicastAddress = containerUnicastAddress.findViewById(R.id.text);
         unicastAddress.setText(MeshParserUtils.bytesToHex(node.getUnicastAddress(), false));

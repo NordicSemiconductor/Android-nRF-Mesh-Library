@@ -26,6 +26,7 @@ import android.app.Activity;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -39,6 +40,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -49,8 +51,15 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.states.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.states.ProvisioningFailedState;
+import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.AlgorithmInformationParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
+import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
+import no.nordicsemi.android.meshprovisioner.utils.ParsePublicKeyInformation;
+import no.nordicsemi.android.meshprovisioner.utils.ParseStaticOutputOOBInformation;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ProvisioningProgressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -88,7 +97,9 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     @BindView(R.id.provisioning_progress_bar)
     ProgressBar mProvisioningProgressBar;
     @BindView(R.id.data_container)
-    View content;
+    ScrollView container;
+    @BindView(R.id.capabilities_container)
+    View mCapabilitiesContainer;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -133,7 +144,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             dialogFragmentNodeName.show(getSupportFragmentManager(), null);
         });
 
-        final View containerUnicastAddress = findViewById(R.id.container_algorithm);
+        final View containerUnicastAddress = findViewById(R.id.container_supported_algorithm);
         containerUnicastAddress.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lan_black_alpha_24dp));
         final TextView unicastAddressTitle = containerUnicastAddress.findViewById(R.id.title);
         unicastAddressTitle.setText(R.string.summary_unicast_address);
@@ -172,14 +183,14 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                     provisioningStatusContainer.setVisibility(View.VISIBLE);
                     return;
                 }
-                content.setVisibility(View.VISIBLE);
+                container.setVisibility(View.VISIBLE);
             }
         });
 
         mViewModel.isReconnecting().observe(this, isReconnecting -> {
             if(isReconnecting){
                 provisioningStatusContainer.setVisibility(View.GONE);
-                content.setVisibility(View.GONE);
+                container.setVisibility(View.GONE);
                 mProvisioningProgressBar.setVisibility(View.GONE);
                 connectivityProgressContainer.setVisibility(View.VISIBLE);
             }
@@ -193,12 +204,26 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             }
         });
 
-        identify.setOnClickListener(v -> mViewModel.identifyNode());
+        mViewModel.getMeshNode().observe(this, extendedMeshNode -> {
+            if(extendedMeshNode.getMeshNode() instanceof UnprovisionedMeshNode) {
+                final UnprovisionedMeshNode node = (UnprovisionedMeshNode) extendedMeshNode.getMeshNode();
+                if (node.getProvisioningCapabilities() != null) {
+                    mProvisioningProgressBar.setVisibility(View.INVISIBLE);
+                    identify.setVisibility(View.GONE);
+                    updateCapabilitiesUi(node.getProvisioningCapabilities());
+                }
+            }
+        });
+
+        identify.setOnClickListener(v -> {
+            mProvisioningProgressBar.setVisibility(View.VISIBLE);
+            mViewModel.identifyNode();
+        });
 
         provisioner.setOnClickListener(v -> {
             mProvisioningProgressBar.setVisibility(View.VISIBLE);
             setupProvisionerStateObservers(provisioningStatusContainer);
-            mViewModel.provisionNode(mViewModel.getProvisioningData().getNodeName());
+            mViewModel.startProvisioning(mViewModel.getProvisioningData().getNodeName());
         });
     }
 
@@ -324,7 +349,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 }
 
             }
-            content.setVisibility(View.GONE);
+            container.setVisibility(View.GONE);
         });
 
     }
@@ -335,5 +360,34 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         returnIntent.putExtra("result", mViewModel.isProvisioningComplete());
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
+    }
+
+    private void updateCapabilitiesUi(final ProvisioningCapabilities capabilities) {
+        mCapabilitiesContainer.setVisibility(View.VISIBLE);
+
+        final String numberOfElements = String.valueOf(capabilities.getNumberOfElements());
+        ((TextView)mCapabilitiesContainer.findViewById(R.id.container_element_count).findViewById(R.id.text)).setText(numberOfElements);
+
+        final String algorithm = AlgorithmInformationParser.parseAlgorithm(capabilities.getSupportedAlgorithm());
+        ((TextView)mCapabilitiesContainer.findViewById(R.id.container_supported_algorithm).findViewById(R.id.text)).setText(algorithm);
+
+        final String publicKeyType = ParsePublicKeyInformation.parsePublicKeyInformation(capabilities.getPublicKeyType());
+        ((TextView)mCapabilitiesContainer.findViewById(R.id.container_public_key_type).findViewById(R.id.text)).setText(publicKeyType);
+
+        final String oobType = ParseStaticOutputOOBInformation.parseStaticOOBActionInformation(capabilities.getStaticOOBType());
+        ((TextView)mCapabilitiesContainer.findViewById(R.id.container_static_oob_type).findViewById(R.id.text)).setText(oobType);
+
+        final String outputOobSize = String.valueOf(capabilities.getOutputOOBSize());
+        ((TextView)mCapabilitiesContainer.findViewById(R.id.container_output_oob_size).findViewById(R.id.text)).setText(outputOobSize);
+
+        final String outputAction = ParseOutputOOBActions.getOuputOOBActionDescription(capabilities.getOutputOOBAction());
+        ((TextView)mCapabilitiesContainer.findViewById(R.id.container_output_actions).findViewById(R.id.text)).setText(outputAction);
+
+        final String inputOobSize = String.valueOf(capabilities.getInputOOBSize());
+        ((TextView)mCapabilitiesContainer.findViewById(R.id.container_input_oob_size).findViewById(R.id.text)).setText(inputOobSize);
+
+        final String inputAction = ParseInputOOBActions.getInputOOBActionDescription(capabilities.getOutputOOBAction());
+        ((TextView)mCapabilitiesContainer.findViewById(R.id.container_input_actions).findViewById(R.id.text)).setText(inputAction);
+
     }
 }

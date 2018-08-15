@@ -167,7 +167,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             }
 
             if (extendedMeshNode.hasAddedAppKeys()) {
-                final Map<Integer, String> appKeys = extendedMeshNode.getMeshNode().getAddedAppKeys();
+                final Map<Integer, String> appKeys = ((ProvisionedMeshNode)extendedMeshNode.getMeshNode()).getAddedAppKeys();
                 if (!appKeys.isEmpty()) {
                     noAppKeysFound.setVisibility(View.GONE);
                     recyclerViewAppKeys.setVisibility(View.VISIBLE);
@@ -307,7 +307,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     @Override
     public void onNodeReset() {
-        final ProvisionedMeshNode provisionedMeshNode = mViewModel.getExtendedMeshNode().getMeshNode();
+        final ProvisionedMeshNode provisionedMeshNode = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
         mViewModel.resetNode(provisionedMeshNode);
     }
 

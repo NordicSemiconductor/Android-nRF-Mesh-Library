@@ -107,7 +107,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
     private void handleConfigurationStates(final Intent intent) {
         final int state = intent.getExtras().getInt(EXTRA_CONFIGURATION_STATE);
         final MeshNodeStates.MeshNodeStatus status = MeshNodeStates.MeshNodeStatus.fromStatusCode(state);
-        final ProvisionedMeshNode node = mBinder.getMeshNode();
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mBinder.getMeshNode();
         final MeshModel model = mBinder.getMeshModel();
         switch (status) {
             case COMPOSITION_DATA_GET_SENT:
@@ -183,7 +183,6 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
 
     private void handleGenericOnOffState(final Intent intent) {
         final String action = intent.getAction();
-        final ProvisionedMeshNode node = mBinder.getMeshNode();
         final MeshModel model = mBinder.getMeshModel();
         switch (action) {
             case ACTION_GENERIC_ON_OFF_STATE:
@@ -210,7 +209,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
      * @param appKeyIndex index of the application key that has already been added to the mesh node
      */
     public void sendBindAppKey(final int appKeyIndex) {
-        mBinder.sendBindAppKey(mExtendedMeshNode.getMeshNode(), mElement.getValue().getElementAddress(), mMeshModel.getValue(), appKeyIndex);
+        mBinder.sendBindAppKey((ProvisionedMeshNode) mExtendedMeshNode.getMeshNode(), mElement.getValue().getElementAddress(), mMeshModel.getValue(), appKeyIndex);
     }
 
     /**
@@ -219,11 +218,11 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
      * @param appKeyIndex index of the application key that has already been added to the mesh node
      */
     public void sendUnbindAppKey(final int appKeyIndex) {
-        mBinder.sendUnbindAppKey(mExtendedMeshNode.getMeshNode(), mElement.getValue().getElementAddress(), mMeshModel.getValue(), appKeyIndex);
+        mBinder.sendUnbindAppKey((ProvisionedMeshNode) mExtendedMeshNode.getMeshNode(), mElement.getValue().getElementAddress(), mMeshModel.getValue(), appKeyIndex);
     }
 
     public void sendConfigModelPublishAddressSet(final byte[] publishAddress) {
-        final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mExtendedMeshNode.getMeshNode();
         final Element element = mElement.getValue();
         final MeshModel model = mMeshModel.getValue();
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
@@ -235,14 +234,14 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
     }
 
     public void sendConfigModelSubscriptionAdd(final byte[] subscriptionAddress) {
-        final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mExtendedMeshNode.getMeshNode();
         final Element element = mElement.getValue();
         final MeshModel model = mMeshModel.getValue();
         mBinder.sendConfigModelSubscriptionAdd(node, element, model, subscriptionAddress);
     }
 
     public void sendConfigModelSubscriptionDelete(final byte[] subscriptionAddress) {
-        final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mExtendedMeshNode.getMeshNode();
         final Element element = mElement.getValue();
         final MeshModel model = mMeshModel.getValue();
         mBinder.sendConfigModelSubscriptionDelete(node, element, model, subscriptionAddress);

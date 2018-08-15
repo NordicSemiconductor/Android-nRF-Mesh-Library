@@ -54,6 +54,8 @@ public final class UnprovisionedMeshNode extends BaseMeshNode {
         unicastAddress = in.createByteArray();
         deviceKey = in.createByteArray();
         ttl = in.readInt();
+        provisioningCapabilities = in.readParcelable(ProvisioningCapabilities.class.getClassLoader());
+        numberOfElements = provisioningCapabilities.getNumberOfElements();
     }
 
     @Override
@@ -76,6 +78,7 @@ public final class UnprovisionedMeshNode extends BaseMeshNode {
         dest.writeByteArray(unicastAddress);
         dest.writeByteArray(deviceKey);
         dest.writeInt(ttl);
+        dest.writeParcelable(provisioningCapabilities, flags);
     }
 
 
@@ -166,5 +169,10 @@ public final class UnprovisionedMeshNode extends BaseMeshNode {
 
     public final void setProvisionedTime(final long timeStampInMillis) {
         mTimeStampInMillis = timeStampInMillis;
+    }
+
+    protected void setProvisioningCapabilities(final ProvisioningCapabilities provisioningCapabilities) {
+        numberOfElements = provisioningCapabilities.getNumberOfElements();
+        this.provisioningCapabilities = provisioningCapabilities;
     }
 }

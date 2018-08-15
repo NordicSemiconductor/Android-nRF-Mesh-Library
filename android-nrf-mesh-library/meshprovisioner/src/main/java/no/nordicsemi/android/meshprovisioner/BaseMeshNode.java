@@ -81,7 +81,8 @@ public abstract class BaseMeshNode implements Parcelable {
     private String bluetoothDeviceAddress;
     protected long mTimeStampInMillis;
     protected SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
-    private ProvisioningCapabilities provisioningCapabilities;
+    protected ProvisioningCapabilities provisioningCapabilities;
+    protected int numberOfElements;
 
     protected BaseMeshNode() {
 
@@ -186,11 +187,11 @@ public abstract class BaseMeshNode implements Parcelable {
         mConfigurationSrc = src;
     }
 
-    public void setProvisioningCapabilities(final ProvisioningCapabilities provisioningCapabilities) {
-        this.provisioningCapabilities = provisioningCapabilities;
-    }
-
     public ProvisioningCapabilities getProvisioningCapabilities() {
         return provisioningCapabilities;
+    }
+
+    public int getNumberOfElements() {
+        return numberOfElements;
     }
 }

@@ -136,7 +136,7 @@
                             app:layout_constraintTop_toBottomOf="@+id/container_timestamp"/>
 
                         <include
-                            android:id="@+id/container_algorithm"
+                            android:id="@+id/container_supported_algorithm"
                             layout="@layout/info_node_unicast_address"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -151,7 +151,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/copy"
-                            app:layout_constraintTop_toBottomOf="@+id/container_algorithm"/>
+                            app:layout_constraintTop_toBottomOf="@+id/container_supported_algorithm"/>
 
                         <ImageView
                             android:id="@+id/copy"

@@ -505,7 +505,7 @@ public class MeshProvisioningHandler {
         final byte[] startData = new byte[5];
         startData[0] = ParseProvisioningAlgorithm.getAlgorithmValue(algorithm);
         startData[1] = 0;//(byte) publicKeyType;
-        final int outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
+        final short outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
         if (outputOobActionType == ParseOutputOOBActions.NO_OUTPUT) {
             startData[2] = 0;
             //prefer no oob

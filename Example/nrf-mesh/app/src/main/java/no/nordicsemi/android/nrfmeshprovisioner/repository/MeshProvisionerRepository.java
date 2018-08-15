@@ -32,6 +32,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
@@ -60,6 +61,7 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
     @Inject
     public MeshProvisionerRepository(final Context context){
         super(context);
+        mExtendedMeshNode = new ExtendedMeshNode(new UnprovisionedMeshNode());
     }
 
     /**
@@ -140,6 +142,7 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
                 break;
             case PROVISIONING_CAPABILITIES:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
+                mExtendedMeshNode.updateMeshNode(mBinder.getMeshNode());
                 break;
             case PROVISIONING_START:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
@@ -192,11 +195,11 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
     private void handleConfigurationStates(final Intent intent){
         final int state = intent.getExtras().getInt(EXTRA_CONFIGURATION_STATE);
         final MeshNodeStates.MeshNodeStatus status = MeshNodeStates.MeshNodeStatus.fromStatusCode(state);
-        final ProvisionedMeshNode node = mBinder.getMeshNode();
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mBinder.getMeshNode();
         switch (status) {
             case COMPOSITION_DATA_GET_SENT:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
-                mExtendedMeshNode = new ExtendedMeshNode(node);
+                mExtendedMeshNode.updateMeshNode(node);
                 break;
             case COMPOSITION_DATA_STATUS_RECEIVED:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);

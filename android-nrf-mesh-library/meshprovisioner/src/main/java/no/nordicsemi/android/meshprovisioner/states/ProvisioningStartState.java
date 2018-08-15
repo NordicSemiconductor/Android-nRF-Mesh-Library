@@ -77,7 +77,7 @@ public class ProvisioningStartState extends ProvisioningState {
         provisioningPDU[1] = TYPE_PROVISIONING_START;
         provisioningPDU[2] = ParseProvisioningAlgorithm.getAlgorithmValue(algorithm);
         provisioningPDU[3] = 0;//(byte) publicKeyType;
-        final int outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
+        final short outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
         if(outputOobActionType == ParseOutputOOBActions.NO_OUTPUT){
             provisioningPDU[4] = 0;
             //prefer no oob

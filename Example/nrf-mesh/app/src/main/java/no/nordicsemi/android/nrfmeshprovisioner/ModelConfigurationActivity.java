@@ -27,6 +27,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -162,7 +163,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
         mActionBindAppKey.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(ModelConfigurationActivity.this, BindAppKeysActivity.class);
-            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) mViewModel.getExtendedMeshNode().getMeshNode().getAddedAppKeys());
+            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Parcelable) ((ProvisionedMeshNode)mViewModel.getExtendedMeshNode().getMeshNode()).getAddedAppKeys());
             startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
@@ -229,7 +230,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
             } else {
                 final int elementAdd = configModelPublicationStatusLiveData.getElementAddressInt();
                 final int modelIdentifier = configModelPublicationStatusLiveData.getModelIdentifier();
-                final Element element = mViewModel.getExtendedMeshNode().getMeshNode().getElements().get(elementAdd);
+                final Element element = ((ProvisionedMeshNode)mViewModel.getExtendedMeshNode().getMeshNode()).getElements().get(elementAdd);
                 final MeshModel model = element.getMeshModels().get(modelIdentifier);
                 final byte[] publishAddress = model.getPublishAddress();
                 mPublishAddressView.setText(MeshParserUtils.bytesToHex(publishAddress, true));
@@ -403,7 +404,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
                 mActionOnOff.setOnClickListener(v -> {
                     try {
-                        final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
+                        final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
                         if(mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on))){
                             /*mActionOnOff.setText(R.string.action_generic_off);
                             onOffState.setText(R.string.generic_state_on);*/
@@ -423,7 +424,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 });
 
                 mActionRead.setOnClickListener(v -> {
-                    final ProvisionedMeshNode node = mViewModel.getExtendedMeshNode().getMeshNode();
+                    final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
                     mViewModel.sendGenericOnOffGet(node);
                     //mActionRead.setEnabled(false);
                     showProgressbar();
