@@ -84,8 +84,12 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
             holder.elements.setText(String.valueOf(elements.size()));
             holder.models.setText(String.valueOf(getModels(elements)));
         } else {
-            holder.nodeInfoContainer.setVisibility(View.GONE);
-            holder.notConfiguredView.setVisibility(View.VISIBLE);
+            //holder.nodeInfoContainer.setVisibility(View.GONE);
+            //holder.notConfiguredView.setVisibility(View.VISIBLE);
+
+            holder.companyIdentifier.setText("Unknown");
+            holder.elements.setText(String.valueOf(node.getNumberOfElements()));
+            holder.models.setText("Unknown");
         }
     }
 

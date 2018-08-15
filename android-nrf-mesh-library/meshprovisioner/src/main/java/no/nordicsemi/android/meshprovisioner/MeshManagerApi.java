@@ -254,6 +254,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
         final int unicastAddress = AddressUtils.getUnicastAddressInt(meshNode.getUnicastAddress());
         mProvisionedNodes.put(unicastAddress, meshNode);
+        incrementUnicastAddress(meshNode);
         saveProvisionedNode(meshNode);
     }
 
@@ -312,15 +313,13 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         editor.apply();
     }
 
-    @Override
-    public void onUnicastAddressChanged(final int unicastAddress) {
-        //Now that we have received the unicast addresses assigned to element addresses,
-        //increment it here again so the next node to be provisioned will have the next available address in the network
-        int unicastAdd = unicastAddress + 1;
+    private void incrementUnicastAddress(final ProvisionedMeshNode meshNode) {
+        //Since we know the number of elements this node contains we can predict the next available address for the next node.
+        int unicastAdd = (meshNode.getUnicastAddressInt() + meshNode.getNumberOfElements());
         //We check if the incremented unicast address is already taken by the app/configurator
         final int tempSrc = (mConfigurationSrc[0] & 0xFF) << 8 | (mConfigurationSrc[1] & 0xFF);
         if(unicastAdd == tempSrc) {
-            unicastAdd = unicastAddress + 1;
+            unicastAdd = unicastAdd + 1;
         }
         mProvisioningSettings.setUnicastAddress(unicastAdd);
 

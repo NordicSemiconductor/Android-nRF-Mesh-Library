@@ -196,7 +196,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                 case COMPOSITION_DATA_STATUS_STATE:
                     final ConfigCompositionDataStatus compositionDataStatus = (ConfigCompositionDataStatus) mMeshMessageState;
                     if (compositionDataStatus.parseMessage(pdu)) {
-                        mInternalMeshManagerCallbacks.onUnicastAddressChanged(compositionDataStatus.getUnicastAddress());
+                        //mInternalMeshManagerCallbacks.onUnicastAddressChanged(compositionDataStatus.getUnicastAddress());
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
