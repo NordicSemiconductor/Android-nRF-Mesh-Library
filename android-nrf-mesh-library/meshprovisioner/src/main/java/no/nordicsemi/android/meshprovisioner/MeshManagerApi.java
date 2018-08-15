@@ -47,6 +47,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessageState;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.SequenceNumber;
+import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -579,10 +580,40 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         return data;
     }
 
+
+
     /**
-     * Starts the provisioning process
+     * Identifies the node that is to be provisioned.
+     * <p>
+     * This method will send a provisioning invite to the connected peripheral. This will help users to identify a particular node before starting the provisioning process.
+     * If a user connected to the correct peripheral you can call {@link #startProvisioning(String, String, String, int, int, int, int, int)} to continue provisioning.
+     * </p
+     *
      */
-    public void startProvisioning(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl) throws IllegalArgumentException {
+    public void identifyNode() throws IllegalArgumentException {
+        //We must save all the provisioning data here so that they could be reused when provisioning the next devices
+        mMeshProvisioningHandler.identifyNode(new UnprovisionedMeshNode());
+    }
+
+    /**
+     * Starts provisioning an unprovisioned mesh node
+     * <p>
+     * This method will start the provisioning process. During this process you may notice the unprovisioned node may blink if its supported by the node.
+     * Also the node may not blink if {@link #identifyNode()} was invoked before calling this method.
+     * However, if {@link #identifyNode()} was called before this, invoking this method will continue the provisioning process.
+     * </p>
+     *
+     * @param address         Bluetooth address of the node
+     * @param nodeName        Friendly node name
+     * @param networkKeyValue Network key
+     * @param keyIndex        Index of the network key
+     * @param flags           Flag containing the key refresh or the iv update operations
+     * @param ivIndex         32-bit value shared across the network
+     * @param unicastAddress  Unicast address to be assigned to the node
+     * @param globalTtl       Global ttl which is also the number of hops to be used for a message
+     */
+    public void startProvisioning(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue,
+                                  final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl) throws IllegalArgumentException {
         //We must save all the provisioning data here so that they could be reused when provisioning the next devices
         mProvisioningSettings.setNetworkKey(networkKeyValue);
         mProvisioningSettings.setKeyIndex(keyIndex);

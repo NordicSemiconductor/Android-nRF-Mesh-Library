@@ -49,7 +49,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.states.ProvisioningFailed;
+import no.nordicsemi.android.meshprovisioner.states.ProvisioningFailedState;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ProvisioningProgressAdapter;
@@ -119,9 +119,10 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         final LinearLayout connectivityProgressContainer = findViewById(R.id.connectivity_progress_container);
         final TextView connectionState = findViewById(R.id.connection_state);
         final Button provisioner = findViewById(R.id.action_provision_device);
+        final Button identify = findViewById(R.id.action_identify_device);
         final View provisioningStatusContainer = findViewById(R.id.info_provisioning_status_container);
 
-        final View containerName = findViewById(R.id.container_name);
+        final View containerName = findViewById(R.id.container_element_count);
         containerName.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
         final TextView nameTitle = containerName.findViewById(R.id.title);
         nameTitle.setText(R.string.summary_name);
@@ -132,7 +133,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             dialogFragmentNodeName.show(getSupportFragmentManager(), null);
         });
 
-        final View containerUnicastAddress = findViewById(R.id.container_unicast_address);
+        final View containerUnicastAddress = findViewById(R.id.container_algorithm);
         containerUnicastAddress.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lan_black_alpha_24dp));
         final TextView unicastAddressTitle = containerUnicastAddress.findViewById(R.id.title);
         unicastAddressTitle.setText(R.string.summary_unicast_address);
@@ -143,7 +144,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             dialogFragmentFlags.show(getSupportFragmentManager(), null);
         });
 
-        final View containerAppKey = findViewById(R.id.container_app_key);
+        final View containerAppKey = findViewById(R.id.container_public_key_type);
         containerAppKey.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
         final TextView appKeyTitle = containerAppKey.findViewById(R.id.title);
         appKeyTitle.setText(R.string.summary_app_keys);
@@ -192,11 +193,13 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             }
         });
 
+        identify.setOnClickListener(v -> mViewModel.identifyNode());
+
         provisioner.setOnClickListener(v -> {
             mProvisioningProgressBar.setVisibility(View.VISIBLE);
+            setupProvisionerStateObservers(provisioningStatusContainer);
             mViewModel.provisionNode(mViewModel.getProvisioningData().getNodeName());
         });
-        setupProvisionerStateObservers(provisioningStatusContainer);
     }
 
     @Override
@@ -301,7 +304,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 switch (state) {
                     case PROVISIONING_FAILED:
                         if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_PROVISIONING_FAILED) == null) {
-                            final String statusMessage = ProvisioningFailed.parseProvisioningFailure(getApplicationContext(), provisionerProgress.getStatusReceived());
+                            final String statusMessage = ProvisioningFailedState.parseProvisioningFailure(getApplicationContext(), provisionerProgress.getStatusReceived());
                             DialogFragmentProvisioningFailedErrorMessage message = DialogFragmentProvisioningFailedErrorMessage.newInstance(getString(R.string.title_error_provisioning_failed), statusMessage);
                             message.show(getSupportFragmentManager(), DIALOG_FRAGMENT_PROVISIONING_FAILED);
                         }

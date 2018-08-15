@@ -26,11 +26,13 @@ import android.content.Context;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
-public class ProvisioningFailed extends ProvisioningState {
+public class ProvisioningFailedState extends ProvisioningState {
 
     private final Context mContext;
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
-    public ProvisioningFailed(final Context context, final UnprovisionedMeshNode unprovisionedMeshNode) {
+    private int error;
+
+    public ProvisioningFailedState(final Context context, final UnprovisionedMeshNode unprovisionedMeshNode) {
         super();
         this.mContext = context;
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
@@ -48,9 +50,13 @@ public class ProvisioningFailed extends ProvisioningState {
 
     @Override
     public boolean parseData(final byte[] data) {
-        final int errorCode = data[2];
-        error = parseProvisioningFailure(mContext, errorCode);
+        error = data[2];
+
         return true;
+    }
+
+    public int getErrorCode() {
+        return error;
     }
 
     public static String parseProvisioningFailure(final Context context, final int errorCode) {

@@ -31,9 +31,9 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseProvisioningAlgorithm;
 
-public class ProvisioningStart extends ProvisioningState {
+public class ProvisioningStartState extends ProvisioningState {
 
-    private final String TAG = ProvisioningStart.class.getSimpleName();
+    private final String TAG = ProvisioningStartState.class.getSimpleName();
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
     private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
@@ -47,7 +47,7 @@ public class ProvisioningStart extends ProvisioningState {
     private int inputOOBSize;
     private int inputOOBAction;
 
-    public ProvisioningStart(final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    public ProvisioningStartState(final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
         this.mInternalTransportCallbacks = mInternalTransportCallbacks;

@@ -53,10 +53,10 @@ import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public class ProvisioningPublicKey extends ProvisioningState {
+public class ProvisioningPublicKeyState extends ProvisioningState {
 
     private static final int PROVISIONING_PUBLIC_KEY_XY_PDU_LENGTH = 69;
-    private final String TAG = ProvisioningPublicKey.class.getSimpleName();
+    private final String TAG = ProvisioningPublicKeyState.class.getSimpleName();
     private final byte[] publicKeyXY = new byte[PROVISIONING_PUBLIC_KEY_XY_PDU_LENGTH];
     private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
@@ -67,7 +67,7 @@ public class ProvisioningPublicKey extends ProvisioningState {
     private ECPrivateKey mProvisionerPrivaetKey;
 
 
-    public ProvisioningPublicKey(final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    public ProvisioningPublicKeyState(final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
         this.mMeshProvisioningStatusCallbacks = meshProvisioningStatusCallbacks;
@@ -101,9 +101,8 @@ public class ProvisioningPublicKey extends ProvisioningState {
             keyPairGenerator.initialize(parameterSpec);
             final KeyPair keyPair = keyPairGenerator.generateKeyPair();
             final ECPublicKey publicKey = (ECPublicKey) keyPair.getPublic();
-            final ECPrivateKey privateKey = (ECPrivateKey) keyPair.getPrivate();
 
-            mProvisionerPrivaetKey = privateKey;
+            mProvisionerPrivaetKey = (ECPrivateKey) keyPair.getPrivate();
 
             final ECPoint point = publicKey.getQ();
 

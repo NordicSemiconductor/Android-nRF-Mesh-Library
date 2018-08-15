@@ -156,9 +156,9 @@ public class ProvisioningStateLiveData extends LiveData<ProvisioningStateLiveDat
                 provisioningProgress = new ProvisioningProgress(state, context.getString(R.string.prov_complete_received), R.drawable.ic_arrow_back_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
-            case PROVISIONING_FAILED:
+            /*case PROVISIONING_FAILED:
                 provisioningProgress = new ProvisioningProgress(state, context.getString(R.string.prov_failed_received), R.drawable.ic_arrow_forward_black_alpha);
-                mProvisioningProgress.add(provisioningProgress);
+                mProvisioningProgress.add(provisioningProgress);*/
             default:
                 break;
             case COMPOSITION_DATA_GET_SENT:
@@ -185,12 +185,16 @@ public class ProvisioningStateLiveData extends LiveData<ProvisioningStateLiveDat
         postValue(this);
     }
 
-    public void onMeshNodeStateUpdated(final Context context, final int provisionerState, final int status) {
+    public void onMeshNodeStateUpdated(final Context context, final int provisionerState, final int statusCode) {
         final ProvisioningProgress provisioningProgress;
         final ProvisioningLiveDataState state = ProvisioningLiveDataState.fromStatusCode(provisionerState);
         switch (state) {
+            case PROVISIONING_FAILED:
+                provisioningProgress = new ProvisioningProgress(state, statusCode, context.getString(R.string.prov_failed_received), R.drawable.ic_arrow_forward_black_alpha);
+                mProvisioningProgress.add(provisioningProgress);
+                break;
             case APP_KEY_STATUS_RECEIVED:
-                provisioningProgress = new ProvisioningProgress(state, status, context.getString(R.string.prov_app_key_status_received), R.drawable.ic_arrow_forward_black_alpha);
+                provisioningProgress = new ProvisioningProgress(state, statusCode, context.getString(R.string.prov_app_key_status_received), R.drawable.ic_arrow_forward_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
         }

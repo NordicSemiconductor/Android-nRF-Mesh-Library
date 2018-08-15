@@ -101,6 +101,7 @@
     <string name="prov_app_key_bind_status_received">App key bind status received…</string>
 
     <string name="provision_action">Provision</string>
+    <string name="identify_action">Identify</string>
 
     <string name="ok">OK</string>
 

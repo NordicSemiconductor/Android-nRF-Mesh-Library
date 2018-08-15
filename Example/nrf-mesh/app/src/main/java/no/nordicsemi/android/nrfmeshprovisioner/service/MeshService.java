@@ -482,9 +482,10 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
-    public void onProvisioningFailed(final UnprovisionedMeshNode meshNode, final String error) {
+    public void onProvisioningFailed(final UnprovisionedMeshNode meshNode, final int errorCode) {
         final Intent intent = new Intent(ACTION_PROVISIONING_STATE);
         intent.putExtra(EXTRA_PROVISIONING_STATE, MeshNodeStates.MeshNodeStatus.PROVISIONING_FAILED.getState());
+        intent.putExtra(EXTRA_DATA, errorCode);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         mIsProvisioningComplete = false;
     }
@@ -950,6 +951,10 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         public ConfigModelPublicationStatusLiveData getConfigModelPublicationStatus() {
             return mConfigModelPublicationStatus;
 
+        }
+
+        public void identifyNode(){
+            mMeshManagerApi.identifyNode();
         }
 
         public void startProvisioning(final String nodeName) {

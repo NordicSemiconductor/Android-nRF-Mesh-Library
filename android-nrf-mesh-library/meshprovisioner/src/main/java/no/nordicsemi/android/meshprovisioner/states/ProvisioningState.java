@@ -34,8 +34,6 @@ public abstract class ProvisioningState {
     static final byte TYPE_PROVISIONING_DATA = 0x07;
     static final byte TYPE_PROVISIONING_COMPLETE = 0x08;
 
-    protected String error;
-
     public ProvisioningState() {
     }
 
@@ -44,10 +42,6 @@ public abstract class ProvisioningState {
     public abstract void executeSend();
 
     public abstract boolean parseData(final byte[] data);
-
-    public String getError() {
-        return error;
-    }
 
     public enum State {
         PROVISIONING_INVITE(0), PROVISIONING_CAPABILITIES(1), PROVISIONING_START(2), PROVISIONING_PUBLIC_KEY(3),
