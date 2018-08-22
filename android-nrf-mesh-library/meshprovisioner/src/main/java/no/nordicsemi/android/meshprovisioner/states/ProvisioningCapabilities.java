@@ -31,7 +31,7 @@ import no.nordicsemi.android.meshprovisioner.utils.ParsePublicKeyInformation;
 import no.nordicsemi.android.meshprovisioner.utils.ParseStaticOutputOOBInformation;
 
 public class ProvisioningCapabilities extends ProvisioningState {
-    private static final String TAG = ProvisioningInvite.class.getSimpleName();
+    private static final String TAG = ProvisioningCapabilities.class.getSimpleName();
 
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
     private final MeshProvisioningStatusCallbacks mCallbacks;
