@@ -84,12 +84,9 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
             holder.elements.setText(String.valueOf(elements.size()));
             holder.models.setText(String.valueOf(getModels(elements)));
         } else {
-            //holder.nodeInfoContainer.setVisibility(View.GONE);
-            //holder.notConfiguredView.setVisibility(View.VISIBLE);
-
-            holder.companyIdentifier.setText("Unknown");
+            holder.companyIdentifier.setText(R.string.unknown);
             holder.elements.setText(String.valueOf(node.getNumberOfElements()));
-            holder.models.setText("Unknown");
+            holder.models.setText(R.string.unknown);
         }
     }
 
@@ -100,10 +97,6 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
 
     public boolean isEmpty() {
         return getItemCount() == 0;
-    }
-
-    public void clearItems() {
-        mNodes.clear();
     }
 
     private int getModels(final Map<Integer, Element> elements){

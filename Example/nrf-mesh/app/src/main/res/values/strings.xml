@@ -330,4 +330,5 @@
     <string name="supported_output_oob_actions_title">Supported Ouput OOB Actions</string>
     <string name="supported_input_oob_actions_title">Supported Input OOB Actions</string>
     <string name="input_oob_size_title">Input OOB Size</string>
+    <string name="unknown">Unknown</string>
 </resources>
