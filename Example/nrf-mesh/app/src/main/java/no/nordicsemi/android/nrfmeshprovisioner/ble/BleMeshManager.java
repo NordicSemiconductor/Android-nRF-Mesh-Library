@@ -95,7 +95,6 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
         protected Deque<Request> initGatt(final BluetoothGatt gatt) {
             mBluetoothGatt = gatt;
             final LinkedList<Request> requests = new LinkedList<>();
-            requests.push(Request.newMtuRequest(MTU_SIZE_MAX));
             if (isProvisioningComplete) {
                 requests.push(Request.newReadRequest(mMeshProxyDataInCharacteristic));
                 requests.push(Request.newReadRequest(mMeshProxyDataOutCharacteristic));
@@ -105,6 +104,7 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
                 requests.push(Request.newReadRequest(mMeshProvisioningDataOutCharacteristic));
                 requests.push(Request.newEnableNotificationsRequest(mMeshProvisioningDataOutCharacteristic));
             }
+            requests.push(Request.newMtuRequest(MTU_SIZE_MAX));
             return requests;
         }
 
