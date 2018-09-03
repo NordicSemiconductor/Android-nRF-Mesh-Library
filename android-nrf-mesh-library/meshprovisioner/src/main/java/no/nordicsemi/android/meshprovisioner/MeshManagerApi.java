@@ -336,6 +336,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @param data     pdu received by the client
      */
     public final void handleNotifications(BaseMeshNode meshNode, final int mtuSize, final byte[] data) {
+
         byte[] unsegmentedPdu;
         if (!shouldWaitForMoreData(data)) {
             unsegmentedPdu = data;
@@ -344,7 +345,9 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             if (combinedPdu == null)
                 return;
             else {
-                unsegmentedPdu = removeSegmentation(mtuSize, combinedPdu);
+			    //unsegmentedPdu = removeSegmentation(mtuSize, combinedPdu);
+				// Segmentation removal logic is updated in appendPdu(...) routine.
+                unsegmentedPdu = combinedPdu;
             }
         }
         parseNotifications(meshNode, unsegmentedPdu);
@@ -469,6 +472,8 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @return the combine pdu or returns null if not complete.
      */
     private byte[] appendPdu(final int mtuSize, final byte[] pdu) {
+	    // Extract the GATT PDU's SAR type
+        final int gattSar_t = (pdu[0] & GATT_SAR_MASK) >> SAR_BIT_OFFSET;
         if (mIncomingBuffer == null) {
             final int length = Math.min(pdu.length, mtuSize);
             mIncomingBufferOffset = 0;
@@ -476,12 +481,25 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             mIncomingBuffer = pdu;
         } else {
             final int length = Math.min(pdu.length, mtuSize);
-            final byte[] buffer = new byte[mIncomingBuffer.length + length];
-            System.arraycopy(mIncomingBuffer, 0, buffer, 0, mIncomingBufferOffset);
-            System.arraycopy(pdu, 0, buffer, mIncomingBufferOffset, length);
-            mIncomingBufferOffset += length;
+            byte[] buffer = null;
+            if(gattSar_t == GATT_SAR_START) {
+			    // If SAR Type is 'Start' then copy the bytes as is
+                buffer = new byte[mIncomingBuffer.length + length];
+                System.arraycopy(mIncomingBuffer, 0, buffer, 0, mIncomingBufferOffset);
+                System.arraycopy(pdu, 0, buffer, mIncomingBufferOffset, length);
+                mIncomingBufferOffset += length;
+            } else if(gattSar_t == GATT_SAR_CONTINUATION || gattSar_t == GATT_SAR_END){
+			    // If SAR Type is 'Continuation' or 'End' strip the SAR from byte stream
+                buffer = new byte[mIncomingBuffer.length + length-1];
+                System.arraycopy(mIncomingBuffer, 0, buffer, 0, mIncomingBufferOffset);
+                System.arraycopy(pdu, 1, buffer, mIncomingBufferOffset, length - 1);
+                mIncomingBufferOffset += length - 1;
+            }
+
             mIncomingBuffer = buffer;
-            if (length < mtuSize) {
+            if (length < mtuSize && gattSar_t == GATT_SAR_END) {
+			    // When complete PDU is assembled, Make the SAR type as 'Complete PDU'
+                mIncomingBuffer[0] = (byte)(mIncomingBuffer[0] & GATT_SAR_UNMASK);
                 final byte packet[] = mIncomingBuffer;
                 mIncomingBuffer = null;
                 return packet;
