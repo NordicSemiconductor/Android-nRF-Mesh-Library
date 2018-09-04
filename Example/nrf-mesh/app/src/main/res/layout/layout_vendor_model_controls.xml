@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:background="?selectableItemBackground">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/node_controls_tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:logo="@drawable/ic_subscribe_black_alpha_24dp"
+        app:title="@string/title_vendor_model_controls"
+        app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/op_code_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/node_controls_tool_bar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/op_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/opcode"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/parameters_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/op_code_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/parameters"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/parameters"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <TextView
+        android:id="@+id/text_view1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:text="@string/received_message"
+        app:layout_constraintStart_toStartOf="@id/parameters_layout"
+        app:layout_constraintTop_toBottomOf="@id/parameters_layout"
+        app:layout_constraintBottom_toTopOf="@id/div"/>
+
+    <TextView
+        android:id="@+id/received_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/none"
+        app:layout_constraintBottom_toBottomOf="@id/text_view1"
+        app:layout_constraintEnd_toEndOf="@id/parameters_layout"/>
+
+    <include
+        android:id="@+id/div"
+        layout="@layout/layout_divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        app:layout_constraintTop_toBottomOf="@id/received_message"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <Button
+        android:id="@+id/action_send"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="@dimen/item_padding_start"
+        android:layout_marginStart="@dimen/item_padding_end"
+        android:text="@string/action_subscribe_address"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/div"/>
+
+</android.support.constraint.ConstraintLayout>

@@ -27,7 +27,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -510,6 +509,9 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                         mActionOnOff.setText(R.string.action_generic_on);
                     }
                 });
+            } else {
+                final CardView cardView = findViewById(R.id.node_controls_card);
+                final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_vendor_model_controls, cardView);
             }
         }
     }

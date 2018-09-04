@@ -331,4 +331,10 @@
     <string name="supported_input_oob_actions_title">Supported Input OOB Actions</string>
     <string name="input_oob_size_title">Input OOB Size</string>
     <string name="unknown">Unknown</string>
+
+    <string name="title_vendor_model_controls">Vendor Model Controls</string>
+    <string name="opcode">Op Code</string>
+    <string name="parameters">Parameters</string>
+    <string name="received_message">Received message:</string>
+    <string name="action_send">Send</string>
 </resources>
