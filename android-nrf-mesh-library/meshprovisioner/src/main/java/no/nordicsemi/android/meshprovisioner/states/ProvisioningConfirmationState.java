@@ -84,7 +84,7 @@ public class ProvisioningConfirmationState extends ProvisioningState {
 
     private byte[] createProvisioningConfirmation(final byte[] userInput) {
 
-        final byte[] confirmationInputs = pduHandler.generateConfirmationInputs();
+        final byte[] confirmationInputs = pduHandler.generateConfirmationInputs(mUnprovisionedMeshNode.getProvisionerPublicKeyXY(), mUnprovisionedMeshNode.getProvisioneePublicKeyXY());
         Log.v(TAG, "Confirmation inputs: " + MeshParserUtils.bytesToHex(confirmationInputs, false));
 
         //Generate a confirmation salt of the confirmation inputs

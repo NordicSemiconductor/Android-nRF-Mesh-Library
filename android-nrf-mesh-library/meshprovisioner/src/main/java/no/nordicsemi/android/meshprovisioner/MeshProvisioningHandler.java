@@ -68,7 +68,6 @@ public class MeshProvisioningHandler {
     private boolean isProvisioningPublicKeySent;
     private boolean isProvisioneePublicKeyReceived;
     private InternalMeshManagerCallbacks mInternalMeshManagerCallbacks;
-    private boolean provisioningInviteSent = false;
 
     MeshProvisioningHandler(final Context context, final InternalTransportCallbacks mInternalTransportCallbacks, final InternalMeshManagerCallbacks internalMeshManagerCallbacks) {
         this.mContext = context;
@@ -76,28 +75,25 @@ public class MeshProvisioningHandler {
         this.mInternalMeshManagerCallbacks = internalMeshManagerCallbacks;
     }
 
-    void parseProvisioningNotifications(final byte[] data) {
+    void parseProvisioningNotifications(final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] data) {
         switch (provisioningState.getState()) {
             case PROVISIONING_INVITE:
                 break;
             case PROVISIONING_CAPABILITIES:
                 if (validateMessage(data)) {
-                    if (validateProvisioningCapabilitiesMessage(data)) {
-                        if (!provisioningInviteSent) {
-                            sendProvisioningStart();
-                        }
+                    if (validateProvisioningCapabilitiesMessage(unprovisionedMeshNode, data)) {
                     }
                 } else {
-                    parseProvisioningState(data);
+                    parseProvisioningState(unprovisionedMeshNode, data);
                 }
                 break;
             case PROVISIONING_START:
                 break;
             case PROVISIONING_PUBLIC_KEY:
                 if (validateMessage(data)) {
-                    parseProvisioneePublicKeyXY(data);
+                    parseProvisioneePublicKeyXY(unprovisionedMeshNode, data);
                 } else {
-                    parseProvisioningState(data);
+                    parseProvisioningState(unprovisionedMeshNode, data);
                 }
                 break;
             case PROVISINING_INPUT_COMPLETE:
@@ -105,41 +101,41 @@ public class MeshProvisioningHandler {
             case PROVISIONING_CONFIRMATION:
                 if (validateMessage(data)) {
                     if (parseProvisioneeConfirmation(data)) {
-                        sendRandomConfirmationPDU();
+                        sendRandomConfirmationPDU(unprovisionedMeshNode);
                     }
                 } else {
-                    parseProvisioningState(data);
+                    parseProvisioningState(unprovisionedMeshNode, data);
                 }
                 break;
             case PROVISINING_RANDOM:
                 if (validateMessage(data)) {
                     if (parseProvisioneeRandom(data)) {
-                        sendProvisioningData();
+                        sendProvisioningData(unprovisionedMeshNode);
                     }
                 } else {
-                    parseProvisioningState(data);
+                    parseProvisioningState(unprovisionedMeshNode, data);
                 }
                 break;
             case PROVISINING_DATA:
             case PROVISINING_COMPLETE:
             case PROVISINING_FAILED:
-                parseProvisioningState(data);
+                parseProvisioningState(unprovisionedMeshNode, data);
                 break;
 
         }
     }
 
-    void handleProvisioningWriteCallbacks() {
+    void handleProvisioningWriteCallbacks(final UnprovisionedMeshNode unprovisionedMeshNode) {
         switch (provisioningState.getState()) {
             case PROVISIONING_INVITE:
-                provisioningState = new ProvisioningCapabilitiesState(mUnprovisionedMeshNode, mProvisoningStatusCallbacks);
+                provisioningState = new ProvisioningCapabilitiesState(unprovisionedMeshNode, mProvisoningStatusCallbacks);
                 break;
             case PROVISIONING_CAPABILITIES:
                 break;
             case PROVISIONING_START:
             case PROVISIONING_PUBLIC_KEY:
                 //Devices with lower mtu have to send the key in multiple segments
-                sendProvisionerPublicKey();
+                sendProvisionerPublicKey(unprovisionedMeshNode);
                 break;
             case PROVISINING_INPUT_COMPLETE:
                 break;
@@ -152,23 +148,23 @@ public class MeshProvisioningHandler {
         }
     }
 
-    private void parseProvisioningState(final byte[] data) {
+    private void parseProvisioningState(final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] data) {
         if (data[1] == ProvisioningState.State.PROVISINING_COMPLETE.getState()) {
-            provisioningState = new ProvisioningCompleteState(mUnprovisionedMeshNode);
+            provisioningState = new ProvisioningCompleteState(unprovisionedMeshNode);
             isProvisioningPublicKeySent = false;
             isProvisioneePublicKeyReceived = false;
             //Generate the network id and store it in the mesh node, this is needed to reconnect to the device at a later stage.
-            final ProvisionedMeshNode provisionedMeshNode = new ProvisionedMeshNode(mUnprovisionedMeshNode);
+            final ProvisionedMeshNode provisionedMeshNode = new ProvisionedMeshNode(unprovisionedMeshNode);
             mInternalMeshManagerCallbacks.onNodeProvisioned(provisionedMeshNode);
             mProvisoningStatusCallbacks.onProvisioningComplete(provisionedMeshNode);
         } else {
             isProvisioningPublicKeySent = false;
             isProvisioneePublicKeyReceived = false;
-            final ProvisioningFailedState provisioningFailedState = new ProvisioningFailedState(mContext, mUnprovisionedMeshNode);
+            final ProvisioningFailedState provisioningFailedState = new ProvisioningFailedState(mContext, unprovisionedMeshNode);
             provisioningState = provisioningFailedState;
             if (provisioningFailedState.parseData(data)) {
-                mUnprovisionedMeshNode.setIsProvisioned(false);
-                mProvisoningStatusCallbacks.onProvisioningFailed(mUnprovisionedMeshNode, provisioningFailedState.getErrorCode());
+                unprovisionedMeshNode.setIsProvisioned(false);
+                mProvisoningStatusCallbacks.onProvisioningFailed(unprovisionedMeshNode, provisioningFailedState.getErrorCode());
             }
         }
     }
@@ -215,12 +211,7 @@ public class MeshProvisioningHandler {
                 unicastBytes = new byte[]{(byte) ((unicastAddress >> 8) & 0xFF), (byte) (unicastAddress & 0xFF)};
             }
 
-            if (provisioningInviteSent) {
-                unprovisionedMeshNode = mUnprovisionedMeshNode;
-            } else {
-                unprovisionedMeshNode = new UnprovisionedMeshNode();
-
-            }
+            unprovisionedMeshNode = new UnprovisionedMeshNode();
             unprovisionedMeshNode.setBluetoothDeviceAddress(address);
             unprovisionedMeshNode.setNodeName(nodeName);
             unprovisionedMeshNode.setNetworkKey(networkKey);
@@ -269,24 +260,8 @@ public class MeshProvisioningHandler {
      * Identifies the node that is to be provisioned.
      * <p>
      * This method will send a provisioning invite to the connected peripheral. This will help users to identify a particular node before starting the provisioning process.
-     * If a user connected to the correct peripheral you can call {@link #startProvisioning(String, String, String, int, int, int, int, int, byte[])} to continue provisioning.
+     * This method must be invoked before calling {@link #startProvisioning(UnprovisionedMeshNode)}
      * </p
-     *
-     * @param unprovisionedMeshNode unprovisioned node to be identified
-     */
-    protected void identifyNode(final UnprovisionedMeshNode unprovisionedMeshNode) {
-        provisioningInviteSent = true;
-        mUnprovisionedMeshNode = unprovisionedMeshNode;
-        sendProvisioningInvite(true);
-    }
-
-    /**
-     * Starts provisioning an unprovisioned mesh node
-     * <p>
-     * This method will start the provisioning process. During this process you may notice the unprovisioned node may blink if its supported by the node.
-     * Also the node may not blink if {@link #identifyNode(UnprovisionedMeshNode)} was invoked before calling this method.
-     * However, if {@link #identifyNode(UnprovisionedMeshNode)} was called before this, invoking this method will continue the provisioning process.
-     * </p>
      *
      * @param address         Bluetooth address of the node
      * @param nodeName        Friendly node name
@@ -297,26 +272,33 @@ public class MeshProvisioningHandler {
      * @param unicastAddress  Unicast address to be assigned to the node
      * @param globalTtl       Global ttl which is also the number of hops to be used for a message
      * @param configuratorSrc Source address of the configurator
+     *
      */
-    protected void startProvisioning(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue,
-                                     final int keyIndex, final int flags, final int ivIndex, final int unicastAddress,
-                                     final int globalTtl, final byte[] configuratorSrc) throws IllegalArgumentException {
-        mUnprovisionedMeshNode = initializeMeshNode(address, nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl, configuratorSrc);
-        this.attentionTimer = 0x05;
-        if (provisioningInviteSent) {
-            provisioningInviteSent = false;
-            sendProvisioningStart();
-        } else {
-            sendProvisioningInvite(false);
-        }
+    protected void identify(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue,
+                            final int keyIndex, final int flags, final int ivIndex, final int unicastAddress,
+                            final int globalTtl, final byte[] configuratorSrc) throws IllegalArgumentException {
+        final UnprovisionedMeshNode unprovisionedMeshNode = initializeMeshNode(address, nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl, configuratorSrc);
+        sendProvisioningInvite(unprovisionedMeshNode);
     }
 
-    private void sendProvisioningInvite(final boolean provisioningInviteSent) {
-        this.provisioningInviteSent = provisioningInviteSent;
+    /**
+     * Starts provisioning an unprovisioned mesh node
+     * <p>
+     * This method will continue the provisioning process that was started by invoking {@link #identify(String, String, String, int, int, int, int, int, byte[])} .
+     * </p>
+     *
+     * @param unprovisionedMeshNode         Bluetooth address of the node
+     */
+    protected void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
+        this.attentionTimer = 0x05;
+        sendProvisioningStart(unprovisionedMeshNode);
+    }
+
+    private void sendProvisioningInvite(final UnprovisionedMeshNode unprovisionedMeshNode) {
         isProvisioningPublicKeySent = false;
         isProvisioneePublicKeyReceived = false;
         attentionTimer = 0x05;//0x0A;
-        final ProvisioningInviteState invite = new ProvisioningInviteState(mUnprovisionedMeshNode, attentionTimer, mInternalTransportCallbacks, mProvisoningStatusCallbacks);
+        final ProvisioningInviteState invite = new ProvisioningInviteState(unprovisionedMeshNode, attentionTimer, mInternalTransportCallbacks, mProvisoningStatusCallbacks);
         provisioningState = invite;
         invite.executeSend();
     }
@@ -327,13 +309,14 @@ public class MeshProvisioningHandler {
      * @param capabilities provisioning capabilities of the node
      * @return true if the message is valid
      */
-    private boolean validateProvisioningCapabilitiesMessage(final byte[] capabilities) {
-        final ProvisioningCapabilitiesState provisioningCapabilitiesState = (ProvisioningCapabilitiesState) provisioningState;
+    private boolean validateProvisioningCapabilitiesMessage(final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] capabilities) {
+        final ProvisioningCapabilitiesState provisioningCapabilitiesState = new ProvisioningCapabilitiesState(unprovisionedMeshNode, mProvisoningStatusCallbacks);
+        provisioningState = provisioningCapabilitiesState;
         provisioningCapabilitiesState.parseData(capabilities);
         return true;
     }
 
-    private void sendProvisioningStart() {
+    private void sendProvisioningStart(final UnprovisionedMeshNode unprovisionedMeshNode) {
         final ProvisioningCapabilitiesState capabilitiesState = (ProvisioningCapabilitiesState) provisioningState;
         final ProvisioningCapabilities capabilities = capabilitiesState.getCapabilities();
         numberOfElements = capabilities.getNumberOfElements();
@@ -345,19 +328,19 @@ public class MeshProvisioningHandler {
         inputOOBSize = capabilities.getInputOOBSize();
         inputOOBAction = capabilities.getInputOOBAction();
 
-        final ProvisioningStartState startProvisioning = new ProvisioningStartState(mUnprovisionedMeshNode, mInternalTransportCallbacks, mProvisoningStatusCallbacks);
+        final ProvisioningStartState startProvisioning = new ProvisioningStartState(unprovisionedMeshNode, mInternalTransportCallbacks, mProvisoningStatusCallbacks);
         startProvisioning.setProvisioningCapabilities(numberOfElements, algorithm, publicKeyType, staticOOBType, outputOOBSize, outputOOBAction, inputOOBSize, inputOOBAction);
         provisioningState = startProvisioning;
         startProvisioning.executeSend();
     }
 
-    private void sendProvisionerPublicKey() {
+    private void sendProvisionerPublicKey(final UnprovisionedMeshNode unprovisionedMeshNode) {
         if (!isProvisioningPublicKeySent) {
             if (provisioningState instanceof ProvisioningPublicKeyState) {
                 isProvisioningPublicKeySent = true;
                 provisioningState.executeSend();
             } else {
-                final ProvisioningPublicKeyState provisioningPublicKeyState = new ProvisioningPublicKeyState(mUnprovisionedMeshNode, mInternalTransportCallbacks, mProvisoningStatusCallbacks);
+                final ProvisioningPublicKeyState provisioningPublicKeyState = new ProvisioningPublicKeyState(unprovisionedMeshNode, mInternalTransportCallbacks, mProvisoningStatusCallbacks);
                 provisioningState = provisioningPublicKeyState;
                 isProvisioningPublicKeySent = true;
                 provisioningPublicKeyState.executeSend();
@@ -365,17 +348,17 @@ public class MeshProvisioningHandler {
         }
     }
 
-    private void parseProvisioneePublicKeyXY(final byte[] data) {
+    private void parseProvisioneePublicKeyXY(final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] data) {
         if (provisioningState instanceof ProvisioningPublicKeyState) {
             final ProvisioningPublicKeyState provisioningPublicKeyState = ((ProvisioningPublicKeyState) provisioningState);
             isProvisioneePublicKeyReceived = provisioningPublicKeyState.parseData(data);
 
             if (isProvisioningPublicKeySent && isProvisioneePublicKeyReceived) {
-                provisioningState = new ProvisioningConfirmationState(this, mUnprovisionedMeshNode, mInternalTransportCallbacks, mProvisoningStatusCallbacks);
+                provisioningState = new ProvisioningConfirmationState(this, unprovisionedMeshNode, mInternalTransportCallbacks, mProvisoningStatusCallbacks);
                 if (outputOOBAction == 0 && inputOOBAction == 0) {
                     setProvisioningConfirmation("");
                 } else {
-                    mProvisoningStatusCallbacks.onProvisioningAuthenticationInputRequested(mUnprovisionedMeshNode);
+                    mProvisoningStatusCallbacks.onProvisioningAuthenticationInputRequested(unprovisionedMeshNode);
                 }
             }
         }
@@ -390,26 +373,23 @@ public class MeshProvisioningHandler {
     }
 
     private boolean parseProvisioneeConfirmation(final byte[] data) {
-        //log(LogContract.Log.Level.APPLICATION, mContext.getString(R.string.provisionee_public_key_xy));
         final ProvisioningConfirmationState provisioningConfirmationState = (ProvisioningConfirmationState) provisioningState;
         return provisioningConfirmationState.parseData(data);
     }
 
-    private void sendRandomConfirmationPDU() {
-        //log(LogContract.Log.Level.APPLICATION, mContext.getString(R.string.sending_provision_confirmation));
-        final ProvisioningRandomConfirmationState provisioningRandomConfirmation = new ProvisioningRandomConfirmationState(this, mUnprovisionedMeshNode, mInternalTransportCallbacks, mProvisoningStatusCallbacks);
+    private void sendRandomConfirmationPDU(final UnprovisionedMeshNode unprovisionedMeshNode) {
+        final ProvisioningRandomConfirmationState provisioningRandomConfirmation = new ProvisioningRandomConfirmationState(this, unprovisionedMeshNode, mInternalTransportCallbacks, mProvisoningStatusCallbacks);
         provisioningState = provisioningRandomConfirmation;
         provisioningRandomConfirmation.executeSend();
     }
 
     private boolean parseProvisioneeRandom(final byte[] data) {
-        //log(LogContract.Log.Level.APPLICATION, mContext.getString(R.string.provisionee_public_key_xy));
         final ProvisioningRandomConfirmationState provisioningRandomConfirmation = (ProvisioningRandomConfirmationState) provisioningState;
         return provisioningRandomConfirmation.parseData(data);
     }
 
-    private void sendProvisioningData() {
-        final ProvisioningDataState provisioningDataState = new ProvisioningDataState(this, mUnprovisionedMeshNode, mInternalTransportCallbacks, mProvisoningStatusCallbacks);
+    private void sendProvisioningData(final UnprovisionedMeshNode unprovisionedMeshNode) {
+        final ProvisioningDataState provisioningDataState = new ProvisioningDataState(this, unprovisionedMeshNode, mInternalTransportCallbacks, mProvisoningStatusCallbacks);
         provisioningState = provisioningDataState;
         provisioningDataState.executeSend();
     }
@@ -457,14 +437,14 @@ public class MeshProvisioningHandler {
         return msg;
     }
 
-    public final byte[] generateConfirmationInputs() {
+    public final byte[] generateConfirmationInputs(final byte[] provisionerKeyXY, final byte[] provisioneeKeyXY) {
         //invite: 1 bytes, capabilities: 11 bytes, start: 5 bytes, provisionerKey: 64 bytes, deviceKey: 64 bytes
         //Append all the raw data together
         final byte[] invite = new byte[]{(byte) attentionTimer};
         final byte[] capabilities = generateCapabilities();
         final byte[] startData = generateStartData();
-        final byte[] provisionerKeyXY = mUnprovisionedMeshNode.getProvisionerPublicKeyXY();
-        final byte[] provisioneeKeyXY = mUnprovisionedMeshNode.getProvisioneePublicKeyXY();
+        /*final byte[] provisionerKeyXY = mUnprovisionedMeshNode.getProvisionerPublicKeyXY();
+        final byte[] provisioneeKeyXY = mUnprovisionedMeshNode.getProvisioneePublicKeyXY();*/
 
         final int length = invite.length +
                 capabilities.length +

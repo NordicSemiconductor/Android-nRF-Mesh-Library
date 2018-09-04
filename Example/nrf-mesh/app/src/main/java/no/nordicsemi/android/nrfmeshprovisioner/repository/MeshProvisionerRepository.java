@@ -265,12 +265,12 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
         mContext.startService(intent);
     }
 
-    public void identifyNode() {
-        mBinder.identifyNode();
+    public void identifyNode(final String nodeName){
+        mBinder.identifyNode(nodeName);
     }
 
-    public void startProvisioning(final String nodeName) {
-        mBinder.startProvisioning(nodeName);
+    public void startProvisioning() {
+        mBinder.startProvisioning();
     }
 
     public void confirmProvisioning(final String pin) {

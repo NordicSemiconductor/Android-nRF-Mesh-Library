@@ -93,12 +93,12 @@ public class MeshProvisionerViewModel extends ViewModel {
         return mMeshProvisionerRepository.getExtendedMeshNode();
     }
 
-    public void identifyNode() {
-        mMeshProvisionerRepository.identifyNode();
+    public void identifyNode(final String nodeName){
+        mMeshProvisionerRepository.identifyNode(nodeName);
     }
 
-    public void startProvisioning(final String nodeName) {
-        mMeshProvisionerRepository.startProvisioning(nodeName);
+    public void startProvisioning() {
+        mMeshProvisionerRepository.startProvisioning();
     }
 
     public void sendProvisioneePin(final String pin) {

@@ -375,7 +375,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
                 Log.v(TAG, "Received provisioning message: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshProvisioningHandler.parseProvisioningNotifications(unsegmentedPdu);
+                mMeshProvisioningHandler.parseProvisioningNotifications((UnprovisionedMeshNode) meshNode, unsegmentedPdu);
                 break;
         }
     }
@@ -419,7 +419,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
                 Log.v(TAG, "Provisioning pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                mMeshProvisioningHandler.handleProvisioningWriteCallbacks();
+                mMeshProvisioningHandler.handleProvisioningWriteCallbacks((UnprovisionedMeshNode) meshNode);
                 break;
         }
     }
@@ -585,42 +585,34 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * Identifies the node that is to be provisioned.
      * <p>
      * This method will send a provisioning invite to the connected peripheral. This will help users to identify a particular node before starting the provisioning process.
-     * If a user connected to the correct peripheral you can call {@link #startProvisioning(String, String, String, int, int, int, int, int)} to continue provisioning.
+     * This method must be invoked before calling {@link #startProvisioning(UnprovisionedMeshNode)}
      * </p
      *
+     * @param address         Bluetooth address of the node
+     * @param nodeName        Friendly node name
+     *
      */
-    public void identifyNode() throws IllegalArgumentException {
+    public void identifyNode(@NonNull final String address, final String nodeName) throws IllegalArgumentException {
         //We must save all the provisioning data here so that they could be reused when provisioning the next devices
-        mMeshProvisioningHandler.identifyNode(new UnprovisionedMeshNode());
+        mMeshProvisioningHandler.identify(address, nodeName,
+                mProvisioningSettings.getNetworkKey(),
+                mProvisioningSettings.getKeyIndex(),
+                mProvisioningSettings.getFlags(),
+                mProvisioningSettings.getIvIndex(),
+                mProvisioningSettings.getUnicastAddress(),
+                mProvisioningSettings.getGlobalTtl(), mConfigurationSrc);
     }
 
     /**
      * Starts provisioning an unprovisioned mesh node
      * <p>
-     * This method will start the provisioning process. During this process you may notice the unprovisioned node may blink if its supported by the node.
-     * Also the node may not blink if {@link #identifyNode()} was invoked before calling this method.
-     * However, if {@link #identifyNode()} was called before this, invoking this method will continue the provisioning process.
+     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(String, String)}.
      * </p>
      *
-     * @param address         Bluetooth address of the node
-     * @param nodeName        Friendly node name
-     * @param networkKeyValue Network key
-     * @param keyIndex        Index of the network key
-     * @param flags           Flag containing the key refresh or the iv update operations
-     * @param ivIndex         32-bit value shared across the network
-     * @param unicastAddress  Unicast address to be assigned to the node
-     * @param globalTtl       Global ttl which is also the number of hops to be used for a message
+     * @param unprovisionedMeshNode         Bluetooth address of the node
      */
-    public void startProvisioning(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue,
-                                  final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl) throws IllegalArgumentException {
-        //We must save all the provisioning data here so that they could be reused when provisioning the next devices
-        mProvisioningSettings.setNetworkKey(networkKeyValue);
-        mProvisioningSettings.setKeyIndex(keyIndex);
-        mProvisioningSettings.setFlags(flags);
-        mProvisioningSettings.setIvIndex(ivIndex);
-        mProvisioningSettings.setUnicastAddress(unicastAddress);
-        mProvisioningSettings.setGlobalTtl(globalTtl);
-        mMeshProvisioningHandler.startProvisioning(address, nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl, mConfigurationSrc);
+    public void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
+        mMeshProvisioningHandler.startProvisioning(unprovisionedMeshNode);
     }
 
     /**

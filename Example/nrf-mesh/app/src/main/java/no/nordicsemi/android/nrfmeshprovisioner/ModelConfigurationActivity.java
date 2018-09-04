@@ -163,7 +163,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
         mActionBindAppKey.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(ModelConfigurationActivity.this, BindAppKeysActivity.class);
-            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Parcelable) ((ProvisionedMeshNode)mViewModel.getExtendedMeshNode().getMeshNode()).getAddedAppKeys());
+            final ProvisionedMeshNode node = ((ProvisionedMeshNode)mViewModel.getExtendedMeshNode().getMeshNode());
+            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) node.getAddedAppKeys());
             startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 

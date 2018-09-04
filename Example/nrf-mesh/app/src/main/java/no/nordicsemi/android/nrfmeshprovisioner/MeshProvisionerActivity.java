@@ -72,6 +72,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisioningFailedErrorMessage;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.ProvisioningProgress;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -130,7 +131,6 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         final LinearLayout connectivityProgressContainer = findViewById(R.id.connectivity_progress_container);
         final TextView connectionState = findViewById(R.id.connection_state);
         final Button provisioner = findViewById(R.id.action_provision_device);
-        final Button identify = findViewById(R.id.action_identify_device);
         final View provisioningStatusContainer = findViewById(R.id.info_provisioning_status_container);
 
         final View containerName = findViewById(R.id.container_element_count);
@@ -209,21 +209,21 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 final UnprovisionedMeshNode node = (UnprovisionedMeshNode) extendedMeshNode.getMeshNode();
                 if (node.getProvisioningCapabilities() != null) {
                     mProvisioningProgressBar.setVisibility(View.INVISIBLE);
-                    identify.setVisibility(View.GONE);
+                    provisioner.setText(R.string.provision_action);
                     updateCapabilitiesUi(node.getProvisioningCapabilities());
                 }
             }
         });
 
-        identify.setOnClickListener(v -> {
-            mProvisioningProgressBar.setVisibility(View.VISIBLE);
-            mViewModel.identifyNode();
-        });
-
         provisioner.setOnClickListener(v -> {
-            mProvisioningProgressBar.setVisibility(View.VISIBLE);
-            setupProvisionerStateObservers(provisioningStatusContainer);
-            mViewModel.startProvisioning(mViewModel.getProvisioningData().getNodeName());
+            final ExtendedMeshNode meshNode = mViewModel.getMeshNode();
+            if(meshNode != null && meshNode.getMeshNode().getProvisioningCapabilities() != null) {
+                setupProvisionerStateObservers(provisioningStatusContainer);
+                mProvisioningProgressBar.setVisibility(View.VISIBLE);
+                mViewModel.startProvisioning();
+            } else {
+                mViewModel.identifyNode(mViewModel.getProvisioningData().getNodeName());
+            }
         });
     }
 

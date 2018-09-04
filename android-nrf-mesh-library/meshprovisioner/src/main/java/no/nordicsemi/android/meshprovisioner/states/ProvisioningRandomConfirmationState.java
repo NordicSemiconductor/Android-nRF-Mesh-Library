@@ -82,7 +82,7 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
     private boolean provisioneeMatches() {
         final byte[] provisioneeRandom = mUnprovisionedMeshNode.getProvisioneeRandom();
 
-        final byte[] confirmationInputs = pduHandler.generateConfirmationInputs();
+        final byte[] confirmationInputs = pduHandler.generateConfirmationInputs(mUnprovisionedMeshNode.getProvisionerPublicKeyXY(), mUnprovisionedMeshNode.getProvisioneePublicKeyXY());
         Log.v(TAG, "Confirmation inputs: " + MeshParserUtils.bytesToHex(confirmationInputs, false));
 
         //Generate a confirmation salt of the confirmation inputs

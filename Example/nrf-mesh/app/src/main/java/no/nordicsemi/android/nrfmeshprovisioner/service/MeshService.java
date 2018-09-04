@@ -388,6 +388,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
     @Override
     public void sendPdu(final BaseMeshNode meshNode, final byte[] pdu) {
+        mMeshNode = meshNode;
         mBleMeshManager.sendPdu(pdu);
     }
 
@@ -953,11 +954,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
         }
 
-        public void identifyNode(){
-            mMeshManagerApi.identifyNode();
-        }
-
-        public void startProvisioning(final String nodeName) {
+        public void identifyNode(final String nodeName){
             mIsProvisioningComplete = false;
             mIsConfigurationComplete = false;
             final String networkKey = mProvisioningSettings.getNetworkKey();
@@ -967,7 +964,20 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             final int unicastAddress = mProvisioningSettings.getUnicastAddress();
             final int globalTtl = mProvisioningSettings.getGlobalTtl();
             final BluetoothDevice device = mBluetoothDevice;
-            mMeshManagerApi.startProvisioning(device.getAddress(), nodeName, networkKey, keyIndex, flags, ivIndex, unicastAddress, globalTtl);
+            mMeshManagerApi.identifyNode(device.getAddress(), nodeName);
+        }
+
+        public void startProvisioning() {
+            mIsProvisioningComplete = false;
+            mIsConfigurationComplete = false;
+            final String networkKey = mProvisioningSettings.getNetworkKey();
+            final int keyIndex = mProvisioningSettings.getKeyIndex();
+            final int flags = mProvisioningSettings.getFlags();
+            final int ivIndex = mProvisioningSettings.getIvIndex();
+            final int unicastAddress = mProvisioningSettings.getUnicastAddress();
+            final int globalTtl = mProvisioningSettings.getGlobalTtl();
+            final BluetoothDevice device = mBluetoothDevice;
+            mMeshManagerApi.startProvisioning((UnprovisionedMeshNode) mMeshNode);
         }
 
         public void confirmProvisioning(final String pin) {

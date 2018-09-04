@@ -142,7 +142,7 @@ public class ProvisioningDataState extends ProvisioningState {
      */
     private byte[] generateProvisioningSalt() {
 
-        final byte[] confirmationSalt = SecureUtils.calculateSalt(pduHandler.generateConfirmationInputs());
+        final byte[] confirmationSalt = SecureUtils.calculateSalt(pduHandler.generateConfirmationInputs(mUnprovisionedMeshNode.getProvisionerPublicKeyXY(), mUnprovisionedMeshNode.getProvisioneePublicKeyXY()));
         final byte[] provisionerRandom = mUnprovisionedMeshNode.getProvisionerRandom();
         final byte[] provisioneeRandom = mUnprovisionedMeshNode.getProvisioneeRandom();
 
