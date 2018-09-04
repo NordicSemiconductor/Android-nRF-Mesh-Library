@@ -101,6 +101,7 @@
     <string name="prov_app_key_bind_status_received">App key bind status received…</string>
 
     <string name="provision_action">Provision</string>
+    <string name="identify_action">Identify</string>
 
     <string name="ok">OK</string>
 
@@ -321,4 +322,13 @@
     <string name="title_transaction_failed">Transaction Failed</string>
     <string name="segments_not_received_timed_out">All message segments were not received, operation timed out!</string>
     <string name="operation_timed_out">Operation timed out</string>
+    <string name="element_count_title">Element Count</string>
+    <string name="supported_algorithms_title">Supported Algorithms</string>
+    <string name="public_key_type_title">Public Key Type</string>
+    <string name="static_oob_type_title">Static OOB Type</string>
+    <string name="output_oob_size_title">Output OOB Size</string>
+    <string name="supported_output_oob_actions_title">Supported Ouput OOB Actions</string>
+    <string name="supported_input_oob_actions_title">Supported Input OOB Actions</string>
+    <string name="input_oob_size_title">Input OOB Size</string>
+    <string name="unknown">Unknown</string>
 </resources>

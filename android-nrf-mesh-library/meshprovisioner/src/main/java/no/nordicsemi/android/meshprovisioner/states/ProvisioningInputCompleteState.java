@@ -26,32 +26,29 @@ import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 
-public class ProvisioningInvite extends ProvisioningState {
+public class ProvisioningInputCompleteState extends ProvisioningState {
 
-    private final String TAG = ProvisioningInvite.class.getSimpleName();
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
-    private final int attentionTimer;
-    private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
+    private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
 
-    public ProvisioningInvite(final UnprovisionedMeshNode unprovisionedMeshNode, final int attentionTimer, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+
+    public ProvisioningInputCompleteState(final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
-        this.attentionTimer = attentionTimer;
-        this.mMeshProvisioningStatusCallbacks = meshProvisioningStatusCallbacks;
         this.mInternalTransportCallbacks = mInternalTransportCallbacks;
+        this.mMeshProvisioningStatusCallbacks = meshProvisioningStatusCallbacks;
     }
 
     @Override
     public State getState() {
-        return State.PROVISIONING_INVITE;
+        return State.PROVISINING_INPUT_COMPLETE;
     }
 
     @Override
     public void executeSend() {
-        final byte[] invitePDU = createInvitePDU();
-        mMeshProvisioningStatusCallbacks.onProvisioningInviteSent(mUnprovisionedMeshNode);
-        mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, invitePDU);
+        mMeshProvisioningStatusCallbacks.onProvisioningInputCompleteSent(mUnprovisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, createProvisioningInputComplete());
     }
 
     @Override
@@ -59,15 +56,11 @@ public class ProvisioningInvite extends ProvisioningState {
         return true;
     }
 
-    /**
-     * Generates the invitePDU for provisioning based on the attention timer provided by the user.
-     */
-    private byte[] createInvitePDU() {
-
-        final byte[] data = new byte[3];
-        data[0] = MeshManagerApi.PDU_TYPE_PROVISIONING; //Provisioning Opcode;
-        data[1] = TYPE_PROVISIONING_INVITE; //PDU type in
-        data[2] = (byte) attentionTimer;
-        return data;
+    private byte[] createProvisioningInputComplete() {
+        final byte[] provisioningPDU = new byte[2];
+        provisioningPDU[0] = MeshManagerApi.PDU_TYPE_PROVISIONING;
+        provisioningPDU[1] = TYPE_PROVISIONING_INPUT_COMPLETE;
+        return provisioningPDU;
     }
+
 }

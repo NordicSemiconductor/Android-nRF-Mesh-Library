@@ -101,7 +101,6 @@
                     app:layout_constraintStart_toEndOf="@id/unicast_title"
                     app:layout_constraintTop_toTopOf="@id/unicast_title"/>
 
-
                 <TextView
                     android:id="@+id/company_identifier_title"
                     android:layout_width="wrap_content"

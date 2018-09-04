@@ -20,32 +20,20 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.meshprovisioner.states;
+package no.nordicsemi.android.meshprovisioner.utils;
 
-public class ProvisioningComplete extends ProvisioningState {
+public class AlgorithmInformationParser {
 
-    private final UnprovisionedMeshNode unprovisionedMeshNode;
+    private static final short NONE = 0x0000;
+    private static final short FIPS_P_256_ELLIPTIC_CURVE = 0x0001;
 
-    public ProvisioningComplete(final UnprovisionedMeshNode unprovisionedMeshNode) {
-        super();
-        this.unprovisionedMeshNode = unprovisionedMeshNode;
-        unprovisionedMeshNode.setIsProvisioned(true);
-        unprovisionedMeshNode.setProvisionedTime(System.currentTimeMillis());
+    public static String parseAlgorithm(final short type) {
+        switch (type) {
+            case FIPS_P_256_ELLIPTIC_CURVE:
+                return "FIPS P-256 Elliptic Curve";
+            case NONE:
+            default:
+                return "Unknown";
+        }
     }
-
-    @Override
-    public State getState() {
-        return State.PROVISINING_COMPLETE;
-    }
-
-    @Override
-    public void executeSend() {
-
-    }
-
-    @Override
-    public boolean parseData(final byte[] data) {
-        return true;
-    }
-
 }

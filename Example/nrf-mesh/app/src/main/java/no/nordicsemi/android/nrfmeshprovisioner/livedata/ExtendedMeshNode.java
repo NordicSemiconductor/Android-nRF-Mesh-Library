@@ -27,20 +27,21 @@ import android.util.Log;
 
 import java.util.Map;
 
+import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 
 public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {
 
-    private ProvisionedMeshNode mMeshNode;
+    private BaseMeshNode mMeshNode;
     private static final String TAG = ExtendedMeshNode.class.getSimpleName();
 
-    public ExtendedMeshNode(final ProvisionedMeshNode meshNode) {
+    public ExtendedMeshNode(final BaseMeshNode meshNode) {
         this.mMeshNode = meshNode;
-        postValue(this);
+        setValue(this);
     }
 
-    public ProvisionedMeshNode getMeshNode() {
+    public BaseMeshNode getMeshNode() {
         return mMeshNode;
     }
 
@@ -48,7 +49,7 @@ public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {
      * Updates the mesh node and posts the value
      * @param meshNode Provisioned mesh node
      */
-    public void updateMeshNode(final ProvisionedMeshNode meshNode) {
+    public void updateMeshNode(final BaseMeshNode meshNode) {
         this.mMeshNode = meshNode;
         postValue(this);
     }
@@ -62,12 +63,18 @@ public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {
     }
 
     public boolean hasElements(){
-        final Map<Integer, Element> elements = mMeshNode.getElements();
-        return elements != null && !elements.isEmpty();
+        if(mMeshNode.isProvisioned()) {
+            final Map<Integer, Element> elements = ((ProvisionedMeshNode) mMeshNode).getElements();
+            return elements != null && !elements.isEmpty();
+        }
+        return false;
     }
 
     public boolean hasAddedAppKeys(){
-        final Map<Integer, String> appKeys = mMeshNode.getAddedAppKeys();
-        return appKeys != null && !appKeys.isEmpty();
+        if(mMeshNode.isProvisioned()) {
+            final Map<Integer, String> appKeys = ((ProvisionedMeshNode) mMeshNode).getAddedAppKeys();
+            return appKeys != null && !appKeys.isEmpty();
+        }
+        return false;
     }
 }

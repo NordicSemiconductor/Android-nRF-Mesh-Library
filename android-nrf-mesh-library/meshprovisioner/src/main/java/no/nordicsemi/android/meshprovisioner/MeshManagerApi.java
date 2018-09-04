@@ -47,6 +47,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessageState;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.SequenceNumber;
+import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -253,6 +254,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
         final int unicastAddress = AddressUtils.getUnicastAddressInt(meshNode.getUnicastAddress());
         mProvisionedNodes.put(unicastAddress, meshNode);
+        incrementUnicastAddress(meshNode);
         saveProvisionedNode(meshNode);
     }
 
@@ -311,15 +313,13 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         editor.apply();
     }
 
-    @Override
-    public void onUnicastAddressChanged(final int unicastAddress) {
-        //Now that we have received the unicast addresses assigned to element addresses,
-        //increment it here again so the next node to be provisioned will have the next available address in the network
-        int unicastAdd = unicastAddress + 1;
+    private void incrementUnicastAddress(final ProvisionedMeshNode meshNode) {
+        //Since we know the number of elements this node contains we can predict the next available address for the next node.
+        int unicastAdd = (meshNode.getUnicastAddressInt() + meshNode.getNumberOfElements());
         //We check if the incremented unicast address is already taken by the app/configurator
         final int tempSrc = (mConfigurationSrc[0] & 0xFF) << 8 | (mConfigurationSrc[1] & 0xFF);
         if(unicastAdd == tempSrc) {
-            unicastAdd = unicastAddress + 1;
+            unicastAdd = unicastAdd + 1;
         }
         mProvisioningSettings.setUnicastAddress(unicastAdd);
 
@@ -375,7 +375,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
                 Log.v(TAG, "Received provisioning message: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshProvisioningHandler.parseProvisioningNotifications(unsegmentedPdu);
+                mMeshProvisioningHandler.parseProvisioningNotifications((UnprovisionedMeshNode) meshNode, unsegmentedPdu);
                 break;
         }
     }
@@ -419,7 +419,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
                 Log.v(TAG, "Provisioning pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                mMeshProvisioningHandler.handleProvisioningWriteCallbacks();
+                mMeshProvisioningHandler.handleProvisioningWriteCallbacks((UnprovisionedMeshNode) meshNode);
                 break;
         }
     }
@@ -579,18 +579,40 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         return data;
     }
 
+
+
     /**
-     * Starts the provisioning process
+     * Identifies the node that is to be provisioned.
+     * <p>
+     * This method will send a provisioning invite to the connected peripheral. This will help users to identify a particular node before starting the provisioning process.
+     * This method must be invoked before calling {@link #startProvisioning(UnprovisionedMeshNode)}
+     * </p
+     *
+     * @param address         Bluetooth address of the node
+     * @param nodeName        Friendly node name
+     *
      */
-    public void startProvisioning(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl) throws IllegalArgumentException {
+    public void identifyNode(@NonNull final String address, final String nodeName) throws IllegalArgumentException {
         //We must save all the provisioning data here so that they could be reused when provisioning the next devices
-        mProvisioningSettings.setNetworkKey(networkKeyValue);
-        mProvisioningSettings.setKeyIndex(keyIndex);
-        mProvisioningSettings.setFlags(flags);
-        mProvisioningSettings.setIvIndex(ivIndex);
-        mProvisioningSettings.setUnicastAddress(unicastAddress);
-        mProvisioningSettings.setGlobalTtl(globalTtl);
-        mMeshProvisioningHandler.startProvisioning(address, nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl, mConfigurationSrc);
+        mMeshProvisioningHandler.identify(address, nodeName,
+                mProvisioningSettings.getNetworkKey(),
+                mProvisioningSettings.getKeyIndex(),
+                mProvisioningSettings.getFlags(),
+                mProvisioningSettings.getIvIndex(),
+                mProvisioningSettings.getUnicastAddress(),
+                mProvisioningSettings.getGlobalTtl(), mConfigurationSrc);
+    }
+
+    /**
+     * Starts provisioning an unprovisioned mesh node
+     * <p>
+     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(String, String)}.
+     * </p>
+     *
+     * @param unprovisionedMeshNode         Bluetooth address of the node
+     */
+    public void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
+        mMeshProvisioningHandler.startProvisioning(unprovisionedMeshNode);
     }
 
     /**

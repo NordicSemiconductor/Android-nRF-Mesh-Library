@@ -63,6 +63,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         k2Output = SecureUtils.calculateK2(networkKey, SecureUtils.K2_MASTER_INPUT);
         mTimeStampInMillis = unprovisionedMeshNode.getTimeStamp();
         mConfigurationSrc = unprovisionedMeshNode.getConfigurationSrc();
+        numberOfElements = unprovisionedMeshNode.getNumberOfElements();
     }
 
     protected ProvisionedMeshNode(Parcel in) {
@@ -97,6 +98,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         mTimeStampInMillis = in.readLong();
         mConfigurationSrc = in.createByteArray();
         mSeqAuth = in.readParcelable(SparseIntArrayParcelable.class.getClassLoader());
+        numberOfElements = in.readInt();
     }
 
     @Override
@@ -132,6 +134,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         dest.writeLong(mTimeStampInMillis);
         dest.writeByteArray(mConfigurationSrc);
         dest.writeParcelable(mSeqAuth, flags);
+        dest.writeInt(numberOfElements);
     }
 
     private void sortElements(final HashMap<Integer, Element> unorderedElements){

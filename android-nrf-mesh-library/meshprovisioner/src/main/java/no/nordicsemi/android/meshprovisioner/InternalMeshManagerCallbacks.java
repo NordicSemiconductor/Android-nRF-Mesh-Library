@@ -32,12 +32,4 @@ public interface InternalMeshManagerCallbacks {
      * @param meshNode node that was provisioned
      */
     void onNodeProvisioned(final ProvisionedMeshNode meshNode);
-
-    /**
-     * Internal callback to notify the {@link MeshManagerApi} of incremented unicast address.
-     * <p>This is called after the composition data status is received so that we can increment address according to the number of elements on a node</p>
-     *
-     * @param unicastAddress updated unicast address
-     */
-    void onUnicastAddressChanged(final int unicastAddress);
 }

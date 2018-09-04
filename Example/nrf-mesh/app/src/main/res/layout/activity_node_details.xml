@@ -108,7 +108,7 @@
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
                         <include
-                            android:id="@+id/container_name"
+                            android:id="@+id/container_element_count"
                             layout="@layout/info_node_name"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -123,7 +123,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_name"/>
+                            app:layout_constraintTop_toBottomOf="@+id/container_element_count"/>
 
                         <include
                             android:id="@+id/container_identifier"
@@ -136,7 +136,7 @@
                             app:layout_constraintTop_toBottomOf="@+id/container_timestamp"/>
 
                         <include
-                            android:id="@+id/container_unicast_address"
+                            android:id="@+id/container_supported_algorithm"
                             layout="@layout/info_node_unicast_address"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -151,7 +151,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/copy"
-                            app:layout_constraintTop_toBottomOf="@+id/container_unicast_address"/>
+                            app:layout_constraintTop_toBottomOf="@+id/container_supported_algorithm"/>
 
                         <ImageView
                             android:id="@+id/copy"

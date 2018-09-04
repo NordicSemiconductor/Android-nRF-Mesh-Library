@@ -215,7 +215,7 @@ public abstract class BaseMeshRepository {
 
     protected void onTransactionFailed(final Intent intent){
         final String action = intent.getAction();
-        final ProvisionedMeshNode node = mBinder.getMeshNode();
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mBinder.getMeshNode();
         switch (action) {
             case ACTION_TRANSACTION_FAILED:
                 if(mExtendedMeshNode != null) {
@@ -347,7 +347,7 @@ public abstract class BaseMeshRepository {
     }
 
     public void sendAppKeyAdd(final int appKeyIndex, final String appKey) {
-        mBinder.sendAppKeyAdd(mExtendedMeshNode.getMeshNode(), appKeyIndex, appKey);
+        mBinder.sendAppKeyAdd((ProvisionedMeshNode) mExtendedMeshNode.getMeshNode(), appKeyIndex, appKey);
     }
 
     public void refreshProvisioningData() {

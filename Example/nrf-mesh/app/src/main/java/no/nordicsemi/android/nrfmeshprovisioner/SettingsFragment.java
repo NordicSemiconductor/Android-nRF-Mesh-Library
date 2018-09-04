@@ -164,7 +164,7 @@ public class SettingsFragment extends Fragment implements Injectable,
             dialogFragmentFlags.show(getChildFragmentManager(), null);
         });
 
-        final View containerUnicastAddress = rootView.findViewById(R.id.container_unicast_address);
+        final View containerUnicastAddress = rootView.findViewById(R.id.container_supported_algorithm);
         containerUnicastAddress.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_lan_black_alpha_24dp));
         final TextView unicastAddressTitle = containerUnicastAddress.findViewById(R.id.title);
         unicastAddressTitle.setText(R.string.summary_unicast_address);

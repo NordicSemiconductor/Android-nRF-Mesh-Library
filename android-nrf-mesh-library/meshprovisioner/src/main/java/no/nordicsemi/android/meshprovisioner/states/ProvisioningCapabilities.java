@@ -1,134 +1,135 @@
-/*
- * Copyright (c) 2018, Nordic Semiconductor
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package no.nordicsemi.android.meshprovisioner.states;
 
-import android.util.Log;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
-import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
-import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
-import no.nordicsemi.android.meshprovisioner.utils.ParsePublicKeyInformation;
-import no.nordicsemi.android.meshprovisioner.utils.ParseStaticOutputOOBInformation;
+public final class ProvisioningCapabilities implements Parcelable {
 
-public class ProvisioningCapabilities extends ProvisioningState {
-    private static final String TAG = ProvisioningInvite.class.getSimpleName();
+    private byte [] rawCapabilities;
+    private byte numberOfElements;
+    private short algorithm;
+    private byte publicKeyType;
+    private byte staticOOBType;
+    private byte outputOOBSize;
+    private short outputOOBAction;
+    private byte inputOOBSize;
+    private short inputOOBAction;
 
-    private final UnprovisionedMeshNode mUnprovisionedMeshNode;
-    private final MeshProvisioningStatusCallbacks mCallbacks;
+    ProvisioningCapabilities(){
 
-    private int numberOfElements;
-    private int algorithm;
-    private int publicKeyType;
-    private int staticOOBType;
-    private int outputOOBSize;
-    private int outputOOBAction;
-    private int inputOOBSize;
-    private int inputOOBAction;
+    }
 
-    public ProvisioningCapabilities(final UnprovisionedMeshNode unprovisionedMeshNode, final MeshProvisioningStatusCallbacks callbacks) {
-        super();
-        this.mCallbacks = callbacks;
-        this.mUnprovisionedMeshNode = unprovisionedMeshNode;
+    ProvisioningCapabilities(Parcel in) {
+        rawCapabilities = in.createByteArray();
+        numberOfElements = in.readByte();
+        algorithm = (short) in.readInt();
+        publicKeyType = in.readByte();
+        staticOOBType = in.readByte();
+        outputOOBSize = in.readByte();
+        outputOOBAction = (short) in.readInt();
+        inputOOBSize = in.readByte();
+        inputOOBAction = (short) in.readInt();
     }
 
     @Override
-    public State getState() {
-        return State.PROVISIONING_CAPABILITIES;
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByteArray(rawCapabilities);
+        dest.writeByte(numberOfElements);
+        dest.writeInt((int) algorithm);
+        dest.writeByte(publicKeyType);
+        dest.writeByte(staticOOBType);
+        dest.writeByte(outputOOBSize);
+        dest.writeInt((int) outputOOBAction);
+        dest.writeByte(inputOOBSize);
+        dest.writeInt((int) inputOOBAction);
     }
 
-    public int getNumberOfElements() {
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<ProvisioningCapabilities> CREATOR = new Creator<ProvisioningCapabilities>() {
+        @Override
+        public ProvisioningCapabilities createFromParcel(Parcel in) {
+            return new ProvisioningCapabilities(in);
+        }
+
+        @Override
+        public ProvisioningCapabilities[] newArray(int size) {
+            return new ProvisioningCapabilities[size];
+        }
+    };
+
+    public byte[] getRawCapabilities() {
+        return rawCapabilities;
+    }
+
+    protected void setRawCapabilities(final byte[] rawCapabilities) {
+        this.rawCapabilities = rawCapabilities;
+    }
+
+    public byte getNumberOfElements() {
         return numberOfElements;
     }
 
-    public int getAlgorithm() {
+    protected void setNumberOfElements(final byte numberOfElements) {
+        this.numberOfElements = numberOfElements;
+    }
+
+    public short getSupportedAlgorithm() {
         return algorithm;
     }
 
-    public int getPublicKeyType() {
+    protected void setSupportedAlgorithm(final short algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    public byte getPublicKeyType() {
         return publicKeyType;
     }
 
-    public int getStaticOOBType() {
+    protected void setPublicKeyType(final byte publicKeyType) {
+        this.publicKeyType = publicKeyType;
+    }
+
+    public byte getStaticOOBType() {
         return staticOOBType;
     }
 
-    public int getOutputOOBSize() {
+    protected void setStaticOOBType(final byte staticOOBType) {
+        this.staticOOBType = staticOOBType;
+    }
+
+    public byte getOutputOOBSize() {
         return outputOOBSize;
     }
 
-    public int getOutputOOBAction() {
+    protected void setOutputOOBSize(final byte outputOOBSize) {
+        this.outputOOBSize = outputOOBSize;
+    }
+
+    public short getOutputOOBAction() {
         return outputOOBAction;
     }
 
-    public int getInputOOBSize() {
+    protected void setOutputOOBAction(final short outputOOBAction) {
+        this.outputOOBAction = outputOOBAction;
+    }
+
+    public byte getInputOOBSize() {
         return inputOOBSize;
     }
 
-    public int getInputOOBAction() {
+    protected void setInputOOBSize(final byte inputOOBSize) {
+        this.inputOOBSize = inputOOBSize;
+    }
+
+    public short getInputOOBAction() {
         return inputOOBAction;
     }
 
-    @Override
-    public void executeSend() {
-
-    }
-
-    @Override
-    public boolean parseData(final byte[] data) {
-        mCallbacks.onProvisioningCapabilitiesReceived(mUnprovisionedMeshNode);
-        return parseProvisioningCapabilities(data);
-    }
-
-    private boolean parseProvisioningCapabilities(final byte[] provisioningCapabilities) {
-
-        if (provisioningCapabilities[2] == 0)
-            throw new IllegalArgumentException("Number of elements cannot be zero");
-
-        numberOfElements = (provisioningCapabilities[2]);
-        Log.v(TAG, "Number of elements: " + numberOfElements);
-
-        algorithm = (((provisioningCapabilities[3] & 0xff) << 8) | (provisioningCapabilities[4] & 0xff));
-        Log.v(TAG, "Algorithm: " + algorithm);
-
-        publicKeyType = (provisioningCapabilities[5]); // 0 is unavailable and 1 is available
-        Log.v(TAG, "Public key type: " + ParsePublicKeyInformation.parsePublicKeyInformation(publicKeyType));
-
-        staticOOBType = (provisioningCapabilities[6]); // 0 is unavailable and 1 is available
-        Log.v(TAG, "Static OOB type: " + ParseStaticOutputOOBInformation.parseStaticOOBActionInformation(staticOOBType));
-
-        outputOOBSize = (provisioningCapabilities[7]);
-        Log.v(TAG, "Output OOB size: " + outputOOBSize);
-
-        outputOOBAction = ((provisioningCapabilities[8] & 0xff) << 8) | (provisioningCapabilities[9] & 0xff);
-        ParseOutputOOBActions.parseOutputActionsFromBitMask(outputOOBAction);
-
-        inputOOBSize = (provisioningCapabilities[10]);
-        Log.v(TAG, "Input OOB size: " + inputOOBSize);
-
-        inputOOBAction = (((provisioningCapabilities[11] & 0xff) << 8) | (provisioningCapabilities[12] & 0xff));
-        ParseInputOOBActions.parseInputActionsFromBitMask(inputOOBAction);
-
-
-        return true;
+    protected void setInputOOBAction(final short inputOOBAction) {
+        this.inputOOBAction = inputOOBAction;
     }
 }

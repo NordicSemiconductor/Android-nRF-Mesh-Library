@@ -111,13 +111,13 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
     }
 
     public void sendGetCompositionData() {
-        mBinder.sendCompositionDataGet(mExtendedMeshNode.getMeshNode());
+        mBinder.sendCompositionDataGet((ProvisionedMeshNode) mExtendedMeshNode.getMeshNode());
     }
 
     private void handleConfigurationStates(final Intent intent){
         final int state = intent.getExtras().getInt(EXTRA_CONFIGURATION_STATE);
         final MeshNodeStates.MeshNodeStatus status = MeshNodeStates.MeshNodeStatus.fromStatusCode(state);
-        final ProvisionedMeshNode node = mBinder.getMeshNode();
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mBinder.getMeshNode();
         switch (status) {
             case COMPOSITION_DATA_GET_SENT:
                 break;

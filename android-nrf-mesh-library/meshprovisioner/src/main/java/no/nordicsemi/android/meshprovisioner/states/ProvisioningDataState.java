@@ -33,15 +33,15 @@ import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-public class ProvisioningData extends ProvisioningState {
+public class ProvisioningDataState extends ProvisioningState {
 
-    private final String TAG = ProvisioningRandomConfirmation.class.getSimpleName();
+    private final String TAG = ProvisioningRandomConfirmationState.class.getSimpleName();
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
     private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
     private final MeshProvisioningHandler pduHandler;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
-    public ProvisioningData(final MeshProvisioningHandler pduHandler, final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    public ProvisioningDataState(final MeshProvisioningHandler pduHandler, final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
         this.pduHandler = pduHandler;
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
@@ -142,7 +142,7 @@ public class ProvisioningData extends ProvisioningState {
      */
     private byte[] generateProvisioningSalt() {
 
-        final byte[] confirmationSalt = SecureUtils.calculateSalt(pduHandler.generateConfirmationInputs());
+        final byte[] confirmationSalt = SecureUtils.calculateSalt(pduHandler.generateConfirmationInputs(mUnprovisionedMeshNode.getProvisionerPublicKeyXY(), mUnprovisionedMeshNode.getProvisioneePublicKeyXY()));
         final byte[] provisionerRandom = mUnprovisionedMeshNode.getProvisionerRandom();
         final byte[] provisioneeRandom = mUnprovisionedMeshNode.getProvisioneeRandom();
 

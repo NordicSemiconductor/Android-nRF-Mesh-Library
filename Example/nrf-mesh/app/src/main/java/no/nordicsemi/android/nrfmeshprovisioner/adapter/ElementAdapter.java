@@ -59,7 +59,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         this.mContext = nodeConfigurationActivity.getApplicationContext();
         extendedMeshnode.observe(nodeConfigurationActivity, extendedMeshNode -> {
             if(extendedMeshNode.getMeshNode() != null) {
-                mProvisionedMeshNode = extendedMeshnode.getMeshNode();
+                mProvisionedMeshNode = (ProvisionedMeshNode) extendedMeshnode.getMeshNode();
                 mElements.clear();
                 mElements.addAll(mProvisionedMeshNode.getElements().values());
                 notifyDataSetChanged();

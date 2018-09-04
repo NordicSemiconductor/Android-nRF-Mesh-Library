@@ -39,6 +39,7 @@ import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
@@ -52,10 +53,11 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
 
     public AddedAppKeyAdapter(final NodeConfigurationActivity activity, final ExtendedMeshNode extendedMeshNode) {
         this.mContext = activity.getApplicationContext();
-        extendedMeshNode.observe(activity, node -> {
-            if(extendedMeshNode.getMeshNode() != null) {
+        extendedMeshNode.observe(activity, extendedNode -> {
+            if(extendedNode.getMeshNode() != null) {
                 appKeys.clear();
-                appKeys.addAll(extendedMeshNode.getMeshNode().getAddedAppKeys().values());
+                final ProvisionedMeshNode node = (ProvisionedMeshNode) extendedNode.getMeshNode();
+                appKeys.addAll(node.getAddedAppKeys().values());
                 notifyDataSetChanged();
             }
         });
