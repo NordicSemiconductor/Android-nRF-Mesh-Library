@@ -447,7 +447,7 @@ public class MeshParserUtils {
     }
 
     /**
-     * Returns the length of the opcode.
+     * Returns the vendor opcode packed with company identifier
      * If the MSB = 0 then the length is 1
      * If the MSB = 1 then the length is 2
      * If the MSB = 2 then the length is 3
@@ -455,9 +455,10 @@ public class MeshParserUtils {
      * @param opCode operation code
      * @return length of opcodes
      */
-    public static byte[] getOpCodes(final int opCode, final int companyIdentifier) {
+    public static byte[] createVendorOpCode(final int opCode, final int companyIdentifier) {
         if (companyIdentifier != 0xFFFF) {
-            return new byte[]{(byte) ((0b11 << 6) | opCode), (byte) (companyIdentifier & 0x00FF), (byte) ((companyIdentifier >> 8) & 0x00FF)};
+            //TODO check against sdk implementation
+            return new byte[]{(byte) ((0b11 << 6) | (opCode & 0b111111)), (byte) ((companyIdentifier >> 8) & 0xFF), (byte) (companyIdentifier & 0xFF)};
         }
         return null;
     }

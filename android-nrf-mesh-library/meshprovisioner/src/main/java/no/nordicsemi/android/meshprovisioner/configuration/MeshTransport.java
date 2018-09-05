@@ -30,6 +30,7 @@ import android.util.Log;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkLayer;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
@@ -181,6 +182,58 @@ final class MeshTransport extends NetworkLayer {
         message.setPduType(NETWORK_PDU);
 
         super.createMeshMessage(message);
+        return message;
+    }
+
+    /**
+     * Creates a vendor model access message to be sent to the peripheral node
+     * <p>
+     * This method will create the access message and propagate the message through the transport layers to create the final mesh pdu.
+     * </p>
+     *
+     * @param provisionedMeshNode     mesh node to which the message is to be sent
+     * @param mMeshModel
+     * @param src                     Source address of the provisioner/configurator.
+     * @param dst                     destination address to be sent to
+     * @param key                     Key could be application key or device key.
+     * @param akf                     Application key flag defines which key to be used to decrypt the message i.e device key or application key.
+     * @param aid                     Identifier of the application key.
+     * @param aszmic                  Defines the length of the transport mic length where 1 will encrypt withn 64 bit and 0 with 32 bit encryption.
+     * @param accessOpCode            Operation code for the access message.
+     * @param accessMessageParameters Parameters for the access message.
+     * @return access message containing the mesh pdu
+     */
+    AccessMessage createVendorMeshMessage(final ProvisionedMeshNode provisionedMeshNode, final VendorModel mMeshModel, final byte[] src, final byte[] dst,
+                                          final byte[] key, final int akf, final int aid, final int aszmic,
+                                          final int accessOpCode, final byte[] accessMessageParameters) {
+
+        final int sequenceNumber = incrementSequenceNumber();
+        final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
+
+        Log.v(TAG, "Src address: " + MeshParserUtils.bytesToHex(src, false));
+        Log.v(TAG, "Dst address: " + MeshParserUtils.bytesToHex(dst, false));
+        Log.v(TAG, "Key: " + MeshParserUtils.bytesToHex(key, false));
+        Log.v(TAG, "akf: " + akf);
+        Log.v(TAG, "aid: " + aid);
+        Log.v(TAG, "aszmic: " + aszmic);
+        Log.v(TAG, "Access message opcode: " + Integer.toHexString(accessOpCode));
+        Log.v(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
+
+        final AccessMessage message = new AccessMessage();
+        message.setCompanyIdentifier(mMeshModel.getCompanyIdentifier());
+        message.setSrc(src);
+        message.setDst(dst);
+        message.setIvIndex(provisionedMeshNode.getIvIndex());
+        message.setSequenceNumber(sequenceNum);
+        message.setKey(key);
+        message.setAkf(akf);
+        message.setAid(aid);
+        message.setAszmic(aszmic);
+        message.setOpCode(accessOpCode);
+        message.setParameters(accessMessageParameters);
+        message.setPduType(NETWORK_PDU);
+
+        super.createVendorMeshMessage(message);
         return message;
     }
 

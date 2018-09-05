@@ -67,7 +67,7 @@ public final class VendorModelMessageStatus extends GenericMessageState implemen
             if (message instanceof AccessMessage) {
                 final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
                 Log.v(TAG, "Received vendor model message status" + MeshParserUtils.bytesToHex(accessPayload, false));
-                mConfigStatusCallbacks.onGenericOnOffStatusReceived(mProvisionedMeshNode, mPresentOn, mTargetOn, mRemainingTime);
+                mConfigStatusCallbacks.onVendorModelMessageStatusReceived(mProvisionedMeshNode, accessPayload);
                 mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
                 return true;
             } else {

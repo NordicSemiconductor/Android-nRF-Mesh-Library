@@ -340,11 +340,19 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     break;
             }
         } else if (mMeshMessageState instanceof VendorModelMessageState) {
-            if (mMeshMessageState instanceof VendorModelMessageUnacknowledged) {
-                final VendorModelMessageUnacknowledged vendorModelMessageUnacknowledged = (VendorModelMessageUnacknowledged) mMeshMessageState;
-                vendorModelMessageUnacknowledged.parseMessage(pdu);
+            if (mMeshMessageState instanceof VendorModelMessage) {
+                final VendorModelMessageStatus vendorModelMessageStatus = new VendorModelMessageStatus(mContext, meshNode, this, mMeshMessageState.getMeshModel(),
+                        mMeshMessageState.getAppKeyIndex());
+                vendorModelMessageStatus.setTransportCallbacks(mInternalTransportCallbacks);
+                vendorModelMessageStatus.setStatusCallbacks(mStatusCallbacks);
+                if(vendorModelMessageStatus.parseMessage(pdu)){
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                }
             } else {
 
+                if (((VendorModelMessageUnacknowledged) mMeshMessageState).parseMessage(pdu)) {
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                }
             }
         } else {
             ((DefaultNoOperationMessageState) mMeshMessageState).parseMessage(pdu);
@@ -632,6 +640,25 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      */
     public void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
         final VendorModelMessageUnacknowledged message = new VendorModelMessageUnacknowledged(mContext, node, this, model, aszmic, address, appKeyIndex, opcode, parameters);
+        message.setTransportCallbacks(mInternalTransportCallbacks);
+        message.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = message;
+        message.executeSend();
+    }
+
+    /**
+     * Send vendor model specific message to a node
+     *
+     * @param node        target mesh nmesh node to send to
+     * @param model       Mesh model to control
+     * @param address     this address could be the unicast address of the element or the subscribe address
+     * @param aszmic      if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
+     * @param appKeyIndex index of the app key to encrypt the message with
+     * @param opcode      opcode of the message
+     * @param parameters  parameters of the message
+     */
+    public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
+        final VendorModelMessage message = new VendorModelMessage(mContext, node, this, model, aszmic, address, appKeyIndex, opcode, parameters);
         message.setTransportCallbacks(mInternalTransportCallbacks);
         message.setStatusCallbacks(mStatusCallbacks);
         mMeshMessageState = message;

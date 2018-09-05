@@ -333,8 +333,10 @@
     <string name="unknown">Unknown</string>
 
     <string name="title_vendor_model_controls">Vendor Model Controls</string>
-    <string name="opcode">Op Code</string>
+    <string name="opcode">Opcode without company id</string>
     <string name="parameters">Parameters</string>
     <string name="received_message">Received message:</string>
     <string name="action_send">Send</string>
+    <string name="error_empty_value">Value cannot be empty</string>
+    <string name="message_type">Acknowledged Message</string>
 </resources>

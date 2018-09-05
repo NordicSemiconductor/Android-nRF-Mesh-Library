@@ -10,7 +10,7 @@ import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
-import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -57,7 +57,7 @@ public class VendorModelMessageUnacknowledged extends VendorModelMessageState {
         final byte[] key = MeshParserUtils.toByteArray(mMeshModel.getBoundAppkeys().get(mAppKeyIndex));
         int akf = 1;
         int aid = SecureUtils.calculateK4(key);
-        accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, dstAddress, key, akf, aid, mAszmic, opCode, parameters);
+        accessMessage = mMeshTransport.createVendorMeshMessage(mProvisionedMeshNode, (VendorModel) mMeshModel, mSrc, dstAddress, key, akf, aid, mAszmic, opCode, parameters);
         mPayloads.putAll(accessMessage.getNetworkPdu());
     }
 
