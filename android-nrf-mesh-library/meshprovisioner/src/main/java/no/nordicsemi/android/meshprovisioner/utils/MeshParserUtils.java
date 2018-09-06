@@ -457,8 +457,9 @@ public class MeshParserUtils {
      */
     public static byte[] createVendorOpCode(final int opCode, final int companyIdentifier) {
         if (companyIdentifier != 0xFFFF) {
-            //TODO SDK implementation contains a bug related to endianness of the company identifier
-            return new byte[]{(byte) ((0b11 << 6) | (opCode & 0b111111)),  (byte) (companyIdentifier & 0xFF), (byte) ((companyIdentifier >> 8) & 0xFF)};
+            //TODO nRF Mesh SDK implementation contains a bug related to endianness of the company identifier
+            //In order to get this working with the sdk you may have to switch the company identifier bytes here
+            return new byte[]{(byte) (0xC0 | (opCode & 0x3F)),  (byte) (companyIdentifier & 0xFF), (byte) ((companyIdentifier >> 8) & 0xFF)};
         }
         return null;
     }
