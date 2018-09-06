@@ -271,6 +271,7 @@
     <string name="title_publlish_address_status">Publish Address Status</string>
     <string name="title_subscription_status">Subscription Status</string>
     <string name="hex_format">0x%s</string>
+    <string name="hex_prefix">0x</string>
     <string name="invalid_hex_value">Invalid hex value</string>
     <string name="invalid_address_value">Invalid address</string>
     <string name="mesh_provioner_service_running">Mesh provisioner service is running in background.</string>
@@ -339,4 +340,5 @@
     <string name="action_send">Send</string>
     <string name="error_empty_value">Value cannot be empty</string>
     <string name="message_type">Acknowledged Message</string>
+    <string name="enforce_vendor_op_code">0xC0 | 0x</string>
 </resources>

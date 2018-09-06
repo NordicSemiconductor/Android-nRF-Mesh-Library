@@ -45,6 +45,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -523,6 +524,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
             } else {
                 final CardView cardView = findViewById(R.id.node_controls_card);
                 final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_vendor_model_controls, cardView);
+
+                final CheckBox chkAcknowledged = nodeControlsContainer.findViewById(R.id.chk_acknowledged);
                 final TextInputLayout opCodeLayout = nodeControlsContainer.findViewById(R.id.op_code_layout);
                 final TextInputEditText opCodeEditText = nodeControlsContainer.findViewById(R.id.op_code);
 
@@ -530,6 +533,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
                 final TextInputLayout parametersLayout = nodeControlsContainer.findViewById(R.id.parameters_layout);
                 final TextInputEditText parametersEditText = nodeControlsContainer.findViewById(R.id.parameters);
+                final View messageContainer = nodeControlsContainer.findViewById(R.id.received_message_container);
                 final TextView receivedMessage = nodeControlsContainer.findViewById(R.id.received_message);
                 final Button actionSend = nodeControlsContainer.findViewById(R.id.action_send);
 
@@ -570,21 +574,38 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 });
 
                 actionSend.setOnClickListener(v -> {
+                    messageContainer.setVisibility(View.GONE);
                     final String opCode = opCodeEditText.getText().toString().trim();
-                    if(!validateInput(opCode)) {
-                        return;
+
+                    try {
+                        if(!validateInput(opCode)) {
+                            return;
+                        }
+                    } catch (Exception ex) {
+                        opCodeLayout.setError(ex.getMessage());
                     }
 
                     final String parameters = parametersEditText.getText().toString().trim();
-                    /*if(!validateInput(parameters)) {
-                        return;
-                    }*/
-                    final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
+                    try {
+                        if(!validateInput(parameters)) {
+                            return;
+                        }
+                    } catch (Exception ex) {
+                        parametersLayout.setError(ex.getMessage());
+                    }
 
-                    mViewModel.sendVendorModelAcknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), MeshParserUtils.toByteArray(parameters));
+                    final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
+                    if(chkAcknowledged.isChecked()){
+                        mViewModel.sendVendorModelAcknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), MeshParserUtils.toByteArray(parameters));
+                    } else {
+                        mViewModel.sendVendorModelUnacknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), MeshParserUtils.toByteArray(parameters));
+                    }
                 });
 
-                mViewModel.getVendorModelState().observe(this, bytes -> receivedMessage.setText(MeshParserUtils.bytesToHex(bytes, false)));
+                mViewModel.getVendorModelState().observe(this, bytes -> {
+                    messageContainer.setVisibility(View.VISIBLE);
+                    receivedMessage.setText(MeshParserUtils.bytesToHex(bytes, false));
+                });
             }
         }
     }
@@ -598,10 +619,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
             if(!input.matches(Utils.HEX_PATTERN) || input.startsWith("0x")) {
                 throw new IllegalArgumentException(getString(R.string.invalid_hex_value));
-            }
-
-            if(MeshParserUtils.validateNetworkKeyInput(this, input)){
-                return true;
             }
         } catch (IllegalArgumentException ex) {
             //networkKeyInputLayout.setError(ex.getMessage());

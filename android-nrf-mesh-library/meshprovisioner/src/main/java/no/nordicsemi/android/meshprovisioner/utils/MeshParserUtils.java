@@ -459,7 +459,7 @@ public class MeshParserUtils {
         if (companyIdentifier != 0xFFFF) {
             //TODO nRF Mesh SDK implementation contains a bug related to endianness of the company identifier
             //In order to get this working with the sdk you may have to switch the company identifier bytes here
-            return new byte[]{(byte) (0xC0 | (opCode & 0x3F)),  (byte) (companyIdentifier & 0xFF), (byte) ((companyIdentifier >> 8) & 0xFF)};
+            return new byte[]{(byte) (0xC0 | (opCode & 0x3F)), (byte) ((companyIdentifier >> 8) & 0xFF), (byte) (companyIdentifier & 0xFF)};
         }
         return null;
     }
