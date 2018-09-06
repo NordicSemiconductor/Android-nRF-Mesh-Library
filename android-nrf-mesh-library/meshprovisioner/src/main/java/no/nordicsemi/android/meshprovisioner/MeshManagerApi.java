@@ -926,4 +926,34 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             throw new IllegalArgumentException("Mesh node cannot be null!");
         mMeshMessageHandler.resetMeshNode(provisionedMeshNode);
     }
+
+    /**
+     * Send unacknowledged vendor model specific message to a node
+     *
+     * @param node        target mesh nmesh node to send to
+     * @param model       Mesh model to control
+     * @param address     this address could be the unicast address of the element or the subscribe address
+     * @param appKeyIndex index of the app key to encrypt the message with
+     * @param opcode      opcode of the message
+     * @param parameters  parameters of the message
+     */
+
+    public void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
+        mMeshMessageHandler.sendVendorModelUnacknowledgedMessage(node, model, address, false, appKeyIndex, opcode, parameters);
+    }
+
+    /**
+     * Send acknowledged vendor model specific message to a node
+     *
+     * @param node        target mesh nmesh node to send to
+     * @param model       Mesh model to control
+     * @param address     this address could be the unicast address of the element or the subscribe address
+     * @param appKeyIndex index of the app key to encrypt the message with
+     * @param opcode      opcode of the message
+     * @param parameters  parameters of the message
+     */
+
+    public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
+        mMeshMessageHandler.sendVendorModelAcknowledgedMessage(node, model, address, false, appKeyIndex, opcode, parameters);
+    }
 }

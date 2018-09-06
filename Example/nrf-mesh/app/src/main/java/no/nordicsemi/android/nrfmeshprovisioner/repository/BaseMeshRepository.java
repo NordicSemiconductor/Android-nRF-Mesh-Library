@@ -60,6 +60,7 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_REC
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_ON_DEVICE_READY;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_PROVISIONING_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_TRANSACTION_FAILED;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_VENDOR_MODEL_MESSAGE_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
 
@@ -173,6 +174,9 @@ public abstract class BaseMeshRepository {
                     onConfigurationMessageStateChanged(intent);
                     break;
                 case ACTION_GENERIC_ON_OFF_STATE:
+                    onGenericMessageStateChanged(intent);
+                    break;
+                case ACTION_VENDOR_MODEL_MESSAGE_STATE:
                     onGenericMessageStateChanged(intent);
                     break;
                 case ACTION_TRANSACTION_FAILED:

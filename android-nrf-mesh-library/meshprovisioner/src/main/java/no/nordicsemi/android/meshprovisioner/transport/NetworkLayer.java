@@ -64,6 +64,19 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         createNetworkLayerPDU(message);
     }
 
+    /**
+     * Creates a vendor model mesh message
+     * @param message Message could be of type access or control message.
+     */
+    protected final void createVendorMeshMessage(final Message message) {
+        if(message instanceof AccessMessage) {
+            super.createVendorMeshMessage(message);
+        } else {
+            super.createVendorMeshMessage(message);
+        }
+        createNetworkLayerPDU(message);
+    }
+
     @Override
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public final Message createNetworkLayerPDU(final Message message) {

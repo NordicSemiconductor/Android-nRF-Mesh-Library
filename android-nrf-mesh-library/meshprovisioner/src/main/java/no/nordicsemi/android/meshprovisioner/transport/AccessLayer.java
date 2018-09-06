@@ -52,6 +52,13 @@ public abstract class AccessLayer {
     void createMeshMessage(final Message message) {
         createAccessMessage((AccessMessage) message);
     }
+    /**
+     * Creates a vendor model access message
+     * @param message Access message containing the required opcodes and parameters to create access message pdu.
+     */
+    void createVendorMeshMessage(final Message message) {
+        createCustomAccessMessage((AccessMessage) message);
+    }
 
     /**
      * Creates an access message
@@ -86,7 +93,7 @@ public abstract class AccessLayer {
         final int opCode = accessMessage.getOpCode();
         final int companyIdentifier = accessMessage.getCompanyIdentifier();
         final byte[] parameters = accessMessage.getParameters();
-        final byte[] opCodesCompanyIdentifier = MeshParserUtils.getOpCodes(opCode, companyIdentifier);
+        final byte[] opCodesCompanyIdentifier = MeshParserUtils.createVendorOpCode(opCode, companyIdentifier);
         final ByteBuffer accessMessageBuffer = ByteBuffer.allocate(opCodesCompanyIdentifier.length + parameters.length);
         accessMessageBuffer.put(opCodesCompanyIdentifier);
         accessMessageBuffer.put(parameters);

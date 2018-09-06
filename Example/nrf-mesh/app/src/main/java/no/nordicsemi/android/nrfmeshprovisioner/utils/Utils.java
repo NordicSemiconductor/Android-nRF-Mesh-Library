@@ -54,6 +54,10 @@ public class Utils {
     public static final String ACTION_CONFIGURATION_STATE = "ACTION_CONFIGURATION_STATE";
     public static final String ACTION_GENERIC_STATE = "ACTION_GENERIC_STATE";
     public static final String ACTION_GENERIC_ON_OFF_STATE = "ACTION_GENERIC_ON_OFF_STATE";
+
+    public static final String ACTION_VENDOR_MODEL_MESSAGE = "ACTION_VENDOR_MODEL_MESSAGE";
+    public static final String ACTION_VENDOR_MODEL_MESSAGE_STATE = "ACTION_VENDOR_MODEL_MESSAGE_STATE";
+
     public static final String ACTION_TRANSACTION_FAILED = "ACTION_TRANSACTION_FAILED";
     public static final String ACTION_UPDATE_PROVISIONED_NODES = "ACTION_UPDATE_PROVISIONED_NODES";
 
@@ -234,6 +238,7 @@ public class Utils {
         intentFilter.addAction(ACTION_CONFIGURATION_STATE);
         intentFilter.addAction(ACTION_TRANSACTION_FAILED);
         intentFilter.addAction(ACTION_GENERIC_ON_OFF_STATE);
+        intentFilter.addAction(ACTION_VENDOR_MODEL_MESSAGE_STATE);
         return intentFilter;
     }
 

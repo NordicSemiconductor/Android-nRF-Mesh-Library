@@ -81,6 +81,18 @@ abstract class UpperTransportLayer extends AccessLayer {
     }
 
     /**
+     * Creates a vendor model mesh message containing an upper transport access pdu
+     * @param message The access message required to create the encrypted upper transport pdu
+     */
+    void createVendorMeshMessage(final Message message) { //Access message
+        super.createVendorMeshMessage(message);
+        final AccessMessage accessMessage = (AccessMessage) message;
+        final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
+        Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
+        accessMessage.setUpperTransportPdu(encryptedTransportPDU);
+    }
+
+    /**
      * Creates the upper transport access pdu
      * @param accessMessage The access message required to create the encrypted upper transport pdu
      */

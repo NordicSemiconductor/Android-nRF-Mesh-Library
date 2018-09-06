@@ -144,4 +144,16 @@ public class ModelConfigurationViewModel extends ViewModel {
     public LiveData<Boolean> getGenericOnOffState() {
         return mModelConfigurationRepository.getGenericOnOffState();
     }
+
+    public LiveData<byte[]> getVendorModelState() {
+        return mModelConfigurationRepository.getVendorModelState();
+    }
+
+    public void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters){
+        mModelConfigurationRepository.sendVendorModelUnacknowledgedMessage(node, model, appKeyIndex, opcode, parameters);
+    }
+
+    public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters){
+        mModelConfigurationRepository.sendVendorModelAcknowledgedMessage(node, model, appKeyIndex, opcode, parameters);
+    }
 }

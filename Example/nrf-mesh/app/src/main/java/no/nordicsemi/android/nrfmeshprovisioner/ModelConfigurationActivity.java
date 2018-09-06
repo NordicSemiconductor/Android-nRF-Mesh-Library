@@ -22,22 +22,30 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
+import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.text.method.KeyListener;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -46,6 +54,7 @@ import android.widget.Toast;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -64,6 +73,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurati
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSubscriptionAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
@@ -510,8 +521,109 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                         mActionOnOff.setText(R.string.action_generic_on);
                     }
                 });
+            } else {
+                final CardView cardView = findViewById(R.id.node_controls_card);
+                final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_vendor_model_controls, cardView);
+
+                final CheckBox chkAcknowledged = nodeControlsContainer.findViewById(R.id.chk_acknowledged);
+                final TextInputLayout opCodeLayout = nodeControlsContainer.findViewById(R.id.op_code_layout);
+                final TextInputEditText opCodeEditText = nodeControlsContainer.findViewById(R.id.op_code);
+
+                final KeyListener hexKeyListener = new HexKeyListener();
+
+                final TextInputLayout parametersLayout = nodeControlsContainer.findViewById(R.id.parameters_layout);
+                final TextInputEditText parametersEditText = nodeControlsContainer.findViewById(R.id.parameters);
+                final View messageContainer = nodeControlsContainer.findViewById(R.id.received_message_container);
+                final TextView receivedMessage = nodeControlsContainer.findViewById(R.id.received_message);
+                final Button actionSend = nodeControlsContainer.findViewById(R.id.action_send);
+
+                opCodeEditText.setKeyListener(hexKeyListener);
+                opCodeEditText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+                        opCodeLayout.setError(null);
+                    }
+
+                    @Override
+                    public void afterTextChanged(final Editable s) {
+
+                    }
+                });
+
+                parametersEditText.setKeyListener(hexKeyListener);
+                parametersEditText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+                        parametersLayout.setError(null);
+                    }
+
+                    @Override
+                    public void afterTextChanged(final Editable s) {
+
+                    }
+                });
+
+                actionSend.setOnClickListener(v -> {
+                    messageContainer.setVisibility(View.GONE);
+                    final String opCode = opCodeEditText.getText().toString().trim();
+
+                    try {
+                        if(!validateInput(opCode)) {
+                            return;
+                        }
+                    } catch (Exception ex) {
+                        opCodeLayout.setError(ex.getMessage());
+                    }
+
+                    final String parameters = parametersEditText.getText().toString().trim();
+                    try {
+                        if(!validateInput(parameters)) {
+                            return;
+                        }
+                    } catch (Exception ex) {
+                        parametersLayout.setError(ex.getMessage());
+                    }
+
+                    final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
+                    if(chkAcknowledged.isChecked()){
+                        mViewModel.sendVendorModelAcknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), MeshParserUtils.toByteArray(parameters));
+                    } else {
+                        mViewModel.sendVendorModelUnacknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), MeshParserUtils.toByteArray(parameters));
+                    }
+                });
+
+                mViewModel.getVendorModelState().observe(this, bytes -> {
+                    messageContainer.setVisibility(View.VISIBLE);
+                    receivedMessage.setText(MeshParserUtils.bytesToHex(bytes, false));
+                });
             }
         }
+    }
+
+    private boolean validateInput(final String input) throws IllegalArgumentException{
+        try {
+
+            if(TextUtils.isEmpty(input)){
+                throw new IllegalArgumentException(getString(R.string.error_empty_value));
+            }
+
+            if(!input.matches(Utils.HEX_PATTERN) || input.startsWith("0x")) {
+                throw new IllegalArgumentException(getString(R.string.invalid_hex_value));
+            }
+        } catch (IllegalArgumentException ex) {
+            //networkKeyInputLayout.setError(ex.getMessage());
+        }
+        return true;
     }
 
     @Override

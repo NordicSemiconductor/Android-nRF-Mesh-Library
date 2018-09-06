@@ -718,6 +718,24 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
+    public void onUnacknowledgedVendorModelMessageSent(final ProvisionedMeshNode node) {
+        mMeshNode = node;
+    }
+
+    @Override
+    public void onAcknowledgedVendorModelMessageSent(final ProvisionedMeshNode node) {
+        mMeshNode = node;
+    }
+
+    @Override
+    public void onVendorModelMessageStatusReceived(final ProvisionedMeshNode node, final byte[] pdu) {
+        mMeshNode = node;
+        final Intent intent = new Intent(ACTION_VENDOR_MODEL_MESSAGE_STATE);
+        intent.putExtra(EXTRA_DATA, pdu);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
     public void onMeshNodeResetSent(final ProvisionedMeshNode node) {
         mMeshNode = node;
         final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
@@ -1120,6 +1138,14 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
         public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
             mMeshManagerApi.resetMeshNode(provisionedMeshNode);
+        }
+
+        public void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
+            mMeshManagerApi.sendVendorModelUnacknowledgedMessage(node, model, address, appKeyIndex, opcode, parameters);
+        }
+
+        public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
+            mMeshManagerApi.sendVendorModelAcknowledgedMessage(node, model, address, appKeyIndex, opcode, parameters);
         }
     }
 }

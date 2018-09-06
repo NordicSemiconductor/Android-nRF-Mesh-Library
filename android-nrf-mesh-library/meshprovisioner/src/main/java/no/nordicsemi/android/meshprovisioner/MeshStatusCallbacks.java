@@ -149,6 +149,20 @@ public interface MeshStatusCallbacks {
     void onSubscriptionStatusReceived(final ProvisionedMeshNode node, final boolean success, final int status, final byte[] elementAddress, final byte[] subscriptionAddress, final int modelIdentifier);
 
     /**
+     * Notifies if the mesh {@link ConfigNodeReset} was sent
+     *
+     * @param node mesh node that the message was sent to
+     */
+    void onMeshNodeResetSent(final ProvisionedMeshNode node);
+
+    /**
+     * Notifies if the mesh {@link ConfigNodeResetStatus} was received
+     *
+     * @param node mesh node that the message was received from
+     */
+    void onMeshNodeResetStatusReceived(final ProvisionedMeshNode node);
+
+    /**
      * Notifies if {@link GenericOnOffGet} was sent
      *
      * @param node mesh node that the message was sent to
@@ -177,16 +191,23 @@ public interface MeshStatusCallbacks {
     void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime);
 
     /**
-     * Notifies if the mesh {@link ConfigNodeReset} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onMeshNodeResetSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if the mesh {@link ConfigNodeResetStatus} was received
+     * Notifies if {@link VendorModelMessageUnacknowledged} was received
      *
      * @param node mesh node that the message was received from
      */
-    void onMeshNodeResetStatusReceived(final ProvisionedMeshNode node);
+    void onUnacknowledgedVendorModelMessageSent(final ProvisionedMeshNode node);
+
+    /**
+     * Notifies if {@link VendorModelMessageState} was received
+     *
+     * @param node mesh node that the message was received from
+     */
+    void onAcknowledgedVendorModelMessageSent(final ProvisionedMeshNode node);
+
+    /**
+     * Notifies if {@link GenericOnOffStatus} was received
+     *
+     * @param node mesh node that the message was received from
+     */
+    void onVendorModelMessageStatusReceived(final ProvisionedMeshNode node, final byte[] pdu);
 }

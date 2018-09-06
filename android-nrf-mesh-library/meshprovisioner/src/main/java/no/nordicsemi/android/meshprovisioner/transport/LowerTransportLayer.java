@@ -82,6 +82,16 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
     }
 
     @Override
+    void createVendorMeshMessage(final Message message) {
+        if (message instanceof AccessMessage) {
+            super.createVendorMeshMessage(message);
+            createLowerTransportAccessPDU((AccessMessage) message);
+        } else {
+            createLowerTransportControlPDU((ControlMessage) message);
+        }
+    }
+
+    @Override
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public final void createLowerTransportAccessPDU(final AccessMessage message) {
         final byte[] upperTransportPDU = message.getUpperTransportPdu();

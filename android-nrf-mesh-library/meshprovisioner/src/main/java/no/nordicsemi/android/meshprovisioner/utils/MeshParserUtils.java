@@ -447,7 +447,7 @@ public class MeshParserUtils {
     }
 
     /**
-     * Returns the length of the opcode.
+     * Returns the vendor opcode packed with company identifier
      * If the MSB = 0 then the length is 1
      * If the MSB = 1 then the length is 2
      * If the MSB = 2 then the length is 3
@@ -455,9 +455,11 @@ public class MeshParserUtils {
      * @param opCode operation code
      * @return length of opcodes
      */
-    public static byte[] getOpCodes(final int opCode, final int companyIdentifier) {
+    public static byte[] createVendorOpCode(final int opCode, final int companyIdentifier) {
         if (companyIdentifier != 0xFFFF) {
-            return new byte[]{(byte) ((0b11 << 6) | opCode), (byte) (companyIdentifier & 0x00FF), (byte) ((companyIdentifier >> 8) & 0x00FF)};
+            //TODO nRF Mesh SDK implementation contains a bug related to endianness of the company identifier
+            //In order to get this working with the sdk you may have to switch the company identifier bytes here
+            return new byte[]{(byte) (0xC0 | (opCode & 0x3F)), (byte) (companyIdentifier & 0xFF), (byte) ((companyIdentifier >> 8) & 0xFF)};
         }
         return null;
     }

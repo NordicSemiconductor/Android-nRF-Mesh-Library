@@ -38,11 +38,14 @@ import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_ON_OFF_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_VENDOR_MODEL_MESSAGE_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_PRESENT_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
@@ -55,6 +58,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
 
     private static final String TAG = ModelConfigurationRepository.class.getSimpleName();
     private MutableLiveData<Boolean> mPresentState = new MutableLiveData<>();
+    private SingleLiveEvent<byte[]> mVendorModelState = new SingleLiveEvent<>();
 
     public ModelConfigurationRepository(final Context context) {
         super(context);
@@ -62,6 +66,10 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
 
     public LiveData<Boolean> getGenericOnOffState() {
         return mPresentState;
+    }
+
+    public LiveData<byte[]> getVendorModelState(){
+        return mVendorModelState;
     }
 
     public LiveData<Boolean> isConnected() {
@@ -189,6 +197,10 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
                 final boolean presentState = intent.getExtras().getBoolean(EXTRA_GENERIC_ON_OFF_PRESENT_STATE);
                 //TODO implement target state and remaining state.
                 mPresentState.postValue(presentState);
+                break;
+            case ACTION_VENDOR_MODEL_MESSAGE_STATE:
+                final byte[] data = intent.getExtras().getByteArray(EXTRA_DATA);
+                mVendorModelState.postValue(data);
                 break;
         }
     }
@@ -332,5 +344,13 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         } else {
             Toast.makeText(mContext, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters) {
+        mBinder.sendVendorModelUnacknowledgedMessage(node, model, mElement.getValue().getElementAddress(), appKeyIndex, opcode, parameters);
+    }
+
+    public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters) {
+        mBinder.sendVendorModelAcknowledgedMessage(node, model, mElement.getValue().getElementAddress(), appKeyIndex, opcode, parameters);
     }
 }

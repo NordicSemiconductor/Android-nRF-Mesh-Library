@@ -39,7 +39,7 @@ public class GenericOnOffGet extends GenericMessageState {
     }
 
     @Override
-    protected boolean parseMessage(final byte[] pdu) {
+    public boolean parseMessage(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {

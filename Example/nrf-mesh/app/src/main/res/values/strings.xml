@@ -271,6 +271,7 @@
     <string name="title_publlish_address_status">Publish Address Status</string>
     <string name="title_subscription_status">Subscription Status</string>
     <string name="hex_format">0x%s</string>
+    <string name="hex_prefix">0x</string>
     <string name="invalid_hex_value">Invalid hex value</string>
     <string name="invalid_address_value">Invalid address</string>
     <string name="mesh_provioner_service_running">Mesh provisioner service is running in background.</string>
@@ -331,4 +332,13 @@
     <string name="supported_input_oob_actions_title">Supported Input OOB Actions</string>
     <string name="input_oob_size_title">Input OOB Size</string>
     <string name="unknown">Unknown</string>
+
+    <string name="title_vendor_model_controls">Vendor Model Controls</string>
+    <string name="opcode">Opcode without company id</string>
+    <string name="parameters">Parameters</string>
+    <string name="received_message">Received message:</string>
+    <string name="action_send">Send</string>
+    <string name="error_empty_value">Value cannot be empty</string>
+    <string name="message_type">Acknowledged Message</string>
+    <string name="enforce_vendor_op_code">0xC0 | 0x</string>
 </resources>
