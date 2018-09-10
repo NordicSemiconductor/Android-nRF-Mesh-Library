@@ -180,8 +180,10 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
         mPublishAddressView.setText(R.string.none);
         mActionPublish.setOnClickListener(v -> {
-            final DialogFragmentPublishAddress fragmentPublishAddress = DialogFragmentPublishAddress.newInstance();
-            fragmentPublishAddress.show(getSupportFragmentManager(), null);
+            //final DialogFragmentPublishAddress fragmentPublishAddress = DialogFragmentPublishAddress.newInstance();
+            //fragmentPublishAddress.show(getSupportFragmentManager(), null);
+            final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
+            startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
         });
 
         mActionSubscribe.setOnClickListener(v -> {

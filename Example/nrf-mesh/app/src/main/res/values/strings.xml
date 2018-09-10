@@ -354,4 +354,5 @@
     <string name="title_friendship_credentials_flag">Friendship Credentials Flag</string>
     <string name="title_ttl">TTL</string>
     <string name="publish_ttl">Publish TTL</string>
+    <string name="title_publication_settings">Publication Settings</string>
 </resources>
