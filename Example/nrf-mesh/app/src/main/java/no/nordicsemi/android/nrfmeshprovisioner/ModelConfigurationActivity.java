@@ -153,7 +153,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(modelName);
 
-
         final RecyclerView recyclerViewAddresses = findViewById(R.id.recycler_view_addresses);
         recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(this));
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
