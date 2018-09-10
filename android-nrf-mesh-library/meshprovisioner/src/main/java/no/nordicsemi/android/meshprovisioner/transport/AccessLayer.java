@@ -94,9 +94,15 @@ public abstract class AccessLayer {
         final int companyIdentifier = accessMessage.getCompanyIdentifier();
         final byte[] parameters = accessMessage.getParameters();
         final byte[] opCodesCompanyIdentifier = MeshParserUtils.createVendorOpCode(opCode, companyIdentifier);
-        final ByteBuffer accessMessageBuffer = ByteBuffer.allocate(opCodesCompanyIdentifier.length + parameters.length);
-        accessMessageBuffer.put(opCodesCompanyIdentifier);
-        accessMessageBuffer.put(parameters);
+        final ByteBuffer accessMessageBuffer;
+        if(parameters != null) {
+            accessMessageBuffer = ByteBuffer.allocate(opCodesCompanyIdentifier.length + parameters.length);
+            accessMessageBuffer.put(opCodesCompanyIdentifier);
+            accessMessageBuffer.put(parameters);
+        } else {
+            accessMessageBuffer = ByteBuffer.allocate(opCodesCompanyIdentifier.length);
+            accessMessageBuffer.put(opCodesCompanyIdentifier);
+        }
         accessMessage.setAccessPdu(accessMessageBuffer.array());
     }
 

@@ -586,19 +586,31 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     }
 
                     final String parameters = parametersEditText.getText().toString().trim();
-                    try {
-                        if(!validateInput(parameters)) {
+                    final byte[] params;
+                    if(TextUtils.isEmpty(parameters) && parameters.length() == 0){
+                        params = null;
+                    } else {
+                        try {
+                            if(!validateInput(parameters)) {
+                                return;
+                            }
+                        } catch (Exception ex) {
+                            opCodeLayout.setError(ex.getMessage());
                             return;
                         }
-                    } catch (Exception ex) {
-                        parametersLayout.setError(ex.getMessage());
+                        params = MeshParserUtils.toByteArray(parameters);
                     }
+
 
                     final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
                     if(chkAcknowledged.isChecked()){
-                        mViewModel.sendVendorModelAcknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), MeshParserUtils.toByteArray(parameters));
+                        try {
+                            mViewModel.sendVendorModelAcknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), params);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
                     } else {
-                        mViewModel.sendVendorModelUnacknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), MeshParserUtils.toByteArray(parameters));
+                        mViewModel.sendVendorModelUnacknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), params);
                     }
                 });
 
