@@ -36,13 +36,9 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class VendorModelMessageStatus extends GenericMessageState implements UpperTransportLayerCallbacks {
+public final class VendorModelMessageStatus extends VendorModelMessageState implements UpperTransportLayerCallbacks {
 
     private static final String TAG = VendorModelMessageStatus.class.getSimpleName();
-    private static final int GENERIC_ON_OFF_STATE_ON = 0x01;
-    private boolean mPresentOn;
-    private boolean mTargetOn;
-    private int mRemainingTime;
 
     public VendorModelMessageStatus(Context context,
                                     final ProvisionedMeshNode unprovisionedMeshNode,
@@ -57,7 +53,7 @@ public final class VendorModelMessageStatus extends GenericMessageState implemen
 
     @Override
     public MessageState getState() {
-        return MessageState.GENERIC_ON_OFF_STATUS_STATE;
+        return null;
     }
 
     public final boolean parseMessage(final byte[] pdu) {
@@ -66,11 +62,12 @@ public final class VendorModelMessageStatus extends GenericMessageState implemen
         if (message != null) {
             if (message instanceof AccessMessage) {
                 final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Received vendor model message status" + MeshParserUtils.bytesToHex(accessPayload, false));
+                Log.v(TAG, "Received vendor model access message status: " + MeshParserUtils.bytesToHex(accessPayload, false));
                 mConfigStatusCallbacks.onVendorModelMessageStatusReceived(mProvisionedMeshNode, accessPayload);
                 mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
                 return true;
             } else {
+                Log.v(TAG, "Received vendor model control message: " + MeshParserUtils.bytesToHex(((ControlMessage) message).getTransportControlPdu(), false));
                 parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         } else {

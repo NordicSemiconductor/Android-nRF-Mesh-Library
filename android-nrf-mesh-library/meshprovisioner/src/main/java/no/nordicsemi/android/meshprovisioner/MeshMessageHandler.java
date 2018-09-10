@@ -85,10 +85,10 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param pdu      mesh pdu that was sent
      */
     protected void handleMeshMsgWriteCallbacks(final ProvisionedMeshNode meshNode, final byte[] pdu) {
-        if (mMeshMessageState.getState() == null)
-            return;
-
         if(mMeshMessageState instanceof ConfigMessageState) {
+            if (mMeshMessageState.getState() == null)
+                return;
+
             switch (mMeshMessageState.getState()) {
                 case COMPOSITION_DATA_GET_STATE:
                     //Composition data get complete,
@@ -162,6 +162,9 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     break;
             }
         } else if(mMeshMessageState instanceof GenericMessageState) {
+            if (mMeshMessageState.getState() == null)
+                return;
+
             switch (mMeshMessageState.getState()) {
                 case GENERIC_ON_OFF_GET_STATE:
                     //Create the next corresponding status state
@@ -195,7 +198,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                         mMeshMessageState.getMeshModel(), mMeshMessageState.getAppKeyIndex());
                 vendorModelMessage.setTransportCallbacks(mInternalTransportCallbacks);
                 vendorModelMessage.setStatusCallbacks(mStatusCallbacks);
-                switchToNoOperationState(vendorModelMessage);
+                switchState(vendorModelMessage);
             }
         }
     }
@@ -345,11 +348,13 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                         mMeshMessageState.getAppKeyIndex());
                 vendorModelMessageStatus.setTransportCallbacks(mInternalTransportCallbacks);
                 vendorModelMessageStatus.setStatusCallbacks(mStatusCallbacks);
+                switchState(vendorModelMessageStatus, pdu);
+            } else if (mMeshMessageState instanceof VendorModelMessageStatus) {
+                final VendorModelMessageStatus vendorModelMessageStatus = (VendorModelMessageStatus) mMeshMessageState;
                 if(vendorModelMessageStatus.parseMessage(pdu)){
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                 }
             } else {
-
                 if (((VendorModelMessageUnacknowledged) mMeshMessageState).parseMessage(pdu)) {
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                 }
@@ -376,7 +381,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      */
     private boolean switchState(final MeshMessageState newState) {
         if (!mMeshMessageState.isSegmented()) {
-            Log.v(TAG, "Switching current state on write complete " + mMeshMessageState.getState().name() + " to " + newState.getState().name());
+            Log.v(TAG, "Switching current state on write complete " + mMeshMessageState.getClass().getSimpleName() + " to " + newState.getClass().getSimpleName());
             mMeshMessageState = newState;
             return true;
         }
@@ -401,7 +406,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                 mMeshMessageState.executeResend();
                 return false;
             } else {
-                Log.v(TAG, "Switching current state " + mMeshMessageState.getState().name() + " to " + newState.getState().name());
+                Log.v(TAG, "Switching current state " + mMeshMessageState.getClass().getSimpleName() + " to " + newState.getClass().getSimpleName());
                 mMeshMessageState = newState;
                 return true;
             }
