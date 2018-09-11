@@ -22,13 +22,11 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -54,16 +52,16 @@ import android.widget.Toast;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppStatus;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
@@ -180,9 +178,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
         mPublishAddressView.setText(R.string.none);
         mActionPublish.setOnClickListener(v -> {
-            //final DialogFragmentPublishAddress fragmentPublishAddress = DialogFragmentPublishAddress.newInstance();
-            //fragmentPublishAddress.show(getSupportFragmentManager(), null);
             final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
+            publicationSettings.putExtra(EXTRA_DEVICE, mViewModel.getMeshModel().getValue());
             startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
         });
 
@@ -284,15 +281,33 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == ManageAppKeysActivity.SELECT_APP_KEY){
-            if(resultCode == RESULT_OK){
-                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
-                final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
-                if(appKey != null){
-                    mViewModel.sendBindAppKey(appKeyIndex);
-                    showProgressbar();
+        switch (requestCode) {
+            case ManageAppKeysActivity.SELECT_APP_KEY:
+                if(resultCode == RESULT_OK){
+                    final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
+                    final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
+                    if(appKey != null){
+                        mViewModel.sendBindAppKey(appKeyIndex);
+                        showProgressbar();
+                    }
                 }
-            }
+                break;
+            case PublicationSettingsActivity.SET_PUBLICATION_SETTINGS:
+                if(resultCode == RESULT_OK){
+                    final byte[] publishAddress = data.getByteArrayExtra(PublicationSettingsActivity.RESULT_PUBLISH_ADDRESS);
+                    final int appKeyIndex = data.getIntExtra(PublicationSettingsActivity.RESULT_APP_KEY_INDEX, -1);
+                    final boolean credentialFlag = data.getBooleanExtra(PublicationSettingsActivity.RESULT_CREDENTIAL_FLAG, false);
+                    final int publishTtl = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_TTL, 0);
+                    final int pubilcationSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_STEPS, 0);
+                    final int publicationResolution = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_RESOLUTION, 0);
+                    final int publishRetransmitCount = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_COUNT, 0);
+                    final int publishRetransmitIntervalSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS, 0);
+                    if(publishAddress != null && appKeyIndex > -1){
+
+                        showProgressbar();
+                    }
+                }
+                break;
         }
     }
 

@@ -345,7 +345,7 @@
     <string name="hint_address">CEEF</string>
     <string name="title_address">Address</string>
     <string name="title_retransmission">Retransmission</string>
-    <string name="title_retransmit_count">Retransmit count</string>
+    <string name="title_retransmit_count">Retransmit Count</string>
     <string name="title_interval_steps">Interval Steps</string>
     <string name="title_publish_period">Publication Period</string>
     <string name="title_publish_period_steps">Steps</string>
@@ -353,6 +353,40 @@
     <string name="title_security_credentials">Security Credentials</string>
     <string name="title_friendship_credentials_flag">Friendship Credentials Flag</string>
     <string name="title_ttl">TTL</string>
-    <string name="publish_ttl">Publish TTL</string>
+    <string name="title_publish_ttl">Publish TTL</string>
     <string name="title_publication_settings">Publication Settings</string>
+    <string name="hint_retransmit_count">Retransmit count</string>
+    <string name="error_empty_pub_retransmit_count">Retransmit count cannot be empty!</string>
+    <string name="error_invalid_pub_retransmit_count">Invalid publish retransmit count!</string>
+    <string name="error_empty_pub_retransmit_interval_steps">Publish retransmit interval steps cannot be empty!</string>
+    <string name="error_invalid_pub_retransmit_interval_steps">Invalid publish retransmit interval steps!</string>
+    <string name="error_empty_publication_steps">Number of publication steps cannot be empty</string>
+    <string name="error_invalid_publication_steps">Invalid publication steps</string>
+    <string name="error_empty_publish_ttl">Publish TTL cannot be empty!</string>
+    <string name="error_invalid_publish_ttl">Publish TTL value must be in range of 0 to 127 or 255 for default TTL!</string>
+
+    <string name="dialog_summary_retransmit_count">Enter the desired number of retransmissions.</string>
+    <string name="dialog_summary_interval_steps">Enter the desired number of interval steps for retransmission. \n1 step = 50ms</string>
+    <string name="dialog_summary_publication_steps">Enter the desired number of steps for publication period.</string>
+    <string name="dialog_summary_publish_ttl">Enter the desired publish ttl.</string>
+    <string name="retransmit_count">%d time(s)</string>
+    <string name="interval_steps">%d step(s)</string>
+    <string name="resolution_summary_100_ms">%d milliseconds</string>
+    <string name="resolution_summary_1_s">%d second</string>
+    <string name="resolution_summary_10_s">%d seconds</string>
+    <string name="resolution_summary_100_m">%d minutes</string>
+    <string name="publication_steps">%d step(s)</string>
+    <string name="app_key_index">App key index %d</string>
+
+    <string name="action_apply">Apply</string>
+
+    <string-array name="arr_publication_resolution">
+        <item>100 milliseconds</item>
+        <item>1 second</item>
+        <item>10 seconds</item>
+        <item>10 minutes</item>
+    </string-array>
+
+    <string name="dialog_summary_publication_resolution">Select desired resolution for publish period</string>
+    <string name="hint_publish_ttl">Pubilsh TTL</string>
 </resources>

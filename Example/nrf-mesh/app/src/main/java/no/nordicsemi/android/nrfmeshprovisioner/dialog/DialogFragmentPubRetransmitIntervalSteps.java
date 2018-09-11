@@ -35,64 +35,58 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.method.KeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
-
-import java.util.Locale;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 
-public class DialogFragmentPublishAddress extends DialogFragment {
+public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
 
-    private static final String PUBLISH_ADDRESS = "PUBLISH_ADDRESS";
-    private byte[] mPublishAddress;
-
+    private static final String INTERVAL_STEPS = "INTERVAL_STEPS";
     //UI Bindings
     @BindView(R.id.text_input_layout)
-    TextInputLayout unicastAddressInputLayout;
+    TextInputLayout intervalStepsInputLayout;
     @BindView(R.id.text_input)
-    TextInputEditText unicastAddressInput;
+    TextInputEditText intevalStepsInput;
 
-    public static DialogFragmentPublishAddress newInstance(final byte[] publishAddress) {
-        DialogFragmentPublishAddress fragmentPublishAddress = new DialogFragmentPublishAddress();
+    private int mRetransmitCount;
+
+    public static DialogFragmentPubRetransmitIntervalSteps newInstance(final int ivIndex) {
+        DialogFragmentPubRetransmitIntervalSteps fragmentIvIndex = new DialogFragmentPubRetransmitIntervalSteps();
         final Bundle args = new Bundle();
-        args.putByteArray(PUBLISH_ADDRESS, publishAddress);
-        fragmentPublishAddress.setArguments(args);
-        return fragmentPublishAddress;
+        args.putInt(INTERVAL_STEPS, ivIndex);
+        fragmentIvIndex.setArguments(args);
+        return fragmentIvIndex;
     }
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments() != null) {
-            mPublishAddress = getArguments().getByteArray(PUBLISH_ADDRESS);
+        if (getArguments() != null) {
+            mRetransmitCount = getArguments().getInt(INTERVAL_STEPS);
         }
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_address_input, null);
+        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publication_parameters, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
-        final String publishAddress;
-        if(mPublishAddress != null) {
-            publishAddress = MeshParserUtils.bytesToHex(mPublishAddress, false);
-            unicastAddressInput.setText(publishAddress);
-        }
+        ((TextView)rootView.findViewById(R.id.summary)).setText(R.string.dialog_summary_interval_steps);
 
-        final KeyListener hexKeyListener = new HexKeyListener();
-        unicastAddressInputLayout.setHint(getString((R.string.hint_publish_address)));
-        unicastAddressInput.setKeyListener(hexKeyListener);
-        unicastAddressInput.addTextChangedListener(new TextWatcher() {
+        final String retransmitCount = String.valueOf(mRetransmitCount);
+        intevalStepsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        intervalStepsInputLayout.setHint(getString(R.string.hint_retransmit_count));
+        intevalStepsInput.setText(retransmitCount);
+        intevalStepsInput.setSelection(retransmitCount.length());
+        intevalStepsInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -101,9 +95,9 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    unicastAddressInputLayout.setError(getString(R.string.error_empty_publish_address));
+                    intervalStepsInputLayout.setError(getString(R.string.error_empty_publication_steps));
                 } else {
-                    unicastAddressInputLayout.setError(null);
+                    intervalStepsInputLayout.setError(null);
                 }
             }
 
@@ -116,18 +110,17 @@ public class DialogFragmentPublishAddress extends DialogFragment {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
-        alertDialogBuilder.setTitle(R.string.title_publish_address);
-        alertDialogBuilder.setMessage(R.string.dialog_summary_publish_address);
+        alertDialogBuilder.setIcon(R.drawable.ic_index);
+        alertDialogBuilder.setTitle(R.string.title_interval_steps);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String pubAddress = unicastAddressInput.getText().toString();
-            if (validateInput(pubAddress)) {
+            final String ivIndexInput = this.intevalStepsInput.getText().toString();
+            if (validateInput(ivIndexInput)) {
                 if (getParentFragment() == null) {
-                    ((DialogFragmentPublishAddressListener) getActivity()).setPublishAddress(MeshParserUtils.toByteArray(pubAddress));
+                    ((DialogFragmentIntervalStepsListener) getActivity()).setRetransmitIntervalSteps(Integer.parseInt(ivIndexInput, 16));
                 } else {
-                    ((DialogFragmentPublishAddressListener) getParentFragment()).setPublishAddress(MeshParserUtils.toByteArray(pubAddress));
+                    ((DialogFragmentIntervalStepsListener) getParentFragment()).setRetransmitIntervalSteps(Integer.parseInt(ivIndexInput, 16));
                 }
                 dismiss();
             }
@@ -140,21 +133,24 @@ public class DialogFragmentPublishAddress extends DialogFragment {
 
         try {
 
-            if(input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
-                unicastAddressInputLayout.setError(getString(R.string.invalid_address_value));
+            if(TextUtils.isEmpty(input)) {
+                intervalStepsInputLayout.setError(getString(R.string.error_empty_pub_retransmit_interval_steps));
+                return false;
+            }
+            if (!MeshParserUtils.validatePublishRetransmisIntevalSteps(Integer.valueOf(input))) {
+                intervalStepsInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_interval_steps));
                 return false;
             }
         } catch (IllegalArgumentException ex) {
-            unicastAddressInputLayout.setError(ex.getMessage());
             return false;
         }
 
         return true;
     }
 
-    public interface DialogFragmentPublishAddressListener {
+    public interface DialogFragmentIntervalStepsListener {
 
-        void setPublishAddress(final byte[] publishAddress);
+        void setRetransmitIntervalSteps(final int intervalSteps);
 
     }
 }

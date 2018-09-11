@@ -37,6 +37,7 @@ public class MeshParserUtils {
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MIN = 0x01;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MID = 0x80;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MAX = 0xFF;
+    public static final int DEFAULT_TTL = 0xFF;
 
     private static final int PROHIBITED_PUBLISH_TTL_MIN = 0x80;
     private static final int PROHIBITED_PUBLISH_TTL_MAX = 0xFE;
@@ -45,6 +46,11 @@ public class MeshParserUtils {
     private static final int IV_ADDRESS_MAX = 4096;
     private static final int UNICAST_ADDRESS_MIN = 0;
     private static final char[] HEX_ARRAY = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+    public static final int RESOLUTION_100_MS   = 0b00;
+    public static final int RESOLUTION_1_S      = 0b01;
+    public static final int RESOLUTION_10_S     = 0b10;
+    public static final int RESOLUTION_10_M     = 0b11;
 
     public static String bytesToHex(final byte[] bytes, final boolean add0x) {
         if (bytes == null)
@@ -471,6 +477,26 @@ public class MeshParserUtils {
      * @return true if valid and false otherwise
      */
     public static boolean validatePublishTtl(final int publishTtl) {
-        return (publishTtl < PROHIBITED_PUBLISH_TTL_MIN) || (publishTtl > PROHIBITED_PUBLISH_TTL_MAX);
+        return (publishTtl < PROHIBITED_PUBLISH_TTL_MIN) || (publishTtl > PROHIBITED_PUBLISH_TTL_MAX) || (publishTtl == PROHIBITED_DEFAULT_TTL_STATE_MAX);
+    }
+
+    /**
+     * Checks if the retransmit count is within the allowed range
+     *
+     * @param retrantmistCount publish ttl
+     * @return true if valid and false otherwise
+     */
+    public static boolean validateRetransmitCount(final int retrantmistCount) {
+        return retrantmistCount == (retrantmistCount & 0b111);
+    }
+
+    /**
+     * Checks if the publish retransmit interval steps is within the allowed range
+     *
+     * @param intervalSteps publish ttl
+     * @return true if valid and false otherwise
+     */
+    public static boolean validatePublishRetransmisIntevalSteps(final int intervalSteps) {
+        return intervalSteps == (intervalSteps & 0b11111);
     }
 }
