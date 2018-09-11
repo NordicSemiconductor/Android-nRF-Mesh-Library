@@ -143,7 +143,10 @@ public class DialogFragmentRetransmitCount extends DialogFragment {
                 retransmitCountInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_count));
                 return false;
             }
-        } catch (IllegalArgumentException ex) {
+        } catch (NumberFormatException ex) {
+            retransmitCountInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_count));
+            return false;
+        } catch (Exception ex) {
             return false;
         }
 

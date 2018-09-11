@@ -83,7 +83,7 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
 
         final String retransmitCount = String.valueOf(mRetransmitCount);
         intevalStepsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-        intervalStepsInputLayout.setHint(getString(R.string.hint_retransmit_count));
+        intervalStepsInputLayout.setHint(getString(R.string.hint_publication_interval_steps));
         intevalStepsInput.setText(retransmitCount);
         intevalStepsInput.setSelection(retransmitCount.length());
         intevalStepsInput.addTextChangedListener(new TextWatcher() {
@@ -141,7 +141,10 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
                 intervalStepsInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_interval_steps));
                 return false;
             }
-        } catch (IllegalArgumentException ex) {
+        } catch (NumberFormatException ex) {
+            intervalStepsInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_interval_steps));
+            return false;
+        } catch (Exception ex) {
             return false;
         }
 

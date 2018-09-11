@@ -57,7 +57,6 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:inputType="text|textCapCharacters"
-            android:maxLength="8"
             android:singleLine="true"/>
     </android.support.design.widget.TextInputLayout>
 </android.support.constraint.ConstraintLayout>

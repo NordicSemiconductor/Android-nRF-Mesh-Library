@@ -83,7 +83,7 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
 
         final String publicationSteps = String.valueOf(mPublicationSteps);
         publicationStepsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-        publicationStepsInputLayout.setHint(getString(R.string.hint_retransmit_count));
+        publicationStepsInputLayout.setHint(getString(R.string.hint_publication_steps));
         publicationStepsInput.setText(publicationSteps);
         publicationStepsInput.setSelection(publicationSteps.length());
         publicationStepsInput.addTextChangedListener(new TextWatcher() {
@@ -141,6 +141,9 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
                 publicationStepsInputLayout.setError(getString(R.string.error_invalid_publication_steps));
                 return false;
             }
+        } catch (NumberFormatException ex) {
+            publicationStepsInputLayout.setError(getString(R.string.error_invalid_publication_steps));
+            return false;
         } catch (Exception ex) {
             return false;
         }

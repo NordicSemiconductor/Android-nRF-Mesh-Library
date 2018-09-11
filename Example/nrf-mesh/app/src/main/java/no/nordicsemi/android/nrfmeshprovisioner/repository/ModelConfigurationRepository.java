@@ -31,9 +31,11 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelPublicationSet;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
+import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -240,6 +242,25 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
             final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
             mBinder.sendConfigModelPublishAddressSet(node, element, model, appKeyIndex, publishAddress);
+        } else {
+            Toast.makeText(mContext, mContext.getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void sendConfigModelPublishAddressSet(final byte[] publishAddress, final int appKeyIndex, final boolean credentialFlag, final int publishTtl,
+                                                 final int publicationSteps, final int resolution, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mExtendedMeshNode.getMeshNode();
+        final Element element = mElement.getValue();
+        final MeshModel model = mMeshModel.getValue();
+        final ConfigModelPublicationSetParams configModelPublicationSetParams = new ConfigModelPublicationSetParams(node, element.getElementAddress(), model.getModelId(), publishAddress, appKeyIndex);
+        configModelPublicationSetParams.setCredentialFlag(credentialFlag);
+        configModelPublicationSetParams.setPublishTtl(publishTtl);
+        configModelPublicationSetParams.setPublicationSteps(publicationSteps);
+        configModelPublicationSetParams.setPublicationResolution(resolution);
+        configModelPublicationSetParams.setPublishRetransmitCount(publishRetransmitCount);
+        configModelPublicationSetParams.setPublishRetransmitIntervalSteps(publishRetransmitIntervalSteps);
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            mBinder.sendConfigModelPublishAddressSet(configModelPublicationSetParams);
         } else {
             Toast.makeText(mContext, mContext.getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
         }

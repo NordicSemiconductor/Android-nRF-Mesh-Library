@@ -113,9 +113,9 @@ public class DialogFragmentPublishTtl extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String globalTTL = ttlInput.getText().toString();
-            if (validateInput(globalTTL)) {
-                ((DialogFragmentPublishTtlListener) getActivity()).setPublishTtl(Integer.parseInt(globalTTL));
+            final String publishTtl = ttlInput.getText().toString();
+            if (validateInput(publishTtl)) {
+                ((DialogFragmentPublishTtlListener) getActivity()).setPublishTtl(Integer.parseInt(publishTtl));
                 dismiss();
             }
         });
@@ -129,10 +129,13 @@ public class DialogFragmentPublishTtl extends DialogFragment {
                 ttlInputLayout.setError(getString(R.string.error_empty_publish_ttl));
                 return false;
             }
-            if(!MeshParserUtils.validateTtlInput(getContext(), Integer.parseInt(input))) {
+            if(!MeshParserUtils.validatePublishTtl(Integer.parseInt(input))) {
                 ttlInputLayout.setError(getString(R.string.error_invalid_publish_ttl));
                 return false;
             }
+        } catch(NumberFormatException ex) {
+            ttlInputLayout.setError(getString(R.string.error_invalid_publish_ttl));
+            return false;
         } catch (Exception ex) {
             return false;
         }

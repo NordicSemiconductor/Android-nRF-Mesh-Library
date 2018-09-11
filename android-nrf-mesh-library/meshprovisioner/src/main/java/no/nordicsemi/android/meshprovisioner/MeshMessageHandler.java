@@ -54,6 +54,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.VendorModelMessageSta
 import no.nordicsemi.android.meshprovisioner.configuration.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.VendorModelMessageUnacknowledged;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 
 class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
 
@@ -526,6 +527,19 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                 withPublishRetransmitCount(publishRetransmitCount).
                 withPublishRetransmitIntervalSteps(publishRetransmitIntervalSteps).
                 build();
+        configModelPublicationSet.setTransportCallbacks(mInternalTransportCallbacks);
+        configModelPublicationSet.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configModelPublicationSet;
+        configModelPublicationSet.executeSend();
+    }
+
+    /**
+     * Set a publish address for configuration model
+     *
+     * @param configModelPublicationSetParams contains the parameters for configmodel publication set
+     */
+    public void setConfigModelPublishAddress(final ConfigModelPublicationSetParams configModelPublicationSetParams) {
+        final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(mContext, configModelPublicationSetParams, this);
         configModelPublicationSet.setTransportCallbacks(mInternalTransportCallbacks);
         configModelPublicationSet.setStatusCallbacks(mStatusCallbacks);
         mMeshMessageState = configModelPublicationSet;

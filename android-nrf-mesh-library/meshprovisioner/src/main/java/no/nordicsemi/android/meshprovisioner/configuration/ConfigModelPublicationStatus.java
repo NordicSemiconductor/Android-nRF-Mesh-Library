@@ -127,7 +127,7 @@ public class ConfigModelPublicationStatus extends ConfigMessageState {
                 final int opcode = MeshParserUtils.getOpCode(accessPayload, opCodeLength);
 
                 if (opcode == ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS) {
-                    Log.v(TAG, "Received model publication status status");
+                    Log.v(TAG, "Received model publication status");
                     final int offset = +2; //Ignoring the opcode and the parameter received
                     status = accessPayload[offset];
                     elementAddress = new byte[]{accessPayload[4], accessPayload[3]};

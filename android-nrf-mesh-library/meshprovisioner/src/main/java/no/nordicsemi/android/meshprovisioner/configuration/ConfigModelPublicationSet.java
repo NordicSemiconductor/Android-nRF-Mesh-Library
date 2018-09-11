@@ -34,6 +34,7 @@ import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public class ConfigModelPublicationSet extends ConfigMessageState {
@@ -49,7 +50,8 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
     private final int appKeyIndex;
     private final int credentialFlag;
     private final int publishTtl;
-    private final int publishPeriod;
+    private final int publicationSteps;
+    private int publicationResolution;
     private final int publishRetransmitCount;
     private final int publishRetransmitIntervalSteps;
     private final int mModelIdentifier;
@@ -63,10 +65,27 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
         this.appKeyIndex = configModelPublicationSetBuilder.appKeyIndex;
         this.credentialFlag = configModelPublicationSetBuilder.credentialFlag;
         this.publishTtl = configModelPublicationSetBuilder.publishTtl;
-        this.publishPeriod = configModelPublicationSetBuilder.publishPeriod;
+        this.publicationSteps = configModelPublicationSetBuilder.publishPeriod;
         this.publishRetransmitCount = configModelPublicationSetBuilder.publishRetransmitCount;
         this.publishRetransmitIntervalSteps = configModelPublicationSetBuilder.publishRetransmitIntervalSteps;
         this.mModelIdentifier = configModelPublicationSetBuilder.modelIdentifier;
+        createAccessMessage();
+    }
+
+    public ConfigModelPublicationSet(final Context context, final ConfigModelPublicationSetParams configModelPublicationParams,
+                              final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, configModelPublicationParams.getMeshNode(), callbacks);
+        this.aszmic = configModelPublicationParams.getAszmic();
+        this.elementAddress = configModelPublicationParams.getElementAddress();
+        this.publishAddress = configModelPublicationParams.getPublishAddress();
+        this.mModelIdentifier = configModelPublicationParams.getModelIdentifier();
+        this.appKeyIndex = configModelPublicationParams.getAppKeyIndex();
+        this.credentialFlag = configModelPublicationParams.getCredentialFlag() ? 1 : 0;
+        this.publishTtl = configModelPublicationParams.getPublishTtl();
+        this.publicationSteps = configModelPublicationParams.getPublicationSteps();
+        this.publicationResolution = configModelPublicationParams.getPublicationResolution();
+        this.publishRetransmitCount = configModelPublicationParams.getPublishRetransmitCount();
+        this.publishRetransmitIntervalSteps = configModelPublicationParams.getPublishRetransmitIntervalSteps();
         createAccessMessage();
     }
 
@@ -113,7 +132,7 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);
-            paramsBuffer.put((byte) publishPeriod);
+            paramsBuffer.put((byte) (publicationSteps | publicationResolution));
             paramsBuffer.put((byte) octet8);
             paramsBuffer.putShort((short) mModelIdentifier);
             parameters = paramsBuffer.array();
@@ -126,7 +145,7 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);
-            paramsBuffer.put((byte) publishPeriod);
+            paramsBuffer.put((byte) (publicationSteps | publicationResolution));
             paramsBuffer.put((byte) octet8);
             final byte[] modelIdentifier = new byte[]{(byte) ((mModelIdentifier >> 24) & 0xFF), (byte) ((mModelIdentifier >> 16) & 0xFF), (byte) ((mModelIdentifier >> 8) & 0xFF), (byte) (mModelIdentifier & 0xFF)};
             paramsBuffer.put(modelIdentifier[1]);

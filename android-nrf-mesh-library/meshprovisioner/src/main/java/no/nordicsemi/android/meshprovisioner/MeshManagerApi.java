@@ -44,11 +44,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessageState;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelPublicationSet;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.SequenceNumber;
 import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -804,6 +806,15 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
                                              final int publishPeriod, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
         mMeshMessageHandler.setConfigModelPublishAddress(provisionedMeshNode, 0, elementAddress, publishAddress,
                 appKeyIndex, modelIdentifier, credentialFlag, publishTtl, publishPeriod, publishRetransmitCount, publishRetransmitIntervalSteps);
+    }
+
+    /**
+     * Set a publish address for configuration model
+     *
+     * @param configModelPublicationSetParams contains the parameters for configmodel publication set
+     */
+    public void setConfigModelPublishAddress(ConfigModelPublicationSetParams configModelPublicationSetParams) {
+        mMeshMessageHandler.setConfigModelPublishAddress(configModelPublicationSetParams);
     }
 
     /**

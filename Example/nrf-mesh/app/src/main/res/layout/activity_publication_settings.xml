@@ -305,7 +305,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:paddingStart="@dimen/activity_horizontal_margin"
-                            android:text="Default TTL"
+                            android:text="255"
                             android:textSize="12sp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/img_ttl"

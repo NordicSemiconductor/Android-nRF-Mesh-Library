@@ -14,7 +14,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 public class DialogFragmentPublicationResolution extends DialogFragment {
 
     private static final String PUBLICATION_RESOLUTION = "PUBLICATION_RESOLUTION";
-    private int mPublicationReolution;
+    private int mPublicationResolution;
 
     public static DialogFragmentPublicationResolution newInstance(final int resolution) {
         DialogFragmentPublicationResolution fragmentPublicationResolution = new DialogFragmentPublicationResolution();
@@ -28,7 +28,7 @@ public class DialogFragmentPublicationResolution extends DialogFragment {
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mPublicationReolution = getArguments().getInt(PUBLICATION_RESOLUTION, 0);
+            mPublicationResolution = getArguments().getInt(PUBLICATION_RESOLUTION, 0);
         }
     }
 
@@ -36,12 +36,10 @@ public class DialogFragmentPublicationResolution extends DialogFragment {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
 
-        final String[] resolution = getResources().getStringArray(R.array.arr_publication_resolution);
-
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext())
                 .setIcon(R.drawable.ic_linear_scale_black_alpha_24dp)
                 .setTitle(R.string.title_publication_resolution)
-                .setSingleChoiceItems(R.array.arr_publication_resolution, mPublicationReolution, null)
+                .setSingleChoiceItems(R.array.arr_publication_resolution, mPublicationResolution, null)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     final int index = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
                     ((DialogFragmentPublicationResolutionListener) getActivity()).setPublicationResolution(getResolution(index)); })

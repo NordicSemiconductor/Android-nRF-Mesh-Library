@@ -107,6 +107,10 @@ public class ModelConfigurationViewModel extends ViewModel {
         mModelConfigurationRepository.sendConfigModelPublishAddressSet(publishAddress);
     }
 
+    public void sendConfigModelPublishAddressSet(final byte[] publishAddress, final int appKeyIndex, final boolean credentialFlag, final int publishTtl,
+                                                 final int publicationSteps, final int resolution, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
+        mModelConfigurationRepository.sendConfigModelPublishAddressSet(publishAddress, appKeyIndex, credentialFlag, publishTtl, publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps);
+    }
     public void sendConfigModelSubscriptionAdd(final byte[] subscriptionAddress) {
         mModelConfigurationRepository.sendConfigModelSubscriptionAdd(subscriptionAddress);
     }

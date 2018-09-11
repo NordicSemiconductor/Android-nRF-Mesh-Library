@@ -32,7 +32,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
         DialogFragmentPublicationResolution.DialogFragmentPublicationResolutionListener,
         DialogFragmentRetransmitCount.DialogFragmentRetransmitCountListener,
         DialogFragmentPubRetransmitIntervalSteps.DialogFragmentIntervalStepsListener,
-       DialogFragmentPublishTtl.DialogFragmentPublishTtlListener {
+        DialogFragmentPublishTtl.DialogFragmentPublishTtlListener {
 
     public static final int SET_PUBLICATION_SETTINGS = 2021;
     public static final String RESULT_PUBLISH_ADDRESS                       = "RESULT_PUBLISH_ADDRESS";
@@ -136,6 +136,8 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
             final DialogFragmentPublishTtl fragmentPublishTtl = DialogFragmentPublishTtl.newInstance(MeshParserUtils.DEFAULT_TTL);
             fragmentPublishTtl.show(getSupportFragmentManager(), null);
         });
+
+        updateUi(meshModel);
     }
 
     @Override
@@ -160,20 +162,6 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-    }
-
-    private void setReturnIntent(){
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra(RESULT_PUBLISH_ADDRESS, mPublishAddress);
-        returnIntent.putExtra(RESULT_APP_KEY_INDEX, mAppKeyIndex);
-        returnIntent.putExtra(RESULT_CREDENTIAL_FLAG, mActionFriendshipCredentialSwitch.isChecked());
-        returnIntent.putExtra(RESULT_PUBLISH_TTL, mPublishTtl);
-        returnIntent.putExtra(RESULT_PUBLICATION_STEPS, mPublicationSteps);
-        returnIntent.putExtra(RESULT_PUBLICATION_RESOLUTION, mPublicationResolution);
-        returnIntent.putExtra(RESULT_PUBLISH_RETRANSMIT_COUNT, mPublishRetransmitCount);
-        returnIntent.putExtra(RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS, mPublishRetransmitIntervalSteps);
-        setResult(Activity.RESULT_OK, returnIntent);
-        finish();
     }
 
     @Override
@@ -219,7 +207,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
     @Override
     public void setRetransmitIntervalSteps(final int intervalSteps) {
         mPublishRetransmitIntervalSteps = intervalSteps;
-        mIntervalStepsView.setText(getString(R.string.interval_steps, intervalSteps));
+        mIntervalStepsView.setText(getString(R.string.retransmit_interval_steps, intervalSteps));
     }
 
     @Override
@@ -228,18 +216,52 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
         mPublishTtlView.setText(String.valueOf(ttl));
     }
 
+    private void updateUi(final MeshModel model){
+        mPublishAddress = model.getPublishAddress();
+        if(mPublishAddress != null) {
+            mPublishAddressView.setText(MeshParserUtils.bytesToHex(mPublishAddress, true));
+        }
+
+        if(!model.getBoundAppKeyIndexes().isEmpty() && mMeshModel.getPublishAppKeyIndexInt() != null){
+            mAppKeyIndex = mMeshModel.getPublishAppKeyIndexInt();
+            mAppKeyIndexView.setText(getString(R.string.app_key_index, mAppKeyIndex));
+        }
+
+        mActionFriendshipCredentialSwitch.setChecked(mMeshModel.getCredentialFlag() == 1);
+        mPublishTtlView.setText(String.valueOf(mMeshModel.getPublishTtl()));
+        mPublicationStepsView.setText(getString(R.string.publication_steps, mMeshModel.getPublicationSteps()));
+        mPublicationResolutionView.setText(getResolutionSummary(mMeshModel.getPublicationResolution()));
+        mRetransmitCountView.setText(getString(R.string.retransmit_count, mMeshModel.getPublishRetransmitCount()));
+        mIntervalStepsView.setText(getString(R.string.retransmit_interval_steps, mMeshModel.getPublishRetransmitIntervalSteps()));
+
+    }
+
     private String getResolutionSummary(final int resolution) {
         switch (resolution) {
             default:
             case MeshParserUtils.RESOLUTION_100_MS:
-                return getString(R.string.resolution_summary_100_ms, resolution);
+                return getString(R.string.resolution_summary_100_ms);
             case MeshParserUtils.RESOLUTION_1_S:
-                return getString(R.string.resolution_summary_1_s, resolution);
+                return getString(R.string.resolution_summary_1_s);
             case MeshParserUtils.RESOLUTION_10_S:
-                return getString(R.string.resolution_summary_10_s, resolution);
+                return getString(R.string.resolution_summary_10_s);
             case MeshParserUtils.RESOLUTION_10_M:
-                return getString(R.string.resolution_summary_100_m, resolution);
+                return getString(R.string.resolution_summary_100_m);
         }
 
+    }
+
+    private void setReturnIntent(){
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra(RESULT_PUBLISH_ADDRESS, mPublishAddress);
+        returnIntent.putExtra(RESULT_APP_KEY_INDEX, mAppKeyIndex);
+        returnIntent.putExtra(RESULT_CREDENTIAL_FLAG, mActionFriendshipCredentialSwitch.isChecked());
+        returnIntent.putExtra(RESULT_PUBLISH_TTL, mPublishTtl);
+        returnIntent.putExtra(RESULT_PUBLICATION_STEPS, mPublicationSteps);
+        returnIntent.putExtra(RESULT_PUBLICATION_RESOLUTION, mPublicationResolution);
+        returnIntent.putExtra(RESULT_PUBLISH_RETRANSMIT_COUNT, mPublishRetransmitCount);
+        returnIntent.putExtra(RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS, mPublishRetransmitIntervalSteps);
+        setResult(Activity.RESULT_OK, returnIntent);
+        finish();
     }
 }
