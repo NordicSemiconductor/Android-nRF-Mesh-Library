@@ -32,6 +32,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -50,6 +53,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentIvIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentKeyIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNetwork;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSourceAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
@@ -65,7 +69,8 @@ public class SettingsFragment extends Fragment implements Injectable,
         DialogFragmentFlags.DialogFragmentFlagsListener,
         DialogFragmentIvIndex.DialogFragmentIvIndexListener,
         DialogFragmentUnicastAddress.DialogFragmentUnicastAddressListener,
-        DialogFragmentSourceAddress.DialogFragmentSourceAddressListener {
+        DialogFragmentSourceAddress.DialogFragmentSourceAddressListener,
+        DialogFragmentResetNetwork.DialogFragmentResetNetworkListener {
 
     SharedViewModel mViewModel;
 
@@ -76,6 +81,7 @@ public class SettingsFragment extends Fragment implements Injectable,
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Nullable
@@ -227,6 +233,26 @@ public class SettingsFragment extends Fragment implements Injectable,
     }
 
     @Override
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
+        if(!mViewModel.getProvisionedNodesLiveData().getProvisionedNodes().isEmpty()) {
+            inflater.inflate(R.menu.reset_network, menu);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        final int id = item.getItemId();
+        switch (id) {
+            case R.id.action_reset_network:
+                final DialogFragmentResetNetwork dialogFragmentResetNetwork = DialogFragmentResetNetwork.
+                        newInstance(getString(R.string.title_reset_network), getString(R.string.message_reset_network));
+                dialogFragmentResetNetwork.show(getChildFragmentManager(), null);
+                return true;
+        }
+        return false;
+    }
+
+    @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ManageAppKeysActivity.MANAGE_APP_KEYS){
@@ -293,5 +319,10 @@ public class SettingsFragment extends Fragment implements Injectable,
     @Override
     public boolean setSourceAddress(final int sourceAddress) {
         return mViewModel.setConfiguratorSrouce(new byte[]{(byte) ((sourceAddress >> 8) & 0xFF), (byte) (sourceAddress & 0xFF)});
+    }
+
+    @Override
+    public void onNetworkReset() {
+        mViewModel.resetMeshNetwork();
     }
 }
