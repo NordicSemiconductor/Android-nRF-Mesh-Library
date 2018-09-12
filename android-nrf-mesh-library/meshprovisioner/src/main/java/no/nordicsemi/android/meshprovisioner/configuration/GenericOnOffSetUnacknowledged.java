@@ -96,8 +96,8 @@ public class GenericOnOffSetUnacknowledged extends GenericMessageState {
         final byte[] key = MeshParserUtils.toByteArray(mMeshModel.getBoundAppkeys().get(mAppKeyIndex));
         int akf = 1;
         int aid = SecureUtils.calculateK4(key);
-        accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, dstAddress, key, akf, aid, mAszmic, ApplicationMessageOpCodes.GENERIC_ON_OFF_SET_UNACKNOWLEDGED, parameters);
-        mPayloads.putAll(accessMessage.getNetworkPdu());
+        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, dstAddress, key, akf, aid, mAszmic, ApplicationMessageOpCodes.GENERIC_ON_OFF_SET_UNACKNOWLEDGED, parameters);
+        mPayloads.putAll(message.getNetworkPdu());
     }
 
     @Override

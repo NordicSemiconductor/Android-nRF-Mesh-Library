@@ -252,7 +252,7 @@
     <string name="action_bind_app_key">Bind Key</string>
     <string name="action_unbind_app_key">Unbind Key</string>
     <string name="action_set_publish_address">Set Publication</string>
-    <string name="action_clear_publish_address">Clear Publication</string>
+    <string name="action_clear_publication">Clear Publication</string>
     <string name="action_subscribe_address">Subscribe</string>
     <string name="action_unsubscribe_address">Unsubscribe</string>
     <string name="title_app_key_index">Key Index</string>

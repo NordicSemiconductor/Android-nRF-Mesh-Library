@@ -11,4 +11,9 @@ public abstract class VendorModelMessageState extends MeshMessageState {
     public VendorModelMessageState(final Context context, final ProvisionedMeshNode provisionedMeshNode, final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, provisionedMeshNode, callbacks);
     }
+
+    @Override
+    public void executeResend() {
+        super.executeResend();
+    }
 }

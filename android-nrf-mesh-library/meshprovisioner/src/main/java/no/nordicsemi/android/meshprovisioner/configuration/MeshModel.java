@@ -220,23 +220,24 @@ public abstract class MeshModel implements Parcelable {
     /**
      * Sets the data from the {@link ConfigModelAppStatus}
      *
-     * @param configMessage Composition data status object
+     * @param publicationStatus Composition data status object
      */
-    protected void setSubscriptionAddress(final ConfigModelPublicationStatus configMessage) {
-        publishAddress = configMessage.getPublishAddress();
-        credentialFlag = configMessage.getCredentialFlag();
-        publishTtl = configMessage.getPublishTtl();
-        publishPeriod = configMessage.getPublishPeriod();
+    protected void setPublicationStatus(final ConfigModelPublicationStatus publicationStatus) {
+        publishAddress = publicationStatus.getPublishAddress();
+        publishAppKeyIndex = publicationStatus.getPublicationAppKeyIndex();
+        credentialFlag = publicationStatus.getCredentialFlag();
+        publishTtl = publicationStatus.getPublishTtl();
+        publishPeriod = publicationStatus.getPublishPeriod();
         publicationSteps =  publishPeriod >> 6;
         publicationResolution = publishPeriod & 0x03;
-        publishRetransmitCount = configMessage.getPublishRetransmitCount();
-        publishRetransmitIntervalSteps = configMessage.getPublishRetransmitIntervalSteps();
+        publishRetransmitCount = publicationStatus.getPublishRetransmitCount();
+        publishRetransmitIntervalSteps = publicationStatus.getPublishRetransmitIntervalSteps();
     }
 
     /**
      * Sets data from the {@link ConfigModelAppStatus}
      */
-    protected void setSubscriptionAddress(final byte[] subscriptionAddress) {
+    protected void setPublicationStatus(final byte[] subscriptionAddress) {
         if (subscriptionAddress != null && !checkIfAlreadySubscribed(subscriptionAddress)) {
             mSubscriptionAddress.add(subscriptionAddress);
         }

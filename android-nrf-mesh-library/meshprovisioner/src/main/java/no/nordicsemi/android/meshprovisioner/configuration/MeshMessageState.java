@@ -46,7 +46,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     protected MeshModel mMeshModel;
     protected int mAppKeyIndex;
     int messageType;
-    protected Message accessMessage;
+    protected Message message;
     private boolean isIncompleteTimerExpired;
 
     MeshMessageState(final Context context, final ProvisionedMeshNode provisionedMeshNode, final InternalMeshMsgHandlerCallbacks callbacks) {
@@ -104,7 +104,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
                 if (mPayloads.containsKey(segO)) {
                     final byte[] pdu = mPayloads.get(segO);
                     Log.v(TAG, "Resending segment " + segO + " : " + MeshParserUtils.bytesToHex(pdu, false));
-                    final AccessMessage retransmitMeshMessage = (AccessMessage) mMeshTransport.createRetransmitMeshMessage(accessMessage, segO);
+                    final Message retransmitMeshMessage = mMeshTransport.createRetransmitMeshMessage(message, segO);
                     mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, retransmitMeshMessage.getNetworkPdu().get(segO));
                 }
             }

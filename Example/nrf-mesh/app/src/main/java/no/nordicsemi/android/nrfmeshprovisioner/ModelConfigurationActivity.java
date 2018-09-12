@@ -51,6 +51,7 @@ import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -61,14 +62,12 @@ import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationStatus;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSubscriptionAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
@@ -85,10 +84,10 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_I
 
 public class ModelConfigurationActivity extends AppCompatActivity implements Injectable,
         DialogFragmentConfigurationStatus.DialogFragmentAppKeyBindStatusListener,
-        DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
         DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener, AddressAdapter.OnItemClickListener, BoundAppKeysAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
+    private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
     private static final long DELAY = 10000;
 
     @Inject
@@ -101,8 +100,10 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     @BindView(R.id.bound_keys)
     TextView mAppKeyView;
 
-    @BindView(R.id.action_publish_Address)
-    Button mActionPublish;
+    @BindView(R.id.action_set_publication)
+    Button mActionSetPublication;
+    @BindView(R.id.action_clear_publication_set)
+    Button mActionClearPublication;
     @BindView(R.id.publish_address)
     TextView mPublishAddressView;
 
@@ -139,11 +140,23 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         final ProvisionedMeshNode meshNode = intent.getParcelableExtra(EXTRA_DEVICE);
         final int elementAddress = intent.getExtras().getInt(EXTRA_ELEMENT_ADDRESS);
         final int modelId = intent.getExtras().getInt(EXTRA_MODEL_ID);
+        final String modelName;
         if(meshNode == null)
             finish();
 
-        final String modelName = intent.getStringExtra(EXTRA_DATA_MODEL_NAME);
-        mViewModel.setModel(meshNode, elementAddress, modelId);
+        modelName = intent.getStringExtra(EXTRA_DATA_MODEL_NAME);
+
+        if(savedInstanceState != null){
+            if (savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
+                mProgressbar.setVisibility(View.VISIBLE);
+                disableClickableViews();
+            } else {
+                mProgressbar.setVisibility(View.INVISIBLE);
+                enableClickableViews();
+            }
+        } else {
+            mViewModel.setModel(meshNode, elementAddress, modelId);
+        }
 
         // Set up views
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -177,10 +190,28 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         });
 
         mPublishAddressView.setText(R.string.none);
-        mActionPublish.setOnClickListener(v -> {
-            final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
-            publicationSettings.putExtra(EXTRA_DEVICE, mViewModel.getMeshModel().getValue());
-            startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
+        mActionSetPublication.setOnClickListener(v -> {
+            final MeshModel meshModel = mViewModel.getMeshModel().getValue();
+            if(meshModel != null && !meshModel.getBoundAppkeys().isEmpty()) {
+                final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
+                final Element element = meshNode.getElements().get(elementAddress);
+                final MeshModel model = element.getMeshModels().get(modelId);
+                publicationSettings.putExtra(EXTRA_DEVICE, model);
+                startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
+            } else {
+                Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG);
+            }
+        });
+
+        mActionClearPublication.setOnClickListener(v -> {
+            final MeshModel meshModel = mViewModel.getMeshModel().getValue();
+            if(meshModel != null && !meshModel.getBoundAppkeys().isEmpty()) {
+                mViewModel.sendConfigModelPublicationSet(MeshParserUtils.DISABLED_PUBLICATION_ADDRESS, meshModel.getPublishAppKeyIndexInt(),
+                        false, 0, 0, 0, 0, 0);
+                showProgressbar();
+            } else {
+                Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG);
+            }
         });
 
         mActionSubscribe.setOnClickListener(v -> {
@@ -204,8 +235,12 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 }
 
                 final byte[] publishAddress = meshModel.getPublishAddress();
-                if (publishAddress != null) {
+                if (publishAddress != null && !Arrays.equals(publishAddress, MeshParserUtils.DISABLED_PUBLICATION_ADDRESS)) {
                     mPublishAddressView.setText(MeshParserUtils.bytesToHex(publishAddress, true));
+                    mActionClearPublication.setVisibility(View.VISIBLE);
+                } else {
+                    mPublishAddressView.setText(R.string.none);
+                    mActionClearPublication.setVisibility(View.GONE);
                 }
 
                 final List<byte[]> subscriptionAddresses = meshModel.getSubscriptionAddresses();
@@ -237,13 +272,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 final String statusMessage = ConfigModelAppStatus.parseStatusMessage(this, configModelPublicationStatusLiveData.getStatus());
                 DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_publlish_address_status), statusMessage);
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
-            } else {
-                final int elementAdd = configModelPublicationStatusLiveData.getElementAddressInt();
-                final int modelIdentifier = configModelPublicationStatusLiveData.getModelIdentifier();
-                final Element element = ((ProvisionedMeshNode)mViewModel.getExtendedMeshNode().getMeshNode()).getElements().get(elementAdd);
-                final MeshModel model = element.getMeshModels().get(modelIdentifier);
-                final byte[] publishAddress = model.getPublishAddress();
-                mPublishAddressView.setText(MeshParserUtils.bytesToHex(publishAddress, true));
             }
             hideProgressBar();
         });
@@ -279,6 +307,12 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     }
 
     @Override
+    protected void onSaveInstanceState(final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(PROGRESS_BAR_STATE, mProgressbar.getVisibility() == View.VISIBLE);
+    }
+
+    @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
@@ -303,8 +337,12 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     final int publishRetransmitCount = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_COUNT, 0);
                     final int publishRetransmitIntervalSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS, 0);
                     if(publishAddress != null && appKeyIndex > -1){
-                        mViewModel.sendConfigModelPublishAddressSet(publishAddress,appKeyIndex, credentialFlag, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
-                        showProgressbar();
+                        try {
+                            mViewModel.sendConfigModelPublicationSet(publishAddress,appKeyIndex, credentialFlag, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
+                            showProgressbar();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
                 break;
@@ -319,6 +357,9 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     @Override
     protected void onStop() {
         super.onStop();
+        if(isFinishing()){
+            mHandler.removeCallbacks(null);
+        }
     }
 
     @Override
@@ -329,12 +370,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     @Override
     public void onAppKeyBindStatusConfirmed() {
 
-    }
-
-    @Override
-    public void setPublishAddress(final byte[] publishAddress) {
-        mViewModel.sendConfigModelPublishAddressSet(publishAddress);
-        showProgressbar();
     }
 
     @Override
@@ -363,7 +398,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
     private void enableClickableViews(){
         mActionBindAppKey.setEnabled(true);
-        mActionPublish.setEnabled(true);
+        mActionSetPublication.setEnabled(true);
+        mActionClearPublication.setEnabled(true);
         mActionSubscribe.setEnabled(true);
 
         if(mActionOnOff != null && !mActionOnOff.isEnabled())
@@ -375,7 +411,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
     private void disableClickableViews(){
         mActionBindAppKey.setEnabled(false);
-        mActionPublish.setEnabled(false);
+        mActionSetPublication.setEnabled(false);
+        mActionClearPublication.setEnabled(false);
         mActionSubscribe.setEnabled(false);
 
         if(mActionOnOff != null)

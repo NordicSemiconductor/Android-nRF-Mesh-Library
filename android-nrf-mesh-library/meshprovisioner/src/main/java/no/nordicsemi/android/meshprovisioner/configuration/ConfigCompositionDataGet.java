@@ -73,10 +73,10 @@ public class ConfigCompositionDataGet extends ConfigMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, mProvisionedMeshNode.getDeviceKey(),
+        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, mProvisionedMeshNode.getDeviceKey(),
                 akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_GET,
                 new byte[]{(byte) 0xFF});
-        mPayloads.putAll(accessMessage.getNetworkPdu());
+        mPayloads.putAll(message.getNetworkPdu());
 
     }
 

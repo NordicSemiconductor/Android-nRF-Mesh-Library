@@ -57,8 +57,8 @@ public class VendorModelMessageUnacknowledged extends VendorModelMessageState {
         final byte[] key = MeshParserUtils.toByteArray(mMeshModel.getBoundAppkeys().get(mAppKeyIndex));
         int akf = 1;
         int aid = SecureUtils.calculateK4(key);
-        accessMessage = mMeshTransport.createVendorMeshMessage(mProvisionedMeshNode, (VendorModel) mMeshModel, mSrc, dstAddress, key, akf, aid, mAszmic, opCode, parameters);
-        mPayloads.putAll(accessMessage.getNetworkPdu());
+        message = mMeshTransport.createVendorMeshMessage(mProvisionedMeshNode, (VendorModel) mMeshModel, mSrc, dstAddress, key, akf, aid, mAszmic, opCode, parameters);
+        mPayloads.putAll(message.getNetworkPdu());
     }
 
     @Override

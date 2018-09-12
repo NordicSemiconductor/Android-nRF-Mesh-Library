@@ -96,8 +96,8 @@ public class ConfigAppKeyAdd extends ConfigMessageState {
         final byte[] key = mProvisionedMeshNode.getDeviceKey();
         final int akf = 0;
         final int aid = 0;
-        accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_APPKEY_ADD, parameters);
-        mPayloads.putAll(accessMessage.getNetworkPdu());
+        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_APPKEY_ADD, parameters);
+        mPayloads.putAll(message.getNetworkPdu());
     }
 
     @Override

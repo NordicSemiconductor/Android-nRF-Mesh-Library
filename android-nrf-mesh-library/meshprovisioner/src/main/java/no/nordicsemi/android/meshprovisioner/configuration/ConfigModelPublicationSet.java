@@ -55,22 +55,6 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
     private final int publishRetransmitCount;
     private final int publishRetransmitIntervalSteps;
     private final int mModelIdentifier;
-    private AccessMessage mAccessMessage;
-
-    ConfigModelPublicationSet(final Builder configModelPublicationSetBuilder) {
-        super(configModelPublicationSetBuilder.mContext, configModelPublicationSetBuilder.meshNode, configModelPublicationSetBuilder.mCallbacks);
-        this.aszmic = configModelPublicationSetBuilder.aszmic;
-        this.elementAddress = configModelPublicationSetBuilder.elementAddress;
-        this.publishAddress = configModelPublicationSetBuilder.publishAddress;
-        this.appKeyIndex = configModelPublicationSetBuilder.appKeyIndex;
-        this.credentialFlag = configModelPublicationSetBuilder.credentialFlag;
-        this.publishTtl = configModelPublicationSetBuilder.publishTtl;
-        this.publicationSteps = configModelPublicationSetBuilder.publishPeriod;
-        this.publishRetransmitCount = configModelPublicationSetBuilder.publishRetransmitCount;
-        this.publishRetransmitIntervalSteps = configModelPublicationSetBuilder.publishRetransmitIntervalSteps;
-        this.mModelIdentifier = configModelPublicationSetBuilder.modelIdentifier;
-        createAccessMessage();
-    }
 
     public ConfigModelPublicationSet(final Context context, final ConfigModelPublicationSetParams configModelPublicationParams,
                               final InternalMeshMsgHandlerCallbacks callbacks) {
@@ -159,8 +143,8 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
         final int akf = 0;
         final int aid = 0b000;
         final int aszmic = 0;
-        mAccessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, aszmic, ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_SET, parameters);
-        mPayloads.putAll(mAccessMessage.getNetworkPdu());
+        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, aszmic, ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_SET, parameters);
+        mPayloads.putAll(message.getNetworkPdu());
     }
 
     @Override
@@ -193,102 +177,5 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
      */
     public byte[] getSrc() {
         return mSrc;
-    }
-
-    public static class Builder {
-
-        private Context mContext;
-        private ProvisionedMeshNode meshNode;
-        private InternalMeshMsgHandlerCallbacks mCallbacks;
-        private byte[] src;
-        private int aszmic;
-        private byte[] elementAddress;
-        private byte[] publishAddress;
-        private int appKeyIndex;
-        private int credentialFlag;
-        private int publishTtl;
-        private int publishPeriod;
-        private int publishRetransmitCount;
-        private int publishRetransmitIntervalSteps;
-        private int modelIdentifier; //16-bit SIG Model or 32-bit Vendor Model identifier
-
-        public Builder(@NonNull final Context context,
-                       @NonNull final ProvisionedMeshNode mProvisionedMeshNode,
-                       final InternalMeshMsgHandlerCallbacks callbacks) {
-            this.mContext = context;
-            this.meshNode = mProvisionedMeshNode;
-            this.mCallbacks = callbacks;
-            this.src = mProvisionedMeshNode.getConfigurationSrc();
-
-        }
-
-        public Builder withAszmic(final int aszmic) {
-            this.aszmic = aszmic == 1 ? 1 : 0;
-            return this;
-        }
-
-        public Builder withElementAddress(@NonNull final byte[] elementAddress) {
-            this.elementAddress = elementAddress;
-            return this;
-        }
-
-        public Builder withPublishAddress(final byte[] publishAddress) {
-            this.publishAddress = publishAddress;
-            return this;
-        }
-
-        public Builder withAppKeyIndex(final int appKeyIndex) {
-            this.appKeyIndex = appKeyIndex;
-            return this;
-        }
-
-        public Builder withCredentialFlag(final int credentialFlag) {
-            this.credentialFlag = credentialFlag;
-            return this;
-        }
-
-        public Builder withPublishTtl(final int publishTtl) {
-            this.publishTtl = publishTtl;
-            return this;
-        }
-
-        public Builder withPublishPeriod(final int publishPeriod) {
-            this.publishPeriod = publishPeriod;
-            return this;
-        }
-
-        public Builder withPublishRetransmitCount(final int publisRetransmitCount) {
-            this.publishRetransmitCount = publisRetransmitCount;
-            return this;
-        }
-
-        public Builder withPublishRetransmitIntervalSteps(final int retransmitIntervalSteps) {
-            this.publishRetransmitIntervalSteps = retransmitIntervalSteps;
-            return this;
-        }
-
-        public Builder withModelIdentifier(final int modelIdentifier) {
-            this.modelIdentifier = modelIdentifier;
-            return this;
-        }
-
-        public ConfigModelPublicationSet build() {
-            validateConfigModelPublicationSet();
-            return new ConfigModelPublicationSet(this);
-        }
-
-        private void validateConfigModelPublicationSet() throws IllegalArgumentException {
-            if (this.mContext == null) {
-                throw new IllegalArgumentException("Context cannot be null");
-            } else if (this.meshNode == null) {
-                throw new IllegalArgumentException("Mesh node cannot be null");
-            } else if (src == null) {
-                throw new IllegalArgumentException("Source address cannot be null");
-            } else if (elementAddress == null) {
-                throw new IllegalArgumentException("Element address cannot be null");
-            } else if (publishAddress == null) {
-                throw new IllegalArgumentException("Publish address cannot be null");
-            }
-        }
     }
 }

@@ -3,9 +3,6 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 import android.content.Context;
 import android.util.Log;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
@@ -51,8 +48,8 @@ public class VendorModelMessage extends VendorModelMessageState {
         final byte[] key = MeshParserUtils.toByteArray(mMeshModel.getBoundAppkeys().get(mAppKeyIndex));
         int akf = 1;
         int aid = SecureUtils.calculateK4(key);
-        accessMessage = mMeshTransport.createVendorMeshMessage(mProvisionedMeshNode, (VendorModel) mMeshModel, mSrc, dstAddress, key, akf, aid, mAszmic, opCode, parameters);
-        mPayloads.putAll(accessMessage.getNetworkPdu());
+        message = mMeshTransport.createVendorMeshMessage(mProvisionedMeshNode, (VendorModel) mMeshModel, mSrc, dstAddress, key, akf, aid, mAszmic, opCode, parameters);
+        mPayloads.putAll(message.getNetworkPdu());
     }
 
     @Override

@@ -52,6 +52,8 @@ public class MeshParserUtils {
     public static final int RESOLUTION_10_S     = 0b10;
     public static final int RESOLUTION_10_M     = 0b11;
 
+    public static final byte[] DISABLED_PUBLICATION_ADDRESS = new byte[] {0x00,0x00};
+
     public static String bytesToHex(final byte[] bytes, final boolean add0x) {
         if (bytes == null)
             return "";
