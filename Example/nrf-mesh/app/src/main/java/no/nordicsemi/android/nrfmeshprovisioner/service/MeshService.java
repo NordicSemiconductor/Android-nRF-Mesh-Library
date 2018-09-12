@@ -53,6 +53,7 @@ import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshManagerTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelPublicationSet;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
@@ -1050,8 +1051,13 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             mMeshManagerApi.unbindAppKey(meshNode, elementAddress, meshModel, appKeyIndex);
         }
 
-        public void sendConfigModelPublicationSet(final ConfigModelPublicationSetParams configModelPublicationSetParams) {
-            mMeshManagerApi.setConfigModelPublication(configModelPublicationSetParams);
+        public void sendConfigModelPublishAddressSet(final ProvisionedMeshNode node, final Element element, final MeshModel meshModel, final int appKeyIndex, final byte[] publishAddress) {
+            mMeshManagerApi.setConfigModelPublishAddress(node,
+                    element.getElementAddress(), publishAddress, appKeyIndex, meshModel.getModelId(), 0, 0xFF, 0, 0, 0);
+        }
+
+        public void sendConfigModelPublishAddressSet(final ConfigModelPublicationSetParams configModelPublicationSetParams) {
+            mMeshManagerApi.setConfigModelPublishAddress(configModelPublicationSetParams);
         }
 
         public void sendConfigModelSubscriptionAdd(final ProvisionedMeshNode node, final Element element, final MeshModel meshModel, final byte[] subsciptionAddress) {

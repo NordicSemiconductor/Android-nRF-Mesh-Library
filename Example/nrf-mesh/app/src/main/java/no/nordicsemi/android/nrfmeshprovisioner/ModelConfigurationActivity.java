@@ -61,6 +61,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
@@ -84,8 +85,8 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_I
 
 public class ModelConfigurationActivity extends AppCompatActivity implements Injectable,
         DialogFragmentConfigurationStatus.DialogFragmentAppKeyBindStatusListener,
-        DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener,
-        AddressAdapter.OnItemClickListener, BoundAppKeysAdapter.OnItemClickListener, ItemTouchHelperAdapter {
+        DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
+        DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener, AddressAdapter.OnItemClickListener, BoundAppKeysAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final long DELAY = 10000;
@@ -302,7 +303,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     final int publishRetransmitCount = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_COUNT, 0);
                     final int publishRetransmitIntervalSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS, 0);
                     if(publishAddress != null && appKeyIndex > -1){
-                        mViewModel.sendConfigModelPublicationSet(publishAddress,appKeyIndex, credentialFlag, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
+                        mViewModel.sendConfigModelPublishAddressSet(publishAddress,appKeyIndex, credentialFlag, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
                         showProgressbar();
                     }
                 }
@@ -328,6 +329,12 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     @Override
     public void onAppKeyBindStatusConfirmed() {
 
+    }
+
+    @Override
+    public void setPublishAddress(final byte[] publishAddress) {
+        mViewModel.sendConfigModelPublishAddressSet(publishAddress);
+        showProgressbar();
     }
 
     @Override

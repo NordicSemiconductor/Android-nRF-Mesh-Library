@@ -499,9 +499,46 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
     /**
      * Set a publish address for configuration model
      *
+     * @param meshNode                       Mesh node containing the model
+     * @param elementAddress                 Address of the element containing the model
+     * @param publishAddress                 Address to which the model must publish
+     * @param appKeyIndex                    Application key index
+     * @param modelIdentifier                Identifier of the model. This could be 16-bit SIG Model or a 32-bit Vendor model identifier
+     * @param credentialFlag                 Credential flag, set 0 to use master credentials and 1 for friendship credentials. If there is not friendship credentials master key material will be used by default
+     * @param publishTtl                     Default ttl value for outgoing messages
+     * @param publishPeriod                  Period for periodic status publishing
+     * @param publishRetransmitCount         Number of retransmissions for each published message
+     * @param publishRetransmitIntervalSteps Number of 50-millisecond steps between retransmissions
+     */
+    public void setConfigModelPublishAddress(final ProvisionedMeshNode meshNode, final int aszmic,
+                                             final byte[] elementAddress, final byte[] publishAddress,
+                                             final int appKeyIndex, final int modelIdentifier, final int credentialFlag, final int publishTtl,
+                                             final int publishPeriod, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
+        final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet.
+                Builder(mContext, meshNode, this).
+                withAszmic(aszmic).
+                withElementAddress(elementAddress).
+                withPublishAddress(publishAddress).
+                withAppKeyIndex(appKeyIndex).
+                withModelIdentifier(modelIdentifier).
+                withCredentialFlag(credentialFlag).
+                withPublishTtl(publishTtl).
+                withPublishPeriod(publishPeriod).
+                withPublishRetransmitCount(publishRetransmitCount).
+                withPublishRetransmitIntervalSteps(publishRetransmitIntervalSteps).
+                build();
+        configModelPublicationSet.setTransportCallbacks(mInternalTransportCallbacks);
+        configModelPublicationSet.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configModelPublicationSet;
+        configModelPublicationSet.executeSend();
+    }
+
+    /**
+     * Set a publish address for configuration model
+     *
      * @param configModelPublicationSetParams contains the parameters for configmodel publication set
      */
-    public void setConfigModelPublication(final ConfigModelPublicationSetParams configModelPublicationSetParams) {
+    public void setConfigModelPublishAddress(final ConfigModelPublicationSetParams configModelPublicationSetParams) {
         final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(mContext, configModelPublicationSetParams, this);
         configModelPublicationSet.setTransportCallbacks(mInternalTransportCallbacks);
         configModelPublicationSet.setStatusCallbacks(mStatusCallbacks);

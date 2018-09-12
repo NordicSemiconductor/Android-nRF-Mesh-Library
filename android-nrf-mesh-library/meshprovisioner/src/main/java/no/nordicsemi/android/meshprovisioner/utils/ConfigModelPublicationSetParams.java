@@ -23,29 +23,14 @@ public class ConfigModelPublicationSetParams {
 
     public ConfigModelPublicationSetParams(@NonNull final ProvisionedMeshNode mProvisionedMeshNode,
                                         @NonNull final byte[] elementAddress,
-                                        @NonNull final Integer modelIdentifier,
+                                        @NonNull final int modelIdentifier,
                                         @NonNull final byte[] publishAddress,
-                                        @NonNull final Integer appKeyIndex) throws IllegalArgumentException{
-        if(mProvisionedMeshNode == null)
-            throw new IllegalArgumentException("Mesh node cannot be null");
-
+                                        @NonNull final int appKeyIndex) {
         this.meshNode = mProvisionedMeshNode;
         this.src = mProvisionedMeshNode.getConfigurationSrc();
-
-        if(elementAddress == null)
-            throw new IllegalArgumentException("Element address cannot be null");
         this.elementAddress = elementAddress;
-
-        if(modelIdentifier == null)
-            throw new IllegalArgumentException("Model identifier cannot be null");
         this.modelIdentifier = modelIdentifier;
-
-        if(publishAddress == null)
-            throw new IllegalArgumentException("Publish address cannot be null");
         this.publishAddress = publishAddress;
-
-        if(appKeyIndex == null)
-            throw new IllegalArgumentException("App key index cannot be null");
         this.appKeyIndex = appKeyIndex;
 
     }

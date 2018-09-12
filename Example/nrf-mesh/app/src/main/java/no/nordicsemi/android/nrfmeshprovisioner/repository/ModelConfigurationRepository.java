@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelPublicationSet;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
@@ -234,8 +235,20 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         mBinder.sendUnbindAppKey((ProvisionedMeshNode) mExtendedMeshNode.getMeshNode(), mElement.getValue().getElementAddress(), mMeshModel.getValue(), appKeyIndex);
     }
 
-    public void sendConfigModelPublicationSet(final byte[] publishAddress, final int appKeyIndex, final boolean credentialFlag, final int publishTtl,
-                                              final int publicationSteps, final int resolution, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
+    public void sendConfigModelPublishAddressSet(final byte[] publishAddress) {
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mExtendedMeshNode.getMeshNode();
+        final Element element = mElement.getValue();
+        final MeshModel model = mMeshModel.getValue();
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+            mBinder.sendConfigModelPublishAddressSet(node, element, model, appKeyIndex, publishAddress);
+        } else {
+            Toast.makeText(mContext, mContext.getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void sendConfigModelPublishAddressSet(final byte[] publishAddress, final int appKeyIndex, final boolean credentialFlag, final int publishTtl,
+                                                 final int publicationSteps, final int resolution, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
         final ProvisionedMeshNode node = (ProvisionedMeshNode) mExtendedMeshNode.getMeshNode();
         final Element element = mElement.getValue();
         final MeshModel model = mMeshModel.getValue();
@@ -247,7 +260,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         configModelPublicationSetParams.setPublishRetransmitCount(publishRetransmitCount);
         configModelPublicationSetParams.setPublishRetransmitIntervalSteps(publishRetransmitIntervalSteps);
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
-            mBinder.sendConfigModelPublicationSet(configModelPublicationSetParams);
+            mBinder.sendConfigModelPublishAddressSet(configModelPublicationSetParams);
         } else {
             Toast.makeText(mContext, mContext.getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
         }
