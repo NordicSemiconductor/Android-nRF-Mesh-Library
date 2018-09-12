@@ -44,7 +44,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessageState;
-import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelPublicationSet;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.SequenceNumber;
@@ -790,31 +789,10 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     /**
      * Set a publish address for configuration model
      *
-     * @param provisionedMeshNode            Mesh node containing the model
-     * @param elementAddress                 Address of the element containing the model
-     * @param publishAddress                 Address to which the model must publish
-     * @param appKeyIndex                    Application key index
-     * @param modelIdentifier                Identifier of the model. This could be 16-bit SIG Model or a 32-bit Vendor model identifier
-     * @param credentialFlag                 Credential flag, set 0 to use master credentials and 1 for friendship credentials. If there is not friendship credentials master key material will be used by default
-     * @param publishTtl                     Default ttl value for outgoing messages
-     * @param publishPeriod                  Period for periodic status publishing
-     * @param publishRetransmitCount         Number of retransmissions for each published message
-     * @param publishRetransmitIntervalSteps Number of 50-millisecond steps between retransmissions
-     */
-    public void setConfigModelPublishAddress(final ProvisionedMeshNode provisionedMeshNode, final byte[] elementAddress, final byte[] publishAddress,
-                                             final int appKeyIndex, final int modelIdentifier, final int credentialFlag, final int publishTtl,
-                                             final int publishPeriod, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
-        mMeshMessageHandler.setConfigModelPublishAddress(provisionedMeshNode, 0, elementAddress, publishAddress,
-                appKeyIndex, modelIdentifier, credentialFlag, publishTtl, publishPeriod, publishRetransmitCount, publishRetransmitIntervalSteps);
-    }
-
-    /**
-     * Set a publish address for configuration model
-     *
      * @param configModelPublicationSetParams contains the parameters for configmodel publication set
      */
-    public void setConfigModelPublishAddress(ConfigModelPublicationSetParams configModelPublicationSetParams) {
-        mMeshMessageHandler.setConfigModelPublishAddress(configModelPublicationSetParams);
+    public void setConfigModelPublication(final ConfigModelPublicationSetParams configModelPublicationSetParams) {
+        mMeshMessageHandler.setConfigModelPublication(configModelPublicationSetParams);
     }
 
     /**
