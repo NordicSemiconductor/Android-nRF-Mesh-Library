@@ -63,12 +63,14 @@ import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
+import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDisconnected;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSubscriptionAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
@@ -85,7 +87,11 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_I
 
 public class ModelConfigurationActivity extends AppCompatActivity implements Injectable,
         DialogFragmentConfigurationStatus.DialogFragmentAppKeyBindStatusListener,
-        DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener, AddressAdapter.OnItemClickListener, BoundAppKeysAdapter.OnItemClickListener, ItemTouchHelperAdapter {
+        DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener,
+        AddressAdapter.OnItemClickListener,
+        BoundAppKeysAdapter.OnItemClickListener,
+        ItemTouchHelperAdapter,
+        DialogFragmentDisconnected.DialogFragmentDisconnectedListener {
 
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
@@ -141,11 +147,11 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         final ProvisionedMeshNode meshNode = intent.getParcelableExtra(EXTRA_DEVICE);
         final int elementAddress = intent.getExtras().getInt(EXTRA_ELEMENT_ADDRESS);
         final int modelId = intent.getExtras().getInt(EXTRA_MODEL_ID);
-        final String modelName;
+
         if(meshNode == null)
             finish();
 
-        modelName = intent.getStringExtra(EXTRA_DATA_MODEL_NAME);
+        final String modelName = intent.getStringExtra(EXTRA_DATA_MODEL_NAME);
 
         if(savedInstanceState != null){
             if (savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
@@ -164,6 +170,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(modelName);
+        getSupportActionBar().setSubtitle(getString(R.string.model_id, CompositionDataParser.formatModelIdentifier(modelId, false)));
 
         final RecyclerView recyclerViewAddresses = findViewById(R.id.recycler_view_addresses);
         recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(this));
@@ -291,6 +298,12 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
             final String message = getString(R.string.operation_timed_out);
             DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", message);
             fragmentMessage.show(getSupportFragmentManager(), null);
+        });
+
+        mViewModel.isConnected().observe(this, aBoolean -> {
+            final DialogFragmentDisconnected dialogFragmentDisconnected = DialogFragmentDisconnected.newInstance(getString(R.string.title_disconnected_error),
+                    getString(R.string.disconnected_network_rationale));
+            dialogFragmentDisconnected.show(getSupportFragmentManager(), null);
         });
 
         addNodeControlsUi();
@@ -705,5 +718,10 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
             }
         }
         return null;
+    }
+
+    @Override
+    public void onDisconnected() {
+        finish();
     }
 }
