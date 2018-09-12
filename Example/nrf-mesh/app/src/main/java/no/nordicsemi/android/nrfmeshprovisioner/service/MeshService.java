@@ -57,6 +57,7 @@ import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -661,6 +662,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
     @Override
     public void onSubscriptionDeleteSent(final ProvisionedMeshNode node) {
+        mMeshNode = node;
         final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
         intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.SUBSCRIPTION_DELETE_SENT.getState());
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -1049,9 +1051,8 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             mMeshManagerApi.unbindAppKey(meshNode, elementAddress, meshModel, appKeyIndex);
         }
 
-        public void sendConfigModelPublishAddressSet(final ProvisionedMeshNode node, final Element element, final MeshModel meshModel, final int appKeyIndex, final byte[] publishAddress) {
-            mMeshManagerApi.setConfigModelPublishAddress(node,
-                    element.getElementAddress(), publishAddress, appKeyIndex, meshModel.getModelId(), 0, 0xFF, 0, 0, 0);
+        public void sendConfigModelPublicationSet(final ConfigModelPublicationSetParams configModelPublicationSetParams) {
+            mMeshManagerApi.sendConfigModelPublicationSet(configModelPublicationSetParams);
         }
 
         public void sendConfigModelSubscriptionAdd(final ProvisionedMeshNode node, final Element element, final MeshModel meshModel, final byte[] subsciptionAddress) {

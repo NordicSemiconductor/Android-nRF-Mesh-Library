@@ -289,12 +289,12 @@ public abstract class BaseMeshRepository {
      * @param meshNode mesh node to configure
      */
     public void setModel(final ProvisionedMeshNode meshNode, final int elementAddress, final int modelId) {
-        if(mExtendedMeshNode == null) {
+        /*if(mExtendedMeshNode == null) {
             mExtendedMeshNode = new ExtendedMeshNode(meshNode);
         } else {
             mExtendedMeshNode.updateMeshNode(meshNode);
-        }
-
+        }*/
+        setMeshNode(meshNode);
         final Element element = meshNode.getElements().get(elementAddress);
         if(element != null) {
             mElement.setValue(element);

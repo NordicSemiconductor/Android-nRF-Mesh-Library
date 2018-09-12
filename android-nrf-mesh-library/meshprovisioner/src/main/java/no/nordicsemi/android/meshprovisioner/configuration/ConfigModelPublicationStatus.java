@@ -127,7 +127,7 @@ public class ConfigModelPublicationStatus extends ConfigMessageState {
                 final int opcode = MeshParserUtils.getOpCode(accessPayload, opCodeLength);
 
                 if (opcode == ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS) {
-                    Log.v(TAG, "Received model publication status status");
+                    Log.v(TAG, "Received model publication status");
                     final int offset = +2; //Ignoring the opcode and the parameter received
                     status = accessPayload[offset];
                     elementAddress = new byte[]{accessPayload[4], accessPayload[3]};
@@ -161,7 +161,7 @@ public class ConfigModelPublicationStatus extends ConfigMessageState {
                     if (isSuccessful) {
                         final Element element = mProvisionedMeshNode.getElements().get(getElementAddressInt());
                         final MeshModel model = element.getMeshModels().get(getModelIdentifierInt());
-                        model.setSubscriptionAddress(this);
+                        model.setPublicationStatus(this);
                     }
                     mConfigStatusCallbacks.onPublicationStatusReceived(mProvisionedMeshNode, isSuccessful, status, elementAddress, publishAddress, getModelIdentifierInt());
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
@@ -214,6 +214,15 @@ public class ConfigModelPublicationStatus extends ConfigMessageState {
      */
     public int getPublishAddressInt() {
         return ByteBuffer.wrap(publishAddress).order(ByteOrder.BIG_ENDIAN).getShort();
+    }
+
+    /**
+     * Returns the app key index used for publication
+     *
+     * @return app key index
+     */
+    public byte[] getPublicationAppKeyIndex() {
+        return appKeyIndex;
     }
 
     public int getCredentialFlag() {

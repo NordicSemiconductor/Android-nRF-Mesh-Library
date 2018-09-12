@@ -146,7 +146,7 @@ public class ConfigModelSubscriptionStatus extends ConfigMessageState {
                         final Element element = mProvisionedMeshNode.getElements().get(getElementAddressInt());
                         final MeshModel model = element.getMeshModels().get(getModelIdentifierInt());
                         if (messageType == ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD) {
-                            model.setSubscriptionAddress(mSubscriptionAddress);
+                            model.setPublicationStatus(mSubscriptionAddress);
                         } else if (messageType == ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE) {
                             model.removeSubscriptionAddress(mSubscriptionAddress);
                         }

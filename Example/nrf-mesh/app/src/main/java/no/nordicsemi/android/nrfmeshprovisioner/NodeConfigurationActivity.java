@@ -74,7 +74,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         AddedAppKeyAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
     private final static String TAG = NodeConfigurationActivity.class.getSimpleName();
-    private static final String PROGRESS_BAR_STATE = "DIALOG_FRAGMENT_APP_KEY_STATUS";
+    private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
     private static final String DIALOG_FRAGMENT_APP_KEY_STATUS = "DIALOG_FRAGMENT_APP_KEY_STATUS";
     private static final long DELAY = 10 * 1000; //Using the incomplete timer duration
 
@@ -267,6 +267,9 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @Override
     protected void onStop() {
         super.onStop();
+        if(isFinishing()){
+            mHandler.removeCallbacks(null);
+        }
     }
 
     @Override

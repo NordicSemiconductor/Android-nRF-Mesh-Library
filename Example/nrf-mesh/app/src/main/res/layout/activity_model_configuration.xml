@@ -290,7 +290,7 @@
                         app:layout_constraintTop_toBottomOf="@id/container_publish_address"/>
 
                     <Button
-                        android:id="@+id/action_publish_Address"
+                        android:id="@+id/action_set_publication"
                         style="@style/Widget.AppCompat.Button.Borderless.Colored"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -302,6 +302,22 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                    <Button
+                        android:id="@+id/action_clear_publication_set"
+                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginEnd="@dimen/item_padding_start"
+                        android:layout_marginStart="@dimen/item_padding_end"
+                        android:padding="@dimen/activity_horizontal_margin"
+                        android:text="@string/action_clear_publication"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/action_set_publication"
+                        app:layout_constraintTop_toBottomOf="@id/div2"
+                        android:visibility="gone"
+                        tools:visibility="visible"/>
 
                 </android.support.constraint.ConstraintLayout>
             </android.support.v7.widget.CardView>

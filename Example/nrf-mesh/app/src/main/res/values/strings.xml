@@ -251,7 +251,8 @@
     <string name="title_subscription_addresses_configuration">Subscribe</string>
     <string name="action_bind_app_key">Bind Key</string>
     <string name="action_unbind_app_key">Unbind Key</string>
-    <string name="action_set_publish_address">Set Publish Address</string>
+    <string name="action_set_publish_address">Set Publication</string>
+    <string name="action_clear_publication">Clear Publication</string>
     <string name="action_subscribe_address">Subscribe</string>
     <string name="action_unsubscribe_address">Unsubscribe</string>
     <string name="title_app_key_index">Key Index</string>
@@ -341,4 +342,54 @@
     <string name="error_empty_value">Value cannot be empty</string>
     <string name="message_type">Acknowledged Message</string>
     <string name="enforce_vendor_op_code">0xC0 | 0x</string>
+    <string name="title_publication_parameters">Publication Parameters</string>
+    <string name="hint_address">CEEF</string>
+    <string name="title_address">Address</string>
+    <string name="title_retransmission">Retransmission</string>
+    <string name="title_retransmit_count">Retransmit Count</string>
+    <string name="title_interval_steps">Interval Steps</string>
+    <string name="title_publish_period">Publication Period</string>
+    <string name="title_publish_period_steps">Steps</string>
+    <string name="title_publication_resolution">Resolution</string>
+    <string name="title_security_credentials">Security Credentials</string>
+    <string name="title_friendship_credentials_flag">Friendship Credentials Flag</string>
+    <string name="title_ttl">TTL</string>
+    <string name="title_publish_ttl">Publish TTL</string>
+    <string name="title_publication_settings">Publication Settings</string>
+    <string name="hint_retransmit_count">Retransmit count</string>
+    <string name="hint_publication_interval_steps">Retransmission interval steps</string>
+    <string name="error_empty_pub_retransmit_count">Retransmit count cannot be empty!</string>
+    <string name="error_invalid_pub_retransmit_count">Invalid publish retransmit count!</string>
+    <string name="error_empty_pub_retransmit_interval_steps">Publish retransmit interval steps cannot be empty!</string>
+    <string name="error_invalid_pub_retransmit_interval_steps">Publish retransmit interval steps must be in range of 0 to 7!</string>
+    <string name="error_empty_publication_steps">Number of publication steps cannot be empty!</string>
+    <string name="error_invalid_publication_steps">Publication steps must be in range of 0 to 63!</string>
+    <string name="error_empty_publish_ttl">Publish TTL cannot be empty!</string>
+    <string name="error_invalid_publish_ttl">Publish TTL value must be in range of 0 to 127 or 255 for default TTL!</string>
+
+    <string name="dialog_summary_retransmit_count">Enter the desired number of retransmissions.</string>
+    <string name="dialog_summary_interval_steps">Enter the desired number of interval steps for retransmission. \n1 step = 50ms</string>
+    <string name="dialog_summary_publication_steps">Enter the desired number of steps for publication period.</string>
+    <string name="dialog_summary_publish_ttl">Enter the desired publish ttl.</string>
+    <string name="retransmit_count">%d time(s)</string>
+    <string name="retransmit_interval_steps">%d step(s)</string>
+    <string name="resolution_summary_100_ms">100 milliseconds</string>
+    <string name="resolution_summary_1_s">1 second</string>
+    <string name="resolution_summary_10_s">10 seconds</string>
+    <string name="resolution_summary_100_m">10 minutes</string>
+    <string name="publication_steps">%d step(s)</string>
+    <string name="app_key_index">App key index %d</string>
+
+    <string name="action_apply">Apply</string>
+
+    <string-array name="arr_publication_resolution">
+        <item>100 milliseconds</item>
+        <item>1 second</item>
+        <item>10 seconds</item>
+        <item>10 minutes</item>
+    </string-array>
+
+    <string name="dialog_summary_publication_resolution">Select desired resolution for publish period</string>
+    <string name="hint_publish_ttl">Pubilsh TTL</string>
+    <string name="hint_publication_steps">Publication steps</string>
 </resources>

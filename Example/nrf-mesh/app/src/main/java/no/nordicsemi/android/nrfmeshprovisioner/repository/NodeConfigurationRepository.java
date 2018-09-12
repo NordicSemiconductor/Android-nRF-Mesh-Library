@@ -140,14 +140,13 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
                     final int appKeyIndex = intent.getExtras().getInt(EXTRA_APP_KEY_INDEX);
                     mAppKeyStatus.onStatusChanged(success, statusCode, netKeyIndex, appKeyIndex);
                 }
-                //Update the live data upon receiving a broadcast
-                mExtendedMeshNode.updateMeshNode(node);
                 break;
             case NODE_RESET_STATUS_RECEIVED:
-                //Update the live data upon receiving a broadcast
-                mExtendedMeshNode.updateMeshNode(node);
                 break;
         }
+
+        //Update the live data upon receiving a broadcast
+        mExtendedMeshNode.updateMeshNode(node);
     }
 
     public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
