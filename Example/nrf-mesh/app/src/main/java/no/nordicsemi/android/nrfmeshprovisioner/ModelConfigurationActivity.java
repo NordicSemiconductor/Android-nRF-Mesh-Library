@@ -668,14 +668,14 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                         params = MeshParserUtils.toByteArray(parameters);
                     }
 
+                    if(model.getBoundAppKeyIndexes().isEmpty()) {
+                        Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
+                       return;
+                    }
 
                     final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
                     if(chkAcknowledged.isChecked()){
-                        try {
-                            mViewModel.sendVendorModelAcknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), params);
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
+                        mViewModel.sendVendorModelAcknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), params);
                     } else {
                         mViewModel.sendVendorModelUnacknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), params);
                     }
