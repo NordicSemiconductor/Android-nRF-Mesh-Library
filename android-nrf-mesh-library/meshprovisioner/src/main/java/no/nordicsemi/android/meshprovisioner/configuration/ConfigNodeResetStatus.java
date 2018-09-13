@@ -33,7 +33,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class ConfigNodeResetStatus extends ConfigMessageState implements UpperTransportLayerCallbacks{
+public final class ConfigNodeResetStatus extends ConfigMessageState {
 
     private static final String TAG = ConfigNodeResetStatus.class.getSimpleName();
 
@@ -41,7 +41,6 @@ public final class ConfigNodeResetStatus extends ConfigMessageState implements U
                                  final ProvisionedMeshNode provisionedMeshNode,
                                  final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, provisionedMeshNode, callbacks);
-        this.mMeshTransport.setUpperTransportLayerCallbacks(this);
     }
 
     @Override
@@ -91,17 +90,5 @@ public final class ConfigNodeResetStatus extends ConfigMessageState implements U
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
         mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
-    }
-
-    @Override
-    public byte[] getApplicationKey() {
-        if(mMeshModel != null){
-            if(!mMeshModel.getBoundAppkeys().isEmpty()){
-                if(mAppKeyIndex >= 0) {
-                    return MeshParserUtils.toByteArray(mMeshModel.getBoundAppKey(mAppKeyIndex));
-                }
-            }
-        }
-        return null;
     }
 }
