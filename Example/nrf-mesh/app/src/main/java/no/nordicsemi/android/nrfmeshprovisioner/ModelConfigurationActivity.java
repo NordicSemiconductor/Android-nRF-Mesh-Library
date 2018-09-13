@@ -207,7 +207,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 publicationSettings.putExtra(EXTRA_DEVICE, model);
                 startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
             } else {
-                Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG);
+                Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -218,7 +218,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                         false, 0, 0, 0, 0, 0);
                 showProgressbar();
             } else {
-                Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG);
+                Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
             }
         });
 

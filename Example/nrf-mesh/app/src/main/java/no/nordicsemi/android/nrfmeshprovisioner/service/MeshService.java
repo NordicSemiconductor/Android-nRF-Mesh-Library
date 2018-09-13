@@ -181,7 +181,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         }
     };
     private final Runnable mScannerTimeout = () -> {
-        Toast.makeText(getApplicationContext(), "Unable to find provisioned device", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), R.string.provisioned_device_not_found, Toast.LENGTH_SHORT).show();
         stopScan();
     };
     private final Runnable mReconnectRunnable = this::startScan;

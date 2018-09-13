@@ -45,7 +45,6 @@ import javax.inject.Inject;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.NodeAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNetwork;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
@@ -146,7 +145,7 @@ public class NetworkFragment extends Fragment implements Injectable,
             meshConfigurationIntent.putExtra(Utils.EXTRA_DEVICE, node);
             getActivity().startActivity(meshConfigurationIntent);
         } else {
-            Toast.makeText(getActivity(), "Please connect to a node to continue configuring", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();
         }
     }
 
