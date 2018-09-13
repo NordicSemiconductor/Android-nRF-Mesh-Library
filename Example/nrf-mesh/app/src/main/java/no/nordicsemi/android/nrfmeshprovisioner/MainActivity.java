@@ -56,8 +56,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 public class MainActivity extends AppCompatActivity implements Injectable, HasSupportFragmentInjector,  BottomNavigationView.OnNavigationItemSelectedListener,
         BottomNavigationView.OnNavigationItemReselectedListener,
         ScannerFragment.ScannerFragmentListener, FragmentManager.OnBackStackChangedListener,
-        NetworkFragment.NetworkFragmentListener,
-        DialogFragmentResetNetwork.DialogFragmentResetNetworkListener {
+        NetworkFragment.NetworkFragmentListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String CURRENT_FRAGMENT = "CURRENT_FRAGMENT";
@@ -113,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
         } else {
             mBottomNavigationView.setSelectedItemId(savedInstanceState.getInt(CURRENT_FRAGMENT));
         }
-    }
+    }/*
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
@@ -154,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
                 return true;
         }
         return false;
-    }
+    }*/
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -218,8 +217,8 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
 
     }
 
-    @Override
+    /*@Override
     public void onNetworkReset() {
         mViewModel.resetMeshNetwork();
-    }
+    }*/
 }

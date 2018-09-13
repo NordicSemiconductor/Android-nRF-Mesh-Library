@@ -33,6 +33,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -45,7 +48,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
-public class NetworkFragment extends Fragment implements Injectable, NodeAdapter.OnItemClickListener {
+public class NetworkFragment extends Fragment implements Injectable,
+        NodeAdapter.OnItemClickListener {
 
     SharedViewModel mViewModel;
 
@@ -61,6 +65,7 @@ public class NetworkFragment extends Fragment implements Injectable, NodeAdapter
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Nullable
@@ -105,6 +110,34 @@ public class NetworkFragment extends Fragment implements Injectable, NodeAdapter
     }
 
     @Override
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
+        if(!mViewModel.getProvisionedNodesLiveData().getProvisionedNodes().isEmpty()){
+
+            if (!mViewModel.isConenctedToMesh()) {
+                inflater.inflate(R.menu.connect, menu);
+            } else {
+                inflater.inflate(R.menu.disconnect, menu);
+            }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        final int id = item.getItemId();
+        switch (id) {
+            case R.id.action_connect:
+                final Intent scannerActivity = new Intent(getContext(), ProvisionedNodesScannerActivity.class);
+                scannerActivity.putExtra(ProvisionedNodesScannerActivity.NETWORK_ID, mViewModel.getNetworkId());
+                startActivity(scannerActivity);
+                return true;
+            case R.id.action_disconnect:
+                mViewModel.disconnect();
+                return true;
+        }
+        return false;
+    }
+
+    @Override
     public void onConfigureClicked(final ProvisionedMeshNode node) {
         if(mViewModel.isConenctedToMesh()) {
             ((NetworkFragmentListener) getActivity()).onProvisionedMeshNodeSelected();
@@ -112,7 +145,7 @@ public class NetworkFragment extends Fragment implements Injectable, NodeAdapter
             meshConfigurationIntent.putExtra(Utils.EXTRA_DEVICE, node);
             getActivity().startActivity(meshConfigurationIntent);
         } else {
-            Toast.makeText(getActivity(), "Please connect to a node to continue configuring", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();
         }
     }
 

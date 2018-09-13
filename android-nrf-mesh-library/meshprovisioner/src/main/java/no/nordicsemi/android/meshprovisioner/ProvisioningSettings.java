@@ -48,8 +48,8 @@ public class ProvisioningSettings extends NetworkSettings {
     ProvisioningSettings(final Context context) {
         this.mContext = context;
         generateProvisioningData();
-        addAppKeys();
-        saveProvisioningData();
+        /*addAppKeys();
+        saveProvisioningData();*/
     }
 
     /**
@@ -63,6 +63,8 @@ public class ProvisioningSettings extends NetworkSettings {
         ivIndex = preferences.getInt(IV_INDEX, 0);
         flags = preferences.getInt(FLAGS, 0);
         globalTtl = preferences.getInt(GLOBAL_TTL, 5);
+        addAppKeys();
+        saveProvisioningData();
     }
 
     /**
@@ -79,6 +81,7 @@ public class ProvisioningSettings extends NetworkSettings {
         final SharedPreferences preferences = mContext.getSharedPreferences(APPLICATION_KEYS, Context.MODE_PRIVATE);
         final Map<String, ?> keys = preferences.getAll();
         if (!keys.isEmpty()) {
+            appKeys.clear();
             for (int i = 0; i < keys.size(); i++) {
                 appKeys.add(i, String.valueOf(keys.get(String.valueOf(i))));
             }
@@ -96,7 +99,7 @@ public class ProvisioningSettings extends NetworkSettings {
 
     public void setNetworkKey(final String networkKey) {
         this.networkKey = networkKey;
-        saveNetowrkKey();
+        saveNetworkKey();
     }
 
     /**
@@ -208,7 +211,7 @@ public class ProvisioningSettings extends NetworkSettings {
         saveGlobalTtl();
     }
 
-    private void saveNetowrkKey() {
+    private void saveNetworkKey() {
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONING_DATA, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = preferences.edit();
         editor.putString(NETWORK_KEY, networkKey);
@@ -264,7 +267,7 @@ public class ProvisioningSettings extends NetworkSettings {
     }
 
     private void saveProvisioningData(){
-        saveNetowrkKey();
+        saveNetworkKey();
         saveUnicastAddress();
         saveKeyIndex();
         saveIvIndex();

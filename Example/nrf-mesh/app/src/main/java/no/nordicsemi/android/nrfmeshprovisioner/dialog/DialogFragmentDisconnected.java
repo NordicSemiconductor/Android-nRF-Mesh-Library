@@ -23,21 +23,18 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public class DialogFragmentResetNetwork extends DialogFragmentMessage {
+public class DialogFragmentDisconnected extends DialogFragmentMessage {
 
-    public interface DialogFragmentResetNetworkListener {
-        void onNetworkReset();
-    }
-
-    public static DialogFragmentResetNetwork newInstance(final String title, final String message) {
+    public static DialogFragmentDisconnected newInstance(final String title, final String message) {
         Bundle args = new Bundle();
-        DialogFragmentResetNetwork fragment = new DialogFragmentResetNetwork();
+        DialogFragmentDisconnected fragment = new DialogFragmentDisconnected();
         args.putString(TITLE, title);
         args.putString(MESSAGE, message);
         fragment.setArguments(args);
@@ -53,13 +50,15 @@ public class DialogFragmentResetNetwork extends DialogFragmentMessage {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
-        alertDialogBuilder.setNegativeButton(getString(R.string.no), null);
-        alertDialogBuilder.setPositiveButton(getString(R.string.yes), (dialog, which) -> {
-            if(getParentFragment() != null)
-                ((DialogFragmentResetNetworkListener)getParentFragment()).onNetworkReset();
+        alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
+        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+            ((DialogFragmentDisconnectedListener)getContext()).onDisconnected();
         });
 
         return super.onCreateDialog(savedInstanceState);
+    }
+
+    public interface DialogFragmentDisconnectedListener{
+        void onDisconnected();
     }
 }

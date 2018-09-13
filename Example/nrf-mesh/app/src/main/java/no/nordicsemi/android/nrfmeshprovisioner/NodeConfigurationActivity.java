@@ -70,7 +70,9 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
 
 public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
-        ElementAdapter.OnItemClickListener, DialogFragmentAppKeyAddStatus.DialogFragmentAppKeyAddStatusListener, DialogFragmentResetNode.DialogFragmentNodeResetListener,
+        ElementAdapter.OnItemClickListener,
+        DialogFragmentAppKeyAddStatus.DialogFragmentAppKeyAddStatusListener,
+        DialogFragmentResetNode.DialogFragmentNodeResetListener,
         AddedAppKeyAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
     private final static String TAG = NodeConfigurationActivity.class.getSimpleName();

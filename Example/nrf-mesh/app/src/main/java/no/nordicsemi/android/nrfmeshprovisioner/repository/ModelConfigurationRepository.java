@@ -84,7 +84,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
 
     @Override
     public void isDeviceConnected(final boolean isConnected) {
-
+        mIsConnected.postValue(isConnected);
     }
 
     @Override
