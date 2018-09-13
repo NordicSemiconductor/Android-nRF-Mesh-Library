@@ -51,7 +51,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
 
     private MeshModel mMeshModel;
     private byte[] mPublishAddress;
-    private int mAppKeyIndex;
+    private Integer mAppKeyIndex;
     private int mPublishTtl = MeshParserUtils.DEFAULT_TTL;
     private int mPublicationSteps =  DEFAULT_PUBLICATION_STEPS;
     private int mPublicationResolution;
@@ -174,6 +174,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
                 final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
                 if(appKey != null){
+                    mAppKeyIndex = appKeyIndex;
                     mAppKeyIndexView.setText(getString(R.string.app_key_index, appKeyIndex));
                 }
             }
@@ -250,8 +251,10 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
             mPublishAddressView.setText(MeshParserUtils.bytesToHex(mPublishAddress, true));
         }
 
-        if(!model.getBoundAppKeyIndexes().isEmpty() && mMeshModel.getPublishAppKeyIndexInt() != null){
+        if(!model.getBoundAppKeyIndexes().isEmpty()){
             mAppKeyIndex = mMeshModel.getPublishAppKeyIndexInt();
+            if(mAppKeyIndex == null)
+                mAppKeyIndex = mMeshModel.getBoundAppKeyIndexes().get(0);
             mAppKeyIndexView.setText(getString(R.string.app_key_index, mAppKeyIndex));
         }
 
