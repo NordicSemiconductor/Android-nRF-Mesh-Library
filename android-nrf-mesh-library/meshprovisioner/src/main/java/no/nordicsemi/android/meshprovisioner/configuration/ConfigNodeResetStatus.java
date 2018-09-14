@@ -30,7 +30,6 @@ import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public final class ConfigNodeResetStatus extends ConfigMessageState {
@@ -49,10 +48,10 @@ public final class ConfigNodeResetStatus extends ConfigMessageState {
     }
 
     public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
+        parseMeshPdu(pdu);
     }
 
-    public final boolean parseMessage(final byte[] pdu) {
+    public final boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -70,10 +69,10 @@ public final class ConfigNodeResetStatus extends ConfigMessageState {
                 if (opcode == ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS) {
                     Log.v(TAG, "Received node reset status");
                     mInternalTransportCallbacks.onMeshNodeReset(mProvisionedMeshNode);
-                    mConfigStatusCallbacks.onMeshNodeResetStatusReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onMeshNodeResetStatusReceived(mProvisionedMeshNode);
                     return true;
                 } else {
-                    mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
@@ -89,6 +88,6 @@ public final class ConfigNodeResetStatus extends ConfigMessageState {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 }

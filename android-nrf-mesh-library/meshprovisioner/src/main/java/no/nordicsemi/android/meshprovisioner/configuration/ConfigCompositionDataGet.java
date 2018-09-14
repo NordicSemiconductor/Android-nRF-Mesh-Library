@@ -53,7 +53,7 @@ public class ConfigCompositionDataGet extends ConfigMessageState {
     }
 
     @Override
-    protected boolean parseMessage(final byte[] pdu) {
+    protected boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -85,8 +85,8 @@ public class ConfigCompositionDataGet extends ConfigMessageState {
         Log.v(TAG, "Sending composition data get");
         super.executeSend();
         if (!mPayloads.isEmpty()) {
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onGetCompositionDataSent(mProvisionedMeshNode);
+            if (mMeshStatusCallbacks != null)
+                mMeshStatusCallbacks.onGetCompositionDataSent(mProvisionedMeshNode);
         }
     }
 

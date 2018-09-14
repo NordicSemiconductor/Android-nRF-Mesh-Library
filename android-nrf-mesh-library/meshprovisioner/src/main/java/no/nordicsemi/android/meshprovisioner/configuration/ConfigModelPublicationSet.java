@@ -23,7 +23,6 @@
 package no.nordicsemi.android.meshprovisioner.configuration;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -79,7 +78,7 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
     }
 
     @Override
-    protected boolean parseMessage(final byte[] pdu) {
+    protected boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -153,13 +152,13 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
         super.executeSend();
 
         if (!mPayloads.isEmpty()) {
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onPublicationSetSent(mProvisionedMeshNode);
+            if (mMeshStatusCallbacks != null)
+                mMeshStatusCallbacks.onPublicationSetSent(mProvisionedMeshNode);
         }
     }
 
     public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
+        parseMeshPdu(pdu);
     }
 
     @Override
@@ -167,7 +166,7 @@ public class ConfigModelPublicationSet extends ConfigMessageState {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 
     /**

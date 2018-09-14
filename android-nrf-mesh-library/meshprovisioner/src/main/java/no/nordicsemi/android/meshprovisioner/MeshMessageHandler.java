@@ -219,7 +219,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
             switch (message.getState()) {
                 case COMPOSITION_DATA_STATUS_STATE:
                     final ConfigCompositionDataStatus compositionDataStatus = (ConfigCompositionDataStatus) mMeshMessageState;
-                    if (compositionDataStatus.parseMessage(pdu)) {
+                    if (compositionDataStatus.parseMeshPdu(pdu)) {
                         //mInternalMeshManagerCallbacks.onUnicastAddressChanged(compositionDataStatus.getUnicastAddress());
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
@@ -235,7 +235,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     break;
                 case APP_KEY_STATUS_STATE:
                     final ConfigAppKeyStatus status = ((ConfigAppKeyStatus) mMeshMessageState);
-                    if (status.isIncompleteTimerExpired() || (status.parseMessage(pdu))) {
+                    if (status.isIncompleteTimerExpired() || (status.parseMeshPdu(pdu))) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
@@ -258,7 +258,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     switchState(configModelAppStatus1, pdu);
                     break;
                 case CONFIG_MODEL_APP_STATUS_STATE:
-                    if (((ConfigModelAppStatus) mMeshMessageState).parseMessage(pdu)) {
+                    if (((ConfigModelAppStatus) mMeshMessageState).parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
@@ -271,7 +271,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     switchState(configModelPublicationStatus, pdu);
                     break;
                 case CONFIG_MODEL_PUBLICATION_STATUS_STATE:
-                    if (((ConfigModelPublicationStatus) mMeshMessageState).parseMessage(pdu)) {
+                    if (((ConfigModelPublicationStatus) mMeshMessageState).parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
@@ -294,7 +294,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     switchState(configModelSubscriptionStatus1, pdu);
                     break;
                 case CONFIG_MODEL_SUBSCRIPTION_STATUS_STATE:
-                    if (((ConfigModelSubscriptionStatus) mMeshMessageState).parseMessage(pdu)) {
+                    if (((ConfigModelSubscriptionStatus) mMeshMessageState).parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
@@ -307,7 +307,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     switchState(configNodeResetStatus, pdu);
                     break;
                 case CONFIG_NODE_RESET_STATUS_STATE:
-                    if (((ConfigNodeResetStatus) mMeshMessageState).parseMessage(pdu)) {
+                    if (((ConfigNodeResetStatus) mMeshMessageState).parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
@@ -338,7 +338,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     switchState(genericOnOffSetStatus, pdu);
                     break;
                 case GENERIC_ON_OFF_STATUS_STATE:
-                    if (((GenericOnOffStatus) mMeshMessageState).parseMessage(pdu)) {
+                    if (((GenericOnOffStatus) mMeshMessageState).parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
@@ -352,16 +352,16 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                 switchState(vendorModelMessageStatus, pdu);
             } else if (mMeshMessageState instanceof VendorModelMessageStatus) {
                 final VendorModelMessageStatus vendorModelMessageStatus = (VendorModelMessageStatus) mMeshMessageState;
-                if(vendorModelMessageStatus.parseMessage(pdu)){
+                if(vendorModelMessageStatus.parseMeshPdu(pdu)){
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                 }
             } else {
-                if (((VendorModelMessageUnacknowledged) mMeshMessageState).parseMessage(pdu)) {
+                if (((VendorModelMessageUnacknowledged) mMeshMessageState).parseMeshPdu(pdu)) {
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                 }
             }
         } else {
-            ((DefaultNoOperationMessageState) mMeshMessageState).parseMessage(pdu);
+            ((DefaultNoOperationMessageState) mMeshMessageState).parseMeshPdu(pdu);
         }
     }
 

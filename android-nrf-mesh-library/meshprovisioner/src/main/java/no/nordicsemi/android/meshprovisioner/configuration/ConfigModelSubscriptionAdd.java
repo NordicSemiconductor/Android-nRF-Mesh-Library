@@ -72,7 +72,7 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessageState {
     }
 
     @Override
-    protected boolean parseMessage(final byte[] pdu) {
+    protected boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -128,13 +128,13 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessageState {
         super.executeSend();
 
         if (!mPayloads.isEmpty()) {
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onSubscriptionAddSent(mProvisionedMeshNode);
+            if (mMeshStatusCallbacks != null)
+                mMeshStatusCallbacks.onSubscriptionAddSent(mProvisionedMeshNode);
         }
     }
 
     public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
+        parseMeshPdu(pdu);
     }
 
     @Override
@@ -142,7 +142,7 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessageState {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 
     /**

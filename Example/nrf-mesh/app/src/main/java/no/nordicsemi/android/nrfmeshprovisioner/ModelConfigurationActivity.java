@@ -476,8 +476,8 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
                 final SeekBar delaySeekBar = nodeControlsContainer.findViewById(R.id.delay_seekbar);
                 delaySeekBar.setProgress(0);
-                delaySeekBar.incrementProgressBy(5);
                 delaySeekBar.setMax(255);
+                final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
 
                 mActionOnOff = nodeControlsContainer.findViewById(R.id.action_on_off);
                 mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
@@ -485,17 +485,14 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     try {
                         final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
                         if(mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on))){
-                            /*mActionOnOff.setText(R.string.action_generic_off);
-                            onOffState.setText(R.string.generic_state_on);*/
                             //TODO wait for sdk implementation to test for transition state
-                            mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), true);
+                            mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution,
+                                    delaySeekBar.getProgress() * MeshParserUtils.GENERIC_ON_OFF_5_MS, true);
                         } else {
-                            /*mActionOnOff.setText(R.string.action_generic_on);
-                            onOffState.setText(R.string.generic_state_off);*/
                             //TODO wait for sdk implementation to test for transition state
-                            mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), false);
+                            mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution,
+                                    delaySeekBar.getProgress() * MeshParserUtils.GENERIC_ON_OFF_5_MS, false);
                         }
-                        //mActionOnOff.setEnabled(false);
                         showProgressbar();
                     } catch (IllegalArgumentException ex) {
                         Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
@@ -505,7 +502,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 mActionRead.setOnClickListener(v -> {
                     final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
                     mViewModel.sendGenericOnOffGet(node);
-                    //mActionRead.setEnabled(false);
                     showProgressbar();
                 });
 
@@ -537,7 +533,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                                 resolution1 = -(56 - progress);
                             }
                             mTransitionStepResolution = 1;
-                            mTransitionStep = resolution3;
+                            mTransitionStep = resolution1;
                             time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution1), "s"));
 
                         } else if(progress >= 119 && progress <= 174) {
@@ -575,6 +571,22 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     }
                 });
 
+                delaySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
+                        delayTime.setText(getString(R.string.transition_time_interval, String.valueOf(progress * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms"));
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(final SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(final SeekBar seekBar) {
+
+                    }
+                });
 
                 mViewModel.getGenericOnOffState().observe(this, presentState -> {
                     hideProgressBar();

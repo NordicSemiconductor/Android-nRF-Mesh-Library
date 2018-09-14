@@ -57,7 +57,7 @@ public class GenericOnOffSetUnacknowledged extends GenericMessageState {
     }
 
     @Override
-    protected boolean parseMessage(final byte[] pdu) {
+    protected boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -87,7 +87,7 @@ public class GenericOnOffSetUnacknowledged extends GenericMessageState {
             paramsBuffer = ByteBuffer.allocate(GENERIC_ON_OFF_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
             paramsBuffer.put((byte) mProvisionedMeshNode.getSequenceNumber());
-            paramsBuffer.put((byte) (mTransitionSteps << 6 | mTransitionResolution));
+            paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
             paramsBuffer.put((byte) delay);
         }
@@ -106,8 +106,8 @@ public class GenericOnOffSetUnacknowledged extends GenericMessageState {
         super.executeSend();
 
         if (!mPayloads.isEmpty()) {
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onGenericOnOffSetUnacknowledgedSent(mProvisionedMeshNode);
+            if (mMeshStatusCallbacks != null)
+                mMeshStatusCallbacks.onGenericOnOffSetUnacknowledgedSent(mProvisionedMeshNode);
         }
     }
 
@@ -116,6 +116,6 @@ public class GenericOnOffSetUnacknowledged extends GenericMessageState {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 }
