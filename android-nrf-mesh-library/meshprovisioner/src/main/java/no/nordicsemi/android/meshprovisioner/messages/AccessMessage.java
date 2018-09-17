@@ -25,13 +25,13 @@ package no.nordicsemi.android.meshprovisioner.messages;
 import java.util.HashMap;
 import java.util.Map;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessage;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessageState;
 
 public class AccessMessage extends Message {
 
     private byte[] accessPdu;
     private byte[] transportPdu;
-    private ConfigMessage configMessage;
+    private ConfigMessageState configMessage;
 
     public AccessMessage() {
         this.ctl = 0;
@@ -71,11 +71,11 @@ public class AccessMessage extends Message {
         super.setLowerTransportAccessPdu(lowerTransportAccessPdu);
     }
 
-    public ConfigMessage getConfigMessage() {
+    public ConfigMessageState getConfigMessage() {
         return configMessage;
     }
 
-    public void setConfigMessage(final ConfigMessage configMessage) {
+    public void setConfigMessage(final ConfigMessageState configMessage) {
         this.configMessage = configMessage;
     }
 }

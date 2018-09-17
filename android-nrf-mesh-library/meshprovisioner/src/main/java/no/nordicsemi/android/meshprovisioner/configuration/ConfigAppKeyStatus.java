@@ -28,8 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.R;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
@@ -39,7 +38,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 import static no.nordicsemi.android.meshprovisioner.configuration.ConfigAppKeyStatus.AppKeyStatuses.fromStatusCode;
 
-public class ConfigAppKeyStatus extends ConfigMessage {
+public class ConfigAppKeyStatus extends ConfigMessageState {
 
     private static final String TAG = ConfigAppKeyStatus.class.getSimpleName();
     private String appKey;
@@ -49,11 +48,9 @@ public class ConfigAppKeyStatus extends ConfigMessage {
     private byte[] netKeyIndex;
     private byte[] appKeyIndex;
 
-    public ConfigAppKeyStatus(final Context context, final ProvisionedMeshNode meshNode, final byte[] src, final String appKey, final InternalTransportCallbacks transportCallbacks, final MeshConfigurationStatusCallbacks statusCallbacks) {
-        super(context, meshNode);
+    public ConfigAppKeyStatus(final Context context, final ProvisionedMeshNode meshNode, final byte[] src, final String appKey, final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, meshNode, callbacks);
         this.appKey = appKey;
-        this.mInternalTransportCallbacks = transportCallbacks;
-        this.mConfigStatusCallbacks = statusCallbacks;
     }
 
     public static String parseStatusMessage(final Context context, final int status) {
@@ -103,14 +100,11 @@ public class ConfigAppKeyStatus extends ConfigMessage {
 
     @Override
     public MessageState getState() {
-        return MessageState.APP_KEY_STATUS;
+        return MessageState.APP_KEY_STATUS_STATE;
     }
 
-    public final void parseData(final byte[] pdu) {
-        parseMessage(pdu);
-    }
 
-    private void parseMessage(final byte[] pdu) {
+    public final boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -128,17 +122,21 @@ public class ConfigAppKeyStatus extends ConfigMessage {
                     if (isSuccessful) {
                         mProvisionedMeshNode.setAddedAppKey(ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort(), appKey);
                     }
-                    mConfigStatusCallbacks.onAppKeyStatusReceived(mProvisionedMeshNode, isSuccessful, status,
+                    mMeshStatusCallbacks.onAppKeyStatusReceived(mProvisionedMeshNode, isSuccessful, status,
                             ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort(),
                             ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort());
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    return true;
                 } else {
-                    mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
-                parseControlMessage((ControlMessage) message);
+                parseControlMessage((ControlMessage) message, mPayloads.size());
             }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
         }
+        return false;
     }
 
     private void parseConfigAppKeyStatus(final byte[] accessPayload, final int offset) {
@@ -156,9 +154,9 @@ public class ConfigAppKeyStatus extends ConfigMessage {
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
-        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 
     private void parseStatus(final int status) {

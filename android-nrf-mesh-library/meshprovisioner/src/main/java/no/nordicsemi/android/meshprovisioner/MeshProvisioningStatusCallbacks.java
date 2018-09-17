@@ -51,7 +51,7 @@ public interface MeshProvisioningStatusCallbacks {
 
     void onProvisioningDataSent(final UnprovisionedMeshNode unprovisionedMeshNode);
 
-    void onProvisioningFailed(final UnprovisionedMeshNode unprovisionedMeshNode, final String error);
+    void onProvisioningFailed(final UnprovisionedMeshNode unprovisionedMeshNode, final int errorCode);
 
     void onProvisioningComplete(final ProvisionedMeshNode provisionedMeshNode);
 

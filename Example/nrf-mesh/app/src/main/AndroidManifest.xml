@@ -28,6 +28,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
@@ -84,7 +85,10 @@
             android:name=".ModelConfigurationActivity"
             android:launchMode="singleTop">
         </activity>
-
+        <activity
+            android:name=".PublicationSettingsActivity"
+            android:launchMode="singleTop">
+        </activity>
         <activity
             android:name=".NodeDetailsActivity"
             android:launchMode="singleTop">

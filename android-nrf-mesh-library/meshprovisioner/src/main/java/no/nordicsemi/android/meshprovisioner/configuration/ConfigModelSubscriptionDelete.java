@@ -28,8 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
@@ -39,7 +38,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * This class handles subscribing a model to subscription address.
  */
-public final class ConfigModelSubscriptionDelete extends ConfigMessage {
+public final class ConfigModelSubscriptionDelete extends ConfigMessageState {
 
     private static final String TAG = ConfigModelSubscriptionDelete.class.getSimpleName();
 
@@ -55,10 +54,10 @@ public final class ConfigModelSubscriptionDelete extends ConfigMessage {
     private final byte[] mSubscriptionAddress;
 
     public ConfigModelSubscriptionDelete(final Context context,
-                                         final ProvisionedMeshNode meshNode,
+                                         final ProvisionedMeshNode meshNode,final InternalMeshMsgHandlerCallbacks callbacks,
                                          final int aszmic,
                                          final byte[] elementAddress, final byte[] subscriptionAddress, final int modelIdentifier) {
-        super(context, meshNode);
+        super(context, meshNode, callbacks);
         this.mAszmic = aszmic == 1 ? 1 : 0;
         this.mElementAddress = elementAddress;
         this.mModelIdentifier = modelIdentifier;
@@ -66,17 +65,26 @@ public final class ConfigModelSubscriptionDelete extends ConfigMessage {
         createAccessMessage();
     }
 
-    public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
-        this.mInternalTransportCallbacks = callbacks;
-    }
-
-    public void setConfigurationStatusCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
-        this.mConfigStatusCallbacks = callbacks;
+    @Override
+    public MessageState getState() {
+        return MessageState.CONFIG_MODEL_SUBSCRIPTION_DELETE_STATE;
     }
 
     @Override
-    public MessageState getState() {
-        return MessageState.CONFIG_MODEL_SUBSCRIPTION_ADD;
+    protected boolean parseMeshPdu(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
+            }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+        }
+        return false;
     }
 
     /**
@@ -109,44 +117,23 @@ public final class ConfigModelSubscriptionDelete extends ConfigMessage {
         }
 
         final byte[] key = mProvisionedMeshNode.getDeviceKey();
-        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE, parameters);
-        mPayloads.putAll(accessMessage.getNetworkPdu());
+        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE, parameters);
+        mPayloads.putAll(message.getNetworkPdu());
     }
 
-    /**
-     * Starts sending the mesh pdu
-     */
-    public void executeSend() {
-        if (!mPayloads.isEmpty()) {
-            for (int i = 0; i < mPayloads.size(); i++) {
-                if (mInternalTransportCallbacks != null) {
-                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-                }
-            }
+    @Override
+    public final void executeSend() {
+        Log.v(TAG, "Sending config model subscription delete");
+        super.executeSend();
 
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onAppKeyBindSent(mProvisionedMeshNode);
+        if (!mPayloads.isEmpty()) {
+            if (mMeshStatusCallbacks != null)
+                mMeshStatusCallbacks.onSubscriptionDeleteSent(mProvisionedMeshNode);
         }
     }
 
     public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
-    }
-
-    private void parseMessage(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-            } else {
-                final ControlMessage controlMessage = (ControlMessage) message;
-                Log.v(TAG, "Control message received: " + MeshParserUtils.bytesToHex(pdu, false));
-                parseControlMessage(controlMessage);
-            }
-        } else {
-            Log.v(TAG, "Message reassembly may not be complete yet");
-        }
+        parseMeshPdu(pdu);
     }
 
     @Override
@@ -154,7 +141,7 @@ public final class ConfigModelSubscriptionDelete extends ConfigMessage {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 
     /**

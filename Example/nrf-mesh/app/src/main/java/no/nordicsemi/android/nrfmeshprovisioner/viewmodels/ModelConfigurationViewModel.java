@@ -33,6 +33,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyBindStatusLiveDat
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericOnOffStatusUpdate;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
 
 public class ModelConfigurationViewModel extends ViewModel {
@@ -78,8 +80,16 @@ public class ModelConfigurationViewModel extends ViewModel {
         return mModelConfigurationRepository.getExtendedMeshNode();
     }
 
-    public void bindAppKey(final int appKeyIndex) {
-        mModelConfigurationRepository.bindAppKey(appKeyIndex);
+    public void sendBindAppKey(final int appKeyIndex) {
+        mModelConfigurationRepository.sendBindAppKey(appKeyIndex);
+    }
+
+    public void sendUnbindAppKey(final int appKeyIndex) {
+        mModelConfigurationRepository.sendUnbindAppKey(appKeyIndex);
+    }
+
+    public LiveData<TransactionFailedLiveData> getTransactionStatus() {
+        return mModelConfigurationRepository.getTransactionFailedLiveData();
     }
 
     public LiveData<AppKeyBindStatusLiveData> getAppKeyBindStatusLiveData() {
@@ -94,10 +104,10 @@ public class ModelConfigurationViewModel extends ViewModel {
         return mModelConfigurationRepository.getConfigModelSubscriptionStatus();
     }
 
-    public void sendConfigModelPublishAddressSet(final byte[] publishAddress) {
-        mModelConfigurationRepository.sendConfigModelPublishAddressSet(publishAddress);
+    public void sendConfigModelPublicationSet(final byte[] publishAddress, final int appKeyIndex, final boolean credentialFlag, final int publishTtl,
+                                              final int publicationSteps, final int resolution, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
+        mModelConfigurationRepository.sendConfigModelPublicationSet(publishAddress, appKeyIndex, credentialFlag, publishTtl, publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps);
     }
-
     public void sendConfigModelSubscriptionAdd(final byte[] subscriptionAddress) {
         mModelConfigurationRepository.sendConfigModelSubscriptionAdd(subscriptionAddress);
     }
@@ -132,7 +142,19 @@ public class ModelConfigurationViewModel extends ViewModel {
         mModelConfigurationRepository.sendGenericOnOffGet(node);
     }
 
-    public LiveData<Boolean> getGenericOnOffState() {
+    public LiveData<GenericOnOffStatusUpdate> getGenericOnOffState() {
         return mModelConfigurationRepository.getGenericOnOffState();
+    }
+
+    public LiveData<byte[]> getVendorModelState() {
+        return mModelConfigurationRepository.getVendorModelState();
+    }
+
+    public void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters){
+        mModelConfigurationRepository.sendVendorModelUnacknowledgedMessage(node, model, appKeyIndex, opcode, parameters);
+    }
+
+    public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters){
+        mModelConfigurationRepository.sendVendorModelAcknowledgedMessage(node, model, appKeyIndex, opcode, parameters);
     }
 }

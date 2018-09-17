@@ -28,8 +28,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
@@ -39,7 +38,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * This class handles adding a application keys to a specific a mesh node.
  */
-public class ConfigAppKeyAdd extends ConfigMessage {
+public class ConfigAppKeyAdd extends ConfigMessageState {
 
     private final String TAG = ConfigAppKeyAdd.class.getSimpleName();
 
@@ -48,29 +47,34 @@ public class ConfigAppKeyAdd extends ConfigMessage {
     private final int mAppKeyIndex;
 
     public ConfigAppKeyAdd(final Context context, final ProvisionedMeshNode unprovisionedMeshNode,
-                           final int aszmic, final String appKey, final int appKeyIndex) {
-        super(context, unprovisionedMeshNode);
+                           final InternalMeshMsgHandlerCallbacks callbacks, final int aszmic, final String appKey, final int appKeyIndex) {
+        super(context, unprovisionedMeshNode, callbacks);
         this.mAszmic = aszmic == 1 ? 1 : 0;
         this.mAppKey = appKey;
         this.mAppKeyIndex = appKeyIndex;
         createAccessMessage();
     }
 
-    public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
-        this.mInternalTransportCallbacks = callbacks;
-    }
-
-    public void setConfigurationStatusCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
-        this.mConfigStatusCallbacks = callbacks;
+    @Override
+    public MessageState getState() {
+        return MessageState.APP_KEY_ADD_STATE;
     }
 
     @Override
-    public MessageState getState() {
-        return MessageState.APP_KEY_ADD;
-    }
-
-    public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
+    protected boolean parseMeshPdu(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
+            }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+        }
+        return false;
     }
 
     /**
@@ -92,33 +96,17 @@ public class ConfigAppKeyAdd extends ConfigMessage {
         final byte[] key = mProvisionedMeshNode.getDeviceKey();
         final int akf = 0;
         final int aid = 0;
-        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_APPKEY_ADD, parameters);
-        mPayloads.putAll(accessMessage.getNetworkPdu());
+        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_APPKEY_ADD, parameters);
+        mPayloads.putAll(message.getNetworkPdu());
     }
 
-    /**
-     * Starts sending the mesh pdu
-     */
-    public void executeSend() {
+    @Override
+    public final void executeSend() {
+        Log.v(TAG, "Sending config app key add");
+        super.executeSend();
         if (!mPayloads.isEmpty()) {
-            for (int i = 0; i < mPayloads.size(); i++) {
-                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-            }
-
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onAppKeyAddSent(mProvisionedMeshNode);
-        }
-    }
-
-    private void parseMessage(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-            } else {
-                parseControlMessage((ControlMessage) message);
-            }
+            if (mMeshStatusCallbacks != null)
+                mMeshStatusCallbacks.onAppKeyAddSent(mProvisionedMeshNode);
         }
     }
 
@@ -127,7 +115,7 @@ public class ConfigAppKeyAdd extends ConfigMessage {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 
     /**

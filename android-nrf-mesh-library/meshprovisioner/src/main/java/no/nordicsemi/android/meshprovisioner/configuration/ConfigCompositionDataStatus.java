@@ -31,8 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
@@ -44,7 +43,7 @@ import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 
-public final class ConfigCompositionDataStatus extends ConfigMessage {
+public final class ConfigCompositionDataStatus extends ConfigMessageState {
 
     private static final String TAG = ConfigCompositionDataStatus.class.getSimpleName();
 
@@ -63,23 +62,16 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
     private Map<Integer, Element> mElements = new LinkedHashMap<>();
 
 
-    public ConfigCompositionDataStatus(final Context context, final ProvisionedMeshNode unprovisionedMeshNode,
-                                       InternalTransportCallbacks transportCallbacks, final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks) {
-        super(context, unprovisionedMeshNode);
-        this.mInternalTransportCallbacks = transportCallbacks;
-        this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
+    public ConfigCompositionDataStatus(final Context context, final ProvisionedMeshNode unprovisionedMeshNode, final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, unprovisionedMeshNode, callbacks);
     }
 
     @Override
     public MessageState getState() {
-        return MessageState.COMPOSITION_DATA_STATUS;
+        return MessageState.COMPOSITION_DATA_STATUS_STATE;
     }
 
-    public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
-    }
-
-    private void parseMessage(final byte[] pdu) {
+    public final boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -90,15 +82,19 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
                     final int offset = +2; //Ignoring the opcode and the parameter received
                     pareCompositionDataPages(accessMessage, offset);
                     mProvisionedMeshNode.setCompositionData(this);
-                    mConfigStatusCallbacks.onCompositionDataStatusReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onCompositionDataStatusReceived(mProvisionedMeshNode);
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    return true;
                 } else {
-                    mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
-                parseControlMessage((ControlMessage) message);
+                parseControlMessage((ControlMessage) message, mPayloads.size());
             }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
         }
+        return false;
     }
 
     /**
@@ -265,7 +261,7 @@ public final class ConfigCompositionDataStatus extends ConfigMessage {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 
     private int parseCompanyIdentifier(final short companyIdentifier) {

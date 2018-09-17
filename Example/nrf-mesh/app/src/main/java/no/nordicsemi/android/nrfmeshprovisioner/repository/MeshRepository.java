@@ -74,7 +74,7 @@ public class MeshRepository extends BaseMeshRepository {
     }
 
     @Override
-    public void onConfigurationStateChanged(final Intent intent) {
+    public void onConfigurationMessageStateChanged(final Intent intent) {
         //Do nothing as we don't do any configuration related tasks here
     }
 

@@ -98,7 +98,7 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHold
         void onItemClick(final int position, final byte[] address);
     }
 
-    final class ViewHolder extends RemovableViewHolder {
+    public final class ViewHolder extends RemovableViewHolder {
 
         @BindView(R.id.address)
         TextView address;

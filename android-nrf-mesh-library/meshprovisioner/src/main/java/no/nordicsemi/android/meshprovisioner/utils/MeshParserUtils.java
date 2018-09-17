@@ -27,6 +27,7 @@ import android.text.TextUtils;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashMap;
+import java.util.Locale;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
@@ -37,6 +38,7 @@ public class MeshParserUtils {
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MIN = 0x01;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MID = 0x80;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MAX = 0xFF;
+    public static final int DEFAULT_TTL = 0xFF;
 
     private static final int PROHIBITED_PUBLISH_TTL_MIN = 0x80;
     private static final int PROHIBITED_PUBLISH_TTL_MAX = 0xFE;
@@ -45,6 +47,14 @@ public class MeshParserUtils {
     private static final int IV_ADDRESS_MAX = 4096;
     private static final int UNICAST_ADDRESS_MIN = 0;
     private static final char[] HEX_ARRAY = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+    public static final int RESOLUTION_100_MS   = 0b00;
+    public static final int RESOLUTION_1_S      = 0b01;
+    public static final int RESOLUTION_10_S     = 0b10;
+    public static final int RESOLUTION_10_M     = 0b11;
+
+    public static final byte[] DISABLED_PUBLICATION_ADDRESS = new byte[] {0x00,0x00};
+    public static final int GENERIC_ON_OFF_5_MS = 5;
 
     public static String bytesToHex(final byte[] bytes, final boolean add0x) {
         if (bytes == null)
@@ -97,8 +107,15 @@ public class MeshParserUtils {
         return value != null && value == (value & 0x7FFF);
     }
 
+    public static boolean isValidUnicastAddress(final byte[] value) {
+        if(value == null)
+            return false;
+        final int address = ((value[0] & 0xFF) << 8) | value[1] & 0xFF;
+        return address == (address & 0x7FFF);
+    }
+
     private static boolean isValidIvIndex(final Integer value) {
-        return value != null;
+        return value != null && (value >= 0 && value <= Integer.MAX_VALUE);
     }
 
     public static byte parseUpdateFlags(final int keyRefreshFlag, final int ivUpdateFlag) {
@@ -233,7 +250,7 @@ public class MeshParserUtils {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
         }
 
-        if (isValidIvIndex(ivIndex)) {
+        if (!isValidIvIndex(ivIndex)) {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
         }
 
@@ -375,7 +392,7 @@ public class MeshParserUtils {
     }
 
     public static byte[] getSrcAddress(final byte[] pdu) {
-        return ByteBuffer.allocate(2).put(pdu, 6, 2).array(); // get dst address from pdu
+        return ByteBuffer.allocate(2).put(pdu, 6, 2).array(); // get src address from pdu
     }
 
     public static byte[] getDstAddress(final byte[] pdu) {
@@ -440,7 +457,7 @@ public class MeshParserUtils {
     }
 
     /**
-     * Returns the length of the opcode.
+     * Returns the vendor opcode packed with company identifier
      * If the MSB = 0 then the length is 1
      * If the MSB = 1 then the length is 2
      * If the MSB = 2 then the length is 3
@@ -448,9 +465,11 @@ public class MeshParserUtils {
      * @param opCode operation code
      * @return length of opcodes
      */
-    public static byte[] getOpCodes(final int opCode, final int companyIdentifier) {
+    public static byte[] createVendorOpCode(final int opCode, final int companyIdentifier) {
         if (companyIdentifier != 0xFFFF) {
-            return new byte[]{(byte) ((0b11 << 6) | opCode), (byte) (companyIdentifier & 0x00FF), (byte) ((companyIdentifier >> 8) & 0x00FF)};
+            //TODO nRF Mesh SDK implementation contains a bug related to endianness of the company identifier
+            //In order to get this working with the sdk you may have to switch the company identifier bytes here
+            return new byte[]{(byte) (0xC0 | (opCode & 0x3F)), (byte) (companyIdentifier & 0xFF), (byte) ((companyIdentifier >> 8) & 0xFF)};
         }
         return null;
     }
@@ -462,6 +481,91 @@ public class MeshParserUtils {
      * @return true if valid and false otherwise
      */
     public static boolean validatePublishTtl(final int publishTtl) {
-        return (publishTtl < PROHIBITED_PUBLISH_TTL_MIN) || (publishTtl > PROHIBITED_PUBLISH_TTL_MAX);
+        return (publishTtl < PROHIBITED_PUBLISH_TTL_MIN) || (publishTtl > PROHIBITED_PUBLISH_TTL_MAX) || (publishTtl == PROHIBITED_DEFAULT_TTL_STATE_MAX);
+    }
+
+    /**
+     * Checks if the retransmit count is within the allowed range
+     *
+     * @param retrantmistCount publish ttl
+     * @return true if valid and false otherwise
+     */
+    public static boolean validateRetransmitCount(final int retrantmistCount) {
+        return retrantmistCount == (retrantmistCount & 0b111);
+    }
+
+    /**
+     * Checks if the publish retransmit interval steps is within the allowed range
+     *
+     * @param intervalSteps publish ttl
+     * @return true if valid and false otherwise
+     */
+    public static boolean validatePublishRetransmitIntervalSteps(final int intervalSteps) {
+        return intervalSteps == (intervalSteps & 0b11111);
+    }
+
+    /**
+     * Returns the remaining time as a string
+     * @param remainingTime remaining time that for the transition to finish
+     *
+     * @return remaining time as string.
+     */
+    public static String getRemainingTime(final int remainingTime) {
+        final int stepResolution = remainingTime >> 6;
+        final int numberOfSteps = remainingTime & 0x3F;
+        switch (stepResolution){
+            case RESOLUTION_100_MS:
+                return (numberOfSteps * 100)+ " milliseconds";
+            case RESOLUTION_1_S:
+                return numberOfSteps + " seconds";
+            case RESOLUTION_10_S:
+                return (numberOfSteps * 10) + " seconds";
+            case RESOLUTION_10_M:
+                return (numberOfSteps * 10) + " minutes";
+            default:
+                return "Unknown";
+        }
+    }
+
+    /**
+     * Returns the remaining time as a string
+     *
+     * @return remaining time as string.
+     */
+    public static String getRemainingTransitionTime(final int stepResolution, final int numberOfSteps) {
+        switch (stepResolution){
+            case RESOLUTION_100_MS:
+                return (numberOfSteps * 100)+ " ms";
+            case RESOLUTION_1_S:
+                return numberOfSteps + " s";
+            case RESOLUTION_10_S:
+                return (numberOfSteps * 10) + " s";
+            case RESOLUTION_10_M:
+                return (numberOfSteps * 10) + " min.";
+            default:
+                return "Unknown";
+        }
+    }
+
+    /**
+     * Returns the remaining time in milliseconds
+     *
+     * @param resolution time resolution
+     * @param steps number of steps
+     *
+     * @return time in milliseconds
+     */
+    public static int getRemainingTime(final int resolution, final int steps) {
+        switch (resolution) {
+            case RESOLUTION_100_MS:
+                return (steps * 100);
+            case RESOLUTION_1_S:
+                return steps * 1000;
+            case RESOLUTION_10_S:
+                return (steps * 10) * 1000;
+            case RESOLUTION_10_M:
+                return (steps * 10) * 1000 * 60;
+        }
+        return  0;
     }
 }

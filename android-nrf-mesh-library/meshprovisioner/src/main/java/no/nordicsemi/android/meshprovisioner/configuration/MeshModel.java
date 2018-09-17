@@ -42,13 +42,15 @@ public abstract class MeshModel implements Parcelable {
     protected final List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
     protected final Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
     protected byte[] publishAddress;
-    protected byte[] appKeyIndex;
+    protected byte[] publishAppKeyIndex;
     protected int credentialFlag;
-    protected int publishTtl;
-    protected int publishPeriod;
-    protected int publishRetransmitCount;
-    protected int publishRetransmitIntervalSteps;
+    protected int publishTtl = 255;
+    protected int publishPeriod = 0;
+    protected int publishRetransmitCount = 1;
+    protected int publishRetransmitIntervalSteps = 1;
     protected List<byte[]> mSubscriptionAddress = new ArrayList<>();
+    private int publicationSteps = 0;
+    private int publicationResolution = 0b00;
 
     public MeshModel(final int modelId) {
         this.mModelId = modelId;
@@ -57,28 +59,30 @@ public abstract class MeshModel implements Parcelable {
     protected MeshModel(final Parcel in) {
 
         final int modelId = in.readInt();
-        if(modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
+        if (modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
             mModelId = modelId;
         } else {
-            mModelId = (short)modelId;
+            mModelId = (short) modelId;
         }
         in.readList(mBoundAppKeyIndexes, Integer.class.getClassLoader());
         sortAppKeys(in.readHashMap(String.class.getClassLoader()));
         publishAddress = in.createByteArray();
-        appKeyIndex = in.createByteArray();
+        publishAppKeyIndex = in.createByteArray();
         credentialFlag = in.readInt();
         publishTtl = in.readInt();
         publishPeriod = in.readInt();
+        publicationSteps =  publishPeriod >> 6;
+        publicationResolution = publishPeriod & 0x03;
         publishRetransmitIntervalSteps = in.readInt();
         in.readList(mSubscriptionAddress, byte[].class.getClassLoader());
     }
 
-    protected final void parcelMeshModel(final Parcel dest, final int flags){
+    protected final void parcelMeshModel(final Parcel dest, final int flags) {
         dest.writeInt(mModelId);
         dest.writeList(mBoundAppKeyIndexes);
         dest.writeMap(mBoundAppKeys);
         dest.writeByteArray(publishAddress);
-        dest.writeByteArray(appKeyIndex);
+        dest.writeByteArray(publishAppKeyIndex);
         dest.writeInt(credentialFlag);
         dest.writeInt(publishTtl);
         dest.writeInt(publishPeriod);
@@ -86,12 +90,12 @@ public abstract class MeshModel implements Parcelable {
         dest.writeList(mSubscriptionAddress);
     }
 
-    private void sortAppKeys(final HashMap<Integer, String> unorderedBoundAppKeys){
-        final Set<Integer> unorderedKeys =  unorderedBoundAppKeys.keySet();
+    private void sortAppKeys(final HashMap<Integer, String> unorderedBoundAppKeys) {
+        final Set<Integer> unorderedKeys = unorderedBoundAppKeys.keySet();
 
         final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
         Collections.sort(orderedKeys);
-        for(int key : orderedKeys) {
+        for (int key : orderedKeys) {
             mBoundAppKeys.put(key, unorderedBoundAppKeys.get(key));
         }
     }
@@ -123,11 +127,20 @@ public abstract class MeshModel implements Parcelable {
         mBoundAppKeys.put(appKeyIndex, appKey);
     }
 
+    protected void removeBoundAppKey(final int appKeyIndex, final String appKey) {
+        if (mBoundAppKeyIndexes.contains(appKeyIndex)) {
+            final int position = mBoundAppKeyIndexes.indexOf(appKeyIndex);
+            mBoundAppKeyIndexes.remove(position);
+        }
+        mBoundAppKeys.remove(appKeyIndex);
+    }
+
     /**
      * Returns an unmodifiable map of bound app keys for this model.
+     *
      * @return LinkedHashMap containing the bound app keys for this model
      */
-    public Map<Integer, String> getBoundAppkeys(){
+    public Map<Integer, String> getBoundAppkeys() {
         return Collections.unmodifiableMap(mBoundAppKeys);
     }
 
@@ -137,6 +150,33 @@ public abstract class MeshModel implements Parcelable {
 
     public byte[] getPublishAddress() {
         return publishAddress;
+    }
+
+
+    /**
+     * Get publish app key index
+     */
+    public byte[] getPublishAppKeyIndex() {
+        return publishAppKeyIndex;
+    }
+
+    /**
+     * Get publish app key index
+     */
+    public Integer getPublishAppKeyIndexInt() {
+        if(publishAppKeyIndex != null)
+            return (int)ByteBuffer.wrap(publishAppKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
+
+        return null;
+    }
+
+    /**
+     * Set publish app key index
+     *
+     * @param publishAppKeyIndex app key index used for publication settings
+     */
+    protected void setPublishAppKeyIndex(final byte[] publishAppKeyIndex) {
+        this.publishAppKeyIndex = publishAppKeyIndex;
     }
 
     /**
@@ -153,11 +193,15 @@ public abstract class MeshModel implements Parcelable {
     }
 
     public int getPublishTtl() {
-        return publishTtl;
+        return publishTtl & 0xFF;
     }
 
-    public int getPublishPeriod() {
-        return publishPeriod;
+    public int getPublicationSteps() {
+        return publicationSteps;
+    }
+
+    public int getPublicationResolution() {
+        return publicationResolution;
     }
 
     public int getPublishRetransmitCount() {
@@ -176,21 +220,24 @@ public abstract class MeshModel implements Parcelable {
     /**
      * Sets the data from the {@link ConfigModelAppStatus}
      *
-     * @param configMessage Composition data status object
+     * @param publicationStatus Composition data status object
      */
-    protected void setSubscriptionAddress(final ConfigModelPublicationStatus configMessage) {
-        publishAddress = configMessage.getPublishAddress();
-        credentialFlag = configMessage.getCredentialFlag();
-        publishTtl = configMessage.getPublishTtl();
-        publishPeriod = configMessage.getPublishPeriod();
-        publishRetransmitCount = configMessage.getPublishRetransmitCount();
-        publishRetransmitIntervalSteps = configMessage.getPublishRetransmitIntervalSteps();
+    protected void setPublicationStatus(final ConfigModelPublicationStatus publicationStatus) {
+        publishAddress = publicationStatus.getPublishAddress();
+        publishAppKeyIndex = publicationStatus.getPublicationAppKeyIndex();
+        credentialFlag = publicationStatus.getCredentialFlag();
+        publishTtl = publicationStatus.getPublishTtl();
+        publishPeriod = publicationStatus.getPublishPeriod();
+        publicationSteps =  publishPeriod >> 6;
+        publicationResolution = publishPeriod & 0x03;
+        publishRetransmitCount = publicationStatus.getPublishRetransmitCount();
+        publishRetransmitIntervalSteps = publicationStatus.getPublishRetransmitIntervalSteps();
     }
 
     /**
      * Sets data from the {@link ConfigModelAppStatus}
      */
-    protected void setSubscriptionAddress(final byte[] subscriptionAddress) {
+    protected void setPublicationStatus(final byte[] subscriptionAddress) {
         if (subscriptionAddress != null && !checkIfAlreadySubscribed(subscriptionAddress)) {
             mSubscriptionAddress.add(subscriptionAddress);
         }

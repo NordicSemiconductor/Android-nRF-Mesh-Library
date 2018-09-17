@@ -32,6 +32,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
@@ -43,6 +44,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONNECT_TO_UNPROVISIONED_NODE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
@@ -59,6 +61,7 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
     @Inject
     public MeshProvisionerRepository(final Context context){
         super(context);
+        mExtendedMeshNode = new ExtendedMeshNode(new UnprovisionedMeshNode());
     }
 
     /**
@@ -126,62 +129,64 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
     }
 
     @Override
-    public void onConfigurationStateChanged(final Intent intent) {
+    public void onConfigurationMessageStateChanged(final Intent intent) {
         handleConfigurationStates(intent);
     }
 
     private void handleProvisioningStates(final Intent intent){
-        final int state = intent.getExtras().getInt(EXTRA_PROVISIONING_STATE);
-        final MeshNodeStates.MeshNodeStatus status = MeshNodeStates.MeshNodeStatus.fromStatusCode(state);
+        final int provisionerState = intent.getExtras().getInt(EXTRA_PROVISIONING_STATE);
+        final MeshNodeStates.MeshNodeStatus status = MeshNodeStates.MeshNodeStatus.fromStatusCode(provisionerState);
         switch (status) {
             case PROVISIONING_INVITE:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_CAPABILITIES:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
+                mExtendedMeshNode.updateMeshNode(mBinder.getMeshNode());
                 break;
             case PROVISIONING_START:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_PUBLIC_KEY_SENT:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_PUBLIC_KEY_RECEIVED:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_AUTHENTICATION_INPUT_WAITING:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_AUTHENTICATION_INPUT_ENTERED:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_INPUT_COMPLETE:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_CONFIRMATION_SENT:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_CONFIRMATION_RECEIVED:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_RANDOM_SENT:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_RANDOM_RECEIVED:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_DATA_SENT:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_COMPLETE:
                 mIsProvisioningComplete = true;
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
             case PROVISIONING_FAILED:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                final int statusCode = intent.getIntExtra(EXTRA_DATA, 7);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState, statusCode);
                 break;
             default:
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
                 break;
 
         }
@@ -190,11 +195,11 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
     private void handleConfigurationStates(final Intent intent){
         final int state = intent.getExtras().getInt(EXTRA_CONFIGURATION_STATE);
         final MeshNodeStates.MeshNodeStatus status = MeshNodeStates.MeshNodeStatus.fromStatusCode(state);
-        final ProvisionedMeshNode node = mBinder.getMeshNode();
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mBinder.getMeshNode();
         switch (status) {
             case COMPOSITION_DATA_GET_SENT:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
-                mExtendedMeshNode = new ExtendedMeshNode(node);
+                mExtendedMeshNode.updateMeshNode(node);
                 break;
             case COMPOSITION_DATA_STATUS_RECEIVED:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, state);
@@ -260,8 +265,12 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
         mContext.startService(intent);
     }
 
-    public void startProvisioning(final String nodeName) {
-        mBinder.startProvisioning(nodeName);
+    public void identifyNode(final String nodeName){
+        mBinder.identifyNode(nodeName);
+    }
+
+    public void startProvisioning() {
+        mBinder.startProvisioning();
     }
 
     public void confirmProvisioning(final String pin) {

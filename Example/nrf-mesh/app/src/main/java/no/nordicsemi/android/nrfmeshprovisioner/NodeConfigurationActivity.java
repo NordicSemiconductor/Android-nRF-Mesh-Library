@@ -26,6 +26,8 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -35,6 +37,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -55,6 +58,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAppKeyAddStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNode;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
@@ -66,20 +70,37 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
 
 public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
-        ElementAdapter.OnItemClickListener, DialogFragmentAppKeyAddStatus.DialogFragmentAppKeyAddStatusListener, DialogFragmentResetNode.DialogFragmentNodeResetListener,
+        ElementAdapter.OnItemClickListener,
+        DialogFragmentAppKeyAddStatus.DialogFragmentAppKeyAddStatusListener,
+        DialogFragmentResetNode.DialogFragmentNodeResetListener,
         AddedAppKeyAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
     private final static String TAG = NodeConfigurationActivity.class.getSimpleName();
+    private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
     private static final String DIALOG_FRAGMENT_APP_KEY_STATUS = "DIALOG_FRAGMENT_APP_KEY_STATUS";
+    private static final long DELAY = 10 * 1000; //Using the incomplete timer duration
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
+
+    @BindView(R.id.main_container)
+    NestedScrollView mContainer;
+    @BindView(R.id.action_get_compostion_data)
+    Button actionGetCompositionData;
+    @BindView(R.id.action_add_app_keys)
+    Button actionAddAppkey;
+    @BindView(R.id.action_reset_node)
+    Button actionResetNode;
     @BindView(R.id.recycler_view_elements)
     RecyclerView mRecyclerViewElements;
     @BindView(R.id.composition_data_card)
-    CardView mCompostionDataCard;
+    CardView mCompositionDataCard;
+    @BindView(R.id.configuration_progress_bar)
+    ProgressBar mProgressbar;
+
     private NodeConfigurationViewModel mViewModel;
     private AddedAppKeyAdapter mAdapter;
+    private Handler mHandler;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -94,8 +115,17 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             if (node == null)
                 finish();
             mViewModel.setMeshNode(node);
+        } else {
+            if(savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
+                mProgressbar.setVisibility(View.VISIBLE);
+                disableClickableViews();
+            } else {
+                mProgressbar.setVisibility(View.INVISIBLE);
+                enableClickableViews();
+            }
         }
 
+        mHandler = new Handler();
         // Set up views
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -103,9 +133,9 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         getSupportActionBar().setTitle(R.string.title_node_configuration);
         getSupportActionBar().setSubtitle(node.getNodeName());
 
-        final Button getCompostionData = findViewById(R.id.action_get_compostion_data);
-        final Button actionAddAppkey = findViewById(R.id.action_add_app_keys);
-        final Button actionResetNode = findViewById(R.id.action_reset_node);
+        actionGetCompositionData = findViewById(R.id.action_get_compostion_data);
+        actionAddAppkey = findViewById(R.id.action_add_app_keys);
+        actionResetNode = findViewById(R.id.action_reset_node);
         final TextView noElementsFound = findViewById(R.id.no_elements);
         final TextView noAppKeysFound = findViewById(R.id.no_app_keys);
         final View compositionActionContainer = findViewById(R.id.composition_action_container);
@@ -139,7 +169,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             }
 
             if (extendedMeshNode.hasAddedAppKeys()) {
-                final Map<Integer, String> appKeys = extendedMeshNode.getMeshNode().getAddedAppKeys();
+                final Map<Integer, String> appKeys = ((ProvisionedMeshNode)extendedMeshNode.getMeshNode()).getAddedAppKeys();
                 if (!appKeys.isEmpty()) {
                     noAppKeysFound.setVisibility(View.GONE);
                     recyclerViewAppKeys.setVisibility(View.VISIBLE);
@@ -150,9 +180,13 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             }
         });
 
-        getCompostionData.setOnClickListener(v -> mViewModel.sendGetCompositionData());
+        actionGetCompositionData.setOnClickListener(v -> {
+            showProgressbar();
+            mViewModel.sendGetCompositionData();
+        });
 
         actionAddAppkey.setOnClickListener(v -> {
+            showProgressbar();
             final List<String> appKeys = mViewModel.getProvisioningData().getAppKeys();
             final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageNodeAppKeysActivity.class);
             addAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
@@ -165,6 +199,14 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             resetNodeFragment.show(getSupportFragmentManager(), null);
         });
 
+        mViewModel.getCompositionDataStatus().observe(this, compositionDataStatusLiveData -> {
+            hideProgressBar();
+            if(!compositionDataStatusLiveData.isSuccess()){
+                DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", getString(R.string.operation_timed_out));
+                fragmentMessage.show(getSupportFragmentManager(), null);
+            }
+        });
+
         mViewModel.getAppKeyAddStatus().observe(this, appKeyStatusLiveData -> {
             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_APP_KEY_STATUS) == null) {
                 if(!appKeyStatusLiveData.isSuccess()) {
@@ -173,6 +215,19 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                     fragmentAppKeyAddStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_APP_KEY_STATUS);
                 }
             }
+            hideProgressBar();
+        });
+
+        mViewModel.getTransactionStatus().observe(this, transactionFailedLiveData -> {
+            hideProgressBar();
+            final String message;
+            if(transactionFailedLiveData.isIncompleteTimerExpired()){
+                message = getString(R.string.segments_not_received_timed_out);
+            } else {
+                message = getString(R.string.operation_timed_out);
+            }
+            DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance(getString(R.string.title_transaction_failed), message);
+            fragmentMessage.show(getSupportFragmentManager(), null);
         });
 
         mViewModel.isConnected().observe(this, isConnected -> {
@@ -214,11 +269,20 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @Override
     protected void onStop() {
         super.onStop();
+        if(isFinishing()){
+            mHandler.removeCallbacksAndMessages(null);
+        }
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onSaveInstanceState(final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(PROGRESS_BAR_STATE, mProgressbar.getVisibility() == View.VISIBLE);
     }
 
     @Override
@@ -248,7 +312,32 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     @Override
     public void onNodeReset() {
-        final ProvisionedMeshNode provisionedMeshNode = mViewModel.getExtendedMeshNode().getMeshNode();
+        final ProvisionedMeshNode provisionedMeshNode = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
         mViewModel.resetNode(provisionedMeshNode);
+    }
+
+    private void showProgressbar(){
+        disableClickableViews();
+        mProgressbar.setVisibility(View.VISIBLE);
+    }
+
+    private void hideProgressBar(){
+        mHandler.removeCallbacks(mOperationTimeout);
+        enableClickableViews();
+        mProgressbar.setVisibility(View.INVISIBLE);
+    }
+
+    private final Runnable mOperationTimeout = () -> hideProgressBar();
+
+    private void enableClickableViews(){
+        actionGetCompositionData.setEnabled(true);
+        actionAddAppkey.setEnabled(true);
+        actionResetNode.setEnabled(true);
+    }
+
+    private void disableClickableViews(){
+        actionGetCompositionData.setEnabled(false);
+        actionAddAppkey.setEnabled(false);
+        actionResetNode.setEnabled(false);
     }
 }

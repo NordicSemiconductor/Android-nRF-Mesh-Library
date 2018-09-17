@@ -23,59 +23,70 @@
 package no.nordicsemi.android.meshprovisioner.configuration;
 
 import android.content.Context;
+import android.util.Log;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
+import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public class ConfigCompositionDataGet extends ConfigMessage {
+public class ConfigCompositionDataGet extends ConfigMessageState {
 
-    private static final String TAG = ConfigCompositionDataStatus.class.getSimpleName();
+    private static final String TAG = ConfigCompositionDataGet.class.getSimpleName();
     private int mAszmic;
     private int akf = 0;
     private int aid = 0;
 
-    public ConfigCompositionDataGet(final Context context, final ProvisionedMeshNode provisionedMeshNode, final int aszmic, final InternalTransportCallbacks internalTransportCallbacks,
-                                    final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks) {
-        super(context, provisionedMeshNode);
+    public ConfigCompositionDataGet(final Context context, final ProvisionedMeshNode provisionedMeshNode,
+                                    final InternalMeshMsgHandlerCallbacks callbacks,
+                                    final int aszmic) {
+        super(context, provisionedMeshNode, callbacks);
         this.mAszmic = aszmic == 1 ? 1 : 0;
-        this.mInternalTransportCallbacks = internalTransportCallbacks;
-        this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
         createAccessMessage();
     }
 
     @Override
     public MessageState getState() {
-        return MessageState.COMPOSITION_DATA_GET;
+        return MessageState.COMPOSITION_DATA_GET_STATE;
     }
 
+    @Override
+    protected boolean parseMeshPdu(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
+            }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+        }
+        return false;
+    }
 
     /**
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, mProvisionedMeshNode.getDeviceKey(),
+        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, mProvisionedMeshNode.getDeviceKey(),
                 akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_GET,
                 new byte[]{(byte) 0xFF});
-        mPayloads.putAll(accessMessage.getNetworkPdu());
+        mPayloads.putAll(message.getNetworkPdu());
 
     }
 
-    /**
-     * Starts sending the mesh pdu
-     */
-    public void executeSend() {
+    @Override
+    public final void executeSend() {
+        Log.v(TAG, "Sending composition data get");
+        super.executeSend();
         if (!mPayloads.isEmpty()) {
-            for (int i = 0; i < mPayloads.size(); i++) {
-                if (mInternalTransportCallbacks != null) {
-                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-                }
-            }
-
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onGetCompositionDataSent(mProvisionedMeshNode);
+            if (mMeshStatusCallbacks != null)
+                mMeshStatusCallbacks.onGetCompositionDataSent(mProvisionedMeshNode);
         }
     }
 

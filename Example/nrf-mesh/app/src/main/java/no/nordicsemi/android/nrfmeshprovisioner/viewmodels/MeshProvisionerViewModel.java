@@ -28,6 +28,7 @@ import android.arch.lifecycle.ViewModel;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
@@ -88,8 +89,16 @@ public class MeshProvisionerViewModel extends ViewModel {
         mMeshProvisionerRepository.unbindService();
     }
 
-    public void provisionNode(final String nodeName) {
-        mMeshProvisionerRepository.startProvisioning(nodeName);
+    public ExtendedMeshNode getMeshNode(){
+        return mMeshProvisionerRepository.getExtendedMeshNode();
+    }
+
+    public void identifyNode(final String nodeName){
+        mMeshProvisionerRepository.identifyNode(nodeName);
+    }
+
+    public void startProvisioning() {
+        mMeshProvisionerRepository.startProvisioning();
     }
 
     public void sendProvisioneePin(final String pin) {

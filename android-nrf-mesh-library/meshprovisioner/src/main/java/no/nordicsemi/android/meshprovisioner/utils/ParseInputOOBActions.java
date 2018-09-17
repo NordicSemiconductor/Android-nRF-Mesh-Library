@@ -27,11 +27,11 @@ import android.util.Log;
 public class ParseInputOOBActions {
     private static final String TAG = ParseInputOOBActions.class.getSimpleName();
 
-    private static final int NO_INPUT = 0x00;
-    private static final int PUSH = 0x01;
-    private static final int TWIST = 0x02;
-    private static final int INPUT_NUMBER = 0x04;
-    private static final int INPUT_ALPHA_NUMBERIC = 0x08;
+    private static final short NO_INPUT = 0x0000;
+    private static final short PUSH = 0x0001;
+    private static final short TWIST = 0x0002;
+    private static final short INPUT_NUMBER = 0x0004;
+    private static final short INPUT_ALPHA_NUMBERIC = 0x0008;
 
     /**
      * Returns the Input OOB Action description
@@ -39,18 +39,18 @@ public class ParseInputOOBActions {
      * @param type Input OOB type
      * @return Input OOB type descrption
      */
-    public static String getInputOOBActionDescription(final int type) {
+    public static String getInputOOBActionDescription(final short type) {
         switch (type) {
             case NO_INPUT:
-                return "No Input";
+                return "Not supported";
             case PUSH:
                 return "Push";
             case TWIST:
                 return "Twist";
             case INPUT_NUMBER:
-                return "Input number";
+                return "Input Number";
             case INPUT_ALPHA_NUMBERIC:
-                return "Input alpha numeric";
+                return "Input Alpha Numeric";
             default:
                 return "Unknown";
         }
@@ -94,7 +94,7 @@ public class ParseInputOOBActions {
      * @param type input OOB type
      * @return Output OOB type description
      */
-    public static int getOuputOOBActionValue(final int type) {
+    public static int getOuputOOBActionValue(final short type) {
         switch (type) {
             case PUSH:
                 return 0;

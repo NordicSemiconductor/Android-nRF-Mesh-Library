@@ -27,6 +27,8 @@ import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
@@ -61,19 +63,24 @@ abstract class UpperTransportLayer extends AccessLayer {
     private static final int MINIMUM_TRANSMIC_LENGTH = 4; // bytes
     private static final int MAXIMUM_TRANSMIC_LENGTH = 8; // bytes
 
-
-    private UpperTransportLayerCallbacks mUpperTransportLayerCallbacks;
-
-    protected void setUpperTransportLayerCallbacks(final UpperTransportLayerCallbacks callbacks) {
-        mUpperTransportLayerCallbacks = callbacks;
-    }
-
     /**
      * Creates a mesh message containing an upper transport access pdu
      * @param message The access message required to create the encrypted upper transport pdu
      */
     void createMeshMessage(final Message message) { //Access message
         super.createMeshMessage(message);
+        final AccessMessage accessMessage = (AccessMessage) message;
+        final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
+        Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
+        accessMessage.setUpperTransportPdu(encryptedTransportPDU);
+    }
+
+    /**
+     * Creates a vendor model mesh message containing an upper transport access pdu
+     * @param message The access message required to create the encrypted upper transport pdu
+     */
+    void createVendorMeshMessage(final Message message) { //Access message
+        super.createVendorMeshMessage(message);
         final AccessMessage accessMessage = (AccessMessage) message;
         final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
         Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
@@ -201,7 +208,8 @@ abstract class UpperTransportLayer extends AccessLayer {
             //If its a device key that was used to encrypt the message we need to create a device nonce to decrypt it
             nonce = createDeviceNonce(accessMessage.getAszmic(), accessMessage.getSequenceNumber(), accessMessage.getSrc(), accessMessage.getDst(), accessMessage.getIvIndex());
         } else {
-            key = mUpperTransportLayerCallbacks.getApplicationKey();
+            //mMeshNode.getAddedAppKeys()
+            key = getApplicationKey(accessMessage.getAid());//mUpperTransportLayerCallbacks.getApplicationKey();
             if(key == null)
                 throw new IllegalArgumentException("Unable to find the app key to decrypt the message");
 
@@ -225,6 +233,18 @@ abstract class UpperTransportLayer extends AccessLayer {
         decryptedBuffer.put(decryptedUpperTansportPDU);
         decryptedUpperTansportPDU = decryptedBuffer.array();
         return decryptedUpperTansportPDU;
+    }
+
+    private byte[] getApplicationKey(final int receivedAid){
+        final List<String> keys = new ArrayList<>(mMeshNode.getAddedAppKeys().values());
+        for(String key : keys){
+            final byte[] k = MeshParserUtils.toByteArray(key);
+            final int aid = SecureUtils.calculateK4(k);
+            if(receivedAid == aid){
+                return k;
+            }
+        }
+        return null;
     }
 
     /**

@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.SparseIntArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -32,8 +33,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import no.nordicsemi.android.meshprovisioner.states.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
+import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
 
 public abstract class BaseMeshNode implements Parcelable {
@@ -77,6 +80,9 @@ public abstract class BaseMeshNode implements Parcelable {
     protected byte[] generatedNetworkId;
     private String bluetoothDeviceAddress;
     protected long mTimeStampInMillis;
+    protected SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
+    protected ProvisioningCapabilities provisioningCapabilities;
+    protected int numberOfElements;
 
     protected BaseMeshNode() {
 
@@ -179,5 +185,13 @@ public abstract class BaseMeshNode implements Parcelable {
 
     public final void setConfigurationSrc(final byte[] src) {
         mConfigurationSrc = src;
+    }
+
+    public ProvisioningCapabilities getProvisioningCapabilities() {
+        return provisioningCapabilities;
+    }
+
+    public int getNumberOfElements() {
+        return numberOfElements;
     }
 }

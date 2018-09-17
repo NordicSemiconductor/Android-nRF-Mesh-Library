@@ -23,42 +23,35 @@
 package no.nordicsemi.android.meshprovisioner.configuration;
 
 import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
 
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class ConfigNodeResetStatus extends ConfigMessage implements UpperTransportLayerCallbacks{
+public final class ConfigNodeResetStatus extends ConfigMessageState {
 
     private static final String TAG = ConfigNodeResetStatus.class.getSimpleName();
 
     public ConfigNodeResetStatus(Context context,
                                  final ProvisionedMeshNode provisionedMeshNode,
-                                 final InternalTransportCallbacks internalTransportCallbacks,
-                                 final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks) {
-        super(context, provisionedMeshNode);
-        this.mInternalTransportCallbacks = internalTransportCallbacks;
-        this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
-        this.mMeshTransport.setUpperTransportLayerCallbacks(this);
+                                 final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, provisionedMeshNode, callbacks);
     }
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_NODE_RESET_STATUS;
+        return MessageState.CONFIG_NODE_RESET_STATUS_STATE;
     }
 
     public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
+        parseMeshPdu(pdu);
     }
 
-    private void parseMessage(final byte[] pdu) {
+    public final boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -76,16 +69,18 @@ public final class ConfigNodeResetStatus extends ConfigMessage implements UpperT
                 if (opcode == ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS) {
                     Log.v(TAG, "Received node reset status");
                     mInternalTransportCallbacks.onMeshNodeReset(mProvisionedMeshNode);
-                    mConfigStatusCallbacks.onMeshNodeResetStatusReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onMeshNodeResetStatusReceived(mProvisionedMeshNode);
+                    return true;
                 } else {
-                    mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
-                parseControlMessage((ControlMessage) message);
+                parseControlMessage((ControlMessage) message, mPayloads.size());
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
         }
+        return false;
     }
 
     @Override
@@ -93,18 +88,6 @@ public final class ConfigNodeResetStatus extends ConfigMessage implements UpperT
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
-    }
-
-    @Override
-    public byte[] getApplicationKey() {
-        if(mMeshModel != null){
-            if(!mMeshModel.getBoundAppkeys().isEmpty()){
-                if(mAppKeyIndex >= 0) {
-                    return MeshParserUtils.toByteArray(mMeshModel.getBoundAppKey(mAppKeyIndex));
-                }
-            }
-        }
-        return null;
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 }

@@ -55,8 +55,10 @@ public class DialogFragmentResetNetwork extends DialogFragmentMessage {
         alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
         alertDialogBuilder.setNegativeButton(getString(R.string.no), null);
-        alertDialogBuilder.setPositiveButton(getString(R.string.yes), (dialog, which) -> (
-                (DialogFragmentResetNetworkListener)getActivity()).onNetworkReset());
+        alertDialogBuilder.setPositiveButton(getString(R.string.yes), (dialog, which) -> {
+            if(getParentFragment() != null)
+                ((DialogFragmentResetNetworkListener)getParentFragment()).onNetworkReset();
+        });
 
         return super.onCreateDialog(savedInstanceState);
     }

@@ -4,17 +4,14 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 import android.content.Context;
 import android.util.Log;
 
-import no.nordicsemi.android.meshprovisioner.InternalMeshManagerCallbacks;
-import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.MeshConfigurationStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
-import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-public class ConfigNodeReset extends ConfigMessage {
+public class ConfigNodeReset extends ConfigMessageState {
 
 
     private static final String TAG = ConfigNodeReset.class.getSimpleName();
@@ -22,18 +19,32 @@ public class ConfigNodeReset extends ConfigMessage {
     private final int mAszmic;
 
     public ConfigNodeReset(final Context context, final ProvisionedMeshNode provisionedMeshNode, final boolean aszmic,
-                           final InternalTransportCallbacks mInternalTransportCallbacks,
-                           final MeshConfigurationStatusCallbacks meshConfigurationStatusCallbacks)  {
-        super(context, provisionedMeshNode);
+                           final InternalMeshMsgHandlerCallbacks callbacks)  {
+        super(context, provisionedMeshNode, callbacks);
         this.mAszmic = aszmic ? 1 : 0;
-        this.mInternalTransportCallbacks = mInternalTransportCallbacks;
-        this.mConfigStatusCallbacks = meshConfigurationStatusCallbacks;
         createAccessMessage();
     }
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_NODE_RESET;
+        return MessageState.CONFIG_NODE_RESET_STATE;
+    }
+
+    @Override
+    protected boolean parseMeshPdu(final byte[] pdu) {
+        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
+        if (message != null) {
+            if (message instanceof AccessMessage) {
+                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
+                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+            } else {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
+            }
+        } else {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+        }
+        return false;
     }
 
     /**
@@ -43,22 +54,19 @@ public class ConfigNodeReset extends ConfigMessage {
         final byte[] key = mProvisionedMeshNode.getDeviceKey();
         int akf = 0;
         int aid = 0;
-        final AccessMessage accessMessage = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic,
+        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic,
                 ConfigMessageOpCodes.CONFIG_NODE_RESET, null);
-        mPayloads.putAll(accessMessage.getNetworkPdu());
+        mPayloads.putAll(message.getNetworkPdu());
     }
 
-    /**
-     * Starts sending the mesh pdu
-     */
-    public void executeSend() {
-        if (!mPayloads.isEmpty()) {
-            for (int i = 0; i < mPayloads.size(); i++) {
-                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
-            }
+    @Override
+    public final void executeSend() {
+        Log.v(TAG, "Sending config node reset");
+        super.executeSend();
 
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onMeshNodeResetSent(mProvisionedMeshNode);
+        if (!mPayloads.isEmpty()) {
+            if (mMeshStatusCallbacks != null)
+                mMeshStatusCallbacks.onMeshNodeResetSent(mProvisionedMeshNode);
         }
     }
 
@@ -67,6 +75,6 @@ public class ConfigNodeReset extends ConfigMessage {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 }

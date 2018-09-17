@@ -32,12 +32,12 @@ public class ParseOutputOOBActions {
     /**
      * Input OOB Actions
      */
-    public static final int NO_OUTPUT = 0x0000;
-    private static final int BLINK = 0x0001;
-    private static final int BEEP = 0x0002;
-    private static final int VIBRATE = 0x0004;
-    private static final int OUTPUT_NUMERIC = 0x0008;
-    private static final int OUTPUT_ALPHA_NUMERIC = 0x0010;
+    public static final short NO_OUTPUT = 0x0000;
+    private static final short BLINK = 0x0001;
+    private static final short BEEP = 0x0002;
+    private static final short VIBRATE = 0x0004;
+    private static final short OUTPUT_NUMERIC = 0x0008;
+    private static final short OUTPUT_ALPHA_NUMERIC = 0x0010;
 
     /**
      * Returns the Output OOB Action description
@@ -45,10 +45,10 @@ public class ParseOutputOOBActions {
      * @param type Output OOB type
      * @return Input OOB type descrption
      */
-    public static String getOuputOOBActionDescription(final int type) {
+    public static String getOuputOOBActionDescription(final short type) {
         switch (type) {
             case NO_OUTPUT:
-                return "No Input";
+                return "Not Supported";
             case BLINK:
                 return "Blink";
             case BEEP:
@@ -56,9 +56,9 @@ public class ParseOutputOOBActions {
             case VIBRATE:
                 return "Vibrate";
             case OUTPUT_NUMERIC:
-                return "Output numeric";
+                return "Output Numeric";
             case OUTPUT_ALPHA_NUMERIC:
-                return "Output alpha numeric";
+                return "Output Alpha Numeric";
             default:
                 return "Unknown";
         }
@@ -112,7 +112,7 @@ public class ParseOutputOOBActions {
      * @param outputAction type of output action
      * @return selected output action type
      */
-    public static int selectOutputActionsFromBitMask(final int outputAction) {
+    public static short selectOutputActionsFromBitMask(final int outputAction) {
         final byte[] outputActions = {BLINK, BEEP, VIBRATE, OUTPUT_NUMERIC, OUTPUT_ALPHA_NUMERIC};
         final ArrayList<Byte> suppportedActionValues = new ArrayList<>();
         for(byte action : outputActions){
@@ -135,7 +135,7 @@ public class ParseOutputOOBActions {
      * @param type output OOB type
      * @return Output OOB type descrption
      */
-    public static int getOuputOOBActionValue(final int type) {
+    public static int getOuputOOBActionValue(final short type) {
         switch (type) {
             case BLINK:
                 return 0;

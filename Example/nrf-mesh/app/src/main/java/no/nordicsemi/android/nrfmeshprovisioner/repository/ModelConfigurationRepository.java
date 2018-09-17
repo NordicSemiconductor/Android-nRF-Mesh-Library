@@ -34,17 +34,25 @@ import java.util.List;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
+import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericOnOffStatusUpdate;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_ON_OFF_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_VENDOR_MODEL_MESSAGE_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_PRESENT_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_TARGET_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_TRANSITION_RES;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_TRANSITION_STEPS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_PUBLISH_ADDRESS;
@@ -54,14 +62,19 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_SUBSCRI
 public class ModelConfigurationRepository extends BaseMeshRepository {
 
     private static final String TAG = ModelConfigurationRepository.class.getSimpleName();
-    private MutableLiveData<Boolean> mPresentState = new MutableLiveData<>();
+    private MutableLiveData<GenericOnOffStatusUpdate> mGenericOnOffStatus = new MutableLiveData<>();
+    private SingleLiveEvent<byte[]> mVendorModelState = new SingleLiveEvent<>();
 
     public ModelConfigurationRepository(final Context context) {
         super(context);
     }
 
-    public LiveData<Boolean> getGenericOnOffState() {
-        return mPresentState;
+    public LiveData<GenericOnOffStatusUpdate> getGenericOnOffState() {
+        return mGenericOnOffStatus;
+    }
+
+    public LiveData<byte[]> getVendorModelState(){
+        return mVendorModelState;
     }
 
     public LiveData<Boolean> isConnected() {
@@ -75,7 +88,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
 
     @Override
     public void isDeviceConnected(final boolean isConnected) {
-
+        mIsConnected.postValue(isConnected);
     }
 
     @Override
@@ -94,20 +107,20 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
     }
 
     @Override
-    public void onConfigurationStateChanged(final Intent intent) {
+    public void onConfigurationMessageStateChanged(final Intent intent) {
         handleConfigurationStates(intent);
     }
 
     @Override
-    protected void onGenericOnOfStateReceived(final Intent intent) {
-        super.onGenericOnOfStateReceived(intent);
+    protected void onGenericMessageStateChanged(final Intent intent) {
+        super.onGenericMessageStateChanged(intent);
         handleGenericOnOffState(intent);
     }
 
     private void handleConfigurationStates(final Intent intent) {
         final int state = intent.getExtras().getInt(EXTRA_CONFIGURATION_STATE);
         final MeshNodeStates.MeshNodeStatus status = MeshNodeStates.MeshNodeStatus.fromStatusCode(state);
-        final ProvisionedMeshNode node = mBinder.getMeshNode();
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mBinder.getMeshNode();
         final MeshModel model = mBinder.getMeshModel();
         switch (status) {
             case COMPOSITION_DATA_GET_SENT:
@@ -147,6 +160,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
                     final int appKeyIndex = intent.getExtras().getInt(EXTRA_APP_KEY_INDEX);
                     final int modelId = intent.getExtras().getInt(EXTRA_MODEL_ID);
                     mExtendedMeshNode.updateMeshNode(node);
+                    mMeshModel.postValue(model);
                     mAppKeyBindStatus.onStatusChanged(success, statusCode, elementAddress, appKeyIndex, modelId);
                 }
                 break;
@@ -160,6 +174,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
                     final byte[] publishAddress = intent.getExtras().getByteArray(EXTRA_PUBLISH_ADDRESS);
                     final int modelId = intent.getExtras().getInt(EXTRA_MODEL_ID);
                     mExtendedMeshNode.updateMeshNode(node);
+                    mMeshModel.postValue(model);
                     mConfigModelPublicationStatus.onStatusChanged(success, statusCode, elementAddress, publishAddress, modelId);
                 }
                 break;
@@ -182,13 +197,20 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
 
     private void handleGenericOnOffState(final Intent intent) {
         final String action = intent.getAction();
-        final ProvisionedMeshNode node = mBinder.getMeshNode();
         final MeshModel model = mBinder.getMeshModel();
         switch (action) {
             case ACTION_GENERIC_ON_OFF_STATE:
-                final boolean presentState = intent.getExtras().getBoolean(EXTRA_GENERIC_ON_OFF_PRESENT_STATE);
+                final boolean presentOnOffState = intent.getExtras().getBoolean(EXTRA_GENERIC_ON_OFF_PRESENT_STATE);
+                final boolean targetOnOffState = intent.getExtras().getBoolean(EXTRA_GENERIC_ON_OFF_TARGET_STATE);
+                final int steps = intent.getExtras().getInt(EXTRA_GENERIC_ON_OFF_TRANSITION_STEPS);
+                final int resolution = intent.getExtras().getInt(EXTRA_GENERIC_ON_OFF_TRANSITION_RES);
                 //TODO implement target state and remaining state.
-                mPresentState.postValue(presentState);
+                final GenericOnOffStatusUpdate genericOnOffStatusUpdate = new GenericOnOffStatusUpdate(presentOnOffState, steps > 0 ? targetOnOffState : null, steps, resolution);
+                mGenericOnOffStatus.postValue(genericOnOffStatusUpdate);
+                break;
+            case ACTION_VENDOR_MODEL_MESSAGE_STATE:
+                final byte[] data = intent.getExtras().getByteArray(EXTRA_DATA);
+                mVendorModelState.postValue(data);
                 break;
         }
     }
@@ -208,31 +230,47 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
      *
      * @param appKeyIndex index of the application key that has already been added to the mesh node
      */
-    public void bindAppKey(final int appKeyIndex) {
-        mBinder.sendBindAppKey(mExtendedMeshNode.getMeshNode(), mElement.getValue().getElementAddress(), mMeshModel.getValue(), appKeyIndex);
+    public void sendBindAppKey(final int appKeyIndex) {
+        mBinder.sendBindAppKey((ProvisionedMeshNode) mExtendedMeshNode.getMeshNode(), mElement.getValue().getElementAddress(), mMeshModel.getValue(), appKeyIndex);
     }
 
-    public void sendConfigModelPublishAddressSet(final byte[] publishAddress) {
-        final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
+    /**
+     * Unbbinds appkey to model
+     *
+     * @param appKeyIndex index of the application key that has already been added to the mesh node
+     */
+    public void sendUnbindAppKey(final int appKeyIndex) {
+        mBinder.sendUnbindAppKey((ProvisionedMeshNode) mExtendedMeshNode.getMeshNode(), mElement.getValue().getElementAddress(), mMeshModel.getValue(), appKeyIndex);
+    }
+
+    public void sendConfigModelPublicationSet(final byte[] publishAddress, final int appKeyIndex, final boolean credentialFlag, final int publishTtl,
+                                              final int publicationSteps, final int resolution, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mExtendedMeshNode.getMeshNode();
         final Element element = mElement.getValue();
         final MeshModel model = mMeshModel.getValue();
+        final ConfigModelPublicationSetParams configModelPublicationSetParams = new ConfigModelPublicationSetParams(node, element.getElementAddress(), model.getModelId(), publishAddress, appKeyIndex);
+        configModelPublicationSetParams.setCredentialFlag(credentialFlag);
+        configModelPublicationSetParams.setPublishTtl(publishTtl);
+        configModelPublicationSetParams.setPublicationSteps(publicationSteps);
+        configModelPublicationSetParams.setPublicationResolution(resolution);
+        configModelPublicationSetParams.setPublishRetransmitCount(publishRetransmitCount);
+        configModelPublicationSetParams.setPublishRetransmitIntervalSteps(publishRetransmitIntervalSteps);
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
-            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-            mBinder.sendConfigModelPublishAddressSet(node, element, model, appKeyIndex, publishAddress);
+            mBinder.sendConfigModelPublicationSet(configModelPublicationSetParams);
         } else {
             Toast.makeText(mContext, mContext.getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
         }
     }
 
     public void sendConfigModelSubscriptionAdd(final byte[] subscriptionAddress) {
-        final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mExtendedMeshNode.getMeshNode();
         final Element element = mElement.getValue();
         final MeshModel model = mMeshModel.getValue();
         mBinder.sendConfigModelSubscriptionAdd(node, element, model, subscriptionAddress);
     }
 
     public void sendConfigModelSubscriptionDelete(final byte[] subscriptionAddress) {
-        final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mExtendedMeshNode.getMeshNode();
         final Element element = mElement.getValue();
         final MeshModel model = mMeshModel.getValue();
         mBinder.sendConfigModelSubscriptionDelete(node, element, model, subscriptionAddress);
@@ -323,5 +361,13 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         } else {
             Toast.makeText(mContext, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters) {
+        mBinder.sendVendorModelUnacknowledgedMessage(node, model, mElement.getValue().getElementAddress(), appKeyIndex, opcode, parameters);
+    }
+
+    public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters) {
+        mBinder.sendVendorModelAcknowledgedMessage(node, model, mElement.getValue().getElementAddress(), appKeyIndex, opcode, parameters);
     }
 }

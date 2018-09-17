@@ -43,11 +43,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessage;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessageState;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.SequenceNumber;
+import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -114,7 +116,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     private byte[] mConfigurationSrc = {0x07, (byte) 0xFF}; //0x07FF;
     private MeshManagerTransportCallbacks mTransportCallbacks;
     private MeshProvisioningHandler mMeshProvisioningHandler;
-    private MeshConfigurationHandler mMeshConfigurationHandler;
+    private MeshMessageHandler mMeshMessageHandler;
     private byte[] mIncomingBuffer;
     private int mIncomingBufferOffset;
     private byte[] mOutgoingBuffer;
@@ -127,7 +129,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         initProvisionedNodes();
         intiConfigurationSrc();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, this, this);
-        mMeshConfigurationHandler = new MeshConfigurationHandler(context, this, this);
+        mMeshMessageHandler = new MeshMessageHandler(context, this, this);
     }
 
     private void intiConfigurationSrc() {
@@ -145,12 +147,12 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         mMeshProvisioningHandler.setProvisioningCallbacks(callbacks);
     }
 
-    public void setConfigurationCallbacks(final MeshConfigurationStatusCallbacks callbacks) {
-        mMeshConfigurationHandler.setConfigurationCallbacks(callbacks);
+    public void setMeshStatusCallbacks(final MeshStatusCallbacks callbacks) {
+        mMeshMessageHandler.setMeshStatusCallbacks(callbacks);
     }
 
-    public ConfigMessage.MessageState getConfigurationState() {
-        return mMeshConfigurationHandler.getConfigurationState();
+    public ConfigMessageState.MessageState getConfigurationState() {
+        return mMeshMessageHandler.getConfigurationState();
     }
 
     public Map<Integer, ProvisionedMeshNode> getProvisionedNodes() {
@@ -253,6 +255,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
         final int unicastAddress = AddressUtils.getUnicastAddressInt(meshNode.getUnicastAddress());
         mProvisionedNodes.put(unicastAddress, meshNode);
+        incrementUnicastAddress(meshNode);
         saveProvisionedNode(meshNode);
     }
 
@@ -311,15 +314,13 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         editor.apply();
     }
 
-    @Override
-    public void onUnicastAddressChanged(final int unicastAddress) {
-        //Now that we have received the unicast addresses assigned to element addresses,
-        //increment it here again so the next node to be provisioned will have the next available address in the network
-        int unicastAdd = unicastAddress + 1;
+    private void incrementUnicastAddress(final ProvisionedMeshNode meshNode) {
+        //Since we know the number of elements this node contains we can predict the next available address for the next node.
+        int unicastAdd = (meshNode.getUnicastAddressInt() + meshNode.getNumberOfElements());
         //We check if the incremented unicast address is already taken by the app/configurator
         final int tempSrc = (mConfigurationSrc[0] & 0xFF) << 8 | (mConfigurationSrc[1] & 0xFF);
         if(unicastAdd == tempSrc) {
-            unicastAdd = unicastAddress + 1;
+            unicastAdd = unicastAdd + 1;
         }
         mProvisioningSettings.setUnicastAddress(unicastAdd);
 
@@ -362,7 +363,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             case PDU_TYPE_NETWORK:
                 //Network PDU
                 Log.v(TAG, "Received network pdu: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshConfigurationHandler.parseConfigurationNotifications((ProvisionedMeshNode) meshNode, unsegmentedPdu);
+                mMeshMessageHandler.parseMeshMsgNotifications((ProvisionedMeshNode) meshNode, unsegmentedPdu);
                 break;
             case PDU_TYPE_MESH_BEACON:
                 //Mesh beacon
@@ -375,7 +376,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
                 Log.v(TAG, "Received provisioning message: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshProvisioningHandler.parseProvisioningNotifications(unsegmentedPdu);
+                mMeshProvisioningHandler.parseProvisioningNotifications((UnprovisionedMeshNode) meshNode, unsegmentedPdu);
                 break;
         }
     }
@@ -406,7 +407,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             case PDU_TYPE_NETWORK:
                 //Network PDU
                 Log.v(TAG, "Network pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                mMeshConfigurationHandler.handleConfigurationWriteCallbacks((ProvisionedMeshNode) meshNode, data);
+                mMeshMessageHandler.handleMeshMsgWriteCallbacks((ProvisionedMeshNode) meshNode, data);
                 break;
             case PDU_TYPE_MESH_BEACON:
                 //Mesh beacon
@@ -419,7 +420,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
                 Log.v(TAG, "Provisioning pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                mMeshProvisioningHandler.handleProvisioningWriteCallbacks();
+                mMeshProvisioningHandler.handleProvisioningWriteCallbacks((UnprovisionedMeshNode) meshNode);
                 break;
         }
     }
@@ -579,18 +580,40 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
         return data;
     }
 
+
+
     /**
-     * Starts the provisioning process
+     * Identifies the node that is to be provisioned.
+     * <p>
+     * This method will send a provisioning invite to the connected peripheral. This will help users to identify a particular node before starting the provisioning process.
+     * This method must be invoked before calling {@link #startProvisioning(UnprovisionedMeshNode)}
+     * </p
+     *
+     * @param address         Bluetooth address of the node
+     * @param nodeName        Friendly node name
+     *
      */
-    public void startProvisioning(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl) throws IllegalArgumentException {
+    public void identifyNode(@NonNull final String address, final String nodeName) throws IllegalArgumentException {
         //We must save all the provisioning data here so that they could be reused when provisioning the next devices
-        mProvisioningSettings.setNetworkKey(networkKeyValue);
-        mProvisioningSettings.setKeyIndex(keyIndex);
-        mProvisioningSettings.setFlags(flags);
-        mProvisioningSettings.setIvIndex(ivIndex);
-        mProvisioningSettings.setUnicastAddress(unicastAddress);
-        mProvisioningSettings.setGlobalTtl(globalTtl);
-        mMeshProvisioningHandler.startProvisioning(address, nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl, mConfigurationSrc);
+        mMeshProvisioningHandler.identify(address, nodeName,
+                mProvisioningSettings.getNetworkKey(),
+                mProvisioningSettings.getKeyIndex(),
+                mProvisioningSettings.getFlags(),
+                mProvisioningSettings.getIvIndex(),
+                mProvisioningSettings.getUnicastAddress(),
+                mProvisioningSettings.getGlobalTtl(), mConfigurationSrc);
+    }
+
+    /**
+     * Starts provisioning an unprovisioned mesh node
+     * <p>
+     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(String, String)}.
+     * </p>
+     *
+     * @param unprovisionedMeshNode         Bluetooth address of the node
+     */
+    public void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
+        mMeshProvisioningHandler.startProvisioning(unprovisionedMeshNode);
     }
 
     /**
@@ -723,7 +746,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      */
     public void getCompositionData(final ProvisionedMeshNode meshNode) {
         final int aszmic = 0;
-        mMeshConfigurationHandler.sendCompositionDataGet(meshNode, aszmic);
+        mMeshMessageHandler.sendCompositionDataGet(meshNode, aszmic);
     }
 
     /**
@@ -736,7 +759,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     public void addAppKey(final ProvisionedMeshNode meshNode, final int appKeyIndex, final String appKey) {
         if (appKey == null || appKey.isEmpty())
             throw new IllegalArgumentException(mContext.getString(R.string.error_null_key));
-        mMeshConfigurationHandler.sendAppKeyAdd(meshNode, appKeyIndex, appKey, 0);
+        mMeshMessageHandler.sendAppKeyAdd(meshNode, appKeyIndex, appKey, 0);
     }
 
     /**
@@ -748,28 +771,28 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @param appKeyIndex    index of the app key
      */
     public void bindAppKey(final ProvisionedMeshNode meshNode, final byte[] elementAddress, final MeshModel model, final int appKeyIndex) {
-        mMeshConfigurationHandler.bindAppKey(meshNode, 0, elementAddress, model.getModelId(), appKeyIndex);
+        mMeshMessageHandler.bindAppKey(meshNode, 0, elementAddress, model.getModelId(), appKeyIndex);
+    }
+
+    /**
+     * Unbinds a previously bound the app key.
+     *
+     * @param meshNode       corresponding mesh node
+     * @param elementAddress elementAddress
+     * @param model          16-bit SIG Model Identifier or 32-bit Vendor Model identifier
+     * @param appKeyIndex    index of the app key
+     */
+    public void unbindAppKey(final ProvisionedMeshNode meshNode, final byte[] elementAddress, final MeshModel model, final int appKeyIndex) {
+        mMeshMessageHandler.unbindAppKey(meshNode, 0, elementAddress, model.getModelId(), appKeyIndex);
     }
 
     /**
      * Set a publish address for configuration model
      *
-     * @param provisionedMeshNode            Mesh node containing the model
-     * @param elementAddress                 Address of the element containing the model
-     * @param publishAddress                 Address to which the model must publish
-     * @param appKeyIndex                    Application key index
-     * @param modelIdentifier                Identifier of the model. This could be 16-bit SIG Model or a 32-bit Vendor model identifier
-     * @param credentialFlag                 Credential flag, set 0 to use master credentials and 1 for friendship credentials. If there is not friendship credentials master key material will be used by default
-     * @param publishTtl                     Default ttl value for outgoing messages
-     * @param publishPeriod                  Period for periodic status publishing
-     * @param publishRetransmitCount         Number of retransmissions for each published message
-     * @param publishRetransmitIntervalSteps Number of 50-millisecond steps between retransmissions
+     * @param configModelPublicationSetParams contains the parameters for config model publication set
      */
-    public void setConfigModelPublishAddress(final ProvisionedMeshNode provisionedMeshNode, final byte[] elementAddress, final byte[] publishAddress,
-                                             final int appKeyIndex, final int modelIdentifier, final int credentialFlag, final int publishTtl,
-                                             final int publishPeriod, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
-        mMeshConfigurationHandler.setConfigModelPublishAddress(provisionedMeshNode, 0, elementAddress, publishAddress,
-                appKeyIndex, modelIdentifier, credentialFlag, publishTtl, publishPeriod, publishRetransmitCount, publishRetransmitIntervalSteps);
+    public void sendConfigModelPublicationSet(ConfigModelPublicationSetParams configModelPublicationSetParams) {
+        mMeshMessageHandler.sendConfigModelPublicationSet(configModelPublicationSetParams);
     }
 
     /**
@@ -782,7 +805,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      */
     public void addSubscriptionAddress(final ProvisionedMeshNode meshNode, final byte[] elementAddress, final byte[] subscriptionAddress,
                                        final int modelIdentifier) {
-        mMeshConfigurationHandler.addSubscriptionAddress(meshNode, 0, elementAddress, subscriptionAddress, modelIdentifier);
+        mMeshMessageHandler.addSubscriptionAddress(meshNode, 0, elementAddress, subscriptionAddress, modelIdentifier);
     }
 
     /**
@@ -795,7 +818,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      */
     public void deleteSubscriptionAddress(final ProvisionedMeshNode meshNode, final byte[] elementAddress, final byte[] subscriptionAddress,
                                           final int modelIdentifier) {
-        mMeshConfigurationHandler.deleteSubscriptionAddress(meshNode, 0, elementAddress, subscriptionAddress, modelIdentifier);
+        mMeshMessageHandler.deleteSubscriptionAddress(meshNode, 0, elementAddress, subscriptionAddress, modelIdentifier);
     }
 
     public void resetMeshNetwork() {
@@ -819,7 +842,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             if (appKeyIndex >= 0) {
                 if (dstAddress == null)
                     throw new IllegalArgumentException("Destination address cannot be null!");
-                mMeshConfigurationHandler.getGenericOnOff(node, model, dstAddress, false, appKeyIndex);
+                mMeshMessageHandler.getGenericOnOff(node, model, dstAddress, false, appKeyIndex);
             } else {
                 throw new IllegalArgumentException("Invalid app key index!");
             }
@@ -846,7 +869,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             if (appKeyIndex >= 0) {
                 if (dstAddress == null)
                     throw new IllegalArgumentException("Destination address cannot be null!");
-                mMeshConfigurationHandler.setGenericOnOff(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+                mMeshMessageHandler.setGenericOnOff(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
             } else {
                 throw new IllegalArgumentException("Invalid app key index!");
             }
@@ -873,7 +896,7 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             if (appKeyIndex >= 0) {
                 if (dstAddress == null)
                     throw new IllegalArgumentException("Destination address cannot be null!");
-                mMeshConfigurationHandler.setGenericOnOffUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+                mMeshMessageHandler.setGenericOnOffUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
             } else {
                 throw new IllegalArgumentException("Invalid app key index!");
             }
@@ -890,6 +913,36 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     public void resetMeshNode(@NonNull final ProvisionedMeshNode provisionedMeshNode) {
         if(provisionedMeshNode == null)
             throw new IllegalArgumentException("Mesh node cannot be null!");
-        mMeshConfigurationHandler.resetMeshNode(provisionedMeshNode);
+        mMeshMessageHandler.resetMeshNode(provisionedMeshNode);
+    }
+
+    /**
+     * Send unacknowledged vendor model specific message to a node
+     *
+     * @param node        target mesh nmesh node to send to
+     * @param model       Mesh model to control
+     * @param address     this address could be the unicast address of the element or the subscribe address
+     * @param appKeyIndex index of the app key to encrypt the message with
+     * @param opcode      opcode of the message
+     * @param parameters  parameters of the message
+     */
+
+    public void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
+        mMeshMessageHandler.sendVendorModelUnacknowledgedMessage(node, model, address, false, appKeyIndex, opcode, parameters);
+    }
+
+    /**
+     * Send acknowledged vendor model specific message to a node
+     *
+     * @param node        target mesh nmesh node to send to
+     * @param model       Mesh model to control
+     * @param address     this address could be the unicast address of the element or the subscribe address
+     * @param appKeyIndex index of the app key to encrypt the message with
+     * @param opcode      opcode of the message
+     * @param parameters  parameters of the message
+     */
+
+    public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
+        mMeshMessageHandler.sendVendorModelAcknowledgedMessage(node, model, address, false, appKeyIndex, opcode, parameters);
     }
 }

@@ -74,7 +74,7 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
     }
 
     @Override
-    public void onConfigurationStateChanged(final Intent intent) {
+    public void onConfigurationMessageStateChanged(final Intent intent) {
         handleConfigurationStates(intent);
     }
 
@@ -111,17 +111,20 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
     }
 
     public void sendGetCompositionData() {
-        mBinder.sendCompositionDataGet(mExtendedMeshNode.getMeshNode());
+        mBinder.sendCompositionDataGet((ProvisionedMeshNode) mExtendedMeshNode.getMeshNode());
     }
 
     private void handleConfigurationStates(final Intent intent){
         final int state = intent.getExtras().getInt(EXTRA_CONFIGURATION_STATE);
         final MeshNodeStates.MeshNodeStatus status = MeshNodeStates.MeshNodeStatus.fromStatusCode(state);
-        final ProvisionedMeshNode node = mBinder.getMeshNode();
+        final ProvisionedMeshNode node = (ProvisionedMeshNode) mBinder.getMeshNode();
         switch (status) {
             case COMPOSITION_DATA_GET_SENT:
                 break;
             case COMPOSITION_DATA_STATUS_RECEIVED:
+                //Update the live data upon receiving a broadcast
+                mCompositionDataStatus.onStatusChanged(true);
+                mExtendedMeshNode.updateMeshNode(node);
                 break;
             case SENDING_BLOCK_ACKNOWLEDGEMENT:
                 break;
@@ -142,12 +145,16 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
                 break;
         }
 
-
         //Update the live data upon receiving a broadcast
         mExtendedMeshNode.updateMeshNode(node);
     }
 
     public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
         mBinder.resetMeshNode(provisionedMeshNode);
+    }
+
+    @Override
+    protected void onTransactionStateReceived(final Intent intent) {
+        super.onTransactionStateReceived(intent);
     }
 }

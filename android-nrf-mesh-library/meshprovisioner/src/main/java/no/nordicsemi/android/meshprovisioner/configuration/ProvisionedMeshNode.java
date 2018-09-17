@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 
 import android.os.Parcel;
 import android.support.annotation.VisibleForTesting;
+import android.util.SparseArray;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +37,7 @@ import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
+import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
 public class ProvisionedMeshNode extends BaseMeshNode {
 
@@ -61,6 +63,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         k2Output = SecureUtils.calculateK2(networkKey, SecureUtils.K2_MASTER_INPUT);
         mTimeStampInMillis = unprovisionedMeshNode.getTimeStamp();
         mConfigurationSrc = unprovisionedMeshNode.getConfigurationSrc();
+        numberOfElements = unprovisionedMeshNode.getNumberOfElements();
     }
 
     protected ProvisionedMeshNode(Parcel in) {
@@ -94,6 +97,8 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         mAddedAppKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mTimeStampInMillis = in.readLong();
         mConfigurationSrc = in.createByteArray();
+        mSeqAuth = in.readParcelable(SparseIntArrayParcelable.class.getClassLoader());
+        numberOfElements = in.readInt();
     }
 
     @Override
@@ -128,6 +133,8 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         dest.writeList(mAddedAppKeyIndexes);
         dest.writeLong(mTimeStampInMillis);
         dest.writeByteArray(mConfigurationSrc);
+        dest.writeParcelable(mSeqAuth, flags);
+        dest.writeInt(numberOfElements);
     }
 
 
@@ -268,10 +275,10 @@ public class ProvisionedMeshNode extends BaseMeshNode {
     }
 
     /**
-     * Sets the data from the {@link ConfigModelAppStatus}
-     * @param configModelAppStatus Composition data status object
+     * Sets the bound app key data from the {@link ConfigModelAppStatus}
+     * @param configModelAppStatus ConfigModelAppStatus contaiing the bound app key information
      */
-    protected final void setConfigModelAppStatus(final ConfigModelAppStatus configModelAppStatus) {
+    protected final void setAppKeyBindStatus(final ConfigModelAppStatus configModelAppStatus) {
         if (configModelAppStatus != null) {
             if (configModelAppStatus.isSuccessful()) {
                 final Element element = mElements.get(configModelAppStatus.getElementAddressInt());
@@ -284,6 +291,24 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         }
     }
 
+    /**
+     * Sets the unbind app key data from the {@link ConfigModelAppStatus}
+     * @param configModelAppStatus ConfigModelAppStatus containing the unbound app key information
+     */
+    protected final void setAppKeyUnbindStatus(final ConfigModelAppStatus configModelAppStatus) {
+        if (configModelAppStatus != null) {
+            if (configModelAppStatus.isSuccessful()) {
+                final Element element = mElements.get(configModelAppStatus.getElementAddressInt());
+                final int modelIdentifier = configModelAppStatus.getModelIdentifierInt();
+                final MeshModel model = element.getMeshModels().get(modelIdentifier);
+                final int appKeyIndex = configModelAppStatus.getAppKeyIndexInt();
+                final String appKey = mAddedAppKeys.get(appKeyIndex);
+                model.removeBoundAppKey(appKeyIndex, appKey);
+            }
+
+        }
+    }
+
     private void sortElements(final HashMap<Integer, Element> unorderedElements){
         final Set<Integer> unorderedKeys =  unorderedElements.keySet();
 
@@ -292,5 +317,19 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         for(int key : orderedKeys) {
             mElements.put(key, unorderedElements.get(key));
         }
+    }
+
+    public void setSeqAuth(final byte[] src, final int seqAuth) {
+        final int srcAddress = ((src[0] << 8) & 0xFF) | src[1];
+        mSeqAuth.put(srcAddress, seqAuth);
+    }
+
+    public Integer getSeqAuth(final byte[] src) {
+        if(mSeqAuth.size() == 0) {
+            return null;
+        }
+
+        final int srcAddress = ((src[0] & 0xFF) << 8) | (src[1] & 0xFF) ;
+        return (int) mSeqAuth.get(srcAddress);
     }
 }
