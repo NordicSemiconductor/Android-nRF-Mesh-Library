@@ -710,12 +710,13 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
-    public void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime) {
+    public void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final Boolean targetOnOff, final int transitionSteps, final int transitionResolution) {
         mMeshNode = node;
         final Intent intent = new Intent(ACTION_GENERIC_ON_OFF_STATE);
         intent.putExtra(EXTRA_GENERIC_ON_OFF_PRESENT_STATE, presentOnOff);
         intent.putExtra(EXTRA_GENERIC_ON_OFF_TARGET_STATE, targetOnOff);
-        intent.putExtra(EXTRA_GENERIC_ON_OFF_REMAINING_TIME, remainingTime);
+        intent.putExtra(EXTRA_GENERIC_ON_OFF_TRANSITION_STEPS, transitionSteps);
+        intent.putExtra(EXTRA_GENERIC_ON_OFF_TRANSITION_RES, transitionResolution);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

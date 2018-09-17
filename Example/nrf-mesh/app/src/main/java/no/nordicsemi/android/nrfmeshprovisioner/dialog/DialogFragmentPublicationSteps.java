@@ -137,7 +137,7 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
                 publicationStepsInputLayout.setError(getString(R.string.error_empty_publication_steps));
                 return false;
             }
-            if (!MeshParserUtils.validatePublishRetransmisIntevalSteps(Integer.valueOf(input))) {
+            if (!MeshParserUtils.validatePublishRetransmitIntervalSteps(Integer.valueOf(input))) {
                 publicationStepsInputLayout.setError(getString(R.string.error_invalid_publication_steps));
                 return false;
             }

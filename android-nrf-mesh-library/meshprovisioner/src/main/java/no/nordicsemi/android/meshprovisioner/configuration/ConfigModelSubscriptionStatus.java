@@ -109,7 +109,7 @@ public class ConfigModelSubscriptionStatus extends ConfigMessageState {
         return MessageState.CONFIG_MODEL_SUBSCRIPTION_STATUS_STATE;
     }
 
-    public final boolean parseMessage(final byte[] pdu) {
+    public final boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -152,10 +152,10 @@ public class ConfigModelSubscriptionStatus extends ConfigMessageState {
                         }
                     }
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
-                    mConfigStatusCallbacks.onSubscriptionStatusReceived(mProvisionedMeshNode, isSuccessful, status, elementAddress, mSubscriptionAddress, getModelIdentifierInt());
+                    mMeshStatusCallbacks.onSubscriptionStatusReceived(mProvisionedMeshNode, isSuccessful, status, elementAddress, mSubscriptionAddress, getModelIdentifierInt());
                     return true;
                 } else {
-                    mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
@@ -171,7 +171,7 @@ public class ConfigModelSubscriptionStatus extends ConfigMessageState {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 
     public int getStatus() {

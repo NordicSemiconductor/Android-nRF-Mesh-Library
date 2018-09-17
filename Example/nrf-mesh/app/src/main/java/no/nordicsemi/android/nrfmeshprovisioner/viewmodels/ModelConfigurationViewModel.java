@@ -33,6 +33,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyBindStatusLiveDat
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericOnOffStatusUpdate;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
 
@@ -141,7 +142,7 @@ public class ModelConfigurationViewModel extends ViewModel {
         mModelConfigurationRepository.sendGenericOnOffGet(node);
     }
 
-    public LiveData<Boolean> getGenericOnOffState() {
+    public LiveData<GenericOnOffStatusUpdate> getGenericOnOffState() {
         return mModelConfigurationRepository.getGenericOnOffState();
     }
 

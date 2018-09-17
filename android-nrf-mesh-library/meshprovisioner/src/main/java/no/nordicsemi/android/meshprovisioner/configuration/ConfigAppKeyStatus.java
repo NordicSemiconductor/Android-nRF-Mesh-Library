@@ -104,7 +104,7 @@ public class ConfigAppKeyStatus extends ConfigMessageState {
     }
 
 
-    public final boolean parseMessage(final byte[] pdu) {
+    public final boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -122,13 +122,13 @@ public class ConfigAppKeyStatus extends ConfigMessageState {
                     if (isSuccessful) {
                         mProvisionedMeshNode.setAddedAppKey(ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort(), appKey);
                     }
-                    mConfigStatusCallbacks.onAppKeyStatusReceived(mProvisionedMeshNode, isSuccessful, status,
+                    mMeshStatusCallbacks.onAppKeyStatusReceived(mProvisionedMeshNode, isSuccessful, status,
                             ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort(),
                             ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort());
                     mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
                     return true;
                 } else {
-                    mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
@@ -156,7 +156,7 @@ public class ConfigAppKeyStatus extends ConfigMessageState {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 
     private void parseStatus(final int status) {

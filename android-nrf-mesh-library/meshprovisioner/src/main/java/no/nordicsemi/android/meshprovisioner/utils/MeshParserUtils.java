@@ -27,6 +27,7 @@ import android.text.TextUtils;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashMap;
+import java.util.Locale;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
@@ -53,6 +54,7 @@ public class MeshParserUtils {
     public static final int RESOLUTION_10_M     = 0b11;
 
     public static final byte[] DISABLED_PUBLICATION_ADDRESS = new byte[] {0x00,0x00};
+    public static final int GENERIC_ON_OFF_5_MS = 5;
 
     public static String bytesToHex(final byte[] bytes, final boolean add0x) {
         if (bytes == null)
@@ -498,7 +500,72 @@ public class MeshParserUtils {
      * @param intervalSteps publish ttl
      * @return true if valid and false otherwise
      */
-    public static boolean validatePublishRetransmisIntevalSteps(final int intervalSteps) {
+    public static boolean validatePublishRetransmitIntervalSteps(final int intervalSteps) {
         return intervalSteps == (intervalSteps & 0b11111);
+    }
+
+    /**
+     * Returns the remaining time as a string
+     * @param remainingTime remaining time that for the transition to finish
+     *
+     * @return remaining time as string.
+     */
+    public static String getRemainingTime(final int remainingTime) {
+        final int stepResolution = remainingTime >> 6;
+        final int numberOfSteps = remainingTime & 0x3F;
+        switch (stepResolution){
+            case RESOLUTION_100_MS:
+                return (numberOfSteps * 100)+ " milliseconds";
+            case RESOLUTION_1_S:
+                return numberOfSteps + " seconds";
+            case RESOLUTION_10_S:
+                return (numberOfSteps * 10) + " seconds";
+            case RESOLUTION_10_M:
+                return (numberOfSteps * 10) + " minutes";
+            default:
+                return "Unknown";
+        }
+    }
+
+    /**
+     * Returns the remaining time as a string
+     *
+     * @return remaining time as string.
+     */
+    public static String getRemainingTransitionTime(final int stepResolution, final int numberOfSteps) {
+        switch (stepResolution){
+            case RESOLUTION_100_MS:
+                return (numberOfSteps * 100)+ " ms";
+            case RESOLUTION_1_S:
+                return numberOfSteps + " s";
+            case RESOLUTION_10_S:
+                return (numberOfSteps * 10) + " s";
+            case RESOLUTION_10_M:
+                return (numberOfSteps * 10) + " min.";
+            default:
+                return "Unknown";
+        }
+    }
+
+    /**
+     * Returns the remaining time in milliseconds
+     *
+     * @param resolution time resolution
+     * @param steps number of steps
+     *
+     * @return time in milliseconds
+     */
+    public static int getRemainingTime(final int resolution, final int steps) {
+        switch (resolution) {
+            case RESOLUTION_100_MS:
+                return (steps * 100);
+            case RESOLUTION_1_S:
+                return steps * 1000;
+            case RESOLUTION_10_S:
+                return (steps * 10) * 1000;
+            case RESOLUTION_10_M:
+                return (steps * 10) * 1000 * 60;
+        }
+        return  0;
     }
 }

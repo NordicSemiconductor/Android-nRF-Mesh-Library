@@ -25,18 +25,13 @@ package no.nordicsemi.android.meshprovisioner.configuration;
 import android.content.Context;
 import android.util.Log;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
-import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class VendorModelMessageStatus extends VendorModelMessageState implements UpperTransportLayerCallbacks {
+public final class VendorModelMessageStatus extends VendorModelMessageState {
 
     private static final String TAG = VendorModelMessageStatus.class.getSimpleName();
 
@@ -48,7 +43,6 @@ public final class VendorModelMessageStatus extends VendorModelMessageState impl
         super(context, unprovisionedMeshNode, callbacks);
         this.mMeshModel = meshModel;
         this.mAppKeyIndex = appKeyIndex;
-        this.mMeshTransport.setUpperTransportLayerCallbacks(this);
     }
 
     @Override
@@ -56,14 +50,14 @@ public final class VendorModelMessageStatus extends VendorModelMessageState impl
         return null;
     }
 
-    public final boolean parseMessage(final byte[] pdu) {
+    public final boolean parseMeshPdu(final byte[] pdu) {
 
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
                 final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
                 Log.v(TAG, "Received vendor model access message status: " + MeshParserUtils.bytesToHex(accessPayload, false));
-                mConfigStatusCallbacks.onVendorModelMessageStatusReceived(mProvisionedMeshNode, accessPayload);
+                mMeshStatusCallbacks.onVendorModelMessageStatusReceived(mProvisionedMeshNode, accessPayload);
                 mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
                 return true;
             } else {
@@ -81,18 +75,7 @@ public final class VendorModelMessageStatus extends VendorModelMessageState impl
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 
-    @Override
-    public byte[] getApplicationKey() {
-        if(mMeshModel != null){
-            if(!mMeshModel.getBoundAppkeys().isEmpty()){
-                if(mAppKeyIndex >= 0) {
-                    return MeshParserUtils.toByteArray(mMeshModel.getBoundAppKey(mAppKeyIndex));
-                }
-            }
-        }
-        return null;
-    }
 }

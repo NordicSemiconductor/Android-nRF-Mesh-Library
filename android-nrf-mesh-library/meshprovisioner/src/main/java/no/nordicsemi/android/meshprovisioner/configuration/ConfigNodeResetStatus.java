@@ -30,10 +30,9 @@ import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class ConfigNodeResetStatus extends ConfigMessageState implements UpperTransportLayerCallbacks{
+public final class ConfigNodeResetStatus extends ConfigMessageState {
 
     private static final String TAG = ConfigNodeResetStatus.class.getSimpleName();
 
@@ -41,7 +40,6 @@ public final class ConfigNodeResetStatus extends ConfigMessageState implements U
                                  final ProvisionedMeshNode provisionedMeshNode,
                                  final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, provisionedMeshNode, callbacks);
-        this.mMeshTransport.setUpperTransportLayerCallbacks(this);
     }
 
     @Override
@@ -50,10 +48,10 @@ public final class ConfigNodeResetStatus extends ConfigMessageState implements U
     }
 
     public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
+        parseMeshPdu(pdu);
     }
 
-    public final boolean parseMessage(final byte[] pdu) {
+    public final boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -71,10 +69,10 @@ public final class ConfigNodeResetStatus extends ConfigMessageState implements U
                 if (opcode == ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS) {
                     Log.v(TAG, "Received node reset status");
                     mInternalTransportCallbacks.onMeshNodeReset(mProvisionedMeshNode);
-                    mConfigStatusCallbacks.onMeshNodeResetStatusReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onMeshNodeResetStatusReceived(mProvisionedMeshNode);
                     return true;
                 } else {
-                    mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
@@ -90,18 +88,6 @@ public final class ConfigNodeResetStatus extends ConfigMessageState implements U
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
-    }
-
-    @Override
-    public byte[] getApplicationKey() {
-        if(mMeshModel != null){
-            if(!mMeshModel.getBoundAppkeys().isEmpty()){
-                if(mAppKeyIndex >= 0) {
-                    return MeshParserUtils.toByteArray(mMeshModel.getBoundAppKey(mAppKeyIndex));
-                }
-            }
-        }
-        return null;
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 }

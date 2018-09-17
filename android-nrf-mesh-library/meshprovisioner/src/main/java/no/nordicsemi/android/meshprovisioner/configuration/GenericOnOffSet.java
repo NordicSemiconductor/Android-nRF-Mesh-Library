@@ -58,7 +58,7 @@ public class GenericOnOffSet extends GenericMessageState implements LowerTranspo
     }
 
     @Override
-    public boolean parseMessage(final byte[] pdu) {
+    public boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -80,15 +80,18 @@ public class GenericOnOffSet extends GenericMessageState implements LowerTranspo
     private void createAccessMessage() {
         ByteBuffer paramsBuffer;
         byte[] parameters;
+        Log.v(TAG, "State: " + (mState ? "ON" : "OFF"));
         if(mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(GENERIC_ON_OFF_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
             paramsBuffer.put((byte) mProvisionedMeshNode.getSequenceNumber());
         } else {
+            Log.v(TAG, "Transition steps: " + mTransitionSteps);
+            Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(GENERIC_ON_OFF_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
             paramsBuffer.put((byte) mProvisionedMeshNode.getSequenceNumber());
-            paramsBuffer.put((byte) (mTransitionSteps << 6 | mTransitionResolution));
+            paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
             paramsBuffer.put((byte) delay);
         }
@@ -112,6 +115,6 @@ public class GenericOnOffSet extends GenericMessageState implements LowerTranspo
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 }

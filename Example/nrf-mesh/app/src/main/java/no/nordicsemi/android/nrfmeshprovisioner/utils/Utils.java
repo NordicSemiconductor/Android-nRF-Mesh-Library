@@ -98,7 +98,8 @@ public class Utils {
 
     public static final String EXTRA_GENERIC_ON_OFF_PRESENT_STATE = "EXTRA_GENERIC_ON_OFF_PRESENT_STATE";
     public static final String EXTRA_GENERIC_ON_OFF_TARGET_STATE = "EXTRA_GENERIC_ON_OFF_TARGET_STATE";
-    public static final String EXTRA_GENERIC_ON_OFF_REMAINING_TIME = "EXTRA_GENERIC_ON_OFF_REMAINING_TIME";
+    public static final String EXTRA_GENERIC_ON_OFF_TRANSITION_STEPS = "EXTRA_GENERIC_ON_OFF_TRANSITION_STEPS";
+    public static final String EXTRA_GENERIC_ON_OFF_TRANSITION_RES = "EXTRA_GENERIC_ON_OFF_TRANSITION_RES";
 
     /**
      * Checks whether Bluetooth is enabled.

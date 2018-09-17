@@ -137,7 +137,7 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
                 intervalStepsInputLayout.setError(getString(R.string.error_empty_pub_retransmit_interval_steps));
                 return false;
             }
-            if (!MeshParserUtils.validatePublishRetransmisIntevalSteps(Integer.valueOf(input))) {
+            if (!MeshParserUtils.validatePublishRetransmitIntervalSteps(Integer.valueOf(input))) {
                 intervalStepsInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_interval_steps));
                 return false;
             }

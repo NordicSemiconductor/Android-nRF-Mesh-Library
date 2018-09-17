@@ -73,7 +73,7 @@ public final class ConfigModelAppUnbind extends ConfigMessageState {
     }
 
     @Override
-    protected boolean parseMessage(final byte[] pdu) {
+    protected boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -130,13 +130,13 @@ public final class ConfigModelAppUnbind extends ConfigMessageState {
         super.executeSend();
 
         if (!mPayloads.isEmpty()) {
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onAppKeyUnbindSent(mProvisionedMeshNode);
+            if (mMeshStatusCallbacks != null)
+                mMeshStatusCallbacks.onAppKeyUnbindSent(mProvisionedMeshNode);
         }
     }
 
     public void parseData(final byte[] pdu) {
-        parseMessage(pdu);
+        parseMeshPdu(pdu);
     }
 
     @Override
@@ -144,7 +144,7 @@ public final class ConfigModelAppUnbind extends ConfigMessageState {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 
     /**

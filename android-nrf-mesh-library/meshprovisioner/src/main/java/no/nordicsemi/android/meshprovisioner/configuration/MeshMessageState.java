@@ -13,7 +13,6 @@ import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
-import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
@@ -41,7 +40,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     private final List<Integer> mRetransmitPayloads = new ArrayList<>();
     final byte[] mSrc;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
-    protected MeshStatusCallbacks mConfigStatusCallbacks;
+    protected MeshStatusCallbacks mMeshStatusCallbacks;
     protected final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
     protected MeshModel mMeshModel;
     protected int mAppKeyIndex;
@@ -73,13 +72,13 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
      * @param callbacks callbacks
      */
     public void setStatusCallbacks(final MeshStatusCallbacks callbacks) {
-        this.mConfigStatusCallbacks = callbacks;
+        this.mMeshStatusCallbacks = callbacks;
     }
 
     public abstract MessageState getState();
 
     public final boolean isRetransmissionRequired(final byte[] pdu) {
-        parseMessage(pdu);
+        parseMeshPdu(pdu);
         return !mRetransmitPayloads.isEmpty();
     }
 
@@ -112,11 +111,11 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     }
 
     /**
-     * Parses the mesh pdu
+     * Parses the raw encrypted mesh network pdu
      *
      * @param pdu mesh pdu to be parsed
      */
-    protected boolean parseMessage(final byte[] pdu) {
+    protected boolean parseMeshPdu(final byte[] pdu) {
         return false;
     }
 
@@ -133,11 +132,11 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
                 Log.v(TAG, "Acknowledgement payload: " + MeshParserUtils.bytesToHex(controlMessage.getTransportControlPdu(), false));
                 mRetransmitPayloads.clear();
                 mRetransmitPayloads.addAll(BlockAcknowledgementMessage.getSegmentsToBeRetransmitted(controlMessage.getTransportControlPdu(), segmentCount));
-                mConfigStatusCallbacks.onBlockAcknowledgementReceived(mProvisionedMeshNode);
+                mMeshStatusCallbacks.onBlockAcknowledgementReceived(mProvisionedMeshNode);
                 break;
             default:
                 Log.v(TAG, "Unexpected control message received, ignoring message");
-                mConfigStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
                 break;
         }
     }
@@ -167,9 +166,9 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
             final byte[] src = mSrc; //The destination of the message sent would be src address of the device
             meshMessageHandlerCallbacks.onIncompleteTimerExpired(mProvisionedMeshNode, src, true);
 
-            if (mConfigStatusCallbacks != null) {
+            if (mMeshStatusCallbacks != null) {
                 final int srcAddress = AddressUtils.getUnicastAddressInt(src);
-                mConfigStatusCallbacks.onTransactionFailed(mProvisionedMeshNode, srcAddress, true);
+                mMeshStatusCallbacks.onTransactionFailed(mProvisionedMeshNode, srcAddress, true);
             }
         }
     }

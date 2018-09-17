@@ -39,7 +39,7 @@ public class GenericOnOffGet extends GenericMessageState {
     }
 
     @Override
-    public boolean parseMessage(final byte[] pdu) {
+    public boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -73,8 +73,8 @@ public class GenericOnOffGet extends GenericMessageState {
         super.executeSend();
 
         if (!mPayloads.isEmpty()) {
-            if (mConfigStatusCallbacks != null)
-                mConfigStatusCallbacks.onGenericOnOffGetSent(mProvisionedMeshNode);
+            if (mMeshStatusCallbacks != null)
+                mMeshStatusCallbacks.onGenericOnOffGetSent(mProvisionedMeshNode);
         }
     }
 
@@ -83,6 +83,6 @@ public class GenericOnOffGet extends GenericMessageState {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mConfigStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
 }
