@@ -24,7 +24,6 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -34,7 +33,6 @@ import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 
 public class VendorModel extends MeshModel {
 
-    private static final String TAG = VendorModel.class.getSimpleName();
     private final short companyIdentifier;
     private final String companyName;
 
@@ -54,16 +52,17 @@ public class VendorModel extends MeshModel {
         super(modelIdentifier);
         final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
         buffer.putInt(modelIdentifier);
-        this.companyIdentifier = buffer.getShort(0);
+        buffer.position(2);
+        this.companyIdentifier = buffer.getShort();
         this.companyName = CompanyIdentifiers.getCompanyName(companyIdentifier);
-        Log.v(TAG, "Company name: " + companyName);
     }
 
     private VendorModel(final Parcel source) {
         super(source);
         final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
         buffer.putInt(mModelId);
-        this.companyIdentifier = buffer.getShort(0);
+        buffer.position(2);
+        this.companyIdentifier = buffer.getShort();
         this.companyName = CompanyIdentifiers.getCompanyName(companyIdentifier);
     }
 

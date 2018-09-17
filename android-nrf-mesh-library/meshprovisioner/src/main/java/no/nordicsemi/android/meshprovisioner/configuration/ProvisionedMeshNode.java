@@ -137,16 +137,6 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         dest.writeInt(numberOfElements);
     }
 
-    private void sortElements(final HashMap<Integer, Element> unorderedElements){
-        final Set<Integer> unorderedKeys =  unorderedElements.keySet();
-
-        final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
-        Collections.sort(orderedKeys);
-        for(int key : orderedKeys) {
-            mElements.put(key, unorderedElements.get(key));
-        }
-    }
-
 
     public static final Creator<ProvisionedMeshNode> CREATOR = new Creator<ProvisionedMeshNode>() {
         @Override
@@ -285,10 +275,10 @@ public class ProvisionedMeshNode extends BaseMeshNode {
     }
 
     /**
-     * Sets the bound app key data from the {@link ConfigModelAppStatus}
-     * @param configModelAppStatus ConfigModelAppStatus contaiing the bound app key information
+     * Sets the data from the {@link ConfigModelAppStatus}
+     * @param configModelAppStatus Composition data status object
      */
-    protected final void setAppKeyBindStatus(final ConfigModelAppStatus configModelAppStatus) {
+    protected final void setConfigModelAppStatus(final ConfigModelAppStatus configModelAppStatus) {
         if (configModelAppStatus != null) {
             if (configModelAppStatus.isSuccessful()) {
                 final Element element = mElements.get(configModelAppStatus.getElementAddressInt());
@@ -301,21 +291,13 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         }
     }
 
-    /**
-     * Sets the unbind app key data from the {@link ConfigModelAppStatus}
-     * @param configModelAppStatus ConfigModelAppStatus containing the unbound app key information
-     */
-    protected final void setAppKeyUnbindStatus(final ConfigModelAppStatus configModelAppStatus) {
-        if (configModelAppStatus != null) {
-            if (configModelAppStatus.isSuccessful()) {
-                final Element element = mElements.get(configModelAppStatus.getElementAddressInt());
-                final int modelIdentifier = configModelAppStatus.getModelIdentifierInt();
-                final MeshModel model = element.getMeshModels().get(modelIdentifier);
-                final int appKeyIndex = configModelAppStatus.getAppKeyIndexInt();
-                final String appKey = mAddedAppKeys.get(appKeyIndex);
-                model.removeBoundAppKey(appKeyIndex, appKey);
-            }
+    private void sortElements(final HashMap<Integer, Element> unorderedElements){
+        final Set<Integer> unorderedKeys =  unorderedElements.keySet();
 
+        final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
+        Collections.sort(orderedKeys);
+        for(int key : orderedKeys) {
+            mElements.put(key, unorderedElements.get(key));
         }
     }
 

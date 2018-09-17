@@ -53,6 +53,7 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
             if(provisioningSettings != null){
                 appKeys.clear();
                 appKeys.addAll(provisioningSettings.getAppKeys());
+                //populateAppKeysMap(provisioningSettings.getAppKeys());
             }
             notifyDataSetChanged();
         });
@@ -61,6 +62,16 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
     public void setOnItemClickListener(final ManageAppKeyAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
+
+    /*private void populateAppKeysMap(final Map<Integer, String> tempAppKeys){
+        appKeys.clear();
+
+        for (Map.Entry<Integer, String> entry : tempAppKeys.entrySet()) {
+            int key = entry.getKey();
+            String value = entry.getValue();
+            appKeys.put(key,value);
+        }
+    }*/
 
     @Override
     public ManageAppKeyAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
@@ -90,6 +101,15 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
     public boolean isEmpty() {
         return getItemCount() == 0;
     }
+
+    /*public int getLastKey() {
+        if(appKeys.size() == 0) {
+            return 0;
+        } else {
+            final int count = getItemCount();
+            return appKeys.keyAt(count - 1);
+        }
+    }*/
 
     @FunctionalInterface
     public interface OnItemClickListener {
