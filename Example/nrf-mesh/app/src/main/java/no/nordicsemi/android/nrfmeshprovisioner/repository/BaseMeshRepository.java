@@ -32,6 +32,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
@@ -59,7 +60,7 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_CON
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_RECONNECTING;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_ON_DEVICE_READY;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_PROVISIONING_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_TRANSACTION_FAILED;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_TRANSACTION_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_VENDOR_MODEL_MESSAGE_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
@@ -179,8 +180,8 @@ public abstract class BaseMeshRepository {
                 case ACTION_VENDOR_MODEL_MESSAGE_STATE:
                     onGenericMessageStateChanged(intent);
                     break;
-                case ACTION_TRANSACTION_FAILED:
-                    onTransactionFailed(intent);
+                case ACTION_TRANSACTION_STATE:
+                    onTransactionStateReceived(intent);
                     break;
             }
         }
@@ -217,15 +218,16 @@ public abstract class BaseMeshRepository {
 
     }
 
-    protected void onTransactionFailed(final Intent intent){
+    protected void onTransactionStateReceived(final Intent intent){
         final String action = intent.getAction();
         final ProvisionedMeshNode node = (ProvisionedMeshNode) mBinder.getMeshNode();
         switch (action) {
-            case ACTION_TRANSACTION_FAILED:
+            case ACTION_TRANSACTION_STATE:
                 if(mExtendedMeshNode != null) {
+                    Log.v(TAG, "TRANSACTION FAILED");
                     mExtendedMeshNode.updateMeshNode(node);
                     final int elementAddress = intent.getExtras().getInt(EXTRA_ELEMENT_ADDRESS);
-                    final boolean incompleteTimerExpired = intent.getBooleanExtra(EXTRA_DATA, false);
+                    final boolean incompleteTimerExpired = intent.getBooleanExtra(EXTRA_DATA, true);
                     mTransactionFailedLiveData.onTransactionFailed(elementAddress, incompleteTimerExpired);
                 }
                 break;

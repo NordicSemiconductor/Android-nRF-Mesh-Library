@@ -319,7 +319,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     private void showProgressbar(){
         disableClickableViews();
         mProgressbar.setVisibility(View.VISIBLE);
-        mHandler.postDelayed(mOperationTimeout, DELAY);
+        //mHandler.postDelayed(mOperationTimeout, DELAY);
     }
 
     private void hideProgressBar(){
