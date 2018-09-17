@@ -240,7 +240,7 @@ abstract class UpperTransportLayer extends AccessLayer {
         for(String key : keys){
             final byte[] k = MeshParserUtils.toByteArray(key);
             final int aid = SecureUtils.calculateK4(k);
-            if(aid == aid){
+            if(receivedAid == aid){
                 return k;
             }
         }

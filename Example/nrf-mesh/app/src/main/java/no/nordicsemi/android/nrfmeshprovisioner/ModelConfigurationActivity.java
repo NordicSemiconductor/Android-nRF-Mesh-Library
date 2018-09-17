@@ -364,21 +364,11 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
     protected void onStop() {
         super.onStop();
         if(isFinishing()){
             mHandler.removeCallbacksAndMessages(null);
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 
     @Override
