@@ -445,7 +445,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         Log.v(TAG, "Current SeqAuth value " + seqAuth);
 
         //Check if the current SeqAuth value is greater than the last and if the incomplete timer has not started, start it!
-        if ((lastSeqAuth == null || lastSeqAuth < seqAuth) && !mIncompleteTimerStarted) {
+        if ((lastSeqAuth == null || lastSeqAuth < seqAuth) /*&& !mIncompleteTimerStarted*/) {
             Log.v(TAG, "Starting incomplete timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
             initIncompleteTimer();
             mMeshNode.setSeqAuth(blockAckDst, seqAuth);
@@ -454,6 +454,20 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
             if (MeshParserUtils.isValidUnicastAddress(dst)) {
                 //Start the block acknowledgement timer irrespective of which segment was received first
                 initSegmentedAccessAcknowledgementTimer(seqZero, ttl, blockAckSrc, blockAckDst, segN);
+            }
+        } else {
+            //if the seqauth values are the same and the init complete timer has already started for a received segmented message, we need to restart the incomplete timer
+            if(lastSeqAuth == seqAuth && mIncompleteTimerStarted){
+                Log.v(TAG, "Restarting incomplete timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
+                restartIncompleteTimer();
+
+                //Start acknowledgement timer only for messages directed to a unicast address.
+                //We also have to make sure we restart the acknowledgement timer only if the acknowledgement timer is not active and the incomplete timer is active
+                if (MeshParserUtils.isValidUnicastAddress(dst) && !mSegmentedAccessAcknowledgementTimerStarted) {
+                    Log.v(TAG, "Restarting block acknowledgement timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
+                    //Start the block acknowledgement timer irrespective of which segment was received first
+                    initSegmentedAccessAcknowledgementTimer(seqZero, ttl, blockAckSrc, blockAckDst, segN);
+                }
             }
         }
 
@@ -597,10 +611,21 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      * Start incomplete timer for segmented messages.
      */
     private void initIncompleteTimer() {
-        if (!mIncompleteTimerStarted) {
-            mHandler.postDelayed(mIncompleteTimerRunnable, INCOMPLETE_TIMER_DELAY);
-            mIncompleteTimerStarted = true;
+        mHandler.postDelayed(mIncompleteTimerRunnable, INCOMPLETE_TIMER_DELAY);
+        mIncompleteTimerStarted = true;
+
+    }
+
+    /**
+     * Restarts the incomplete timer
+     */
+    private void restartIncompleteTimer(){
+        //Remove the existing incomplete timer
+        if(mIncompleteTimerStarted){
+            mHandler.removeCallbacks(mIncompleteTimerRunnable);
         }
+        //Call init to start the timer again
+        initIncompleteTimer();
     }
 
     /**
@@ -659,9 +684,8 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
     private void sendBlockAck(final int seqZero, final int ttl, final byte[] src, final byte[] dst, final int segN) {
         final int blockAck = mSegmentedAccessBlockAck;
         if (BlockAcknowledgementMessage.hasAllSegmentsBeenReceived(blockAck, segN)) {
+            Log.v(TAG, "All segments received cancelling incomplete timer");
             mHandler.removeCallbacks(mIncompleteTimerRunnable);
-        } else {
-            Log.v(TAG, "Not cancelling");
         }
 
         final byte[] upperTransportControlPdu = createAcknowledgementPayload(seqZero, blockAck);
@@ -680,7 +704,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         mBlockAckSent = true;
         mLowerTransportLayerCallbacks.sendSegmentAcknowledgementMessage(controlMessage);
         mSegmentedAccessAcknowledgementTimerStarted = false;
-        Log.v(TAG, "Block ack: " + blockAck);
+        Log.v(TAG, "Block ack value: " + blockAck);
         mSegmentedAccessBlockAck = null;
     }
 
