@@ -154,7 +154,7 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
     }
 
     @Override
-    protected void onTransactionFailed(final Intent intent) {
-        super.onTransactionFailed(intent);
+    protected void onTransactionStateReceived(final Intent intent) {
+        super.onTransactionStateReceived(intent);
     }
 }

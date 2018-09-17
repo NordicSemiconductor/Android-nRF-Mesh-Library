@@ -518,7 +518,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     @Override
     public void onTransactionFailed(final ProvisionedMeshNode node, final int src, final boolean hasIncompleteTimerExpired) {
         mMeshNode = node;
-        final Intent intent = new Intent(ACTION_TRANSACTION_FAILED);
+        final Intent intent = new Intent(ACTION_TRANSACTION_STATE);
         intent.putExtra(EXTRA_ELEMENT_ADDRESS, src);
         intent.putExtra(EXTRA_DATA, hasIncompleteTimerExpired);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
