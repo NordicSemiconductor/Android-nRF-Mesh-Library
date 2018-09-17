@@ -39,6 +39,7 @@ import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericOnOffStatusUpdate;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 
@@ -49,6 +50,9 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGU
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_PRESENT_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_TARGET_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_TRANSITION_RES;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_TRANSITION_STEPS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_PUBLISH_ADDRESS;
@@ -58,15 +62,15 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_SUBSCRI
 public class ModelConfigurationRepository extends BaseMeshRepository {
 
     private static final String TAG = ModelConfigurationRepository.class.getSimpleName();
-    private MutableLiveData<Boolean> mPresentState = new MutableLiveData<>();
+    private MutableLiveData<GenericOnOffStatusUpdate> mGenericOnOffStatus = new MutableLiveData<>();
     private SingleLiveEvent<byte[]> mVendorModelState = new SingleLiveEvent<>();
 
     public ModelConfigurationRepository(final Context context) {
         super(context);
     }
 
-    public LiveData<Boolean> getGenericOnOffState() {
-        return mPresentState;
+    public LiveData<GenericOnOffStatusUpdate> getGenericOnOffState() {
+        return mGenericOnOffStatus;
     }
 
     public LiveData<byte[]> getVendorModelState(){
@@ -196,9 +200,13 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         final MeshModel model = mBinder.getMeshModel();
         switch (action) {
             case ACTION_GENERIC_ON_OFF_STATE:
-                final boolean presentState = intent.getExtras().getBoolean(EXTRA_GENERIC_ON_OFF_PRESENT_STATE);
+                final boolean presentOnOffState = intent.getExtras().getBoolean(EXTRA_GENERIC_ON_OFF_PRESENT_STATE);
+                final boolean targetOnOffState = intent.getExtras().getBoolean(EXTRA_GENERIC_ON_OFF_TARGET_STATE);
+                final int steps = intent.getExtras().getInt(EXTRA_GENERIC_ON_OFF_TRANSITION_STEPS);
+                final int resolution = intent.getExtras().getInt(EXTRA_GENERIC_ON_OFF_TRANSITION_RES);
                 //TODO implement target state and remaining state.
-                mPresentState.postValue(presentState);
+                final GenericOnOffStatusUpdate genericOnOffStatusUpdate = new GenericOnOffStatusUpdate(presentOnOffState, steps > 0 ? targetOnOffState : null, steps, resolution);
+                mGenericOnOffStatus.postValue(genericOnOffStatusUpdate);
                 break;
             case ACTION_VENDOR_MODEL_MESSAGE_STATE:
                 final byte[] data = intent.getExtras().getByteArray(EXTRA_DATA);

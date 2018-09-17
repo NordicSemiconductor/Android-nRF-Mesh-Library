@@ -270,7 +270,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     protected void onStop() {
         super.onStop();
         if(isFinishing()){
-            mHandler.removeCallbacks(null);
+            mHandler.removeCallbacksAndMessages(null);
         }
     }
 

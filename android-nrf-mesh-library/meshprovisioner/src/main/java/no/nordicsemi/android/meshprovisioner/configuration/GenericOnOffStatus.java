@@ -40,7 +40,7 @@ public final class GenericOnOffStatus extends GenericMessageState {
     private static final String TAG = GenericOnOffStatus.class.getSimpleName();
     private static final int GENERIC_ON_OFF_STATE_ON = 0x01;
     private boolean mPresentOn;
-    private boolean mTargetOn;
+    private Boolean mTargetOn;
     private int mRemainingTime;
 
     public GenericOnOffStatus(Context context,
@@ -107,17 +107,20 @@ public final class GenericOnOffStatus extends GenericMessageState {
         buffer.position(0);
         mPresentOn = buffer.get() == GENERIC_ON_OFF_STATE_ON;
         Log.v(TAG, "Present on: " + mPresentOn);
+        int transitionSteps = 0;
+        int transitionResolution = 0;
         if(buffer.limit() > 1) {
             mTargetOn = buffer.get() == GENERIC_ON_OFF_STATE_ON;
             mRemainingTime = buffer.get() & 0xFF;
             Log.v(TAG, "Target on: " + mTargetOn);
-            Log.v(TAG, "Remaining time, transition number of steps: " + (mRemainingTime & 0x3F));
-            Log.v(TAG, "Remaining time, transition number of step resolution: " + (mRemainingTime >> 6));
+            transitionSteps = (mRemainingTime & 0x3F);
+            Log.v(TAG, "Remaining time, transition number of steps: " + transitionSteps);
+            transitionResolution = (mRemainingTime >> 6);
+            Log.v(TAG, "Remaining time, transition number of step resolution: " + transitionResolution);
             Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(mRemainingTime));
         }
-
-        mMeshStatusCallbacks.onGenericOnOffStatusReceived(mProvisionedMeshNode, mPresentOn, mTargetOn, mRemainingTime);
         mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onGenericOnOffStatusReceived(mProvisionedMeshNode, mPresentOn, mTargetOn, transitionSteps, transitionResolution);
     }
 
     @Override

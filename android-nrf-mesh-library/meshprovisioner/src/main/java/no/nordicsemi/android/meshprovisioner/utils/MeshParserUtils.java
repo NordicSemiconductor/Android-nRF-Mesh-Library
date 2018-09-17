@@ -526,4 +526,46 @@ public class MeshParserUtils {
                 return "Unknown";
         }
     }
+
+    /**
+     * Returns the remaining time as a string
+     *
+     * @return remaining time as string.
+     */
+    public static String getRemainingTransitionTime(final int stepResolution, final int numberOfSteps) {
+        switch (stepResolution){
+            case RESOLUTION_100_MS:
+                return (numberOfSteps * 100)+ " ms";
+            case RESOLUTION_1_S:
+                return numberOfSteps + " s";
+            case RESOLUTION_10_S:
+                return (numberOfSteps * 10) + " s";
+            case RESOLUTION_10_M:
+                return (numberOfSteps * 10) + " min.";
+            default:
+                return "Unknown";
+        }
+    }
+
+    /**
+     * Returns the remaining time in milliseconds
+     *
+     * @param resolution time resolution
+     * @param steps number of steps
+     *
+     * @return time in milliseconds
+     */
+    public static int getRemainingTime(final int resolution, final int steps) {
+        switch (resolution) {
+            case RESOLUTION_100_MS:
+                return (steps * 100);
+            case RESOLUTION_1_S:
+                return steps * 1000;
+            case RESOLUTION_10_S:
+                return (steps * 10) * 1000;
+            case RESOLUTION_10_M:
+                return (steps * 10) * 1000 * 60;
+        }
+        return  0;
+    }
 }

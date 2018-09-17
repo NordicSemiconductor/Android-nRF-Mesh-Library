@@ -185,10 +185,12 @@ public interface MeshStatusCallbacks {
 
     /**
      * Notifies if {@link GenericOnOffStatus} was received
-     *
-     * @param node mesh node that the message was received from
+     *  @param node mesh node that the message was received from
+     * @param targetOnOff
+     * @param transitionSteps
+     * @param transitionResolution
      */
-    void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime);
+    void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final Boolean targetOnOff, final int transitionSteps, final int transitionResolution);
 
     /**
      * Notifies if {@link VendorModelMessageUnacknowledged} was received

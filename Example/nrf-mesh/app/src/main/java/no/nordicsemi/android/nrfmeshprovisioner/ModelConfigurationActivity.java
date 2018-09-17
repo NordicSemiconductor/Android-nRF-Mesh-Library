@@ -93,6 +93,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
         ItemTouchHelperAdapter,
         DialogFragmentDisconnected.DialogFragmentDisconnectedListener {
 
+    private static final String TAG = ModelConfigurationActivity.class.getSimpleName();
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
     private static final long DELAY = 10000;
@@ -123,7 +124,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
     @BindView(R.id.configuration_progress_bar)
     ProgressBar mProgressbar;
-
     private int mTransitionStepResolution;
     private int mTransitionStep;
 
@@ -372,7 +372,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     protected void onStop() {
         super.onStop();
         if(isFinishing()){
-            mHandler.removeCallbacks(null);
+            mHandler.removeCallbacksAndMessages(null);
         }
     }
 
@@ -469,6 +469,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, cardView);
                 final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
                 final TextView onOffState = nodeControlsContainer.findViewById(R.id.on_off_state);
+                final TextView remainingTime = nodeControlsContainer.findViewById(R.id.transition_state);
                 final SeekBar transitionTimeSeekBar = nodeControlsContainer.findViewById(R.id.transition_seekbar);
                 transitionTimeSeekBar.setProgress(0);
                 transitionTimeSeekBar.incrementProgressBy(1);
@@ -485,11 +486,9 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     try {
                         final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
                         if(mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on))){
-                            //TODO wait for sdk implementation to test for transition state
                             mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution,
                                     delaySeekBar.getProgress() * MeshParserUtils.GENERIC_ON_OFF_5_MS, true);
                         } else {
-                            //TODO wait for sdk implementation to test for transition state
                             mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution,
                                     delaySeekBar.getProgress() * MeshParserUtils.GENERIC_ON_OFF_5_MS, false);
                         }
@@ -507,56 +506,44 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
                 transitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     int lastValue = 0;
-                    int resolution1 = 6;
-                    int resolution2 = 6;
-                    int resolution3 = 6;
                     double res = 0.0;
                     @Override
                     public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
 
                         if(progress >= 0 && progress <= 62) {
-                            resolution1 = 6;
-                            resolution2 = 6;
-                            resolution3 = 6;
                             lastValue = progress;
                             mTransitionStepResolution = 0;
                             mTransitionStep = progress;
                             res = progress / 10.0;
                             time.setText(getString(R.string.transition_time_interval, String.valueOf(res), "s"));
                         } else if(progress >= 63 && progress <= 118) {
-                            resolution2 = 6;
-                            resolution3 = 6;
                             if(progress > lastValue) {
-                                resolution1 = progress - 56;
+                                mTransitionStep = progress - 56;
                                 lastValue = progress;
                             } else if (progress < lastValue){
-                                resolution1 = -(56 - progress);
+                                mTransitionStep = -(56 - progress);
                             }
                             mTransitionStepResolution = 1;
-                            mTransitionStep = resolution1;
-                            time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution1), "s"));
+                            time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionStep), "s"));
 
                         } else if(progress >= 119 && progress <= 174) {
-                            resolution3 = 6;
                             if(progress > lastValue) {
-                                resolution2 = progress - 112;
+                                mTransitionStep = progress - 112;
                                 lastValue = progress;
                             } else if (progress < lastValue){
-                                resolution2 = -(112 - progress);
+                                mTransitionStep = -(112 - progress);
                             }
                             mTransitionStepResolution = 2;
-                            mTransitionStep = resolution2;
-                            time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution2 * 10), "s"));
+                            time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionStep * 10), "s"));
                         } else if(progress >= 175 && progress <= 230){
                             if(progress >= lastValue) {
-                                resolution3 = progress - 168;
+                                mTransitionStep = progress - 168;
                                 lastValue = progress;
                             } else if (progress < lastValue){
-                                resolution3 = -(168 - progress);
+                                mTransitionStep = -(168 - progress);
                             }
                             mTransitionStepResolution = 3;
-                            mTransitionStep = resolution3;
-                            time.setText(getString(R.string.transition_time_interval, String.valueOf(resolution3 * 10), "min"));
+                            time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionStep * 10), "min"));
                         }
                     }
 
@@ -588,16 +575,31 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     }
                 });
 
-                mViewModel.getGenericOnOffState().observe(this, presentState -> {
+                mViewModel.getGenericOnOffState().observe(this, genericOnOffStatusUpdate -> {
                     hideProgressBar();
-                    /*mActionOnOff.setEnabled(true);
-                    mActionRead.setEnabled(true);*/
-                    if(presentState){
-                        onOffState.setText(R.string.generic_state_on);
-                        mActionOnOff.setText(R.string.action_generic_off);
+                    final boolean presentState = genericOnOffStatusUpdate.isPresentOnOff();
+                    final Boolean targetOnOff = genericOnOffStatusUpdate.getTargetOnOff();
+                    final int steps = genericOnOffStatusUpdate.getSteps();
+                    final int resolution = genericOnOffStatusUpdate.getResolution();
+                    if(targetOnOff == null){
+                        if (presentState) {
+                            onOffState.setText(R.string.generic_state_on);
+                            mActionOnOff.setText(R.string.action_generic_off);
+                        } else {
+                            onOffState.setText(R.string.generic_state_off);
+                            mActionOnOff.setText(R.string.action_generic_on);
+                        }
+                        remainingTime.setVisibility(View.GONE);
                     } else {
-                        onOffState.setText(R.string.generic_state_off);
-                        mActionOnOff.setText(R.string.action_generic_on);
+                        if (!targetOnOff) {
+                            onOffState.setText(R.string.generic_state_on);
+                            mActionOnOff.setText(R.string.action_generic_off);
+                        } else {
+                            onOffState.setText(R.string.generic_state_off);
+                            mActionOnOff.setText(R.string.action_generic_on);
+                        }
+                        remainingTime.setText(getString(R.string.remaining_time, MeshParserUtils.getRemainingTransitionTime(resolution, steps)));
+                        remainingTime.setVisibility(View.VISIBLE);
                     }
                 });
             } else if (model instanceof VendorModel){
@@ -682,7 +684,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
                     if(model.getBoundAppKeyIndexes().isEmpty()) {
                         Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
-                       return;
+                        return;
                     }
 
                     final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
