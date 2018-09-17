@@ -485,17 +485,10 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                     try {
                         final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
                         if(mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on))){
-                            /*mActionOnOff.setText(R.string.action_generic_off);
-                            onOffState.setText(R.string.generic_state_on);*/
-                            //TODO wait for sdk implementation to test for transition state
                             mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), true);
                         } else {
-                            /*mActionOnOff.setText(R.string.action_generic_on);
-                            onOffState.setText(R.string.generic_state_off);*/
-                            //TODO wait for sdk implementation to test for transition state
                             mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), false);
                         }
-                        //mActionOnOff.setEnabled(false);
                         showProgressbar();
                     } catch (IllegalArgumentException ex) {
                         Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
@@ -505,7 +498,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                 mActionRead.setOnClickListener(v -> {
                     final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
                     mViewModel.sendGenericOnOffGet(node);
-                    //mActionRead.setEnabled(false);
                     showProgressbar();
                 });
 
@@ -578,8 +570,6 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
 
                 mViewModel.getGenericOnOffState().observe(this, presentState -> {
                     hideProgressBar();
-                    /*mActionOnOff.setEnabled(true);
-                    mActionRead.setEnabled(true);*/
                     if(presentState){
                         onOffState.setText(R.string.generic_state_on);
                         mActionOnOff.setText(R.string.action_generic_off);
