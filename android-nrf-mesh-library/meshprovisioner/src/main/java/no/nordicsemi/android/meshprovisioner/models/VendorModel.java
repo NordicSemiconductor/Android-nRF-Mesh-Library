@@ -54,8 +54,7 @@ public class VendorModel extends MeshModel {
         super(modelIdentifier);
         final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
         buffer.putInt(modelIdentifier);
-        buffer.position(2);
-        this.companyIdentifier = buffer.getShort();
+        this.companyIdentifier = buffer.getShort(0);
         this.companyName = CompanyIdentifiers.getCompanyName(companyIdentifier);
         Log.v(TAG, "Company name: " + companyName);
     }
@@ -64,8 +63,7 @@ public class VendorModel extends MeshModel {
         super(source);
         final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
         buffer.putInt(mModelId);
-        buffer.position(2);
-        this.companyIdentifier = buffer.getShort();
+        this.companyIdentifier = buffer.getShort(0);
         this.companyName = CompanyIdentifiers.getCompanyName(companyIdentifier);
     }
 

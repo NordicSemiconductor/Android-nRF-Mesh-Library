@@ -103,7 +103,9 @@ public abstract class AccessLayer {
             accessMessageBuffer = ByteBuffer.allocate(opCodesCompanyIdentifier.length);
             accessMessageBuffer.put(opCodesCompanyIdentifier);
         }
-        accessMessage.setAccessPdu(accessMessageBuffer.array());
+        final byte [] accessPdu = accessMessageBuffer.array();
+        Log.v(TAG, "Created Access PDU " + MeshParserUtils.bytesToHex(accessPdu, false));
+        accessMessage.setAccessPdu(accessPdu);
     }
 
     /**
