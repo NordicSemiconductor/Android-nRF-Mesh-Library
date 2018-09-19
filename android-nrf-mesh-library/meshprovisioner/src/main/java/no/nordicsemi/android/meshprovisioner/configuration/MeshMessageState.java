@@ -198,7 +198,12 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         GENERIC_ON_OFF_GET_STATE(ApplicationMessageOpCodes.GENERIC_ON_OFF_GET),
         GENERIC_ON_OFF_SET_STATE(ApplicationMessageOpCodes.GENERIC_ON_OFF_SET),
         GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE(ApplicationMessageOpCodes.GENERIC_ON_OFF_SET_UNACKNOWLEDGED),
-        GENERIC_ON_OFF_STATUS_STATE(ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS);
+        GENERIC_ON_OFF_STATUS_STATE(ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS),
+
+        GENERIC_LEVEL_GET_STATE(ApplicationMessageOpCodes.GENERIC_LEVEL_GET),
+        GENERIC_LEVEL_SET_STATE(ApplicationMessageOpCodes.GENERIC_LEVEL_SET),
+        GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE(ApplicationMessageOpCodes.GENERIC_LEVEL_SET_UNACKNOWLEDGED),
+        GENERIC_LEVEL_STATUS_STATE(ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS);
 
         private int state;
 

@@ -192,6 +192,37 @@ public interface MeshStatusCallbacks {
      */
     void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final Boolean targetOnOff, final int transitionSteps, final int transitionResolution);
 
+
+    /**
+     * Notifies if {@link GenericLevelGet} was sent
+     *
+     * @param node mesh node that the message was sent to
+     */
+    void onGenericLevelGetSent(final ProvisionedMeshNode node);
+
+    /**
+     * Notifies if {@link GenericLevelSet} was sent
+     *
+     * @param node mesh node that the message was sent to
+     */
+    void onGenericLevelSetSent(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime);
+
+    /**
+     * Notifies if {@link GenericLevelSetUnacknowledged} was sent
+     *
+     * @param node mesh node that the message was sent to
+     */
+    void onGenericLevelSetUnacknowledgedSent(final ProvisionedMeshNode node);
+
+    /**
+     * Notifies if {@link GenericLevelStatus} was received
+     * @param node mesh node that the message was received from
+     * @param targetLevel
+     * @param transitionSteps
+     * @param transitionResolution
+     */
+    void onGenericLevelStatusReceived(final ProvisionedMeshNode node, final int presentLevel, final int targetLevel, final int transitionSteps, final int transitionResolution);
+
     /**
      * Notifies if {@link VendorModelMessageUnacknowledged} was received
      *

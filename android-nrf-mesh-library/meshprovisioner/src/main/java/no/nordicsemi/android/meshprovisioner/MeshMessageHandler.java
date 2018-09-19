@@ -41,6 +41,10 @@ import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscripti
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.DefaultNoOperationMessageState;
+import no.nordicsemi.android.meshprovisioner.configuration.GenericLevelGet;
+import no.nordicsemi.android.meshprovisioner.configuration.GenericLevelSet;
+import no.nordicsemi.android.meshprovisioner.configuration.GenericLevelSetUnacknowledged;
+import no.nordicsemi.android.meshprovisioner.configuration.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.GenericMessageState;
 import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffGet;
 import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffSet;
@@ -186,6 +190,28 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     switchState(genericOnOffSetStatus);
                     break;
                 case GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE:
+                    //We don't expect a generic on off status as this is an unacknowledged message so we switch states here
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                    break;
+                case GENERIC_LEVEL_GET_STATE:
+                    //Create the next corresponding status state
+                    final GenericLevelStatus genericLevelGetStatus = new GenericLevelStatus(mContext, mMeshMessageState.getMeshNode(), this, mMeshMessageState.getMeshModel(),
+                            mMeshMessageState.getAppKeyIndex());
+                    genericLevelGetStatus.setTransportCallbacks(mInternalTransportCallbacks);
+                    genericLevelGetStatus.setStatusCallbacks(mStatusCallbacks);
+                    //Switch states
+                    switchState(genericLevelGetStatus);
+                    break;
+                case GENERIC_LEVEL_SET_STATE:
+                    //Create the next corresponding status state
+                    final GenericLevelStatus genericLevelSetStatus = new GenericLevelStatus(mContext, mMeshMessageState.getMeshNode(), this, mMeshMessageState.getMeshModel(),
+                            mMeshMessageState.getAppKeyIndex());
+                    genericLevelSetStatus.setTransportCallbacks(mInternalTransportCallbacks);
+                    genericLevelSetStatus.setStatusCallbacks(mStatusCallbacks);
+                    //Switch states
+                    switchState(genericLevelSetStatus);
+                    break;
+                case GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE:
                     //We don't expect a generic on off status as this is an unacknowledged message so we switch states here
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     break;
@@ -339,6 +365,33 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     break;
                 case GENERIC_ON_OFF_STATUS_STATE:
                     if (((GenericOnOffStatus) mMeshMessageState).parseMeshPdu(pdu)) {
+                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                    }
+                    break;
+                case GENERIC_LEVEL_GET_STATE:
+                    //Create the next corresponding status state
+                    final GenericLevelStatus genericLevelGetStatus = new GenericLevelStatus(mContext, mMeshMessageState.getMeshNode(), this,
+                            mMeshMessageState.getMeshModel(), message.getAppKeyIndex());
+                    genericLevelGetStatus.setTransportCallbacks(mInternalTransportCallbacks);
+                    genericLevelGetStatus.setStatusCallbacks(mStatusCallbacks);
+                    //Switch states
+                    switchState(genericLevelGetStatus, pdu);
+                    break;
+                case GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE:
+                    //We do nothing here since there is no status involved for unacknowledged messages
+                    switchState(new DefaultNoOperationMessageState(mContext, meshNode, this), null);
+                    break;
+                case GENERIC_LEVEL_SET_STATE:
+                    //Create the next corresponding status state
+                    final GenericLevelStatus genericLevelSetStatus = new GenericLevelStatus(mContext, mMeshMessageState.getMeshNode(), this,
+                            mMeshMessageState.getMeshModel(), mMeshMessageState.getAppKeyIndex());
+                    genericLevelSetStatus.setTransportCallbacks(mInternalTransportCallbacks);
+                    genericLevelSetStatus.setStatusCallbacks(mStatusCallbacks);
+                    //Switch states
+                    switchState(genericLevelSetStatus, pdu);
+                    break;
+                case GENERIC_LEVEL_STATUS_STATE:
+                    if (((GenericLevelStatus) mMeshMessageState).parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
@@ -594,6 +647,68 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
         genericOnOffSetUnAcked.setStatusCallbacks(mStatusCallbacks);
         mMeshMessageState = genericOnOffSetUnAcked;
         genericOnOffSetUnAcked.executeSend();
+    }
+
+    /**
+     * Send generic level get to mesh node, this message sent is an acknowledged message.
+     *
+     * @param node        mesh node to send to
+     * @param model       Mesh model to control
+     * @param address     this address could be the unicast address of the element or the subscribe address
+     * @param aszmic      if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
+     * @param appKeyIndex index of the app key to encrypt the message with
+     */
+    public void getGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex) {
+        final GenericLevelGet genericLevelGet = new GenericLevelGet(mContext, node, this,
+                model, aszmic, address, appKeyIndex);
+        genericLevelGet.setTransportCallbacks(mInternalTransportCallbacks);
+        genericLevelGet.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = genericLevelGet;
+        genericLevelGet.executeSend();
+    }
+
+    /**
+     * Send generic level set to mesh node, this message sent is an acknowledged message.
+     *
+     * @param node                 mesh node to send to
+     * @param model                Mesh model to control
+     * @param address              this address could be the unicast address of the element or the subscribe address
+     * @param aszmic               if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
+     * @param appKeyIndex          index of the app key to encrypt the message with
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     * @param state                level state
+     */
+    public void setGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int state) {
+        final GenericLevelSet genericLevelSet = new GenericLevelSet(mContext, node, this,
+                model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+        genericLevelSet.setTransportCallbacks(mInternalTransportCallbacks);
+        genericLevelSet.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = genericLevelSet;
+        genericLevelSet.executeSend();
+    }
+
+    /**
+     * Send generic level to mesh node
+     *
+     * @param node                 mesh node to send to
+     * @param model                Mesh model to control
+     * @param address              this address could be the unicast address of the element or the subscribe address
+     * @param aszmic               if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
+     * @param appKeyIndex          index of the app key to encrypt the message with
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     * @param state                level state
+     */
+    public void setGenericLevelUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int state) {
+        final GenericLevelSetUnacknowledged genericLevelSetUnAcked = new GenericLevelSetUnacknowledged(mContext, node, this,
+                model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+        genericLevelSetUnAcked.setTransportCallbacks(mInternalTransportCallbacks);
+        genericLevelSetUnAcked.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = genericLevelSetUnAcked;
+        genericLevelSetUnAcked.executeSend();
     }
 
     /**

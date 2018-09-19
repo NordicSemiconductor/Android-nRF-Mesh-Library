@@ -721,6 +721,26 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
+    public void onGenericLevelSetUnacknowledgedSent(ProvisionedMeshNode node) {
+        // TODO
+    }
+
+    @Override
+    public void onGenericLevelSetSent(ProvisionedMeshNode node, boolean presentOnOff, boolean targetOnOff, int remainingTime) {
+        // TODO
+    }
+
+    @Override
+    public void onGenericLevelGetSent(ProvisionedMeshNode node) {
+        // TODO
+    }
+
+    @Override
+    public void onGenericLevelStatusReceived(ProvisionedMeshNode node, int presentLevel, int targetLevel, int transitionSteps, int transitionResolution) {
+        // TODO
+    }
+
+    @Override
     public void onUnacknowledgedVendorModelMessageSent(final ProvisionedMeshNode node) {
         mMeshNode = node;
     }
