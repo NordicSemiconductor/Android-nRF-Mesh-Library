@@ -44,4 +44,24 @@ public class ApplicationMessageOpCodes {
      */
     public static final short GENERIC_ON_OFF_STATUS = (short) 0x8204;
 
+    /**
+     * Opcode for the "Generic Level Get" message.
+     */
+    public static final int GENERIC_LEVEL_GET = 0x8205;
+
+    /**
+     * Opcode for the "Generic Level Set" message.
+     */
+    public static final int GENERIC_LEVEL_SET = 0x8206;
+
+    /**
+     * Opcode for the "Generic Level Set Unacknowledged" message.
+     */
+    public static final int GENERIC_LEVEL_SET_UNACKNOWLEDGED = 0x8207;
+
+    /**
+     * Opcode for the "Generic Level Status" message.
+     */
+    public static final short GENERIC_LEVEL_STATUS = (short) 0x8208;
+
 }
