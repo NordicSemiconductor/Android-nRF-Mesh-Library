@@ -651,6 +651,7 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
                         }
                     } catch (Exception ex) {
                         opCodeLayout.setError(ex.getMessage());
+                        return;
                     }
 
                     final String parameters = parametersEditText.getText().toString().trim();
@@ -691,17 +692,12 @@ public class ModelConfigurationActivity extends AppCompatActivity implements Inj
     }
 
     private boolean validateInput(final String input) throws IllegalArgumentException{
-        try {
+        if(TextUtils.isEmpty(input)){
+            throw new IllegalArgumentException(getString(R.string.error_empty_value));
+        }
 
-            if(TextUtils.isEmpty(input)){
-                throw new IllegalArgumentException(getString(R.string.error_empty_value));
-            }
-
-            if(!input.matches(Utils.HEX_PATTERN) || input.startsWith("0x")) {
-                throw new IllegalArgumentException(getString(R.string.invalid_hex_value));
-            }
-        } catch (IllegalArgumentException ex) {
-            //networkKeyInputLayout.setError(ex.getMessage());
+        if(!input.matches(Utils.HEX_PATTERN) || input.startsWith("0x")) {
+            throw new IllegalArgumentException(getString(R.string.invalid_hex_value));
         }
         return true;
     }
