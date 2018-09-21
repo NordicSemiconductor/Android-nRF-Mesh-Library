@@ -157,4 +157,8 @@ public class ModelConfigurationViewModel extends ViewModel {
     public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters){
         mModelConfigurationRepository.sendVendorModelAcknowledgedMessage(node, model, appKeyIndex, opcode, parameters);
     }
+
+    public void sendGenericLevelGet(final ProvisionedMeshNode node) {
+        mModelConfigurationRepository.sendGenericLevelGet(node);
+    }
 }

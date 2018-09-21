@@ -38,6 +38,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public final class GenericLevelStatus extends GenericMessageState{
 
     private static final String TAG = GenericLevelStatus.class.getSimpleName();
+    private static final int GENERIC_LEVEL_STATUS_MANDATORY_LENGTH = 2;
     private int mPresentLevel;
     private int mTargetLevel;
     private int mRemainingTime;
@@ -104,12 +105,12 @@ public final class GenericLevelStatus extends GenericMessageState{
         Log.v(TAG, "Received generic level status");
         final ByteBuffer buffer = ByteBuffer.wrap(message.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
         buffer.position(0);
-        mPresentLevel = buffer.getShort() + 32768;
+        mPresentLevel = buffer.getShort();
         Log.v(TAG, "Present level: " + mPresentLevel);
         int transitionSteps = 0;
         int transitionResolution = 0;
-        if(buffer.limit() > 1) {
-            mTargetLevel = buffer.getShort() + 32768;
+        if(buffer.limit() > GENERIC_LEVEL_STATUS_MANDATORY_LENGTH) {
+            mTargetLevel = buffer.getShort();
             mRemainingTime = buffer.get() & 0xFF;
             Log.v(TAG, "Target level: " + mTargetLevel);
             transitionSteps = (mRemainingTime & 0x3F);

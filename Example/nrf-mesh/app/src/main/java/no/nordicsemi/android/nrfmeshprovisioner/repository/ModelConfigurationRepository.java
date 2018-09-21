@@ -370,4 +370,19 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
     public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters) {
         mBinder.sendVendorModelAcknowledgedMessage(node, model, mElement.getValue().getElementAddress(), appKeyIndex, opcode, parameters);
     }
+
+    public void sendGenericLevelGet(final ProvisionedMeshNode node) {
+        final Element element = mElement.getValue();
+        final MeshModel model = mMeshModel.getValue();
+
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+            final byte[] address = element.getElementAddress();
+            Log.v(TAG, "Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
+
+            mBinder.sendGenericLevelGet(node, model, address, appKeyIndex);
+        } else {
+            Toast.makeText(mContext, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+        }
+    }
 }

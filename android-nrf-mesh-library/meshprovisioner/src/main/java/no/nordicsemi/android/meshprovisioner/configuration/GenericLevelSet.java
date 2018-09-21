@@ -76,7 +76,7 @@ public class GenericLevelSet extends GenericMessageState implements LowerTranspo
     private void createAccessMessage() {
         ByteBuffer paramsBuffer;
         byte[] parameters;
-        Log.v(TAG, "State: " + mState);
+        Log.v(TAG, "Level: " + mState);
         if(mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short)mState);

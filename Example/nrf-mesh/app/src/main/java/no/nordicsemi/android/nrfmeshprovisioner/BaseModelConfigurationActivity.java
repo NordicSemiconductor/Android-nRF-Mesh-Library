@@ -110,8 +110,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     @BindView(R.id.configuration_progress_bar)
     ProgressBar mProgressbar;
-    protected int mTransitionStepResolution;
-    protected int mTransitionStep;
 
     protected Handler mHandler;
     protected ModelConfigurationViewModel mViewModel;
@@ -119,7 +117,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected List<Integer> mKeyIndexes = new ArrayList<>();
     protected AddressAdapter mAddressAdapter;
     protected BoundAppKeysAdapter mBoundAppKeyAdapter;
-    protected Button mActionOnOff;
     protected Button mActionRead;
 
     /**
@@ -391,30 +388,26 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         fragmentMessage.show(getSupportFragmentManager(), null);
     };
 
-    private void enableClickableViews(){
+    protected void enableClickableViews(){
         mActionBindAppKey.setEnabled(true);
         mActionSetPublication.setEnabled(true);
         mActionClearPublication.setEnabled(true);
         mActionSubscribe.setEnabled(true);
 
-        if(mActionOnOff != null && !mActionOnOff.isEnabled())
-            mActionOnOff.setEnabled(true);
-
         if(mActionRead != null && !mActionRead.isEnabled())
             mActionRead.setEnabled(true);
+
     }
 
-    private void disableClickableViews(){
+    protected void disableClickableViews(){
         mActionBindAppKey.setEnabled(false);
         mActionSetPublication.setEnabled(false);
         mActionClearPublication.setEnabled(false);
         mActionSubscribe.setEnabled(false);
 
-        if(mActionOnOff != null)
-            mActionOnOff.setEnabled(false);
-
         if(mActionRead != null)
             mActionRead.setEnabled(false);
+
 
     }
 

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +21,10 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
+
+    private Button mActionOnOff;
+    protected int mTransitionStepResolution;
+    protected int mTransitionStep;
 
     @Override
     protected final void addControlsUi(final MeshModel model) {
@@ -40,7 +45,6 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
 
             mActionOnOff = nodeControlsContainer.findViewById(R.id.action_on_off);
-            mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
             mActionOnOff.setOnClickListener(v -> {
                 try {
                     final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
@@ -55,6 +59,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                 }
             });
 
+            mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
             mActionRead.setOnClickListener(v -> {
                 final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
                 mViewModel.sendGenericOnOffGet(node);
@@ -166,5 +171,19 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void enableClickableViews() {
+        super.enableClickableViews();
+        if(mActionOnOff != null && !mActionOnOff.isEnabled())
+            mActionOnOff.setEnabled(true);
+    }
+
+    @Override
+    protected void disableClickableViews() {
+        super.disableClickableViews();
+        if(mActionOnOff != null)
+            mActionOnOff.setEnabled(false);
     }
 }

@@ -1169,5 +1169,16 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
             mMeshManagerApi.sendVendorModelAcknowledgedMessage(node, model, address, appKeyIndex, opcode, parameters);
         }
+
+        /**
+         * Send generic level get to mesh node
+         *
+         * @param node                 mesh node to send generic on off get
+         * @param model                model identifier
+         * @param address              address to which the message must be sent to to which this model belongs to
+         */
+        public void sendGenericLevelGet(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex) {
+            mMeshManagerApi.getGenericLevel(node, model, address, appKeyIndex);
+        }
     }
 }
