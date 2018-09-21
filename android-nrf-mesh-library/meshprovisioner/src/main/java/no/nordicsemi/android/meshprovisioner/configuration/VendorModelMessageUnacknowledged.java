@@ -17,7 +17,6 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 public class VendorModelMessageUnacknowledged extends VendorModelMessageState {
 
     private static final String TAG = VendorModelMessageUnacknowledged.class.getSimpleName();
-    private static final int VENDOR_MODEL_OPCODE_LENGTH = 4;
 
     private final MeshModel mMeshModel;
     private final int mAszmic;
