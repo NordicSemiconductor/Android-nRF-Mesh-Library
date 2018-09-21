@@ -17,7 +17,6 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 public class VendorModelMessageUnacknowledged extends VendorModelMessageState {
 
     private static final String TAG = VendorModelMessageUnacknowledged.class.getSimpleName();
-    private static final int VENDOR_MODEL_OPCODE_LENGTH = 4;
 
     private final MeshModel mMeshModel;
     private final int mAszmic;
@@ -49,11 +48,6 @@ public class VendorModelMessageUnacknowledged extends VendorModelMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        ByteBuffer paramsBuffer;
-        paramsBuffer = ByteBuffer.allocate(parameters.length).order(ByteOrder.LITTLE_ENDIAN);
-        paramsBuffer.put(parameters);
-
-
         final byte[] key = MeshParserUtils.toByteArray(mMeshModel.getBoundAppkeys().get(mAppKeyIndex));
         int akf = 1;
         int aid = SecureUtils.calculateK4(key);
