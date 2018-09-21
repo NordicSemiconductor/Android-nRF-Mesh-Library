@@ -37,7 +37,7 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
-import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.BaseModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
@@ -48,7 +48,7 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
     private Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
     private OnItemClickListener mOnItemClickListener;
 
-    public BoundAppKeysAdapter(final ModelConfigurationActivity activity, final LiveData<MeshModel> meshModelLiveData) {
+    public BoundAppKeysAdapter(final BaseModelConfigurationActivity activity, final LiveData<MeshModel> meshModelLiveData) {
         this.mContext = activity;
         meshModelLiveData.observe(activity, meshModel -> {
             if(meshModel != null) {
