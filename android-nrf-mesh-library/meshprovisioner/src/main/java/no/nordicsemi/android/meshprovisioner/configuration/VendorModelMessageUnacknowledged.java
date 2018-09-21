@@ -49,11 +49,6 @@ public class VendorModelMessageUnacknowledged extends VendorModelMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        ByteBuffer paramsBuffer;
-        paramsBuffer = ByteBuffer.allocate(parameters.length).order(ByteOrder.LITTLE_ENDIAN);
-        paramsBuffer.put(parameters);
-
-
         final byte[] key = MeshParserUtils.toByteArray(mMeshModel.getBoundAppkeys().get(mAppKeyIndex));
         int akf = 1;
         int aid = SecureUtils.calculateK4(key);
