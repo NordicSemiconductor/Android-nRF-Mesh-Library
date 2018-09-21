@@ -6,6 +6,7 @@ import android.os.Bundle;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 
 public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
 
@@ -14,7 +15,9 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
 
     @Override
     protected final void addControlsUi(final MeshModel model) {
+        if(model instanceof GenericOnOffServerModel){
 
+        }
     }
 
     @Override
