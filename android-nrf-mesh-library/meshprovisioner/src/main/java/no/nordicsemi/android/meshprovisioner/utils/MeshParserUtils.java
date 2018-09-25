@@ -568,4 +568,35 @@ public class MeshParserUtils {
         }
         return  0;
     }
+
+    public static int getValue(final byte[] bytes) {
+        if (bytes == null || bytes.length != 2)
+            return 0;
+        return unsignedToSigned(unsignedBytesToInt(bytes[0], bytes[1]), 16);
+    }
+
+    /**
+     * Convert a signed byte to an unsigned int.
+     */
+    private static int unsignedByteToInt(byte b) {
+        return b & 0xFF;
+    }
+
+    /**
+     * Convert signed bytes to a 16-bit unsigned int.
+     */
+    private static int unsignedBytesToInt(byte b0, byte b1) {
+        return (unsignedByteToInt(b0) + (unsignedByteToInt(b1) << 8));
+    }
+
+    /**
+     * Convert an unsigned integer value to a two's-complement encoded signed value.
+     */
+
+    private static int unsignedToSigned(int unsigned, int size) {
+        if ((unsigned & (1 << size - 1)) != 0) {
+            unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
+        }
+        return unsigned;
+    }
 }

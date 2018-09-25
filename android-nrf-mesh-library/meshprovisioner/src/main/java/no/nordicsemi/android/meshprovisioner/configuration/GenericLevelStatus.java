@@ -39,9 +39,7 @@ public final class GenericLevelStatus extends GenericMessageState{
 
     private static final String TAG = GenericLevelStatus.class.getSimpleName();
     private static final int GENERIC_LEVEL_STATUS_MANDATORY_LENGTH = 2;
-    private int mPresentLevel;
     private int mTargetLevel;
-    private int mRemainingTime;
 
     public GenericLevelStatus(Context context,
                               final ProvisionedMeshNode unprovisionedMeshNode,
@@ -105,22 +103,23 @@ public final class GenericLevelStatus extends GenericMessageState{
         Log.v(TAG, "Received generic level status");
         final ByteBuffer buffer = ByteBuffer.wrap(message.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
         buffer.position(0);
-        mPresentLevel = buffer.getShort();
-        Log.v(TAG, "Present level: " + mPresentLevel);
+        final int presentLevel = (int) (buffer.getShort() + 32768f);
+        Log.v(TAG, "Present level: " + presentLevel);
         int transitionSteps = 0;
         int transitionResolution = 0;
+        int targetLevel = 0;
         if(buffer.limit() > GENERIC_LEVEL_STATUS_MANDATORY_LENGTH) {
-            mTargetLevel = buffer.getShort();
-            mRemainingTime = buffer.get() & 0xFF;
-            Log.v(TAG, "Target level: " + mTargetLevel);
-            transitionSteps = (mRemainingTime & 0x3F);
+            targetLevel = buffer.getShort();
+            final int remainingTime = buffer.get() & 0xFF;
+            Log.v(TAG, "Target level: " + targetLevel);
+            transitionSteps = (remainingTime & 0x3F);
             Log.v(TAG, "Remaining time, transition number of steps: " + transitionSteps);
-            transitionResolution = (mRemainingTime >> 6);
+            transitionResolution = (remainingTime >> 6);
             Log.v(TAG, "Remaining time, transition number of step resolution: " + transitionResolution);
-            Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(mRemainingTime));
+            Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(remainingTime));
         }
         mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
-        mMeshStatusCallbacks.onGenericLevelStatusReceived(mProvisionedMeshNode, mPresentLevel, mTargetLevel, transitionSteps, transitionResolution);
+        mMeshStatusCallbacks.onGenericLevelStatusReceived(mProvisionedMeshNode, presentLevel, targetLevel, transitionSteps, transitionResolution);
     }
 
     @Override

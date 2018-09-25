@@ -144,13 +144,13 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final String modelName = intent.getStringExtra(EXTRA_DATA_MODEL_NAME);
 
         if(savedInstanceState != null){
-            if (savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
+            /*if (savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
                 mProgressbar.setVisibility(View.VISIBLE);
                 disableClickableViews();
             } else {
                 mProgressbar.setVisibility(View.INVISIBLE);
                 enableClickableViews();
-            }
+            }*/
         } else {
             mViewModel.setModel(meshNode, elementAddress, modelId);
         }
@@ -313,6 +313,18 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(PROGRESS_BAR_STATE, mProgressbar.getVisibility() == View.VISIBLE);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(final Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
+            mProgressbar.setVisibility(View.VISIBLE);
+            disableClickableViews();
+        } else {
+            mProgressbar.setVisibility(View.INVISIBLE);
+            enableClickableViews();
+        }
     }
 
     @Override

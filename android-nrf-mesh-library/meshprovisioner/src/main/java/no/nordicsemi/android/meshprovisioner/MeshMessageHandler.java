@@ -480,7 +480,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
         mMeshMessageState = newState;
     }
 
-    public ConfigMessageState.MessageState getConfigurationState() {
+    ConfigMessageState.MessageState getConfigurationState() {
         return mMeshMessageState.getState();
     }
 
@@ -490,7 +490,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param meshNode mMeshNode to configure
      * @param aszmic   1 or 0 where 1 will create a message with a transport mic length of 8 and 4 if zero
      */
-    public void sendCompositionDataGet(final ProvisionedMeshNode meshNode, final int aszmic) {
+    void sendCompositionDataGet(final ProvisionedMeshNode meshNode, final int aszmic) {
         final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet(mContext,
                 meshNode, this, aszmic);
         compositionDataGet.setTransportCallbacks(mInternalTransportCallbacks);
@@ -503,7 +503,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
     /**
      * Send App key add message to the node.
      */
-    public void sendAppKeyAdd(final ProvisionedMeshNode meshNode, final int appKeyIndex, final String appKey, final int aszmic) {
+    void sendAppKeyAdd(final ProvisionedMeshNode meshNode, final int appKeyIndex, final String appKey, final int aszmic) {
         final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(mContext, meshNode, this, aszmic, appKey, appKeyIndex);
         configAppKeyAdd.setTransportCallbacks(mInternalTransportCallbacks);
         configAppKeyAdd.setStatusCallbacks(mStatusCallbacks);
@@ -520,8 +520,8 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param modelIdentifier identifier of the model. This could be 16-bit SIG Model or a 32-bit Vendor model identifier
      * @param appKeyIndex     application key index
      */
-    public void bindAppKey(final ProvisionedMeshNode meshNode, final int aszmic,
-                           final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
+    void bindAppKey(final ProvisionedMeshNode meshNode, final int aszmic,
+                    final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
         final ConfigModelAppBind configModelAppBind = new ConfigModelAppBind(mContext, meshNode, this,
                 aszmic, elementAddress, modelIdentifier, appKeyIndex);
         configModelAppBind.setTransportCallbacks(mInternalTransportCallbacks);
@@ -539,8 +539,8 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param modelIdentifier identifier of the model. This could be 16-bit SIG Model or a 32-bit Vendor model identifier
      * @param appKeyIndex     application key index
      */
-    public void unbindAppKey(final ProvisionedMeshNode meshNode, final int aszmic,
-                             final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
+    void unbindAppKey(final ProvisionedMeshNode meshNode, final int aszmic,
+                      final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
         final ConfigModelAppUnbind configModelAppBind = new ConfigModelAppUnbind(mContext, meshNode, this,
                 aszmic, elementAddress, modelIdentifier, appKeyIndex);
         configModelAppBind.setTransportCallbacks(mInternalTransportCallbacks);
@@ -554,7 +554,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      *
      * @param configModelPublicationSetParams contains the parameters for configmodel publication set
      */
-    public void sendConfigModelPublicationSet(final ConfigModelPublicationSetParams configModelPublicationSetParams) {
+    void sendConfigModelPublicationSet(final ConfigModelPublicationSetParams configModelPublicationSetParams) {
         final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(mContext, configModelPublicationSetParams, this);
         configModelPublicationSet.setTransportCallbacks(mInternalTransportCallbacks);
         configModelPublicationSet.setStatusCallbacks(mStatusCallbacks);
@@ -565,8 +565,8 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
     /**
      * Send App key add message to the node.
      */
-    public void addSubscriptionAddress(final ProvisionedMeshNode meshNode, final int aszmic, final byte[] elementAddress, final byte[] subscriptionAddress,
-                                       final int modelIdentifier) {
+    void addSubscriptionAddress(final ProvisionedMeshNode meshNode, final int aszmic, final byte[] elementAddress, final byte[] subscriptionAddress,
+                                final int modelIdentifier) {
         final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(mContext, meshNode, this, aszmic, elementAddress, subscriptionAddress, modelIdentifier);
         configModelSubscriptionAdd.setTransportCallbacks(mInternalTransportCallbacks);
         configModelSubscriptionAdd.setStatusCallbacks(mStatusCallbacks);
@@ -577,8 +577,8 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
     /**
      * Send App key add message to the node.
      */
-    public void deleteSubscriptionAddress(final ProvisionedMeshNode meshNode, final int aszmic, final byte[] elementAddress, final byte[] subscriptionAddress,
-                                          final int modelIdentifier) {
+    void deleteSubscriptionAddress(final ProvisionedMeshNode meshNode, final int aszmic, final byte[] elementAddress, final byte[] subscriptionAddress,
+                                   final int modelIdentifier) {
         final ConfigModelSubscriptionDelete configModelSubscriptionDelete = new ConfigModelSubscriptionDelete(mContext, meshNode, this,
                 aszmic, elementAddress, subscriptionAddress, modelIdentifier);
         configModelSubscriptionDelete.setTransportCallbacks(mInternalTransportCallbacks);
@@ -596,7 +596,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param aszmic      if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
      * @param appKeyIndex index of the app key to encrypt the message with
      */
-    public void getGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex) {
+    void getGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex) {
         final GenericOnOffGet genericOnOffGet = new GenericOnOffGet(mContext, node, this,
                 model, aszmic, address, appKeyIndex);
         genericOnOffGet.setTransportCallbacks(mInternalTransportCallbacks);
@@ -618,7 +618,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      * @param state                on off state
      */
-    public void setGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
+    void setGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(mContext, node, this,
                 model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
         genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
@@ -640,7 +640,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      * @param state                on off state
      */
-    public void setGenericOnOffUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
+    void setGenericOnOffUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
         final GenericOnOffSetUnacknowledged genericOnOffSetUnAcked = new GenericOnOffSetUnacknowledged(mContext, node, this,
                 model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
         genericOnOffSetUnAcked.setTransportCallbacks(mInternalTransportCallbacks);
@@ -658,7 +658,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param aszmic      if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
      * @param appKeyIndex index of the app key to encrypt the message with
      */
-    public void getGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex) {
+    void getGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex) {
         final GenericLevelGet genericLevelGet = new GenericLevelGet(mContext, node, this,
                 model, aszmic, address, appKeyIndex);
         genericLevelGet.setTransportCallbacks(mInternalTransportCallbacks);
@@ -678,11 +678,11 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param transitionSteps      the number of steps
      * @param transitionResolution the resolution for the number of steps
      * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param state                level state
+     * @param level                level
      */
-    public void setGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int state) {
+    void setGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int level) {
         final GenericLevelSet genericLevelSet = new GenericLevelSet(mContext, node, this,
-                model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+                model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, level);
         genericLevelSet.setTransportCallbacks(mInternalTransportCallbacks);
         genericLevelSet.setStatusCallbacks(mStatusCallbacks);
         mMeshMessageState = genericLevelSet;
@@ -700,11 +700,11 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param transitionSteps      the number of steps
      * @param transitionResolution the resolution for the number of steps
      * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param state                level state
+     * @param level                level
      */
-    public void setGenericLevelUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int state) {
+    void setGenericLevelUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int level) {
         final GenericLevelSetUnacknowledged genericLevelSetUnAcked = new GenericLevelSetUnacknowledged(mContext, node, this,
-                model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+                model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, level);
         genericLevelSetUnAcked.setTransportCallbacks(mInternalTransportCallbacks);
         genericLevelSetUnAcked.setStatusCallbacks(mStatusCallbacks);
         mMeshMessageState = genericLevelSetUnAcked;
@@ -716,7 +716,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      *
      * @param provisionedMeshNode mesh node to be reset
      */
-    public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
+    void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
         final ConfigNodeReset configNodeReset = new ConfigNodeReset(mContext, provisionedMeshNode, false, this);
         configNodeReset.setTransportCallbacks(mInternalTransportCallbacks);
         configNodeReset.setStatusCallbacks(mStatusCallbacks);
@@ -735,7 +735,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param opcode      opcode of the message
      * @param parameters  parameters of the message
      */
-    public void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
+    void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
         final VendorModelMessageUnacknowledged message = new VendorModelMessageUnacknowledged(mContext, node, this, model, aszmic, address, appKeyIndex, opcode, parameters);
         message.setTransportCallbacks(mInternalTransportCallbacks);
         message.setStatusCallbacks(mStatusCallbacks);
@@ -754,7 +754,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param opcode      opcode of the message
      * @param parameters  parameters of the message
      */
-    public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
+    void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
         final VendorModelMessage message = new VendorModelMessage(mContext, node, this, model, aszmic, address, appKeyIndex, opcode, parameters);
         message.setTransportCallbacks(mInternalTransportCallbacks);
         message.setStatusCallbacks(mStatusCallbacks);

@@ -134,7 +134,7 @@
 
         <TextView
             android:id="@+id/title_level"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -145,12 +145,11 @@
             android:text="@string/generic_level"
             android:gravity="start"
             app:layout_constraintTop_toBottomOf="@id/delay_seekbar"
-            app:layout_constraintStart_toStartOf="@id/delay_seekbar"
-            app:layout_constraintEnd_toStartOf="@id/transition_time"/>
+            app:layout_constraintStart_toStartOf="@id/delay_seekbar"/>
 
         <TextView
             android:id="@+id/level"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -158,10 +157,9 @@
             android:paddingStart="@dimen/item_padding_start"
             android:paddingEnd="@dimen/item_padding_end"
             android:textSize="18sp"
-            android:text="100"
+            android:text="0%"
             android:gravity="end"
             app:layout_constraintTop_toBottomOf="@id/delay_seekbar"
-            app:layout_constraintStart_toStartOf="@id/delay_seekbar"
             app:layout_constraintEnd_toEndOf="@id/delay_seekbar"
             tools:ignore="HardcodedText"/>
 

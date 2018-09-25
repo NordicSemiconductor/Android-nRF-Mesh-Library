@@ -398,5 +398,6 @@
     <string name="provisioned_device_not_found">Unable to find provisioned device</string>
     <string name="remaining_time">Rem. Time: %s</string>
     <string name="generic_level">Level</string>
+    <string name="generic_level_percent">%d%%</string>
     <string name="title_generic_level_controls">Generic Level Controls</string>
 </resources>

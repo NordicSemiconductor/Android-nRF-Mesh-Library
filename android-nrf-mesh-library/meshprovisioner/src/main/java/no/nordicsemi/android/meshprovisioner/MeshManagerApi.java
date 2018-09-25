@@ -937,15 +937,15 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @param transitionSteps      the number of steps
      * @param transitionResolution the resolution for the number of steps
      * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param state                level state
+     * @param level                level state
      */
     public void setGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int state) {
+                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level) {
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
             if (appKeyIndex >= 0) {
                 if (dstAddress == null)
                     throw new IllegalArgumentException("Destination address cannot be null!");
-                mMeshMessageHandler.setGenericLevel(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+                mMeshMessageHandler.setGenericLevel(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, level);
             } else {
                 throw new IllegalArgumentException("Invalid app key index!");
             }
@@ -964,15 +964,15 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
      * @param transitionSteps      the number of steps
      * @param transitionResolution the resolution for the number of steps
      * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param state                level state
+     * @param level                level state
      */
     public void setGenericLevelUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                              @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int state) {
+                                              @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level) {
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
             if (appKeyIndex >= 0) {
                 if (dstAddress == null)
                     throw new IllegalArgumentException("Destination address cannot be null!");
-                mMeshMessageHandler.setGenericLevelUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+                mMeshMessageHandler.setGenericLevelUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, level);
             } else {
                 throw new IllegalArgumentException("Invalid app key index!");
             }

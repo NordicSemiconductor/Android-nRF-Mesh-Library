@@ -29,13 +29,13 @@ public class GenericLevelSet extends GenericMessageState implements LowerTranspo
     private final Integer mTransitionSteps;
     private final Integer mTransitionResolution;
     private final Integer mDelay;
-    private final int mState;
+    private final int mLevel;
 
     public GenericLevelSet(final Context context, final ProvisionedMeshNode provisionedMeshNode,
 						   final InternalMeshMsgHandlerCallbacks callbacks,
 						   final MeshModel model, final boolean aszmic,
 						   final byte[] dstAddress, final int appKeyIndex,
-						   final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int state) {
+						   final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int level) {
         super(context, provisionedMeshNode, callbacks);
         this.mAszmic = aszmic ? 1 : 0;
         this.dstAddress = dstAddress;
@@ -44,7 +44,7 @@ public class GenericLevelSet extends GenericMessageState implements LowerTranspo
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;
-        this.mState = state;
+        this.mLevel = level;
         createAccessMessage();
     }
 
@@ -76,16 +76,16 @@ public class GenericLevelSet extends GenericMessageState implements LowerTranspo
     private void createAccessMessage() {
         ByteBuffer paramsBuffer;
         byte[] parameters;
-        Log.v(TAG, "Level: " + mState);
+        Log.v(TAG, "Level: " + mLevel);
         if(mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.putShort((short)mState);
+            paramsBuffer.putShort((short) mLevel);
             paramsBuffer.put((byte) mProvisionedMeshNode.getSequenceNumber());
         } else {
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.putShort((short)mState);
+            paramsBuffer.putShort((short) mLevel);
             paramsBuffer.put((byte) mProvisionedMeshNode.getSequenceNumber());
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
@@ -102,7 +102,7 @@ public class GenericLevelSet extends GenericMessageState implements LowerTranspo
 
     @Override
     public final void executeSend() {
-        Log.v(TAG, "Sending Generic Level set acknowledged: " + mState);
+        Log.v(TAG, "Sending Generic Level set acknowledged: " + mLevel);
         super.executeSend();
     }
 

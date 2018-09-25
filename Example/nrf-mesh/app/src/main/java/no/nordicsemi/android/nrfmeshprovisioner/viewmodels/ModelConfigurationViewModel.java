@@ -33,6 +33,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyBindStatusLiveDat
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericLevelStatusUpdate;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericOnOffStatusUpdate;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
@@ -158,7 +159,19 @@ public class ModelConfigurationViewModel extends ViewModel {
         mModelConfigurationRepository.sendVendorModelAcknowledgedMessage(node, model, appKeyIndex, opcode, parameters);
     }
 
+    public LiveData<GenericLevelStatusUpdate> getGenericLevelState() {
+        return mModelConfigurationRepository.getGenericLevelState();
+    }
+
     public void sendGenericLevelGet(final ProvisionedMeshNode node) {
         mModelConfigurationRepository.sendGenericLevelGet(node);
+    }
+
+    public void sendGenericLevelSet(final ProvisionedMeshNode node, final int level, final Integer transitionSteps, final Integer transitionResolution, final Integer delay) {
+        mModelConfigurationRepository.sendGenericLevelSet(node, level, transitionSteps, transitionResolution, delay);
+    }
+
+    public void sendGenericLevelSetUnacknowledged(final ProvisionedMeshNode node, final int level, final Integer transitionSteps, final Integer transitionResolution, final Integer delay) {
+        mModelConfigurationRepository.sendGenericLevelSetUnacknowledged(node, level, transitionSteps, transitionResolution, delay);
     }
 }

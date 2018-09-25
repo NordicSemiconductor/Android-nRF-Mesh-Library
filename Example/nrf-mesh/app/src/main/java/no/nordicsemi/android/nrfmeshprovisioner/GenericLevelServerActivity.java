@@ -19,8 +19,11 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
-    protected int mTransitionStepResolution;
-    protected int mTransitionStep;
+    private int mTransitionStepResolution;
+    private int mTransitionStep;
+    private SeekBar mTransitionTimeSeekBar;
+    private SeekBar mDelaySeekBar;
+    private SeekBar mLevelSeekBar;
 
     @Override
     protected final void addControlsUi(final MeshModel model) {
@@ -28,17 +31,21 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
             final CardView cardView = findViewById(R.id.node_controls_card);
             final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_level, cardView);
             final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
-            final TextView onOffState = nodeControlsContainer.findViewById(R.id.on_off_state);
             final TextView remainingTime = nodeControlsContainer.findViewById(R.id.transition_state);
-            final SeekBar transitionTimeSeekBar = nodeControlsContainer.findViewById(R.id.transition_seekbar);
-            transitionTimeSeekBar.setProgress(0);
-            transitionTimeSeekBar.incrementProgressBy(1);
-            transitionTimeSeekBar.setMax(230);
+            mTransitionTimeSeekBar = nodeControlsContainer.findViewById(R.id.transition_seekbar);
+            mTransitionTimeSeekBar.setProgress(0);
+            mTransitionTimeSeekBar.incrementProgressBy(1);
+            mTransitionTimeSeekBar.setMax(230);
 
-            final SeekBar delaySeekBar = nodeControlsContainer.findViewById(R.id.delay_seekbar);
-            delaySeekBar.setProgress(0);
-            delaySeekBar.setMax(255);
+            mDelaySeekBar = nodeControlsContainer.findViewById(R.id.delay_seekbar);
+            mDelaySeekBar.setProgress(0);
+            mDelaySeekBar.setMax(255);
             final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
+
+            final TextView level = nodeControlsContainer.findViewById(R.id.level);
+            mLevelSeekBar = nodeControlsContainer.findViewById(R.id.level_seekbar);
+            mLevelSeekBar.setProgress(0);
+            mLevelSeekBar.setMax(100);
 
             mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
             mActionRead.setOnClickListener(v -> {
@@ -47,7 +54,23 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 showProgressbar();
             });
 
-            transitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            mViewModel.getGenericLevelState().observe(this, genericLevelStatusUpdate -> {
+                hideProgressBar();
+                final int presentLevel = genericLevelStatusUpdate.getPresentLevel();
+                final Integer targetLevel = genericLevelStatusUpdate.getTargetLevel();
+                final int steps = genericLevelStatusUpdate.getSteps();
+                final int resolution = genericLevelStatusUpdate.getResolution();
+                if (targetLevel == null) {
+                    level.setText(getString(R.string.generic_level_percent, presentLevel));
+                    remainingTime.setVisibility(View.GONE);
+                } else {
+                    level.setText(getString(R.string.generic_level_percent, targetLevel));
+                    remainingTime.setText(getString(R.string.remaining_time, MeshParserUtils.getRemainingTransitionTime(resolution, steps)));
+                    remainingTime.setVisibility(View.VISIBLE);
+                }
+            });
+
+            mTransitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 int lastValue = 0;
                 double res = 0.0;
 
@@ -102,7 +125,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 }
             });
 
-            delaySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            mDelaySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
                     delayTime.setText(getString(R.string.transition_time_interval, String.valueOf(progress * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms"));
@@ -119,7 +142,26 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 }
             });
 
+            mLevelSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
+                    level.setText(getString(R.string.generic_level_percent, progress));
+                }
 
+                @Override
+                public void onStartTrackingTouch(final SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(final SeekBar seekBar) {
+                    showProgressbar();
+                    final int level = seekBar.getProgress();
+                    final int delay = mDelaySeekBar.getProgress();
+                    final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
+                    mViewModel.sendGenericLevelSet(node, level, mTransitionStep, mTransitionStepResolution, delay);
+                }
+            });
         }
     }
 
@@ -131,11 +173,16 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
     @Override
     protected void enableClickableViews() {
         super.enableClickableViews();
-
+        mTransitionTimeSeekBar.setEnabled(true);
+        mDelaySeekBar.setEnabled(true);
+        mLevelSeekBar.setEnabled(true);
     }
 
     @Override
     protected void disableClickableViews() {
         super.disableClickableViews();
+        mTransitionTimeSeekBar.setEnabled(false);
+        mDelaySeekBar.setEnabled(false);
+        mLevelSeekBar.setEnabled(false);
     }
 }
