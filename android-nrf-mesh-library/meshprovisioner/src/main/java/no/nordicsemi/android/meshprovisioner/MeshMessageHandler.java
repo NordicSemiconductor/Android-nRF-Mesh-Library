@@ -681,6 +681,9 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param level                level
      */
     void setGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int level) {
+        if(level < Short.MIN_VALUE || level > Short.MAX_VALUE )
+            throw new IllegalArgumentException("Generic level value must be between -32768 to 32767");
+
         final GenericLevelSet genericLevelSet = new GenericLevelSet(mContext, node, this,
                 model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, level);
         genericLevelSet.setTransportCallbacks(mInternalTransportCallbacks);

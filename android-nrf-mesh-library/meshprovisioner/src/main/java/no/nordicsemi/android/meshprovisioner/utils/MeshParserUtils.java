@@ -475,6 +475,32 @@ public class MeshParserUtils {
     }
 
     /**
+     * Checks if the opcode is valid
+     *
+     * @param opCode opCode of mesh message
+     * @return if the opcode is valid
+     */
+    public static final boolean isValidOpcode(final int opCode) throws IllegalArgumentException{
+        if(opCode != (opCode & 0xFFFFFF))
+            throw new IllegalArgumentException("Invalid opcode, opcode must be 1-3 octets");
+
+        return true;
+    }
+
+    /**
+     * Checks if the parameters are within the valid range
+     *
+     * @param parameters opCode of mesh message
+     * @return if the opcode is valid
+     */
+    public static final boolean isValidParameters(final byte[] parameters) throws IllegalArgumentException{
+        if(parameters != null && parameters.length > 379)
+            throw new IllegalArgumentException("Invalid parameters, parameters must be 0-379 octets");
+
+        return true;
+    }
+
+    /**
      * Checks if the publish ttl value is within the allowed range
      *
      * @param publishTtl publish ttl

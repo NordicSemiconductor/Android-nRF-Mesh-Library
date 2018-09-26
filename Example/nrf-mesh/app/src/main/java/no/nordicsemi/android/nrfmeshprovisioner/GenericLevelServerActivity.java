@@ -27,7 +27,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
 
     @Override
     protected final void addControlsUi(final MeshModel model) {
-        if(model instanceof GenericLevelServerModel){
+        if (model instanceof GenericLevelServerModel) {
             final CardView cardView = findViewById(R.id.node_controls_card);
             final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_level, cardView);
             final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
@@ -62,11 +62,11 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 final int resolution = genericLevelStatusUpdate.getResolution();
                 final int levelPercent;
                 if (targetLevel == null) {
-                    levelPercent = (presentLevel * 100)/65535;
+                    levelPercent = ((presentLevel + 32767) * 100) / 65535;
                     level.setText(getString(R.string.generic_level_percent, levelPercent));
                     remainingTime.setVisibility(View.GONE);
                 } else {
-                    levelPercent = (targetLevel * 100)/65535;
+                    levelPercent = ((targetLevel + 32767) * 100) / 65535;
                     level.setText(getString(R.string.generic_level_percent, levelPercent));
                     remainingTime.setText(getString(R.string.remaining_time, MeshParserUtils.getRemainingTransitionTime(resolution, steps)));
                     remainingTime.setVisibility(View.VISIBLE);
@@ -163,7 +163,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                     final int level = seekBar.getProgress();
                     final int delay = mDelaySeekBar.getProgress();
                     final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
-                    final int genericLevel = (level * 65535)/100;
+                    final int genericLevel = ((level * 65535) / 100) - 32767;
                     mViewModel.sendGenericLevelSet(node, genericLevel, mTransitionStep, mTransitionStepResolution, delay);
                 }
             });

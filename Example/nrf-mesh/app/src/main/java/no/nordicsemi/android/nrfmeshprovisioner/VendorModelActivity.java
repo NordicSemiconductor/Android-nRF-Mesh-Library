@@ -87,9 +87,10 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
             actionSend.setOnClickListener(v -> {
                 messageContainer.setVisibility(View.GONE);
                 final String opCode = opCodeEditText.getText().toString().trim();
-
+                final String parameters = parametersEditText.getText().toString().trim();
+                /*
                 try {
-                    if (!validateInput(opCode)) {
+                    if (!validateOpcode(opCode, opCodeLayout)) {
                         return;
                     }
                 } catch (Exception ex) {
@@ -97,13 +98,12 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
                     return;
                 }
 
-                final String parameters = parametersEditText.getText().toString().trim();
                 final byte[] params;
                 if (TextUtils.isEmpty(parameters) && parameters.length() == 0) {
                     params = null;
                 } else {
                     try {
-                        if (!validateInput(parameters)) {
+                        if (!validateOpcode(parameters)) {
                             return;
                         }
                     } catch (Exception ex) {
@@ -111,11 +111,24 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
                         return;
                     }
                     params = MeshParserUtils.toByteArray(parameters);
-                }
+                }*/
+
+                if(!validateOpcode(opCode, opCodeLayout))
+                    return;
+
+                if(!validateParameters(parameters, parametersLayout))
+                    return;
 
                 if (model.getBoundAppKeyIndexes().isEmpty()) {
                     Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
                     return;
+                }
+
+                final byte[] params;
+                if (TextUtils.isEmpty(parameters) && parameters.length() == 0) {
+                    params = null;
+                } else {
+                    params = MeshParserUtils.toByteArray(parameters);
                 }
 
                 final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
@@ -138,13 +151,56 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
         super.onCreate(savedInstanceState);
     }
 
-    private boolean validateInput(final String input) throws IllegalArgumentException{
-        if(TextUtils.isEmpty(input)){
-            throw new IllegalArgumentException(getString(R.string.error_empty_value));
-        }
+    private boolean validateOpcode(final String opCode, final TextInputLayout opCodeLayout) {
+        try {
+            if(TextUtils.isEmpty(opCode)){
+                opCodeLayout.setError(getString(R.string.error_empty_value));
+                return false;
+            }
 
-        if(!input.matches(Utils.HEX_PATTERN) || input.startsWith("0x")) {
-            throw new IllegalArgumentException(getString(R.string.invalid_hex_value));
+            if(opCode.length() % 2 != 0 || !opCode.matches(Utils.HEX_PATTERN)) {
+                opCodeLayout.setError(getString(R.string.invalid_hex_value));
+                return false;
+            }
+            if(MeshParserUtils.isValidOpcode(Integer.valueOf(opCode, 16))) {
+                return true;
+            }
+        }  catch (NumberFormatException ex) {
+            opCodeLayout.setError(getString(R.string.invalid_value));
+            return false;
+        } catch (IllegalArgumentException ex) {
+            opCodeLayout.setError(ex.getMessage());
+            return false;
+        } catch (Exception ex) {
+            opCodeLayout.setError(ex.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateParameters(final String parameters, final TextInputLayout parametersLayout) {
+        try {
+            if (TextUtils.isEmpty(parameters) && parameters.length() == 0) {
+                return true;
+            }
+
+            if(parameters.length() % 2 != 0 || !parameters.matches(Utils.HEX_PATTERN)) {
+                parametersLayout.setError(getString(R.string.invalid_hex_value));
+                return false;
+            }
+
+            if(MeshParserUtils.isValidParameters(MeshParserUtils.toByteArray(parameters))) {
+                return true;
+            }
+        }  catch (NumberFormatException ex) {
+            parametersLayout.setError(getString(R.string.invalid_value));
+            return false;
+        } catch (IllegalArgumentException ex) {
+            parametersLayout.setError(ex.getMessage());
+            return false;
+        } catch (Exception ex) {
+            parametersLayout.setError(ex.getMessage());
+            return false;
         }
         return true;
     }

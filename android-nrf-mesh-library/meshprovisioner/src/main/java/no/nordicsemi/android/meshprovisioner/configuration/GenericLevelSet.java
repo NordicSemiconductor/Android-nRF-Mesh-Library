@@ -85,7 +85,7 @@ public class GenericLevelSet extends GenericMessageState implements LowerTranspo
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.putShort((short) (mLevel - 32768f));
+            paramsBuffer.putShort((short) (mLevel));
             paramsBuffer.put((byte) mProvisionedMeshNode.getSequenceNumber());
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;

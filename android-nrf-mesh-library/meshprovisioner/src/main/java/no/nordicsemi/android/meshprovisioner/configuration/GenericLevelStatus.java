@@ -103,13 +103,13 @@ public final class GenericLevelStatus extends GenericMessageState{
         Log.v(TAG, "Received generic level status");
         final ByteBuffer buffer = ByteBuffer.wrap(message.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
         buffer.position(0);
-        final int presentLevel = (int) (buffer.getShort() + 32768f);
+        final int presentLevel = (int) (buffer.getShort());
         Log.v(TAG, "Present level: " + presentLevel);
         int transitionSteps = 0;
         int transitionResolution = 0;
         int targetLevel = 0;
         if(buffer.limit() > GENERIC_LEVEL_STATUS_MANDATORY_LENGTH) {
-            targetLevel = (int) (buffer.getShort() + + 32768f);
+            targetLevel = (int) (buffer.getShort());
             final int remainingTime = buffer.get() & 0xFF;
             Log.v(TAG, "Target level: " + targetLevel);
             transitionSteps = (remainingTime & 0x3F);
