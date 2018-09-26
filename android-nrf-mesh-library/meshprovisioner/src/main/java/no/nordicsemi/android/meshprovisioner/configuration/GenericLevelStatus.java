@@ -96,7 +96,7 @@ public final class GenericLevelStatus extends GenericMessageState{
      * Parses the contents of the Generic Level Status access message
      * @param message
      */
-    protected final void parseGenericLevelStatusMessage(final AccessMessage message) throws IllegalArgumentException{
+    final void parseGenericLevelStatusMessage(final AccessMessage message) throws IllegalArgumentException{
         if(message == null)
             throw  new IllegalArgumentException("Access message cannot be null!");
 
@@ -109,7 +109,7 @@ public final class GenericLevelStatus extends GenericMessageState{
         int transitionResolution = 0;
         int targetLevel = 0;
         if(buffer.limit() > GENERIC_LEVEL_STATUS_MANDATORY_LENGTH) {
-            targetLevel = buffer.getShort();
+            targetLevel = (int) (buffer.getShort() + + 32768f);
             final int remainingTime = buffer.get() & 0xFF;
             Log.v(TAG, "Target level: " + targetLevel);
             transitionSteps = (remainingTime & 0x3F);

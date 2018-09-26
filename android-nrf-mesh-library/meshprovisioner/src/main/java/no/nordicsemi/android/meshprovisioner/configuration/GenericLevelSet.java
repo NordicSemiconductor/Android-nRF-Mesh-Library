@@ -21,8 +21,8 @@ public class GenericLevelSet extends GenericMessageState implements LowerTranspo
 
 
     private static final String TAG = GenericLevelSet.class.getSimpleName();
-    private static final int GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH = 6;
-    private static final int GENERIC_LEVEL_SET_PARAMS_LENGTH = 4;
+    private static final int GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH = 5;
+    private static final int GENERIC_LEVEL_SET_PARAMS_LENGTH = 3;
 
     private final int mAszmic;
     private final byte[] dstAddress;
@@ -85,7 +85,7 @@ public class GenericLevelSet extends GenericMessageState implements LowerTranspo
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.putShort((short) mLevel);
+            paramsBuffer.putShort((short) (mLevel - 32768f));
             paramsBuffer.put((byte) mProvisionedMeshNode.getSequenceNumber());
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;

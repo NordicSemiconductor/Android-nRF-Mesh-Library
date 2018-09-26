@@ -19,8 +19,8 @@ public class GenericLevelSetUnacknowledged extends GenericMessageState {
 
 
     private static final String TAG = GenericLevelSetUnacknowledged.class.getSimpleName();
-    private static final int GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH = 6;
-    private static final int GENERIC_LEVEL_SET_PARAMS_LENGTH = 4;
+    private static final int GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH = 5;
+    private static final int GENERIC_LEVEL_SET_PARAMS_LENGTH = 3;
 
     private final int mAszmic;
     private final byte[] dstAddress;

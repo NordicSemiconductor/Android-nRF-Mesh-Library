@@ -60,14 +60,18 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 final Integer targetLevel = genericLevelStatusUpdate.getTargetLevel();
                 final int steps = genericLevelStatusUpdate.getSteps();
                 final int resolution = genericLevelStatusUpdate.getResolution();
+                final int levelPercent;
                 if (targetLevel == null) {
-                    level.setText(getString(R.string.generic_level_percent, presentLevel));
+                    levelPercent = (presentLevel * 100)/65535;
+                    level.setText(getString(R.string.generic_level_percent, levelPercent));
                     remainingTime.setVisibility(View.GONE);
                 } else {
-                    level.setText(getString(R.string.generic_level_percent, targetLevel));
+                    levelPercent = (targetLevel * 100)/65535;
+                    level.setText(getString(R.string.generic_level_percent, levelPercent));
                     remainingTime.setText(getString(R.string.remaining_time, MeshParserUtils.getRemainingTransitionTime(resolution, steps)));
                     remainingTime.setVisibility(View.VISIBLE);
                 }
+                mLevelSeekBar.setProgress(levelPercent);
             });
 
             mTransitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -159,7 +163,8 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                     final int level = seekBar.getProgress();
                     final int delay = mDelaySeekBar.getProgress();
                     final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
-                    mViewModel.sendGenericLevelSet(node, level, mTransitionStep, mTransitionStepResolution, delay);
+                    final int genericLevel = (level * 65535)/100;
+                    mViewModel.sendGenericLevelSet(node, genericLevel, mTransitionStep, mTransitionStepResolution, delay);
                 }
             });
         }

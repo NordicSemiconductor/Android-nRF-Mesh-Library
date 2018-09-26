@@ -55,6 +55,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONFIGURATION_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONNECTION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_LEVEL_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_ON_OFF_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_CONNECTED;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_RECONNECTING;
@@ -175,6 +176,7 @@ public abstract class BaseMeshRepository {
                     onConfigurationMessageStateChanged(intent);
                     break;
                 case ACTION_GENERIC_ON_OFF_STATE:
+                case ACTION_GENERIC_LEVEL_STATE:
                     onGenericMessageStateChanged(intent);
                     break;
                 case ACTION_VENDOR_MODEL_MESSAGE_STATE:

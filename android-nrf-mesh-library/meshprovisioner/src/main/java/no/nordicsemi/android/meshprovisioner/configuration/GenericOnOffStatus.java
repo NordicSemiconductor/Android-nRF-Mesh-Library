@@ -98,7 +98,7 @@ public final class GenericOnOffStatus extends GenericMessageState {
      * Parses the contents of the Generic OnOff Status access message
      * @param message
      */
-    protected final void parseGenericOnOffStatusMessage(final AccessMessage message) throws IllegalArgumentException{
+    final void parseGenericOnOffStatusMessage(final AccessMessage message) throws IllegalArgumentException{
         if(message == null)
             throw  new IllegalArgumentException("Access message cannot be null!");
 
