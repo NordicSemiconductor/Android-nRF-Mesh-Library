@@ -20,30 +20,27 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package no.nordicsemi.android.nrfmeshprovisioner.di;
 
-buildscript {
-    
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0'
-        
+import dagger.Module;
+import dagger.android.ContributesAndroidInjector;
+import no.nordicsemi.android.nrfmeshprovisioner.GenericLevelServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.GenericOnOffServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.VendorModelActivity;
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
+@Module
+abstract class AppControlActivitiesModule {
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
+	@ContributesAndroidInjector()
+	abstract ModelConfigurationActivity contributeModelConfigurationActivity();
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+	@ContributesAndroidInjector()
+	abstract GenericOnOffServerActivity contributeGenericOnOffServerActivity();
+
+	@ContributesAndroidInjector()
+	abstract GenericLevelServerActivity contributeGenericLevelServerActivity();
+
+	@ContributesAndroidInjector()
+	abstract VendorModelActivity contributeVendorModelActivity();
 }

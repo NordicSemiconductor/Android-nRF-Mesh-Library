@@ -51,6 +51,9 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddedAppKeyAdapter;
@@ -287,12 +290,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     @Override
     public void onElementItemClick(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model) {
-        final Intent intent = new Intent(this, ModelConfigurationActivity.class);
-        intent.putExtra(EXTRA_DEVICE, meshNode);
-        intent.putExtra(EXTRA_ELEMENT_ADDRESS, AddressUtils.getUnicastAddressInt(element.getElementAddress()));
-        intent.putExtra(EXTRA_MODEL_ID, model.getModelId());
-        intent.putExtra(EXTRA_DATA_MODEL_NAME, model.getModelName());
-        startActivity(intent);
+        startActivity(meshNode, element, model);
     }
 
     @Override
@@ -339,5 +337,33 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         actionGetCompositionData.setEnabled(false);
         actionAddAppkey.setEnabled(false);
         actionResetNode.setEnabled(false);
+    }
+
+    /**
+     * Start activity based on the type of the model
+     *
+     * <p> This way we can seperate the ui logic for different activities</p>
+     *
+     * @param meshNode mesh node
+     * @param element element
+     * @param model model
+     */
+    private void startActivity(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model) {
+        final Intent intent;
+        if(model instanceof GenericOnOffServerModel) {
+            intent = new Intent(this, GenericOnOffServerActivity.class);
+        } else if (model instanceof GenericLevelServerModel) {
+            intent = new Intent(this, GenericLevelServerActivity.class);
+        } else if (model instanceof VendorModel) {
+            intent = new Intent(this, VendorModelActivity.class);
+        } else {
+            intent = new Intent(this, ModelConfigurationActivity.class);
+        }
+
+        intent.putExtra(EXTRA_DEVICE, meshNode);
+        intent.putExtra(EXTRA_ELEMENT_ADDRESS, AddressUtils.getUnicastAddressInt(element.getElementAddress()));
+        intent.putExtra(EXTRA_MODEL_ID, model.getModelId());
+        intent.putExtra(EXTRA_DATA_MODEL_NAME, model.getModelName());
+        startActivity(intent);
     }
 }

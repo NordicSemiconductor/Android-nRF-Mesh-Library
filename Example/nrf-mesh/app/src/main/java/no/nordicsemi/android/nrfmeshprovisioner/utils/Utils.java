@@ -54,6 +54,7 @@ public class Utils {
     public static final String ACTION_CONFIGURATION_STATE = "ACTION_CONFIGURATION_STATE";
     public static final String ACTION_GENERIC_STATE = "ACTION_GENERIC_STATE";
     public static final String ACTION_GENERIC_ON_OFF_STATE = "ACTION_GENERIC_ON_OFF_STATE";
+    public static final String ACTION_GENERIC_LEVEL_STATE = "ACTION_GENERIC_LEVEL_STATE";
 
     public static final String ACTION_VENDOR_MODEL_MESSAGE = "ACTION_VENDOR_MODEL_MESSAGE";
     public static final String ACTION_VENDOR_MODEL_MESSAGE_STATE = "ACTION_VENDOR_MODEL_MESSAGE_STATE";
@@ -95,11 +96,10 @@ public class Utils {
     public static String ACTION_DELETE_APP_KEY = "ACTION_DELETE_APP_KEY";
     public static String ACTION_VIEW_APP_KEY = "ACTION_VIEW_APP_KEY";
 
-
-    public static final String EXTRA_GENERIC_ON_OFF_PRESENT_STATE = "EXTRA_GENERIC_ON_OFF_PRESENT_STATE";
-    public static final String EXTRA_GENERIC_ON_OFF_TARGET_STATE = "EXTRA_GENERIC_ON_OFF_TARGET_STATE";
-    public static final String EXTRA_GENERIC_ON_OFF_TRANSITION_STEPS = "EXTRA_GENERIC_ON_OFF_TRANSITION_STEPS";
-    public static final String EXTRA_GENERIC_ON_OFF_TRANSITION_RES = "EXTRA_GENERIC_ON_OFF_TRANSITION_RES";
+    public static final String EXTRA_GENERIC_PRESENT_STATE = "EXTRA_GENERIC_PRESENT_STATE";
+    public static final String EXTRA_GENERIC_TARGET_STATE = "EXTRA_GENERIC_TARGET_STATE";
+    public static final String EXTRA_GENERIC_TRANSITION_STEPS = "EXTRA_GENERIC_TRANSITION_STEPS";
+    public static final String EXTRA_GENERIC_TRANSITION_RES = "EXTRA_GENERIC_TRANSITION_RES";
 
     /**
      * Checks whether Bluetooth is enabled.
@@ -239,6 +239,7 @@ public class Utils {
         intentFilter.addAction(ACTION_CONFIGURATION_STATE);
         intentFilter.addAction(ACTION_TRANSACTION_STATE);
         intentFilter.addAction(ACTION_GENERIC_ON_OFF_STATE);
+        intentFilter.addAction(ACTION_GENERIC_LEVEL_STATE);
         intentFilter.addAction(ACTION_VENDOR_MODEL_MESSAGE_STATE);
         return intentFilter;
     }

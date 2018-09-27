@@ -475,6 +475,32 @@ public class MeshParserUtils {
     }
 
     /**
+     * Checks if the opcode is valid
+     *
+     * @param opCode opCode of mesh message
+     * @return if the opcode is valid
+     */
+    public static final boolean isValidOpcode(final int opCode) throws IllegalArgumentException{
+        if(opCode != (opCode & 0xFFFFFF))
+            throw new IllegalArgumentException("Invalid opcode, opcode must be 1-3 octets");
+
+        return true;
+    }
+
+    /**
+     * Checks if the parameters are within the valid range
+     *
+     * @param parameters opCode of mesh message
+     * @return if the opcode is valid
+     */
+    public static final boolean isValidParameters(final byte[] parameters) throws IllegalArgumentException{
+        if(parameters != null && parameters.length > 379)
+            throw new IllegalArgumentException("Invalid parameters, parameters must be 0-379 octets");
+
+        return true;
+    }
+
+    /**
      * Checks if the publish ttl value is within the allowed range
      *
      * @param publishTtl publish ttl
@@ -567,5 +593,36 @@ public class MeshParserUtils {
                 return (steps * 10) * 1000 * 60;
         }
         return  0;
+    }
+
+    public static int getValue(final byte[] bytes) {
+        if (bytes == null || bytes.length != 2)
+            return 0;
+        return unsignedToSigned(unsignedBytesToInt(bytes[0], bytes[1]), 16);
+    }
+
+    /**
+     * Convert a signed byte to an unsigned int.
+     */
+    private static int unsignedByteToInt(byte b) {
+        return b & 0xFF;
+    }
+
+    /**
+     * Convert signed bytes to a 16-bit unsigned int.
+     */
+    private static int unsignedBytesToInt(byte b0, byte b1) {
+        return (unsignedByteToInt(b0) + (unsignedByteToInt(b1) << 8));
+    }
+
+    /**
+     * Convert an unsigned integer value to a two's-complement encoded signed value.
+     */
+
+    private static int unsignedToSigned(int unsigned, int size) {
+        if ((unsigned & (1 << size - 1)) != 0) {
+            unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
+        }
+        return unsigned;
     }
 }

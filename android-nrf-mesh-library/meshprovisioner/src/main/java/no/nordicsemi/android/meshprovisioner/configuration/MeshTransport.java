@@ -108,6 +108,7 @@ final class MeshTransport extends NetworkLayer {
         Log.v(TAG, "akf: " + akf);
         Log.v(TAG, "aid: " + aid);
         Log.v(TAG, "aszmic: " + aszmic);
+        Log.v(TAG, "Sequence number: " + sequenceNumber);
         Log.v(TAG, "Access message opcode: " + accessOpCode);
         Log.v(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
 
@@ -159,6 +160,7 @@ final class MeshTransport extends NetworkLayer {
         Log.v(TAG, "akf: " + akf);
         Log.v(TAG, "aid: " + aid);
         Log.v(TAG, "aszmic: " + aszmic);
+        Log.v(TAG, "Sequence number: " + sequenceNumber);
         Log.v(TAG, "Access message opcode: " + Integer.toHexString(accessOpCode));
         Log.v(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
 
@@ -210,6 +212,7 @@ final class MeshTransport extends NetworkLayer {
         Log.v(TAG, "akf: " + akf);
         Log.v(TAG, "aid: " + aid);
         Log.v(TAG, "aszmic: " + aszmic);
+        Log.v(TAG, "Sequence number: " + sequenceNumber);
         Log.v(TAG, "Access message opcode: " + Integer.toHexString(accessOpCode));
         Log.v(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
 

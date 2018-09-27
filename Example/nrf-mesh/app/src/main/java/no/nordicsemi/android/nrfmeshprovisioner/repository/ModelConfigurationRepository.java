@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import no.nordicsemi.android.meshprovisioner.configuration.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
 import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
@@ -39,20 +40,22 @@ import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericLevelStatusUpdate;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericOnOffStatusUpdate;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_LEVEL_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_ON_OFF_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_VENDOR_MODEL_MESSAGE_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_PRESENT_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_TARGET_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_TRANSITION_RES;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_ON_OFF_TRANSITION_STEPS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_PRESENT_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_TARGET_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_TRANSITION_RES;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_TRANSITION_STEPS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_PUBLISH_ADDRESS;
@@ -63,6 +66,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
 
     private static final String TAG = ModelConfigurationRepository.class.getSimpleName();
     private MutableLiveData<GenericOnOffStatusUpdate> mGenericOnOffStatus = new MutableLiveData<>();
+    private MutableLiveData<GenericLevelStatusUpdate> mGenericLevelStatus = new MutableLiveData<>();
     private SingleLiveEvent<byte[]> mVendorModelState = new SingleLiveEvent<>();
 
     public ModelConfigurationRepository(final Context context) {
@@ -73,7 +77,11 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         return mGenericOnOffStatus;
     }
 
-    public LiveData<byte[]> getVendorModelState(){
+    public LiveData<GenericLevelStatusUpdate> getGenericLevelState() {
+        return mGenericLevelStatus;
+    }
+
+    public LiveData<byte[]> getVendorModelState() {
         return mVendorModelState;
     }
 
@@ -200,13 +208,20 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         final MeshModel model = mBinder.getMeshModel();
         switch (action) {
             case ACTION_GENERIC_ON_OFF_STATE:
-                final boolean presentOnOffState = intent.getExtras().getBoolean(EXTRA_GENERIC_ON_OFF_PRESENT_STATE);
-                final boolean targetOnOffState = intent.getExtras().getBoolean(EXTRA_GENERIC_ON_OFF_TARGET_STATE);
-                final int steps = intent.getExtras().getInt(EXTRA_GENERIC_ON_OFF_TRANSITION_STEPS);
-                final int resolution = intent.getExtras().getInt(EXTRA_GENERIC_ON_OFF_TRANSITION_RES);
-                //TODO implement target state and remaining state.
+                final boolean presentOnOffState = intent.getExtras().getBoolean(EXTRA_GENERIC_PRESENT_STATE);
+                final boolean targetOnOffState = intent.getExtras().getBoolean(EXTRA_GENERIC_TARGET_STATE);
+                final int steps = intent.getExtras().getInt(EXTRA_GENERIC_TRANSITION_STEPS);
+                final int resolution = intent.getExtras().getInt(EXTRA_GENERIC_TRANSITION_RES);
                 final GenericOnOffStatusUpdate genericOnOffStatusUpdate = new GenericOnOffStatusUpdate(presentOnOffState, steps > 0 ? targetOnOffState : null, steps, resolution);
                 mGenericOnOffStatus.postValue(genericOnOffStatusUpdate);
+                break;
+            case ACTION_GENERIC_LEVEL_STATE:
+                final int presentLevel = intent.getExtras().getInt(EXTRA_GENERIC_PRESENT_STATE);
+                final int targetLevel = intent.getExtras().getInt(EXTRA_GENERIC_TARGET_STATE);
+                final int transSteps = intent.getExtras().getInt(EXTRA_GENERIC_TRANSITION_STEPS);
+                final int transResolution = intent.getExtras().getInt(EXTRA_GENERIC_TRANSITION_RES);
+                final GenericLevelStatusUpdate genericLevelStatusUpdate = new GenericLevelStatusUpdate(presentLevel, transSteps > 0 ? targetLevel : null, transSteps, transResolution);
+                mGenericLevelStatus.postValue(genericLevelStatusUpdate);
                 break;
             case ACTION_VENDOR_MODEL_MESSAGE_STATE:
                 final byte[] data = intent.getExtras().getByteArray(EXTRA_DATA);
@@ -345,7 +360,7 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
             final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
             if (!model.getSubscriptionAddresses().isEmpty()) {
                 final List<byte[]> addressList = model.getSubscriptionAddresses();
-                for(int i = 0; i < addressList.size(); i++) {
+                for (int i = 0; i < addressList.size(); i++) {
                     final byte[] address = addressList.get(i);
                     Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
                             + ". Sending message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
@@ -369,5 +384,87 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
 
     public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters) {
         mBinder.sendVendorModelAcknowledgedMessage(node, model, mElement.getValue().getElementAddress(), appKeyIndex, opcode, parameters);
+    }
+
+    public void sendGenericLevelGet(final ProvisionedMeshNode node) {
+        final Element element = mElement.getValue();
+        final MeshModel model = mMeshModel.getValue();
+
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+            final byte[] address = element.getElementAddress();
+            Log.v(TAG, "Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
+
+            mBinder.sendGenericLevelGet(node, model, address, appKeyIndex);
+        } else {
+            Toast.makeText(mContext, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Send generic on off set to mesh node
+     *
+     * @param node                 mesh node to send generic on off set
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     * @param level                level to be set
+     */
+    public void sendGenericLevelSet(final ProvisionedMeshNode node, final int level, final Integer transitionSteps, final Integer transitionResolution, final Integer delay) {
+        final Element element = mElement.getValue();
+        final MeshModel model = mMeshModel.getValue();
+
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+            if (!model.getSubscriptionAddresses().isEmpty()) {
+                final byte[] address = model.getSubscriptionAddresses().get(0);
+                Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                        + ". Sending message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
+                mBinder.sendGenericLevelSet(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, level);
+            } else {
+                final byte[] address = element.getElementAddress();
+                Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                        + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
+
+                mBinder.sendGenericLevelSet(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, level);
+            }
+        } else {
+            Toast.makeText(mContext, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Send generic on off set to mesh node
+     *
+     * @param node                 mesh node to send generic on off set
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     * @param level                level to be set
+     */
+    public void sendGenericLevelSetUnacknowledged(final ProvisionedMeshNode node, final int level, final Integer transitionSteps, final Integer transitionResolution, final Integer delay) {
+        final Element element = mElement.getValue();
+        final MeshModel model = mMeshModel.getValue();
+
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+            if (!model.getSubscriptionAddresses().isEmpty()) {
+                final List<byte[]> addressList = model.getSubscriptionAddresses();
+                for (int i = 0; i < addressList.size(); i++) {
+                    final byte[] address = addressList.get(i);
+                    Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                            + ". Sending message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
+                    mBinder.sendGenericLevelSetUnacknowledged(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, level);
+                }
+            } else {
+                final byte[] address = element.getElementAddress();
+                Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                        + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
+
+                mBinder.sendGenericLevelSetUnacknowledged(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, level);
+            }
+        } else {
+            Toast.makeText(mContext, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+        }
     }
 }
