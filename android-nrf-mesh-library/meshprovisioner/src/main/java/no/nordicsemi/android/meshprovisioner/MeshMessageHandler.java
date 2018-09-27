@@ -90,7 +90,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param pdu      mesh pdu that was sent
      */
     protected void handleMeshMsgWriteCallbacks(final ProvisionedMeshNode meshNode, final byte[] pdu) {
-        if(mMeshMessageState instanceof ConfigMessageState) {
+        if (mMeshMessageState instanceof ConfigMessageState) {
             if (mMeshMessageState.getState() == null)
                 return;
 
@@ -166,7 +166,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     switchState(configNodeResetStatus);
                     break;
             }
-        } else if(mMeshMessageState instanceof GenericMessageState) {
+        } else if (mMeshMessageState instanceof GenericMessageState) {
             if (mMeshMessageState.getState() == null)
                 return;
 
@@ -216,8 +216,8 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     break;
             }
-        } else if(mMeshMessageState instanceof VendorModelMessageState) {
-            if(mMeshMessageState instanceof VendorModelMessageUnacknowledged) {
+        } else if (mMeshMessageState instanceof VendorModelMessageState) {
+            if (mMeshMessageState instanceof VendorModelMessageUnacknowledged) {
                 //We don't expect a generic on off status as this is an unacknowledged message so we switch states here
                 switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
             } else {
@@ -405,7 +405,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                 switchState(vendorModelMessageStatus, pdu);
             } else if (mMeshMessageState instanceof VendorModelMessageStatus) {
                 final VendorModelMessageStatus vendorModelMessageStatus = (VendorModelMessageStatus) mMeshMessageState;
-                if(vendorModelMessageStatus.parseMeshPdu(pdu)){
+                if (vendorModelMessageStatus.parseMeshPdu(pdu)) {
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                 }
             } else {
@@ -680,8 +680,10 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      * @param level                level
      */
-    void setGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int level) {
-        if(level < Short.MIN_VALUE || level > Short.MAX_VALUE )
+    void setGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] address,
+                         final boolean aszmic, final int appKeyIndex, final Integer transitionSteps,
+                         final Integer transitionResolution, final Integer delay, final int level) throws IllegalArgumentException {
+        if (level < Short.MIN_VALUE || level > Short.MAX_VALUE)
             throw new IllegalArgumentException("Generic level value must be between -32768 to 32767");
 
         final GenericLevelSet genericLevelSet = new GenericLevelSet(mContext, node, this,
@@ -705,7 +707,12 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      * @param level                level
      */
-    void setGenericLevelUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int level) {
+    void setGenericLevelUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address,
+                                       final boolean aszmic, final int appKeyIndex, final Integer transitionSteps,
+                                       final Integer transitionResolution, final Integer delay, final int level) throws IllegalArgumentException {
+        if (level < Short.MIN_VALUE || level > Short.MAX_VALUE)
+            throw new IllegalArgumentException("Generic level value must be between -32768 to 32767");
+
         final GenericLevelSetUnacknowledged genericLevelSetUnAcked = new GenericLevelSetUnacknowledged(mContext, node, this,
                 model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, level);
         genericLevelSetUnAcked.setTransportCallbacks(mInternalTransportCallbacks);
