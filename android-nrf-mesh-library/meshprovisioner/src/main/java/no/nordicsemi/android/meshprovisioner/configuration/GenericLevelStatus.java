@@ -35,15 +35,12 @@ import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class GenericOnOffStatus extends GenericMessageState {
+public final class GenericLevelStatus extends GenericMessageState {
 
-    private static final String TAG = GenericOnOffStatus.class.getSimpleName();
-    private static final int GENERIC_ON_OFF_STATE_ON = 0x01;
-    private boolean mPresentOn;
-    private Boolean mTargetOn;
-    private int mRemainingTime;
+    private static final String TAG = GenericLevelStatus.class.getSimpleName();
+    private static final int GENERIC_LEVEL_STATUS_MANDATORY_LENGTH = 2;
 
-    public GenericOnOffStatus(Context context,
+    public GenericLevelStatus(Context context,
                               final ProvisionedMeshNode unprovisionedMeshNode,
                               final InternalMeshMsgHandlerCallbacks callbacks,
                               final MeshModel meshModel,
@@ -53,7 +50,7 @@ public final class GenericOnOffStatus extends GenericMessageState {
         this.mAppKeyIndex = appKeyIndex;
     }
 
-    GenericOnOffStatus(Context context,
+    GenericLevelStatus(Context context,
                        final ProvisionedMeshNode unprovisionedMeshNode,
                        final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
         super(context, unprovisionedMeshNode, callbacks);
@@ -61,7 +58,7 @@ public final class GenericOnOffStatus extends GenericMessageState {
 
     @Override
     public MessageState getState() {
-        return MessageState.GENERIC_ON_OFF_STATUS_STATE;
+        return MessageState.GENERIC_LEVEL_STATUS_STATE;
     }
 
     public final boolean parseMeshPdu(final byte[] pdu) {
@@ -79,8 +76,8 @@ public final class GenericOnOffStatus extends GenericMessageState {
                     opcode = (short) accessMessage.getOpCode();
                 }
 
-                if (opcode == ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS) {
-                    parseGenericOnOffStatusMessage((AccessMessage)message);
+                if (opcode == ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS) {
+                    parseGenericLevelStatusMessage((AccessMessage)message);
                     return true;
                 } else {
                     mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
@@ -95,32 +92,33 @@ public final class GenericOnOffStatus extends GenericMessageState {
     }
 
     /**
-     * Parses the contents of the Generic OnOff Status access message
+     * Parses the contents of the Generic Level Status access message
      * @param message
      */
-    final void parseGenericOnOffStatusMessage(final AccessMessage message) throws IllegalArgumentException{
+    final void parseGenericLevelStatusMessage(final AccessMessage message) throws IllegalArgumentException{
         if(message == null)
             throw  new IllegalArgumentException("Access message cannot be null!");
 
-        Log.v(TAG, "Received generic on off status");
+        Log.v(TAG, "Received generic level status");
         final ByteBuffer buffer = ByteBuffer.wrap(message.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
         buffer.position(0);
-        mPresentOn = buffer.get() == GENERIC_ON_OFF_STATE_ON;
-        Log.v(TAG, "Present on: " + mPresentOn);
+        final int presentLevel = (int) (buffer.getShort());
+        Log.v(TAG, "Present level: " + presentLevel);
         int transitionSteps = 0;
         int transitionResolution = 0;
-        if(buffer.limit() > 1) {
-            mTargetOn = buffer.get() == GENERIC_ON_OFF_STATE_ON;
-            mRemainingTime = buffer.get() & 0xFF;
-            Log.v(TAG, "Target on: " + mTargetOn);
-            transitionSteps = (mRemainingTime & 0x3F);
+        int targetLevel = 0;
+        if(buffer.limit() > GENERIC_LEVEL_STATUS_MANDATORY_LENGTH) {
+            targetLevel = (int) (buffer.getShort());
+            final int remainingTime = buffer.get() & 0xFF;
+            Log.v(TAG, "Target level: " + targetLevel);
+            transitionSteps = (remainingTime & 0x3F);
             Log.v(TAG, "Remaining time, transition number of steps: " + transitionSteps);
-            transitionResolution = (mRemainingTime >> 6);
+            transitionResolution = (remainingTime >> 6);
             Log.v(TAG, "Remaining time, transition number of step resolution: " + transitionResolution);
-            Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(mRemainingTime));
+            Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(remainingTime));
         }
         mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
-        mMeshStatusCallbacks.onGenericOnOffStatusReceived(mProvisionedMeshNode, mPresentOn, mTargetOn, transitionSteps, transitionResolution);
+        mMeshStatusCallbacks.onGenericLevelStatusReceived(mProvisionedMeshNode, presentLevel, targetLevel, transitionSteps, transitionResolution);
     }
 
     @Override
@@ -130,5 +128,4 @@ public final class GenericOnOffStatus extends GenericMessageState {
         mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
         mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
     }
-
 }

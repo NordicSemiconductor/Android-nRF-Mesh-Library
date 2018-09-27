@@ -688,17 +688,11 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     @Override
     public void onGenericOnOffGetSent(final ProvisionedMeshNode node) {
         mMeshNode = node;
-        final Intent intent = new Intent(ACTION_GENERIC_STATE);
-        intent.putExtra(EXTRA_GENERIC_ON_OFF_GET, "");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override
     public void onGenericOnOffSetSent(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime) {
         mMeshNode = node;
-        final Intent intent = new Intent(ACTION_GENERIC_STATE);
-        intent.putExtra(EXTRA_GENERIC_ON_OFF_SET, "");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override
@@ -713,10 +707,36 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     public void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final Boolean targetOnOff, final int transitionSteps, final int transitionResolution) {
         mMeshNode = node;
         final Intent intent = new Intent(ACTION_GENERIC_ON_OFF_STATE);
-        intent.putExtra(EXTRA_GENERIC_ON_OFF_PRESENT_STATE, presentOnOff);
-        intent.putExtra(EXTRA_GENERIC_ON_OFF_TARGET_STATE, targetOnOff);
-        intent.putExtra(EXTRA_GENERIC_ON_OFF_TRANSITION_STEPS, transitionSteps);
-        intent.putExtra(EXTRA_GENERIC_ON_OFF_TRANSITION_RES, transitionResolution);
+        intent.putExtra(EXTRA_GENERIC_PRESENT_STATE, presentOnOff);
+        intent.putExtra(EXTRA_GENERIC_TARGET_STATE, targetOnOff);
+        intent.putExtra(EXTRA_GENERIC_TRANSITION_STEPS, transitionSteps);
+        intent.putExtra(EXTRA_GENERIC_TRANSITION_RES, transitionResolution);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
+    public void onGenericLevelSetUnacknowledgedSent(ProvisionedMeshNode node) {
+        // TODO
+    }
+
+    @Override
+    public void onGenericLevelSetSent(ProvisionedMeshNode node, boolean presentOnOff, boolean targetOnOff, int remainingTime) {
+        // TODO
+    }
+
+    @Override
+    public void onGenericLevelGetSent(ProvisionedMeshNode node) {
+        // TODO
+    }
+
+    @Override
+    public void onGenericLevelStatusReceived(ProvisionedMeshNode node, int presentLevel, int targetLevel, int transitionSteps, int transitionResolution) {
+        mMeshNode = node;
+        final Intent intent = new Intent(ACTION_GENERIC_LEVEL_STATE);
+        intent.putExtra(EXTRA_GENERIC_PRESENT_STATE, presentLevel);
+        intent.putExtra(EXTRA_GENERIC_TARGET_STATE, targetLevel);
+        intent.putExtra(EXTRA_GENERIC_TRANSITION_STEPS, transitionSteps);
+        intent.putExtra(EXTRA_GENERIC_TRANSITION_RES, transitionResolution);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -1148,6 +1168,27 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
         public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
             mMeshManagerApi.sendVendorModelAcknowledgedMessage(node, model, address, appKeyIndex, opcode, parameters);
+        }
+
+        /**
+         * Send generic level get to mesh node
+         *
+         * @param node                 mesh node to send generic on off get
+         * @param model                model identifier
+         * @param address              address to which the message must be sent to to which this model belongs to
+         */
+        public void sendGenericLevelGet(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex) {
+            mMeshManagerApi.getGenericLevel(node, model, address, appKeyIndex);
+        }
+
+        public void sendGenericLevelSet(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex,
+                                        final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int level) {
+            mMeshManagerApi.setGenericLevel(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, level);
+        }
+
+        public void sendGenericLevelSetUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex,
+                                                      final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int level) {
+            mMeshManagerApi.setGenericLevelUnacknowledged(node, model, address, appKeyIndex, transitionSteps, transitionResolution, delay, level);
         }
     }
 }

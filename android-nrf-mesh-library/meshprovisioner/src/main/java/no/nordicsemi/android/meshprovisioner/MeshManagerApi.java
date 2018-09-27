@@ -906,6 +906,82 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
     }
 
     /**
+     * Send generic level get to mesh node
+     *
+     * @param node        mesh node to send generic on off get
+     * @param model       model to control
+     * @param appKeyIndex application key index
+     */
+    public void getGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex) {
+
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshMessageHandler.getGenericLevel(node, model, dstAddress, false, appKeyIndex);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+    /**
+     * Send generic level set to mesh node
+     *
+     * @param node                 mesh node to send generic on off get
+     * @param model                model to control
+     * @param dstAddress           address of the element the mesh model belongs to
+     * @param appKeyIndex          application key index
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     * @param level                level state
+     */
+    public void setGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
+                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level) {
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshMessageHandler.setGenericLevel(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, level);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+    /**
+     * Send generic level set unacknowledged message to mesh node
+     *
+     * @param node                 mesh node to send generic on off get
+     * @param model                model to control
+     * @param dstAddress           address of the element the mesh model belongs to
+     * @param appKeyIndex          application key index
+     * @param transitionSteps      the number of steps
+     * @param transitionResolution the resolution for the number of steps
+     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     * @param level                level state
+     */
+    public void setGenericLevelUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
+                                              @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level) {
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshMessageHandler.setGenericLevelUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, level);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+    /**
      * Resets the specific mesh node
      *
      * @param provisionedMeshNode mesh node to be reset
