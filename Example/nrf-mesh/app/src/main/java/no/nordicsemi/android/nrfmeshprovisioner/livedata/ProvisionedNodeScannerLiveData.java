@@ -23,8 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.livedata;
 
 import android.arch.lifecycle.LiveData;
-
-import javax.annotation.Nullable;
+import android.support.annotation.Nullable;
 
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
