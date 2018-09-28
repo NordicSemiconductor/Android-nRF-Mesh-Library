@@ -112,48 +112,7 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
         } else {
             mBottomNavigationView.setSelectedItemId(savedInstanceState.getInt(CURRENT_FRAGMENT));
         }
-    }/*
-
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        if(!mViewModel.getProvisionedNodesLiveData().getProvisionedNodes().isEmpty()){
-            if(mNetworkFragment.isVisible()) {
-                if (!mViewModel.isConenctedToMesh()) {
-                    getMenuInflater().inflate(R.menu.connect, menu);
-                } else {
-                    getMenuInflater().inflate(R.menu.disconnect, menu);
-                }
-            } else if(mSettingsFragment.isVisible()){
-                getMenuInflater().inflate(R.menu.reset_network, menu);
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-        return true;
     }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        final int id = item.getItemId();
-        switch (id) {
-            case R.id.action_connect:
-                final Intent scannerActivity = new Intent(this, ProvisionedNodesScannerActivity.class);
-                scannerActivity.putExtra(ProvisionedNodesScannerActivity.NETWORK_ID, mViewModel.getNetworkId());
-                startActivity(scannerActivity);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
-            case R.id.action_reset_network:
-                final DialogFragmentResetNetwork dialogFragmentResetNetwork = DialogFragmentResetNetwork.
-                        newInstance(getString(R.string.title_reset_network), getString(R.string.message_reset_network));
-                        dialogFragmentResetNetwork.show(getSupportFragmentManager(), null);
-                return true;
-        }
-        return false;
-    }*/
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -216,9 +175,4 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     public void onProvisionedMeshNodeSelected() {
 
     }
-
-    /*@Override
-    public void onNetworkReset() {
-        mViewModel.resetMeshNetwork();
-    }*/
 }
