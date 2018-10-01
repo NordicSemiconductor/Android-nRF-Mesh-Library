@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 
 /**
  * Callbacks to notify the mesh message handler to notify events from transport layers.

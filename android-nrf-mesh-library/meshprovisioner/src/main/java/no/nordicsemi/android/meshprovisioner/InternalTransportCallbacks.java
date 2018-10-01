@@ -22,8 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.configuration.ConfigNodeResetStatus;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigNodeResetStatusState;
 
 public interface InternalTransportCallbacks {
 
@@ -41,7 +41,7 @@ public interface InternalTransportCallbacks {
     void updateMeshNode(final ProvisionedMeshNode meshNode);
 
     /**
-     * This callback is invoked by {@link ConfigNodeResetStatus}when the mesh node is succesfull reset
+     * This callback is invoked by {@link ConfigNodeResetStatusState}when the mesh node is succesfull reset
      * @param meshNode mesh to be updated
      */
     void onMeshNodeReset(final ProvisionedMeshNode meshNode);

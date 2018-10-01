@@ -24,7 +24,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "28.0.2"
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
@@ -53,6 +53,10 @@ android {
     dexOptions {
         preDexLibraries = false
     }
+
+    configurations.all {
+        resolutionStrategy.force 'com.android.support:multidex:1.0.2'
+    }
 }
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -70,7 +74,7 @@ dependencies {
     implementation 'no.nordicsemi.android.support.v18:scanner:1.1.0'
     implementation 'no.nordicsemi.android:ble:1.2.0'
     // Log Bluetooth LE events in nRF Logger
-    compileOnly 'com.android.support:multidex:1.0.3'
+    compileOnly 'com.android.support:multidex:1.0.2'
     // Lifecycle extensions
     implementation 'android.arch.lifecycle:extensions:1.1.1'
     implementation 'com.google.dagger:dagger:2.17'

@@ -24,7 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.livedata;
 
 import android.arch.lifecycle.LiveData;
 
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 
 public class ExtendedMeshModel extends LiveData<ExtendedMeshModel> {
 

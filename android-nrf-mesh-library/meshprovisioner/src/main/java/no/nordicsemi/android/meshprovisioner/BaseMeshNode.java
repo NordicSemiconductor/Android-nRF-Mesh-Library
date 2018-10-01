@@ -24,7 +24,6 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.SparseIntArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -33,7 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import no.nordicsemi.android.meshprovisioner.states.ProvisioningCapabilities;
+import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;

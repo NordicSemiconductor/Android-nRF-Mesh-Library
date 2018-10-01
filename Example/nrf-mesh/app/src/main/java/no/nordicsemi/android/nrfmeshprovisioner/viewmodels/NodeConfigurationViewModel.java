@@ -27,7 +27,7 @@ import android.arch.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.CompositionDataStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;

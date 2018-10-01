@@ -48,9 +48,9 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppStatus;
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelAppStatusState;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -258,7 +258,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
         mViewModel.getAppKeyBindStatusLiveData().observe(this, appKeyBindStatusLiveData -> {
             if(!appKeyBindStatusLiveData.isSuccess()){
-                final String statusMessage = ConfigModelAppStatus.parseStatusMessage(this, appKeyBindStatusLiveData.getStatus());
+                final String statusMessage = ConfigModelAppStatusState.parseStatusMessage(this, appKeyBindStatusLiveData.getStatus());
                 DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_appkey_status), statusMessage);
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
@@ -267,7 +267,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
         mViewModel.getConfigModelPublicationStatusLiveData().observe(this, configModelPublicationStatusLiveData -> {
             if(!configModelPublicationStatusLiveData.isSuccessful()){
-                final String statusMessage = ConfigModelAppStatus.parseStatusMessage(this, configModelPublicationStatusLiveData.getStatus());
+                final String statusMessage = ConfigModelAppStatusState.parseStatusMessage(this, configModelPublicationStatusLiveData.getStatus());
                 DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_publlish_address_status), statusMessage);
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
@@ -276,7 +276,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
         mViewModel.getConfigModelSubscriptionStatusLiveData().observe(this, configModelSubscriptionStatus -> {
             if(!configModelSubscriptionStatus.isSuccessful()){
-                final String statusMessage = ConfigModelAppStatus.parseStatusMessage(this, configModelSubscriptionStatus.getStatus());
+                final String statusMessage = ConfigModelAppStatusState.parseStatusMessage(this, configModelSubscriptionStatus.getStatus());
                 DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_publlish_address_status), statusMessage);
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }

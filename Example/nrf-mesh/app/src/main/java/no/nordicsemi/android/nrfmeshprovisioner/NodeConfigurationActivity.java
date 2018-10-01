@@ -48,9 +48,9 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.ConfigAppKeyStatus;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigAppKeyStatusState;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
@@ -214,7 +214,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_APP_KEY_STATUS) == null) {
                 if(!appKeyStatusLiveData.isSuccess()) {
                     final DialogFragmentAppKeyAddStatus fragmentAppKeyAddStatus = DialogFragmentAppKeyAddStatus.
-                            newInstance(getString(R.string.title_appkey_status), ConfigAppKeyStatus.parseStatusMessage(this, appKeyStatusLiveData.getStatus()));
+                            newInstance(getString(R.string.title_appkey_status), ConfigAppKeyStatusState.parseStatusMessage(this, appKeyStatusLiveData.getStatus()));
                     fragmentAppKeyAddStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_APP_KEY_STATUS);
                 }
             }

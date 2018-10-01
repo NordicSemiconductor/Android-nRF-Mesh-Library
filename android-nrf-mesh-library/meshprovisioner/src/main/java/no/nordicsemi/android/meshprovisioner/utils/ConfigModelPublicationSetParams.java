@@ -3,7 +3,7 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.support.annotation.NonNull;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 
 public class ConfigModelPublicationSetParams {
 
@@ -25,11 +25,15 @@ public class ConfigModelPublicationSetParams {
                                         @NonNull final byte[] elementAddress,
                                         @NonNull final int modelIdentifier,
                                         @NonNull final byte[] publishAddress,
-                                        @NonNull final int appKeyIndex) {
+                                        @NonNull final int appKeyIndex) throws IllegalArgumentException {
         this.meshNode = mProvisionedMeshNode;
         this.src = mProvisionedMeshNode.getConfigurationSrc();
+        if(elementAddress.length != 2 )
+            throw new IllegalArgumentException("Element address must be 2 bytes");
         this.elementAddress = elementAddress;
         this.modelIdentifier = modelIdentifier;
+        if(publishAddress.length != 2 )
+            throw new IllegalArgumentException("Publish address must be 2 bytes");
         this.publishAddress = publishAddress;
         this.appKeyIndex = appKeyIndex;
 

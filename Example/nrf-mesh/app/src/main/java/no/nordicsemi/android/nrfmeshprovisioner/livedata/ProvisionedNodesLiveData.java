@@ -27,7 +27,7 @@ import android.arch.lifecycle.LiveData;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 
 public class ProvisionedNodesLiveData extends LiveData<ProvisionedNodesLiveData> {
     private final LinkedHashMap<Integer, ProvisionedMeshNode> mProvisionedNodesMap = new LinkedHashMap<>();

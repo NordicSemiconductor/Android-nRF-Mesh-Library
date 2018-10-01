@@ -23,12 +23,11 @@
 package no.nordicsemi.android.nrfmeshprovisioner.livedata;
 
 import android.arch.lifecycle.LiveData;
-import android.util.Log;
 
 import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 
 public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {

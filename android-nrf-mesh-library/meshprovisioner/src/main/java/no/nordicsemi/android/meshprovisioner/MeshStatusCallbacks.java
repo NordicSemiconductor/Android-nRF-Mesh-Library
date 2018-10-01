@@ -22,8 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.configuration.*;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.*;
 /**
  * Callbacks to notify the status of the mesh messgaes
  */
@@ -65,126 +65,126 @@ public interface MeshStatusCallbacks {
     void onBlockAcknowledgementReceived(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigCompositionDataGet} was sent
+     * Notifies if {@link ConfigCompositionDataGetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onGetCompositionDataSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigCompositionDataStatus} was received
+     * Notifies if {@link ConfigCompositionDataStatusState} was received
      *
      * @param node mesh node that the message was sent to
      */
     void onCompositionDataStatusReceived(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigAppKeyAdd} was sent
+     * Notifies if {@link ConfigAppKeyAddState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onAppKeyAddSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigAppKeyStatus} was received
+     * Notifies if {@link ConfigAppKeyStatusState} was received
      *
      * @param node mesh node that the message was received from
      */
     void onAppKeyStatusReceived(final ProvisionedMeshNode node, final boolean success, int status, final int netKeyIndex, final int appKeyIndex);
 
     /**
-     * Notifies if {@link ConfigModelAppBind} was sent
+     * Notifies if {@link ConfigModelAppBindState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onAppKeyBindSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigModelAppUnbind} was sent
+     * Notifies if {@link ConfigModelAppUnbindState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onAppKeyUnbindSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigModelAppStatus} was received
+     * Notifies if {@link ConfigModelAppStatusState} was received
      *
      * @param node mesh node that the message was received from
      */
     void onAppKeyBindStatusReceived(final ProvisionedMeshNode node, final boolean success, int status, final int elementAddress, final int appKeyIndex, final int modelIdentifier);
 
     /**
-     * Notifies if {@link ConfigModelPublicationSet} was sent
+     * Notifies if {@link ConfigModelPublicationSetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onPublicationSetSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if an {@link ConfigModelPublicationStatus} was received
+     * Notifies if an {@link ConfigModelPublicationStatusState} was received
      *
      * @param node mesh node that the message was received from
      */
     void onPublicationStatusReceived(final ProvisionedMeshNode node, final boolean success, final int status, final byte[] elementAddress, final byte[] publishAddress, final int modelIdentifier);
 
     /**
-     * Notifies if {@link ConfigModelSubscriptionAdd} was sent
+     * Notifies if {@link ConfigModelSubscriptionAddState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onSubscriptionAddSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigModelSubscriptionDelete} was sent
+     * Notifies if {@link ConfigModelSubscriptionDeleteState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onSubscriptionDeleteSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigModelSubscriptionStatus} was received
+     * Notifies if {@link ConfigModelSubscriptionStatusState} was received
      *
      * @param node mesh node that the message was received from
      */
     void onSubscriptionStatusReceived(final ProvisionedMeshNode node, final boolean success, final int status, final byte[] elementAddress, final byte[] subscriptionAddress, final int modelIdentifier);
 
     /**
-     * Notifies if the mesh {@link ConfigNodeReset} was sent
+     * Notifies if the mesh {@link ConfigNodeResetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onMeshNodeResetSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if the mesh {@link ConfigNodeResetStatus} was received
+     * Notifies if the mesh {@link ConfigNodeResetStatusState} was received
      *
      * @param node mesh node that the message was received from
      */
     void onMeshNodeResetStatusReceived(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link GenericOnOffGet} was sent
+     * Notifies if {@link GenericOnOffGetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onGenericOnOffGetSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link GenericOnOffSet} was sent
+     * Notifies if {@link GenericOnOffSetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onGenericOnOffSetSent(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime);
 
     /**
-     * Notifies if {@link GenericOnOffSetUnacknowledged} was sent
+     * Notifies if {@link GenericOnOffSetUnacknowledgedState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onGenericOnOffSetUnacknowledgedSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link GenericOnOffStatus} was received
+     * Notifies if {@link GenericOnOffStatusState} was received
      *  @param node mesh node that the message was received from
      * @param targetOnOff
      * @param transitionSteps
@@ -194,28 +194,28 @@ public interface MeshStatusCallbacks {
 
 
     /**
-     * Notifies if {@link GenericLevelGet} was sent
+     * Notifies if {@link GenericLevelGetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onGenericLevelGetSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link GenericLevelSet} was sent
+     * Notifies if {@link GenericLevelSetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onGenericLevelSetSent(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime);
 
     /**
-     * Notifies if {@link GenericLevelSetUnacknowledged} was sent
+     * Notifies if {@link GenericLevelSetUnacknowledgedState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onGenericLevelSetUnacknowledgedSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link GenericLevelStatus} was received
+     * Notifies if {@link GenericLevelStatusState} was received
      * @param node mesh node that the message was received from
      * @param targetLevel
      * @param transitionSteps
@@ -224,7 +224,7 @@ public interface MeshStatusCallbacks {
     void onGenericLevelStatusReceived(final ProvisionedMeshNode node, final int presentLevel, final int targetLevel, final int transitionSteps, final int transitionResolution);
 
     /**
-     * Notifies if {@link VendorModelMessageUnacknowledged} was received
+     * Notifies if {@link VendorModelMessageStateUnacked} was received
      *
      * @param node mesh node that the message was received from
      */
@@ -238,7 +238,7 @@ public interface MeshStatusCallbacks {
     void onAcknowledgedVendorModelMessageSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link GenericOnOffStatus} was received
+     * Notifies if {@link GenericOnOffStatusState} was received
      *
      * @param node mesh node that the message was received from
      */
