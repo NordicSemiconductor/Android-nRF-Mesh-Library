@@ -63,6 +63,7 @@ import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppUnbind;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionDelete;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeReset;
@@ -118,72 +119,20 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
                 case COMPOSITION_DATA_GET_STATE:
                     //Composition data get complete,
                     //We directly switch to next state because there is no acknowledgements involved
-                    final ConfigCompositionDataStatusState compositionDataStatus = new ConfigCompositionDataStatusState(mContext, meshNode, this);
-                    compositionDataStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    compositionDataStatus.setStatusCallbacks(mStatusCallbacks);
-                    switchState(compositionDataStatus);
                     break;
                 case APP_KEY_ADD_STATE:
-                    final ConfigAppKeyAddState configAppKeyAdd = ((ConfigAppKeyAddState) mMeshMessageState);
-                    //Create the next corresponding status state
-                    final ConfigAppKeyStatusState configAppKeyStatus = new ConfigAppKeyStatusState(mContext, meshNode, configAppKeyAdd.getSrc(),
-                            configAppKeyAdd.getAppKey(), this);
-                    configAppKeyStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    configAppKeyStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(configAppKeyStatus);
                     break;
                 case CONFIG_MODEL_APP_BIND_STATE:
-                    final ConfigModelAppBindState configModelAppBind = ((ConfigModelAppBindState) mMeshMessageState);
-                    //Create the next corresponding status state
-                    final ConfigModelAppStatusState configModelAppBindStatus = new ConfigModelAppStatusState(mContext, meshNode, configModelAppBind.getState().getState(), this);
-                    configModelAppBindStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    configModelAppBindStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(configModelAppBindStatus);
                     break;
                 case CONFIG_MODEL_APP_UNBIND_STATE:
-                    final ConfigModelAppUnbindState configModelAppUnbind = ((ConfigModelAppUnbindState) mMeshMessageState);
-                    //Create the next corresponding status state
-                    final ConfigModelAppStatusState configModelAppUnbindStatus = new ConfigModelAppStatusState(mContext, meshNode, configModelAppUnbind.getState().getState(), this);
-                    configModelAppUnbindStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    configModelAppUnbindStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(configModelAppUnbindStatus);
                     break;
                 case CONFIG_MODEL_PUBLICATION_SET_STATE:
-                    // Create the corresponding status state
-                    final ConfigModelPublicationStatusState configModelPublicationStatus = new ConfigModelPublicationStatusState(mContext, meshNode, this);
-                    configModelPublicationStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    configModelPublicationStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(configModelPublicationStatus);
                     break;
                 case CONFIG_MODEL_SUBSCRIPTION_ADD_STATE:
-                    // Create the corresponding status state
-                    final ConfigModelSubscriptionStatusState subscriptionAddStatus = new ConfigModelSubscriptionStatusState(mContext, meshNode,
-                            ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD, this);
-                    subscriptionAddStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    subscriptionAddStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(subscriptionAddStatus);
                     break;
                 case CONFIG_MODEL_SUBSCRIPTION_DELETE_STATE:
-                    //Create the next corresponding status state
-                    final ConfigModelSubscriptionStatusState subscriptionDeleteStatus = new ConfigModelSubscriptionStatusState(mContext, meshNode,
-                            ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE, this);
-                    subscriptionDeleteStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    subscriptionDeleteStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(subscriptionDeleteStatus);
                     break;
                 case CONFIG_NODE_RESET_STATE:
-                    //Create the next corresponding status state
-                    final ConfigNodeResetStatusState configNodeResetStatus = new ConfigNodeResetStatusState(mContext, mMeshMessageState.getMeshNode(), this);
-                    configNodeResetStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    configNodeResetStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(configNodeResetStatus);
                     break;
             }
         } else if (mMeshMessageState instanceof GenericMessageState) {
@@ -192,48 +141,18 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
 
             switch (mMeshMessageState.getState()) {
                 case GENERIC_ON_OFF_GET_STATE:
-                    //Create the next corresponding status state
-                    final GenericOnOffStatusState genericOnOffGetStatus = new GenericOnOffStatusState(mContext, mMeshMessageState.getMeshNode(), this, mMeshMessageState.getMeshModel(),
-                            mMeshMessageState.getAppKeyIndex());
-                    genericOnOffGetStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    genericOnOffGetStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(genericOnOffGetStatus);
                     break;
                 case GENERIC_ON_OFF_SET_STATE:
-                    //Create the next corresponding status state
-                    final GenericOnOffStatusState genericOnOffSetStatus = new GenericOnOffStatusState(mContext, mMeshMessageState.getMeshNode(), this, mMeshMessageState.getMeshModel(),
-                            mMeshMessageState.getAppKeyIndex());
-                    genericOnOffSetStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    genericOnOffSetStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(genericOnOffSetStatus);
                     break;
                 case GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE:
                     //We don't expect a generic on off status as this is an unacknowledged message so we switch states here
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     break;
                 case GENERIC_LEVEL_GET_STATE:
-                    //Create the next corresponding status state
-                    final GenericLevelStatusState genericLevelGetStatus = new GenericLevelStatusState(mContext, mMeshMessageState.getMeshNode(), this, mMeshMessageState.getMeshModel(),
-                            mMeshMessageState.getAppKeyIndex());
-                    genericLevelGetStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    genericLevelGetStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(genericLevelGetStatus);
                     break;
                 case GENERIC_LEVEL_SET_STATE:
-                    //Create the next corresponding status state
-                    final GenericLevelStatusState genericLevelSetStatus = new GenericLevelStatusState(mContext, mMeshMessageState.getMeshNode(), this, mMeshMessageState.getMeshModel(),
-                            mMeshMessageState.getAppKeyIndex());
-                    genericLevelSetStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    genericLevelSetStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(genericLevelSetStatus);
                     break;
                 case GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE:
-                    //We don't expect a generic on off status as this is an unacknowledged message so we switch states here
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     break;
             }
         } else if (mMeshMessageState instanceof VendorModelMessageState) {
@@ -263,97 +182,52 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
         if (mMeshMessageState instanceof ConfigMessageState) {
             final ConfigMessageState message = (ConfigMessageState) mMeshMessageState;
             switch (message.getState()) {
-                case COMPOSITION_DATA_STATUS_STATE:
-                    final ConfigCompositionDataStatusState compositionDataStatus = (ConfigCompositionDataStatusState) mMeshMessageState;
-                    if (compositionDataStatus.parseMeshPdu(pdu)) {
+                case COMPOSITION_DATA_GET_STATE:
+                    final ConfigCompositionDataGetState compositionDataGet = (ConfigCompositionDataGetState) mMeshMessageState;
+                    if (compositionDataGet.parseMeshPdu(pdu)) {
                         //mInternalMeshManagerCallbacks.onUnicastAddressChanged(compositionDataStatus.getUnicastAddress());
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
                 case APP_KEY_ADD_STATE:
-                    final ConfigAppKeyAddState configAppKeyAdd = ((ConfigAppKeyAddState) mMeshMessageState);
-                    //Create the next corresponding status state
-                    final ConfigAppKeyStatusState configAppKeyStatus = new ConfigAppKeyStatusState(mContext, meshNode, configAppKeyAdd.getSrc(),
-                            configAppKeyAdd.getAppKey(), this);
-                    configAppKeyStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    configAppKeyStatus.setStatusCallbacks(mStatusCallbacks);
-                    switchState(configAppKeyStatus, pdu);
-                    break;
-                case APP_KEY_STATUS_STATE:
-                    final ConfigAppKeyStatusState status = ((ConfigAppKeyStatusState) mMeshMessageState);
-                    if (status.isIncompleteTimerExpired() || (status.parseMeshPdu(pdu))) {
+                    final ConfigAppKeyAddState appKeyAddState = (ConfigAppKeyAddState) mMeshMessageState;
+                    if (appKeyAddState.isIncompleteTimerExpired() || (appKeyAddState.parseMeshPdu(pdu))) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
                 case CONFIG_MODEL_APP_BIND_STATE:
-                    final ConfigModelAppBindState configModelAppBind = ((ConfigModelAppBindState) mMeshMessageState);
-                    //Create the next corresponding status state
-                    final ConfigModelAppStatusState configModelAppStatus = new ConfigModelAppStatusState(mContext, meshNode, configModelAppBind.getState().getState(), this);
-                    configModelAppStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    configModelAppStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(configModelAppStatus, pdu);
+                    final ConfigModelAppBindState configModelAppBind = (ConfigModelAppBindState) mMeshMessageState;
+                    if (configModelAppBind.parseMeshPdu(pdu)) {
+                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                    }
                     break;
                 case CONFIG_MODEL_APP_UNBIND_STATE:
-                    final ConfigModelAppUnbindState configModelAppUnbind = ((ConfigModelAppUnbindState) mMeshMessageState);
-                    //Create the next corresponding status state
-                    final ConfigModelAppStatusState configModelAppStatus1 = new ConfigModelAppStatusState(mContext, meshNode, configModelAppUnbind.getState().getState(), this);
-                    configModelAppStatus1.setTransportCallbacks(mInternalTransportCallbacks);
-                    configModelAppStatus1.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(configModelAppStatus1, pdu);
-                    break;
-                case CONFIG_MODEL_APP_STATUS_STATE:
-                    if (((ConfigModelAppStatusState) mMeshMessageState).parseMeshPdu(pdu)) {
+                    final ConfigModelAppUnbindState configModelAppUnbind = (ConfigModelAppUnbindState) mMeshMessageState;
+                    if (configModelAppUnbind.parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
                 case CONFIG_MODEL_PUBLICATION_SET_STATE:
-                    // Create the corresponding status state
-                    final ConfigModelPublicationStatusState configModelPublicationStatus = new ConfigModelPublicationStatusState(mContext, meshNode, this);
-                    configModelPublicationStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    configModelPublicationStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(configModelPublicationStatus, pdu);
-                    break;
-                case CONFIG_MODEL_PUBLICATION_STATUS_STATE:
-                    if (((ConfigModelPublicationStatusState) mMeshMessageState).parseMeshPdu(pdu)) {
+                    final ConfigModelPublicationSetState publicationSetState = (ConfigModelPublicationSetState) mMeshMessageState;
+                    if (publicationSetState.parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
                 case CONFIG_MODEL_SUBSCRIPTION_ADD_STATE:
-                    // Create the corresponding status state
-                    final ConfigModelSubscriptionStatusState configModelSubscriptionStatus = new ConfigModelSubscriptionStatusState(mContext, meshNode,
-                            ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD, this);
-                    configModelSubscriptionStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    configModelSubscriptionStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(configModelSubscriptionStatus, pdu);
+                    final ConfigModelSubscriptionAddState subscriptionAddState = (ConfigModelSubscriptionAddState) mMeshMessageState;
+                    if (subscriptionAddState.parseMeshPdu(pdu)) {
+                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                    }
                     break;
                 case CONFIG_MODEL_SUBSCRIPTION_DELETE_STATE:
-                    //Create the next corresponding status state
-                    final ConfigModelSubscriptionStatusState configModelSubscriptionStatus1 = new ConfigModelSubscriptionStatusState(mContext, meshNode,
-                            ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE, this);
-                    configModelSubscriptionStatus1.setTransportCallbacks(mInternalTransportCallbacks);
-                    configModelSubscriptionStatus1.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(configModelSubscriptionStatus1, pdu);
-                    break;
-                case CONFIG_MODEL_SUBSCRIPTION_STATUS_STATE:
-                    if (((ConfigModelSubscriptionStatusState) mMeshMessageState).parseMeshPdu(pdu)) {
+                    final ConfigModelSubscriptionDeleteState subscriptionDeleteState = (ConfigModelSubscriptionDeleteState) mMeshMessageState;
+                    if (subscriptionDeleteState.parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
                 case CONFIG_NODE_RESET_STATE:
-                    //Create the next corresponding status state
-                    final ConfigNodeResetStatusState configNodeResetStatus = new ConfigNodeResetStatusState(mContext, mMeshMessageState.getMeshNode(), this);
-                    configNodeResetStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    configNodeResetStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(configNodeResetStatus, pdu);
-                    break;
-                case CONFIG_NODE_RESET_STATUS_STATE:
-                    if (((ConfigNodeResetStatusState) mMeshMessageState).parseMeshPdu(pdu)) {
+                    final ConfigNodeResetState configNodeResetState = (ConfigNodeResetState) mMeshMessageState;
+                    if (configNodeResetState.parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
@@ -362,77 +236,40 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
             final GenericMessageState message = (GenericMessageState) mMeshMessageState;
             switch (message.getState()) {
                 case GENERIC_ON_OFF_GET_STATE:
-                    //Create the next corresponding status state
-                    final GenericOnOffStatusState genericOnOffGetStatus = new GenericOnOffStatusState(mContext, mMeshMessageState.getMeshNode(), this,
-                            mMeshMessageState.getMeshModel(), message.getAppKeyIndex());
-                    genericOnOffGetStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    genericOnOffGetStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(genericOnOffGetStatus, pdu);
+                    final GenericOnOffGetState genericOnOffGetState = (GenericOnOffGetState) mMeshMessageState;
+                    if (genericOnOffGetState.parseMeshPdu(pdu)) {
+                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                    }
                     break;
                 case GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE:
                     //We do nothing here since there is no status involved for unacknowledged messages
                     switchState(new DefaultNoOperationMessageState(mContext, meshNode, this), null);
                     break;
                 case GENERIC_ON_OFF_SET_STATE:
-                    //Create the next corresponding status state
-                    final GenericOnOffStatusState genericOnOffSetStatus = new GenericOnOffStatusState(mContext, mMeshMessageState.getMeshNode(), this,
-                            mMeshMessageState.getMeshModel(), mMeshMessageState.getAppKeyIndex());
-                    genericOnOffSetStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    genericOnOffSetStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(genericOnOffSetStatus, pdu);
-                    break;
-                case GENERIC_ON_OFF_STATUS_STATE:
-                    if (((GenericOnOffStatusState) mMeshMessageState).parseMeshPdu(pdu)) {
+                    final GenericOnOffSetState genericOnOffSetState = (GenericOnOffSetState) mMeshMessageState;
+                    if (genericOnOffSetState.parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
                 case GENERIC_LEVEL_GET_STATE:
-                    //Create the next corresponding status state
-                    final GenericLevelStatusState genericLevelGetStatus = new GenericLevelStatusState(mContext, mMeshMessageState.getMeshNode(), this,
-                            mMeshMessageState.getMeshModel(), message.getAppKeyIndex());
-                    genericLevelGetStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    genericLevelGetStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(genericLevelGetStatus, pdu);
+                    final GenericLevelGetState genericLevelGetState = (GenericLevelGetState) mMeshMessageState;
+                    if (genericLevelGetState.parseMeshPdu(pdu)) {
+                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                    }
                     break;
                 case GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE:
                     //We do nothing here since there is no status involved for unacknowledged messages
                     switchState(new DefaultNoOperationMessageState(mContext, meshNode, this), null);
                     break;
                 case GENERIC_LEVEL_SET_STATE:
-                    //Create the next corresponding status state
-                    final GenericLevelStatusState genericLevelSetStatus = new GenericLevelStatusState(mContext, mMeshMessageState.getMeshNode(), this,
-                            mMeshMessageState.getMeshModel(), mMeshMessageState.getAppKeyIndex());
-                    genericLevelSetStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                    genericLevelSetStatus.setStatusCallbacks(mStatusCallbacks);
-                    //Switch states
-                    switchState(genericLevelSetStatus, pdu);
-                    break;
-                case GENERIC_LEVEL_STATUS_STATE:
-                    if (((GenericLevelStatusState) mMeshMessageState).parseMeshPdu(pdu)) {
+                    final GenericLevelSetState genericLevelSetState = (GenericLevelSetState) mMeshMessageState;
+                    if (genericLevelSetState.parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;
             }
         } else if (mMeshMessageState instanceof VendorModelMessageState) {
-            if (mMeshMessageState instanceof VendorModelMessageAckedState) {
-                final VendorModelMessageStateStatus vendorModelMessageStatus = new VendorModelMessageStateStatus(mContext, meshNode, this, mMeshMessageState.getMeshModel(),
-                        mMeshMessageState.getAppKeyIndex());
-                vendorModelMessageStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                vendorModelMessageStatus.setStatusCallbacks(mStatusCallbacks);
-                switchState(vendorModelMessageStatus, pdu);
-            } else if (mMeshMessageState instanceof VendorModelMessageStateStatus) {
-                final VendorModelMessageStateStatus vendorModelMessageStatus = (VendorModelMessageStateStatus) mMeshMessageState;
-                if (vendorModelMessageStatus.parseMeshPdu(pdu)) {
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
-                }
-            } else {
-                if (((VendorModelMessageUnackedState) mMeshMessageState).parseMeshPdu(pdu)) {
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
-                }
-            }
+
         } else {
             ((DefaultNoOperationMessageState) mMeshMessageState).parseMeshPdu(pdu);
         }
@@ -516,7 +353,6 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
         compositionDataGetState.setTransportCallbacks(mInternalTransportCallbacks);
         compositionDataGetState.setStatusCallbacks(mStatusCallbacks);
         mMeshMessageState = compositionDataGetState;
-        //mMeshMessageState = new ConfigCompositionDataStatus(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks);
         compositionDataGetState.executeSend();
     }
 

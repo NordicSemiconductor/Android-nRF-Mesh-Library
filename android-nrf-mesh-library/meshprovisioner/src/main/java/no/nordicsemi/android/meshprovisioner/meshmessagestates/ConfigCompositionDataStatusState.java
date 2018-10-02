@@ -81,7 +81,6 @@ public final class ConfigCompositionDataStatusState extends ConfigMessageState {
                     Log.v(TAG, "Received composition data status");
                     final int offset = +2; //Ignoring the opcode and the parameter received
                     pareCompositionDataPages(accessMessage, offset);
-                    mNode.setCompositionData(this);
                     mMeshStatusCallbacks.onCompositionDataStatusReceived(mNode);
                     mInternalTransportCallbacks.updateMeshNode(mNode);
                     return true;

@@ -65,7 +65,7 @@ public final class ConfigModelAppUnbindState extends ConfigMessageState {
     }
 
     @Override
-    protected boolean parseMeshPdu(final byte[] pdu) {
+    public boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -106,10 +106,6 @@ public final class ConfigModelAppUnbindState extends ConfigMessageState {
             if (mMeshStatusCallbacks != null)
                 mMeshStatusCallbacks.onAppKeyUnbindSent(mNode);
         }
-    }
-
-    public void parseData(final byte[] pdu) {
-        parseMeshPdu(pdu);
     }
 
     @Override

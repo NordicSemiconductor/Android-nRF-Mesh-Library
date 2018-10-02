@@ -44,7 +44,7 @@ public class ConfigNodeResetState extends ConfigMessageState {
     }
 
     @Override
-    protected boolean parseMeshPdu(final byte[] pdu) {
+    public boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
