@@ -34,7 +34,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     private static final String TAG = MeshMessageState.class.getSimpleName();
 
     protected final Context mContext;
-    protected final ProvisionedMeshNode mProvisionedMeshNode;
+    protected final ProvisionedMeshNode mNode;
     final MeshTransport mMeshTransport;
     final Map<Integer, byte[]> mPayloads = new HashMap<>();
     private final List<Integer> mRetransmitPayloads = new ArrayList<>();
@@ -50,9 +50,9 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
     MeshMessageState(final Context context, final ProvisionedMeshNode provisionedMeshNode, final InternalMeshMsgHandlerCallbacks callbacks) {
         this.mContext = context;
-        this.mProvisionedMeshNode = provisionedMeshNode;
+        this.mNode = provisionedMeshNode;
         this.meshMessageHandlerCallbacks = callbacks;
-        this.mSrc = mProvisionedMeshNode.getConfigurationSrc();
+        this.mSrc = mNode.getConfigurationSrc();
         this.mMeshTransport = new MeshTransport(context, provisionedMeshNode);
         this.mMeshTransport.setLowerTransportLayerCallbacks(this);
     }
@@ -88,7 +88,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     public void executeSend() {
         if (!mPayloads.isEmpty()) {
             for (int i = 0; i < mPayloads.size(); i++) {
-                mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, mPayloads.get(i));
+                mInternalTransportCallbacks.sendPdu(mNode, mPayloads.get(i));
             }
         }
     }
@@ -104,7 +104,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
                     final byte[] pdu = mPayloads.get(segO);
                     Log.v(TAG, "Resending segment " + segO + " : " + MeshParserUtils.bytesToHex(pdu, false));
                     final Message retransmitMeshMessage = mMeshTransport.createRetransmitMeshMessage(message, segO);
-                    mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, retransmitMeshMessage.getNetworkPdu().get(segO));
+                    mInternalTransportCallbacks.sendPdu(mNode, retransmitMeshMessage.getNetworkPdu().get(segO));
                 }
             }
         }
@@ -132,17 +132,17 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
                 Log.v(TAG, "Acknowledgement payload: " + MeshParserUtils.bytesToHex(controlMessage.getTransportControlPdu(), false));
                 mRetransmitPayloads.clear();
                 mRetransmitPayloads.addAll(BlockAcknowledgementMessage.getSegmentsToBeRetransmitted(controlMessage.getTransportControlPdu(), segmentCount));
-                mMeshStatusCallbacks.onBlockAcknowledgementReceived(mProvisionedMeshNode);
+                mMeshStatusCallbacks.onBlockAcknowledgementReceived(mNode);
                 break;
             default:
                 Log.v(TAG, "Unexpected control message received, ignoring message");
-                mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                mMeshStatusCallbacks.onUnknownPduReceived(mNode);
                 break;
         }
     }
 
     public ProvisionedMeshNode getMeshNode() {
-        return mProvisionedMeshNode;
+        return mNode;
     }
 
     public MeshModel getMeshModel() {
@@ -164,11 +164,11 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         if (meshMessageHandlerCallbacks != null) {
 
             final byte[] src = mSrc; //The destination of the message sent would be src address of the device
-            meshMessageHandlerCallbacks.onIncompleteTimerExpired(mProvisionedMeshNode, src, true);
+            meshMessageHandlerCallbacks.onIncompleteTimerExpired(mNode, src, true);
 
             if (mMeshStatusCallbacks != null) {
                 final int srcAddress = AddressUtils.getUnicastAddressInt(src);
-                mMeshStatusCallbacks.onTransactionFailed(mProvisionedMeshNode, srcAddress, true);
+                mMeshStatusCallbacks.onTransactionFailed(mNode, srcAddress, true);
             }
         }
     }

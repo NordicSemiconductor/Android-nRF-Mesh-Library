@@ -23,6 +23,7 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigAppKeyAddState;
@@ -56,11 +57,30 @@ import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNo
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageAckedState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageStateStatus;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageStateUnacked;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageUnackedState;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyAdd;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataGet;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppBind;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppUnbind;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionAdd;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionDelete;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeReset;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelGet;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSet;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSetUnacknowledged;
+import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffGet;
+import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffSet;
+import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffSetUnacknowledged;
+import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageAcked;
+import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageUnacked;
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
+class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandlerCallbacks {
 
     private static final String TAG = MeshMessageHandler.class.getSimpleName();
 
@@ -76,7 +96,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
         this.mInternalMeshManagerCallbacks = internalMeshManagerCallbacks;
     }
 
-    public void setMeshStatusCallbacks(final MeshStatusCallbacks statusCallbacks) {
+    void setMeshStatusCallbacks(final MeshStatusCallbacks statusCallbacks) {
         this.mStatusCallbacks = statusCallbacks;
     }
 
@@ -89,7 +109,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
      * @param meshNode Corresponding mesh node
      * @param pdu      mesh pdu that was sent
      */
-    protected void handleMeshMsgWriteCallbacks(final ProvisionedMeshNode meshNode, final byte[] pdu) {
+    void handleMeshMsgWriteCallbacks(final ProvisionedMeshNode meshNode, final byte[] pdu) {
         if (mMeshMessageState instanceof ConfigMessageState) {
             if (mMeshMessageState.getState() == null)
                 return;
@@ -217,7 +237,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     break;
             }
         } else if (mMeshMessageState instanceof VendorModelMessageState) {
-            if (mMeshMessageState instanceof VendorModelMessageStateUnacked) {
+            if (mMeshMessageState instanceof VendorModelMessageUnackedState) {
                 //We don't expect a generic on off status as this is an unacknowledged message so we switch states here
                 switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
             } else {
@@ -409,7 +429,7 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                 }
             } else {
-                if (((VendorModelMessageStateUnacked) mMeshMessageState).parseMeshPdu(pdu)) {
+                if (((VendorModelMessageUnackedState) mMeshMessageState).parseMeshPdu(pdu)) {
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                 }
             }
@@ -484,291 +504,344 @@ class MeshMessageHandler implements InternalMeshMsgHandlerCallbacks {
         return mMeshMessageState.getState();
     }
 
-    /**
-     * Sends a composition data get message to the node
-     *
-     * @param meshNode mMeshNode to configure
-     * @param aszmic   1 or 0 where 1 will create a message with a transport mic length of 8 and 4 if zero
-     */
-    void sendCompositionDataGet(final ProvisionedMeshNode meshNode, final int aszmic) {
-        final ConfigCompositionDataGetState compositionDataGet = new ConfigCompositionDataGetState(mContext,
-                meshNode, this, aszmic);
-        compositionDataGet.setTransportCallbacks(mInternalTransportCallbacks);
-        compositionDataGet.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = compositionDataGet;
+    @Override
+    public final void sendCompositionDataGet(@NonNull final ProvisionedMeshNode meshNode, final int aszmic) {
+        final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet(meshNode, aszmic);
+        final ConfigCompositionDataGetState compositionDataGetState = new ConfigCompositionDataGetState(mContext, compositionDataGet, this);
+        compositionDataGetState.setTransportCallbacks(mInternalTransportCallbacks);
+        compositionDataGetState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = compositionDataGetState;
         //mMeshMessageState = new ConfigCompositionDataStatus(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks);
-        compositionDataGet.executeSend();
+        compositionDataGetState.executeSend();
     }
 
-    /**
-     * Send App key add message to the node.
-     */
-    void sendAppKeyAdd(final ProvisionedMeshNode meshNode, final int appKeyIndex, final String appKey, final int aszmic) {
-        final ConfigAppKeyAddState configAppKeyAdd = new ConfigAppKeyAddState(mContext, meshNode, this, aszmic, appKey, appKeyIndex);
-        configAppKeyAdd.setTransportCallbacks(mInternalTransportCallbacks);
-        configAppKeyAdd.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = configAppKeyAdd;
-        configAppKeyAdd.executeSend();
+    @Override
+    public final void sendCompositionDataGet(@NonNull final ConfigCompositionDataGet compositionDataGet) {
+        final ConfigCompositionDataGetState compositionDataGetState = new ConfigCompositionDataGetState(mContext, compositionDataGet, this);
+        compositionDataGetState.setTransportCallbacks(mInternalTransportCallbacks);
+        compositionDataGetState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = compositionDataGetState;
+        //mMeshMessageState = new ConfigCompositionDataStatus(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks);
+        compositionDataGetState.executeSend();
     }
 
-    /**
-     * Binds app key to a specified model
-     *
-     * @param meshNode        mesh node containing the model
-     * @param aszmic          application size, if 0 uses 32-bit encryption and 64-bit otherwise
-     * @param elementAddress  address of the element containing the model
-     * @param modelIdentifier identifier of the model. This could be 16-bit SIG Model or a 32-bit Vendor model identifier
-     * @param appKeyIndex     application key index
-     */
-    void bindAppKey(final ProvisionedMeshNode meshNode, final int aszmic,
-                    final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
-        final ConfigModelAppBindState configModelAppBind = new ConfigModelAppBindState(mContext, meshNode, this,
-                aszmic, elementAddress, modelIdentifier, appKeyIndex);
+    @Override
+    public final void sendAppKeyAdd(@NonNull final ProvisionedMeshNode meshNode, final int appKeyIndex, @NonNull final String appKey, final int aszmic) {
+        final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(meshNode, MeshParserUtils.toByteArray(appKey), appKeyIndex, aszmic);
+        final ConfigAppKeyAddState configAppKeyAddState = new ConfigAppKeyAddState(mContext, configAppKeyAdd, this);
+        configAppKeyAddState.setTransportCallbacks(mInternalTransportCallbacks);
+        configAppKeyAddState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configAppKeyAddState;
+        configAppKeyAddState.executeSend();
+    }
+
+    @Override
+    public final void sendAppKeyAdd(@NonNull final ConfigAppKeyAdd configAppKeyAdd) {
+        final ConfigAppKeyAddState configAppKeyAddState = new ConfigAppKeyAddState(mContext, configAppKeyAdd, this);
+        configAppKeyAddState.setTransportCallbacks(mInternalTransportCallbacks);
+        configAppKeyAddState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configAppKeyAddState;
+        configAppKeyAddState.executeSend();
+    }
+
+    @Override
+    public final void bindAppKey(@NonNull final ProvisionedMeshNode meshNode, final int aszmic,
+                                 @NonNull final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
+        final ConfigModelAppBind configModelAppBind = new ConfigModelAppBind(meshNode, elementAddress, modelIdentifier, appKeyIndex, aszmic);
+        final ConfigModelAppBindState configModelAppBindState = new ConfigModelAppBindState(mContext, configModelAppBind, this);
+        configModelAppBindState.setTransportCallbacks(mInternalTransportCallbacks);
+        configModelAppBindState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configModelAppBindState;
+        configModelAppBindState.executeSend();
+    }
+
+    @Override
+    public final void bindAppKey(@NonNull final ConfigModelAppBind configModelAppBind) {
+        final ConfigModelAppBindState configModelAppBindState = new ConfigModelAppBindState(mContext, configModelAppBind, this);
+        configModelAppBindState.setTransportCallbacks(mInternalTransportCallbacks);
+        configModelAppBindState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configModelAppBindState;
+        configModelAppBindState.executeSend();
+    }
+
+    @Override
+    public void unbindAppKey(@NonNull final ProvisionedMeshNode meshNode, final int aszmic,
+                             @NonNull final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
+        final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(meshNode, elementAddress, modelIdentifier, appKeyIndex, aszmic);
+        final ConfigModelAppUnbindState configModelAppBind = new ConfigModelAppUnbindState(mContext, configModelAppUnbind, this);
         configModelAppBind.setTransportCallbacks(mInternalTransportCallbacks);
         configModelAppBind.setStatusCallbacks(mStatusCallbacks);
         mMeshMessageState = configModelAppBind;
         configModelAppBind.executeSend();
     }
 
-    /**
-     * Unbinds a previously bound app key from a specified model
-     *
-     * @param meshNode        mesh node containing the model
-     * @param aszmic          application mic size, if 0 uses 32-bit encryption and 64-bit otherwise
-     * @param elementAddress  address of the element containing the model
-     * @param modelIdentifier identifier of the model. This could be 16-bit SIG Model or a 32-bit Vendor model identifier
-     * @param appKeyIndex     application key index
-     */
-    void unbindAppKey(final ProvisionedMeshNode meshNode, final int aszmic,
-                      final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
-        final ConfigModelAppUnbindState configModelAppBind = new ConfigModelAppUnbindState(mContext, meshNode, this,
-                aszmic, elementAddress, modelIdentifier, appKeyIndex);
+    @Override
+    public final void unbindAppKey(@NonNull final ConfigModelAppUnbind configModelAppUnbind) {
+        final ConfigModelAppUnbindState configModelAppBind = new ConfigModelAppUnbindState(mContext, configModelAppUnbind, this);
         configModelAppBind.setTransportCallbacks(mInternalTransportCallbacks);
         configModelAppBind.setStatusCallbacks(mStatusCallbacks);
         mMeshMessageState = configModelAppBind;
         configModelAppBind.executeSend();
     }
 
-    /**
-     * Set a publish address for configuration model
-     *
-     * @param configModelPublicationSetParams contains the parameters for configmodel publication set
-     */
-    void sendConfigModelPublicationSet(final ConfigModelPublicationSetParams configModelPublicationSetParams) {
-        final ConfigModelPublicationSetState configModelPublicationSet = new ConfigModelPublicationSetState(mContext, configModelPublicationSetParams, this);
-        configModelPublicationSet.setTransportCallbacks(mInternalTransportCallbacks);
-        configModelPublicationSet.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = configModelPublicationSet;
-        configModelPublicationSet.executeSend();
+    @Override
+    public final void sendConfigModelPublicationSet(@NonNull final ConfigModelPublicationSetParams params) {
+        final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(params.getMeshNode(),
+                params.getElementAddress(), params.getPublishAddress(), params.getAppKeyIndex(), params.getCredentialFlag(),
+                params.getPublishTtl(), params.getPublicationSteps(), params.getPublicationResolution(),
+                params.getPublishRetransmitCount(), params.getPublishRetransmitIntervalSteps(), params.getModelIdentifier(), params.getAszmic());
+
+        final ConfigModelPublicationSetState configModelPublicationSetState = new ConfigModelPublicationSetState(mContext, configModelPublicationSet, this);
+        configModelPublicationSetState.setTransportCallbacks(mInternalTransportCallbacks);
+        configModelPublicationSetState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configModelPublicationSetState;
+        configModelPublicationSetState.executeSend();
     }
 
-    /**
-     * Send App key add message to the node.
-     */
-    void addSubscriptionAddress(final ProvisionedMeshNode meshNode, final int aszmic, final byte[] elementAddress, final byte[] subscriptionAddress,
-                                final int modelIdentifier) {
-        final ConfigModelSubscriptionAddState configModelSubscriptionAdd = new ConfigModelSubscriptionAddState(mContext, meshNode, this, aszmic, elementAddress, subscriptionAddress, modelIdentifier);
-        configModelSubscriptionAdd.setTransportCallbacks(mInternalTransportCallbacks);
-        configModelSubscriptionAdd.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = configModelSubscriptionAdd;
-        configModelSubscriptionAdd.executeSend();
+    @Override
+    public final void sendConfigModelPublicationSet(@NonNull final ConfigModelPublicationSet configModelPublicationSet) {
+        final ConfigModelPublicationSetState configModelPublicationSetState = new ConfigModelPublicationSetState(mContext, configModelPublicationSet, this);
+        configModelPublicationSetState.setTransportCallbacks(mInternalTransportCallbacks);
+        configModelPublicationSetState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configModelPublicationSetState;
+        configModelPublicationSetState.executeSend();
     }
 
-    /**
-     * Send App key add message to the node.
-     */
-    void deleteSubscriptionAddress(final ProvisionedMeshNode meshNode, final int aszmic, final byte[] elementAddress, final byte[] subscriptionAddress,
-                                   final int modelIdentifier) {
-        final ConfigModelSubscriptionDeleteState configModelSubscriptionDelete = new ConfigModelSubscriptionDeleteState(mContext, meshNode, this,
-                aszmic, elementAddress, subscriptionAddress, modelIdentifier);
-        configModelSubscriptionDelete.setTransportCallbacks(mInternalTransportCallbacks);
-        configModelSubscriptionDelete.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = configModelSubscriptionDelete;
-        configModelSubscriptionDelete.executeSend();
+    @Override
+    public final void addSubscriptionAddress(@NonNull final ProvisionedMeshNode meshNode, final int aszmic, @NonNull final byte[] elementAddress, @NonNull final byte[] subscriptionAddress,
+                                             final int modelIdentifier) {
+        final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(meshNode, elementAddress, subscriptionAddress, modelIdentifier, aszmic);
+        final ConfigModelSubscriptionAddState configModelSubscriptionAddState = new ConfigModelSubscriptionAddState(mContext, configModelSubscriptionAdd, this);
+        configModelSubscriptionAddState.setTransportCallbacks(mInternalTransportCallbacks);
+        configModelSubscriptionAddState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configModelSubscriptionAddState;
+        configModelSubscriptionAddState.executeSend();
     }
 
-    /**
-     * Send generic on off get to mesh node, this message sent is an acknowledged message.
-     *
-     * @param node        mesh node to send to
-     * @param model       Mesh model to control
-     * @param address     this address could be the unicast address of the element or the subscribe address
-     * @param aszmic      if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
-     * @param appKeyIndex index of the app key to encrypt the message with
-     */
-    void getGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex) {
-        final GenericOnOffGetState genericOnOffGet = new GenericOnOffGetState(mContext, node, this,
-                model, aszmic, address, appKeyIndex);
-        genericOnOffGet.setTransportCallbacks(mInternalTransportCallbacks);
-        genericOnOffGet.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericOnOffGet;
-        genericOnOffGet.executeSend();
+    @Override
+    public final void addSubscriptionAddress(@NonNull final ConfigModelSubscriptionAdd configModelSubscriptionAdd) {
+        final ConfigModelSubscriptionAddState configModelSubscriptionAddState = new ConfigModelSubscriptionAddState(mContext, configModelSubscriptionAdd, this);
+        configModelSubscriptionAddState.setTransportCallbacks(mInternalTransportCallbacks);
+        configModelSubscriptionAddState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configModelSubscriptionAddState;
+        configModelSubscriptionAddState.executeSend();
     }
 
-    /**
-     * Send generic on off set to mesh node, this message sent is an acknowledged message.
-     *
-     * @param node                 mesh node to send to
-     * @param model                Mesh model to control
-     * @param address              this address could be the unicast address of the element or the subscribe address
-     * @param aszmic               if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
-     * @param appKeyIndex          index of the app key to encrypt the message with
-     * @param transitionSteps      the number of steps
-     * @param transitionResolution the resolution for the number of steps
-     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param state                on off state
-     */
-    void setGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
-        final GenericOnOffSetState genericOnOffSet = new GenericOnOffSetState(mContext, node, this,
-                model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
-        genericOnOffSet.setTransportCallbacks(mInternalTransportCallbacks);
-        genericOnOffSet.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericOnOffSet;
-        genericOnOffSet.executeSend();
+    @Override
+    public final void deleteSubscriptionAddress(@NonNull final ProvisionedMeshNode meshNode, final int aszmic, @NonNull final byte[] elementAddress, @NonNull final byte[] subscriptionAddress,
+                                                final int modelIdentifier) {
+        final ConfigModelSubscriptionDelete configModelSubscriptionDelete = new ConfigModelSubscriptionDelete(meshNode, elementAddress, subscriptionAddress, modelIdentifier, aszmic);
+        final ConfigModelSubscriptionDeleteState configModelSubscriptionDeleteState = new ConfigModelSubscriptionDeleteState(mContext, configModelSubscriptionDelete, this);
+        configModelSubscriptionDeleteState.setTransportCallbacks(mInternalTransportCallbacks);
+        configModelSubscriptionDeleteState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configModelSubscriptionDeleteState;
+        configModelSubscriptionDeleteState.executeSend();
     }
 
-    /**
-     * Send generic on off to mesh node
-     *
-     * @param node                 mesh node to send to
-     * @param model                Mesh model to control
-     * @param address              this address could be the unicast address of the element or the subscribe address
-     * @param aszmic               if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
-     * @param appKeyIndex          index of the app key to encrypt the message with
-     * @param transitionSteps      the number of steps
-     * @param transitionResolution the resolution for the number of steps
-     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param state                on off state
-     */
-    void setGenericOnOffUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
-        final GenericOnOffSetUnacknowledgedState genericOnOffSetUnAcked = new GenericOnOffSetUnacknowledgedState(mContext, node, this,
-                model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, state);
-        genericOnOffSetUnAcked.setTransportCallbacks(mInternalTransportCallbacks);
-        genericOnOffSetUnAcked.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericOnOffSetUnAcked;
-        genericOnOffSetUnAcked.executeSend();
+    @Override
+    public final void deleteSubscriptionAddress(@NonNull final ConfigModelSubscriptionDelete configModelSubscriptionDelete) {
+        final ConfigModelSubscriptionDeleteState configModelSubscriptionDeleteState = new ConfigModelSubscriptionDeleteState(mContext, configModelSubscriptionDelete, this);
+        configModelSubscriptionDeleteState.setTransportCallbacks(mInternalTransportCallbacks);
+        configModelSubscriptionDeleteState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configModelSubscriptionDeleteState;
+        configModelSubscriptionDeleteState.executeSend();
     }
 
-    /**
-     * Send generic level get to mesh node, this message sent is an acknowledged message.
-     *
-     * @param node        mesh node to send to
-     * @param model       Mesh model to control
-     * @param address     this address could be the unicast address of the element or the subscribe address
-     * @param aszmic      if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
-     * @param appKeyIndex index of the app key to encrypt the message with
-     */
-    void getGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex) {
-        final GenericLevelGetState genericLevelGet = new GenericLevelGetState(mContext, node, this,
-                model, aszmic, address, appKeyIndex);
-        genericLevelGet.setTransportCallbacks(mInternalTransportCallbacks);
-        genericLevelGet.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericLevelGet;
-        genericLevelGet.executeSend();
+    @Override
+    public final void resetMeshNode(@NonNull final ProvisionedMeshNode provisionedMeshNode) {
+        final ConfigNodeReset configNodeReset = new ConfigNodeReset(provisionedMeshNode, 0);
+        resetMeshNode(configNodeReset);
     }
 
-    /**
-     * Send generic level set to mesh node, this message sent is an acknowledged message.
-     *
-     * @param node                 mesh node to send to
-     * @param model                Mesh model to control
-     * @param address              this address could be the unicast address of the element or the subscribe address
-     * @param aszmic               if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
-     * @param appKeyIndex          index of the app key to encrypt the message with
-     * @param transitionSteps      the number of steps
-     * @param transitionResolution the resolution for the number of steps
-     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param level                level
-     */
-    void setGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] address,
-                         final boolean aszmic, final int appKeyIndex, final Integer transitionSteps,
-                         final Integer transitionResolution, final Integer delay, final int level) throws IllegalArgumentException {
-        if (level < Short.MIN_VALUE || level > Short.MAX_VALUE)
-            throw new IllegalArgumentException("Generic level value must be between -32768 to 32767");
-
-        final GenericLevelSetState genericLevelSet = new GenericLevelSetState(mContext, node, this,
-                model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, level);
-        genericLevelSet.setTransportCallbacks(mInternalTransportCallbacks);
-        genericLevelSet.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericLevelSet;
-        genericLevelSet.executeSend();
+    @Override
+    public void resetMeshNode(@NonNull final ConfigNodeReset configNodeReset) {
+        final ConfigNodeResetState configNodeResetState = new ConfigNodeResetState(mContext, configNodeReset, this);
+        configNodeResetState.setTransportCallbacks(mInternalTransportCallbacks);
+        configNodeResetState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = configNodeResetState;
+        configNodeResetState.executeSend();
     }
 
-    /**
-     * Send generic level to mesh node
-     *
-     * @param node                 mesh node to send to
-     * @param model                Mesh model to control
-     * @param address              this address could be the unicast address of the element or the subscribe address
-     * @param aszmic               if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
-     * @param appKeyIndex          index of the app key to encrypt the message with
-     * @param transitionSteps      the number of steps
-     * @param transitionResolution the resolution for the number of steps
-     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param level                level
-     */
-    void setGenericLevelUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] address,
-                                       final boolean aszmic, final int appKeyIndex, final Integer transitionSteps,
-                                       final Integer transitionResolution, final Integer delay, final int level) throws IllegalArgumentException {
-        if (level < Short.MIN_VALUE || level > Short.MAX_VALUE)
-            throw new IllegalArgumentException("Generic level value must be between -32768 to 32767");
+    @Override
+    public final void getGenericOnOff(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex) throws IllegalArgumentException {
+        if (model.getBoundAppkeys().isEmpty())
+            throw new IllegalArgumentException("There are no app keys bound to this model");
 
-        final GenericLevelSetUnacknowledgedState genericLevelSetUnAcked = new GenericLevelSetUnacknowledgedState(mContext, node, this,
-                model, aszmic, address, appKeyIndex, transitionSteps, transitionResolution, delay, level);
-        genericLevelSetUnAcked.setTransportCallbacks(mInternalTransportCallbacks);
-        genericLevelSetUnAcked.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericLevelSetUnAcked;
-        genericLevelSetUnAcked.executeSend();
+        final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
+        final GenericOnOffGet genericOnOffGet = new GenericOnOffGet(node, appKey, appKeyIndex, aszmic ? 1 : 0);
+        final GenericOnOffGetState genericOnOffGetState = new GenericOnOffGetState(mContext, dstAddress, genericOnOffGet, this);
+        genericOnOffGetState.setTransportCallbacks(mInternalTransportCallbacks);
+        genericOnOffGetState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = genericOnOffGetState;
+        genericOnOffGetState.executeSend();
     }
 
-    /**
-     * Resets the specific mesh node
-     *
-     * @param provisionedMeshNode mesh node to be reset
-     */
-    void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
-        final ConfigNodeResetState configNodeReset = new ConfigNodeResetState(mContext, provisionedMeshNode, false, this);
-        configNodeReset.setTransportCallbacks(mInternalTransportCallbacks);
-        configNodeReset.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = configNodeReset;
-        configNodeReset.executeSend();
+    @Override
+    public final void getGenericOnOff(@NonNull final byte[] dstAddress, @NonNull final GenericOnOffGet genericOnOffGet) {
+        final GenericOnOffGetState genericOnOffGetState = new GenericOnOffGetState(mContext, dstAddress, genericOnOffGet, this);
+        genericOnOffGetState.setTransportCallbacks(mInternalTransportCallbacks);
+        genericOnOffGetState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = genericOnOffGetState;
+        genericOnOffGetState.executeSend();
     }
 
-    /**
-     * Send vendor model specific message to a node
-     *
-     * @param node        target mesh nmesh node to send to
-     * @param model       Mesh model to control
-     * @param address     this address could be the unicast address of the element or the subscribe address
-     * @param aszmic      if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
-     * @param appKeyIndex index of the app key to encrypt the message with
-     * @param opcode      opcode of the message
-     * @param parameters  parameters of the message
-     */
-    void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
-        final VendorModelMessageStateUnacked message = new VendorModelMessageStateUnacked(mContext, node, this, model, aszmic, address, appKeyIndex, opcode, parameters);
+    @Override
+    public final void setGenericOnOff(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
+                                      @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex,
+                                      final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) throws IllegalArgumentException {
+        if (model.getBoundAppkeys().isEmpty())
+            throw new IllegalArgumentException("There are no app keys bound to this model");
+
+        final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
+
+        final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(node, appKey, appKeyIndex, state, transitionSteps, transitionResolution, delay, aszmic ? 1 : 0);
+        final GenericOnOffSetState genericOnOffSetState = new GenericOnOffSetState(mContext, dstAddress, genericOnOffSet, this);
+        genericOnOffSetState.setTransportCallbacks(mInternalTransportCallbacks);
+        genericOnOffSetState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = genericOnOffSetState;
+        genericOnOffSetState.executeSend();
+    }
+
+    @Override
+    public final void setGenericOnOff(final byte[] dstAddress, final GenericOnOffSet genericOnOffSet) {
+        final GenericOnOffSetState genericOnOffSetState = new GenericOnOffSetState(mContext, dstAddress, genericOnOffSet, this);
+        genericOnOffSetState.setTransportCallbacks(mInternalTransportCallbacks);
+        genericOnOffSetState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = genericOnOffSetState;
+        genericOnOffSetState.executeSend();
+    }
+
+    @Override
+    public final void setGenericOnOffUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
+                                                    @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex,
+                                                    @NonNull final Integer transitionSteps, @NonNull final Integer transitionResolution,
+                                                    @NonNull final Integer delay, final boolean state) throws IllegalArgumentException {
+        if (model.getBoundAppkeys().isEmpty())
+            throw new IllegalArgumentException("There are no app keys bound to this model");
+
+        final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
+        final GenericOnOffSetUnacknowledged genericOnOffSetUnacked = new GenericOnOffSetUnacknowledged(node, appKey, appKeyIndex, state, transitionSteps, transitionResolution, delay, aszmic ? 1 : 0);
+        setGenericOnOffUnacknowledged(dstAddress, genericOnOffSetUnacked);
+    }
+
+    @Override
+    public final void setGenericOnOffUnacknowledged(@NonNull final byte[] dstAddress, @NonNull final GenericOnOffSetUnacknowledged genericOnOffSetUnacked) {
+        final GenericOnOffSetUnacknowledgedState genericOnOffSetUnAckedState = new GenericOnOffSetUnacknowledgedState(mContext, dstAddress, genericOnOffSetUnacked, this);
+        genericOnOffSetUnAckedState.setTransportCallbacks(mInternalTransportCallbacks);
+        genericOnOffSetUnAckedState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = genericOnOffSetUnAckedState;
+        genericOnOffSetUnAckedState.executeSend();
+    }
+
+    @Override
+    public final void getGenericLevel(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex) {
+        if (model.getBoundAppkeys().isEmpty())
+            throw new IllegalArgumentException("There are no app keys bound to this model");
+
+        final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
+
+        final GenericLevelGet genericLevelGet = new GenericLevelGet(node, appKey, appKeyIndex, aszmic ? 1 : 0);
+        getGenericLevel(dstAddress, genericLevelGet);
+    }
+
+    @Override
+    public final void getGenericLevel(@NonNull final byte[] dstAddress, @NonNull final GenericLevelGet genericLevelGet) {
+        final GenericLevelGetState genericLevelGetState = new GenericLevelGetState(mContext, dstAddress, genericLevelGet, this);
+        genericLevelGetState.setTransportCallbacks(mInternalTransportCallbacks);
+        genericLevelGetState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = genericLevelGetState;
+        genericLevelGetState.executeSend();
+    }
+
+    @Override
+    public final void setGenericLevel(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress,
+                                      final boolean aszmic, final int appKeyIndex, final Integer transitionSteps,
+                                      final Integer transitionResolution, final Integer delay, final int level) throws IllegalArgumentException {
+        if (model.getBoundAppkeys().isEmpty())
+            throw new IllegalArgumentException("There are no app keys bound to this model");
+
+        final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
+        final GenericLevelSet genericLevelSet = new GenericLevelSet(node, appKey, appKeyIndex, transitionSteps, transitionResolution, delay, level, aszmic ? 1 : 0);
+        setGenericLevel(dstAddress, genericLevelSet);
+    }
+
+    @Override
+    public final void setGenericLevel(@NonNull final byte[] dstAddress, @NonNull final GenericLevelSet genericLevelSet) {
+        final GenericLevelSetState genericLevelSetState = new GenericLevelSetState(mContext, dstAddress, genericLevelSet, this);
+        genericLevelSetState.setTransportCallbacks(mInternalTransportCallbacks);
+        genericLevelSetState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = genericLevelSetState;
+        genericLevelSetState.executeSend();
+    }
+
+    @Override
+    public final void setGenericLevelUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress,
+                                                    final boolean aszmic, final int appKeyIndex, final Integer transitionSteps,
+                                                    final Integer transitionResolution, final Integer delay, final int level) throws IllegalArgumentException {
+        if (model.getBoundAppkeys().isEmpty())
+            throw new IllegalArgumentException("There are no app keys bound to this model");
+
+        final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
+        final GenericLevelSetUnacknowledged genericLevelSetUnacked = new GenericLevelSetUnacknowledged(node, appKey, appKeyIndex, transitionSteps, transitionResolution, delay, level, aszmic ? 1 : 0);
+        setGenericLevelUnacknowledged(dstAddress, genericLevelSetUnacked);
+    }
+
+    @Override
+    public final void setGenericLevelUnacknowledged(@NonNull final byte[] dstAddress, @NonNull final GenericLevelSetUnacknowledged genericLevelSetUnacked) {
+        final GenericLevelSetUnacknowledgedState genericLevelSetUnAckedState = new GenericLevelSetUnacknowledgedState(mContext, dstAddress, genericLevelSetUnacked, this);
+        genericLevelSetUnAckedState.setTransportCallbacks(mInternalTransportCallbacks);
+        genericLevelSetUnAckedState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = genericLevelSetUnAckedState;
+        genericLevelSetUnAckedState.executeSend();
+    }
+
+    @Override
+    public void sendVendorModelUnacknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex, @NonNull final int opcode, final byte[] parameters) {
+        if (model.getBoundAppkeys().isEmpty())
+            throw new IllegalArgumentException("There are no app keys bound to this model");
+
+        final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
+        final int companyIdentifier = model.getCompanyIdentifier();
+        final VendorModelMessageUnacked vendorModelMessageUnacked = new VendorModelMessageUnacked(node, appKey, appKeyIndex, companyIdentifier, opcode, parameters, aszmic ? 1 : 0);
+        sendVendorModelUnacknowledgedMessage(dstAddress, vendorModelMessageUnacked);
+    }
+
+    @Override
+    public void sendVendorModelUnacknowledgedMessage(@NonNull final byte[] dstAddress, @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked) {
+        final VendorModelMessageUnackedState vendorModelMessageUnackedState = new VendorModelMessageUnackedState(mContext, dstAddress, vendorModelMessageUnacked, this);
+        vendorModelMessageUnackedState.setTransportCallbacks(mInternalTransportCallbacks);
+        vendorModelMessageUnackedState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = vendorModelMessageUnackedState;
+        vendorModelMessageUnackedState.executeSend();
+    }
+
+    @Override
+    public final void sendVendorModelAcknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
+        if (model.getBoundAppkeys().isEmpty())
+            throw new IllegalArgumentException("There are no app keys bound to this model");
+
+        final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
+        final int companyIdentifier = model.getCompanyIdentifier();
+        final VendorModelMessageAcked vendorModelMessageAcked = new VendorModelMessageAcked(node, appKey, appKeyIndex, companyIdentifier, opcode, parameters, aszmic ? 1 : 0);
+        sendVendorModelAcknowledgedMessage(dstAddress, vendorModelMessageAcked);
+    }
+
+    @Override
+    public final void sendVendorModelAcknowledgedMessage(@NonNull final byte[] dstAddress, @NonNull final VendorModelMessageAcked vendorModelMessageAcked) {
+        final VendorModelMessageAckedState message = new VendorModelMessageAckedState(mContext, dstAddress,vendorModelMessageAcked, this);
         message.setTransportCallbacks(mInternalTransportCallbacks);
         message.setStatusCallbacks(mStatusCallbacks);
         mMeshMessageState = message;
         message.executeSend();
     }
 
-    /**
-     * Send vendor model specific message to a node
-     *
-     * @param node        target mesh nmesh node to send to
-     * @param model       Mesh model to control
-     * @param address     this address could be the unicast address of the element or the subscribe address
-     * @param aszmic      if aszmic set to 1 the messages are encrypted with 64bit encryption otherwise 32 bit
-     * @param appKeyIndex index of the app key to encrypt the message with
-     * @param opcode      opcode of the message
-     * @param parameters  parameters of the message
-     */
-    void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
-        final VendorModelMessageAckedState message = new VendorModelMessageAckedState(mContext, node, this, model, aszmic, address, appKeyIndex, opcode, parameters);
-        message.setTransportCallbacks(mInternalTransportCallbacks);
-        message.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = message;
-        message.executeSend();
+    @Override
+    public void sendMeshMessage(@NonNull final MeshMessage meshMessage) {
+
+    }
+
+    @Override
+    public void sendMeshMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage meshMessage) {
+
     }
 }

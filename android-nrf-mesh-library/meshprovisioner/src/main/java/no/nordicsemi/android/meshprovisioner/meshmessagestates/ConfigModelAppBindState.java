@@ -23,12 +23,15 @@
 package no.nordicsemi.android.meshprovisioner.meshmessagestates;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppBind;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
@@ -42,29 +45,15 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public final class ConfigModelAppBindState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppBindState.class.getSimpleName();
-
     private static final int SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 6;
     private static final int VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 8;
+    private final ConfigModelAppBind mConfigModelAppBind;
 
-    private final int akf = 0;
-    private final int aid = 0;
-
-    private final int mAszmic;
-    private final byte[] mElementAddress;
-    private final int mModelIdentifier;
-    private final int mAppKeyIndex;
-
-    public ConfigModelAppBindState(final Context context,
-                                   final ProvisionedMeshNode meshNode,
-                                   final InternalMeshMsgHandlerCallbacks callbacks,
-                                   final int aszmic,
-                                   final byte[] elementAddress, final int modelIdentifier,
-                                   final int appKeyIndex) {
-        super(context, meshNode, callbacks);
-        this.mAszmic = aszmic == 1 ? 1 : 0;
-        this.mElementAddress = elementAddress;
-        this.mModelIdentifier = modelIdentifier;
-        this.mAppKeyIndex = appKeyIndex;
+    public ConfigModelAppBindState(@NonNull final Context context,
+                                   @NonNull final ConfigModelAppBind configModelAppBind,
+                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, configModelAppBind.getMeshNode(), callbacks);
+        this.mConfigModelAppBind = configModelAppBind;
         createAccessMessage();
     }
 
@@ -78,8 +67,11 @@ public final class ConfigModelAppBindState extends ConfigMessageState {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
-                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+                final ConfigModelAppStatus configModelAppStatus = new ConfigModelAppStatus(mNode, (AccessMessage) message);
+                mNode.setAppKeyBindStatus(configModelAppStatus);
+                //TODO app bind state
+                mInternalTransportCallbacks.updateMeshNode(mNode);
+                return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
                 return true;
@@ -94,34 +86,13 @@ public final class ConfigModelAppBindState extends ConfigMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        ByteBuffer paramsBuffer;
-        byte[] parameters;
-        final byte[] applicationKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKeyIndex);
-        //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
-            paramsBuffer = ByteBuffer.allocate(SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(mElementAddress[1]);
-            paramsBuffer.put(mElementAddress[0]);
-            paramsBuffer.put(applicationKeyIndex[1]);
-            paramsBuffer.put(applicationKeyIndex[0]);
-            paramsBuffer.putShort((short) mModelIdentifier);
-            parameters = paramsBuffer.array();
-        } else {
-            paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(mElementAddress[1]);
-            paramsBuffer.put(mElementAddress[0]);
-            paramsBuffer.put(applicationKeyIndex[1]);
-            paramsBuffer.put(applicationKeyIndex[0]);
-            final byte[] modelIdentifier = new byte[]{(byte) ((mModelIdentifier >> 24) & 0xFF), (byte) ((mModelIdentifier >> 16) & 0xFF), (byte) ((mModelIdentifier >> 8) & 0xFF), (byte) (mModelIdentifier & 0xFF)};
-            paramsBuffer.put(modelIdentifier[1]);
-            paramsBuffer.put(modelIdentifier[0]);
-            paramsBuffer.put(modelIdentifier[3]);
-            paramsBuffer.put(modelIdentifier[2]);
-            parameters = paramsBuffer.array();
-        }
-
-        final byte[] key = mProvisionedMeshNode.getDeviceKey();
-        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_MODEL_APP_BIND, parameters);
+        final byte[] key = mNode.getDeviceKey();
+        final int akf = mConfigModelAppBind.getAkf();
+        final int aid = mConfigModelAppBind.getAid();
+        final int aszmic = mConfigModelAppBind.getAszmic();
+        final int opCode = mConfigModelAppBind.getOpCode();
+        final byte[] parameters = mConfigModelAppBind.getParameters();
+        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
         mPayloads.putAll(message.getNetworkPdu());
     }
 
@@ -132,20 +103,16 @@ public final class ConfigModelAppBindState extends ConfigMessageState {
 
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onAppKeyBindSent(mProvisionedMeshNode);
+                mMeshStatusCallbacks.onAppKeyBindSent(mNode);
         }
-    }
-
-    public void parseData(final byte[] pdu) {
-        parseMeshPdu(pdu);
     }
 
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 
     /**

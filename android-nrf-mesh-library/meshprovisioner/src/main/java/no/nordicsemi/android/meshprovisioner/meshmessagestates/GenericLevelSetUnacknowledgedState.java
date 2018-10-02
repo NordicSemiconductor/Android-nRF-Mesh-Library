@@ -2,63 +2,57 @@ package no.nordicsemi.android.meshprovisioner.meshmessagestates;
 
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSet;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSetUnacknowledged;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
-import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
+/**
+ * State class for handling unacknowledged GenericLevelSet messages.
+ */
 public class GenericLevelSetUnacknowledgedState extends GenericMessageState {
 
+    private static final String TAG = GenericLevelSetState.class.getSimpleName();
+    private final GenericLevelSetUnacknowledged mGenericLevelSet;
 
-    private static final String TAG = GenericLevelSetUnacknowledgedState.class.getSimpleName();
-    private static final int GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH = 5;
-    private static final int GENERIC_LEVEL_SET_PARAMS_LENGTH = 3;
-
-    private final int mAszmic;
-    private final byte[] dstAddress;
-    private final MeshModel mMeshModel;
-    private final Integer mTransitionSteps;
-    private final Integer mTransitionResolution;
-    private final Integer mDelay;
-    private final int mLevel;
-
-    public GenericLevelSetUnacknowledgedState(final Context context, final ProvisionedMeshNode provisionedMeshNode,
-                                              final InternalMeshMsgHandlerCallbacks callbacks,
-                                              final MeshModel model, final boolean aszmic,
-                                              final byte[] dstAddress, final int appKeyIndex,
-                                              final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final int level) {
-        super(context, provisionedMeshNode, callbacks);
-        this.mAszmic = aszmic ? 1 : 0;
-        this.dstAddress = dstAddress;
-        this.mMeshModel = model;
-        this.mAppKeyIndex = appKeyIndex;
-        this.mTransitionSteps = transitionSteps;
-        this.mTransitionResolution = transitionResolution;
-        this.mDelay = delay;
-        this.mLevel = level;
+    /**
+     * Constructs {@link GenericLevelSetUnacknowledgedState}
+     *
+     * @param context                Context of the application
+     * @param dstAddress             Destination address to which the message must be sent to
+     * @param genericLevelSetUnacked Wrapper class {@link GenericLevelSetUnacknowledged} containing the opcode and parameters for {@link GenericLevelSetUnacknowledged} message
+     * @param callbacks              {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException
+     */
+    public GenericLevelSetUnacknowledgedState(@NonNull final Context context,
+                                              @NonNull final byte[] dstAddress,
+                                              @NonNull final GenericLevelSetUnacknowledged genericLevelSetUnacked,
+                                              @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, dstAddress, genericLevelSetUnacked.getMeshNode(), callbacks);
+        this.mGenericLevelSet = genericLevelSetUnacked;
         createAccessMessage();
     }
 
     @Override
     public MessageState getState() {
-        return MessageState.GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE;
+        return MessageState.GENERIC_LEVEL_SET_STATE;
     }
 
     @Override
-    protected boolean parseMeshPdu(final byte[] pdu) {
+    public boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
-                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+                final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(mNode, (AccessMessage) message);
+                //TODO handle GenericLevelSet status message
+                mInternalTransportCallbacks.updateMeshNode(mNode);
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
                 return true;
@@ -73,48 +67,27 @@ public class GenericLevelSetUnacknowledgedState extends GenericMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        ByteBuffer paramsBuffer;
-        byte[] parameters;
-        Log.v(TAG, "State: " + mLevel);
-        if(mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
-            paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.putShort((short) mLevel);
-            paramsBuffer.put((byte) mProvisionedMeshNode.getSequenceNumber());
-        } else {
-            Log.v(TAG, "Transition steps: " + mTransitionSteps);
-            Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
-            paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.putShort((short) mLevel);
-            paramsBuffer.put((byte) mProvisionedMeshNode.getSequenceNumber());
-            paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
-            final int delay = mDelay;
-            paramsBuffer.put((byte) delay);
-        }
-        parameters = paramsBuffer.array();
-
-        final byte[] key = MeshParserUtils.toByteArray(mMeshModel.getBoundAppkeys().get(mAppKeyIndex));
-        int akf = 1;
-        int aid = SecureUtils.calculateK4(key);
-        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, dstAddress, key, akf, aid, mAszmic, ApplicationMessageOpCodes.GENERIC_LEVEL_SET_UNACKNOWLEDGED, parameters);
+        final byte[] key = mGenericLevelSet.getAppKey();
+        final int akf = mGenericLevelSet.getAkf();
+        final int aid = mGenericLevelSet.getAid();
+        final int aszmic = mGenericLevelSet.getAszmic();
+        final int opCode = mGenericLevelSet.getOpCode();
+        final byte[] parameters = mGenericLevelSet.getParameters();
+        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
         mPayloads.putAll(message.getNetworkPdu());
     }
 
     @Override
-    public void executeSend() {
-        Log.v(TAG, "Sending Generic Level set unacknowledged: " + mLevel);
+    public final void executeSend() {
+        Log.v(TAG, "Sending Generic Level set acknowledged ");
         super.executeSend();
-
-        if (!mPayloads.isEmpty()) {
-            if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onGenericLevelSetUnacknowledgedSent(mProvisionedMeshNode);
-        }
     }
 
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 }

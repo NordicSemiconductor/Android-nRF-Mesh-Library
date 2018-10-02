@@ -1,35 +1,44 @@
 package no.nordicsemi.android.meshprovisioner.meshmessagestates;
 
-
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelGet;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffGet;
+import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
+
+/**
+ * State class for handling GenericLevelGet messages.
+ */
 public class GenericOnOffGetState extends GenericMessageState {
 
-
     private static final String TAG = GenericOnOffGetState.class.getSimpleName();
+    private final GenericOnOffGet mGenericOnOffGet;
 
-    private final int mAszmic;
-    private final byte[] dstAddress;
-
-    public GenericOnOffGetState(final Context context,
-                                final ProvisionedMeshNode provisionedMeshNode,
-                                final InternalMeshMsgHandlerCallbacks callbacks,
-                                final MeshModel model, final boolean aszmic,
-                                final byte[] dstAddress, final int appKeyIndex) {
-        super(context, provisionedMeshNode, callbacks);
-        this.mAszmic = aszmic ? 1 : 0;
-        this.dstAddress = dstAddress;
-        this.mMeshModel = model;
-        this.mAppKeyIndex = appKeyIndex;
+    /**
+     * Constructs GenericLevelGetState
+     *
+     * @param context         Context of the application
+     * @param dstAddress      Destination address to which the message must be sent to
+     * @param genericOnOffGet Wrapper class {@link GenericOnOffGet} containing the opcode and parameters for {@link GenericOnOffGet} message
+     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException
+     */
+    public GenericOnOffGetState(@NonNull final Context context,
+                                @NonNull final byte[] dstAddress,
+                                @NonNull final GenericOnOffGet genericOnOffGet,
+                                @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, dstAddress, genericOnOffGet.getMeshNode(), callbacks);
+        this.mGenericOnOffGet = genericOnOffGet;
         createAccessMessage();
     }
 
@@ -43,8 +52,9 @@ public class GenericOnOffGetState extends GenericMessageState {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
-                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+                final GenericOnOffStatus genericOnOffStatus = new GenericOnOffStatus(mNode, (AccessMessage) message);
+                //TODO handle GenericOnOffStatus message
+                mInternalTransportCallbacks.updateMeshNode(mNode);
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
                 return true;
@@ -59,11 +69,13 @@ public class GenericOnOffGetState extends GenericMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        final byte[] key = MeshParserUtils.toByteArray(mMeshModel.getBoundAppkeys().get(mAppKeyIndex));
-        int akf = 1;
-        int aid = SecureUtils.calculateK4(key);
-        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, dstAddress, key, akf, aid, mAszmic,
-                ApplicationMessageOpCodes.GENERIC_ON_OFF_GET, null);
+        final byte[] key = mGenericOnOffGet.getAppKey();
+        final int akf = mGenericOnOffGet.getAkf();
+        final int aid = mGenericOnOffGet.getAid();
+        final int aszmic = mGenericOnOffGet.getAszmic();
+        final int opCode = mGenericOnOffGet.getOpCode();
+        final byte[] parameters = mGenericOnOffGet.getParameters();
+        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
         mPayloads.putAll(message.getNetworkPdu());
     }
 
@@ -74,7 +86,7 @@ public class GenericOnOffGetState extends GenericMessageState {
 
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onGenericOnOffGetSent(mProvisionedMeshNode);
+                mMeshStatusCallbacks.onGenericOnOffGetSent(mNode);
         }
     }
 
@@ -82,7 +94,7 @@ public class GenericOnOffGetState extends GenericMessageState {
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 }

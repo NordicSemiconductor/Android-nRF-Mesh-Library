@@ -50,16 +50,18 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
     /**
      * Constructs ConfigModelAppUnbind message.
      *
-     * @param node        Mesh node this message is to be sent to
-     * @param appKeyIndex Application key index of this message
-     * @param aszmic      Size of message integrity check
+     * @param node            Mesh node this message is to be sent to
+     * @param elementAddress  Address of the element to which the model belongs to
+     * @param modelIdentifier Model from which the key must be unbound from
+     * @param appKeyIndex     Global app key index of the key to be unbound
+     * @param aszmic          Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public ConfigModelAppUnbind(@NonNull final ProvisionedMeshNode node,
-                                final int aszmic,
                                 final byte[] elementAddress,
                                 final int modelIdentifier,
-                                final int appKeyIndex) throws IllegalArgumentException {
+                                final int appKeyIndex,
+                                final int aszmic) throws IllegalArgumentException {
         super(node, aszmic);
         if (elementAddress.length != 2)
             throw new IllegalArgumentException("Element address cannot be cannot be greater than 2 octets");
@@ -68,6 +70,7 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
         this.mAppKeyIndex = appKeyIndex;
         assembleMessageParameters();
     }
+
     @Override
     public int getOpCode() {
         return OP_CODE;
@@ -99,5 +102,32 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
             paramsBuffer.put(modelIdentifier[2]);
             mParameters = paramsBuffer.array();
         }
+    }
+
+    /**
+     * Returns the element address to which the app key must be bound.
+     *
+     * @return element address
+     */
+    public byte[] getElementAddress() {
+        return mElementAddress;
+    }
+
+    /**
+     * Returns the model identifier to which the key is to be bound.
+     *
+     * @return 16-bit or 32-bit vendor model identifier
+     */
+    public int getModelIdentifier() {
+        return mModelIdentifier;
+    }
+
+    /**
+     * Returns the global index of the app key to be bound.
+     *
+     * @return app key index
+     */
+    public int getAppKeyIndex() {
+        return mAppKeyIndex;
     }
 }

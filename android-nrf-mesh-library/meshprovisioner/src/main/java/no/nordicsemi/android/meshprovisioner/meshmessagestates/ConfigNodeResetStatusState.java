@@ -68,11 +68,11 @@ public final class ConfigNodeResetStatusState extends ConfigMessageState {
 
                 if (opcode == ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS) {
                     Log.v(TAG, "Received node reset status");
-                    mInternalTransportCallbacks.onMeshNodeReset(mProvisionedMeshNode);
-                    mMeshStatusCallbacks.onMeshNodeResetStatusReceived(mProvisionedMeshNode);
+                    mInternalTransportCallbacks.onMeshNodeReset(mNode);
+                    mMeshStatusCallbacks.onMeshNodeResetStatusReceived(mNode);
                     return true;
                 } else {
-                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mNode);
                 }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
@@ -87,7 +87,7 @@ public final class ConfigNodeResetStatusState extends ConfigMessageState {
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 }

@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.Set;
 
 import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -255,10 +257,10 @@ public class ProvisionedMeshNode extends BaseMeshNode {
     }
 
     /**
-     * Sets the data from the {@link ConfigCompositionDataStatusState}
+     * Sets the data from the {@link ConfigCompositionDataStatus}
      * @param configCompositionDataStatus Composition data status object
      */
-    protected final void setCompositionData(final ConfigCompositionDataStatusState configCompositionDataStatus) {
+    protected final void setCompositionData(final ConfigCompositionDataStatus configCompositionDataStatus) {
         if (configCompositionDataStatus != null) {
             companyIdentifier = configCompositionDataStatus.getCompanyIdentifier();
             productIdentifier = configCompositionDataStatus.getProductIdentifier();
@@ -274,16 +276,16 @@ public class ProvisionedMeshNode extends BaseMeshNode {
     }
 
     /**
-     * Sets the bound app key data from the {@link ConfigModelAppStatusState}
+     * Sets the bound app key data from the {@link ConfigModelAppStatus}
      * @param configModelAppStatus ConfigModelAppStatus contaiing the bound app key information
      */
-    protected final void setAppKeyBindStatus(final ConfigModelAppStatusState configModelAppStatus) {
+    protected final void setAppKeyBindStatus(final ConfigModelAppStatus configModelAppStatus) {
         if (configModelAppStatus != null) {
-            if (configModelAppStatus.isSuccessful()) {
-                final Element element = mElements.get(configModelAppStatus.getElementAddressInt());
-                final int modelIdentifier = configModelAppStatus.getModelIdentifierInt();
+            if (configModelAppStatus.getStatusCode() == 0x00) {
+                final Element element = mElements.get(configModelAppStatus.getElementAddress());
+                final int modelIdentifier = configModelAppStatus.getModelIdentifier();
                 final MeshModel model = element.getMeshModels().get(modelIdentifier);
-                final int appKeyIndex = configModelAppStatus.getAppKeyIndexInt();
+                final int appKeyIndex = configModelAppStatus.getAppKeyIndex();
                 final String appKey = mAddedAppKeys.get(appKeyIndex);
                 model.setBoundAppKey(appKeyIndex, appKey);
             }

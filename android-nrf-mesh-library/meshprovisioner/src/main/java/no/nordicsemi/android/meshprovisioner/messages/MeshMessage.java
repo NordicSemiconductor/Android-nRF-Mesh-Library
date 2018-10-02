@@ -15,7 +15,7 @@ public abstract class MeshMessage {
         this.mNode = node;
         if (aszmic != 1 && aszmic != 0)
             throw new IllegalArgumentException("Application size message integrity check (aszmic) can only be 0 or 1");
-        this.mAszmic = aszmic;
+        this.mAszmic = 0; //Currently the library defaults to 0
     }
 
     /**

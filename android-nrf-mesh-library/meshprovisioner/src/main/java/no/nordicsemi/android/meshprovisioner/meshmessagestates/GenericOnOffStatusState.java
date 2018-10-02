@@ -48,7 +48,7 @@ public final class GenericOnOffStatusState extends GenericMessageState {
                                    final InternalMeshMsgHandlerCallbacks callbacks,
                                    final MeshModel meshModel,
                                    final int appKeyIndex) {
-        super(context, unprovisionedMeshNode, callbacks);
+        super(context, dstAddress, unprovisionedMeshNode, callbacks);
         this.mMeshModel = meshModel;
         this.mAppKeyIndex = appKeyIndex;
     }
@@ -56,7 +56,7 @@ public final class GenericOnOffStatusState extends GenericMessageState {
     GenericOnOffStatusState(Context context,
                             final ProvisionedMeshNode unprovisionedMeshNode,
                             final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, unprovisionedMeshNode, callbacks);
+        super(context, dstAddress, unprovisionedMeshNode, callbacks);
     }
 
     @Override
@@ -83,7 +83,7 @@ public final class GenericOnOffStatusState extends GenericMessageState {
                     parseGenericOnOffStatusMessage((AccessMessage)message);
                     return true;
                 } else {
-                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mNode);
                 }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
@@ -119,16 +119,16 @@ public final class GenericOnOffStatusState extends GenericMessageState {
             Log.v(TAG, "Remaining time, transition number of step resolution: " + transitionResolution);
             Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(mRemainingTime));
         }
-        mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
-        mMeshStatusCallbacks.onGenericOnOffStatusReceived(mProvisionedMeshNode, mPresentOn, mTargetOn, transitionSteps, transitionResolution);
+        mInternalTransportCallbacks.updateMeshNode(mNode);
+        mMeshStatusCallbacks.onGenericOnOffStatusReceived(mNode, mPresentOn, mTargetOn, transitionSteps, transitionResolution);
     }
 
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 
 }

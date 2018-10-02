@@ -17,7 +17,7 @@ abstract class GenericMessage extends MeshMessage {
 
     GenericMessage(final ProvisionedMeshNode node, @NonNull final byte[] appKey, final int appKeyIndex, final int aszmic) {
         super(node, aszmic);
-        if(appKey.length !=  16)
+        if (appKey.length != 16)
             throw new IllegalArgumentException("Application key must be 16 bytes");
         this.mAppKey = appKey;
         this.mAppKeyIndex = appKeyIndex;
@@ -32,6 +32,24 @@ abstract class GenericMessage extends MeshMessage {
     @Override
     public final int getAid() {
         return mAid;
+    }
+
+    /**
+     * Returns the app key used in this message.
+     *
+     * @return app key
+     */
+    public final byte[] getAppKey() {
+        return mAppKey;
+    }
+
+    /**
+     * Returns the global app index of the app key used in this message.
+     *
+     * @return app key index
+     */
+    public int getAppKeyIndex() {
+        return mAppKeyIndex;
     }
 
     @Override

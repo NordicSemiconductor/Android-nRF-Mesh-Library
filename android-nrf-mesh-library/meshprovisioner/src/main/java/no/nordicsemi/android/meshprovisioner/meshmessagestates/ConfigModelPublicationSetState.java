@@ -23,12 +23,15 @@
 package no.nordicsemi.android.meshprovisioner.meshmessagestates;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
@@ -43,32 +46,13 @@ public class ConfigModelPublicationSetState extends ConfigMessageState {
     private static final int SIG_MODEL_PUBLISH_SET_PARAMS_LENGTH = 11;
     private static final int VENDOR_MODEL_PUBLISH_SET_PARAMS_LENGTH = 13;
 
-    private final int aszmic;
-    private final byte[] elementAddress;
-    private final byte[] publishAddress;
-    private final int appKeyIndex;
-    private final int credentialFlag;
-    private final int publishTtl;
-    private final int publicationSteps;
-    private int publicationResolution;
-    private final int publishRetransmitCount;
-    private final int publishRetransmitIntervalSteps;
-    private final int mModelIdentifier;
+    private final ConfigModelPublicationSet mConfigModelPublicationSet;
 
-    public ConfigModelPublicationSetState(final Context context, final ConfigModelPublicationSetParams configModelPublicationParams,
-                                          final InternalMeshMsgHandlerCallbacks callbacks) {
-        super(context, configModelPublicationParams.getMeshNode(), callbacks);
-        this.aszmic = configModelPublicationParams.getAszmic();
-        this.elementAddress = configModelPublicationParams.getElementAddress();
-        this.publishAddress = configModelPublicationParams.getPublishAddress();
-        this.mModelIdentifier = configModelPublicationParams.getModelIdentifier();
-        this.appKeyIndex = configModelPublicationParams.getAppKeyIndex();
-        this.credentialFlag = configModelPublicationParams.getCredentialFlag() ? 1 : 0;
-        this.publishTtl = configModelPublicationParams.getPublishTtl();
-        this.publicationSteps = configModelPublicationParams.getPublicationSteps();
-        this.publicationResolution = configModelPublicationParams.getPublicationResolution();
-        this.publishRetransmitCount = configModelPublicationParams.getPublishRetransmitCount();
-        this.publishRetransmitIntervalSteps = configModelPublicationParams.getPublishRetransmitIntervalSteps();
+    public ConfigModelPublicationSetState(@NonNull final Context context,
+                                          @NonNull final ConfigModelPublicationSet configModelPublicationSet,
+                                          @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, configModelPublicationSet.getMeshNode(), callbacks);
+        this.mConfigModelPublicationSet = configModelPublicationSet;
         createAccessMessage();
     }
 
@@ -82,8 +66,10 @@ public class ConfigModelPublicationSetState extends ConfigMessageState {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
-                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+                final ConfigModelPublicationStatus configModelPublicationStatus = new ConfigModelPublicationStatus(mNode, (AccessMessage) message);
+                //TODO Config model publication status
+                mInternalTransportCallbacks.updateMeshNode(mNode);
+                return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
                 return true;
@@ -98,51 +84,13 @@ public class ConfigModelPublicationSetState extends ConfigMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() throws IllegalArgumentException {
-        ByteBuffer paramsBuffer;
-        byte[] parameters;
-        final byte[] applicationKeyIndex = MeshParserUtils.addKeyIndexPadding(appKeyIndex);
-
-        final int rfu = 0; // We ignore the rfu here
-        final int octet5 = ((applicationKeyIndex[0] << 4)) | (credentialFlag);
-        final int octet8 = (publishRetransmitCount << 5) | (publishRetransmitIntervalSteps & 0x1F);
-        //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
-            paramsBuffer = ByteBuffer.allocate(SIG_MODEL_PUBLISH_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(elementAddress[1]);
-            paramsBuffer.put(elementAddress[0]);
-            paramsBuffer.put(publishAddress[1]);
-            paramsBuffer.put(publishAddress[0]);
-            paramsBuffer.put(applicationKeyIndex[1]);
-            paramsBuffer.put((byte) octet5);
-            paramsBuffer.put((byte) publishTtl);
-            paramsBuffer.put((byte) (publicationSteps | publicationResolution));
-            paramsBuffer.put((byte) octet8);
-            paramsBuffer.putShort((short) mModelIdentifier);
-            parameters = paramsBuffer.array();
-        } else {
-            paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_PUBLISH_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(elementAddress[1]);
-            paramsBuffer.put(elementAddress[0]);
-            paramsBuffer.put(publishAddress[1]);
-            paramsBuffer.put(publishAddress[0]);
-            paramsBuffer.put(applicationKeyIndex[1]);
-            paramsBuffer.put((byte) octet5);
-            paramsBuffer.put((byte) publishTtl);
-            paramsBuffer.put((byte) (publicationSteps | publicationResolution));
-            paramsBuffer.put((byte) octet8);
-            final byte[] modelIdentifier = new byte[]{(byte) ((mModelIdentifier >> 24) & 0xFF), (byte) ((mModelIdentifier >> 16) & 0xFF), (byte) ((mModelIdentifier >> 8) & 0xFF), (byte) (mModelIdentifier & 0xFF)};
-            paramsBuffer.put(modelIdentifier[1]);
-            paramsBuffer.put(modelIdentifier[0]);
-            paramsBuffer.put(modelIdentifier[3]);
-            paramsBuffer.put(modelIdentifier[2]);
-            parameters = paramsBuffer.array();
-        }
-
-        final byte[] key = mProvisionedMeshNode.getDeviceKey();
-        final int akf = 0;
-        final int aid = 0b000;
-        final int aszmic = 0;
-        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, aszmic, ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_SET, parameters);
+        final byte[] key = mNode.getDeviceKey();
+        final int akf = mConfigModelPublicationSet.getAkf();
+        final int aid = mConfigModelPublicationSet.getAid();
+        final int aszmic = mConfigModelPublicationSet.getAszmic();
+        final int opCode = mConfigModelPublicationSet.getOpCode();
+        final byte[] parameters = mConfigModelPublicationSet.getParameters();
+        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
         mPayloads.putAll(message.getNetworkPdu());
     }
 
@@ -153,20 +101,16 @@ public class ConfigModelPublicationSetState extends ConfigMessageState {
 
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onPublicationSetSent(mProvisionedMeshNode);
+                mMeshStatusCallbacks.onPublicationSetSent(mNode);
         }
-    }
-
-    public void parseData(final byte[] pdu) {
-        parseMeshPdu(pdu);
     }
 
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 
     /**

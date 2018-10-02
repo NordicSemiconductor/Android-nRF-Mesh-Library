@@ -23,27 +23,27 @@
 package no.nordicsemi.android.meshprovisioner.meshmessagestates;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataGet;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
 import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public class ConfigCompositionDataGetState extends ConfigMessageState {
 
     private static final String TAG = ConfigCompositionDataGetState.class.getSimpleName();
-    private int mAszmic;
-    private int akf = 0;
-    private int aid = 0;
+    private final ConfigCompositionDataGet mConfigCompositionDataGet;
 
-    public ConfigCompositionDataGetState(final Context context, final ProvisionedMeshNode provisionedMeshNode,
-                                         final InternalMeshMsgHandlerCallbacks callbacks,
-                                         final int aszmic) {
-        super(context, provisionedMeshNode, callbacks);
-        this.mAszmic = aszmic == 1 ? 1 : 0;
+    public ConfigCompositionDataGetState(@NonNull final Context context,
+                                         @NonNull final ConfigCompositionDataGet compositionDataGet,
+                                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, compositionDataGet.getMeshNode(), callbacks);
+        this.mConfigCompositionDataGet = compositionDataGet;
         createAccessMessage();
     }
 
@@ -57,14 +57,25 @@ public class ConfigCompositionDataGetState extends ConfigMessageState {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
-                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+                final AccessMessage accessMessage = ((AccessMessage) message);
+                final int opcode = accessMessage.getOpCode();
+                if (opcode == ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS) {
+                    Log.v(TAG, "Received composition data status");
+                    final ConfigCompositionDataStatus compositionDataStatus = new ConfigCompositionDataStatus(mNode, (AccessMessage) message);
+                    mNode.setCompositionData(compositionDataStatus);
+                    //TODO composition data get state
+                    mMeshStatusCallbacks.onCompositionDataStatusReceived(mNode);
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    return true;
+
+                } else {
+                    parseControlMessage((ControlMessage) message, mPayloads.size());
+                    return true;
+                }
             } else {
-                parseControlMessage((ControlMessage) message, mPayloads.size());
-                return true;
+                Log.v(TAG, "Message reassembly may not be complete yet");
             }
-        } else {
-            Log.v(TAG, "Message reassembly may not be complete yet");
+            return false;
         }
         return false;
     }
@@ -73,11 +84,12 @@ public class ConfigCompositionDataGetState extends ConfigMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, mProvisionedMeshNode.getDeviceKey(),
-                akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_GET,
-                new byte[]{(byte) 0xFF});
+        final int akf = mConfigCompositionDataGet.getAkf();
+        final int aid = mConfigCompositionDataGet.getAid();
+        final int aszmic = mConfigCompositionDataGet.getAszmic();
+        final int opCode = mConfigCompositionDataGet.getOpCode();
+        final Message message = mMeshTransport.createMeshMessage(mNode, mSrc, mNode.getDeviceKey(), akf, aid, aszmic, opCode, mConfigCompositionDataGet.getParameters());
         mPayloads.putAll(message.getNetworkPdu());
-
     }
 
     @Override
@@ -86,21 +98,12 @@ public class ConfigCompositionDataGetState extends ConfigMessageState {
         super.executeSend();
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onGetCompositionDataSent(mProvisionedMeshNode);
+                mMeshStatusCallbacks.onGetCompositionDataSent(mNode);
         }
     }
 
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         //We don't send acks here
-    }
-
-    /**
-     * Returns the source address of the message i.e. where it originated from
-     *
-     * @return source address
-     */
-    public byte[] getSrc() {
-        return mSrc;
     }
 }

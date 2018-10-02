@@ -159,15 +159,15 @@ public class ConfigModelPublicationStatusState extends ConfigMessageState {
                     Log.v(TAG, "Publish Publish Interval Steps: " + publishRetransmitIntervalSteps);
                     Log.v(TAG, "Model Identifier: " + getModelIdentifierInt());
                     if (isSuccessful) {
-                        final Element element = mProvisionedMeshNode.getElements().get(getElementAddressInt());
+                        final Element element = mNode.getElements().get(getElementAddressInt());
                         final MeshModel model = element.getMeshModels().get(getModelIdentifierInt());
                         model.setPublicationStatus(this);
                     }
-                    mMeshStatusCallbacks.onPublicationStatusReceived(mProvisionedMeshNode, isSuccessful, status, elementAddress, publishAddress, getModelIdentifierInt());
-                    mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onPublicationStatusReceived(mNode, isSuccessful, status, elementAddress, publishAddress, getModelIdentifierInt());
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
                     return true;
                 } else {
-                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mNode);
                 }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
@@ -182,8 +182,8 @@ public class ConfigModelPublicationStatusState extends ConfigMessageState {
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 
     public int getStatus() {

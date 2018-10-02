@@ -26,11 +26,16 @@ import android.content.Context;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
+import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
+import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
+/**
+ * State class for handling VendorModelMessageStateStatus messages.
+ */
 public final class VendorModelMessageStateStatus extends VendorModelMessageState {
 
     private static final String TAG = VendorModelMessageStateStatus.class.getSimpleName();
@@ -55,10 +60,9 @@ public final class VendorModelMessageStateStatus extends VendorModelMessageState
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
-                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Received vendor model access message status: " + MeshParserUtils.bytesToHex(accessPayload, false));
-                mMeshStatusCallbacks.onVendorModelMessageStatusReceived(mProvisionedMeshNode, accessPayload);
-                mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                final VendorModelMessageStatus vendorModelMessageStatus = new VendorModelMessageStatus(mNode, (AccessMessage) message);
+                //TODO handle VendorModelMessageStatus message
+                mInternalTransportCallbacks.updateMeshNode(mNode);
                 return true;
             } else {
                 Log.v(TAG, "Received vendor model control message: " + MeshParserUtils.bytesToHex(((ControlMessage) message).getTransportControlPdu(), false));
@@ -74,8 +78,8 @@ public final class VendorModelMessageStateStatus extends VendorModelMessageState
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 
 }

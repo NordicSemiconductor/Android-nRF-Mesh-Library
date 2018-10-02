@@ -143,7 +143,7 @@ public class ConfigModelSubscriptionStatusState extends ConfigMessageState {
                     Log.v(TAG, "Subscription Address: " + MeshParserUtils.bytesToHex(mSubscriptionAddress, false));
                     Log.v(TAG, "Model Identifier: " + MeshParserUtils.bytesToHex(modelIdentifier, false));
                     if (isSuccessful) {
-                        final Element element = mProvisionedMeshNode.getElements().get(getElementAddressInt());
+                        final Element element = mNode.getElements().get(getElementAddressInt());
                         final MeshModel model = element.getMeshModels().get(getModelIdentifierInt());
                         if (messageType == ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD) {
                             model.setPublicationStatus(mSubscriptionAddress);
@@ -151,11 +151,11 @@ public class ConfigModelSubscriptionStatusState extends ConfigMessageState {
                             model.removeSubscriptionAddress(mSubscriptionAddress);
                         }
                     }
-                    mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
-                    mMeshStatusCallbacks.onSubscriptionStatusReceived(mProvisionedMeshNode, isSuccessful, status, elementAddress, mSubscriptionAddress, getModelIdentifierInt());
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mMeshStatusCallbacks.onSubscriptionStatusReceived(mNode, isSuccessful, status, elementAddress, mSubscriptionAddress, getModelIdentifierInt());
                     return true;
                 } else {
-                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mNode);
                 }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
@@ -170,8 +170,8 @@ public class ConfigModelSubscriptionStatusState extends ConfigMessageState {
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 
     public int getStatus() {

@@ -81,12 +81,12 @@ public final class ConfigCompositionDataStatusState extends ConfigMessageState {
                     Log.v(TAG, "Received composition data status");
                     final int offset = +2; //Ignoring the opcode and the parameter received
                     pareCompositionDataPages(accessMessage, offset);
-                    mProvisionedMeshNode.setCompositionData(this);
-                    mMeshStatusCallbacks.onCompositionDataStatusReceived(mProvisionedMeshNode);
-                    mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    mNode.setCompositionData(this);
+                    mMeshStatusCallbacks.onCompositionDataStatusReceived(mNode);
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
                     return true;
                 } else {
-                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mNode);
                 }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
@@ -260,8 +260,8 @@ public final class ConfigCompositionDataStatusState extends ConfigMessageState {
     public final void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 
     private int parseCompanyIdentifier(final short companyIdentifier) {

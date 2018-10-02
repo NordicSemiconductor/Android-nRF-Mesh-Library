@@ -23,12 +23,15 @@
 package no.nordicsemi.android.meshprovisioner.meshmessagestates;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionAdd;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
@@ -41,28 +44,15 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public final class ConfigModelSubscriptionAddState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelSubscriptionAddState.class.getSimpleName();
-    public static int SUBSCRIPTION_ADD = 0x00;
-    private static final int SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 6;
-    private static final int VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 8;
 
-    private final int akf = 0;
-    private final int aid = 0;
 
-    private final int mAszmic;
-    private final byte[] mElementAddress;
-    private final int mModelIdentifier;
-    private final byte[] mSubscriptionAddress;
+    private final ConfigModelSubscriptionAdd mConfigModelSubscriptionAdd;
 
-    public ConfigModelSubscriptionAddState(final Context context,
-                                           final ProvisionedMeshNode meshNode,
-                                           final InternalMeshMsgHandlerCallbacks callbacks,
-                                           final int aszmic,
-                                           final byte[] elementAddress, final byte[] subscriptionAddress, final int modelIdentifier) {
-        super(context, meshNode, callbacks);
-        this.mAszmic = aszmic == 1 ? 1 : 0;
-        this.mElementAddress = elementAddress;
-        this.mModelIdentifier = modelIdentifier;
-        this.mSubscriptionAddress = subscriptionAddress;
+    public ConfigModelSubscriptionAddState(@NonNull final Context context,
+                                           @NonNull final ConfigModelSubscriptionAdd configModelSubscriptionAdd,
+                                           @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        super(context, configModelSubscriptionAdd.getMeshNode(), callbacks);
+        this.mConfigModelSubscriptionAdd = configModelSubscriptionAdd;
         createAccessMessage();
     }
 
@@ -76,8 +66,10 @@ public final class ConfigModelSubscriptionAddState extends ConfigMessageState {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
-                final byte[] accessPayload = ((AccessMessage) message).getAccessPdu();
-                Log.v(TAG, "Unexpected access message received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+                final ConfigModelSubscriptionStatus configModelSubscriptionAdd = new ConfigModelSubscriptionStatus(mNode, (AccessMessage) message);
+                //TODO Config model subscription status
+                mInternalTransportCallbacks.updateMeshNode(mNode);
+                return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
                 return true;
@@ -92,33 +84,13 @@ public final class ConfigModelSubscriptionAddState extends ConfigMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        ByteBuffer paramsBuffer;
-        byte[] parameters;
-        //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
-            paramsBuffer = ByteBuffer.allocate(SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(mElementAddress[1]);
-            paramsBuffer.put(mElementAddress[0]);
-            paramsBuffer.put(mSubscriptionAddress[1]);
-            paramsBuffer.put(mSubscriptionAddress[0]);
-            paramsBuffer.putShort((short) mModelIdentifier);
-            parameters = paramsBuffer.array();
-        } else {
-            paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(mElementAddress[1]);
-            paramsBuffer.put(mElementAddress[0]);
-            paramsBuffer.put(mSubscriptionAddress[1]);
-            paramsBuffer.put(mSubscriptionAddress[0]);
-            final byte[] modelIdentifier = new byte[]{(byte) ((mModelIdentifier >> 24) & 0xFF), (byte) ((mModelIdentifier >> 16) & 0xFF), (byte) ((mModelIdentifier >> 8) & 0xFF), (byte) (mModelIdentifier & 0xFF)};
-            paramsBuffer.put(modelIdentifier[1]);
-            paramsBuffer.put(modelIdentifier[0]);
-            paramsBuffer.put(modelIdentifier[3]);
-            paramsBuffer.put(modelIdentifier[2]);
-            parameters = paramsBuffer.array();
-        }
-
-        final byte[] key = mProvisionedMeshNode.getDeviceKey();
-        message = mMeshTransport.createMeshMessage(mProvisionedMeshNode, mSrc, key, akf, aid, mAszmic, ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD, parameters);
+        final byte[] key = mNode.getDeviceKey();
+        final int akf = mConfigModelSubscriptionAdd.getAkf();
+        final int aid = mConfigModelSubscriptionAdd.getAid();
+        final int aszmic = mConfigModelSubscriptionAdd.getAszmic();
+        final int opCode = mConfigModelSubscriptionAdd.getOpCode();
+        final byte[] parameters = mConfigModelSubscriptionAdd.getParameters();
+        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
         mPayloads.putAll(message.getNetworkPdu());
     }
 
@@ -129,7 +101,7 @@ public final class ConfigModelSubscriptionAddState extends ConfigMessageState {
 
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onSubscriptionAddSent(mProvisionedMeshNode);
+                mMeshStatusCallbacks.onSubscriptionAddSent(mNode);
         }
     }
 
@@ -141,8 +113,8 @@ public final class ConfigModelSubscriptionAddState extends ConfigMessageState {
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 
     /**

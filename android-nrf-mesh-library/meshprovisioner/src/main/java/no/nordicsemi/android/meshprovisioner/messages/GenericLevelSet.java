@@ -71,6 +71,8 @@ public class GenericLevelSet extends GenericMessage {
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;
+        if (level < Short.MIN_VALUE || level > Short.MAX_VALUE)
+            throw new IllegalArgumentException("Generic level value must be between -32768 to 32767");
         this.mLevel = level;
         assembleMessageParameters();
     }

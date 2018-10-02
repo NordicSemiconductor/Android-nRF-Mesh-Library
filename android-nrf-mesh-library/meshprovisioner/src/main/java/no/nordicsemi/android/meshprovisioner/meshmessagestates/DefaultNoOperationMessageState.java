@@ -28,8 +28,8 @@ public class DefaultNoOperationMessageState extends MeshMessageState {
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 
     @Override
@@ -45,13 +45,13 @@ public class DefaultNoOperationMessageState extends MeshMessageState {
                         break;
                     case 2:
                         if(message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS) {
-                            final GenericOnOffStatusState genericOnOffStatus = new GenericOnOffStatusState(mContext, mProvisionedMeshNode,
+                            final GenericOnOffStatusState genericOnOffStatus = new GenericOnOffStatusState(mContext, mNode,
                                     meshMessageHandlerCallbacks);
                             genericOnOffStatus.setTransportCallbacks(mInternalTransportCallbacks);
                             genericOnOffStatus.setStatusCallbacks(mMeshStatusCallbacks);
                             genericOnOffStatus.parseGenericOnOffStatusMessage((AccessMessage) message);
                         } else if(message.getOpCode() == ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS) {
-                            final GenericLevelStatusState genericLevelStatus = new GenericLevelStatusState(mContext, mProvisionedMeshNode,
+                            final GenericLevelStatusState genericLevelStatus = new GenericLevelStatusState(mContext, mNode,
                                     meshMessageHandlerCallbacks);
                             genericLevelStatus.setTransportCallbacks(mInternalTransportCallbacks);
                             genericLevelStatus.setStatusCallbacks(mMeshStatusCallbacks);
@@ -62,11 +62,11 @@ public class DefaultNoOperationMessageState extends MeshMessageState {
                         break;
                     case 3:
                         Log.v(TAG, "Vendor model Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-                        mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                        mMeshStatusCallbacks.onUnknownPduReceived(mNode);
                         break;
                     default:
                         Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-                        mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                        mMeshStatusCallbacks.onUnknownPduReceived(mNode);
                         break;
                 }
                 return true;

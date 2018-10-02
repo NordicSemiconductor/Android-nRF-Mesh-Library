@@ -149,4 +149,94 @@ public class ConfigModelPublicationSet extends ConfigMessage {
             mParameters = paramsBuffer.array();
         }
     }
+
+    /**
+     * Returns the element address to which the app key must be bound.
+     *
+     * @return element address
+     */
+    public byte[] getElementAddress() {
+        return elementAddress;
+    }
+
+    /**
+     * Returns the publish address to which the model must publish to
+     *
+     * @return
+     */
+    public byte[] getPublishAddress() {
+        return publishAddress;
+    }
+
+    /**
+     * Returns the global index of the app key to be bound.
+     *
+     * @return app key index
+     */
+    public int getAppKeyIndex() {
+        return appKeyIndex;
+    }
+
+    /**
+     * Returns the credential flag to be used for this message.
+     *
+     * @return true if friendship credentials to be used or false if master credentials is to be used.
+     */
+    public boolean getCredentialFlag() {
+        return credentialFlag;
+    }
+
+    /**
+     * Returns the ttl of publication messages
+     *
+     * @return publication ttl
+     */
+    public int getPublishTtl() {
+        return publishTtl;
+    }
+
+    /**
+     * Returns the number of publication steps.
+     *
+     * @return number of steps
+     */
+    public int getPublicationSteps() {
+        return publicationSteps;
+    }
+
+    /**
+     * Returns the resolution for the publication steps.
+     *
+     * @return resolution
+     */
+    public int getPublicationResolution() {
+        return publicationResolution;
+    }
+
+    /**
+     * Returns the number of retransmissions for each published message.
+     *
+     * @return number of retransmits
+     */
+    public int getPublishRetransmitCount() {
+        return publishRetransmitCount;
+    }
+
+    /**
+     * Returns the number of 50-milliseconds steps between retransmissions.
+     *
+     * @return retransmit interval steps
+     */
+    public int getPublishRetransmitIntervalSteps() {
+        return publishRetransmitIntervalSteps;
+    }
+
+    /**
+     * Returns the model identifier to which the key is to be bound.
+     *
+     * @return 16-bit or 32-bit vendor model identifier
+     */
+    public int getModelIdentifier() {
+        return modelIdentifier;
+    }
 }

@@ -224,7 +224,7 @@ public interface MeshStatusCallbacks {
     void onGenericLevelStatusReceived(final ProvisionedMeshNode node, final int presentLevel, final int targetLevel, final int transitionSteps, final int transitionResolution);
 
     /**
-     * Notifies if {@link VendorModelMessageStateUnacked} was received
+     * Notifies if {@link VendorModelMessageUnackedState} was received
      *
      * @param node mesh node that the message was received from
      */

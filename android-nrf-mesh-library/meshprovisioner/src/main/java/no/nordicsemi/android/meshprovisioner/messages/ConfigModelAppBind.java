@@ -102,4 +102,31 @@ public final class ConfigModelAppBind extends ConfigMessage {
             mParameters = paramsBuffer.array();
         }
     }
+
+    /**
+     * Returns the element address to which the app key must be bound.
+     *
+     * @return element address
+     */
+    public byte[] getElementAddress() {
+        return mElementAddress;
+    }
+
+    /**
+     * Returns the model identifier to which the key is to be bound.
+     *
+     * @return 16-bit or 32-bit vendor model identifier
+     */
+    public int getModelIdentifier() {
+        return mModelIdentifier;
+    }
+
+    /**
+     * Returns the global index of the app key to be bound.
+     *
+     * @return app key index
+     */
+    public int getAppKeyIndex() {
+        return mAppKeyIndex;
+    }
 }

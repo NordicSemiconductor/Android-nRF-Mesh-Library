@@ -144,13 +144,12 @@ public final class ConfigModelAppStatusState extends ConfigMessageState {
 
                     if(previiousMessageType == ConfigMessageOpCodes.CONFIG_MODEL_APP_BIND) {
                         if(isSuccessful) {
-                            mProvisionedMeshNode.setAppKeyBindStatus(this);
                             statusMessage = "App key was successfully bound";
                             Log.v(TAG, "Status message: " + statusMessage);
                         }
                     } else {
                         if(isSuccessful) {
-                            mProvisionedMeshNode.setAppKeyUnbindStatus(this);
+                            mNode.setAppKeyUnbindStatus(this);
                             statusMessage = "App key was successfully unbound";
                             Log.v(TAG, "Status message: " + statusMessage);
                         }
@@ -158,13 +157,13 @@ public final class ConfigModelAppStatusState extends ConfigMessageState {
                     Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
                     Log.v(TAG, "Model Identifier: " + MeshParserUtils.bytesToHex(modelIdentifier, false));
 
-                    mMeshStatusCallbacks.onAppKeyBindStatusReceived(mProvisionedMeshNode, isSuccessful, status,
+                    mMeshStatusCallbacks.onAppKeyBindStatusReceived(mNode, isSuccessful, status,
                             AddressUtils.getUnicastAddressInt(elementAddress), getAppKeyIndexInt(), getModelIdentifierInt());
-                    mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
                     return true;
                 } else {
                     Log.v(TAG, "Unknown pdu received!");
-                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mNode);
                 }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
@@ -179,8 +178,8 @@ public final class ConfigModelAppStatusState extends ConfigMessageState {
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 
     public int getStatus() {

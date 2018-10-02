@@ -120,15 +120,15 @@ public class ConfigAppKeyStatusState extends ConfigMessageState {
                     final int offset = +2; //Ignoring the opcode and the parameter received
                     parseConfigAppKeyStatus(accessPayload, offset);
                     if (isSuccessful) {
-                        mProvisionedMeshNode.setAddedAppKey(ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort(), appKey);
+                        mNode.setAddedAppKey(ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort(), appKey);
                     }
-                    mMeshStatusCallbacks.onAppKeyStatusReceived(mProvisionedMeshNode, isSuccessful, status,
+                    mMeshStatusCallbacks.onAppKeyStatusReceived(mNode, isSuccessful, status,
                             ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort(),
                             ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort());
-                    mInternalTransportCallbacks.updateMeshNode(mProvisionedMeshNode);
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
                     return true;
                 } else {
-                    mMeshStatusCallbacks.onUnknownPduReceived(mProvisionedMeshNode);
+                    mMeshStatusCallbacks.onUnknownPduReceived(mNode);
                 }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
@@ -154,9 +154,9 @@ public class ConfigAppKeyStatusState extends ConfigMessageState {
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
-        mInternalTransportCallbacks.sendPdu(mProvisionedMeshNode, message.getNetworkPdu().get(0));
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mProvisionedMeshNode);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 
     private void parseStatus(final int status) {
