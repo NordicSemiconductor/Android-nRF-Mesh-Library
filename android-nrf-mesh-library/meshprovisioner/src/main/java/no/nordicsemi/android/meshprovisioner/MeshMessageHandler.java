@@ -507,12 +507,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
     @Override
     public final void sendCompositionDataGet(@NonNull final ProvisionedMeshNode meshNode, final int aszmic) {
         final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet(meshNode, aszmic);
-        final ConfigCompositionDataGetState compositionDataGetState = new ConfigCompositionDataGetState(mContext, compositionDataGet, this);
-        compositionDataGetState.setTransportCallbacks(mInternalTransportCallbacks);
-        compositionDataGetState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = compositionDataGetState;
-        //mMeshMessageState = new ConfigCompositionDataStatus(mContext, meshNode, mInternalTransportCallbacks, mStatusCallbacks);
-        compositionDataGetState.executeSend();
+        sendCompositionDataGet(compositionDataGet);
     }
 
     @Override
@@ -528,11 +523,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
     @Override
     public final void sendAppKeyAdd(@NonNull final ProvisionedMeshNode meshNode, final int appKeyIndex, @NonNull final String appKey, final int aszmic) {
         final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(meshNode, MeshParserUtils.toByteArray(appKey), appKeyIndex, aszmic);
-        final ConfigAppKeyAddState configAppKeyAddState = new ConfigAppKeyAddState(mContext, configAppKeyAdd, this);
-        configAppKeyAddState.setTransportCallbacks(mInternalTransportCallbacks);
-        configAppKeyAddState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = configAppKeyAddState;
-        configAppKeyAddState.executeSend();
+        sendAppKeyAdd(configAppKeyAdd);
     }
 
     @Override
@@ -548,11 +539,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
     public final void bindAppKey(@NonNull final ProvisionedMeshNode meshNode, final int aszmic,
                                  @NonNull final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
         final ConfigModelAppBind configModelAppBind = new ConfigModelAppBind(meshNode, elementAddress, modelIdentifier, appKeyIndex, aszmic);
-        final ConfigModelAppBindState configModelAppBindState = new ConfigModelAppBindState(mContext, configModelAppBind, this);
-        configModelAppBindState.setTransportCallbacks(mInternalTransportCallbacks);
-        configModelAppBindState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = configModelAppBindState;
-        configModelAppBindState.executeSend();
+        bindAppKey(configModelAppBind);
     }
 
     @Override
@@ -568,11 +555,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
     public void unbindAppKey(@NonNull final ProvisionedMeshNode meshNode, final int aszmic,
                              @NonNull final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
         final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(meshNode, elementAddress, modelIdentifier, appKeyIndex, aszmic);
-        final ConfigModelAppUnbindState configModelAppBind = new ConfigModelAppUnbindState(mContext, configModelAppUnbind, this);
-        configModelAppBind.setTransportCallbacks(mInternalTransportCallbacks);
-        configModelAppBind.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = configModelAppBind;
-        configModelAppBind.executeSend();
+        unbindAppKey(configModelAppUnbind);
     }
 
     @Override
@@ -591,11 +574,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
                 params.getPublishTtl(), params.getPublicationSteps(), params.getPublicationResolution(),
                 params.getPublishRetransmitCount(), params.getPublishRetransmitIntervalSteps(), params.getModelIdentifier(), params.getAszmic());
 
-        final ConfigModelPublicationSetState configModelPublicationSetState = new ConfigModelPublicationSetState(mContext, configModelPublicationSet, this);
-        configModelPublicationSetState.setTransportCallbacks(mInternalTransportCallbacks);
-        configModelPublicationSetState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = configModelPublicationSetState;
-        configModelPublicationSetState.executeSend();
+        sendConfigModelPublicationSet(configModelPublicationSet);
     }
 
     @Override
@@ -611,11 +590,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
     public final void addSubscriptionAddress(@NonNull final ProvisionedMeshNode meshNode, final int aszmic, @NonNull final byte[] elementAddress, @NonNull final byte[] subscriptionAddress,
                                              final int modelIdentifier) {
         final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(meshNode, elementAddress, subscriptionAddress, modelIdentifier, aszmic);
-        final ConfigModelSubscriptionAddState configModelSubscriptionAddState = new ConfigModelSubscriptionAddState(mContext, configModelSubscriptionAdd, this);
-        configModelSubscriptionAddState.setTransportCallbacks(mInternalTransportCallbacks);
-        configModelSubscriptionAddState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = configModelSubscriptionAddState;
-        configModelSubscriptionAddState.executeSend();
+        addSubscriptionAddress(configModelSubscriptionAdd);
     }
 
     @Override
@@ -703,7 +678,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
     }
 
     @Override
-    public final void setGenericOnOff(final byte[] dstAddress, final GenericOnOffSet genericOnOffSet) {
+    public final void setGenericOnOff(final byte[] dstAddress, final GenericOnOffSet genericOnOffSet) throws IllegalArgumentException {
         final GenericOnOffSetState genericOnOffSetState = new GenericOnOffSetState(mContext, dstAddress, genericOnOffSet, this);
         genericOnOffSetState.setTransportCallbacks(mInternalTransportCallbacks);
         genericOnOffSetState.setStatusCallbacks(mStatusCallbacks);

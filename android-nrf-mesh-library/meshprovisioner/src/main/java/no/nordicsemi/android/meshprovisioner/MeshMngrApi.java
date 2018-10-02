@@ -230,9 +230,10 @@ public interface MeshMngrApi {
     /**
      * Send generic on off get to mesh node, this message is an acknowledged message.
      *
+     * @param dstAddress
      * @param genericOnOffGet {@link GenericOnOffGet} containing the generic on off get message opcode and parameters
      */
-    void getGenericOnOff(@NonNull final GenericOnOffGet genericOnOffGet);
+    void getGenericOnOff(final byte[] dstAddress, @NonNull final GenericOnOffGet genericOnOffGet);
 
     /**
      * Send generic on off set to mesh node
@@ -252,9 +253,10 @@ public interface MeshMngrApi {
     /**
      * Send generic on off set to mesh node, this message is an acknowledged message.
      *
+     * @param dstAddress
      * @param genericOnOffSet {@link GenericOnOffSet} containing the generic on off get message opcode and parameters
      */
-    void setGenericOnOff(@NonNull final GenericOnOffSet genericOnOffSet);
+    void setGenericOnOff(final byte[] dstAddress, @NonNull final GenericOnOffSet genericOnOffSet);
 
     /**
      * Send generic on off set unacknowledged message to mesh node
@@ -274,9 +276,10 @@ public interface MeshMngrApi {
     /**
      * Send generic on off set to mesh node, this message is an unacknowledged message.
      *
+     * @param dstAddress
      * @param genericOnOffSet {@link GenericOnOffSet} containing the generic on off get message opcode and parameters
      */
-    void setGenericOnOffUnacknowledged(@NonNull final GenericOnOffSetUnacknowledged genericOnOffSet);
+    void setGenericOnOffUnacknowledged(final byte[] dstAddress, @NonNull final GenericOnOffSetUnacknowledged genericOnOffSet);
 
     /**
      * Send generic level get to mesh node
@@ -290,9 +293,10 @@ public interface MeshMngrApi {
     /**
      * Send generic level get to mesh node, this message sent is an acknowledged message.
      *
+     * @param dstAddress
      * @param genericLevelGet {@link GenericLevelGet} containing the generic level set message opcode and parameters
      */
-    void getGenericLevel(@NonNull final GenericLevelGet genericLevelGet);
+    void getGenericLevel(@NonNull final byte[] dstAddress, @NonNull final GenericLevelGet genericLevelGet);
 
     /**
      * Send generic level set to mesh node
@@ -312,9 +316,10 @@ public interface MeshMngrApi {
     /**
      * Send generic level set to mesh node, this message sent is an acknowledged message.
      *
+     * @param dstAddress
      * @param genericLevelSet {@link GenericLevelSet} containing the generic level set message opcode and parameters
      */
-    void setGenericLevel(@NonNull final GenericLevelSet genericLevelSet);
+    void setGenericLevel(@NonNull final byte[] dstAddress, @NonNull final GenericLevelSet genericLevelSet);
 
     /**
      * Send generic level set unacknowledged message to mesh node
@@ -335,9 +340,10 @@ public interface MeshMngrApi {
     /**
      * Send generic level set to mesh node, this message sent is an acknowledged message.
      *
+     * @param dstAddress
      * @param genericLevelSet {@link GenericLevelSetUnacknowledged} containing the generic level set message opcode and parameters
      */
-    void setGenericLevelUnacknowledged(@NonNull final GenericLevelSetUnacknowledged genericLevelSet);
+    void setGenericLevelUnacknowledged(@NonNull final byte[] dstAddress, @NonNull final GenericLevelSetUnacknowledged genericLevelSet);
 
     /**
      * Send unacknowledged vendor model specific message to a node
@@ -355,9 +361,10 @@ public interface MeshMngrApi {
     /**
      * Sends a raw unacknowledged vendor model message
      *
+     * @param dstAddress
      * @param vendorModelMessageUnacked {@link VendorModelMessageUnacked} containing the unacknowledged vendor model message opcode and parameters
      */
-    void sendVendorModelUnacknowledgedMessage(@NonNull final VendorModelMessageUnacked vendorModelMessageUnacked);
+    void sendVendorModelUnacknowledgedMessage(@NonNull final byte[] dstAddress, @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked);
 
     /**
      * Send acknowledged vendor model specific message to a node
@@ -374,8 +381,9 @@ public interface MeshMngrApi {
     /**
      * Sends a raw acknowledged vendor model message
      *
+     * @param dstAddress
      * @param vendorModelMessageAcked {@link VendorModelMessageAcked} containing the unacknowledged vendor model message opcode and parameters
      */
-    void sendVendorModelAcknowledgedMessage(@NonNull final VendorModelMessageAcked vendorModelMessageAcked);
+    void sendVendorModelAcknowledgedMessage(@NonNull final byte[] dstAddress, @NonNull final VendorModelMessageAcked vendorModelMessageAcked);
 
 }
