@@ -125,8 +125,7 @@ public class PublicationSettings implements Parcelable {
         publishRetransmitIntervalSteps = in.readInt();
     }
 
-    //Adding transient keyword to avoid serialization
-    private final transient Creator<PublicationSettings> CREATOR = new Creator<PublicationSettings>() {
+    public static final Parcelable.Creator<PublicationSettings> CREATOR = new Creator<PublicationSettings>() {
         @Override
         public PublicationSettings createFromParcel(Parcel in) {
             return new PublicationSettings(in);
