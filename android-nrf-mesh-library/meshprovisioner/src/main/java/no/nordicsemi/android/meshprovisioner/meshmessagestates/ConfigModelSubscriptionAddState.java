@@ -72,7 +72,6 @@ public final class ConfigModelSubscriptionAddState extends ConfigMessageState {
                 return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
-                return true;
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");

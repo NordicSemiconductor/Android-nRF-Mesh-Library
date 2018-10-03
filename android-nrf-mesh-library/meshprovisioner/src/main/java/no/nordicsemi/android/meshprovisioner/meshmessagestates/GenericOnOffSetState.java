@@ -52,9 +52,9 @@ public class GenericOnOffSetState extends GenericMessageState implements LowerTr
                 final GenericOnOffStatus genericOnOffSet = new GenericOnOffStatus(mNode, (AccessMessage) message);
                 //TODO handle GenericOnOffStatus status message
                 mInternalTransportCallbacks.updateMeshNode(mNode);
+                return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
-                return true;
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");

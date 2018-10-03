@@ -71,9 +71,9 @@ public final class ConfigModelAppUnbindState extends ConfigMessageState {
                 //TODO Config Model app status
                 mInternalTransportCallbacks.updateMeshNode(mNode);
                 mMeshStatusCallbacks.onAppKeyBindStatusReceived(configModelAppUnbind);
+                return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
-                return true;
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");

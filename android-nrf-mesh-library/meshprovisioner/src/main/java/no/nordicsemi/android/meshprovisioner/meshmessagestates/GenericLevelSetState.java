@@ -53,9 +53,9 @@ public class GenericLevelSetState extends GenericMessageState implements LowerTr
                 final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(mNode, (AccessMessage) message);
                 //TODO handle GenericLevelSet status message
                 mInternalTransportCallbacks.updateMeshNode(mNode);
+                return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
-                return true;
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");

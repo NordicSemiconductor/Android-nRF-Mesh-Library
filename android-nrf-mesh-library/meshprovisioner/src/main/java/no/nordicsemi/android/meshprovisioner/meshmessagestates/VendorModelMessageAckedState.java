@@ -75,9 +75,9 @@ public class VendorModelMessageAckedState extends GenericMessageState {
                 final VendorModelMessageStatus vendorModelMessageStatus = new VendorModelMessageStatus(mNode, (AccessMessage) message);
                 //TODO handle VendorModelMessageStatus message
                 mInternalTransportCallbacks.updateMeshNode(mNode);
+                return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
-                return true;
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");

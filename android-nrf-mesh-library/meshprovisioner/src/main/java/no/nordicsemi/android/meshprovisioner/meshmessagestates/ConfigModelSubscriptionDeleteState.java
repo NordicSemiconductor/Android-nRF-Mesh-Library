@@ -64,9 +64,9 @@ public final class ConfigModelSubscriptionDeleteState extends ConfigMessageState
                 final ConfigModelSubscriptionStatus configModelSubscriptionAdd = new ConfigModelSubscriptionStatus(mNode, (AccessMessage) message);
                 //TODO Config model subscription status
                 mInternalTransportCallbacks.updateMeshNode(mNode);
+                return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
-                return true;
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");

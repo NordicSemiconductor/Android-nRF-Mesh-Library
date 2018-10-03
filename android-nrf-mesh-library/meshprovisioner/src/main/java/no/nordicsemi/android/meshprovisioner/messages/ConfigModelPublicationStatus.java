@@ -106,7 +106,7 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
             modelIdentifier = new byte[]{mParameters[11], mParameters[10]};
             mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getShort();
         } else {
-            modelIdentifier = new byte[]{mParameters[11], mParameters[110], mParameters[13], mParameters[12]};
+            modelIdentifier = new byte[]{mParameters[11], mParameters[10], mParameters[13], mParameters[12]};
             mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getInt();
         }
 
