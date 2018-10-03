@@ -7,20 +7,17 @@ import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 
 import static no.nordicsemi.android.meshprovisioner.messages.ConfigStatusMessage.StatusCodeNames.fromStatusCode;
 
+@SuppressWarnings("WeakerAccess")
 public abstract class ConfigStatusMessage extends MeshMessage {
 
     final int AKF = 0;
-    AccessMessage mMessage;
+    final AccessMessage mMessage;
     int mStatusCode;
     String mStatusCodeName;
 
     public ConfigStatusMessage(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
-        this(node, message.getAszmic());
+        super(node, message.getAszmic());
         mMessage = message;
-    }
-
-    private ConfigStatusMessage(final ProvisionedMeshNode node, final int aszmic) {
-        super(node, aszmic);
     }
 
     /**
@@ -53,9 +50,9 @@ public abstract class ConfigStatusMessage extends MeshMessage {
     }
 
     /**
-     * Returns the status message for the status code received by the status message
+     * Returns the status code name for a status code received by the status message.
      *
-     * @return Status message
+     * @return status code name
      */
     public final String getStatusCodeName() {
         return mStatusCodeName;

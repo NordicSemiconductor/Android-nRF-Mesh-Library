@@ -33,6 +33,8 @@ import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
@@ -161,28 +163,22 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
                 break;
             case APP_BIND_STATUS_RECEIVED:
                 if (intent.getExtras() != null) {
-                    final boolean success = intent.getExtras().getBoolean(EXTRA_IS_SUCCESS);
-                    final int statusCode = intent.getExtras().getInt(EXTRA_STATUS);
-                    final int elementAddress = intent.getExtras().getInt(EXTRA_ELEMENT_ADDRESS);
-                    final int appKeyIndex = intent.getExtras().getInt(EXTRA_APP_KEY_INDEX);
-                    final int modelId = intent.getExtras().getInt(EXTRA_MODEL_ID);
+                    final ConfigModelAppStatus configModelAppStatus = intent.getExtras().getParcelable(EXTRA_DATA);
+                    final MeshModel meshModel = node.getElements().get(configModelAppStatus.getElementAddress()).getMeshModels().get(configModelAppStatus.getModelIdentifier());
                     mExtendedMeshNode.updateMeshNode(node);
-                    mMeshModel.postValue(model);
-                    mAppKeyBindStatus.onStatusChanged(success, statusCode, elementAddress, appKeyIndex, modelId);
+                    mMeshModel.postValue(meshModel);
+                    mAppKeyBindStatus.postValue(configModelAppStatus);
                 }
                 break;
             case PUBLISH_ADDRESS_SET_SENT:
                 break;
             case PUBLISH_ADDRESS_STATUS_RECEIVED:
                 if (intent.getExtras() != null) {
-                    final boolean success = intent.getExtras().getBoolean(EXTRA_IS_SUCCESS);
-                    final int statusCode = intent.getExtras().getInt(EXTRA_STATUS);
-                    final byte[] elementAddress = intent.getExtras().getByteArray(EXTRA_ELEMENT_ADDRESS);
-                    final byte[] publishAddress = intent.getExtras().getByteArray(EXTRA_PUBLISH_ADDRESS);
-                    final int modelId = intent.getExtras().getInt(EXTRA_MODEL_ID);
+                    final ConfigModelPublicationStatus publicationStatus = intent.getExtras().getParcelable(EXTRA_DATA);
+                    final MeshModel meshModel = node.getElements().get(publicationStatus.getElementAddress()).getMeshModels().get(publicationStatus.getModelIdentifier());
                     mExtendedMeshNode.updateMeshNode(node);
-                    mMeshModel.postValue(model);
-                    mConfigModelPublicationStatus.onStatusChanged(success, statusCode, elementAddress, publishAddress, modelId);
+                    mMeshModel.postValue(meshModel);
+                    mConfigModelPublicationStatus.postValue(publicationStatus);
                 }
                 break;
             case SUBSCRIPTION_ADD_SENT:

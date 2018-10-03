@@ -68,6 +68,8 @@ import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
+import no.nordicsemi.android.meshprovisioner.utils.PublicationSettingsInstanceCreator;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 
@@ -242,6 +244,8 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
                 final String key = String.format(Locale.US, "0x%04X", orderedKey);
                 final String json = preferences.getString(key, null);
                 if (json != null) {
+                    Log.v(TAG, "KEY: " + orderedKey);
+                    Log.v(TAG, "JSON: " + json);
                     final ProvisionedMeshNode node = mGson.fromJson(json, ProvisionedMeshNode.class);
                     final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
                     mProvisionedNodes.put(unicastAddress, node);
@@ -766,7 +770,11 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     @Override
     public void sendConfigModelPublicationSet(@NonNull ConfigModelPublicationSetParams configModelPublicationSetParams) {
-        sendConfigModelPublicationSet(configModelPublicationSetParams);
+        final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(configModelPublicationSetParams.getMeshNode(),
+                configModelPublicationSetParams.getElementAddress(), configModelPublicationSetParams.getPublishAddress(), configModelPublicationSetParams.getAppKeyIndex(), configModelPublicationSetParams.getCredentialFlag(),
+                configModelPublicationSetParams.getPublishTtl(), configModelPublicationSetParams.getPublicationSteps(), configModelPublicationSetParams.getPublicationResolution(),
+                configModelPublicationSetParams.getPublishRetransmitCount(), configModelPublicationSetParams.getPublishRetransmitIntervalSteps(), configModelPublicationSetParams.getModelIdentifier(), configModelPublicationSetParams.getAszmic());
+        setPublication(configModelPublicationSet);
     }
 
     @Override

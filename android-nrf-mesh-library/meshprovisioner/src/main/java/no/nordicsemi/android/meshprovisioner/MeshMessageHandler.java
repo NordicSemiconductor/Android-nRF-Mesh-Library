@@ -27,30 +27,22 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigAppKeyAddState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigAppKeyStatusState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigCompositionDataGetState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigCompositionDataStatusState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigMessageState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelAppBindState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelAppStatusState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelAppUnbindState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelPublicationSetState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelPublicationStatusState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelSubscriptionAddState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelSubscriptionDeleteState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelSubscriptionStatusState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigNodeResetState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigNodeResetStatusState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.DefaultNoOperationMessageState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericLevelGetState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericLevelSetState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericLevelSetUnacknowledgedState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericLevelStatusState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericMessageState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericOnOffGetState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericOnOffSetState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericOnOffSetUnacknowledgedState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericOnOffStatusState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshMessageState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
@@ -63,7 +55,6 @@ import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppUnbind;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionDelete;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeReset;
@@ -77,7 +68,6 @@ import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageAcked;
 import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageUnacked;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
-import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -159,12 +149,6 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
             if (mMeshMessageState instanceof VendorModelMessageUnackedState) {
                 //We don't expect a generic on off status as this is an unacknowledged message so we switch states here
                 switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
-            } else {
-                final VendorModelMessageStateStatus vendorModelMessage = new VendorModelMessageStateStatus(mContext, mMeshMessageState.getMeshNode(), this,
-                        mMeshMessageState.getMeshModel(), mMeshMessageState.getAppKeyIndex());
-                vendorModelMessage.setTransportCallbacks(mInternalTransportCallbacks);
-                vendorModelMessage.setStatusCallbacks(mStatusCallbacks);
-                switchState(vendorModelMessage);
             }
         }
     }

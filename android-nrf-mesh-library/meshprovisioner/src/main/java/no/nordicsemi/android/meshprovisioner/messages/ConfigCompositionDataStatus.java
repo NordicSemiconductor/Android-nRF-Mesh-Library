@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.messages;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -45,7 +47,7 @@ import no.nordicsemi.android.meshprovisioner.utils.Element;
  * To be used as a wrapper class for when creating the ConfigCompositionDataStatus Message.
  */
 @SuppressWarnings("unused")
-public class ConfigCompositionDataStatus extends ConfigStatusMessage {
+public class ConfigCompositionDataStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigCompositionDataStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS;
@@ -70,10 +72,23 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage {
      */
     public ConfigCompositionDataStatus(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
         super(node, message);
-        this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
+
+    private static final Creator<ConfigCompositionDataStatus> CREATOR = new Creator<ConfigCompositionDataStatus>() {
+        @Override
+        public ConfigCompositionDataStatus createFromParcel(Parcel in) {
+            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new ConfigCompositionDataStatus(meshNode, message);
+        }
+
+        @Override
+        public ConfigCompositionDataStatus[] newArray(int size) {
+            return new ConfigCompositionDataStatus[size];
+        }
+    };
 
     @Override
     final void parseStatusParameters() {
@@ -300,5 +315,16 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage {
     @Override
     int getOpCode() {
         return OP_CODE;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeValue(mNode);
+        dest.writeValue(mMessage);
     }
 }

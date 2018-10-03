@@ -48,9 +48,8 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigAppKeyStatusState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
@@ -202,19 +201,19 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             resetNodeFragment.show(getSupportFragmentManager(), null);
         });
 
-        mViewModel.getCompositionDataStatus().observe(this, compositionDataStatusLiveData -> {
+        mViewModel.getCompositionDataStatus().observe(this, configCompositionDataStatus -> {
             hideProgressBar();
-            if(!compositionDataStatusLiveData.isSuccess()){
+            if(configCompositionDataStatus != null){
                 DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", getString(R.string.operation_timed_out));
                 fragmentMessage.show(getSupportFragmentManager(), null);
             }
         });
 
-        mViewModel.getAppKeyAddStatus().observe(this, appKeyStatusLiveData -> {
+        mViewModel.getAppKeyAddStatus().observe(this, configAppKeyStatus -> {
             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_APP_KEY_STATUS) == null) {
-                if(!appKeyStatusLiveData.isSuccess()) {
+                if(!configAppKeyStatus.isSuccessful()) {
                     final DialogFragmentAppKeyAddStatus fragmentAppKeyAddStatus = DialogFragmentAppKeyAddStatus.
-                            newInstance(getString(R.string.title_appkey_status), ConfigAppKeyStatusState.parseStatusMessage(this, appKeyStatusLiveData.getStatus()));
+                            newInstance(getString(R.string.title_appkey_status), configAppKeyStatus.getStatusCodeName());
                     fragmentAppKeyAddStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_APP_KEY_STATUS);
                 }
             }

@@ -26,25 +26,21 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
-import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
+import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
+/**
+ * State class handling the publication set messages and its status message.
+ */
 public class ConfigModelPublicationSetState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelPublicationSetState.class.getSimpleName();
-
-    private static final int SIG_MODEL_PUBLISH_SET_PARAMS_LENGTH = 11;
-    private static final int VENDOR_MODEL_PUBLISH_SET_PARAMS_LENGTH = 13;
 
     private final ConfigModelPublicationSet mConfigModelPublicationSet;
 
@@ -67,12 +63,16 @@ public class ConfigModelPublicationSetState extends ConfigMessageState {
         if (message != null) {
             if (message instanceof AccessMessage) {
                 final ConfigModelPublicationStatus configModelPublicationStatus = new ConfigModelPublicationStatus(mNode, (AccessMessage) message);
-                //TODO Config model publication status
+                if (configModelPublicationStatus.isSuccessful()) {
+                    final Element element = mNode.getElements().get(configModelPublicationStatus.getElementAddress());
+                    final MeshModel model = element.getMeshModels().get(configModelPublicationStatus.getModelIdentifier());
+                    model.setPublicationStatus(configModelPublicationStatus);
+                }
                 mInternalTransportCallbacks.updateMeshNode(mNode);
+                mMeshStatusCallbacks.onPublicationStatusReceived(configModelPublicationStatus);
                 return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
-                return true;
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
@@ -111,14 +111,5 @@ public class ConfigModelPublicationSetState extends ConfigMessageState {
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
         mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
-    }
-
-    /**
-     * Returns the source address of the message i.e. where it originated from
-     *
-     * @return source address
-     */
-    public byte[] getSrc() {
-        return mSrc;
     }
 }

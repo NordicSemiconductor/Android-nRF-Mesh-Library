@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.messages;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -37,7 +39,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
  * To be used as a wrapper class for when creating the ConfigAppKeyStatus Message.
  */
 @SuppressWarnings("unused")
-public class ConfigAppKeyStatus extends ConfigStatusMessage {
+public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigAppKeyStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_APPKEY_STATUS;
@@ -52,10 +54,23 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage {
      */
     public ConfigAppKeyStatus(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
         super(node, message);
-        this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
+
+    public static final Creator<ConfigAppKeyStatus> CREATOR = new Creator<ConfigAppKeyStatus>() {
+        @Override
+        public ConfigAppKeyStatus createFromParcel(Parcel in) {
+            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new ConfigAppKeyStatus(meshNode, message);
+        }
+
+        @Override
+        public ConfigAppKeyStatus[] newArray(int size) {
+            return new ConfigAppKeyStatus[size];
+        }
+    };
 
     @Override
     final void parseStatusParameters() {
@@ -65,17 +80,17 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage {
         final byte[] netKeyIndex = new byte[]{(byte) (mParameters[2] & 0x0F), mParameters[1]};
         mNetKeyIndex = ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
 
-        final byte[] appKeyIndex = new byte[]{(byte) ((mParameters[4] & 0xF0) >> 4), (byte) (mParameters[4] << 4 | ((mParameters[3] & 0xF0) >> 4))};
+        final byte[] appKeyIndex = new byte[]{(byte) ((mParameters[3] & 0xF0) >> 4), (byte) (mParameters[3] << 4 | ((mParameters[2] & 0xF0) >> 4))};
         mAppKeyIndex = ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
 
-        Log.v(TAG, "Status: " + mStatusCode);
+        Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
         Log.v(TAG, "Net key index: " + MeshParserUtils.bytesToHex(netKeyIndex, false));
         Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
     }
 
     @Override
-    public int getOpCode() {
+    public final int getOpCode() {
         return OP_CODE;
     }
 
@@ -84,7 +99,7 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage {
      *
      * @return netkey index
      */
-    public int getNetKeyIndex() {
+    public final int getNetKeyIndex() {
         return mNetKeyIndex;
     }
 
@@ -93,7 +108,27 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage {
      *
      * @return appkey index
      */
-    public int getAppKeyIndex() {
+    public final int getAppKeyIndex() {
         return mAppKeyIndex;
+    }
+
+    /**
+     * Returns if the message was successful
+     *
+     * @return true if the message was successful or false otherwise
+     */
+    public final boolean isSuccessful(){
+        return mStatusCode == 0x00;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeValue(mNode);
+        dest.writeValue(mMessage);
     }
 }

@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.messages;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -37,12 +39,12 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
  * To be used as a wrapper class for when creating the ConfigModelSubscriptionStatus Message.
  */
 @SuppressWarnings("unused")
-public class ConfigModelSubscriptionStatus extends ConfigStatusMessage {
+public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigModelSubscriptionStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_STATUS;
-    private static final int CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH = 9;
-    private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL_PDU_LENGTH = 11;
+    private static final int CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH = 7;
+    private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL_PDU_LENGTH = 9;
 
     private int mElementAddress;
     private int mModelIdentifier;
@@ -56,10 +58,23 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage {
      */
     public ConfigModelSubscriptionStatus(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
         super(node, message);
-        this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
+
+    private static final Creator<ConfigModelSubscriptionStatus> CREATOR = new Creator<ConfigModelSubscriptionStatus>() {
+        @Override
+        public ConfigModelSubscriptionStatus createFromParcel(Parcel in) {
+            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new ConfigModelSubscriptionStatus(meshNode, message);
+        }
+
+        @Override
+        public ConfigModelSubscriptionStatus[] newArray(int size) {
+            return new ConfigModelSubscriptionStatus[size];
+        }
+    };
 
     @Override
     final void parseStatusParameters() {
@@ -80,7 +95,7 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage {
             mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getInt();
         }
 
-        Log.v(TAG, "Status: " + mStatusCode);
+        Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
         Log.v(TAG, "Element Address: " + MeshParserUtils.bytesToHex(elementAddress, false));
         Log.v(TAG, "Subscription Address: " + MeshParserUtils.bytesToHex(mSubscriptionAddress, false));
@@ -117,5 +132,16 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage {
      */
     public final int getModelIdentifier() {
         return mModelIdentifier;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeValue(mNode);
+        dest.writeValue(mMessage);
     }
 }

@@ -48,11 +48,11 @@ public class ConfigNodeResetState extends ConfigMessageState {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
-                final ConfigNodeResetStatus configModelSubscriptionAdd = new ConfigNodeResetStatus(mNode, (AccessMessage) message);
+                final ConfigNodeResetStatus configNodeResetStatus = new ConfigNodeResetStatus(mNode, (AccessMessage) message);
                 //TODO Config node reset status
                 mInternalTransportCallbacks.updateMeshNode(mNode);
                 mInternalTransportCallbacks.onMeshNodeReset(mNode);
-                mMeshStatusCallbacks.onMeshNodeResetStatusReceived(mNode);
+                mMeshStatusCallbacks.onMeshNodeResetStatusReceived(configNodeResetStatus);
                 return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());

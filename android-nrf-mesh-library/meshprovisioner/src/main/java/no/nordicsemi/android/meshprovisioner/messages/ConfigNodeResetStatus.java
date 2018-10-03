@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.messages;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -37,7 +39,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
  * To be used as a wrapper class for when creating the ConfigAppKeyStatus Message.
  */
 @SuppressWarnings("unused")
-public class ConfigNodeResetStatus extends ConfigStatusMessage {
+public class ConfigNodeResetStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigNodeResetStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NODE_RESET;
@@ -50,10 +52,23 @@ public class ConfigNodeResetStatus extends ConfigStatusMessage {
      */
     public ConfigNodeResetStatus(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
         super(node, message);
-        this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
+
+    private static final Creator<ConfigNodeResetStatus> CREATOR = new Creator<ConfigNodeResetStatus>() {
+        @Override
+        public ConfigNodeResetStatus createFromParcel(Parcel in) {
+            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new ConfigNodeResetStatus(meshNode, message);
+        }
+
+        @Override
+        public ConfigNodeResetStatus[] newArray(int size) {
+            return new ConfigNodeResetStatus[size];
+        }
+    };
 
     @Override
     final void parseStatusParameters() {
@@ -63,5 +78,16 @@ public class ConfigNodeResetStatus extends ConfigStatusMessage {
     @Override
     public int getOpCode() {
         return OP_CODE;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeValue(mNode);
+        dest.writeValue(mMessage);
     }
 }

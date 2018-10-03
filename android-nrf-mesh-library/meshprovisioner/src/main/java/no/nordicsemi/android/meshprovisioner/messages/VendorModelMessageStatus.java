@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.messages;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -37,7 +39,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
  * To be used as a wrapper class for when creating the VendorModelMessageStatus Message.
  */
 @SuppressWarnings("unused")
-public final class VendorModelMessageStatus extends GenericStatusMessage {
+public final class VendorModelMessageStatus extends GenericStatusMessage implements Parcelable {
 
     private static final String TAG = VendorModelMessageStatus.class.getSimpleName();
     /**
@@ -54,6 +56,20 @@ public final class VendorModelMessageStatus extends GenericStatusMessage {
         parseStatusParameters();
     }
 
+    public static final Creator<VendorModelMessageStatus> CREATOR = new Creator<VendorModelMessageStatus>() {
+        @Override
+        public VendorModelMessageStatus createFromParcel(Parcel in) {
+            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new VendorModelMessageStatus(meshNode, message);
+        }
+
+        @Override
+        public VendorModelMessageStatus[] newArray(int size) {
+            return new VendorModelMessageStatus[size];
+        }
+    };
+
     @Override
     void parseStatusParameters() {
         Log.v(TAG, "Received Vendor model status: " + MeshParserUtils.bytesToHex(mParameters, false));
@@ -64,4 +80,14 @@ public final class VendorModelMessageStatus extends GenericStatusMessage {
         return mMessage.getOpCode();
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeValue(mNode);
+        dest.writeValue(mMessage);
+    }
 }

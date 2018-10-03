@@ -32,6 +32,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
@@ -228,26 +229,9 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
                 break;
             case APP_BIND_STATUS_RECEIVED:
                 if (intent.getExtras() != null) {
-                    final boolean success = intent.getExtras().getBoolean(EXTRA_IS_SUCCESS);
-                    final int statusCode = intent.getExtras().getInt(EXTRA_STATUS);
-                    final int elementAddress = intent.getExtras().getInt(EXTRA_ELEMENT_ADDRESS);
-                    final int appKeyIndex = intent.getExtras().getInt(EXTRA_APP_KEY_INDEX);
-                    final int modelId = intent.getExtras().getInt(EXTRA_MODEL_ID);
+                    final ConfigModelAppStatus configModelAppStatus = intent.getExtras().getParcelable(EXTRA_DATA);
                     mExtendedMeshNode.updateMeshNode(node);
-                    mAppKeyBindStatus.onStatusChanged(success, statusCode, elementAddress, appKeyIndex, modelId);
-                }
-                break;
-            case PUBLISH_ADDRESS_SET_SENT:
-                break;
-            case PUBLISH_ADDRESS_STATUS_RECEIVED:
-                if (intent.getExtras() != null) {
-                    final boolean success = intent.getExtras().getBoolean(EXTRA_IS_SUCCESS);
-                    final int statusCode = intent.getExtras().getInt(EXTRA_STATUS);
-                    final byte[] elementAddress = intent.getExtras().getByteArray(EXTRA_ELEMENT_ADDRESS);
-                    final byte[] publishAddress = intent.getExtras().getByteArray(EXTRA_PUBLISH_ADDRESS);
-                    final int modelId = intent.getExtras().getInt(EXTRA_MODEL_ID);
-                    mExtendedMeshNode.updateMeshNode(node);
-                    mConfigModelPublicationStatus.onStatusChanged(success, statusCode, elementAddress, publishAddress, modelId);
+                    mAppKeyBindStatus.postValue(configModelAppStatus);
                 }
                 break;
         }

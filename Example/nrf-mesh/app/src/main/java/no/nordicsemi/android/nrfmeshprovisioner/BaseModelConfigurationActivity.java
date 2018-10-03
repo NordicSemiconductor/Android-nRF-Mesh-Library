@@ -54,6 +54,7 @@ import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNo
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -204,7 +205,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mActionClearPublication.setOnClickListener(v -> {
             final MeshModel meshModel = mViewModel.getMeshModel().getValue();
             if(meshModel != null && !meshModel.getBoundAppkeys().isEmpty()) {
-                mViewModel.sendConfigModelPublicationSet(MeshParserUtils.DISABLED_PUBLICATION_ADDRESS, meshModel.getPublishAppKeyIndexInt(),
+                mViewModel.sendConfigModelPublicationSet(MeshParserUtils.DISABLED_PUBLICATION_ADDRESS, meshModel.getPublicationSettings().getAppKeyIndex(),
                         false, 0, 0, 0, 0, 0);
                 showProgressbar();
             } else {
@@ -232,13 +233,16 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                     recyclerViewBoundKeys.setVisibility(View.GONE);
                 }
 
-                final byte[] publishAddress = meshModel.getPublishAddress();
-                if (publishAddress != null && !Arrays.equals(publishAddress, MeshParserUtils.DISABLED_PUBLICATION_ADDRESS)) {
-                    mPublishAddressView.setText(MeshParserUtils.bytesToHex(publishAddress, true));
-                    mActionClearPublication.setVisibility(View.VISIBLE);
-                } else {
-                    mPublishAddressView.setText(R.string.none);
-                    mActionClearPublication.setVisibility(View.GONE);
+                final PublicationSettings publicationSettings = meshModel.getPublicationSettings();
+                if(publicationSettings != null) {
+                    final byte[] publishAddress = publicationSettings.getPublishAddress();
+                    if (publishAddress != null && !Arrays.equals(publishAddress, MeshParserUtils.DISABLED_PUBLICATION_ADDRESS)) {
+                        mPublishAddressView.setText(MeshParserUtils.bytesToHex(publishAddress, true));
+                        mActionClearPublication.setVisibility(View.VISIBLE);
+                    } else {
+                        mPublishAddressView.setText(R.string.none);
+                        mActionClearPublication.setVisibility(View.GONE);
+                    }
                 }
 
                 final List<byte[]> subscriptionAddresses = meshModel.getSubscriptionAddresses();
@@ -256,19 +260,17 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             }
         });
 
-        mViewModel.getAppKeyBindStatusLiveData().observe(this, appKeyBindStatusLiveData -> {
-            if(!appKeyBindStatusLiveData.isSuccess()){
-                final String statusMessage = ConfigModelAppStatusState.parseStatusMessage(this, appKeyBindStatusLiveData.getStatus());
-                DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_appkey_status), statusMessage);
+        mViewModel.getAppKeyBindStatusLiveData().observe(this, configModelAppStatus -> {
+            if(!configModelAppStatus.isSuccessful()){
+                DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_appkey_status), configModelAppStatus.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
             hideProgressBar();
         });
 
-        mViewModel.getConfigModelPublicationStatusLiveData().observe(this, configModelPublicationStatusLiveData -> {
-            if(!configModelPublicationStatusLiveData.isSuccessful()){
-                final String statusMessage = ConfigModelAppStatusState.parseStatusMessage(this, configModelPublicationStatusLiveData.getStatus());
-                DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_publlish_address_status), statusMessage);
+        mViewModel.getConfigModelPublicationStatusLiveData().observe(this, publicationStatus -> {
+            if(!publicationStatus.isSuccessful()){
+                DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_publlish_address_status), publicationStatus.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
             hideProgressBar();

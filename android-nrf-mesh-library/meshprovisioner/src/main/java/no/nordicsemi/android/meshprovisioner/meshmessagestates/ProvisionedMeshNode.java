@@ -23,6 +23,7 @@
 package no.nordicsemi.android.meshprovisioner.meshmessagestates;
 
 import android.os.Parcel;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
@@ -45,11 +46,11 @@ public class ProvisionedMeshNode extends BaseMeshNode {
     private SecureUtils.K2Output k2Output;
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    public ProvisionedMeshNode(){
+    public ProvisionedMeshNode() {
 
     }
 
-    public ProvisionedMeshNode(final UnprovisionedMeshNode unprovisionedMeshNode){
+    public ProvisionedMeshNode(final UnprovisionedMeshNode unprovisionedMeshNode) {
         isProvisioned = unprovisionedMeshNode.isProvisioned();
         isConfigured = unprovisionedMeshNode.isConfigured();
         nodeName = unprovisionedMeshNode.getNodeName();
@@ -258,9 +259,10 @@ public class ProvisionedMeshNode extends BaseMeshNode {
 
     /**
      * Sets the data from the {@link ConfigCompositionDataStatus}
+     *
      * @param configCompositionDataStatus Composition data status object
      */
-    protected final void setCompositionData(final ConfigCompositionDataStatus configCompositionDataStatus) {
+    protected final void setCompositionData(@NonNull final ConfigCompositionDataStatus configCompositionDataStatus) {
         if (configCompositionDataStatus != null) {
             companyIdentifier = configCompositionDataStatus.getCompanyIdentifier();
             productIdentifier = configCompositionDataStatus.getProductIdentifier();
@@ -277,11 +279,12 @@ public class ProvisionedMeshNode extends BaseMeshNode {
 
     /**
      * Sets the bound app key data from the {@link ConfigModelAppStatus}
+     *
      * @param configModelAppStatus ConfigModelAppStatus contaiing the bound app key information
      */
-    protected final void setAppKeyBindStatus(final ConfigModelAppStatus configModelAppStatus) {
+    protected final void setAppKeyBindStatus(@NonNull final ConfigModelAppStatus configModelAppStatus) {
         if (configModelAppStatus != null) {
-            if (configModelAppStatus.getStatusCode() == 0x00) {
+            if (configModelAppStatus.isSuccessful()) {
                 final Element element = mElements.get(configModelAppStatus.getElementAddress());
                 final int modelIdentifier = configModelAppStatus.getModelIdentifier();
                 final MeshModel model = element.getMeshModels().get(modelIdentifier);
@@ -293,29 +296,29 @@ public class ProvisionedMeshNode extends BaseMeshNode {
     }
 
     /**
-     * Sets the unbind app key data from the {@link ConfigModelAppStatusState}
+     * Sets the unbind app key data from the {@link ConfigModelAppStatus}
+     *
      * @param configModelAppStatus ConfigModelAppStatus containing the unbound app key information
      */
-    protected final void setAppKeyUnbindStatus(final ConfigModelAppStatusState configModelAppStatus) {
+    protected final void setAppKeyUnbindStatus(@NonNull final ConfigModelAppStatus configModelAppStatus) {
         if (configModelAppStatus != null) {
             if (configModelAppStatus.isSuccessful()) {
-                final Element element = mElements.get(configModelAppStatus.getElementAddressInt());
-                final int modelIdentifier = configModelAppStatus.getModelIdentifierInt();
+                final Element element = mElements.get(configModelAppStatus.getElementAddress());
+                final int modelIdentifier = configModelAppStatus.getModelIdentifier();
                 final MeshModel model = element.getMeshModels().get(modelIdentifier);
-                final int appKeyIndex = configModelAppStatus.getAppKeyIndexInt();
-                final String appKey = mAddedAppKeys.get(appKeyIndex);
-                model.removeBoundAppKey(appKeyIndex, appKey);
+                final int appKeyIndex = configModelAppStatus.getAppKeyIndex();
+                model.removeBoundAppKey(appKeyIndex);
             }
 
         }
     }
 
-    private void sortElements(final HashMap<Integer, Element> unorderedElements){
-        final Set<Integer> unorderedKeys =  unorderedElements.keySet();
+    private void sortElements(final HashMap<Integer, Element> unorderedElements) {
+        final Set<Integer> unorderedKeys = unorderedElements.keySet();
 
         final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
         Collections.sort(orderedKeys);
-        for(int key : orderedKeys) {
+        for (int key : orderedKeys) {
             mElements.put(key, unorderedElements.get(key));
         }
     }
@@ -326,11 +329,11 @@ public class ProvisionedMeshNode extends BaseMeshNode {
     }
 
     public Integer getSeqAuth(final byte[] src) {
-        if(mSeqAuth.size() == 0) {
+        if (mSeqAuth.size() == 0) {
             return null;
         }
 
-        final int srcAddress = ((src[0] & 0xFF) << 8) | (src[1] & 0xFF) ;
+        final int srcAddress = ((src[0] & 0xFF) << 8) | (src[1] & 0xFF);
         return (int) mSeqAuth.get(srcAddress);
     }
 }

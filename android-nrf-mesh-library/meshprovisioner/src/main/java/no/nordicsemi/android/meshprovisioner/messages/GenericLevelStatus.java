@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.messages;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -33,7 +35,7 @@ import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class GenericLevelStatus extends GenericStatusMessage {
+public final class GenericLevelStatus extends GenericStatusMessage implements Parcelable {
 
     private static final String TAG = GenericLevelStatus.class.getSimpleName();
     private static final int GENERIC_LEVEL_STATUS_MANDATORY_LENGTH = 2;
@@ -50,6 +52,20 @@ public final class GenericLevelStatus extends GenericStatusMessage {
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
+
+    private static final Creator<GenericLevelStatus> CREATOR = new Creator<GenericLevelStatus>() {
+        @Override
+        public GenericLevelStatus createFromParcel(Parcel in) {
+            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new GenericLevelStatus(meshNode, message);
+        }
+
+        @Override
+        public GenericLevelStatus[] newArray(int size) {
+            return new GenericLevelStatus[size];
+        }
+    };
 
     @Override
     void parseStatusParameters() {
@@ -111,5 +127,16 @@ public final class GenericLevelStatus extends GenericStatusMessage {
      */
     public int getTransitionResolution() {
         return mTransitionResolution;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeValue(mNode);
+        dest.writeValue(mMessage);
     }
 }

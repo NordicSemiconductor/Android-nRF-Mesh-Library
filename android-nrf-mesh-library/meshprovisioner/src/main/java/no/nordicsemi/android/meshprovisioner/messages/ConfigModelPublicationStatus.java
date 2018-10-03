@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.messages;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -37,19 +39,20 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
  * To be used as a wrapper class for when creating the ConfigModelAppStatus Message.
  */
 @SuppressWarnings("unused")
-public class ConfigModelPublicationStatus extends ConfigStatusMessage {
+public class ConfigModelPublicationStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigModelPublicationStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS;
-    private static final int CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH = 14;
-    private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL_PDU_LENGTH = 16;
+    private static final int CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH = 12;
+    private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL_PDU_LENGTH = 14;
 
     private int mElementAddress;
     private byte[] publishAddress;
     private int mAppKeyIndex;
-    private int credentialFlag;
+    private boolean credentialFlag;
     private int publishTtl;
-    private int publishPeriod;
+    private int publicationSteps;
+    private int publicationResolution;
     private int publishRetransmitCount;
     private int publishRetransmitIntervalSteps;
     private int mModelIdentifier; //16-bit SIG Model or 32-bit Vendor Model identifier
@@ -62,10 +65,23 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage {
      */
     public ConfigModelPublicationStatus(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
         super(node, message);
-        this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
+
+    private static final Creator<ConfigModelPublicationStatus> CREATOR = new Creator<ConfigModelPublicationStatus>() {
+        @Override
+        public ConfigModelPublicationStatus createFromParcel(Parcel in) {
+            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new ConfigModelPublicationStatus(meshNode, message);
+        }
+
+        @Override
+        public ConfigModelPublicationStatus[] newArray(int size) {
+            return new ConfigModelPublicationStatus[size];
+        }
+    };
 
     @Override
     final void parseStatusParameters() {
@@ -77,26 +93,26 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage {
         publishAddress = new byte[]{mParameters[4], mParameters[3]};
         final byte[] appKeyIndex = new byte[]{(byte) (mParameters[6] & 0x0F), mParameters[5]};
         mAppKeyIndex = ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
-
-        credentialFlag = (mParameters[8] & 0xF0) >> 4;
+        credentialFlag = (mParameters[6] & 0xF0) >> 4 == 1;
         publishTtl = mParameters[7];
-        publishPeriod = mParameters[8];
+        final int publishPeriod = mParameters[8];
+        publicationSteps = publishPeriod >> 6;
+        publicationResolution = publishPeriod & 0x03;
         publishRetransmitCount = mParameters[9] >> 5;
-        publishRetransmitIntervalSteps = mParameters[11] & 0x1F;
+        publishRetransmitIntervalSteps = mParameters[9] & 0x1F;
 
         final byte[] modelIdentifier;
         if (mParameters.length == CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH) {
-            modelIdentifier = new byte[]{mParameters[13], mParameters[12]};
+            modelIdentifier = new byte[]{mParameters[11], mParameters[10]};
             mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getShort();
         } else {
-            modelIdentifier = new byte[]{mParameters[13], mParameters[12], mParameters[15], mParameters[14]};
+            modelIdentifier = new byte[]{mParameters[11], mParameters[110], mParameters[13], mParameters[12]};
             mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getInt();
         }
 
-        Log.v(TAG, "Status: " + mStatusCode);
+        Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
         Log.v(TAG, "Element address: " + MeshParserUtils.bytesToHex(elementAddress, false));
-        Log.v(TAG, "Element Address: " + MeshParserUtils.bytesToHex(elementAddress, false));
         Log.v(TAG, "Publish Address: " + MeshParserUtils.bytesToHex(publishAddress, false));
         Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
         Log.v(TAG, "Credential Flag: " + credentialFlag);
@@ -131,11 +147,93 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage {
     }
 
     /**
-     * Returns the model identifier
+     * Returns if the message was successful or not.
      *
-     * @return 16-bit sig model identifier or 32-bit vendor model identifier
+     * @return true if successful or false otherwise
      */
-    public final int getModelIdentifier() {
+    public boolean isSuccessful() {
+        return mStatusCode == 0x00;
+    }
+    /**
+     * Returns the publish address to which the model must publish to
+     *
+     * @return
+     */
+    public byte[] getPublishAddress() {
+        return publishAddress;
+    }
+
+    /**
+     * Returns the credential flag to be used for this message.
+     *
+     * @return true if friendship credentials to be used or false if master credentials is to be used.
+     */
+    public boolean getCredentialFlag() {
+        return credentialFlag;
+    }
+
+    /**
+     * Returns the ttl of publication messages
+     *
+     * @return publication ttl
+     */
+    public int getPublishTtl() {
+        return publishTtl;
+    }
+
+    /**
+     * Returns the number of publication steps.
+     *
+     * @return number of steps
+     */
+    public int getPublicationSteps() {
+        return publicationSteps;
+    }
+
+    /**
+     * Returns the resolution for the publication steps.
+     *
+     * @return resolution
+     */
+    public int getPublicationResolution() {
+        return publicationResolution;
+    }
+
+    /**
+     * Returns the number of retransmissions for each published message.
+     *
+     * @return number of retransmits
+     */
+    public int getPublishRetransmitCount() {
+        return publishRetransmitCount;
+    }
+
+    /**
+     * Returns the number of 50-milliseconds steps between retransmissions.
+     *
+     * @return retransmit interval steps
+     */
+    public int getPublishRetransmitIntervalSteps() {
+        return publishRetransmitIntervalSteps;
+    }
+
+    /**
+     * Returns the model identifier to which the key is to be bound.
+     *
+     * @return 16-bit or 32-bit vendor model identifier
+     */
+    public int getModelIdentifier() {
         return mModelIdentifier;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeValue(mNode);
+        dest.writeValue(mMessage);
     }
 }

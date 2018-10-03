@@ -122,9 +122,6 @@ public class ConfigAppKeyStatusState extends ConfigMessageState {
                     if (isSuccessful) {
                         mNode.setAddedAppKey(ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort(), appKey);
                     }
-                    mMeshStatusCallbacks.onAppKeyStatusReceived(mNode, isSuccessful, status,
-                            ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort(),
-                            ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort());
                     mInternalTransportCallbacks.updateMeshNode(mNode);
                     return true;
                 } else {

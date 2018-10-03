@@ -45,17 +45,9 @@ public class DefaultNoOperationMessageState extends MeshMessageState {
                         break;
                     case 2:
                         if(message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS) {
-                            final GenericOnOffStatusState genericOnOffStatus = new GenericOnOffStatusState(mContext, mNode,
-                                    meshMessageHandlerCallbacks);
-                            genericOnOffStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                            genericOnOffStatus.setStatusCallbacks(mMeshStatusCallbacks);
-                            genericOnOffStatus.parseGenericOnOffStatusMessage((AccessMessage) message);
+                            //TODO fix generic onoff status
                         } else if(message.getOpCode() == ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS) {
-                            final GenericLevelStatusState genericLevelStatus = new GenericLevelStatusState(mContext, mNode,
-                                    meshMessageHandlerCallbacks);
-                            genericLevelStatus.setTransportCallbacks(mInternalTransportCallbacks);
-                            genericLevelStatus.setStatusCallbacks(mMeshStatusCallbacks);
-                            genericLevelStatus.parseGenericLevelStatusMessage((AccessMessage) message);
+                            //TODO fix generic level status
                         } else {
                             Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
                         }

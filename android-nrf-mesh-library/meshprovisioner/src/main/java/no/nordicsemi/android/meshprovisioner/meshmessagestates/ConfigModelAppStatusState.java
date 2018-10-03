@@ -149,16 +149,12 @@ public final class ConfigModelAppStatusState extends ConfigMessageState {
                         }
                     } else {
                         if(isSuccessful) {
-                            mNode.setAppKeyUnbindStatus(this);
                             statusMessage = "App key was successfully unbound";
                             Log.v(TAG, "Status message: " + statusMessage);
                         }
                     }
                     Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
                     Log.v(TAG, "Model Identifier: " + MeshParserUtils.bytesToHex(modelIdentifier, false));
-
-                    mMeshStatusCallbacks.onAppKeyBindStatusReceived(mNode, isSuccessful, status,
-                            AddressUtils.getUnicastAddressInt(elementAddress), getAppKeyIndexInt(), getModelIdentifierInt());
                     mInternalTransportCallbacks.updateMeshNode(mNode);
                     return true;
                 } else {

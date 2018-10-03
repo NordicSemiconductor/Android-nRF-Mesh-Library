@@ -169,7 +169,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
     }
 
     /**
-     * Returns the global index of the app key to be bound.
+     * Returns the global index of the app key to be used for publication.
      *
      * @return app key index
      */

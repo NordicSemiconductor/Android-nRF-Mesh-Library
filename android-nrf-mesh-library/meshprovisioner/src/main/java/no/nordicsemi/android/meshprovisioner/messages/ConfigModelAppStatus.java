@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.messages;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -37,12 +39,12 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
  * To be used as a wrapper class for when creating the ConfigModelAppStatus Message.
  */
 @SuppressWarnings("unused")
-public class ConfigModelAppStatus extends ConfigStatusMessage {
+public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigModelAppStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS;
-    private static final int CONFIG_MODEL_APP_BIND_STATUS_SIG_MODEL = 9;
-    private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL = 11;
+    private static final int CONFIG_MODEL_APP_BIND_STATUS_SIG_MODEL = 7;
+    private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL = 9;
 
     private int mElementAddress;
     private int mAppKeyIndex;
@@ -56,10 +58,23 @@ public class ConfigModelAppStatus extends ConfigStatusMessage {
      */
     public ConfigModelAppStatus(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
         super(node, message);
-        this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
+
+    private static final Creator<ConfigModelAppStatus> CREATOR = new Creator<ConfigModelAppStatus>() {
+        @Override
+        public ConfigModelAppStatus createFromParcel(Parcel in) {
+            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new ConfigModelAppStatus(meshNode, message);
+        }
+
+        @Override
+        public ConfigModelAppStatus[] newArray(int size) {
+            return new ConfigModelAppStatus[size];
+        }
+    };
 
     @Override
     final void parseStatusParameters() {
@@ -82,7 +97,7 @@ public class ConfigModelAppStatus extends ConfigStatusMessage {
             mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getInt();
         }
 
-        Log.v(TAG, "Status: " + mStatusCode);
+        Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
         Log.v(TAG, "Element address: " + MeshParserUtils.bytesToHex(elementAddress, false));
         Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
@@ -119,5 +134,25 @@ public class ConfigModelAppStatus extends ConfigStatusMessage {
      */
     public final int getModelIdentifier() {
         return mModelIdentifier;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeValue(mNode);
+        dest.writeValue(mMessage);
+    }
+
+    /**
+     * Returns if the message was successful or not.
+     *
+     * @return true if succesful or false otherwise
+     */
+    public boolean isSuccessful() {
+        return mStatusCode == 0x00;
     }
 }

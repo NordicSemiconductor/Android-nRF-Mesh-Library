@@ -30,12 +30,16 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeResetStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_NET_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_STATUS;
@@ -123,7 +127,10 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
                 break;
             case COMPOSITION_DATA_STATUS_RECEIVED:
                 //Update the live data upon receiving a broadcast
-                mCompositionDataStatus.onStatusChanged(true);
+                if(intent.getExtras() != null) {
+                    final ConfigCompositionDataStatus compositionDataStatus = intent.getExtras().getParcelable(EXTRA_DATA);
+                    mCompositionDataStatus.postValue(compositionDataStatus);
+                }
                 mExtendedMeshNode.updateMeshNode(node);
                 break;
             case SENDING_BLOCK_ACKNOWLEDGEMENT:
@@ -134,11 +141,8 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
                 break;
             case APP_KEY_STATUS_RECEIVED:
                 if(intent.getExtras() != null) {
-                    final boolean success = intent.getExtras().getBoolean(EXTRA_IS_SUCCESS);
-                    final int statusCode = intent.getExtras().getInt(EXTRA_STATUS);
-                    final int netKeyIndex = intent.getExtras().getInt(EXTRA_NET_KEY_INDEX);
-                    final int appKeyIndex = intent.getExtras().getInt(EXTRA_APP_KEY_INDEX);
-                    mAppKeyStatus.onStatusChanged(success, statusCode, netKeyIndex, appKeyIndex);
+                    final ConfigAppKeyStatus appKeyStatus = intent.getExtras().getParcelable(EXTRA_DATA);
+                    mAppKeyStatus.postValue(appKeyStatus);
                 }
                 break;
             case NODE_RESET_STATUS_RECEIVED:

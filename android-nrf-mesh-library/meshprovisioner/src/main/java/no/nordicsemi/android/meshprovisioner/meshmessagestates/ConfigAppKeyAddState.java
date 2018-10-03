@@ -26,9 +26,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
@@ -84,8 +81,13 @@ public class ConfigAppKeyAddState extends ConfigMessageState {
                 final int opcode = MeshParserUtils.getOpCode(accessPayload, opCodeLength);
                 if (opcode == ConfigMessageOpCodes.CONFIG_APPKEY_STATUS) {
                     final ConfigAppKeyStatus appKeyStatus = new ConfigAppKeyStatus(mNode, (AccessMessage) message);
-                    //TODO implement appkey status
+
+                    if(appKeyStatus.isSuccessful()) {
+                        mNode.setAddedAppKey(appKeyStatus.getAppKeyIndex(), MeshParserUtils.bytesToHex(mConfigAppKeyAdd.getAppKey(), false));
+                    }
+
                     mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mMeshStatusCallbacks.onAppKeyStatusReceived(appKeyStatus);
                     return true;
                 } else {
                     mMeshStatusCallbacks.onUnknownPduReceived(mNode);

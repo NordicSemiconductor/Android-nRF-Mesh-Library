@@ -55,27 +55,28 @@ public class ConfigCompositionDataGetState extends ConfigMessageState {
     @Override
     public boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-                final AccessMessage accessMessage = ((AccessMessage) message);
-                final int opcode = accessMessage.getOpCode();
-                if (opcode == ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS) {
-                    Log.v(TAG, "Received composition data status");
-                    final ConfigCompositionDataStatus compositionDataStatus = new ConfigCompositionDataStatus(mNode, (AccessMessage) message);
-                    mNode.setCompositionData(compositionDataStatus);
-                    //TODO composition data get state
-                    mMeshStatusCallbacks.onCompositionDataStatusReceived(mNode);
-                    mInternalTransportCallbacks.updateMeshNode(mNode);
-                    return true;
+        if (message == null) {
+            Log.v(TAG, "Message reassembly may not be complete yet");
+            return false;
+        }
 
-                } else {
-                    parseControlMessage((ControlMessage) message, mPayloads.size());
-                    return true;
-                }
+        if (message instanceof AccessMessage) {
+            final AccessMessage accessMessage = ((AccessMessage) message);
+            final int opcode = accessMessage.getOpCode();
+            if (opcode == ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS) {
+                Log.v(TAG, "Received composition data status");
+                final ConfigCompositionDataStatus compositionDataStatus = new ConfigCompositionDataStatus(mNode, (AccessMessage) message);
+                mNode.setCompositionData(compositionDataStatus);
+                //TODO composition data get state
+                mMeshStatusCallbacks.onCompositionDataStatusReceived(compositionDataStatus);
+                mInternalTransportCallbacks.updateMeshNode(mNode);
+                return true;
+
             } else {
                 Log.v(TAG, "Message reassembly may not be complete yet");
             }
-            return false;
+        } else {
+            parseControlMessage((ControlMessage) message, mPayloads.size());
         }
         return false;
     }

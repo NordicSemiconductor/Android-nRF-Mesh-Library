@@ -22,8 +22,22 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
+import android.support.annotation.NonNull;
+
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.*;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppBind;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppUnbind;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeResetStatus;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
+import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
+
 /**
  * Callbacks to notify the status of the mesh messgaes
  */
@@ -69,14 +83,14 @@ public interface MeshStatusCallbacks {
      *
      * @param node mesh node that the message was sent to
      */
-    void onGetCompositionDataSent(final ProvisionedMeshNode node);
+    void onGetCompositionDataSent(@NonNull final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigCompositionDataStatusState} was received
+     * Callback returning the {@link ConfigCompositionDataStatus} message
      *
-     * @param node mesh node that the message was sent to
+     * @param compositionDataStatus composition data status message
      */
-    void onCompositionDataStatusReceived(final ProvisionedMeshNode node);
+    void onCompositionDataStatusReceived(@NonNull final ConfigCompositionDataStatus compositionDataStatus);
 
     /**
      * Notifies if {@link ConfigAppKeyAddState} was sent
@@ -86,11 +100,11 @@ public interface MeshStatusCallbacks {
     void onAppKeyAddSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigAppKeyStatusState} was received
+     * Notifies if {@link ConfigAppKeyStatus} was received
      *
-     * @param node mesh node that the message was received from
+     * @param status
      */
-    void onAppKeyStatusReceived(final ProvisionedMeshNode node, final boolean success, int status, final int netKeyIndex, final int appKeyIndex);
+    void onAppKeyStatusReceived(final ConfigAppKeyStatus status);
 
     /**
      * Notifies if {@link ConfigModelAppBindState} was sent
@@ -107,11 +121,11 @@ public interface MeshStatusCallbacks {
     void onAppKeyUnbindSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigModelAppStatusState} was received
+     * Callback returning the status for {@link ConfigModelAppBind} or {@link ConfigModelAppUnbind} message
      *
-     * @param node mesh node that the message was received from
+     * @param status {@link ConfigModelAppStatus} containing the status
      */
-    void onAppKeyBindStatusReceived(final ProvisionedMeshNode node, final boolean success, int status, final int elementAddress, final int appKeyIndex, final int modelIdentifier);
+    void onAppKeyBindStatusReceived(@NonNull final ConfigModelAppStatus status);
 
     /**
      * Notifies if {@link ConfigModelPublicationSetState} was sent
@@ -121,11 +135,11 @@ public interface MeshStatusCallbacks {
     void onPublicationSetSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if an {@link ConfigModelPublicationStatusState} was received
+     * Callback returning the status for  {@link ConfigModelPublicationSet} message.
      *
-     * @param node mesh node that the message was received from
+     * @param status {@link ConfigModelPublicationStatus} containing hte status
      */
-    void onPublicationStatusReceived(final ProvisionedMeshNode node, final boolean success, final int status, final byte[] elementAddress, final byte[] publishAddress, final int modelIdentifier);
+    void onPublicationStatusReceived(@NonNull final ConfigModelPublicationStatus status);
 
     /**
      * Notifies if {@link ConfigModelSubscriptionAddState} was sent
@@ -156,11 +170,11 @@ public interface MeshStatusCallbacks {
     void onMeshNodeResetSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if the mesh {@link ConfigNodeResetStatusState} was received
+     * Notifies if the mesh {@link ConfigNodeResetStatus} was received.
      *
-     * @param node mesh node that the message was received from
+     * @param configNodeResetStatus config node reset status message
      */
-    void onMeshNodeResetStatusReceived(final ProvisionedMeshNode node);
+    void onMeshNodeResetStatusReceived(@NonNull final ConfigNodeResetStatus configNodeResetStatus);
 
     /**
      * Notifies if {@link GenericOnOffGetState} was sent
@@ -184,7 +198,7 @@ public interface MeshStatusCallbacks {
     void onGenericOnOffSetUnacknowledgedSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link GenericOnOffStatusState} was received
+     * Notifies if {@link GenericOnOffStatus} was received
      *  @param node mesh node that the message was received from
      * @param targetOnOff
      * @param transitionSteps
@@ -215,7 +229,7 @@ public interface MeshStatusCallbacks {
     void onGenericLevelSetUnacknowledgedSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link GenericLevelStatusState} was received
+     * Notifies if {@link GenericLevelStatus} was received
      * @param node mesh node that the message was received from
      * @param targetLevel
      * @param transitionSteps
@@ -238,7 +252,7 @@ public interface MeshStatusCallbacks {
     void onAcknowledgedVendorModelMessageSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link GenericOnOffStatusState} was received
+     * Notifies if {@link VendorModelMessageStatus} was received
      *
      * @param node mesh node that the message was received from
      */

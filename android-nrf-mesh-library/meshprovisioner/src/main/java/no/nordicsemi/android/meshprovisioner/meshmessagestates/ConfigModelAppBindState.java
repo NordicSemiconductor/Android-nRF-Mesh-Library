@@ -45,8 +45,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public final class ConfigModelAppBindState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppBindState.class.getSimpleName();
-    private static final int SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 6;
-    private static final int VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 8;
     private final ConfigModelAppBind mConfigModelAppBind;
 
     public ConfigModelAppBindState(@NonNull final Context context,
@@ -71,6 +69,7 @@ public final class ConfigModelAppBindState extends ConfigMessageState {
                 mNode.setAppKeyBindStatus(configModelAppStatus);
                 //TODO app bind state
                 mInternalTransportCallbacks.updateMeshNode(mNode);
+                mMeshStatusCallbacks.onAppKeyBindStatusReceived(configModelAppStatus);
                 return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());

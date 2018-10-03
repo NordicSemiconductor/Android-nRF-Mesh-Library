@@ -58,6 +58,6 @@ public class ConfigCompositionDataGet extends ConfigMessage {
      * Creates the access message to be sent to the node
      */
     void assembleMessageParameters() {
-        mParameters = new byte[COMPOSITION_DATA_PAGE];
+        mParameters = new byte[]{(byte) COMPOSITION_DATA_PAGE};
     }
 }

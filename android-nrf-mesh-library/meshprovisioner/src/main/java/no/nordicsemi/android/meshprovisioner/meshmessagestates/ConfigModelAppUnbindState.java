@@ -45,9 +45,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public final class ConfigModelAppUnbindState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppUnbindState.class.getSimpleName();
-
-    private static final int SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 6;
-    private static final int VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 8;
     private final ConfigModelAppUnbind mConfigModelAppUnbind;
 
 
@@ -70,9 +67,10 @@ public final class ConfigModelAppUnbindState extends ConfigMessageState {
         if (message != null) {
             if (message instanceof AccessMessage) {
                 final ConfigModelAppStatus configModelAppUnbind = new ConfigModelAppStatus(mNode, (AccessMessage) message);
-
+                mNode.setAppKeyUnbindStatus(configModelAppUnbind);
                 //TODO Config Model app status
                 mInternalTransportCallbacks.updateMeshNode(mNode);
+                mMeshStatusCallbacks.onAppKeyBindStatusReceived(configModelAppUnbind);
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
                 return true;
@@ -93,7 +91,7 @@ public final class ConfigModelAppUnbindState extends ConfigMessageState {
         final int aszmic = mConfigModelAppUnbind.getAszmic();
         final int opCode = mConfigModelAppUnbind.getOpCode();
         final byte[] parameters = mConfigModelAppUnbind.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, messageType, parameters);
+        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
         mPayloads.putAll(message.getNetworkPdu());
     }
 
@@ -114,14 +112,5 @@ public final class ConfigModelAppUnbindState extends ConfigMessageState {
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
         mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
-    }
-
-    /**
-     * Returns the source address of the message i.e. where it originated from
-     *
-     * @return source address
-     */
-    public byte[] getSrc() {
-        return mSrc;
     }
 }

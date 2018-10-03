@@ -161,9 +161,7 @@ public class ConfigModelPublicationStatusState extends ConfigMessageState {
                     if (isSuccessful) {
                         final Element element = mNode.getElements().get(getElementAddressInt());
                         final MeshModel model = element.getMeshModels().get(getModelIdentifierInt());
-                        model.setPublicationStatus(this);
                     }
-                    mMeshStatusCallbacks.onPublicationStatusReceived(mNode, isSuccessful, status, elementAddress, publishAddress, getModelIdentifierInt());
                     mInternalTransportCallbacks.updateMeshNode(mNode);
                     return true;
                 } else {

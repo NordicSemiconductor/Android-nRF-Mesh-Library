@@ -38,10 +38,11 @@ import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyBindStatusLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyStatusLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.CompositionDataStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshModel;
@@ -49,6 +50,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -104,16 +106,16 @@ public abstract class BaseMeshRepository {
     final MutableLiveData<Element> mElement = new MutableLiveData<>();
 
     /** App key add status **/
-    final CompositionDataStatusLiveData mCompositionDataStatus = new CompositionDataStatusLiveData();
+    final SingleLiveEvent<ConfigCompositionDataStatus> mCompositionDataStatus = new SingleLiveEvent<>();
 
     /** App key add status **/
-    final AppKeyStatusLiveData mAppKeyStatus = new AppKeyStatusLiveData();
+    final SingleLiveEvent<ConfigAppKeyStatus> mAppKeyStatus = new SingleLiveEvent<>();
 
     /** App key bind status **/
-    final AppKeyBindStatusLiveData mAppKeyBindStatus = new AppKeyBindStatusLiveData();
+    final SingleLiveEvent<ConfigModelAppStatus> mAppKeyBindStatus = new SingleLiveEvent<>();
 
     /** publication status **/
-    final ConfigModelPublicationStatusLiveData mConfigModelPublicationStatus = new ConfigModelPublicationStatusLiveData();
+    final SingleLiveEvent<ConfigModelPublicationStatus> mConfigModelPublicationStatus = new SingleLiveEvent<>();
 
     /** Subscription bind status **/
     final ConfigModelSubscriptionStatusLiveData mConfigModelSubscriptionStatus = new ConfigModelSubscriptionStatusLiveData();
@@ -314,19 +316,19 @@ public abstract class BaseMeshRepository {
         return mExtendedMeshNode;
     }
 
-    public CompositionDataStatusLiveData getCompositionDataStatus() {
+    public LiveData<ConfigCompositionDataStatus> getCompositionDataStatus() {
         return mCompositionDataStatus;
     }
 
-    public AppKeyStatusLiveData getAppKeyStatus() {
+    public LiveData<ConfigAppKeyStatus> getAppKeyStatus() {
         return mAppKeyStatus;
     }
 
-    public AppKeyBindStatusLiveData getAppKeyBindStatus() {
+    public LiveData<ConfigModelAppStatus> getAppKeyBindStatus() {
         return mAppKeyBindStatus;
     }
 
-    public ConfigModelPublicationStatusLiveData getConfigModelPublicationStatus() {
+    public LiveData<ConfigModelPublicationStatus> getConfigModelPublicationStatus() {
         return mConfigModelPublicationStatus;
     }
 

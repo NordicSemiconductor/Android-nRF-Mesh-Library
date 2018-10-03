@@ -29,8 +29,8 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyBindStatusLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericLevelStatusUpdate;
@@ -93,11 +93,11 @@ public class ModelConfigurationViewModel extends ViewModel {
         return mModelConfigurationRepository.getTransactionFailedLiveData();
     }
 
-    public LiveData<AppKeyBindStatusLiveData> getAppKeyBindStatusLiveData() {
+    public LiveData<ConfigModelAppStatus> getAppKeyBindStatusLiveData() {
         return mModelConfigurationRepository.getAppKeyBindStatus();
     }
 
-    public LiveData<ConfigModelPublicationStatusLiveData> getConfigModelPublicationStatusLiveData() {
+    public LiveData<ConfigModelPublicationStatus> getConfigModelPublicationStatusLiveData() {
         return mModelConfigurationRepository.getConfigModelPublicationStatus();
     }
 

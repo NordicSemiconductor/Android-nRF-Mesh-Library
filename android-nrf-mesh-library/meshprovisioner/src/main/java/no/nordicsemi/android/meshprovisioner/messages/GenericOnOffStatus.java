@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.messages;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -37,7 +39,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
  * To be used as a wrapper class for when creating the GenericOnOffStatus Message.
  */
 @SuppressWarnings("unused")
-public final class GenericOnOffStatus extends GenericStatusMessage {
+public final class GenericOnOffStatus extends GenericStatusMessage implements Parcelable {
 
     private static final String TAG = GenericOnOffStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS;
@@ -60,6 +62,20 @@ public final class GenericOnOffStatus extends GenericStatusMessage {
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
+
+    private static final Creator<GenericOnOffStatus> CREATOR = new Creator<GenericOnOffStatus>() {
+        @Override
+        public GenericOnOffStatus createFromParcel(Parcel in) {
+            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new GenericOnOffStatus(meshNode, message);
+        }
+
+        @Override
+        public GenericOnOffStatus[] newArray(int size) {
+            return new GenericOnOffStatus[size];
+        }
+    };
 
     @Override
     void parseStatusParameters() {
@@ -119,5 +135,16 @@ public final class GenericOnOffStatus extends GenericStatusMessage {
      */
     public int getTransitionResolution() {
         return mTransitionResolution;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeValue(mNode);
+        dest.writeValue(mMessage);
     }
 }

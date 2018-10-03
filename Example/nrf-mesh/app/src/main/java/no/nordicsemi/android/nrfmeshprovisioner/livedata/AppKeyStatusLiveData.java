@@ -24,38 +24,27 @@ package no.nordicsemi.android.nrfmeshprovisioner.livedata;
 
 import android.arch.lifecycle.LiveData;
 
+import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyAdd;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
+
 /**
- * Created by RoshanRajaratnam on 04/05/2018.
+ * LiveData class observing the app key status message
  */
-public class AppKeyStatusLiveData extends LiveData<AppKeyStatusLiveData> {
-
-    private boolean mSuccess;
-    private int mStatus;
-    private int mNetKeyIndex;
-    private int mAppKeyIndex;
+public class AppKeyStatusLiveData extends LiveData<ConfigAppKeyStatus> {
 
 
-    public void onStatusChanged(final boolean success, final int status, final int netKeyIndex, final int appKeyIndex) {
-        this.mSuccess = success;
-        this.mStatus = status;
-        this.mNetKeyIndex = netKeyIndex;
-        this.mAppKeyIndex = appKeyIndex;
-        postValue(this);
+    public void onStatusChanged(final ConfigAppKeyStatus configAppKeyStatus) {
+        postValue(configAppKeyStatus);
     }
 
-    public boolean isSuccess() {
-        return mSuccess;
-    }
-
-    public int getStatus() {
-        return mStatus;
-    }
-
-    public int getNetKeyIndex() {
-        return mNetKeyIndex;
-    }
-
-    public int getAppKeyIndex() {
-        return mAppKeyIndex;
-    }
+/*    *//**
+     * Returns the status for {@link ConfigAppKeyAdd} message.
+     * <p>
+     * {@link ConfigAppKeyStatus} message contains the Status code, Global NetKeyIndex, Global AppKeyIndex.
+     *
+     * @return config app key status message
+     *//*
+    public ConfigAppKeyStatus getConfigAppKeyStatus() {
+        return configAppKeyStatus;
+    }*/
 }

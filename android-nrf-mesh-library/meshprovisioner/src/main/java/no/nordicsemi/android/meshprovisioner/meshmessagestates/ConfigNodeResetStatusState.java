@@ -69,7 +69,6 @@ public final class ConfigNodeResetStatusState extends ConfigMessageState {
                 if (opcode == ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS) {
                     Log.v(TAG, "Received node reset status");
                     mInternalTransportCallbacks.onMeshNodeReset(mNode);
-                    mMeshStatusCallbacks.onMeshNodeResetStatusReceived(mNode);
                     return true;
                 } else {
                     mMeshStatusCallbacks.onUnknownPduReceived(mNode);
