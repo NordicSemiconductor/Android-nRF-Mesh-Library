@@ -115,7 +115,7 @@ public final class GenericOnOffStatus extends GenericStatusMessage implements Pa
      *
      * @return true if on and false other wise
      */
-    public final boolean getTargetState() {
+    public final Boolean getTargetState() {
         return mTargetOn;
     }
 

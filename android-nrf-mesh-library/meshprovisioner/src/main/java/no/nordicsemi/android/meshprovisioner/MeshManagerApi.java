@@ -244,8 +244,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
                 final String key = String.format(Locale.US, "0x%04X", orderedKey);
                 final String json = preferences.getString(key, null);
                 if (json != null) {
-                    Log.v(TAG, "KEY: " + orderedKey);
-                    Log.v(TAG, "JSON: " + json);
                     final ProvisionedMeshNode node = mGson.fromJson(json, ProvisionedMeshNode.class);
                     final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
                     mProvisionedNodes.put(unicastAddress, node);

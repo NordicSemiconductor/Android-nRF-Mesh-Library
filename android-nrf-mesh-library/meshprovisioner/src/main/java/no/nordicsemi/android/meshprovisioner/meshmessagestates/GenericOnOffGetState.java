@@ -52,10 +52,14 @@ public class GenericOnOffGetState extends GenericMessageState {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
-                final GenericOnOffStatus genericOnOffStatus = new GenericOnOffStatus(mNode, (AccessMessage) message);
-                //TODO handle GenericOnOffStatus message
-                mInternalTransportCallbacks.updateMeshNode(mNode);
-                return true;
+                if(message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS) {
+                    final GenericOnOffStatus genericOnOffStatus = new GenericOnOffStatus(mNode, (AccessMessage) message);
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mMeshStatusCallbacks.onGenericOnOffStatusReceived(genericOnOffStatus);
+                    return true;
+                } else {
+                    Log.v(TAG, "Unknown pdu received! " + MeshParserUtils.bytesToHex(((AccessMessage) message).getAccessPdu(), false));
+                }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
             }

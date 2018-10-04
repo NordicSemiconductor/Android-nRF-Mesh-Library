@@ -48,13 +48,11 @@ public class GenericOnOffSetUnacknowledgedState extends GenericMessageState {
     protected boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
-            if (message instanceof AccessMessage) {
-                final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(mNode, (AccessMessage) message);
-                //TODO handle GenericLevelSet status message
-                mInternalTransportCallbacks.updateMeshNode(mNode);
+            if (message instanceof ControlMessage) {
+                parseControlMessage((ControlMessage) message, mPayloads.size());
                 return true;
             } else {
-                parseControlMessage((ControlMessage) message, mPayloads.size());
+
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");

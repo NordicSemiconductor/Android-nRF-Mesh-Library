@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
@@ -45,9 +47,13 @@ public class DefaultNoOperationMessageState extends MeshMessageState {
                         break;
                     case 2:
                         if(message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS) {
-                            //TODO fix generic onoff status
+                            final GenericOnOffStatus genericOnOffStatus = new GenericOnOffStatus(mNode, (AccessMessage) message);
+                            mInternalTransportCallbacks.updateMeshNode(mNode);
+                            mMeshStatusCallbacks.onGenericOnOffStatusReceived(genericOnOffStatus);
                         } else if(message.getOpCode() == ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS) {
-                            //TODO fix generic level status
+                            final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(mNode, (AccessMessage) message);
+                            mInternalTransportCallbacks.updateMeshNode(mNode);
+                            mMeshStatusCallbacks.onGenericLevelStatusReceived(genericLevelStatus);
                         } else {
                             Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
                         }

@@ -142,6 +142,7 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
             case APP_KEY_STATUS_RECEIVED:
                 if(intent.getExtras() != null) {
                     final ConfigAppKeyStatus appKeyStatus = intent.getExtras().getParcelable(EXTRA_DATA);
+                    mExtendedMeshNode.updateMeshNode(appKeyStatus.getMeshNode());
                     mAppKeyStatus.postValue(appKeyStatus);
                 }
                 break;
@@ -150,7 +151,6 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
         }
 
         //Update the live data upon receiving a broadcast
-        mExtendedMeshNode.updateMeshNode(node);
     }
 
     public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {

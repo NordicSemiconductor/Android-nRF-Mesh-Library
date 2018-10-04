@@ -35,18 +35,21 @@ import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
+/**
+ * To be used as a wrapper class to create generic level status message.
+ */
+@SuppressWarnings("unused")
 public final class GenericLevelStatus extends GenericStatusMessage implements Parcelable {
 
     private static final String TAG = GenericLevelStatus.class.getSimpleName();
     private static final int GENERIC_LEVEL_STATUS_MANDATORY_LENGTH = 2;
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS;
     private int mPresentLevel;
-    private int mTargetLevel;
+    private Integer mTargetLevel;
     private int mTransitionSteps;
     private int mTransitionResolution;
 
-    public GenericLevelStatus(@NonNull final ProvisionedMeshNode node,
-                              @NonNull final AccessMessage message) {
+    public GenericLevelStatus(@NonNull final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
         super(node, message);
         this.mMessage = message;
         this.mParameters = message.getParameters();
@@ -107,7 +110,7 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
      *
      * @return target level
      */
-    public final int getTargetLevel() {
+    public final Integer getTargetLevel() {
         return mTargetLevel;
     }
 

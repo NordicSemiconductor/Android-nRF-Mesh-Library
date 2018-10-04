@@ -50,10 +50,14 @@ public class GenericLevelSetState extends GenericMessageState implements LowerTr
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
-                final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(mNode, (AccessMessage) message);
-                //TODO handle GenericLevelSet status message
-                mInternalTransportCallbacks.updateMeshNode(mNode);
-                return true;
+                if(message.getOpCode() == ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS) {
+                    final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(mNode, (AccessMessage) message);
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mMeshStatusCallbacks.onGenericLevelStatusReceived(genericLevelStatus);
+                    return true;
+                } else {
+                    Log.v(TAG, "Unknown pdu received! " + MeshParserUtils.bytesToHex(((AccessMessage) message).getAccessPdu(), false));
+                }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
             }

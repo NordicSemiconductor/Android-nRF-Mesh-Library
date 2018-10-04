@@ -54,12 +54,12 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 showProgressbar();
             });
 
-            mViewModel.getGenericLevelState().observe(this, genericLevelStatusUpdate -> {
+            mViewModel.getGenericLevelState().observe(this, genericLevelStatus -> {
                 hideProgressBar();
-                final int presentLevel = genericLevelStatusUpdate.getPresentLevel();
-                final Integer targetLevel = genericLevelStatusUpdate.getTargetLevel();
-                final int steps = genericLevelStatusUpdate.getSteps();
-                final int resolution = genericLevelStatusUpdate.getResolution();
+                final int presentLevel = genericLevelStatus.getPresentLevel();
+                final Integer targetLevel = genericLevelStatus.getTargetLevel();
+                final int steps = genericLevelStatus.getTransitionSteps();
+                final int resolution = genericLevelStatus.getTransitionResolution();
                 final int levelPercent;
                 if (targetLevel == null) {
                     levelPercent = ((presentLevel + 32768) * 100) / 65535;

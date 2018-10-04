@@ -66,13 +66,9 @@ public class VendorModelMessageUnackedState extends GenericMessageState {
     public boolean parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
-            if (message instanceof AccessMessage) {
-                final VendorModelMessageStatus vendorModelMessageStatus = new VendorModelMessageStatus(mNode, (AccessMessage) message);
-                //TODO handle VendorModelMessageStatus message
-                mInternalTransportCallbacks.updateMeshNode(mNode);
-                return true;
-            } else {
+            if (message instanceof ControlMessage) {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
+                return true;
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");

@@ -32,9 +32,10 @@ import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNo
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
+import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericLevelStatusUpdate;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericOnOffStatusUpdate;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
@@ -144,11 +145,11 @@ public class ModelConfigurationViewModel extends ViewModel {
         mModelConfigurationRepository.sendGenericOnOffGet(node);
     }
 
-    public LiveData<GenericOnOffStatusUpdate> getGenericOnOffState() {
+    public SingleLiveEvent<GenericOnOffStatus> getGenericOnOffState() {
         return mModelConfigurationRepository.getGenericOnOffState();
     }
 
-    public LiveData<byte[]> getVendorModelState() {
+    public SingleLiveEvent<VendorModelMessageStatus> getVendorModelState() {
         return mModelConfigurationRepository.getVendorModelState();
     }
 
@@ -160,7 +161,7 @@ public class ModelConfigurationViewModel extends ViewModel {
         mModelConfigurationRepository.sendVendorModelAcknowledgedMessage(node, model, appKeyIndex, opcode, parameters);
     }
 
-    public LiveData<GenericLevelStatusUpdate> getGenericLevelState() {
+    public LiveData<GenericLevelStatus> getGenericLevelState() {
         return mModelConfigurationRepository.getGenericLevelState();
     }
 

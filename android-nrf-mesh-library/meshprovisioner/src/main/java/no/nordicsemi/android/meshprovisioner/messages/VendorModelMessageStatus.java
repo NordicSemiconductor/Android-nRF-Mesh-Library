@@ -90,4 +90,8 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
         dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
+
+    public final byte[] getAccessPayload(){
+        return mMessage.getAccessPdu();
+    }
 }

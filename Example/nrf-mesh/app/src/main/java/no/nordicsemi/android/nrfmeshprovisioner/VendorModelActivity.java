@@ -88,35 +88,11 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
                 messageContainer.setVisibility(View.GONE);
                 final String opCode = opCodeEditText.getText().toString().trim();
                 final String parameters = parametersEditText.getText().toString().trim();
-                /*
-                try {
-                    if (!validateOpcode(opCode, opCodeLayout)) {
-                        return;
-                    }
-                } catch (Exception ex) {
-                    opCodeLayout.setError(ex.getMessage());
-                    return;
-                }
 
-                final byte[] params;
-                if (TextUtils.isEmpty(parameters) && parameters.length() == 0) {
-                    params = null;
-                } else {
-                    try {
-                        if (!validateOpcode(parameters)) {
-                            return;
-                        }
-                    } catch (Exception ex) {
-                        opCodeLayout.setError(ex.getMessage());
-                        return;
-                    }
-                    params = MeshParserUtils.toByteArray(parameters);
-                }*/
-
-                if(!validateOpcode(opCode, opCodeLayout))
+                if (!validateOpcode(opCode, opCodeLayout))
                     return;
 
-                if(!validateParameters(parameters, parametersLayout))
+                if (!validateParameters(parameters, parametersLayout))
                     return;
 
                 if (model.getBoundAppKeyIndexes().isEmpty()) {
@@ -139,9 +115,9 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
                 }
             });
 
-            mViewModel.getVendorModelState().observe(this, bytes -> {
+            mViewModel.getVendorModelState().observe(this, vendorModelMessageStatus -> {
                 messageContainer.setVisibility(View.VISIBLE);
-                receivedMessage.setText(MeshParserUtils.bytesToHex(bytes, false));
+                receivedMessage.setText(MeshParserUtils.bytesToHex(vendorModelMessageStatus.getAccessPayload(), false));
             });
         }
     }
@@ -153,19 +129,19 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
 
     private boolean validateOpcode(final String opCode, final TextInputLayout opCodeLayout) {
         try {
-            if(TextUtils.isEmpty(opCode)){
+            if (TextUtils.isEmpty(opCode)) {
                 opCodeLayout.setError(getString(R.string.error_empty_value));
                 return false;
             }
 
-            if(opCode.length() % 2 != 0 || !opCode.matches(Utils.HEX_PATTERN)) {
+            if (opCode.length() % 2 != 0 || !opCode.matches(Utils.HEX_PATTERN)) {
                 opCodeLayout.setError(getString(R.string.invalid_hex_value));
                 return false;
             }
-            if(MeshParserUtils.isValidOpcode(Integer.valueOf(opCode, 16))) {
+            if (MeshParserUtils.isValidOpcode(Integer.valueOf(opCode, 16))) {
                 return true;
             }
-        }  catch (NumberFormatException ex) {
+        } catch (NumberFormatException ex) {
             opCodeLayout.setError(getString(R.string.invalid_value));
             return false;
         } catch (IllegalArgumentException ex) {
@@ -184,15 +160,15 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
                 return true;
             }
 
-            if(parameters.length() % 2 != 0 || !parameters.matches(Utils.HEX_PATTERN)) {
+            if (parameters.length() % 2 != 0 || !parameters.matches(Utils.HEX_PATTERN)) {
                 parametersLayout.setError(getString(R.string.invalid_hex_value));
                 return false;
             }
 
-            if(MeshParserUtils.isValidParameters(MeshParserUtils.toByteArray(parameters))) {
+            if (MeshParserUtils.isValidParameters(MeshParserUtils.toByteArray(parameters))) {
                 return true;
             }
-        }  catch (NumberFormatException ex) {
+        } catch (NumberFormatException ex) {
             parametersLayout.setError(getString(R.string.invalid_value));
             return false;
         } catch (IllegalArgumentException ex) {

@@ -73,8 +73,8 @@ public class VendorModelMessageAckedState extends GenericMessageState {
         if (message != null) {
             if (message instanceof AccessMessage) {
                 final VendorModelMessageStatus vendorModelMessageStatus = new VendorModelMessageStatus(mNode, (AccessMessage) message);
-                //TODO handle VendorModelMessageStatus message
                 mInternalTransportCallbacks.updateMeshNode(mNode);
+                mMeshStatusCallbacks.onVendorModelMessageStatusReceived(vendorModelMessageStatus);
                 return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());

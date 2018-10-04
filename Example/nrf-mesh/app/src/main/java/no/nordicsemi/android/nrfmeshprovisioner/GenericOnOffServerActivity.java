@@ -138,12 +138,12 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                 }
             });
 
-            mViewModel.getGenericOnOffState().observe(this, genericOnOffStatusUpdate -> {
+            mViewModel.getGenericOnOffState().observe(this, genericOnOffStatus -> {
                 hideProgressBar();
-                final boolean presentState = genericOnOffStatusUpdate.isPresentOnOff();
-                final Boolean targetOnOff = genericOnOffStatusUpdate.getTargetOnOff();
-                final int steps = genericOnOffStatusUpdate.getSteps();
-                final int resolution = genericOnOffStatusUpdate.getResolution();
+                final boolean presentState = genericOnOffStatus.getPresentState();
+                final Boolean targetOnOff = genericOnOffStatus.getTargetState();
+                final int steps = genericOnOffStatus.getTransitionSteps();
+                final int resolution = genericOnOffStatus.getTransitionResolution();
                 if (targetOnOff == null) {
                     if (presentState) {
                         onOffState.setText(R.string.generic_state_on);

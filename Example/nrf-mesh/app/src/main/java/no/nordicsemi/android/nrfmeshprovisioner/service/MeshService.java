@@ -62,9 +62,11 @@ import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeResetStatus;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
+import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -594,8 +596,9 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
     @Override
     public void onAppKeyStatusReceived(final ConfigAppKeyStatus status) {
+        final ProvisionedMeshNode node = status.getMeshNode();
         mIsConfigurationComplete = true;
-        mMeshNode = status.getMeshNode();
+        mMeshNode = node;
         final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
         intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.APP_KEY_STATUS_RECEIVED.getState());
         intent.putExtra(EXTRA_DATA, status);
@@ -702,13 +705,11 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
-    public void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final Boolean targetOnOff, final int transitionSteps, final int transitionResolution) {
+    public void onGenericOnOffStatusReceived(final GenericOnOffStatus status) {
+        final ProvisionedMeshNode node = status.getMeshNode();
         mMeshNode = node;
         final Intent intent = new Intent(ACTION_GENERIC_ON_OFF_STATE);
-        intent.putExtra(EXTRA_GENERIC_PRESENT_STATE, presentOnOff);
-        intent.putExtra(EXTRA_GENERIC_TARGET_STATE, targetOnOff);
-        intent.putExtra(EXTRA_GENERIC_TRANSITION_STEPS, transitionSteps);
-        intent.putExtra(EXTRA_GENERIC_TRANSITION_RES, transitionResolution);
+        intent.putExtra(EXTRA_DATA, status);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -728,13 +729,11 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
-    public void onGenericLevelStatusReceived(ProvisionedMeshNode node, int presentLevel, int targetLevel, int transitionSteps, int transitionResolution) {
+    public void onGenericLevelStatusReceived(final GenericLevelStatus status) {
+        final ProvisionedMeshNode node  = status.getMeshNode();
         mMeshNode = node;
         final Intent intent = new Intent(ACTION_GENERIC_LEVEL_STATE);
-        intent.putExtra(EXTRA_GENERIC_PRESENT_STATE, presentLevel);
-        intent.putExtra(EXTRA_GENERIC_TARGET_STATE, targetLevel);
-        intent.putExtra(EXTRA_GENERIC_TRANSITION_STEPS, transitionSteps);
-        intent.putExtra(EXTRA_GENERIC_TRANSITION_RES, transitionResolution);
+        intent.putExtra(EXTRA_DATA, status);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -749,10 +748,11 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
-    public void onVendorModelMessageStatusReceived(final ProvisionedMeshNode node, final byte[] pdu) {
+    public void onVendorModelMessageStatusReceived(final VendorModelMessageStatus status) {
+        final ProvisionedMeshNode node  = status.getMeshNode();
         mMeshNode = node;
         final Intent intent = new Intent(ACTION_VENDOR_MODEL_MESSAGE_STATE);
-        intent.putExtra(EXTRA_DATA, pdu);
+        intent.putExtra(EXTRA_DATA, status);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

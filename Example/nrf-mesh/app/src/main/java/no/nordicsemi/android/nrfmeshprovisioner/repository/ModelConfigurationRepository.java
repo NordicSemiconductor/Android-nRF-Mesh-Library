@@ -23,7 +23,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.repository;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -36,13 +35,15 @@ import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNo
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
+import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericLevelStatusUpdate;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericOnOffStatusUpdate;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
@@ -50,40 +51,34 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_LEVEL_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERIC_ON_OFF_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_VENDOR_MODEL_MESSAGE_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_PRESENT_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_TARGET_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_TRANSITION_RES;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_TRANSITION_STEPS;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_PUBLISH_ADDRESS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_STATUS;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_SUBSCRIPTION_ADDRESS;
 
 public class ModelConfigurationRepository extends BaseMeshRepository {
 
     private static final String TAG = ModelConfigurationRepository.class.getSimpleName();
-    private MutableLiveData<GenericOnOffStatusUpdate> mGenericOnOffStatus = new MutableLiveData<>();
-    private MutableLiveData<GenericLevelStatusUpdate> mGenericLevelStatus = new MutableLiveData<>();
-    private SingleLiveEvent<byte[]> mVendorModelState = new SingleLiveEvent<>();
+    private SingleLiveEvent<GenericOnOffStatus> mGenericOnOffStatus = new SingleLiveEvent<>();
+    private SingleLiveEvent<GenericLevelStatus> mGenericLevelStatus = new SingleLiveEvent<>();
+    private SingleLiveEvent<VendorModelMessageStatus> mVendorModelState = new SingleLiveEvent<>();
 
     public ModelConfigurationRepository(final Context context) {
         super(context);
     }
 
-    public LiveData<GenericOnOffStatusUpdate> getGenericOnOffState() {
+    public SingleLiveEvent<GenericOnOffStatus> getGenericOnOffState() {
         return mGenericOnOffStatus;
     }
 
-    public LiveData<GenericLevelStatusUpdate> getGenericLevelState() {
+    public LiveData<GenericLevelStatus> getGenericLevelState() {
         return mGenericLevelStatus;
     }
 
-    public LiveData<byte[]> getVendorModelState() {
+    public SingleLiveEvent<VendorModelMessageStatus> getVendorModelState() {
         return mVendorModelState;
     }
 
@@ -201,24 +196,16 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
         final MeshModel model = mBinder.getMeshModel();
         switch (action) {
             case ACTION_GENERIC_ON_OFF_STATE:
-                final boolean presentOnOffState = intent.getExtras().getBoolean(EXTRA_GENERIC_PRESENT_STATE);
-                final boolean targetOnOffState = intent.getExtras().getBoolean(EXTRA_GENERIC_TARGET_STATE);
-                final int steps = intent.getExtras().getInt(EXTRA_GENERIC_TRANSITION_STEPS);
-                final int resolution = intent.getExtras().getInt(EXTRA_GENERIC_TRANSITION_RES);
-                final GenericOnOffStatusUpdate genericOnOffStatusUpdate = new GenericOnOffStatusUpdate(presentOnOffState, steps > 0 ? targetOnOffState : null, steps, resolution);
+                final GenericOnOffStatus genericOnOffStatusUpdate = intent.getExtras().getParcelable(EXTRA_DATA);
                 mGenericOnOffStatus.postValue(genericOnOffStatusUpdate);
                 break;
             case ACTION_GENERIC_LEVEL_STATE:
-                final int presentLevel = intent.getExtras().getInt(EXTRA_GENERIC_PRESENT_STATE);
-                final int targetLevel = intent.getExtras().getInt(EXTRA_GENERIC_TARGET_STATE);
-                final int transSteps = intent.getExtras().getInt(EXTRA_GENERIC_TRANSITION_STEPS);
-                final int transResolution = intent.getExtras().getInt(EXTRA_GENERIC_TRANSITION_RES);
-                final GenericLevelStatusUpdate genericLevelStatusUpdate = new GenericLevelStatusUpdate(presentLevel, transSteps > 0 ? targetLevel : null, transSteps, transResolution);
-                mGenericLevelStatus.postValue(genericLevelStatusUpdate);
+                final GenericLevelStatus genericLevelStatus = intent.getExtras().getParcelable(EXTRA_DATA);
+                mGenericLevelStatus.postValue(genericLevelStatus);
                 break;
             case ACTION_VENDOR_MODEL_MESSAGE_STATE:
-                final byte[] data = intent.getExtras().getByteArray(EXTRA_DATA);
-                mVendorModelState.postValue(data);
+                final VendorModelMessageStatus vendorModelMessageStatus = intent.getExtras().getParcelable(EXTRA_DATA);
+                mVendorModelState.postValue(vendorModelMessageStatus);
                 break;
         }
     }

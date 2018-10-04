@@ -10,6 +10,7 @@ import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
+import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.transport.LowerTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -49,10 +50,14 @@ public class GenericOnOffSetState extends GenericMessageState implements LowerTr
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
-                final GenericOnOffStatus genericOnOffSet = new GenericOnOffStatus(mNode, (AccessMessage) message);
-                //TODO handle GenericOnOffStatus status message
-                mInternalTransportCallbacks.updateMeshNode(mNode);
-                return true;
+                if(message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS) {
+                    final GenericOnOffStatus genericOnOffStatus = new GenericOnOffStatus(mNode, (AccessMessage) message);
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mMeshStatusCallbacks.onGenericOnOffStatusReceived(genericOnOffStatus);
+                    return true;
+                } else {
+                    Log.v(TAG, "Unknown pdu received! " + MeshParserUtils.bytesToHex(((AccessMessage) message).getAccessPdu(), false));
+                }
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
             }
