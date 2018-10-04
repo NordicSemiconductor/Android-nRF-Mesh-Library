@@ -56,6 +56,7 @@ import no.nordicsemi.android.meshprovisioner.messages.GenericLevelGet;
 import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSet;
 import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
+import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
 
 /**
@@ -273,4 +274,25 @@ public interface MeshStatusCallbacks {
      * @param status
      */
     void onVendorModelMessageStatusReceived(final VendorModelMessageStatus status);
+
+    /**
+     * Callback to notify the mesh message has been sent
+     *
+     * @param meshMessage {@link MeshMessage} containing the message that was sent
+     */
+    void onMeshMessageSent(final MeshMessage meshMessage);
+
+    /**
+     * Callback to notify that a mesh status message was received
+     *
+     * @param meshMessage {@link MeshMessage} containing the message that was received
+     */
+    void onMeshMessageReceived(final MeshMessage meshMessage);
+
+    /**
+     * Callback to notify that a mesh status message was received
+     *
+     * @param meshMessage {@link MeshMessage} containing the message that was received
+     */
+    void onMeshStatusMessageReceived(final MeshMessage meshMessage);
 }

@@ -64,6 +64,7 @@ import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionSta
 import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
+import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
@@ -754,6 +755,21 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         final Intent intent = new Intent(ACTION_VENDOR_MODEL_MESSAGE_STATE);
         intent.putExtra(EXTRA_DATA, status);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
+    public void onMeshMessageSent(final MeshMessage meshMessage) {
+
+    }
+
+    @Override
+    public void onMeshMessageReceived(final MeshMessage meshMessage) {
+
+    }
+
+    @Override
+    public void onMeshStatusMessageReceived(final MeshMessage meshMessage) {
+
     }
 
     @Override

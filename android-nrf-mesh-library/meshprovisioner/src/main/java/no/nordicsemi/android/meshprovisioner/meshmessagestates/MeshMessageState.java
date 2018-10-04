@@ -41,7 +41,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     final byte[] mSrc;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     protected MeshStatusCallbacks mMeshStatusCallbacks;
-    protected final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
+    private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
     protected MeshModel mMeshModel;
     protected Message message;
     private boolean isIncompleteTimerExpired;
@@ -141,10 +141,6 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
     public ProvisionedMeshNode getMeshNode() {
         return mNode;
-    }
-
-    public MeshModel getMeshModel() {
-        return mMeshModel;
     }
 
     public boolean isSegmented() {

@@ -8,7 +8,7 @@ import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNo
 public abstract class MeshMessage {
 
     final ProvisionedMeshNode mNode;
-    final int mAszmic;
+    private final int mAszmic;
     byte[] mParameters;
 
     MeshMessage(final ProvisionedMeshNode node, final int aszmic) {
