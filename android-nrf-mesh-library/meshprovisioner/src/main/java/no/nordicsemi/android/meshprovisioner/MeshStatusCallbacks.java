@@ -33,6 +33,9 @@ import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppUnbind;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionAdd;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionDelete;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
@@ -156,11 +159,11 @@ public interface MeshStatusCallbacks {
     void onSubscriptionDeleteSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigModelSubscriptionStatusState} was received
+     * Callback returning the status for {@link ConfigModelSubscriptionAdd}, {@link ConfigModelSubscriptionDelete} messages.
      *
-     * @param node mesh node that the message was received from
+     * @param status {@link ConfigModelSubscriptionStatus} containing hte status
      */
-    void onSubscriptionStatusReceived(final ProvisionedMeshNode node, final boolean success, final int status, final byte[] elementAddress, final byte[] subscriptionAddress, final int modelIdentifier);
+    void onSubscriptionStatusReceived(final ConfigModelSubscriptionStatus status);
 
     /**
      * Notifies if the mesh {@link ConfigNodeResetState} was sent

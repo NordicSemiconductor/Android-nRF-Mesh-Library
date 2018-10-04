@@ -152,7 +152,6 @@ public class ConfigModelSubscriptionStatusState extends ConfigMessageState {
                         }
                     }
                     mInternalTransportCallbacks.updateMeshNode(mNode);
-                    mMeshStatusCallbacks.onSubscriptionStatusReceived(mNode, isSuccessful, status, elementAddress, mSubscriptionAddress, getModelIdentifierInt());
                     return true;
                 } else {
                     mMeshStatusCallbacks.onUnknownPduReceived(mNode);

@@ -35,6 +35,7 @@ import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
@@ -185,14 +186,11 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
                 break;
             case SUBSCRIPTION_STATUS_RECEIVED:
                 if (intent.getExtras() != null) {
-                    final boolean success = intent.getExtras().getBoolean(EXTRA_IS_SUCCESS);
-                    final int statusCode = intent.getExtras().getInt(EXTRA_STATUS);
-                    final byte[] elementAddress = intent.getExtras().getByteArray(EXTRA_ELEMENT_ADDRESS);
-                    final byte[] subscriptionAddress = intent.getExtras().getByteArray(EXTRA_SUBSCRIPTION_ADDRESS);
-                    final int modelId = intent.getExtras().getInt(EXTRA_MODEL_ID);
+                    final ConfigModelSubscriptionStatus subscriptionStatus = intent.getExtras().getParcelable(EXTRA_DATA);
+                    final MeshModel meshModel = node.getElements().get(subscriptionStatus.getElementAddress()).getMeshModels().get(subscriptionStatus.getModelIdentifier());
                     mExtendedMeshNode.updateMeshNode(node);
-                    mMeshModel.postValue(model);
-                    mConfigModelSubscriptionStatus.onStatusChanged(success, statusCode, elementAddress, subscriptionAddress, modelId);
+                    mMeshModel.postValue(meshModel);
+                    mConfigModelSubscriptionStatus.postValue(subscriptionStatus);
                 }
                 break;
         }

@@ -276,10 +276,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             hideProgressBar();
         });
 
-        mViewModel.getConfigModelSubscriptionStatusLiveData().observe(this, configModelSubscriptionStatus -> {
-            if(!configModelSubscriptionStatus.isSuccessful()){
-                final String statusMessage = ConfigModelAppStatusState.parseStatusMessage(this, configModelSubscriptionStatus.getStatus());
-                DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_publlish_address_status), statusMessage);
+        mViewModel.getConfigModelSubscriptionStatusLiveData().observe(this, subscriptionStatus -> {
+            if(!subscriptionStatus.isSuccessful()){
+                DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.newInstance(getString(R.string.title_publlish_address_status), subscriptionStatus.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
             hideProgressBar();

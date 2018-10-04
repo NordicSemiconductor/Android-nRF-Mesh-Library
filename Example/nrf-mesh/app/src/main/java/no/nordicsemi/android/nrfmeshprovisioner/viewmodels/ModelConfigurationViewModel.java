@@ -31,10 +31,11 @@ import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericLevelStatusUpdate;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericOnOffStatusUpdate;
+import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
 
@@ -101,7 +102,7 @@ public class ModelConfigurationViewModel extends ViewModel {
         return mModelConfigurationRepository.getConfigModelPublicationStatus();
     }
 
-    public LiveData<ConfigModelSubscriptionStatusLiveData> getConfigModelSubscriptionStatusLiveData() {
+    public SingleLiveEvent<ConfigModelSubscriptionStatus> getConfigModelSubscriptionStatusLiveData() {
         return mModelConfigurationRepository.getConfigModelSubscriptionStatus();
     }
 

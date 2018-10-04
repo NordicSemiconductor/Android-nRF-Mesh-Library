@@ -33,6 +33,7 @@ import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -61,9 +62,16 @@ public final class ConfigModelSubscriptionDeleteState extends ConfigMessageState
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
-                final ConfigModelSubscriptionStatus configModelSubscriptionAdd = new ConfigModelSubscriptionStatus(mNode, (AccessMessage) message);
-                //TODO Config model subscription status
+                final ConfigModelSubscriptionStatus status = new ConfigModelSubscriptionStatus(mNode, (AccessMessage) message);
+
+                if (status.isSuccessful()) {
+                    final Element element = mNode.getElements().get(status.getElementAddress());
+                    final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+                    model.removeSubscriptionAddress(status.getSubscriptionAddress());
+                }
+
                 mInternalTransportCallbacks.updateMeshNode(mNode);
+                mMeshStatusCallbacks.onSubscriptionStatusReceived(status);
                 return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());

@@ -42,9 +42,8 @@ import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshModel;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
@@ -118,7 +117,7 @@ public abstract class BaseMeshRepository {
     final SingleLiveEvent<ConfigModelPublicationStatus> mConfigModelPublicationStatus = new SingleLiveEvent<>();
 
     /** Subscription bind status **/
-    final ConfigModelSubscriptionStatusLiveData mConfigModelSubscriptionStatus = new ConfigModelSubscriptionStatusLiveData();
+    final SingleLiveEvent<ConfigModelSubscriptionStatus> mConfigModelSubscriptionStatus = new SingleLiveEvent<>();
 
     /** Contains the initial provisioning live data **/
     final ProvisioningLiveData mProvisioningLiveData = new ProvisioningLiveData();
@@ -332,7 +331,7 @@ public abstract class BaseMeshRepository {
         return mConfigModelPublicationStatus;
     }
 
-    public ConfigModelSubscriptionStatusLiveData getConfigModelSubscriptionStatus() {
+    public SingleLiveEvent<ConfigModelSubscriptionStatus> getConfigModelSubscriptionStatus() {
         return mConfigModelSubscriptionStatus;
     }
 

@@ -134,6 +134,15 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implement
         return mModelIdentifier;
     }
 
+    /**
+     * Returns if the message was successful
+     *
+     * @return true if the message was successful or false otherwise
+     */
+    public final boolean isSuccessful(){
+        return mStatusCode == 0x00;
+    }
+
     @Override
     public int describeContents() {
         return 0;

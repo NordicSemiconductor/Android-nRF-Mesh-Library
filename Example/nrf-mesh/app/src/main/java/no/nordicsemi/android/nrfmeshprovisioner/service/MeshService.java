@@ -60,6 +60,7 @@ import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
@@ -669,19 +670,16 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
-    public void onSubscriptionStatusReceived(final ProvisionedMeshNode node, final boolean success, final int status, final byte[] elementAddress, final byte[] subscriptionAddress, final int modelIdentifier) {
+    public void onSubscriptionStatusReceived(final ConfigModelSubscriptionStatus status) {
+        final ProvisionedMeshNode node  = status.getMeshNode();
         mMeshNode = node;
-        final Element element = node.getElements().get(AddressUtils.getUnicastAddressInt(elementAddress));
+        final Element element = node.getElements().get(status.getElementAddress());
         mElement = element;
-        mMeshModel = element.getMeshModels().get(modelIdentifier);
+        mMeshModel = element.getMeshModels().get(status.getModelIdentifier());
 
         final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
         intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.SUBSCRIPTION_STATUS_RECEIVED.getState());
-        intent.putExtra(EXTRA_IS_SUCCESS, success);
-        intent.putExtra(EXTRA_STATUS, status);
-        intent.putExtra(EXTRA_ELEMENT_ADDRESS, elementAddress);
-        intent.putExtra(EXTRA_PUBLISH_ADDRESS, subscriptionAddress);
-        intent.putExtra(EXTRA_MODEL_ID, modelIdentifier);
+        intent.putExtra(EXTRA_DATA, status);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
