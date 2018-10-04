@@ -48,7 +48,6 @@ import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageAckedState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageStateStatus;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageUnackedState;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataGet;

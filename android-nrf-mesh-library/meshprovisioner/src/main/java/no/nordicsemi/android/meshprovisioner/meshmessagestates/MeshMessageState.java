@@ -43,8 +43,6 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     protected MeshStatusCallbacks mMeshStatusCallbacks;
     protected final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
     protected MeshModel mMeshModel;
-    protected int mAppKeyIndex;
-    int messageType;
     protected Message message;
     private boolean isIncompleteTimerExpired;
 
@@ -147,10 +145,6 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
     public MeshModel getMeshModel() {
         return mMeshModel;
-    }
-
-    public int getAppKeyIndex() {
-        return mAppKeyIndex;
     }
 
     public boolean isSegmented() {

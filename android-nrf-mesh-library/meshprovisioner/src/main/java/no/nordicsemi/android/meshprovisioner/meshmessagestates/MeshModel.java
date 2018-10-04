@@ -34,7 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
 @SuppressWarnings("WeakerAccess")
@@ -163,9 +165,9 @@ public abstract class MeshModel implements Parcelable {
     }
 
     /**
-     * Sets the data from the {@link ConfigModelAppStatusState}
+     * Sets the data from the {@link ConfigModelPublicationStatus}
      *
-     * @param status Composition data status object
+     * @param status publication set status
      */
     protected void setPublicationStatus(final ConfigModelPublicationStatus status) {
         if (status.isSuccessful()) {
@@ -191,7 +193,9 @@ public abstract class MeshModel implements Parcelable {
     }
 
     /**
-     * Sets data from the {@link ConfigModelAppStatusState}
+     * Sets the subscription address in a mesh model
+     *
+     * @param subscriptionAddress subscription address
      */
     protected void addSubscriptionAddress(final byte[] subscriptionAddress) {
         if (subscriptionAddress != null && !checkIfAlreadySubscribed(subscriptionAddress)) {
@@ -200,7 +204,9 @@ public abstract class MeshModel implements Parcelable {
     }
 
     /**
-     * Sets data from the {@link ConfigModelAppStatusState}
+     * Removes the subscription address in a mesh model
+     *
+     * @param subscriptionAddress subscription address
      */
     protected void removeSubscriptionAddress(final byte[] subscriptionAddress) {
         if (subscriptionAddress != null) {
