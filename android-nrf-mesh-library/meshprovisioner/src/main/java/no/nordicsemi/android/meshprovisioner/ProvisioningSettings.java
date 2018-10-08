@@ -35,7 +35,6 @@ public class ProvisioningSettings extends NetworkSettings {
 
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
     private static final String PROVISIONING_DATA = "PROVISIONING_DATA";
-    private static final String NETWORK_NAME = "NETWORK_NAME";
     private static final String NETWORK_KEY = "NETWORK_KEY";
     private static final String UNICAST_ADDRESS = "UNICAST_ADDRESS";
     private static final String KEY_INDEX = "KEY_INDEX";

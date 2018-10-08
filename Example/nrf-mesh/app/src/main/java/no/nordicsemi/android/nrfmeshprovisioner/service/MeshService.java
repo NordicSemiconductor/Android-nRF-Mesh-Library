@@ -195,6 +195,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
         Toast.makeText(getApplicationContext(), R.string.provisioned_device_not_found, Toast.LENGTH_SHORT).show();
         stopScan();
     };
+
     private final Runnable mReconnectRunnable = this::startScan;
     /**
      * Flag to verify if we are connecting to a mesh network or an unprovisioned devices

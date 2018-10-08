@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -91,16 +92,6 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
 
         mBottomNavigationView.setOnNavigationItemSelectedListener(this);
         mBottomNavigationView.setOnNavigationItemReselectedListener(this);
-
-        mViewModel.getProvisionedNodesLiveData().observe(this, provisionedNodesLiveData -> {
-            invalidateOptionsMenu();
-        });
-
-        mViewModel.isConnected().observe(this, isConnected -> {
-            if(isConnected != null) {
-                invalidateOptionsMenu();
-            }
-        });
 
         if(savedInstanceState == null) {
             onNavigationItemSelected(mBottomNavigationView.getMenu().findItem(R.id.action_network));

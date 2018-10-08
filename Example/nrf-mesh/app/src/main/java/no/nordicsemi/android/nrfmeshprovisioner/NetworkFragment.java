@@ -84,13 +84,15 @@ public class NetworkFragment extends Fragment implements Injectable,
         } else {
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         }
-        mAdapter = new NodeAdapter(getActivity(), mViewModel.getMeshRepository().getProvisionedNodesLiveData());
+
+
+        mAdapter = new NodeAdapter(getActivity(), mViewModel.getProvisionedNodes());
         mAdapter.setOnItemClickListener(this);
         recyclerView.setAdapter(mAdapter);
 
         // Create view model containing utility methods for scanning
-        mViewModel.getMeshRepository().getProvisionedNodesLiveData().observe(this, provisionedNodesLiveData -> {
-            if(mAdapter.getItemCount() > 0) {
+        mViewModel.getProvisionedNodes().observe(this, nodes -> {
+            if(!nodes.isEmpty()) {
                 noNetworksConfiguredView.setVisibility(View.GONE);
             } else {
                 noNetworksConfiguredView.setVisibility(View.VISIBLE);
@@ -98,7 +100,13 @@ public class NetworkFragment extends Fragment implements Injectable,
             mAdapter.notifyDataSetChanged();
         });
 
+        mViewModel.getProvisionedNodes().observe(this, provisionedNodes -> getActivity().invalidateOptionsMenu());
 
+        mViewModel.isConnectedToNetwork().observe(this, isConnected -> {
+            if(isConnected != null) {
+                getActivity().invalidateOptionsMenu();
+            }
+        });
         return rootView;
 
     }
@@ -106,13 +114,11 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public void onStart() {
         super.onStart();
-        mViewModel.refreshProvisionedNodes();
     }
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        if(!mViewModel.getProvisionedNodesLiveData().getProvisionedNodes().isEmpty()){
-
+        if(!mViewModel.getProvisionedNodes().getValue().isEmpty()){
             if (!mViewModel.isConenctedToMesh()) {
                 inflater.inflate(R.menu.connect, menu);
             } else {

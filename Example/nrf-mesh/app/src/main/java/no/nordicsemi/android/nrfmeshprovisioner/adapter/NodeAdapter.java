@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
+import android.arch.lifecycle.LiveData;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -49,13 +50,12 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
     private final List<ProvisionedMeshNode> mNodes = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
 
-    public NodeAdapter(final FragmentActivity fragmentActivity, final ProvisionedNodesLiveData provisionedNodesLiveData) {
+    public NodeAdapter(final FragmentActivity fragmentActivity, LiveData<Map<Integer, ProvisionedMeshNode>> provisionedNodesLiveData) {
         this.mContext = fragmentActivity;
-        provisionedNodesLiveData.observe(fragmentActivity, provisionedNodesLiveData1 -> {
-            final Map<Integer, ProvisionedMeshNode> nodes = provisionedNodesLiveData1.getProvisionedNodes();
-            if(nodes != null){
+        provisionedNodesLiveData.observe(fragmentActivity, provisionedNodes -> {
+            if(provisionedNodes != null){
                 mNodes.clear();
-                mNodes.addAll(nodes.values());
+                mNodes.addAll(provisionedNodes.values());
             }
         });
 

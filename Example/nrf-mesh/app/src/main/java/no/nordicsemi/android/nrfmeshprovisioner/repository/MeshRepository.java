@@ -32,7 +32,7 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningSettingsLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
@@ -82,10 +82,10 @@ public class MeshRepository extends BaseMeshRepository {
      * Disconnect from peripheral
      */
     public void disconnect() {
-        mBinder.disconnect();
+        //mBinder.disconnect();
     }
 
-    public ProvisioningLiveData getProvisioningData(){
+    public ProvisioningSettingsLiveData getProvisioningData(){
         return mProvisioningLiveData;
     }
 

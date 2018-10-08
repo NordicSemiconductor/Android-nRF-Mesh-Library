@@ -47,7 +47,7 @@ import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshModel;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningSettingsLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
@@ -120,7 +120,7 @@ public abstract class BaseMeshRepository {
     final SingleLiveEvent<ConfigModelSubscriptionStatus> mConfigModelSubscriptionStatus = new SingleLiveEvent<>();
 
     /** Contains the initial provisioning live data **/
-    final ProvisioningLiveData mProvisioningLiveData = new ProvisioningLiveData();
+    final ProvisioningSettingsLiveData mProvisioningLiveData = new ProvisioningSettingsLiveData();
 
     /** Contains the provisioned nodes **/
     final ProvisionedNodesLiveData mProvisionedNodesLiveData = new ProvisionedNodesLiveData();
@@ -139,7 +139,7 @@ public abstract class BaseMeshRepository {
             if (mBinder != null) {
                 mIsBound = true;
                 mMeshManagerApi = mBinder.getMeshManagerApi();
-                mProvisioningLiveData.loadProvisioningData(mContext, mBinder.getProvisioningSettings());
+                mProvisioningLiveData.loadProvisioningData(mBinder.getProvisioningSettings());
                 mConfigurationSrc.postValue(mMeshManagerApi.getConfiguratorSrc());
                 mProvisionedNodesLiveData.updateProvisionedNodes(mBinder.getProvisionedNodes());
             }
@@ -193,14 +193,14 @@ public abstract class BaseMeshRepository {
     BaseMeshRepository(final Context context){
         final Intent intent = new Intent(context, MeshService.class);
         context.startService(intent);
-        context.bindService(intent, mServiceConnection, 0);
+        //context.bindService(intent, mServiceConnection, 0);
         mContext = context;
         mProvisioningStateLiveData = new ProvisioningStateLiveData();
         mIsReconnecting.postValue(false);
     }
 
     public void unbindService(){
-        mContext.unbindService(mServiceConnection);
+        //mContext.unbindService(mServiceConnection);
         mIsBound = false;
         mBinder = null;
     }
@@ -237,7 +237,7 @@ public abstract class BaseMeshRepository {
         }
     }
 
-    public ProvisioningLiveData getProvisioningData(){
+    public ProvisioningSettingsLiveData getProvisioningData(){
         return mProvisioningLiveData;
     }
 
@@ -341,7 +341,7 @@ public abstract class BaseMeshRepository {
     public void resetMeshNetwork() {
         mBinder.disconnect();
         mBinder.resetMeshNetwork();
-        mProvisioningLiveData.refreshProvisioningData(mBinder.getProvisioningSettings());
+        mProvisioningLiveData.reset(mBinder.getProvisioningSettings());
         mProvisionedNodesLiveData.clearNodes();
         mExtendedMeshNode = null;
     }

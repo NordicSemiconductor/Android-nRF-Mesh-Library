@@ -31,7 +31,6 @@ import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNo
 import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.NodeConfigurationRepository;
@@ -83,7 +82,7 @@ public class NodeConfigurationViewModel extends ViewModel {
         mNodeConfigurationRepository.sendGetCompositionData();
     }
 
-    public ProvisioningLiveData getProvisioningData() {
+    public ProvisioningSettingsLiveData getProvisioningData() {
         return mNodeConfigurationRepository.getProvisioningData();
     }
 

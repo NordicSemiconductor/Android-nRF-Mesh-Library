@@ -20,26 +20,25 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.livedata;
+package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 
-public class ProvisioningLiveData extends LiveData<ProvisioningLiveData>  {
+public class ProvisioningSettingsLiveData extends LiveData<ProvisioningSettingsLiveData> {
 
     private ProvisioningSettings mProvisioningSettings;
-    String networkName = "nRF Mesh Network";
-    private String nodeName = "nRF Mesh Node";
     private String selectedAppKey;
-    private String NETWORK_NAME_PREFS = "NETWORK_NAME_PREFS";
-    private String NETWORK_NAME = "NETWORK_NAME";
 
-    public ProvisioningLiveData(){
+    public ProvisioningSettingsLiveData() {
+    }
+
+    protected ProvisioningSettingsLiveData(@NonNull final ProvisioningSettings provisioningSettings) {
+        mProvisioningSettings = provisioningSettings;
         postValue(this);
     }
 
@@ -47,37 +46,12 @@ public class ProvisioningLiveData extends LiveData<ProvisioningLiveData>  {
         return mProvisioningSettings;
     }
 
-    public void loadProvisioningData(final Context context, final ProvisioningSettings provisioningSettings){
+    public void loadProvisioningData(final ProvisioningSettings provisioningSettings) {
         this.mProvisioningSettings = provisioningSettings;
-        loadNetworkName(context);
-        postValue(this);
     }
 
-    public void refreshProvisioningData(final ProvisioningSettings provisioningSettings) {
+    public void reset(final ProvisioningSettings provisioningSettings) {
         this.mProvisioningSettings = provisioningSettings;
-        networkName = "nRF Mesh Network";
-        nodeName = "nRF Mesh Node";
-        postValue(this);
-    }
-
-    public void setNodeName(final String nodeName) {
-        if(nodeName != null && !nodeName.isEmpty()) {
-            this.nodeName = nodeName;
-            postValue(this);
-        }
-    }
-
-    public String getNodeName() {
-        return nodeName;
-    }
-
-    public String getNetworkName() {
-        return networkName;
-    }
-
-    public void setNetworkName(final Context context, final String name) {
-        this.networkName = name;
-        saveNetworkName(context);
         postValue(this);
     }
 
@@ -145,51 +119,39 @@ public class ProvisioningLiveData extends LiveData<ProvisioningLiveData>  {
     }
 
     public String getSelectedAppKey() {
-        if(selectedAppKey == null)
+        if (selectedAppKey == null)
             selectedAppKey = mProvisioningSettings.getAppKeys().get(0);
         return selectedAppKey;
     }
 
-    public void setSelectedAppKey(final String appKey){
+    public void setSelectedAppKey(final String appKey) {
         this.selectedAppKey = appKey;
         postValue(this);
     }
 
-    private void loadNetworkName(final Context context) {
-        final SharedPreferences preferences = context.getSharedPreferences(NETWORK_NAME_PREFS, Context.MODE_PRIVATE);
-        networkName = preferences.getString(NETWORK_NAME, networkName);
-    }
-
-    private void saveNetworkName(final Context context) {
-        final SharedPreferences preferences = context.getSharedPreferences(NETWORK_NAME_PREFS, Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(NETWORK_NAME, networkName);
-        editor.apply();
-    }
-
     public void addAppKey(final String applicationKey) {
-        if(mProvisioningSettings != null) {
+        if (mProvisioningSettings != null) {
             mProvisioningSettings.addAppKey(applicationKey);
         }
         postValue(this);
     }
 
     public void addAppKey(final int position, final String applicationKey) {
-        if(mProvisioningSettings != null) {
+        if (mProvisioningSettings != null) {
             mProvisioningSettings.addAppKey(position, applicationKey);
         }
         postValue(this);
     }
 
     public void updateAppKey(final int position, final String applicationKey) {
-        if(mProvisioningSettings != null) {
+        if (mProvisioningSettings != null) {
             mProvisioningSettings.updateAppKey(position, applicationKey);
         }
         postValue(this);
     }
 
     public void removeAppKey(final String appKey) {
-        if(mProvisioningSettings != null) {
+        if (mProvisioningSettings != null) {
             mProvisioningSettings.removeAppKey(appKey);
         }
         postValue(this);

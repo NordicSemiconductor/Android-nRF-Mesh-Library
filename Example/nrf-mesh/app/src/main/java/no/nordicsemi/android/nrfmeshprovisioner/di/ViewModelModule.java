@@ -29,15 +29,21 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetworkInformation;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshProvisionerRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.NodeConfigurationRepository;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ProvisionedNodesScannerRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ReconnectRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ScannerRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ViewModelFactory;
+
+import static no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshRepository.getInstance;
 
 @Module(subcomponents = ViewModelSubComponent.class)
 public class ViewModelModule {
@@ -76,6 +82,12 @@ public class ViewModelModule {
 	@Provides
 	static ReconnectRepository provideReconnectRepository(final Context context) {
 		return new ReconnectRepository(context);
+	}
+
+	@Provides
+	@Singleton
+	static NrfMeshRepository provideNrfMeshRepository(final MeshManagerApi meshManagerApi, final NetworkInformation networkInformation, final BleMeshManager bleMeshManager) {
+		return getInstance(meshManagerApi, networkInformation, bleMeshManager);
 	}
 
 	@Provides

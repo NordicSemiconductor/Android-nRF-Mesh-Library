@@ -24,44 +24,52 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
+import android.content.Context;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
+import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshProvisionerRepository;
 
 public class MeshProvisionerViewModel extends ViewModel {
 
     private final MeshProvisionerRepository mMeshProvisionerRepository;
+    private final NrfMeshRepository mNrfMeshRepository;
 
     @Inject
-    MeshProvisionerViewModel(final MeshProvisionerRepository mMeshProvisionerRepository) {
+    MeshProvisionerViewModel(final MeshProvisionerRepository mMeshProvisionerRepository, final NrfMeshRepository nrfMeshRepository) {
         this.mMeshProvisionerRepository = mMeshProvisionerRepository;
+        this.mNrfMeshRepository = nrfMeshRepository;
         mMeshProvisionerRepository.registerBroadcastReceiver();
     }
 
     public LiveData<Boolean> isDeviceReady() {
-        return mMeshProvisionerRepository.isDeviceReady();
+        return mNrfMeshRepository.isDeviceReady();
     }
 
     public LiveData<String> getConnectionState() {
-        return mMeshProvisionerRepository.getConnectionState();
+        return mNrfMeshRepository.getConnectionState();
     }
 
     public LiveData<Boolean> isConnected() {
-        return mMeshProvisionerRepository.isConnected();
+        return mNrfMeshRepository.isConnected();
     }
 
     public LiveData<Boolean> isReconnecting() {
-        return mMeshProvisionerRepository.isReconnecting();
+        return mNrfMeshRepository.isReconnecting();
     }
 
     public boolean isProvisioningComplete() {
-        return mMeshProvisionerRepository.isProvisioningComplete();
+        return mNrfMeshRepository.isProvisioningComplete();
+    }
+
+    public LiveData<Void> isNodeSetupComplete() {
+        return mNrfMeshRepository.isNodeSetupComplete();
     }
 
     public ProvisioningStateLiveData getProvisioningState() {
@@ -76,10 +84,24 @@ public class MeshProvisionerViewModel extends ViewModel {
     }
 
     /**
+     * Connect to peripheral
+     */
+    public void connect(final Context context, final ExtendedBluetoothDevice device) {
+        mNrfMeshRepository.connect(context, device);
+    }
+
+    /**
      * Disconnect from peripheral
      */
     public void disconnect() {
-        mMeshProvisionerRepository.disconnect();
+        mNrfMeshRepository.disconnect();
+    }
+
+    /**
+     * Disconnect from peripheral
+     */
+    public void disconnect(final Context context) {
+        mNrfMeshRepository.disconnect();
     }
 
     @Override
@@ -89,24 +111,32 @@ public class MeshProvisionerViewModel extends ViewModel {
         mMeshProvisionerRepository.unbindService();
     }
 
-    public ExtendedMeshNode getMeshNode(){
+    public ExtendedMeshNode getMeshNode() {
         return mMeshProvisionerRepository.getExtendedMeshNode();
     }
 
-    public void identifyNode(final String nodeName){
-        mMeshProvisionerRepository.identifyNode(nodeName);
+    public LiveData<BaseMeshNode> getBaseMeshNode() {
+        return mNrfMeshRepository.getExtendedMeshNode();
     }
 
-    public void startProvisioning() {
-        mMeshProvisionerRepository.startProvisioning();
+    public void identifyNode(final String address, final String nodeName) {
+        mNrfMeshRepository.getMeshManagerApi().identifyNode(address, nodeName);
+    }
+
+    public void startProvisioning(final UnprovisionedMeshNode node) {
+        mNrfMeshRepository.getMeshManagerApi().startProvisioning(node);
     }
 
     public void sendProvisioneePin(final String pin) {
         mMeshProvisionerRepository.confirmProvisioning(pin);
     }
 
-    public ProvisioningLiveData getProvisioningData() {
-        return mMeshProvisionerRepository.getProvisioningData();
+    public ProvisioningSettingsLiveData getProvisioningSettings(){
+        return mNrfMeshRepository.getProvisioningSettingsLiveData();
+    }
+
+    public LiveData<NetworkInformation> getNetworkInformationLiveData(){
+        return mNrfMeshRepository.getNetworkInformationLiveData();
     }
 
     public ProvisionedNodesLiveData getProvisionedNodes() {
@@ -119,5 +149,9 @@ public class MeshProvisionerViewModel extends ViewModel {
 
     public String getSelectedAppKey() {
         return mMeshProvisionerRepository.getSelectedAppKey();
+    }
+
+    public NrfMeshRepository getNrfMeshRepository() {
+        return mNrfMeshRepository;
     }
 }

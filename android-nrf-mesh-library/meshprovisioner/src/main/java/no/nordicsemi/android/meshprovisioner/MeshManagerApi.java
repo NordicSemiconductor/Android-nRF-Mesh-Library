@@ -68,8 +68,6 @@ import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
-import no.nordicsemi.android.meshprovisioner.utils.PublicationSettingsInstanceCreator;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 
@@ -173,8 +171,11 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         return mMeshMessageHandler.getConfigurationState();
     }
 
+    /**
+     * Returns an unmodifiable map of Provisioned nodes
+     */
     public Map<Integer, ProvisionedMeshNode> getProvisionedNodes() {
-        return mProvisionedNodes;
+        return Collections.unmodifiableMap(mProvisionedNodes);
     }
 
     /**
