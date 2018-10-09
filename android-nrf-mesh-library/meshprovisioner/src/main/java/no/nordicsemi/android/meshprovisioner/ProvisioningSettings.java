@@ -42,13 +42,10 @@ public class ProvisioningSettings extends NetworkSettings {
     private static final String FLAGS = "FLAGS";
     private static final String GLOBAL_TTL = "GLOBAL_TTL";
     private final Context mContext;
-    private String selectedAppkey;
 
     ProvisioningSettings(final Context context) {
         this.mContext = context;
         generateProvisioningData();
-        /*addAppKeys();
-        saveProvisioningData();*/
     }
 
     /**
@@ -116,7 +113,7 @@ public class ProvisioningSettings extends NetworkSettings {
      * @param applicationKey application key to be added in the specified position
      */
     public void addAppKey(final String applicationKey) throws IllegalArgumentException {
-        if(this.appKeys.contains(applicationKey))
+        if (this.appKeys.contains(applicationKey))
             throw new IllegalArgumentException("App key already exists");
 
         this.appKeys.add(applicationKey);
@@ -130,7 +127,7 @@ public class ProvisioningSettings extends NetworkSettings {
      * @param applicationKey application key to be added in the specified position
      */
     public void addAppKey(final int position, final String applicationKey) {
-        if(this.appKeys.contains(applicationKey))
+        if (this.appKeys.contains(applicationKey))
             throw new IllegalArgumentException("App key already exists");
 
         this.appKeys.add(position, applicationKey);
@@ -144,7 +141,7 @@ public class ProvisioningSettings extends NetworkSettings {
      * @param applicationKey application key to be added in the specified position
      */
     public void updateAppKey(final int position, final String applicationKey) {
-        if(this.appKeys.contains(applicationKey))
+        if (this.appKeys.contains(applicationKey))
             throw new IllegalArgumentException("App key already exists");
 
         this.appKeys.set(position, applicationKey);
@@ -156,6 +153,7 @@ public class ProvisioningSettings extends NetworkSettings {
      *
      * @param appKey App key to be removed
      */
+    @SuppressWarnings("RedundantCollectionOperation")
     public void removeAppKey(final String appKey) {
         if (appKeys.contains(appKey)) {
             final int index = appKeys.indexOf(appKey);
@@ -255,7 +253,7 @@ public class ProvisioningSettings extends NetworkSettings {
     private void saveApplicationKeys() {
         final SharedPreferences preferences = mContext.getSharedPreferences(APPLICATION_KEYS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        if(appKeys.isEmpty()){
+        if (appKeys.isEmpty()) {
             editor.clear();
         } else {
             for (int i = 0; i < appKeys.size(); i++) {
@@ -265,7 +263,7 @@ public class ProvisioningSettings extends NetworkSettings {
         editor.apply();
     }
 
-    private void saveProvisioningData(){
+    private void saveProvisioningData() {
         saveNetworkKey();
         saveUnicastAddress();
         saveKeyIndex();

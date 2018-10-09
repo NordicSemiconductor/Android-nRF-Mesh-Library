@@ -61,4 +61,51 @@ public abstract class ProvisioningState {
         }
 
     }
+
+    public enum States {
+        PROVISIONING_INVITE(0),
+        PROVISIONING_CAPABILITIES(1),
+        PROVISIONING_START(2),
+        PROVISIONING_PUBLIC_KEY_SENT(3),
+        PROVISIONING_PUBLIC_KEY_RECEIVED(4),
+        PROVISIONING_AUTHENTICATION_INPUT_WAITING(5),
+        PROVISIONING_AUTHENTICATION_INPUT_ENTERED(6),
+        PROVISIONING_INPUT_COMPLETE(7),
+        PROVISIONING_CONFIRMATION_SENT(8),
+        PROVISIONING_CONFIRMATION_RECEIVED(9),
+        PROVISIONING_RANDOM_SENT(10),
+        PROVISIONING_RANDOM_RECEIVED(11),
+        PROVISIONING_DATA_SENT(12),
+        PROVISIONING_COMPLETE(13),
+        PROVISIONING_FAILED(14),
+        COMPOSITION_DATA_GET_SENT(15),
+        COMPOSITION_DATA_STATUS_RECEIVED(16),
+        SENDING_BLOCK_ACKNOWLEDGEMENT(17),
+        SENDING_APP_KEY_ADD(18),
+        BLOCK_ACKNOWLEDGEMENT_RECEIVED(19),
+        APP_KEY_STATUS_RECEIVED(20),
+        APP_BIND_SENT(21),
+        APP_BIND_STATUS_RECEIVED(22),
+        PUBLISH_ADDRESS_SET_SENT(23),
+        PUBLISH_ADDRESS_STATUS_RECEIVED(24);
+
+        private int state;
+
+        States(final int state) {
+            this.state = state;
+        }
+
+        public int getState() {
+            return state;
+        }
+
+        public static States fromStatusCode(final int statusCode){
+            for(States state : States.values()){
+                if(state.getState() == statusCode){
+                    return state;
+                }
+            }
+            throw new IllegalStateException("Invalid state");
+        }
+    }
 }

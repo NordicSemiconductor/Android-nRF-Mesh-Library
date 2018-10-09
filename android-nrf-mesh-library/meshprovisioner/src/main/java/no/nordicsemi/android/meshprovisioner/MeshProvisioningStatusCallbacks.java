@@ -23,6 +23,7 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 
 public interface MeshProvisioningStatusCallbacks {
@@ -54,5 +55,7 @@ public interface MeshProvisioningStatusCallbacks {
     void onProvisioningFailed(final UnprovisionedMeshNode unprovisionedMeshNode, final int errorCode);
 
     void onProvisioningComplete(final ProvisionedMeshNode provisionedMeshNode);
+
+    void onProvisioningStateChanged(final BaseMeshNode meshNode, final ProvisioningState.States state, final byte[] data);
 
 }

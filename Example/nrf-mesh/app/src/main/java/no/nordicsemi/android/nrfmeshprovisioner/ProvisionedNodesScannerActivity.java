@@ -49,6 +49,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.DevicesAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionedNodesScannerViewModel;
@@ -72,16 +73,12 @@ public class ProvisionedNodesScannerActivity extends AppCompatActivity implement
 	@BindView(R.id.bluetooth_off) View mNoBluetoothView;
 
 	private ProvisionedNodesScannerViewModel mViewModel;
-	private String mNetworkId;
 
 	@Override
 	protected void onCreate(@Nullable final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_scanner);
 		ButterKnife.bind(this);
-
-		final Intent intent = getIntent();
-		mNetworkId = intent.getStringExtra(NETWORK_ID);
 
 		final Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
@@ -196,7 +193,7 @@ public class ProvisionedNodesScannerActivity extends AppCompatActivity implement
 				mNoBluetoothView.setVisibility(View.GONE);
 
 				// We are now OK to start scanning
-				mViewModel.startScan(mNetworkId);
+				mViewModel.startScan(BleMeshManager.MESH_PROXY_UUID);
 				mScanningView.setVisibility(View.VISIBLE);
 
 				if (state.isEmpty()) {

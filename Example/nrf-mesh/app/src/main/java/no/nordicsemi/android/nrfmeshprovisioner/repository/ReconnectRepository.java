@@ -50,7 +50,7 @@ public class ReconnectRepository {
 
     private final Context mContext;
 
-    /** Connection states Connecting, Connected, Disconnecting, Disconnected etc. **/
+    /** Connection States Connecting, Connected, Disconnecting, Disconnected etc. **/
     private final MutableLiveData<Boolean> mIsConnected = new MutableLiveData<>();
 
     /** Flag to determine if the device is ready **/

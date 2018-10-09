@@ -49,8 +49,8 @@ import static no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshReposit
 public class ViewModelModule {
 
 	@Provides
-	static ScannerRepository provideScannerRepository(final Context context) {
-		return new ScannerRepository(context);
+	static ScannerRepository provideScannerRepository(final Context context, final MeshManagerApi meshManagerApi) {
+		return new ScannerRepository(context, meshManagerApi);
 	}
 
 	@Provides

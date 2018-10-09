@@ -105,14 +105,7 @@ public class SharedViewModel extends ViewModel {
      * Disconnect from peripheral
      */
     public void disconnect() {
-        mMeshRepository.disconnect();
-    }
-
-    /**
-     * Returns the network id of this mesh network.
-     */
-    public String getNetworkId() {
-        return mMeshRepository.getNetworkId();
+        nRFMeshRepository.disconnect();
     }
 
     public boolean isConenctedToMesh() {
@@ -150,7 +143,7 @@ public class SharedViewModel extends ViewModel {
      * Set the source address to be used for configuration
      *
      * @param srcAddress source address
-     * @return
+     * @return true if success
      */
     public boolean setConfiguratorSource(final byte[] srcAddress) {
         return nRFMeshRepository.setConfiguratorSrc(srcAddress);

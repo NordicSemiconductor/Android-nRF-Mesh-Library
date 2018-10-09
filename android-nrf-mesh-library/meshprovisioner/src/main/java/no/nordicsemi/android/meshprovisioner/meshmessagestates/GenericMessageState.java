@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.InternalMeshMsgHandlerCallbacks;
 
 /**
- * Abstract state class that handles Generic Message states
+ * Abstract state class that handles Generic Message States
  */
 public abstract class GenericMessageState extends MeshMessageState {
 

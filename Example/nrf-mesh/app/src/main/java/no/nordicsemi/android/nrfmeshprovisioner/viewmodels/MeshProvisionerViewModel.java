@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
@@ -48,7 +49,15 @@ public class MeshProvisionerViewModel extends ViewModel {
         mMeshProvisionerRepository.registerBroadcastReceiver();
     }
 
-    public LiveData<Boolean> isDeviceReady() {
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        mNrfMeshRepository.clearMeshNodeLiveData();
+        mMeshProvisionerRepository.unregisterBroadcastReceiver();
+        mMeshProvisionerRepository.unbindService();
+    }
+
+    public LiveData<Void> isDeviceReady() {
         return mNrfMeshRepository.isDeviceReady();
     }
 
@@ -68,26 +77,19 @@ public class MeshProvisionerViewModel extends ViewModel {
         return mNrfMeshRepository.isProvisioningComplete();
     }
 
-    public LiveData<Void> isNodeSetupComplete() {
-        return mNrfMeshRepository.isNodeSetupComplete();
-    }
-
     public ProvisioningStateLiveData getProvisioningState() {
         return mMeshProvisionerRepository.getProvisioningState();
     }
 
-    /**
-     * Connect to peripheral
-     */
-    public void connect(final ExtendedBluetoothDevice device) {
-        mMeshProvisionerRepository.connect(device);
+    public ProvisioningStatusLiveData getProvisioningStatus() {
+        return mNrfMeshRepository.getProvisioningState();
     }
 
     /**
      * Connect to peripheral
      */
-    public void connect(final Context context, final ExtendedBluetoothDevice device) {
-        mNrfMeshRepository.connect(context, device);
+    public void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
+        mNrfMeshRepository.connect(context, device, connectToNetwork);
     }
 
     /**
@@ -102,13 +104,6 @@ public class MeshProvisionerViewModel extends ViewModel {
      */
     public void disconnect(final Context context) {
         mNrfMeshRepository.disconnect();
-    }
-
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        mMeshProvisionerRepository.unregisterBroadcastReceiver();
-        mMeshProvisionerRepository.unbindService();
     }
 
     public ExtendedMeshNode getMeshNode() {
@@ -153,5 +148,9 @@ public class MeshProvisionerViewModel extends ViewModel {
 
     public NrfMeshRepository getNrfMeshRepository() {
         return mNrfMeshRepository;
+    }
+
+    public BleMeshManager getBleMeshManager() {
+        return mNrfMeshRepository.getBleMeshManager();
     }
 }

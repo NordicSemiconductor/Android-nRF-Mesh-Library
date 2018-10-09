@@ -157,6 +157,7 @@ public class MeshProvisioningHandler {
             final ProvisionedMeshNode provisionedMeshNode = new ProvisionedMeshNode(unprovisionedMeshNode);
             mInternalMeshManagerCallbacks.onNodeProvisioned(provisionedMeshNode);
             mProvisoningStatusCallbacks.onProvisioningComplete(provisionedMeshNode);
+            mProvisoningStatusCallbacks.onProvisioningStateChanged(provisionedMeshNode, ProvisioningState.States.PROVISIONING_COMPLETE, data);
         } else {
             isProvisioningPublicKeySent = false;
             isProvisioneePublicKeyReceived = false;
@@ -165,6 +166,7 @@ public class MeshProvisioningHandler {
             if (provisioningFailedState.parseData(data)) {
                 unprovisionedMeshNode.setIsProvisioned(false);
                 mProvisoningStatusCallbacks.onProvisioningFailed(unprovisionedMeshNode, provisioningFailedState.getErrorCode());
+                mProvisoningStatusCallbacks.onProvisioningStateChanged(unprovisionedMeshNode, ProvisioningState.States.PROVISIONING_FAILED, data);
             }
         }
     }
@@ -274,9 +276,9 @@ public class MeshProvisioningHandler {
      * @param configuratorSrc Source address of the configurator
      *
      */
-    protected void identify(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue,
-                            final int keyIndex, final int flags, final int ivIndex, final int unicastAddress,
-                            final int globalTtl, final byte[] configuratorSrc) throws IllegalArgumentException {
+    void identify(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue,
+                  final int keyIndex, final int flags, final int ivIndex, final int unicastAddress,
+                  final int globalTtl, final byte[] configuratorSrc) throws IllegalArgumentException {
         final UnprovisionedMeshNode unprovisionedMeshNode = initializeMeshNode(address, nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl, configuratorSrc);
         sendProvisioningInvite(unprovisionedMeshNode);
     }
@@ -289,7 +291,7 @@ public class MeshProvisioningHandler {
      *
      * @param unprovisionedMeshNode         Bluetooth address of the node
      */
-    protected void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
+    void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
         this.attentionTimer = 0x05;
         sendProvisioningStart(unprovisionedMeshNode);
     }
@@ -364,7 +366,7 @@ public class MeshProvisioningHandler {
         }
     }
 
-    public void setProvisioningConfirmation(final String pin) {
+    void setProvisioningConfirmation(final String pin) {
         if (pin != null /*&& pin.length() > 0*/) {
             final ProvisioningConfirmationState provisioningConfirmationState = (ProvisioningConfirmationState) provisioningState;
             provisioningConfirmationState.setPin(pin);
@@ -504,7 +506,7 @@ public class MeshProvisioningHandler {
         return mUnprovisionedMeshNode;
     }
 
-    public void setProvisioningCallbacks(MeshProvisioningStatusCallbacks provisioningCallbacks) {
+    void setProvisioningCallbacks(MeshProvisioningStatusCallbacks provisioningCallbacks) {
         this.mProvisoningStatusCallbacks = provisioningCallbacks;
     }
 }

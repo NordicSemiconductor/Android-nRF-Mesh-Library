@@ -51,6 +51,7 @@ public class ProvisioningInviteState extends ProvisioningState {
     public void executeSend() {
         final byte[] invitePDU = createInvitePDU();
         mMeshProvisioningStatusCallbacks.onProvisioningInviteSent(mUnprovisionedMeshNode);
+        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_INVITE, invitePDU);
         mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, invitePDU);
     }
 

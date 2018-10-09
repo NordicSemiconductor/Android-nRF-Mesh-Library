@@ -74,7 +74,7 @@ public abstract class BaseMeshRepository {
     /** Application context **/
     protected final Context mContext;
 
-    /** Connection states Connecting, Connected, Disconnecting, Disconnected etc. **/
+    /** Connection States Connecting, Connected, Disconnecting, Disconnected etc. **/
     final MutableLiveData<Boolean> mIsConnected = new MutableLiveData<>();
 
     /** Flag to determine if the device is ready **/
@@ -125,7 +125,7 @@ public abstract class BaseMeshRepository {
     /** Contains the provisioned nodes **/
     final ProvisionedNodesLiveData mProvisionedNodesLiveData = new ProvisionedNodesLiveData();
 
-    final TransactionFailedLiveData mTransactionFailedLiveData = new TransactionFailedLiveData();
+    private final TransactionFailedLiveData mTransactionFailedLiveData = new TransactionFailedLiveData();
 
     final ProvisioningStateLiveData mProvisioningStateLiveData;
     MeshService.MeshServiceBinder mBinder;

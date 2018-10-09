@@ -119,10 +119,11 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         if(!mViewModel.getProvisionedNodes().getValue().isEmpty()){
-            if (!mViewModel.isConenctedToMesh()) {
-                inflater.inflate(R.menu.connect, menu);
-            } else {
+            final Boolean isConnectedToNetwork = mViewModel.isConnectedToNetwork().getValue();
+            if(isConnectedToNetwork != null && isConnectedToNetwork){
                 inflater.inflate(R.menu.disconnect, menu);
+            } else {
+                inflater.inflate(R.menu.connect, menu);
             }
         }
     }
@@ -133,7 +134,7 @@ public class NetworkFragment extends Fragment implements Injectable,
         switch (id) {
             case R.id.action_connect:
                 final Intent scannerActivity = new Intent(getContext(), ProvisionedNodesScannerActivity.class);
-                scannerActivity.putExtra(ProvisionedNodesScannerActivity.NETWORK_ID, mViewModel.getNetworkId());
+                scannerActivity.putExtra(ProvisionedNodesScannerActivity.NETWORK_ID, "");
                 startActivity(scannerActivity);
                 return true;
             case R.id.action_disconnect:

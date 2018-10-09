@@ -22,55 +22,39 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
-import android.content.Context;
+public class ProvisionerProgress {
 
-import javax.inject.Inject;
+    private final ProvisioningStatusLiveData.ProvisioningLiveDataState state;
+    private int statusReceived;
+    private final String message;
+    private final int resId;
 
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
-import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ReconnectRepository;
-
-public class ReconnectViewModel extends ViewModel {
-
-    private final ReconnectRepository mReconnectRepository;
-    private final NrfMeshRepository mNrfMeshRepository;
-
-    @Inject
-    ReconnectViewModel(final ReconnectRepository reconnectRepository, final NrfMeshRepository nrfMeshRepository) {
-        this.mReconnectRepository = reconnectRepository;
-        this.mNrfMeshRepository = nrfMeshRepository;
-        mReconnectRepository.registerBroadcastReceiver();
+    ProvisionerProgress(final ProvisioningStatusLiveData.ProvisioningLiveDataState state, final String message, final int resId){
+        this.state = state;
+        this.message = message;
+        this.resId = resId;
+    }
+    ProvisionerProgress(final ProvisioningStatusLiveData.ProvisioningLiveDataState state, final int status, final String message, final int resId){
+        this.state = state;
+        this.statusReceived = status;
+        this.message = message;
+        this.resId = resId;
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        mReconnectRepository.unregisterBroadcastReceiver();
+    public ProvisioningStatusLiveData.ProvisioningLiveDataState getState(){
+        return state;
     }
 
-    public LiveData<Void> isDeviceReady() {
-        return mNrfMeshRepository.isDeviceReady();
+    public int getStatusReceived(){
+        return statusReceived;
     }
 
-    public LiveData<String> getConnectionState() {
-        return mNrfMeshRepository.getConnectionState();
+    public String getMessage() {
+        return message;
     }
 
-    public LiveData<Boolean> isConnected() {
-        return mNrfMeshRepository.isConnected();
+    public int getResId() {
+        return resId;
     }
 
-    public void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
-        mNrfMeshRepository.connect(context, device, connectToNetwork);
-    }
-
-    public void disconnect() {
-        mReconnectRepository.disconnect();
-    }
-
-    public BleMeshManager getBleMeshManager() {
-        return mNrfMeshRepository.getBleMeshManager();
-    }
 }

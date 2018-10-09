@@ -50,6 +50,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningFailedState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
@@ -71,12 +72,12 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisioningFailedErrorMessage;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningSettingsLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetworkInformation;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.ProvisioningProgress;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetworkInformation;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionerProgress;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningSettingsLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningStatusLiveData;
 
 public class MeshProvisionerActivity extends AppCompatActivity implements Injectable,
         DialogFragmentAuthenticationInput.ProvisionerInputFragmentListener,
@@ -125,7 +126,9 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(MeshProvisionerViewModel.class);
-        mViewModel.connect(this, device);
+        if (savedInstanceState == null)
+            mViewModel.connect(this, device, false);
+
         // Set up views
         final LinearLayout connectivityProgressContainer = findViewById(R.id.connectivity_progress_container);
         final TextView connectionState = findViewById(R.id.connection_state);
@@ -138,8 +141,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         nameTitle.setText(R.string.summary_name);
         final TextView nameView = containerName.findViewById(R.id.text);
         containerName.setOnClickListener(v -> {
-            final String name = deviceName;
-            final DialogFragmentNodeName dialogFragmentNodeName = DialogFragmentNodeName.newInstance(name);
+            final DialogFragmentNodeName dialogFragmentNodeName = DialogFragmentNodeName.newInstance(deviceName);
             dialogFragmentNodeName.show(getSupportFragmentManager(), null);
         });
 
@@ -180,12 +182,13 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
 
         mViewModel.isDeviceReady().observe(this, deviceReady -> {
-            if (deviceReady) {
+            if (mViewModel.getBleMeshManager().isDeviceReady()) {
                 connectivityProgressContainer.setVisibility(View.GONE);
                 final boolean isComplete = mViewModel.isProvisioningComplete();
                 if (isComplete) {
                     mProvisioningProgressBar.setVisibility(View.VISIBLE);
                     provisioningStatusContainer.setVisibility(View.VISIBLE);
+                    setupProvisionerStateObservers(provisioningStatusContainer);
                     return;
                 }
                 container.setVisibility(View.VISIBLE);
@@ -194,6 +197,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
         mViewModel.isReconnecting().observe(this, isReconnecting -> {
             if (isReconnecting) {
+                mViewModel.getBaseMeshNode().removeObservers(this);
                 provisioningStatusContainer.setVisibility(View.GONE);
                 container.setVisibility(View.GONE);
                 mProvisioningProgressBar.setVisibility(View.GONE);
@@ -201,14 +205,12 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             }
         });
 
-        mViewModel.getNetworkInformationLiveData().observe(this, networkInformation -> {
-            nameView.setText(networkInformation.getNodeName());
-        });
+        mViewModel.getNetworkInformationLiveData().observe(this, networkInformation -> nameView.setText(networkInformation.getNodeName()));
 
         mViewModel.getProvisioningSettings().observe(this, provisioningSettings -> {
             unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningSettings.getUnicastAddress())));
-            if (!provisioningSettings.getAppKeys().isEmpty()) {
-                appKeyView.setText(provisioningSettings.getAppKeys().get(0));
+            if (provisioningSettings != null) {
+                appKeyView.setText(provisioningSettings.getSelectedAppKey());
             }
         });
 
@@ -224,17 +226,20 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         });
 
         provisioner.setOnClickListener(v -> {
-            final UnprovisionedMeshNode meshNode = (UnprovisionedMeshNode) mViewModel.getBaseMeshNode().getValue();
-            if (meshNode != null && meshNode.getProvisioningCapabilities() != null) {
-                setupProvisionerStateObservers(provisioningStatusContainer);
-                mProvisioningProgressBar.setVisibility(View.VISIBLE);
-                mViewModel.startProvisioning(meshNode);
-            } else {
+            final BaseMeshNode node = mViewModel.getBaseMeshNode().getValue();
+            if (node == null) {
                 mViewModel.identifyNode(device.getAddress(), mViewModel.getNetworkInformationLiveData().getValue().getNodeName());
+                return;
+            }
+
+            if (node instanceof UnprovisionedMeshNode) {
+                if (node.getProvisioningCapabilities() != null) {
+                    setupProvisionerStateObservers(provisioningStatusContainer);
+                    mProvisioningProgressBar.setVisibility(View.VISIBLE);
+                    mViewModel.startProvisioning((UnprovisionedMeshNode) node);
+                }
             }
         });
-
-        mViewModel.isNodeSetupComplete().observe(this, aVoid -> finish());
     }
 
     @Override
@@ -267,8 +272,8 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 if (appKey != null) {
                     final ProvisioningSettingsLiveData provisioningSettings = mViewModel.getProvisioningSettings().getValue();
-                    final int appKeyIndex = provisioningSettings.getAppKeys().indexOf(appKey);
-                    mViewModel.setSelectedAppKey(appKeyIndex, appKey);
+                    //final int appKeyIndex = provisioningSettings.getAppKeys().indexOf(appKey);
+                    provisioningSettings.setSelectedAppKey(appKey);
                 }
             }
         }
@@ -340,14 +345,14 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
         final RecyclerView recyclerView = provisioningStatusContainer.findViewById(R.id.recycler_view_provisioning_progress);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        final ProvisioningProgressAdapter adapter = new ProvisioningProgressAdapter(this, mViewModel.getProvisioningState());
+        final ProvisioningProgressAdapter adapter = new ProvisioningProgressAdapter(this, mViewModel.getProvisioningStatus());
         recyclerView.setAdapter(adapter);
 
-        mViewModel.getProvisioningState().observe(this, provisioningStateLiveData -> {
-            final ProvisioningProgress provisionerProgress = provisioningStateLiveData.getProvisionerProgress();
+        mViewModel.getProvisioningStatus().observe(this, provisioningStateLiveData -> {
+            final ProvisionerProgress provisionerProgress = provisioningStateLiveData.getProvisionerProgress();
             adapter.refresh(provisioningStateLiveData.getStateList());
             if (provisionerProgress != null) {
-                final ProvisioningStateLiveData.ProvisioningLiveDataState state = provisionerProgress.getState();
+                final ProvisioningStatusLiveData.ProvisioningLiveDataState state = provisionerProgress.getState();
                 switch (state) {
                     case PROVISIONING_FAILED:
                         if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_PROVISIONING_FAILED) == null) {
@@ -379,7 +384,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     @Override
     public void onAppKeyAddStatusReceived() {
         Intent returnIntent = new Intent();
-        returnIntent.putExtra("result", false);
+        returnIntent.putExtra("result", true);
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
     }
@@ -410,6 +415,5 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
         final String inputAction = ParseInputOOBActions.getInputOOBActionDescription(capabilities.getOutputOOBAction());
         ((TextView) mCapabilitiesContainer.findViewById(R.id.container_input_actions).findViewById(R.id.text)).setText(inputAction);
-
     }
 }

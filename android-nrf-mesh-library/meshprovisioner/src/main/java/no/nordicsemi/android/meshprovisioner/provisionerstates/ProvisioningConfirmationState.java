@@ -72,12 +72,14 @@ public class ProvisioningConfirmationState extends ProvisioningState {
             provisioningConfirmationPDU = createProvisioningConfirmation(null);
         }
         mMeshProvisioningStatusCallbacks.onProvisioningConfirmationSent(mUnprovisionedMeshNode);
+        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CONFIRMATION_SENT, provisioningConfirmationPDU);
         mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, provisioningConfirmationPDU);
     }
 
     @Override
     public boolean parseData(final byte[] data) {
         mMeshProvisioningStatusCallbacks.onProvisioningConfirmationReceived(mUnprovisionedMeshNode);
+        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CONFIRMATION_RECEIVED, data);
         parseProvisioneeConfirmation(data);
         return true;
     }

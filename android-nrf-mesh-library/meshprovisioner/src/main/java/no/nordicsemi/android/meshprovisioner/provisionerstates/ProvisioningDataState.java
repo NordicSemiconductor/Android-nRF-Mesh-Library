@@ -67,6 +67,7 @@ public class ProvisioningDataState extends ProvisioningState {
     private void sendProvisioningData() {
         final byte[] provisioningDataPDU = createProvisioningDataPDU();
         mMeshProvisioningStatusCallbacks.onProvisioningDataSent(mUnprovisionedMeshNode);
+        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_DATA_SENT, provisioningDataPDU);
         mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, provisioningDataPDU);
     }
 

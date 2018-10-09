@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.ble;
 
+import android.arch.lifecycle.LiveData;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -86,6 +87,7 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
 
     private BluetoothGatt mBluetoothGatt;
     private boolean isProvisioningComplete;
+    private boolean mIsDeviceReady;
     /**
      * BluetoothGatt callbacks for connection/disconnection, service discovery, receiving indication, etc
      */
@@ -145,6 +147,7 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
 
         @Override
         protected void onDeviceDisconnected() {
+            mIsDeviceReady = false;
             isProvisioningComplete = false;
             mMeshProvisioningDataInCharacteristic = null;
             mMeshProvisioningDataOutCharacteristic = null;
@@ -178,6 +181,7 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
 
         @Override
         protected void onDeviceReady() {
+            mIsDeviceReady = true;
             super.onDeviceReady();
         }
     };
@@ -281,5 +285,9 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
             log(LogContract.Log.Level.ERROR, "An exception occurred while refreshing device " + e.getMessage());
         }
         return false;
+    }
+
+    public boolean isDeviceReady() {
+        return mIsDeviceReady;
     }
 }

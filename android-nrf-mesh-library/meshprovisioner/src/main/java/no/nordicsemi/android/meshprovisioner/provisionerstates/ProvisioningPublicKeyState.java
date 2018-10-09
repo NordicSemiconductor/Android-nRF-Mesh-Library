@@ -82,13 +82,16 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
     @Override
     public void executeSend() {
         generateKeyPairs();
+        final byte[] pdu = generatePublicKeyXYPDU();
         mMeshProvisioningStatusCallbacks.onProvisioningPublicKeySent(mUnprovisionedMeshNode);
-        mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, generatePublicKeyXYPDU());
+        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_PUBLIC_KEY_SENT, pdu);
+        mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, pdu);
     }
 
     @Override
     public boolean parseData(final byte[] data) {
         mMeshProvisioningStatusCallbacks.onProvisioningPublicKeyReceived(mUnprovisionedMeshNode);
+        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_PUBLIC_KEY_RECEIVED, data);
         generateSharedECDHSecret(data);
         return true;
     }

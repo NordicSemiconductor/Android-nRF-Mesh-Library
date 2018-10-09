@@ -168,7 +168,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     }
 
     public enum MessageState {
-        //Configuration message states
+        //Configuration message States
         COMPOSITION_DATA_GET_STATE(ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_GET),
         COMPOSITION_DATA_STATUS_STATE(ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS),
         APP_KEY_ADD_STATE(ConfigMessageOpCodes.CONFIG_APPKEY_ADD),
@@ -184,7 +184,7 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         CONFIG_NODE_RESET_STATE(ConfigMessageOpCodes.CONFIG_NODE_RESET),
         CONFIG_NODE_RESET_STATUS_STATE(ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS),
 
-        //Application message states
+        //Application message States
         GENERIC_ON_OFF_GET_STATE(ApplicationMessageOpCodes.GENERIC_ON_OFF_GET),
         GENERIC_ON_OFF_SET_STATE(ApplicationMessageOpCodes.GENERIC_ON_OFF_SET),
         GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE(ApplicationMessageOpCodes.GENERIC_ON_OFF_SET_UNACKNOWLEDGED),

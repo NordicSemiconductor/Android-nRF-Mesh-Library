@@ -25,19 +25,22 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 
+import java.util.UUID;
+
 import javax.inject.Inject;
 
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ScannerLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshProvisionerRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ProvisionedNodesScannerRepository;
+import no.nordicsemi.android.nrfmeshprovisioner.repository.ScannerRepository;
 
 public class ProvisionedNodesScannerViewModel extends ViewModel {
 
-	private final ProvisionedNodesScannerRepository mScannerRepository;
+	private final ScannerRepository mScannerRepository;
 	private final MeshProvisionerRepository mMeshProvisionerRepository;
 
 	@Inject
-	public ProvisionedNodesScannerViewModel(final ProvisionedNodesScannerRepository scannerRepository, final MeshProvisionerRepository meshProvisionerRepository) {
+	public ProvisionedNodesScannerViewModel(final ScannerRepository scannerRepository, final MeshProvisionerRepository meshProvisionerRepository) {
 		this.mScannerRepository = scannerRepository;
 		this.mMeshProvisionerRepository = meshProvisionerRepository;
 		mScannerRepository.registerBroadcastReceivers();
@@ -63,15 +66,15 @@ public class ProvisionedNodesScannerViewModel extends ViewModel {
 		mScannerRepository.getScannerState().refresh();
 	}
 
-	public void startScan(final String networkId){
-		mScannerRepository.startScanning(networkId);
+	public void startScan(final UUID uuid){
+		mScannerRepository.startScan(uuid);
 	}
 
 	/**
 	 * stop scanning for bluetooth devices.
 	 */
 	public void stopScan() {
-		mScannerRepository.stopScanning();
+		mScannerRepository.stopScan();
 	}
 
 }

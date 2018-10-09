@@ -91,7 +91,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
     }
 
     /**
-     * Handle mesh message states on write callback complete
+     * Handle mesh message States on write callback complete
      * <p>
      * This method will jump to the current state and switch the current state according to the message that has been sent.
      * </p>
@@ -134,7 +134,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
                 case GENERIC_ON_OFF_SET_STATE:
                     break;
                 case GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE:
-                    //We don't expect a generic on off status as this is an unacknowledged message so we switch states here
+                    //We don't expect a generic on off status as this is an unacknowledged message so we switch States here
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     break;
                 case GENERIC_LEVEL_GET_STATE:
@@ -146,14 +146,14 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
             }
         } else if (mMeshMessageState instanceof VendorModelMessageState) {
             if (mMeshMessageState instanceof VendorModelMessageUnackedState) {
-                //We don't expect a generic on off status as this is an unacknowledged message so we switch states here
+                //We don't expect a generic on off status as this is an unacknowledged message so we switch States here
                 switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
             }
         }
     }
 
     /**
-     * Handle mesh states on receiving mesh message notifications
+     * Handle mesh States on receiving mesh message notifications
      * <p>
      * This method will jump to the current state and switch the state depending on the expected and the next message received.
      * </p>
@@ -161,7 +161,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
      * @param meshNode Corresponding mesh node
      * @param pdu      mesh pdu that was sent
      */
-    protected void parseMeshMsgNotifications(final ProvisionedMeshNode meshNode, final byte[] pdu) {
+    void parseMeshMsgNotifications(final ProvisionedMeshNode meshNode, final byte[] pdu) {
         if (mMeshMessageState instanceof ConfigMessageState) {
             final ConfigMessageState message = (ConfigMessageState) mMeshMessageState;
             switch (message.getState()) {
@@ -590,7 +590,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
     }
 
     @Override
-    public void sendVendorModelUnacknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex, @NonNull final int opcode, final byte[] parameters) {
+    public void sendVendorModelUnacknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
         if (model.getBoundAppkeys().isEmpty())
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
