@@ -12,6 +12,7 @@ import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppUnbind;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionDelete;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.messages.GenericLevelGet;
 import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSet;
 import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSetUnacknowledged;
@@ -217,6 +218,13 @@ public interface MeshMngrApi {
      * @param provisionedMeshNode mesh node to be reset
      */
     void resetMeshNode(@NonNull final ProvisionedMeshNode provisionedMeshNode);
+
+    /**
+     * Resets the specific mesh node
+     *
+     * @param configNodeReset config reset message.
+     */
+    void resetMeshNode(@NonNull final ConfigNodeReset configNodeReset);
 
     /**
      * Send generic on off get to mesh node

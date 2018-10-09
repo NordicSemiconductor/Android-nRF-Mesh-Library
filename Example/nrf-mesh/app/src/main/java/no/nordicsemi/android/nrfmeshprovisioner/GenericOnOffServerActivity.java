@@ -14,6 +14,9 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
+import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -47,7 +50,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             mActionOnOff = nodeControlsContainer.findViewById(R.id.action_on_off);
             mActionOnOff.setOnClickListener(v -> {
                 try {
-                    final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
+                    final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
                     if (mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on))) {
                         mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), true);
                     } else {
@@ -61,7 +64,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
 
             mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
             mActionRead.setOnClickListener(v -> {
-                final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
+                final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
                 mViewModel.sendGenericOnOffGet(node);
                 showProgressbar();
             });
@@ -185,5 +188,13 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
         super.disableClickableViews();
         if(mActionOnOff != null)
             mActionOnOff.setEnabled(false);
+    }
+
+    @Override
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+        super.updateMeshMessage(meshMessage);
+        if(meshMessage instanceof GenericOnOffStatus){
+
+        }
     }
 }

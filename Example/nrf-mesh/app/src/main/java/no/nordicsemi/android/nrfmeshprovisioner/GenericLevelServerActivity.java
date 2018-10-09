@@ -1,7 +1,9 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +14,8 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -49,7 +53,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
 
             mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
             mActionRead.setOnClickListener(v -> {
-                final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
+                final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
                 mViewModel.sendGenericLevelGet(node);
                 showProgressbar();
             });
@@ -162,7 +166,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                     showProgressbar();
                     final int level = seekBar.getProgress();
                     final int delay = mDelaySeekBar.getProgress();
-                    final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
+                    final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
                     final int genericLevel = ((level * 65535) / 100) - 32768;
                     mViewModel.sendGenericLevelSet(node, genericLevel, mTransitionStep, mTransitionStepResolution, delay);
                 }
@@ -189,5 +193,13 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
         mTransitionTimeSeekBar.setEnabled(false);
         mDelaySeekBar.setEnabled(false);
         mLevelSeekBar.setEnabled(false);
+    }
+
+    @Override
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+        super.updateMeshMessage(meshMessage);
+        if(meshMessage instanceof GenericLevelStatus){
+
+        }
     }
 }

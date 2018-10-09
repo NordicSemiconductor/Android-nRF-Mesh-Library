@@ -27,6 +27,7 @@ import android.arch.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
@@ -35,7 +36,6 @@ import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionSta
 import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
@@ -43,10 +43,12 @@ import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRep
 public class ModelConfigurationViewModel extends ViewModel {
 
     private final ModelConfigurationRepository mModelConfigurationRepository;
+    private final NrfMeshRepository mNrfMeshRepository;
 
     @Inject
-    ModelConfigurationViewModel(final ModelConfigurationRepository configurationRepository) {
+    ModelConfigurationViewModel(final ModelConfigurationRepository configurationRepository, final NrfMeshRepository nrfMeshRepository) {
         this.mModelConfigurationRepository = configurationRepository;
+        this.mNrfMeshRepository = nrfMeshRepository;
         mModelConfigurationRepository.registerBroadcastReceiver();
     }
 
@@ -63,64 +65,36 @@ public class ModelConfigurationViewModel extends ViewModel {
 
     /**
      * Returns the Mesh repository
-     *
-     * @return mesh repository
      */
-    public ModelConfigurationRepository getMeshRepository() {
-        return mModelConfigurationRepository;
+    public NrfMeshRepository getNrfMeshRepository() {
+        return mNrfMeshRepository;
     }
 
     /**
-     * Returns the selected mesh model
-     *
-     * @return meshmodel live data object
+     * Returns the mesh manager api
      */
-    public LiveData<MeshModel> getMeshModel() {
-        return mModelConfigurationRepository.getMeshModel();
+    public MeshManagerApi getMeshManagerApi() {
+        return mNrfMeshRepository.getMeshManagerApi();
     }
 
-    public ExtendedMeshNode getExtendedMeshNode() {
-        return mModelConfigurationRepository.getExtendedMeshNode();
+    public MeshMessageLiveData getMeshMessageLiveData() {
+        return mNrfMeshRepository.getMeshMessageLiveData();
     }
 
-    public void sendBindAppKey(final int appKeyIndex) {
-        mModelConfigurationRepository.sendBindAppKey(appKeyIndex);
+    public ExtendedMeshNode getSelectedMeshNode(){
+        return mNrfMeshRepository.getSelectedMeshNode();
     }
 
-    public void sendUnbindAppKey(final int appKeyIndex) {
-        mModelConfigurationRepository.sendUnbindAppKey(appKeyIndex);
+    public ExtendedElement getSelectedElement(){
+        return mNrfMeshRepository.getSelectedElement();
+    }
+
+    public ExtendedMeshModel getSelectedModel(){
+        return mNrfMeshRepository.getSelectedModel();
     }
 
     public LiveData<TransactionFailedLiveData> getTransactionStatus() {
         return mModelConfigurationRepository.getTransactionFailedLiveData();
-    }
-
-    public LiveData<ConfigModelAppStatus> getAppKeyBindStatusLiveData() {
-        return mModelConfigurationRepository.getAppKeyBindStatus();
-    }
-
-    public LiveData<ConfigModelPublicationStatus> getConfigModelPublicationStatusLiveData() {
-        return mModelConfigurationRepository.getConfigModelPublicationStatus();
-    }
-
-    public SingleLiveEvent<ConfigModelSubscriptionStatus> getConfigModelSubscriptionStatusLiveData() {
-        return mModelConfigurationRepository.getConfigModelSubscriptionStatus();
-    }
-
-    public void sendConfigModelPublicationSet(final byte[] publishAddress, final int appKeyIndex, final boolean credentialFlag, final int publishTtl,
-                                              final int publicationSteps, final int resolution, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
-        mModelConfigurationRepository.sendConfigModelPublicationSet(publishAddress, appKeyIndex, credentialFlag, publishTtl, publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps);
-    }
-    public void sendConfigModelSubscriptionAdd(final byte[] subscriptionAddress) {
-        mModelConfigurationRepository.sendConfigModelSubscriptionAdd(subscriptionAddress);
-    }
-
-    public void sendConfigModelSubscriptionDelete(final byte[] subscriptionAddress) {
-        mModelConfigurationRepository.sendConfigModelSubscriptionDelete(subscriptionAddress);
-    }
-
-    public void setModel(final ProvisionedMeshNode meshNode, final int elementAddress, final int modelId) {
-        mModelConfigurationRepository.setModel(meshNode, elementAddress, modelId);
     }
 
     /**

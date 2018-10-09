@@ -27,83 +27,75 @@ import android.arch.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
+import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.NodeConfigurationRepository;
 
 public class NodeConfigurationViewModel extends ViewModel {
 
-
     private final NodeConfigurationRepository mNodeConfigurationRepository;
+    private final NrfMeshRepository mNrfMeshRepository;
 
     @Inject
-    NodeConfigurationViewModel(final NodeConfigurationRepository nodeConfigurationRepository) {
-        super();
+    NodeConfigurationViewModel(final NodeConfigurationRepository nodeConfigurationRepository, final NrfMeshRepository nrfMeshRepository) {
         this.mNodeConfigurationRepository = nodeConfigurationRepository;
-        mNodeConfigurationRepository.registerBroadcastReceiver();
+        this.mNrfMeshRepository = nrfMeshRepository;
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        mNodeConfigurationRepository.unregisterBroadcastReceiver();
         mNodeConfigurationRepository.unbindService();
     }
 
-    public ExtendedMeshNode getExtendedMeshNode(){
-        return mNodeConfigurationRepository.getExtendedMeshNode();
-    }
-
-    public LiveData<Boolean> isConnected() {
-        return mNodeConfigurationRepository.isConnected();
-    }
-
-    public void setMeshNode(final ProvisionedMeshNode node) {
-        mNodeConfigurationRepository.setMeshNode(node);
-    }
-
-    public ProvisioningStateLiveData getProvisioningState() {
-        return mNodeConfigurationRepository.getProvisioningState();
+    public ExtendedMeshNode getSelectedMeshNode(){
+        return mNrfMeshRepository.getSelectedMeshNode();
     }
 
     /**
-     * Returns the Element Configuration repository
-     * @return repository for configuring elements
+     * Set the element to be configured
+     *
+     * @param element {@link Element}
      */
-    public NodeConfigurationRepository getElementConfigurationRepository() {
-        return mNodeConfigurationRepository;
+    public void setSelectedElement(final Element element) {
+        mNrfMeshRepository.setSelectedElement(element);
     }
 
-    public void sendGetCompositionData() {
-        mNodeConfigurationRepository.sendGetCompositionData();
+    /**
+     * Set the mesh model to be configured
+     *
+     * @param model {@link MeshModel}
+     */
+    public void setSelectedModel(final MeshModel model) {
+        mNrfMeshRepository.setSelectedModel(model);
     }
 
-    public ProvisioningSettingsLiveData getProvisioningData() {
-        return mNodeConfigurationRepository.getProvisioningData();
+    public LiveData<Boolean> isConnected() {
+        return mNrfMeshRepository.isConnected();
     }
 
-    public void sendAppKeyAdd(final int appKeyIndex, final String appKey) {
-        mNodeConfigurationRepository.sendAppKeyAdd(appKeyIndex, appKey);
+    public void setMeshNode(final ProvisionedMeshNode node) {
+        mNrfMeshRepository.setSelectedMeshNode(node);
     }
 
-    public LiveData<ConfigCompositionDataStatus> getCompositionDataStatus() {
-        return mNodeConfigurationRepository.getCompositionDataStatus();
+    public MeshMessageLiveData getMeshMessageLiveData() {
+        return mNrfMeshRepository.getMeshMessageLiveData();
     }
 
-    public LiveData<ConfigAppKeyStatus> getAppKeyAddStatus() {
-        return mNodeConfigurationRepository.getAppKeyStatus();
-    }
-
-    public void resetNode(final ProvisionedMeshNode provisionedMeshNode) {
-        mNodeConfigurationRepository.resetMeshNode(provisionedMeshNode);
+    public ProvisioningSettingsLiveData getProvisioningSettingLiveData() {
+        return mNrfMeshRepository.getProvisioningSettingsLiveData();
     }
 
     public LiveData<TransactionFailedLiveData> getTransactionStatus() {
         return mNodeConfigurationRepository.getTransactionFailedLiveData();
     }
 
+    public MeshManagerApi getMeshManagerApi() {
+        return mNrfMeshRepository.getMeshManagerApi();
+    }
 }

@@ -54,6 +54,7 @@ import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppUnbind;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionDelete;
+import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.messages.GenericLevelGet;
 import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSet;
 import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSetUnacknowledged;
@@ -810,6 +811,11 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         if (provisionedMeshNode == null)
             throw new IllegalArgumentException("Mesh node cannot be null!");
         mMeshMessageHandler.resetMeshNode(provisionedMeshNode);
+    }
+
+    @Override
+    public void resetMeshNode(@NonNull final ConfigNodeReset configNodeReset) {
+        mMeshMessageHandler.resetMeshNode(configNodeReset);
     }
 
     @Override

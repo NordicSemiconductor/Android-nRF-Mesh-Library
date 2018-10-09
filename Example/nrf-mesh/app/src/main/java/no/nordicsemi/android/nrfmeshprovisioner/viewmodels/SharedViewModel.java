@@ -24,7 +24,6 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
-import android.content.Context;
 
 import java.util.Map;
 
@@ -41,7 +40,7 @@ public class SharedViewModel extends ViewModel {
     private final NrfMeshRepository nRFMeshRepository;
 
     @Inject
-    SharedViewModel(final ScannerRepository scannerRepository, final MeshRepository meshRepository, final NrfMeshRepository nrfMeshRepository, final Context context) {
+    SharedViewModel(final ScannerRepository scannerRepository, final MeshRepository meshRepository, final NrfMeshRepository nrfMeshRepository) {
         mScannerRepository = scannerRepository;
         mMeshRepository = meshRepository;
         nRFMeshRepository = nrfMeshRepository;
@@ -79,13 +78,6 @@ public class SharedViewModel extends ViewModel {
     }
 
     /**
-     * Returns an instance of the mesh repository
-     */
-    public MeshRepository getMeshRepository() {
-        return mMeshRepository;
-    }
-
-    /**
      * Returns the provisioned nodes as a live data object.
      */
     public LiveData<Map<Integer, ProvisionedMeshNode>> getProvisionedNodes() {
@@ -108,8 +100,8 @@ public class SharedViewModel extends ViewModel {
         nRFMeshRepository.disconnect();
     }
 
-    public boolean isConenctedToMesh() {
-        return mMeshRepository.isConnectedToMesh();
+    public boolean isConnectedToMesh() {
+        return nRFMeshRepository.isConnectedToNetwork().getValue();
     }
 
     /**
@@ -121,8 +113,13 @@ public class SharedViewModel extends ViewModel {
         return nRFMeshRepository.isConnectedToNetwork();
     }
 
-    public void setMeshNode(final ProvisionedMeshNode meshNode) {
-        mMeshRepository.setMeshNode(meshNode);
+    /**
+     * Set the mesh node to be configured
+     *
+     * @param meshNode provisioned mesh node
+     */
+    public void setSelectedMeshNode(final ProvisionedMeshNode meshNode) {
+        nRFMeshRepository.setSelectedMeshNode(meshNode);
     }
 
     /**

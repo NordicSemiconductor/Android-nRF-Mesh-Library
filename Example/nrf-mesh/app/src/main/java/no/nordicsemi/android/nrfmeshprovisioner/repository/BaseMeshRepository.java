@@ -45,7 +45,7 @@ import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStat
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshModel;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningSettingsLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
@@ -103,21 +103,6 @@ public abstract class BaseMeshRepository {
 
     /** Mesh model to configure **/
     final MutableLiveData<Element> mElement = new MutableLiveData<>();
-
-    /** App key add status **/
-    final SingleLiveEvent<ConfigCompositionDataStatus> mCompositionDataStatus = new SingleLiveEvent<>();
-
-    /** App key add status **/
-    final SingleLiveEvent<ConfigAppKeyStatus> mAppKeyStatus = new SingleLiveEvent<>();
-
-    /** App key bind status **/
-    final SingleLiveEvent<ConfigModelAppStatus> mAppKeyBindStatus = new SingleLiveEvent<>();
-
-    /** publication status **/
-    final SingleLiveEvent<ConfigModelPublicationStatus> mConfigModelPublicationStatus = new SingleLiveEvent<>();
-
-    /** Subscription bind status **/
-    final SingleLiveEvent<ConfigModelSubscriptionStatus> mConfigModelSubscriptionStatus = new SingleLiveEvent<>();
 
     /** Contains the initial provisioning live data **/
     final ProvisioningSettingsLiveData mProvisioningLiveData = new ProvisioningSettingsLiveData();
@@ -313,26 +298,6 @@ public abstract class BaseMeshRepository {
 
     public ExtendedMeshNode getExtendedMeshNode() {
         return mExtendedMeshNode;
-    }
-
-    public LiveData<ConfigCompositionDataStatus> getCompositionDataStatus() {
-        return mCompositionDataStatus;
-    }
-
-    public LiveData<ConfigAppKeyStatus> getAppKeyStatus() {
-        return mAppKeyStatus;
-    }
-
-    public LiveData<ConfigModelAppStatus> getAppKeyBindStatus() {
-        return mAppKeyBindStatus;
-    }
-
-    public LiveData<ConfigModelPublicationStatus> getConfigModelPublicationStatus() {
-        return mConfigModelPublicationStatus;
-    }
-
-    public SingleLiveEvent<ConfigModelSubscriptionStatus> getConfigModelSubscriptionStatus() {
-        return mConfigModelSubscriptionStatus;
     }
 
     /**

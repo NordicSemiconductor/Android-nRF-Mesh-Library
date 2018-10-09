@@ -43,8 +43,7 @@ import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetPara
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericOnOffStatusUpdate;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 
@@ -53,10 +52,6 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_GENERI
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_VENDOR_MODEL_MESSAGE_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_PRESENT_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_TARGET_STATE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_TRANSITION_RES;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_GENERIC_TRANSITION_STEPS;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_STATUS;
 
 public class ModelConfigurationRepository extends BaseMeshRepository {
@@ -163,7 +158,6 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
                     final MeshModel meshModel = node.getElements().get(configModelAppStatus.getElementAddress()).getMeshModels().get(configModelAppStatus.getModelIdentifier());
                     mExtendedMeshNode.updateMeshNode(node);
                     mMeshModel.postValue(meshModel);
-                    mAppKeyBindStatus.postValue(configModelAppStatus);
                 }
                 break;
             case PUBLISH_ADDRESS_SET_SENT:
@@ -174,7 +168,6 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
                     final MeshModel meshModel = node.getElements().get(publicationStatus.getElementAddress()).getMeshModels().get(publicationStatus.getModelIdentifier());
                     mExtendedMeshNode.updateMeshNode(node);
                     mMeshModel.postValue(meshModel);
-                    mConfigModelPublicationStatus.postValue(publicationStatus);
                 }
                 break;
             case SUBSCRIPTION_ADD_SENT:
@@ -185,7 +178,6 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
                     final MeshModel meshModel = node.getElements().get(subscriptionStatus.getElementAddress()).getMeshModels().get(subscriptionStatus.getModelIdentifier());
                     mExtendedMeshNode.updateMeshNode(node);
                     mMeshModel.postValue(meshModel);
-                    mConfigModelSubscriptionStatus.postValue(subscriptionStatus);
                 }
                 break;
         }

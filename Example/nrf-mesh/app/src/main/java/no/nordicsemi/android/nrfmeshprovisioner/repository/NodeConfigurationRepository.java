@@ -32,17 +32,12 @@ import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNo
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeResetStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_APP_KEY_INDEX;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_IS_SUCCESS;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_NET_KEY_INDEX;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_STATUS;
 
 public class NodeConfigurationRepository extends BaseMeshRepository {
 
@@ -128,8 +123,6 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
             case COMPOSITION_DATA_STATUS_RECEIVED:
                 //Update the live data upon receiving a broadcast
                 if(intent.getExtras() != null) {
-                    final ConfigCompositionDataStatus compositionDataStatus = intent.getExtras().getParcelable(EXTRA_DATA);
-                    mCompositionDataStatus.postValue(compositionDataStatus);
                 }
                 mExtendedMeshNode.updateMeshNode(node);
                 break;
@@ -141,9 +134,6 @@ public class NodeConfigurationRepository extends BaseMeshRepository {
                 break;
             case APP_KEY_STATUS_RECEIVED:
                 if(intent.getExtras() != null) {
-                    final ConfigAppKeyStatus appKeyStatus = intent.getExtras().getParcelable(EXTRA_DATA);
-                    mExtendedMeshNode.updateMeshNode(appKeyStatus.getMeshNode());
-                    mAppKeyStatus.postValue(appKeyStatus);
                 }
                 break;
             case NODE_RESET_STATUS_RECEIVED:

@@ -20,7 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.livedata;
+package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
 
@@ -32,10 +32,9 @@ import no.nordicsemi.android.meshprovisioner.utils.Element;
 
 public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {
 
-    private BaseMeshNode mMeshNode;
-    private static final String TAG = ExtendedMeshNode.class.getSimpleName();
+    private ProvisionedMeshNode mMeshNode;
 
-    public ExtendedMeshNode(final BaseMeshNode meshNode) {
+    public ExtendedMeshNode(final ProvisionedMeshNode meshNode) {
         this.mMeshNode = meshNode;
         setValue(this);
     }
@@ -48,7 +47,7 @@ public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {
      * Updates the mesh node and posts the value
      * @param meshNode Provisioned mesh node
      */
-    public void updateMeshNode(final BaseMeshNode meshNode) {
+    public void updateMeshNode(final ProvisionedMeshNode meshNode) {
         this.mMeshNode = meshNode;
         postValue(this);
     }
@@ -63,7 +62,7 @@ public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {
 
     public boolean hasElements(){
         if(mMeshNode.isProvisioned()) {
-            final Map<Integer, Element> elements = ((ProvisionedMeshNode) mMeshNode).getElements();
+            final Map<Integer, Element> elements = mMeshNode.getElements();
             return elements != null && !elements.isEmpty();
         }
         return false;
@@ -71,7 +70,7 @@ public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {
 
     public boolean hasAddedAppKeys(){
         if(mMeshNode.isProvisioned()) {
-            final Map<Integer, String> appKeys = ((ProvisionedMeshNode) mMeshNode).getAddedAppKeys();
+            final Map<Integer, String> appKeys = mMeshNode.getAddedAppKeys();
             return appKeys != null && !appKeys.isEmpty();
         }
         return false;

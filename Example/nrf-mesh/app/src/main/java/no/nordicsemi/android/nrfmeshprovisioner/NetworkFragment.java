@@ -58,10 +58,6 @@ public class NetworkFragment extends Fragment implements Injectable,
 
     private NodeAdapter mAdapter;
 
-    public interface NetworkFragmentListener {
-        void onProvisionedMeshNodeSelected();
-    }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,10 +142,9 @@ public class NetworkFragment extends Fragment implements Injectable,
 
     @Override
     public void onConfigureClicked(final ProvisionedMeshNode node) {
-        if(mViewModel.isConenctedToMesh()) {
-            ((NetworkFragmentListener) getActivity()).onProvisionedMeshNodeSelected();
+        if(mViewModel.isConnectedToMesh()) {
+            mViewModel.setSelectedMeshNode(node);
             final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
-            meshConfigurationIntent.putExtra(Utils.EXTRA_DEVICE, node);
             getActivity().startActivity(meshConfigurationIntent);
         } else {
             Toast.makeText(getActivity(), R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();

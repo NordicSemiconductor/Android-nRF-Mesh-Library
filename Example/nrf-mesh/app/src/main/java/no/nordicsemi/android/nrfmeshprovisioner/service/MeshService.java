@@ -785,13 +785,13 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
-    public void onMeshNodeResetStatusReceived(@NonNull final ConfigNodeResetStatus configNodeResetStatus) {
+    public void onMeshNodeResetStatusReceived(@NonNull final ConfigNodeResetStatus status) {
         mMeshNode = null;
         mElement = null;
         mMeshModel = null;
         final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
         intent.putExtra(EXTRA_DATA_NODE_RESET_STATUS, MeshNodeStates.MeshNodeStatus.NODE_RESET_STATUS_RECEIVED.getState());
-        intent.putExtra(EXTRA_DATA, configNodeResetStatus);
+        intent.putExtra(EXTRA_DATA, status);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

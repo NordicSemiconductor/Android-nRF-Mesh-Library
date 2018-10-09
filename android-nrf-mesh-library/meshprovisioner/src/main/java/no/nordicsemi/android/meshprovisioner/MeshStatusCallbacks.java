@@ -193,9 +193,9 @@ public interface MeshStatusCallbacks {
     /**
      * Notifies if the mesh {@link ConfigNodeResetStatus} was received.
      *
-     * @param configNodeResetStatus config node reset status message
+     * @param status config node reset status message
      */
-    void onMeshNodeResetStatusReceived(@NonNull final ConfigNodeResetStatus configNodeResetStatus);
+    void onMeshNodeResetStatusReceived(@NonNull final ConfigNodeResetStatus status);
 
     /**
      * Notifies if {@link GenericOnOffGetState} was sent

@@ -32,7 +32,6 @@ import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshProvisionerRepository;
@@ -99,11 +98,9 @@ public class MeshProvisionerViewModel extends ViewModel {
         mNrfMeshRepository.disconnect();
     }
 
-    /**
-     * Disconnect from peripheral
-     */
-    public void disconnect(final Context context) {
-        mNrfMeshRepository.disconnect();
+    public void clearProvisioningCallbacks(){
+        disconnect();
+        mNrfMeshRepository.removeCallbacks();
     }
 
     public ExtendedMeshNode getMeshNode() {
@@ -111,7 +108,7 @@ public class MeshProvisionerViewModel extends ViewModel {
     }
 
     public LiveData<BaseMeshNode> getBaseMeshNode() {
-        return mNrfMeshRepository.getExtendedMeshNode();
+        return mNrfMeshRepository.getBaseMeshNode();
     }
 
     public void identifyNode(final String address, final String nodeName) {

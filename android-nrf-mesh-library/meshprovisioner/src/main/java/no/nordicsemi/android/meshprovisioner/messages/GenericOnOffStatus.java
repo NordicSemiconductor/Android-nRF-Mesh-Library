@@ -147,4 +147,8 @@ public final class GenericOnOffStatus extends GenericStatusMessage implements Pa
         dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
+
+    public int getSrcAddress() {
+        return ByteBuffer.wrap(mMessage.getSrc()).getShort();
+    }
 }

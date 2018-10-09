@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -51,10 +50,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
 public class MainActivity extends AppCompatActivity implements Injectable, HasSupportFragmentInjector,  BottomNavigationView.OnNavigationItemSelectedListener,
         BottomNavigationView.OnNavigationItemReselectedListener,
-        ScannerFragment.ScannerFragmentListener, FragmentManager.OnBackStackChangedListener,
-        NetworkFragment.NetworkFragmentListener {
+        ScannerFragment.ScannerFragmentListener, FragmentManager.OnBackStackChangedListener {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
     private static final String CURRENT_FRAGMENT = "CURRENT_FRAGMENT";
 
     @Inject
@@ -66,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     @BindView(R.id.state_scanning)
     View mScanningView;
 
-    private SharedViewModel mViewModel;
     private BottomNavigationView mBottomNavigationView;
 
     private NetworkFragment mNetworkFragment;
@@ -83,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
 
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(SharedViewModel.class);
+        final SharedViewModel mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(SharedViewModel.class);
 
         mNetworkFragment = (NetworkFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_network);
         mScannerFragment = (ScannerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_scanner);
@@ -155,10 +151,5 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     @Override
     public AndroidInjector<Fragment> supportFragmentInjector() {
         return mDispatchingAndroidInjector;
-    }
-
-    @Override
-    public void onProvisionedMeshNodeSelected() {
-
     }
 }

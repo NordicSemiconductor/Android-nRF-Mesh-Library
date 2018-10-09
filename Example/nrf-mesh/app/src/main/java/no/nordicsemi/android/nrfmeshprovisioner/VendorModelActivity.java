@@ -20,6 +20,8 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
@@ -107,7 +109,7 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
                     params = MeshParserUtils.toByteArray(parameters);
                 }
 
-                final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
+                final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
                 if (chkAcknowledged.isChecked()) {
                     mViewModel.sendVendorModelAcknowledgedMessage(node, model, model.getBoundAppKeyIndexes().get(0), Integer.parseInt(opCode, 16), params);
                 } else {
@@ -125,6 +127,14 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+        super.updateMeshMessage(meshMessage);
+        if (meshMessage instanceof VendorModelMessageStatus) {
+
+        }
     }
 
     private boolean validateOpcode(final String opCode, final TextInputLayout opCodeLayout) {

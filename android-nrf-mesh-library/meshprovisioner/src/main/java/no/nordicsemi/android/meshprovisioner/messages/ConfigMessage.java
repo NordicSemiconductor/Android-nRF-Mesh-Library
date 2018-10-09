@@ -27,4 +27,5 @@ public abstract class ConfigMessage extends MeshMessage {
     public final byte[] getParameters() {
         return mParameters;
     }
+
 }

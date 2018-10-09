@@ -33,9 +33,8 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
-import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
@@ -57,7 +56,6 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
     @Inject
     public MeshProvisionerRepository(final Context context){
         super(context);
-        mExtendedMeshNode = new ExtendedMeshNode(new UnprovisionedMeshNode());
     }
 
     /**
@@ -138,7 +136,6 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
                 break;
             case PROVISIONING_CAPABILITIES:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
-                mExtendedMeshNode.updateMeshNode(mBinder.getMeshNode());
                 break;
             case PROVISIONING_START:
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(mContext, provisionerState);
@@ -226,7 +223,6 @@ public class MeshProvisionerRepository extends BaseMeshRepository {
                 if (intent.getExtras() != null) {
                     final ConfigModelAppStatus configModelAppStatus = intent.getExtras().getParcelable(EXTRA_DATA);
                     mExtendedMeshNode.updateMeshNode(node);
-                    mAppKeyBindStatus.postValue(configModelAppStatus);
                 }
                 break;
         }
