@@ -28,6 +28,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.lang.reflect.Method;
@@ -97,15 +98,15 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
         protected Deque<Request> initGatt(final BluetoothGatt gatt) {
             mBluetoothGatt = gatt;
             final LinkedList<Request> requests = new LinkedList<>();
-            requests.push(Request.newMtuRequest(MTU_SIZE_MAX));
+            requests.add(Request.newMtuRequest(MTU_SIZE_MAX));
             if (isProvisioningComplete) {
-                requests.push(Request.newReadRequest(mMeshProxyDataInCharacteristic));
-                requests.push(Request.newReadRequest(mMeshProxyDataOutCharacteristic));
-                requests.push(Request.newEnableNotificationsRequest(mMeshProxyDataOutCharacteristic));
+                requests.add(Request.newReadRequest(mMeshProxyDataOutCharacteristic));
+                requests.add(Request.newReadRequest(mMeshProxyDataInCharacteristic));
+                requests.add(Request.newEnableNotificationsRequest(mMeshProxyDataOutCharacteristic));
             } else {
-                requests.push(Request.newReadRequest(mMeshProvisioningDataInCharacteristic));
-                requests.push(Request.newReadRequest(mMeshProvisioningDataOutCharacteristic));
-                requests.push(Request.newEnableNotificationsRequest(mMeshProvisioningDataOutCharacteristic));
+                requests.add(Request.newReadRequest(mMeshProvisioningDataInCharacteristic));
+                requests.add(Request.newReadRequest(mMeshProvisioningDataOutCharacteristic));
+                requests.add(Request.newEnableNotificationsRequest(mMeshProvisioningDataOutCharacteristic));
             }
             return requests;
         }
@@ -119,7 +120,6 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
                 isProvisioningComplete = true;
                 mMeshProxyDataInCharacteristic = meshService.getCharacteristic(MESH_PROXY_DATA_IN);
                 mMeshProxyDataOutCharacteristic = meshService.getCharacteristic(MESH_PROXY_DATA_OUT);
-
 
                 writeRequest = false;
                 if (mMeshProxyDataInCharacteristic != null) {
@@ -191,6 +191,7 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
         super(context);
     }
 
+    @NonNull
     @Override
     protected BleManagerGattCallback getGattCallback() {
         return mGattCallback;
@@ -233,9 +234,9 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
     /**
      * Refreshes the device cache. This is to make sure that Android will discover the services as the the mesh node will change the provisioning service to a proxy service.
      */
-    public void refreshDeviceCache(){
+    public boolean refreshDeviceCache(){
         //Once the service discovery is complete we will refresh the device cache and discover the services again.
-        refreshDeviceCache(mBluetoothGatt);
+        return refreshDeviceCache(mBluetoothGatt);
     }
 
     public boolean isProvisioningComplete() {
