@@ -30,24 +30,19 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ReconnectRepository;
 
 public class ReconnectViewModel extends ViewModel {
 
-    private final ReconnectRepository mReconnectRepository;
     private final NrfMeshRepository mNrfMeshRepository;
 
     @Inject
-    ReconnectViewModel(final ReconnectRepository reconnectRepository, final NrfMeshRepository nrfMeshRepository) {
-        this.mReconnectRepository = reconnectRepository;
+    ReconnectViewModel(final NrfMeshRepository nrfMeshRepository) {
         this.mNrfMeshRepository = nrfMeshRepository;
-        mReconnectRepository.registerBroadcastReceiver();
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        mReconnectRepository.unregisterBroadcastReceiver();
     }
 
     public LiveData<Void> isDeviceReady() {
@@ -67,7 +62,7 @@ public class ReconnectViewModel extends ViewModel {
     }
 
     public void disconnect() {
-        mReconnectRepository.disconnect();
+        mNrfMeshRepository.disconnect();
     }
 
     public BleMeshManager getBleMeshManager() {

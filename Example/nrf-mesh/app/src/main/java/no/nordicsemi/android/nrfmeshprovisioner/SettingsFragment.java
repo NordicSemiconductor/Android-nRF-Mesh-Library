@@ -235,7 +235,6 @@ public class SettingsFragment extends Fragment implements Injectable,
     @Override
     public void onStart() {
         super.onStart();
-        mViewModel.refreshProvisioningData();
     }
 
     @Override

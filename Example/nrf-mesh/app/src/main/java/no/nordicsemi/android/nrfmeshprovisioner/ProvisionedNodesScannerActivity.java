@@ -99,11 +99,11 @@ public class ProvisionedNodesScannerActivity extends AppCompatActivity implement
 		adapter.setOnItemClickListener(this);
 		recyclerViewDevices.setAdapter(adapter);
 
-		mViewModel.isDeviceReady().observe(this, isDeviceReady -> {
+		/*mViewModel.isDeviceReady().observe(this, isDeviceReady -> {
 			if(isDeviceReady){
 				finish();
 			}
-		});
+		});*/
 
 	}
 

@@ -30,22 +30,17 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ScannerRepository;
 
 public class SharedViewModel extends ViewModel {
 
     private final ScannerRepository mScannerRepository;
-    private final MeshRepository mMeshRepository;
     private final NrfMeshRepository nRFMeshRepository;
 
     @Inject
-    SharedViewModel(final ScannerRepository scannerRepository, final MeshRepository meshRepository, final NrfMeshRepository nrfMeshRepository) {
+    SharedViewModel(final ScannerRepository scannerRepository, final NrfMeshRepository nrfMeshRepository) {
         mScannerRepository = scannerRepository;
-        mMeshRepository = meshRepository;
         nRFMeshRepository = nrfMeshRepository;
         scannerRepository.registerBroadcastReceivers();
-        mMeshRepository.registerBroadcastReceiver();
     }
 
     public NetworkInformationLiveData getNetworkInformation() {
@@ -63,10 +58,8 @@ public class SharedViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        mMeshRepository.disconnect();
+        nRFMeshRepository.disconnect();
         mScannerRepository.unregisterBroadcastReceivers();
-        mMeshRepository.unregisterBroadcastReceiver();
-        mMeshRepository.stopService();
     }
 
 
@@ -127,13 +120,6 @@ public class SharedViewModel extends ViewModel {
      */
     public void resetMeshNetwork() {
         nRFMeshRepository.resetMeshNetwork();
-    }
-
-    /**
-     * Refresh provisioning data
-     */
-    public void refreshProvisioningData() {
-        mMeshRepository.refreshProvisioningData();
     }
 
     /**

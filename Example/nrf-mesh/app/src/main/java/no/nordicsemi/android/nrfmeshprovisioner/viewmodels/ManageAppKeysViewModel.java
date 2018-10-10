@@ -4,18 +4,12 @@ import android.arch.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshRepository;
-
 public class ManageAppKeysViewModel extends ViewModel {
 
-    private final MeshRepository mMeshRepository;
     private final NrfMeshRepository mNrfMeshRepository;
 
     @Inject
-    ManageAppKeysViewModel(final MeshRepository meshRepository, final NrfMeshRepository nrfMeshRepository) {
-        super();
-        this.mMeshRepository = meshRepository;
-        mMeshRepository.registerBroadcastReceiver();
+    ManageAppKeysViewModel(final NrfMeshRepository nrfMeshRepository) {
         mNrfMeshRepository = nrfMeshRepository;
     }
 
@@ -24,9 +18,6 @@ public class ManageAppKeysViewModel extends ViewModel {
         super.onCleared();
     }
 
-    public MeshRepository getMeshRepository() {
-        return mMeshRepository;
-    }
 
     /**
      * Returns the {@link NrfMeshRepository}

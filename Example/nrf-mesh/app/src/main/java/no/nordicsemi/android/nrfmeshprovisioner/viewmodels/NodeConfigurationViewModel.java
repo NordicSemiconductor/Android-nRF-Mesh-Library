@@ -30,27 +30,21 @@ import javax.inject.Inject;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.NodeConfigurationRepository;
 
 public class NodeConfigurationViewModel extends ViewModel {
 
-    private final NodeConfigurationRepository mNodeConfigurationRepository;
     private final NrfMeshRepository mNrfMeshRepository;
 
     @Inject
-    NodeConfigurationViewModel(final NodeConfigurationRepository nodeConfigurationRepository, final NrfMeshRepository nrfMeshRepository) {
-        this.mNodeConfigurationRepository = nodeConfigurationRepository;
+    NodeConfigurationViewModel(final NrfMeshRepository nrfMeshRepository) {
         this.mNrfMeshRepository = nrfMeshRepository;
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        mNodeConfigurationRepository.unbindService();
     }
 
     public ExtendedMeshNode getSelectedMeshNode(){
@@ -92,7 +86,7 @@ public class NodeConfigurationViewModel extends ViewModel {
     }
 
     public LiveData<TransactionFailedLiveData> getTransactionStatus() {
-        return mNodeConfigurationRepository.getTransactionFailedLiveData();
+        return mNrfMeshRepository.getTransactionFailedLiveData();
     }
 
     public MeshManagerApi getMeshManagerApi() {
