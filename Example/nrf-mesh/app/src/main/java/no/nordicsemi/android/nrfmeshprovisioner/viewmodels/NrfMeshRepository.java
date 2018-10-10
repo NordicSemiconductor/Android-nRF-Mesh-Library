@@ -437,8 +437,12 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onDataReceived(final BluetoothDevice bluetoothDevice, final int mtu, final byte[] pdu) {
-        final BaseMeshNode node = mMeshNode = mExtendedMeshNode.getMeshNode();
-        mMeshManagerApi.handleNotifications(node, mtu, pdu);
+        try {
+            final BaseMeshNode node = mMeshNode = mExtendedMeshNode.getMeshNode();
+            mMeshManagerApi.handleNotifications(node, mtu, pdu);
+        } catch (Exception ex) {
+            Log.e(TAG, ex.getMessage());
+        }
     }
 
     @Override
@@ -471,7 +475,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onDeviceDisconnected(final BluetoothDevice device) {
-        mConnectionState.postValue("Disconnected");
+        mConnectionState.postValue("Disconnected!");
         if (mIsReconnectingFlag) {
             mIsReconnectingFlag = false;
             mIsReconnecting.postValue(false);
