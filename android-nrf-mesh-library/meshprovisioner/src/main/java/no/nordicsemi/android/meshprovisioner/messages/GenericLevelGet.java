@@ -2,13 +2,9 @@ package no.nordicsemi.android.meshprovisioner.messages;
 
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 /**
@@ -26,15 +22,13 @@ public class GenericLevelGet extends GenericMessage {
      *
      * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
-     * @param appKeyIndex          application key index of this message
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public GenericLevelGet(@NonNull final ProvisionedMeshNode node,
                            @NonNull final byte[] appKey,
-                           final int appKeyIndex,
                            final int aszmic) throws IllegalArgumentException {
-        super(node, appKey, appKeyIndex, aszmic);
+        super(node, appKey, aszmic);
         assembleMessageParameters();
     }
 

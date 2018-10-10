@@ -651,7 +651,7 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
-    public void onPublicationStatusReceived(final ConfigModelPublicationStatus status) {
+    public void onPublicationStatusReceived(@NonNull final ConfigModelPublicationStatus status) {
         final ProvisionedMeshNode node  = status.getMeshNode();
         mMeshNode = node;
         final Element element = node.getElements().get(status.getElementAddress());
@@ -768,11 +768,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
     @Override
     public void onMeshMessageReceived(final MeshMessage meshMessage) {
-
-    }
-
-    @Override
-    public void onMeshStatusMessageReceived(final MeshMessage meshMessage) {
 
     }
 

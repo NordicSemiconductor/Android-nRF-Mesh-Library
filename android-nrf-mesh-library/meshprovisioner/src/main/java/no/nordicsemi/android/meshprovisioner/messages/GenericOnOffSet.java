@@ -32,17 +32,15 @@ public class GenericOnOffSet extends GenericMessage {
      *
      * @param node        Mesh node this message is to be sent to
      * @param appKey      application key for this message
-     * @param appKeyIndex application key index of this message
      * @param state       boolean state of the GenericOnOffModel
      * @param aszmic      size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public GenericOnOffSet(@NonNull final ProvisionedMeshNode node,
                            @NonNull final byte[] appKey,
-                           final int appKeyIndex,
                            final boolean state,
                            final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, appKeyIndex, state, null, null, null, aszmic);
+        this(node, appKey, state, null, null, null, aszmic);
     }
 
     /**
@@ -50,24 +48,22 @@ public class GenericOnOffSet extends GenericMessage {
      *
      * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
-     * @param appKeyIndex          application key index of this message
+     * @param state                boolean state of the GenericOnOffModel
      * @param transitionSteps      transition steps for the level
      * @param transitionResolution transition resolution for the level
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param state                boolean state of the GenericOnOffModel
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
     public GenericOnOffSet(@NonNull final ProvisionedMeshNode node,
                            @NonNull final byte[] appKey,
-                           final int appKeyIndex,
                            final boolean state,
                            @Nullable final Integer transitionSteps,
                            @Nullable final Integer transitionResolution,
                            @Nullable final Integer delay,
                            final int aszmic) {
-        super(node, appKey, appKeyIndex, aszmic);
+        super(node, appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

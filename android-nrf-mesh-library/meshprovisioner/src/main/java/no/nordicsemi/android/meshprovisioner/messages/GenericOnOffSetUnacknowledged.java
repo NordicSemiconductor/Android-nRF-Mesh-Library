@@ -32,17 +32,15 @@ public class GenericOnOffSetUnacknowledged extends GenericMessage {
      *
      * @param node        Mesh node this message is to be sent to
      * @param appKey      Application key for this message
-     * @param appKeyIndex Application key index of this message
      * @param state       Boolean state of the GenericOnOffModel
      * @param aszmic      Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public GenericOnOffSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           final int appKeyIndex,
-                           final boolean state,
-                           final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, appKeyIndex, state, null, null, null, aszmic);
+                                         @NonNull final byte[] appKey,
+                                         final boolean state,
+                                         final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, state, null, null, null, aszmic);
     }
 
     /**
@@ -50,24 +48,22 @@ public class GenericOnOffSetUnacknowledged extends GenericMessage {
      *
      * @param node                 Mesh node this message is to be sent to
      * @param appKey               Application key for this message
-     * @param appKeyIndex          Application key index of this message
+     * @param state                Boolean state of the GenericOnOffModel
      * @param transitionSteps      Transition steps for the level
      * @param transitionResolution Transition resolution for the level
      * @param delay                Delay for this message to be executed 0 - 1275 milliseconds
-     * @param state                Boolean state of the GenericOnOffModel
      * @param aszmic               Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
     public GenericOnOffSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           final int appKeyIndex,
-                           final boolean state,
-                           @Nullable final Integer transitionSteps,
-                           @Nullable final Integer transitionResolution,
-                           @Nullable final Integer delay,
-                           final int aszmic) {
-        super(node, appKey, appKeyIndex, aszmic);
+                                         @NonNull final byte[] appKey,
+                                         final boolean state,
+                                         @Nullable final Integer transitionSteps,
+                                         @Nullable final Integer transitionResolution,
+                                         @Nullable final Integer delay,
+                                         final int aszmic) {
+        super(node, appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

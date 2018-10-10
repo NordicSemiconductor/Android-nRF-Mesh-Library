@@ -26,7 +26,7 @@ public class VendorModelMessageUnackedState extends GenericMessageState {
      * @param dstAddress      Destination address to which the message must be sent to
      * @param vendorModelMessageUnacked Wrapper class {@link VendorModelMessageStatus} containing the opcode and parameters for {@link VendorModelMessageStatus} message
      * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException exception for invalid arguments
      */
     public VendorModelMessageUnackedState(@NonNull final Context context,
                                           @NonNull final byte[] dstAddress,
@@ -46,13 +46,15 @@ public class VendorModelMessageUnackedState extends GenericMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
+        final byte[] src = mVendorModelMessageUnacked.getMeshNode().getConfigurationSrc();
         final byte[] key = mVendorModelMessageUnacked.getAppKey();
         final int akf = mVendorModelMessageUnacked.getAkf();
         final int aid = mVendorModelMessageUnacked.getAid();
         final int aszmic = mVendorModelMessageUnacked.getAszmic();
         final int opCode = mVendorModelMessageUnacked.getOpCode();
         final byte[] parameters = mVendorModelMessageUnacked.getParameters();
-        message = mMeshTransport.createVendorMeshMessage(mNode, (VendorModel) mMeshModel, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        final int companyIdentifier = mVendorModelMessageUnacked.getCompanyIdentifier();
+        message = mMeshTransport.createVendorMeshMessage(mNode, companyIdentifier, src, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
         mPayloads.putAll(message.getNetworkPdu());
     }
 

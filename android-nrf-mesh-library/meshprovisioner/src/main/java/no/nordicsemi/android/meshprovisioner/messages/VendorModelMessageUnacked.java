@@ -4,8 +4,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.models.VendorModel;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 /**
@@ -24,19 +22,17 @@ public class VendorModelMessageUnacked extends GenericMessage {
      *
      * @param node                 Mesh node this message is to be sent to
      * @param appKey               Application key for this message
-     * @param appKeyIndex          Application key index of this message
      * @param companyIdentifier    Company identifier of the vendor model
      * @param aszmic               Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public VendorModelMessageUnacked(@NonNull final ProvisionedMeshNode node,
                                      @NonNull final byte[] appKey,
-                                     final int appKeyIndex,
                                      final int companyIdentifier,
                                      final int opCode,
                                      @Nullable final byte[] parameters,
                                      final int aszmic) {
-        super(node, appKey, appKeyIndex, aszmic);
+        super(node, appKey, aszmic);
         this.mCompanyIdentifier = companyIdentifier;
         this.opCode = opCode;
         mParameters = parameters;

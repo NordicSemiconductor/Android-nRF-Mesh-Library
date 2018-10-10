@@ -64,7 +64,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private final MutableLiveData<Boolean> mIsConnectedToMesh = new MutableLiveData<>();
 
     /**
-     * Connection States Connecting, Connected, Disconnecting, Disconnected etc.
+     * Live data flag containing connected state.
      **/
     private MutableLiveData<Boolean> mIsConnected;
 
@@ -170,7 +170,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      **/
     private final MutableLiveData<Map<Integer, ProvisionedMeshNode>> mProvisionedNodes = new MutableLiveData<>();
 
-    final TransactionFailedLiveData mTransactionFailedLiveData = new TransactionFailedLiveData();
+    private final TransactionFailedLiveData mTransactionFailedLiveData = new TransactionFailedLiveData();
 
     private static NrfMeshRepository mNrfMeshRepository;
     private final MeshManagerApi mMeshManagerApi;
@@ -281,6 +281,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mProvisioningStateLiveData;
     }
 
+    TransactionFailedLiveData getTransactionFailedLiveData() {
+        return mTransactionFailedLiveData;
+    }
     /**
      * Returns the mesh manager api
      *
@@ -468,7 +471,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onDeviceDisconnected(final BluetoothDevice device) {
-        mConnectionState.postValue("Disconnected.");
+        mConnectionState.postValue("Disconnected");
         if (mIsReconnectingFlag) {
             mIsReconnectingFlag = false;
             mIsReconnecting.postValue(false);
@@ -884,14 +887,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onMeshMessageReceived(final MeshMessage meshMessage) {
-        final ProvisionedMeshNode node = meshMessage.getMeshNode();
-        mMeshNode = node;
-        mExtendedMeshNode.updateMeshNode(node);
-        mMeshMessageLiveData.postValue(meshMessage);
-    }
-
-    @Override
-    public void onMeshStatusMessageReceived(final MeshMessage meshMessage) {
         final ProvisionedMeshNode node = meshMessage.getMeshNode();
         mMeshNode = node;
         mExtendedMeshNode.updateMeshNode(node);

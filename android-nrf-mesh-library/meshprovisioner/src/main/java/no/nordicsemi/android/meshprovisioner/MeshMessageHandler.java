@@ -47,7 +47,6 @@ import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshMessageState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageAckedState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageUnackedState;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataGet;
@@ -125,29 +124,27 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
                     break;
             }
         } else if (mMeshMessageState instanceof GenericMessageState) {
-            if (mMeshMessageState.getState() == null)
-                return;
 
-            switch (mMeshMessageState.getState()) {
-                case GENERIC_ON_OFF_GET_STATE:
-                    break;
-                case GENERIC_ON_OFF_SET_STATE:
-                    break;
-                case GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE:
-                    //We don't expect a generic on off status as this is an unacknowledged message so we switch States here
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
-                    break;
-                case GENERIC_LEVEL_GET_STATE:
-                    break;
-                case GENERIC_LEVEL_SET_STATE:
-                    break;
-                case GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE:
-                    break;
-            }
-        } else if (mMeshMessageState instanceof VendorModelMessageState) {
             if (mMeshMessageState instanceof VendorModelMessageUnackedState) {
                 //We don't expect a generic on off status as this is an unacknowledged message so we switch States here
                 switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+            } else {
+                switch (mMeshMessageState.getState()) {
+                    case GENERIC_ON_OFF_GET_STATE:
+                        break;
+                    case GENERIC_ON_OFF_SET_STATE:
+                        break;
+                    case GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE:
+                        //We don't expect a generic on off status as this is an unacknowledged message so we switch States here
+                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                        break;
+                    case GENERIC_LEVEL_GET_STATE:
+                        break;
+                    case GENERIC_LEVEL_SET_STATE:
+                        break;
+                    case GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE:
+                        break;
+                }
             }
         }
     }
@@ -217,42 +214,53 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
             }
         } else if (mMeshMessageState instanceof GenericMessageState) {
             final GenericMessageState message = (GenericMessageState) mMeshMessageState;
-            switch (message.getState()) {
-                case GENERIC_ON_OFF_GET_STATE:
-                    final GenericOnOffGetState genericOnOffGetState = (GenericOnOffGetState) mMeshMessageState;
-                    if (genericOnOffGetState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
-                    }
-                    break;
-                case GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE:
-                    //We do nothing here since there is no status involved for unacknowledged messages
-                    switchState(new DefaultNoOperationMessageState(mContext, meshNode, this), null);
-                    break;
-                case GENERIC_ON_OFF_SET_STATE:
-                    final GenericOnOffSetState genericOnOffSetState = (GenericOnOffSetState) mMeshMessageState;
-                    if (genericOnOffSetState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
-                    }
-                    break;
-                case GENERIC_LEVEL_GET_STATE:
-                    final GenericLevelGetState genericLevelGetState = (GenericLevelGetState) mMeshMessageState;
-                    if (genericLevelGetState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
-                    }
-                    break;
-                case GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE:
-                    //We do nothing here since there is no status involved for unacknowledged messages
-                    switchState(new DefaultNoOperationMessageState(mContext, meshNode, this), null);
-                    break;
-                case GENERIC_LEVEL_SET_STATE:
-                    final GenericLevelSetState genericLevelSetState = (GenericLevelSetState) mMeshMessageState;
-                    if (genericLevelSetState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
-                    }
-                    break;
-            }
-        } else if (mMeshMessageState instanceof VendorModelMessageState) {
 
+            if (mMeshMessageState instanceof VendorModelMessageUnackedState) {
+                final VendorModelMessageUnackedState vendorModelMessageUnackedState = (VendorModelMessageUnackedState) mMeshMessageState;
+                if (vendorModelMessageUnackedState.parseMeshPdu(pdu)) {
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                }
+            } else if (mMeshMessageState instanceof VendorModelMessageAckedState) {
+                final VendorModelMessageAckedState vendorModelMessageAckedState = (VendorModelMessageAckedState) mMeshMessageState;
+                if (vendorModelMessageAckedState.parseMeshPdu(pdu)) {
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                }
+            } else {
+                switch (message.getState()) {
+                    case GENERIC_ON_OFF_GET_STATE:
+                        final GenericOnOffGetState genericOnOffGetState = (GenericOnOffGetState) mMeshMessageState;
+                        if (genericOnOffGetState.parseMeshPdu(pdu)) {
+                            switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                        }
+                        break;
+                    case GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE:
+                        //We do nothing here since there is no status involved for unacknowledged messages
+                        switchState(new DefaultNoOperationMessageState(mContext, meshNode, this), null);
+                        break;
+                    case GENERIC_ON_OFF_SET_STATE:
+                        final GenericOnOffSetState genericOnOffSetState = (GenericOnOffSetState) mMeshMessageState;
+                        if (genericOnOffSetState.parseMeshPdu(pdu)) {
+                            switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                        }
+                        break;
+                    case GENERIC_LEVEL_GET_STATE:
+                        final GenericLevelGetState genericLevelGetState = (GenericLevelGetState) mMeshMessageState;
+                        if (genericLevelGetState.parseMeshPdu(pdu)) {
+                            switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                        }
+                        break;
+                    case GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE:
+                        //We do nothing here since there is no status involved for unacknowledged messages
+                        switchState(new DefaultNoOperationMessageState(mContext, meshNode, this), null);
+                        break;
+                    case GENERIC_LEVEL_SET_STATE:
+                        final GenericLevelSetState genericLevelSetState = (GenericLevelSetState) mMeshMessageState;
+                        if (genericLevelSetState.parseMeshPdu(pdu)) {
+                            switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
+                        }
+                        break;
+                }
+            }
         } else {
             ((DefaultNoOperationMessageState) mMeshMessageState).parseMeshPdu(pdu);
         }
@@ -462,7 +470,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
         final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
-        final GenericOnOffGet genericOnOffGet = new GenericOnOffGet(node, appKey, appKeyIndex, aszmic ? 1 : 0);
+        final GenericOnOffGet genericOnOffGet = new GenericOnOffGet(node, appKey, aszmic ? 1 : 0);
         final GenericOnOffGetState genericOnOffGetState = new GenericOnOffGetState(mContext, dstAddress, genericOnOffGet, this);
         genericOnOffGetState.setTransportCallbacks(mInternalTransportCallbacks);
         genericOnOffGetState.setStatusCallbacks(mStatusCallbacks);
@@ -488,7 +496,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
 
         final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
 
-        final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(node, appKey, appKeyIndex, state, transitionSteps, transitionResolution, delay, aszmic ? 1 : 0);
+        final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(node, appKey, state, transitionSteps, transitionResolution, delay, aszmic ? 1 : 0);
         final GenericOnOffSetState genericOnOffSetState = new GenericOnOffSetState(mContext, dstAddress, genericOnOffSet, this);
         genericOnOffSetState.setTransportCallbacks(mInternalTransportCallbacks);
         genericOnOffSetState.setStatusCallbacks(mStatusCallbacks);
@@ -514,7 +522,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
         final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
-        final GenericOnOffSetUnacknowledged genericOnOffSetUnacked = new GenericOnOffSetUnacknowledged(node, appKey, appKeyIndex, state, transitionSteps, transitionResolution, delay, aszmic ? 1 : 0);
+        final GenericOnOffSetUnacknowledged genericOnOffSetUnacked = new GenericOnOffSetUnacknowledged(node, appKey, state, transitionSteps, transitionResolution, delay, aszmic ? 1 : 0);
         setGenericOnOffUnacknowledged(dstAddress, genericOnOffSetUnacked);
     }
 
@@ -534,7 +542,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
 
         final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
 
-        final GenericLevelGet genericLevelGet = new GenericLevelGet(node, appKey, appKeyIndex, aszmic ? 1 : 0);
+        final GenericLevelGet genericLevelGet = new GenericLevelGet(node, appKey, aszmic ? 1 : 0);
         getGenericLevel(dstAddress, genericLevelGet);
     }
 
@@ -555,7 +563,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
         final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
-        final GenericLevelSet genericLevelSet = new GenericLevelSet(node, appKey, appKeyIndex, transitionSteps, transitionResolution, delay, level, aszmic ? 1 : 0);
+        final GenericLevelSet genericLevelSet = new GenericLevelSet(node, appKey, transitionSteps, transitionResolution, delay, level, aszmic ? 1 : 0);
         setGenericLevel(dstAddress, genericLevelSet);
     }
 
@@ -576,7 +584,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
         final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
-        final GenericLevelSetUnacknowledged genericLevelSetUnacked = new GenericLevelSetUnacknowledged(node, appKey, appKeyIndex, transitionSteps, transitionResolution, delay, level, aszmic ? 1 : 0);
+        final GenericLevelSetUnacknowledged genericLevelSetUnacked = new GenericLevelSetUnacknowledged(node, appKey, transitionSteps, transitionResolution, delay, level, aszmic ? 1 : 0);
         setGenericLevelUnacknowledged(dstAddress, genericLevelSetUnacked);
     }
 
@@ -596,7 +604,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
 
         final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
         final int companyIdentifier = model.getCompanyIdentifier();
-        final VendorModelMessageUnacked vendorModelMessageUnacked = new VendorModelMessageUnacked(node, appKey, appKeyIndex, companyIdentifier, opcode, parameters, aszmic ? 1 : 0);
+        final VendorModelMessageUnacked vendorModelMessageUnacked = new VendorModelMessageUnacked(node, appKey, companyIdentifier, opcode, parameters, aszmic ? 1 : 0);
         sendVendorModelUnacknowledgedMessage(dstAddress, vendorModelMessageUnacked);
     }
 
@@ -616,13 +624,13 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
 
         final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
         final int companyIdentifier = model.getCompanyIdentifier();
-        final VendorModelMessageAcked vendorModelMessageAcked = new VendorModelMessageAcked(node, appKey, appKeyIndex, companyIdentifier, opcode, parameters, aszmic ? 1 : 0);
+        final VendorModelMessageAcked vendorModelMessageAcked = new VendorModelMessageAcked(node, appKey, companyIdentifier, opcode, parameters, aszmic ? 1 : 0);
         sendVendorModelAcknowledgedMessage(dstAddress, vendorModelMessageAcked);
     }
 
     @Override
     public final void sendVendorModelAcknowledgedMessage(@NonNull final byte[] dstAddress, @NonNull final VendorModelMessageAcked vendorModelMessageAcked) {
-        final VendorModelMessageAckedState message = new VendorModelMessageAckedState(mContext, dstAddress,vendorModelMessageAcked, this);
+        final VendorModelMessageAckedState message = new VendorModelMessageAckedState(mContext, dstAddress, vendorModelMessageAcked, this);
         message.setTransportCallbacks(mInternalTransportCallbacks);
         message.setStatusCallbacks(mStatusCallbacks);
         mMeshMessageState = message;

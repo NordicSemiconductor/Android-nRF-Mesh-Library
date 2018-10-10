@@ -28,39 +28,24 @@ import android.arch.lifecycle.ViewModel;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
-import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
-import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
-import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
 import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
 
 public class ModelConfigurationViewModel extends ViewModel {
 
-    private final ModelConfigurationRepository mModelConfigurationRepository;
     private final NrfMeshRepository mNrfMeshRepository;
 
     @Inject
-    ModelConfigurationViewModel(final ModelConfigurationRepository configurationRepository, final NrfMeshRepository nrfMeshRepository) {
-        this.mModelConfigurationRepository = configurationRepository;
+    ModelConfigurationViewModel(final NrfMeshRepository nrfMeshRepository) {
         this.mNrfMeshRepository = nrfMeshRepository;
-        mModelConfigurationRepository.registerBroadcastReceiver();
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        mModelConfigurationRepository.unbindService();
-        mModelConfigurationRepository.unregisterBroadcastReceiver();
     }
 
     public LiveData<Boolean> isConnected() {
-        return mModelConfigurationRepository.isConnected();
+        return mNrfMeshRepository.isConnected();
     }
 
     /**
@@ -81,73 +66,34 @@ public class ModelConfigurationViewModel extends ViewModel {
         return mNrfMeshRepository.getMeshMessageLiveData();
     }
 
-    public ExtendedMeshNode getSelectedMeshNode(){
+    /**
+     * Get selected mesh node
+     *
+     * @return {@link ExtendedMeshNode} element
+     */
+    public ExtendedMeshNode getSelectedMeshNode() {
         return mNrfMeshRepository.getSelectedMeshNode();
     }
 
-    public ExtendedElement getSelectedElement(){
+    /**
+     * Get selected element
+     *
+     * @return {@link ExtendedElement} element
+     */
+    public ExtendedElement getSelectedElement() {
         return mNrfMeshRepository.getSelectedElement();
     }
 
-    public ExtendedMeshModel getSelectedModel(){
+    /**
+     * Get selected model
+     *
+     * @return {@link ExtendedMeshModel} element
+     */
+    public ExtendedMeshModel getSelectedModel() {
         return mNrfMeshRepository.getSelectedModel();
     }
 
     public LiveData<TransactionFailedLiveData> getTransactionStatus() {
-        return mModelConfigurationRepository.getTransactionFailedLiveData();
-    }
-
-    /**
-     * Send generic on off set to mesh node
-     *
-     * @param node                 mesh node to send generic on off message
-     * @param transitionSteps      the number of steps
-     * @param transitionResolution the resolution for the number of steps
-     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param state                on off state
-     */
-    public void sendGenericOnOff(final ProvisionedMeshNode node, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
-        mModelConfigurationRepository.sendGenericOnOffSet(node, transitionSteps, transitionResolution, delay, state);
-    }
-
-    /**
-     * Send generic on off get to mesh node
-     *
-     * @param node mesh node to send generic on off get
-     */
-    public void sendGenericOnOffGet(final ProvisionedMeshNode node) {
-        mModelConfigurationRepository.sendGenericOnOffGet(node);
-    }
-
-    public SingleLiveEvent<GenericOnOffStatus> getGenericOnOffState() {
-        return mModelConfigurationRepository.getGenericOnOffState();
-    }
-
-    public SingleLiveEvent<VendorModelMessageStatus> getVendorModelState() {
-        return mModelConfigurationRepository.getVendorModelState();
-    }
-
-    public void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters){
-        mModelConfigurationRepository.sendVendorModelUnacknowledgedMessage(node, model, appKeyIndex, opcode, parameters);
-    }
-
-    public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters){
-        mModelConfigurationRepository.sendVendorModelAcknowledgedMessage(node, model, appKeyIndex, opcode, parameters);
-    }
-
-    public LiveData<GenericLevelStatus> getGenericLevelState() {
-        return mModelConfigurationRepository.getGenericLevelState();
-    }
-
-    public void sendGenericLevelGet(final ProvisionedMeshNode node) {
-        mModelConfigurationRepository.sendGenericLevelGet(node);
-    }
-
-    public void sendGenericLevelSet(final ProvisionedMeshNode node, final int level, final Integer transitionSteps, final Integer transitionResolution, final Integer delay) {
-        mModelConfigurationRepository.sendGenericLevelSet(node, level, transitionSteps, transitionResolution, delay);
-    }
-
-    public void sendGenericLevelSetUnacknowledged(final ProvisionedMeshNode node, final int level, final Integer transitionSteps, final Integer transitionResolution, final Integer delay) {
-        mModelConfigurationRepository.sendGenericLevelSetUnacknowledged(node, level, transitionSteps, transitionResolution, delay);
+        return mNrfMeshRepository.getTransactionFailedLiveData();
     }
 }

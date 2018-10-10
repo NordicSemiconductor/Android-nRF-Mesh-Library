@@ -39,7 +39,6 @@ import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericOnOffGetSt
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericOnOffSetState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericOnOffSetUnacknowledgedState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageState;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageUnackedState;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
@@ -262,7 +261,7 @@ public interface MeshStatusCallbacks {
     void onUnacknowledgedVendorModelMessageSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link VendorModelMessageState} was received
+     * Notifies if {@link VendorModelMessageStatus} was received
      *
      * @param node mesh node that the message was received from
      */
@@ -288,11 +287,4 @@ public interface MeshStatusCallbacks {
      * @param meshMessage {@link MeshMessage} containing the message that was received
      */
     void onMeshMessageReceived(final MeshMessage meshMessage);
-
-    /**
-     * Callback to notify that a mesh status message was received
-     *
-     * @param meshMessage {@link MeshMessage} containing the message that was received
-     */
-    void onMeshStatusMessageReceived(final MeshMessage meshMessage);
 }

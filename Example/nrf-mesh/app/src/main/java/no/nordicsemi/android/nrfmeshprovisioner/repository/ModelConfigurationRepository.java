@@ -264,26 +264,6 @@ public class ModelConfigurationRepository extends BaseMeshRepository {
     }
 
     /**
-     * Send generic on off get to mesh node
-     *
-     * @param node mesh node to send generic on off get
-     */
-    public void sendGenericOnOffGet(final ProvisionedMeshNode node) {
-        final Element element = mElement.getValue();
-        final MeshModel model = mMeshModel.getValue();
-
-        if (!model.getBoundAppKeyIndexes().isEmpty()) {
-            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-            final byte[] address = element.getElementAddress();
-            Log.v(TAG, "Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
-
-            mBinder.sendGenericOnOffGet(node, model, address, appKeyIndex);
-        } else {
-            Toast.makeText(mContext, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
      * Send generic on off set to mesh node
      *
      * @param node                 mesh node to send generic on off set
