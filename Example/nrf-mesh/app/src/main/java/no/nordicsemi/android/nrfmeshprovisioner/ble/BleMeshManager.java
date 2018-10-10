@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.ble;
 
-import android.arch.lifecycle.LiveData;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
