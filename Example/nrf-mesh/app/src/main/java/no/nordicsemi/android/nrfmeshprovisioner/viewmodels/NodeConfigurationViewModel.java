@@ -31,7 +31,6 @@ import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 
 public class NodeConfigurationViewModel extends ViewModel {
 

@@ -125,11 +125,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(NodeConfigurationViewModel.class);
 
         final Intent intent = getIntent();
-        if(savedInstanceState == null) {
-            /*if (node == null)
-                finish();
-            mViewModel.setSelectedMeshNode(node);*/
-        } else {
+        if(savedInstanceState != null) {
             if(savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
                 mProgressbar.setVisibility(View.VISIBLE);
                 disableClickableViews();
@@ -165,13 +161,13 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         mAdapter = new AddedAppKeyAdapter(this, mViewModel.getSelectedMeshNode());
         recyclerViewAppKeys.setAdapter(mAdapter);
 
-        mViewModel.getSelectedMeshNode().observe(this, extendedMeshNode -> {
-            if(extendedMeshNode.getMeshNode() == null) {
+        mViewModel.getSelectedMeshNode().observe(this, meshNode -> {
+            if(meshNode == null) {
                 finish();
                 return;
             }
 
-            if (extendedMeshNode.hasElements()) {
+            if (!meshNode.getElements().isEmpty()) {
                 compositionActionContainer.setVisibility(View.GONE);
                 noElementsFound.setVisibility(View.INVISIBLE);
                 mRecyclerViewElements.setVisibility(View.VISIBLE);
@@ -181,8 +177,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 mRecyclerViewElements.setVisibility(View.INVISIBLE);
             }
 
-            if (extendedMeshNode.hasAddedAppKeys()) {
-                final Map<Integer, String> appKeys = ((ProvisionedMeshNode)extendedMeshNode.getMeshNode()).getAddedAppKeys();
+            if (!meshNode.getAddedAppKeys().isEmpty()) {
+                final Map<Integer, String> appKeys = meshNode.getAddedAppKeys();
                 if (!appKeys.isEmpty()) {
                     noAppKeysFound.setVisibility(View.GONE);
                     recyclerViewAppKeys.setVisibility(View.VISIBLE);
@@ -195,7 +191,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
         actionGetCompositionData.setOnClickListener(v -> {
             showProgressbar();
-            final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
             final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet(node, 0);
             mViewModel.getMeshManagerApi().getCompositionData(configCompositionDataGet);
         });
@@ -254,7 +250,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 if(appKey != null){
                     final byte[] key = MeshParserUtils.toByteArray(appKey);
                     final int appKeyIndex = mViewModel.getMeshManagerApi().getProvisioningSettings().getAppKeys().indexOf(appKey);
-                    final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+                    final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
                     final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node, key, appKeyIndex, 0);
                     mViewModel.getMeshManagerApi().addAppKey(configAppKeyAdd);
                 }
@@ -310,7 +306,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     @Override
     public void onNodeReset() {
-        final ProvisionedMeshNode provisionedMeshNode = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode provisionedMeshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         mViewModel.getMeshManagerApi().resetMeshNode(provisionedMeshNode);
     }
 

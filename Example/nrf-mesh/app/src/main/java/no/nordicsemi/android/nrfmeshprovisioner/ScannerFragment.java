@@ -55,7 +55,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ScannerLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerLiveData;
 
 public class ScannerFragment extends Fragment implements Injectable, DevicesAdapter.OnItemClickListener {
     private static final String TAG = ScannerFragment.class.getSimpleName();

@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,10 +50,9 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     public AddedAppKeyAdapter(final NodeConfigurationActivity activity, final ExtendedMeshNode extendedMeshNode) {
         this.mContext = activity.getApplicationContext();
         extendedMeshNode.observe(activity, extendedNode -> {
-            if(extendedNode.getMeshNode() != null) {
+            if(extendedNode != null) {
                 appKeys.clear();
-                final ProvisionedMeshNode node = (ProvisionedMeshNode) extendedNode.getMeshNode();
-                appKeys.addAll(node.getAddedAppKeys().values());
+                appKeys.addAll(extendedNode.getAddedAppKeys().values());
                 notifyDataSetChanged();
             }
         });
@@ -62,14 +62,15 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         mOnItemClickListener = listener;
     }
 
+    @NonNull
     @Override
-    public AddedAppKeyAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public AddedAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.app_key_item, parent, false);
         return new AddedAppKeyAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final AddedAppKeyAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final AddedAppKeyAdapter.ViewHolder holder, final int position) {
         if(appKeys.size() > 0) {
             holder.appKeyId.setText(mContext.getString(R.string.app_key_item , position + 1));
             final String appKey = appKeys.get(position);

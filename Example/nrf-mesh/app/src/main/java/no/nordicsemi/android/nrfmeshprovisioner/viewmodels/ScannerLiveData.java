@@ -20,30 +20,35 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.livedata;
+package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
 /**
- * This class keeps the discovered provisioned Bluetooth LE mesh node.
- * When the device has been found it is added to stored list and the LiveData observers are
+ * This class keeps the current list of discovered Bluetooth LE devices matching filter.
+ * If a new device has been found it is added to the list and the LiveData in observers are
  * notified. If a packet from a device that's already in the list is found, the RSSI and name
- * are updated and observers are also notified. Observer may check {@link #getDevice()}
- * to find out the device that was found during scanning
+ * are updated and observers are also notified. Observer may check {@link #getUpdatedDeviceIndex()}
+ * to find out the index of the updated device.
  */
-public class ProvisionedNodeScannerLiveData extends LiveData<ProvisionedNodeScannerLiveData> {
-    private ExtendedBluetoothDevice mDevice;
+public class ScannerLiveData extends LiveData<ScannerLiveData> {
+    private final List<ExtendedBluetoothDevice> mDevices = new ArrayList<>();
+    private Integer mUpdatedDeviceIndex;
     private boolean mScanningStarted;
     private boolean mBluetoothEnabled;
     private boolean mLocationEnabled;
     private boolean mStartScanning;
     private boolean mStopScanning;
 
-    public ProvisionedNodeScannerLiveData(final boolean bluetoothEnabled, final boolean locationEnabled) {
+    ScannerLiveData(final boolean bluetoothEnabled, final boolean locationEnabled) {
         mScanningStarted = false;
         mBluetoothEnabled = bluetoothEnabled;
         mLocationEnabled = locationEnabled;
@@ -53,13 +58,15 @@ public class ProvisionedNodeScannerLiveData extends LiveData<ProvisionedNodeScan
     public void refresh() {
         postValue(this);
     }
+
     /**
      * Updates the flag to notify scanner live data that a stop scan was requested.
      */
     public void startScanning() {
+        mDevices.clear(); //Clear the devices on resuming the scan
         mStopScanning = false;
         mStartScanning = true;
-        postValue(this);
+        setValue(this);
     }
 
     public boolean isScanRequested(){
@@ -70,45 +77,48 @@ public class ProvisionedNodeScannerLiveData extends LiveData<ProvisionedNodeScan
      * Updates the flag to notify scanner live data that a stop scan was requested.
      */
     public void stopScanning() {
-        mScanningStarted = false;
-        mStartScanning = false;
         mStopScanning = true;
-        postValue(this);
+        mStartScanning = false;
+        setValue(this);
     }
 
-    public boolean isStopScanRequested(){
+    boolean isStopScanRequested(){
         return mStopScanning;
     }
 
-    public void scanningStarted() {
+    void scanningStarted() {
         mScanningStarted = true;
-        postValue(this);
+        setValue(this);
     }
 
-    public void scanningStopped() {
+    void scanningStopped() {
         mScanningStarted = false;
-        postValue(this);
+        setValue(this);
     }
 
-    public void bluetoothEnabled() {
+    void bluetoothEnabled() {
         mBluetoothEnabled = true;
         postValue(this);
     }
 
-    public void bluetoothDisabled() {
+    void bluetoothDisabled() {
         mBluetoothEnabled = false;
-        mDevice = null;
+        mUpdatedDeviceIndex = null;
+        mDevices.clear();
         postValue(this);
     }
 
-    public void deviceDiscovered(final ScanResult result) {
+    void deviceDiscovered(final ScanResult result) {
         ExtendedBluetoothDevice device;
 
-        if (mDevice == null) {
+        final int index = indexOf(result);
+        if (index == -1) {
             device = new ExtendedBluetoothDevice(result);
-            mDevice = device;
+            mDevices.add(device);
+            mUpdatedDeviceIndex = null;
         } else {
-            device = mDevice;
+            device = mDevices.get(index);
+            mUpdatedDeviceIndex = index;
         }
         // Update RSSI and name
         device.setRssi(result.getRssi());
@@ -118,19 +128,40 @@ public class ProvisionedNodeScannerLiveData extends LiveData<ProvisionedNodeScan
     }
 
     /**
-     * Returns the bluetooth device
+     * Returns the list of devices.
      *
      * @return current list of devices discovered
      */
+    @NonNull
+    public List<ExtendedBluetoothDevice> getDevices() {
+        return mDevices;
+    }
+
+    /**
+     * Returns null if a new device was added, or an index of the updated device.
+     */
     @Nullable
-    public ExtendedBluetoothDevice getDevice() {
-        return mDevice;
+    public Integer getUpdatedDeviceIndex() {
+        final Integer i = mUpdatedDeviceIndex;
+        mUpdatedDeviceIndex = null;
+        return i;
+    }
+
+    /**
+     * Returns whether the list is empty.
+     */
+    public boolean isEmpty() {
+        return mDevices.isEmpty();
     }
 
     /**
      * Returns whether scanning is in progress.
      */
     public boolean isScanning() {
+        return mScanningStarted;
+    }
+
+    public boolean isScanStopped() {
         return mScanningStarted;
     }
 
@@ -148,8 +179,24 @@ public class ProvisionedNodeScannerLiveData extends LiveData<ProvisionedNodeScan
         return mLocationEnabled;
     }
 
-    public void setLocationEnabled(final boolean enabled) {
+    void setLocationEnabled(final boolean enabled) {
         mLocationEnabled = enabled;
         postValue(this);
+    }
+
+    /**
+     * Finds the index of existing devices on the scan results list.
+     *
+     * @param result scan result
+     * @return index of -1 if not found
+     */
+    private int indexOf(final ScanResult result) {
+        int i = 0;
+        for (final ExtendedBluetoothDevice device : mDevices) {
+            if (device.matches(result))
+                return i;
+            i++;
+        }
+        return -1;
     }
 }

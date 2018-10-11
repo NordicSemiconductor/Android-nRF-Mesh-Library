@@ -387,11 +387,11 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
 
     @Override
     public final void unbindAppKey(@NonNull final ConfigModelAppUnbind configModelAppUnbind) {
-        final ConfigModelAppUnbindState configModelAppBind = new ConfigModelAppUnbindState(mContext, configModelAppUnbind, this);
-        configModelAppBind.setTransportCallbacks(mInternalTransportCallbacks);
-        configModelAppBind.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = configModelAppBind;
-        configModelAppBind.executeSend();
+        final ConfigModelAppUnbindState modelAppUnbindState = new ConfigModelAppUnbindState(mContext, configModelAppUnbind, this);
+        modelAppUnbindState.setTransportCallbacks(mInternalTransportCallbacks);
+        modelAppUnbindState.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = modelAppUnbindState;
+        modelAppUnbindState.executeSend();
     }
 
     @Override

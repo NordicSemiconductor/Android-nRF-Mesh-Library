@@ -24,22 +24,18 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
 
-import java.util.Map;
-
-import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
 
-public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {
+public class ExtendedMeshNode extends LiveData<ProvisionedMeshNode> {
 
     private ProvisionedMeshNode mMeshNode;
 
-    public ExtendedMeshNode(final ProvisionedMeshNode meshNode) {
+    ExtendedMeshNode(final ProvisionedMeshNode meshNode) {
         this.mMeshNode = meshNode;
-        setValue(this);
+        setValue(meshNode);
     }
 
-    public BaseMeshNode getMeshNode() {
+    public ProvisionedMeshNode getMeshNode() {
         return mMeshNode;
     }
 
@@ -47,32 +43,12 @@ public class ExtendedMeshNode extends LiveData<ExtendedMeshNode> {
      * Updates the mesh node and posts the value
      * @param meshNode Provisioned mesh node
      */
-    public void updateMeshNode(final ProvisionedMeshNode meshNode) {
+    void updateMeshNode(final ProvisionedMeshNode meshNode) {
         this.mMeshNode = meshNode;
-        postValue(this);
+        postValue(meshNode);
     }
 
-    /**
-     * Sets the mesh node without posting live data
-     * @param meshNode Provisioned mesh node
-     */
-    public void setMeshNode(final ProvisionedMeshNode meshNode){
-        this.mMeshNode = meshNode;
-    }
-
-    public boolean hasElements(){
-        if(mMeshNode.isProvisioned()) {
-            final Map<Integer, Element> elements = mMeshNode.getElements();
-            return elements != null && !elements.isEmpty();
-        }
-        return false;
-    }
-
-    public boolean hasAddedAppKeys(){
-        if(mMeshNode.isProvisioned()) {
-            final Map<Integer, String> appKeys = mMeshNode.getAddedAppKeys();
-            return appKeys != null && !appKeys.isEmpty();
-        }
-        return false;
+    void clearNode(){
+        this.mMeshNode = null;
     }
 }

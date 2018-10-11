@@ -1,11 +1,11 @@
-package no.nordicsemi.android.nrfmeshprovisioner.livedata;
+package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 public class TransactionFailedLiveData extends SingleLiveEvent<TransactionFailedLiveData> {
 
     private int mElementAddress;
     private boolean incompleteTimerExpired;
 
-    public TransactionFailedLiveData() {
+    TransactionFailedLiveData() {
     }
 
     public void onTransactionFailed(final int elementAddress, final boolean hasIncompleteTimerExpired) {

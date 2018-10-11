@@ -28,7 +28,6 @@ import android.arch.lifecycle.ViewModel;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 
 public class ModelConfigurationViewModel extends ViewModel {
 

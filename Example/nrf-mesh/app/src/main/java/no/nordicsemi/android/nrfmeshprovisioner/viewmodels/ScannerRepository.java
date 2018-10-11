@@ -43,7 +43,6 @@ import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ScannerLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
 import no.nordicsemi.android.support.v18.scanner.ScanCallback;
@@ -166,7 +165,7 @@ public class ScannerRepository {
     /**
      * Register for required broadcast receivers.
      */
-    public void registerBroadcastReceivers() {
+    void registerBroadcastReceivers() {
         mContext.registerReceiver(mBluetoothStateBroadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
         if (Utils.isMarshmallowOrAbove()) {
             mContext.registerReceiver(mLocationProviderChangedReceiver, new IntentFilter(LocationManager.MODE_CHANGED_ACTION));
@@ -176,7 +175,7 @@ public class ScannerRepository {
     /**
      * Unregister for required broadcast receivers.
      */
-    public void unregisterBroadcastReceivers() {
+    void unregisterBroadcastReceivers() {
         mContext.unregisterReceiver(mBluetoothStateBroadcastReceiver);
         if (Utils.isMarshmallowOrAbove()) {
             mContext.unregisterReceiver(mLocationProviderChangedReceiver);

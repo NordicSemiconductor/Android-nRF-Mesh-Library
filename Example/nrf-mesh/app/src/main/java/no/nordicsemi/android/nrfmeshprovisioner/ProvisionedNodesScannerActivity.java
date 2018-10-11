@@ -53,7 +53,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionedNodesScannerViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ScannerLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerLiveData;
 
 public class ProvisionedNodesScannerActivity extends AppCompatActivity implements Injectable, DevicesAdapter.OnItemClickListener {
 	private static final int REQUEST_ACCESS_COARSE_LOCATION = 1022; // random number

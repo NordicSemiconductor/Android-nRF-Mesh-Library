@@ -28,8 +28,6 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ScannerLiveData;
-
 public class ProvisionedNodesScannerViewModel extends ViewModel {
 
 	private final ScannerRepository mScannerRepository;

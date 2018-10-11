@@ -76,7 +76,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManagerCallbacks;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNodeStates;
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
@@ -137,10 +136,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
      * Mesh model to configure
      **/
     private Element mElement;
-    /**
-     * App key bind status
-     **/
-    private ConfigModelPublicationStatusLiveData mConfigModelPublicationStatus = new ConfigModelPublicationStatusLiveData();
     /**
      * Contains the initial provisioning live data
      **/
@@ -1002,10 +997,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             mMeshModel = meshModel;
         }
 
-        public ConfigModelPublicationStatusLiveData getConfigModelPublicationStatus() {
-            return mConfigModelPublicationStatus;
-
-        }
 
         public void identifyNode(final String nodeName){
             mIsProvisioningComplete = false;

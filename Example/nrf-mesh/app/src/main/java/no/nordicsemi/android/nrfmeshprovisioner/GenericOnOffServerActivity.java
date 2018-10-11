@@ -207,7 +207,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
      * Send generic on off get to mesh node
      */
     public void sendGenericOnOffGet() {
-        final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
 
@@ -232,7 +232,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
      * @param delay message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      */
     public void sendGenericOnOff(final boolean state, final Integer delay) {
-        final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
 

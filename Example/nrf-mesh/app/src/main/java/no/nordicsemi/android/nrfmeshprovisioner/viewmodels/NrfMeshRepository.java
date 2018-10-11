@@ -42,8 +42,6 @@ import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManagerCallbacks;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.SingleLiveEvent;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
 import no.nordicsemi.android.support.v18.scanner.ScanCallback;
 import no.nordicsemi.android.support.v18.scanner.ScanFilter;
@@ -226,7 +224,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Returns {@link SingleLiveEvent} containing the device ready state.
      */
-    public LiveData<String> getConnectionState() {
+    LiveData<String> getConnectionState() {
         return mConnectionState;
     }
 
@@ -237,7 +235,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mIsConnected;
     }
 
-    public LiveData<Boolean> isReconnecting() {
+    LiveData<Boolean> isReconnecting() {
         return mIsReconnecting;
     }
 
@@ -249,7 +247,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mIsConnectedToMesh;
     }
 
-    public LiveData<Map<Integer, ProvisionedMeshNode>> getProvisionedNodes() {
+    LiveData<Map<Integer, ProvisionedMeshNode>> getProvisionedNodes() {
         return mProvisionedNodes;
     }
 
@@ -319,6 +317,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
         mNetworkInformationLiveData.getValue().setNodeName(device.getName());
         mIsProvisioningComplete = false;
+        clearExtendedMeshNode();
         final LogSession logSession = Logger.newSession(context, null, device.getAddress(), device.getName());
         mBleMeshManager.setLogger(logSession);
         final BluetoothDevice bluetoothDevice = device.getDevice();
@@ -330,8 +329,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      * Connect to peripheral
      *
      * @param device bluetooth device
+     * @param connectToNetwork flag inidicating connect to network
      */
-    private void connect(final ExtendedBluetoothDevice device) {
+    private void connect(final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
+        initIsConnectedLiveData(connectToNetwork);
         mBleMeshManager.connect(device.getDevice());
     }
 
@@ -359,6 +360,12 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     void clearMeshNodeLiveData() {
         mMeshNodeLiveData.setValue(null);
+    }
+
+    private void clearExtendedMeshNode(){
+        if(mExtendedMeshNode != null){
+            mExtendedMeshNode.clearNode();
+        }
     }
 
     LiveData<BaseMeshNode> getBaseMeshNode() {
@@ -426,7 +433,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     void sendGetCompositionData() {
-        final ProvisionedMeshNode node = (ProvisionedMeshNode) mExtendedMeshNode.getMeshNode();
+        final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
         final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet(node, 0);
         mMeshManagerApi.getCompositionData(configCompositionDataGet);
     }
@@ -438,7 +445,12 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onDataReceived(final BluetoothDevice bluetoothDevice, final int mtu, final byte[] pdu) {
         try {
-            final BaseMeshNode node = mMeshNode = mExtendedMeshNode.getMeshNode();
+            final BaseMeshNode node;
+            if(mExtendedMeshNode != null && mExtendedMeshNode.getMeshNode() != null) {
+                node = mMeshNode = mExtendedMeshNode.getMeshNode();
+            } else {
+                node = mMeshNode = mMeshNodeLiveData.getValue();
+            }
             mMeshManagerApi.handleNotifications(node, mtu, pdu);
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
@@ -481,6 +493,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mIsReconnecting.postValue(false);
         } else {
             mIsConnected.postValue(false);
+            clearExtendedMeshNode();
         }
         mOnDeviceReady.postValue(null);
         mSetupProvisionedNode = false;
@@ -973,7 +986,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mSetupProvisionedNode = true;
         node.setBluetoothDeviceAddress(device.getAddress());
         mMeshNode = node;
-        connect(device);
+        connect(device, true);
     }
 
     BleMeshManager getBleMeshManager() {
