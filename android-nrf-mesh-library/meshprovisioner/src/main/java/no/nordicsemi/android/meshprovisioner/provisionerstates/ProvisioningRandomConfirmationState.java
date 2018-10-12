@@ -38,7 +38,7 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
 
     private final String TAG = ProvisioningRandomConfirmationState.class.getSimpleName();
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
-    private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
+    private final MeshProvisioningStatusCallbacks mStatusCallbacks;
     private final MeshProvisioningHandler pduHandler;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
@@ -47,7 +47,7 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
         this.pduHandler = pduHandler;
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
         this.mInternalTransportCallbacks = mInternalTransportCallbacks;
-        this.mMeshProvisioningStatusCallbacks = meshProvisioningStatusCallbacks;
+        this.mStatusCallbacks = meshProvisioningStatusCallbacks;
     }
 
     @Override
@@ -58,15 +58,13 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
     @Override
     public void executeSend() {
         final byte[] provisionerRandomConfirmationPDU = createProvisionerRandomPDU();
-        mMeshProvisioningStatusCallbacks.onProvisioningRandomSent(mUnprovisionedMeshNode);
-        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CONFIRMATION_SENT, provisionerRandomConfirmationPDU);
+        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CONFIRMATION_SENT, provisionerRandomConfirmationPDU);
         mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, provisionerRandomConfirmationPDU);
     }
 
     @Override
     public boolean parseData(final byte[] data) {
-        mMeshProvisioningStatusCallbacks.onProvisioningRandomReceived(mUnprovisionedMeshNode);
-        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_RANDOM_RECEIVED, data);
+        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_RANDOM_RECEIVED, data);
         parseProvisioneeRandom(data);
         return provisioneeMatches();
     }

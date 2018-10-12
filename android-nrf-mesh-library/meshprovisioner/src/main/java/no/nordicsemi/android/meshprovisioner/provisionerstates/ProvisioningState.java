@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
+@SuppressWarnings("unused")
 public abstract class ProvisioningState {
 
     static final byte TYPE_PROVISIONING_INVITE = 0x00;
@@ -48,9 +49,7 @@ public abstract class ProvisioningState {
         PROVISINING_INPUT_COMPLETE(4), PROVISIONING_CONFIRMATION(5), PROVISINING_RANDOM(6),
         PROVISINING_DATA(7), PROVISINING_COMPLETE(8), PROVISINING_FAILED(9);
 
-
         private int state;
-
 
         State(final int state) {
             this.state = state;
@@ -83,11 +82,7 @@ public abstract class ProvisioningState {
         SENDING_BLOCK_ACKNOWLEDGEMENT(17),
         SENDING_APP_KEY_ADD(18),
         BLOCK_ACKNOWLEDGEMENT_RECEIVED(19),
-        APP_KEY_STATUS_RECEIVED(20),
-        APP_BIND_SENT(21),
-        APP_BIND_STATUS_RECEIVED(22),
-        PUBLISH_ADDRESS_SET_SENT(23),
-        PUBLISH_ADDRESS_STATUS_RECEIVED(24);
+        APP_KEY_STATUS_RECEIVED(20);
 
         private int state;
 

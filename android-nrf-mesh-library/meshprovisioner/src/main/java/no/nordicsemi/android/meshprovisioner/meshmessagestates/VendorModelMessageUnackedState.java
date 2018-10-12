@@ -39,7 +39,7 @@ public class VendorModelMessageUnackedState extends GenericMessageState {
 
     @Override
     public MeshMessageState.MessageState getState() {
-        return null;
+        return MessageState.VENDOR_MODEL_UNACKNOWLEDGED_STATE;
     }
 
     /**

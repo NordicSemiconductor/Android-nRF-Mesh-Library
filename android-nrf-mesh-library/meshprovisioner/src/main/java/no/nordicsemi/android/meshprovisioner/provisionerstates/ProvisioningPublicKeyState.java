@@ -58,7 +58,7 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
     private static final int PROVISIONING_PUBLIC_KEY_XY_PDU_LENGTH = 69;
     private final String TAG = ProvisioningPublicKeyState.class.getSimpleName();
     private final byte[] publicKeyXY = new byte[PROVISIONING_PUBLIC_KEY_XY_PDU_LENGTH];
-    private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
+    private final MeshProvisioningStatusCallbacks mStatusCallbacks;
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
@@ -70,7 +70,7 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
     public ProvisioningPublicKeyState(final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
-        this.mMeshProvisioningStatusCallbacks = meshProvisioningStatusCallbacks;
+        this.mStatusCallbacks = meshProvisioningStatusCallbacks;
         this.mInternalTransportCallbacks = mInternalTransportCallbacks;
     }
 
@@ -83,15 +83,13 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
     public void executeSend() {
         generateKeyPairs();
         final byte[] pdu = generatePublicKeyXYPDU();
-        mMeshProvisioningStatusCallbacks.onProvisioningPublicKeySent(mUnprovisionedMeshNode);
-        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_PUBLIC_KEY_SENT, pdu);
+        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_PUBLIC_KEY_SENT, pdu);
         mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, pdu);
     }
 
     @Override
     public boolean parseData(final byte[] data) {
-        mMeshProvisioningStatusCallbacks.onProvisioningPublicKeyReceived(mUnprovisionedMeshNode);
-        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_PUBLIC_KEY_RECEIVED, data);
+        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_PUBLIC_KEY_RECEIVED, data);
         generateSharedECDHSecret(data);
         return true;
     }

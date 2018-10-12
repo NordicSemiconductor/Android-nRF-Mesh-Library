@@ -33,7 +33,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveData> {
 
     private final ArrayList<ProvisionerProgress> mProvisioningProgress = new ArrayList<>();
-    private ProvisionerProgress provisionerState;
 
     public void clear() {
         mProvisioningProgress.clear();
@@ -98,7 +97,7 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
         return mProvisioningProgress.get(mProvisioningProgress.size() - 1);
     }
 
-    public void onMeshNodeStateUpdated(final ProvisioningState.States provisionerState) {
+    void onMeshNodeStateUpdated(final ProvisioningState.States provisionerState) {
         final ProvisionerProgress provisioningProgress;
         final ProvisioningLiveDataState state = ProvisioningLiveDataState.fromStatusCode(provisionerState.getState());
         switch (provisionerState){
@@ -183,22 +182,6 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
                 break;
             case APP_KEY_STATUS_RECEIVED:
                 provisioningProgress = new ProvisionerProgress(state, "App key status received...", R.drawable.ic_arrow_forward_black_alpha);
-                mProvisioningProgress.add(provisioningProgress);
-                break;
-        }
-        postValue(this);
-    }
-
-    public void onMeshNodeStateUpdated(final Context context, final int provisionerState, final int statusCode) {
-        final ProvisionerProgress provisioningProgress;
-        final ProvisioningLiveDataState state = ProvisioningLiveDataState.fromStatusCode(provisionerState);
-        switch (state) {
-            case PROVISIONING_FAILED:
-                provisioningProgress = new ProvisionerProgress(state, statusCode, "Provisioning failed received...", R.drawable.ic_arrow_forward_black_alpha);
-                mProvisioningProgress.add(provisioningProgress);
-                break;
-            case APP_KEY_STATUS_RECEIVED:
-                provisioningProgress = new ProvisionerProgress(state, statusCode, "App key status received...", R.drawable.ic_arrow_forward_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
         }

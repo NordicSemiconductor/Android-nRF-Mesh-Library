@@ -44,7 +44,7 @@ public class VendorModelMessageAckedState extends GenericMessageState {
 
     @Override
     public MessageState getState() {
-        return null;
+        return MessageState.VENDOR_MODEL_ACKNOWLEDGED_STATE;
     }
 
     /**

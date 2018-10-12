@@ -503,7 +503,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mIsConnectedToMesh.postValue(false);
             clearExtendedMeshNode();
         }
-        mOnDeviceReady.postValue(null);
         mSetupProvisionedNode = false;
     }
 
@@ -570,87 +569,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public int getMtu() {
         return mBleMeshManager.getMtuSize();
-    }
-
-    @Override
-    public void onProvisioningInviteSent(final UnprovisionedMeshNode node) {
-        mMeshNode = node;
-        mMeshNodeLiveData.postValue(node);
-    }
-
-    @Override
-    public void onProvisioningCapabilitiesReceived(final UnprovisionedMeshNode node) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onProvisioningStartSent(final UnprovisionedMeshNode node) {
-        mMeshNode = node;
-
-    }
-
-    @Override
-    public void onProvisioningPublicKeySent(final UnprovisionedMeshNode node) {
-        mMeshNode = node;
-
-    }
-
-    @Override
-    public void onProvisioningPublicKeyReceived(final UnprovisionedMeshNode node) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onProvisioningAuthenticationInputRequested(final UnprovisionedMeshNode node) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onProvisioningInputCompleteSent(final UnprovisionedMeshNode node) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onProvisioningConfirmationSent(final UnprovisionedMeshNode node) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onProvisioningConfirmationReceived(final UnprovisionedMeshNode node) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onProvisioningRandomSent(final UnprovisionedMeshNode node) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onProvisioningRandomReceived(final UnprovisionedMeshNode node) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onProvisioningDataSent(final UnprovisionedMeshNode node) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onProvisioningFailed(final UnprovisionedMeshNode node, final int errorCode) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onProvisioningComplete(final ProvisionedMeshNode node) {
-        mIsProvisioningComplete = true;
-        node.setIsProvisioned(true);
-        mMeshNode = node;
-        mIsReconnectingFlag = true;
-        mIsReconnecting.postValue(true);
-        mBleMeshManager.disconnect();
-        mBleMeshManager.refreshDeviceCache();
-        mProvisionedNodes.postValue(mMeshManagerApi.getProvisionedNodes());
-        mHandler.postDelayed(mReconnectRunnable, 1500); //Added a slight delay to disconnect and refresh the cache
     }
 
     @Override
@@ -830,8 +748,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onMeshNodeResetStatusReceived(@NonNull final ConfigNodeResetStatus status) {
-        final ProvisionedMeshNode node = status.getMeshNode();
-        mMeshNode = node;
+        mMeshNode = status.getMeshNode();
         mExtendedMeshNode.clearNode();
         mProvisionedNodes.postValue(mMeshManagerApi.getProvisionedNodes());
         mMeshMessageLiveData.postValue(status);

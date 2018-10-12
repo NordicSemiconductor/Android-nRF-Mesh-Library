@@ -34,6 +34,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -86,7 +87,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     private final static String TAG = NodeConfigurationActivity.class.getSimpleName();
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
     private static final String DIALOG_FRAGMENT_APP_KEY_STATUS = "DIALOG_FRAGMENT_APP_KEY_STATUS";
-    private static final long DELAY = 10 * 1000; //Using the incomplete timer duration
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -107,7 +107,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     ProgressBar mProgressbar;
 
     private NodeConfigurationViewModel mViewModel;
-    private AddedAppKeyAdapter mAdapter;
     private Handler mHandler;
 
 
@@ -153,7 +152,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         final RecyclerView recyclerViewAppKeys = findViewById(R.id.recycler_view_app_keys);
         recyclerViewAppKeys.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewAppKeys.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new AddedAppKeyAdapter(this, mViewModel.getSelectedMeshNode());
+        final AddedAppKeyAdapter mAdapter = new AddedAppKeyAdapter(this, mViewModel.getSelectedMeshNode());
         recyclerViewAppKeys.setAdapter(mAdapter);
 
         mViewModel.getSelectedMeshNode().observe(this, meshNode -> {
@@ -301,8 +300,12 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     @Override
     public void onNodeReset() {
-        final ProvisionedMeshNode provisionedMeshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-        mViewModel.getMeshManagerApi().resetMeshNode(provisionedMeshNode);
+        try {
+            final ProvisionedMeshNode provisionedMeshNode = mViewModel.getSelectedMeshNode().getMeshNode();
+            mViewModel.getMeshManagerApi().resetMeshNode(provisionedMeshNode);
+        } catch(Exception ex) {
+            Log.e(TAG, ex.getMessage());
+        }
     }
 
     private void showProgressbar(){
@@ -369,9 +372,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             }
             hideProgressBar();
         } else if(meshMessage instanceof ConfigNodeResetStatus) {
-            final DialogFragmentResetNode resetNodeFragment = DialogFragmentResetNode.
-                    newInstance(getString(R.string.title_reset_node), getString(R.string.reset_node_rationale_summary));
-            resetNodeFragment.show(getSupportFragmentManager(), null);
+            hideProgressBar();
+            finish();
         }
     }
 }
