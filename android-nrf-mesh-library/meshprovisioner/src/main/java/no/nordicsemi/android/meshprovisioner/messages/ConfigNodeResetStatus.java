@@ -42,7 +42,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public class ConfigNodeResetStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigNodeResetStatus.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NODE_RESET;
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS;
 
     /**
      * Constructs the ConfigAppKeyStatus mMessage.

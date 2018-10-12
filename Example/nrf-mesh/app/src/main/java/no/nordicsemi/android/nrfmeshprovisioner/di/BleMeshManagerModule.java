@@ -31,7 +31,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetworkInformation;
 
 @Module
-public class BleMeshManagerModule {
+class BleMeshManagerModule {
 
     @Provides
     BleMeshManager provideBleMeshManager(final Context context) {

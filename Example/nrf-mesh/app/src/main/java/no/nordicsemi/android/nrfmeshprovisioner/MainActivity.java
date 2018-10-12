@@ -97,6 +97,11 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == Utils.PROVISIONING_SUCCESS){

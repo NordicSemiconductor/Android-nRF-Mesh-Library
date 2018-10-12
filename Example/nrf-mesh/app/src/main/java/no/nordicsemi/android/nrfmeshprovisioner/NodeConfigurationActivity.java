@@ -22,13 +22,11 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -56,7 +54,6 @@ import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
@@ -71,7 +68,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAppKeyAddStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
@@ -124,7 +120,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         ButterKnife.bind(this);
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(NodeConfigurationViewModel.class);
 
-        final Intent intent = getIntent();
         if(savedInstanceState != null) {
             if(savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
                 mProgressbar.setVisibility(View.VISIBLE);
@@ -364,10 +359,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     private void updateMeshMessage(final MeshMessage meshMessage){
         if(meshMessage instanceof ConfigCompositionDataStatus) {
             hideProgressBar();
-            if(meshMessage != null){
-                DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", getString(R.string.operation_timed_out));
-                fragmentMessage.show(getSupportFragmentManager(), null);
-            }
         } else if(meshMessage instanceof ConfigAppKeyStatus) {
             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_APP_KEY_STATUS) == null) {
                 if(!((ConfigAppKeyStatus) meshMessage).isSuccessful()) {

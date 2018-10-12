@@ -360,7 +360,7 @@ public class MeshProvisioningHandler {
                 if (outputOOBAction == 0 && inputOOBAction == 0) {
                     setProvisioningConfirmation("");
                 } else {
-                    mProvisoningStatusCallbacks.onProvisioningAuthenticationInputRequested(unprovisionedMeshNode);
+                    mProvisoningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, ProvisioningState.States.PROVISIONING_AUTHENTICATION_INPUT_WAITING, data);
                 }
             }
         }

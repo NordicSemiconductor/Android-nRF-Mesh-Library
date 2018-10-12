@@ -49,8 +49,7 @@ public class ConfigNodeResetState extends ConfigMessageState {
         if (message != null) {
             if (message instanceof AccessMessage) {
                 final ConfigNodeResetStatus configNodeResetStatus = new ConfigNodeResetStatus(mNode, (AccessMessage) message);
-                //TODO Config node reset status
-                mInternalTransportCallbacks.updateMeshNode(mNode);
+                //mInternalTransportCallbacks.updateMeshNode(mNode);
                 mInternalTransportCallbacks.onMeshNodeReset(mNode);
                 mMeshStatusCallbacks.onMeshNodeResetStatusReceived(configNodeResetStatus);
                 return true;

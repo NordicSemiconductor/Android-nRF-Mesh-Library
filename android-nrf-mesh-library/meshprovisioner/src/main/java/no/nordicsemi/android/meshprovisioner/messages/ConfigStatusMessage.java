@@ -10,7 +10,6 @@ import static no.nordicsemi.android.meshprovisioner.messages.ConfigStatusMessage
 @SuppressWarnings("WeakerAccess")
 public abstract class ConfigStatusMessage extends MeshMessage {
 
-    final int AKF = 0;
     final AccessMessage mMessage;
     int mStatusCode;
     String mStatusCodeName;

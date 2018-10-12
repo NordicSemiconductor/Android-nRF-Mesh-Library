@@ -49,6 +49,7 @@ public final class GenericOnOffStatus extends GenericStatusMessage implements Pa
     private int mRemainingTime;
     private int mTransitionSteps;
     private int mTransitionResolution;
+
     /**
      * Constructs the GenericOnOffStatus mMessage.
      *
@@ -148,6 +149,9 @@ public final class GenericOnOffStatus extends GenericStatusMessage implements Pa
         dest.writeValue(mMessage);
     }
 
+    /**
+     * Returns the address where the message was originated from
+     */
     public int getSrcAddress() {
         return ByteBuffer.wrap(mMessage.getSrc()).getShort();
     }

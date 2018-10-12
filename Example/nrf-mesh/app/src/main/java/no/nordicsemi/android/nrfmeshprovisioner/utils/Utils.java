@@ -224,26 +224,6 @@ public class Utils {
         return -1;
     }
 
-    /**
-     * Create the intent filters to listen for events on the {@link MeshService}
-     *
-     * @return intent filter
-     */
-    public static IntentFilter createIntentFilters() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_CONNECTION_STATE);
-        intentFilter.addAction(ACTION_IS_CONNECTED);
-        intentFilter.addAction(ACTION_IS_RECONNECTING);
-        intentFilter.addAction(ACTION_ON_DEVICE_READY);
-        intentFilter.addAction(ACTION_PROVISIONING_STATE);
-        intentFilter.addAction(ACTION_CONFIGURATION_STATE);
-        intentFilter.addAction(ACTION_TRANSACTION_STATE);
-        intentFilter.addAction(ACTION_GENERIC_ON_OFF_STATE);
-        intentFilter.addAction(ACTION_GENERIC_LEVEL_STATE);
-        intentFilter.addAction(ACTION_VENDOR_MODEL_MESSAGE_STATE);
-        return intentFilter;
-    }
-
     public static boolean checkIfVersionIsOreoOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }

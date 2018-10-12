@@ -170,12 +170,12 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     private final TransactionFailedLiveData mTransactionFailedLiveData = new TransactionFailedLiveData();
 
-    private static NrfMeshRepository mNrfMeshRepository;
-    private final MeshManagerApi mMeshManagerApi;
-    private final BleMeshManager mBleMeshManager;
+    //private static NrfMeshRepository mNrfMeshRepository;
+    private MeshManagerApi mMeshManagerApi;
+    private BleMeshManager mBleMeshManager;
+    private Handler mHandler;
     private BaseMeshNode mMeshNode;
     private boolean mIsReconnectingFlag;
-    private final Handler mHandler;
     private boolean mIsScanning;
     private boolean mSetupProvisionedNode;
     private ProvisioningStatusLiveData mProvisioningStateLiveData;
@@ -184,7 +184,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     private final Runnable mScannerTimeout = this::stopScan;
 
-    private NrfMeshRepository(final MeshManagerApi meshManagerApi, final NetworkInformation networkInformation, final BleMeshManager bleMeshManager) {
+    public NrfMeshRepository(final MeshManagerApi meshManagerApi, final NetworkInformation networkInformation, final BleMeshManager bleMeshManager) {
         //Initialize the mesh api
         mMeshManagerApi = meshManagerApi;
         mMeshManagerApi.setProvisionerManagerTransportCallbacks(this);
@@ -207,11 +207,16 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mHandler = new Handler();
     }
 
-    public static NrfMeshRepository getInstance(final MeshManagerApi meshManagerApi, final NetworkInformation networkInformation, final BleMeshManager bleMeshManager) {
+    /*public static NrfMeshRepository getInstance(final MeshManagerApi meshManagerApi, final NetworkInformation networkInformation, final BleMeshManager bleMeshManager) {
         if (mNrfMeshRepository == null) {
             mNrfMeshRepository = new NrfMeshRepository(meshManagerApi, networkInformation, bleMeshManager);
         }
         return mNrfMeshRepository;
+    }*/
+
+    void clearInstance(){
+        mBleMeshManager = null;
+
     }
 
     /**
@@ -477,6 +482,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onDeviceDisconnecting(final BluetoothDevice device) {
+        Log.v(TAG, "Disconnecting...");
         mConnectionState.postValue("Disconnecting...");
         if (mIsReconnectingFlag) {
             mIsConnected.postValue(false);
@@ -487,12 +493,14 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onDeviceDisconnected(final BluetoothDevice device) {
+        Log.v(TAG, "Disconnected");
         mConnectionState.postValue("Disconnected!");
         if (mIsReconnectingFlag) {
             mIsReconnectingFlag = false;
             mIsReconnecting.postValue(false);
         } else {
             mIsConnected.postValue(false);
+            mIsConnectedToMesh.postValue(false);
             clearExtendedMeshNode();
         }
         mOnDeviceReady.postValue(null);
@@ -501,6 +509,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onLinklossOccur(final BluetoothDevice device) {
+        Log.v(TAG, "Link loss occured");
         mIsConnected.postValue(false);
     }
 
@@ -723,7 +732,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 mHandler.postDelayed(() -> {
                     final String appKey = mProvisioningSettingsLiveData.getSelectedAppKey();
                     final int index = mMeshManagerApi.getProvisioningSettings().getAppKeys().indexOf(appKey);
-                    mMeshManagerApi.addAppKey(node, index, appKey);
+                    mMeshManagerApi.addAppKey(node, 0, appKey);
                 }, 2500);
             }
         } else {
@@ -823,7 +832,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void onMeshNodeResetStatusReceived(@NonNull final ConfigNodeResetStatus status) {
         final ProvisionedMeshNode node = status.getMeshNode();
         mMeshNode = node;
-        mExtendedMeshNode.updateMeshNode(node);
+        mExtendedMeshNode.clearNode();
+        mProvisionedNodes.postValue(mMeshManagerApi.getProvisionedNodes());
         mMeshMessageLiveData.postValue(status);
     }
 

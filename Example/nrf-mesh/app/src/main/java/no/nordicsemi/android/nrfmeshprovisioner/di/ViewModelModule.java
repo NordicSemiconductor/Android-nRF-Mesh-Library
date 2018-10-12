@@ -34,10 +34,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetworkInformation;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ViewModelFactory;
 
-import static no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshRepository.getInstance;
 
 @Module(subcomponents = ViewModelSubComponent.class)
 public class ViewModelModule {
@@ -50,12 +48,7 @@ public class ViewModelModule {
 	@Provides
 	@Singleton
 	static NrfMeshRepository provideNrfMeshRepository(final MeshManagerApi meshManagerApi, final NetworkInformation networkInformation, final BleMeshManager bleMeshManager) {
-		return getInstance(meshManagerApi, networkInformation, bleMeshManager);
-	}
-
-	@Provides
-	static MeshService providerMeshService() {
-		return new MeshService();
+		return new NrfMeshRepository(meshManagerApi, networkInformation, bleMeshManager);
 	}
 
 	@Provides

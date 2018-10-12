@@ -105,8 +105,6 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
 
             switch (mMeshMessageState.getState()) {
                 case COMPOSITION_DATA_GET_STATE:
-                    //Composition data get complete,
-                    //We directly switch to next state because there is no acknowledgements involved
                     break;
                 case APP_KEY_ADD_STATE:
                     break;
@@ -130,19 +128,13 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
                 switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
             } else {
                 switch (mMeshMessageState.getState()) {
-                    case GENERIC_ON_OFF_GET_STATE:
-                        break;
-                    case GENERIC_ON_OFF_SET_STATE:
-                        break;
                     case GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE:
                         //We don't expect a generic on off status as this is an unacknowledged message so we switch States here
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                         break;
-                    case GENERIC_LEVEL_GET_STATE:
-                        break;
-                    case GENERIC_LEVEL_SET_STATE:
-                        break;
                     case GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE:
+                        //We don't expect a generic on off status as this is an unacknowledged message so we switch States here
+                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                         break;
                 }
             }
@@ -164,7 +156,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
             switch (message.getState()) {
                 case COMPOSITION_DATA_GET_STATE:
                     final ConfigCompositionDataGetState compositionDataGet = (ConfigCompositionDataGetState) mMeshMessageState;
-                    if (compositionDataGet.parseMeshPdu(pdu)) {
+                    if (compositionDataGet.isIncompleteTimerExpired() ||compositionDataGet.parseMeshPdu(pdu)) {
                         //mInternalMeshManagerCallbacks.onUnicastAddressChanged(compositionDataStatus.getUnicastAddress());
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
@@ -189,7 +181,7 @@ class MeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandle
                     break;
                 case CONFIG_MODEL_PUBLICATION_SET_STATE:
                     final ConfigModelPublicationSetState publicationSetState = (ConfigModelPublicationSetState) mMeshMessageState;
-                    if (publicationSetState.parseMeshPdu(pdu)) {
+                    if (publicationSetState.isIncompleteTimerExpired() || publicationSetState.parseMeshPdu(pdu)) {
                         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshNode, this));
                     }
                     break;

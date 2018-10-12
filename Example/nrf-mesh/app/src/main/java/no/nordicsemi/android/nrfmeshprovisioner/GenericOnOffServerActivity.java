@@ -73,7 +73,6 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
             mActionRead.setOnClickListener(v -> {
                 sendGenericOnOffGet();
-                showProgressbar();
             });
 
             transitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -173,8 +172,8 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
     protected void updateMeshMessage(final MeshMessage meshMessage) {
         super.updateMeshMessage(meshMessage);
         if (meshMessage instanceof GenericOnOffStatus) {
-            final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
             hideProgressBar();
+            final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
             final boolean presentState = status.getPresentState();
             final Boolean targetOnOff = status.getTargetState();
             final int steps = status.getTransitionSteps();
@@ -220,6 +219,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
 
             final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(node, appKey, 0);
             mViewModel.getMeshManagerApi().getGenericOnOff(address, genericOnOffSet);
+            showProgressbar();
         } else {
             Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
         }
