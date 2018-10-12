@@ -58,7 +58,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Connection States Connecting, Connected, Disconnecting, Disconnected etc.
      **/
-    private final MutableLiveData<Boolean> mIsConnectedToMesh = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> mIsConnectedToProxy = new MutableLiveData<>();
 
     /**
      * Live data flag containing connected state.
@@ -234,16 +234,19 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mIsConnected;
     }
 
+    /**
+     * Returns {@link SingleLiveEvent} containing the device ready state.
+     */
+    LiveData<Boolean> isConnectedToProxy() {
+        return mIsConnectedToProxy;
+    }
+
     LiveData<Boolean> isReconnecting() {
         return mIsReconnecting;
     }
 
     boolean isProvisioningComplete() {
         return mIsProvisioningComplete;
-    }
-
-    LiveData<Boolean> isConnectedToNetwork() {
-        return mIsConnectedToMesh;
     }
 
     LiveData<Map<Integer, ProvisionedMeshNode>> getProvisionedNodes() {
@@ -288,6 +291,14 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      */
     MeshManagerApi getMeshManagerApi() {
         return mMeshManagerApi;
+    }
+
+    /**
+     * Returns the ble mesh manager
+     * @return {@link BleMeshManager}
+     */
+    BleMeshManager getBleMeshManager() {
+        return mBleMeshManager;
     }
 
     /**
@@ -470,7 +481,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void onDeviceConnected(final BluetoothDevice device) {
         mIsConnected.postValue(true);
         mConnectionState.postValue("Discovering services....");
-
+        mIsConnectedToProxy.postValue(true);
     }
 
     @Override
@@ -480,8 +491,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         if (mIsReconnectingFlag) {
             mIsConnected.postValue(false);
         }
-        mSetupProvisionedNode = false;
-        mIsConnectedToMesh.postValue(false);
+        /*mSetupProvisionedNode = false;
+        mIsConnectedToProxy.postValue(false);*/
     }
 
     @Override
@@ -493,7 +504,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mIsReconnecting.postValue(false);
         } else {
             mIsConnected.postValue(false);
-            mIsConnectedToMesh.postValue(false);
+            mIsConnectedToProxy.postValue(false);
             clearExtendedMeshNode();
         }
         mSetupProvisionedNode = false;
@@ -521,7 +532,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 //Adding a slight delay here so we don't send anything before we receive the mesh beacon message
                 mHandler.postDelayed(() -> mMeshManagerApi.getCompositionData((ProvisionedMeshNode) mMeshNode), 2000);
             }
-            mIsConnectedToMesh.postValue(true);
+            mIsConnectedToProxy.postValue(true);
         }
     }
 
@@ -908,9 +919,5 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         node.setBluetoothDeviceAddress(device.getAddress());
         mMeshNode = node;
         connectToProxy(device);
-    }
-
-    BleMeshManager getBleMeshManager() {
-        return mBleMeshManager;
     }
 }

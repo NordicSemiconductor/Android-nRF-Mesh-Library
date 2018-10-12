@@ -180,7 +180,6 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 finish();
         });
 
-
         mViewModel.isDeviceReady().observe(this, deviceReady -> {
             if (mViewModel.getBleMeshManager().isDeviceReady()) {
                 connectivityProgressContainer.setVisibility(View.GONE);

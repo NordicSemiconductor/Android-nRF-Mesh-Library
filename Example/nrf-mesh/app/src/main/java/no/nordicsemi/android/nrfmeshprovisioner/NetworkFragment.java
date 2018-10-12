@@ -98,7 +98,7 @@ public class NetworkFragment extends Fragment implements Injectable,
 
         mViewModel.getProvisionedNodes().observe(this, provisionedNodes -> getActivity().invalidateOptionsMenu());
 
-        mViewModel.isConnectedToNetwork().observe(this, isConnected -> {
+        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
             if(isConnected != null) {
                 getActivity().invalidateOptionsMenu();
             }
@@ -115,7 +115,7 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         if(!mViewModel.getProvisionedNodes().getValue().isEmpty()){
-            final Boolean isConnectedToNetwork = mViewModel.isConnectedToNetwork().getValue();
+            final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
             if(isConnectedToNetwork != null && isConnectedToNetwork){
                 inflater.inflate(R.menu.disconnect, menu);
             } else {
@@ -142,7 +142,8 @@ public class NetworkFragment extends Fragment implements Injectable,
 
     @Override
     public void onConfigureClicked(final ProvisionedMeshNode node) {
-        if(mViewModel.isConnectedToMesh()) {
+        final Boolean isConnectedToProxy = mViewModel.isConnectedToProxy().getValue();
+        if(isConnectedToProxy != null && isConnectedToProxy) {
             mViewModel.setSelectedMeshNode(node);
             final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
             getActivity().startActivity(meshConfigurationIntent);

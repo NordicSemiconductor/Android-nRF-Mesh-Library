@@ -42,8 +42,8 @@ public class ModelConfigurationViewModel extends ViewModel {
         this.mNrfMeshRepository = nrfMeshRepository;
     }
 
-    public LiveData<Boolean> isConnected() {
-        return mNrfMeshRepository.isConnected();
+    public LiveData<Boolean> isConnectedToProxy() {
+        return mNrfMeshRepository.isConnectedToProxy();
     }
 
     /**

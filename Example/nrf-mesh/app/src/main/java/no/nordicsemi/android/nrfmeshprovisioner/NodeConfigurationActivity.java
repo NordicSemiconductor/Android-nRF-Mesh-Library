@@ -216,7 +216,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             fragmentMessage.show(getSupportFragmentManager(), null);
         });
 
-        mViewModel.isConnected().observe(this, isConnected -> {
+        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
             if(isConnected != null && !isConnected)
                 finish();
         });

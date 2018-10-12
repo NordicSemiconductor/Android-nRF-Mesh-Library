@@ -71,6 +71,10 @@ public class NodeConfigurationViewModel extends ViewModel {
         return mNrfMeshRepository.isConnected();
     }
 
+    public LiveData<Boolean> isConnectedToProxy() {
+        return mNrfMeshRepository.isConnected();
+    }
+
     public MeshMessageLiveData getMeshMessageLiveData() {
         return mNrfMeshRepository.getMeshMessageLiveData();
     }

@@ -93,17 +93,13 @@ public class SharedViewModel extends ViewModel {
         nRFMeshRepository.disconnect();
     }
 
-    public boolean isConnectedToMesh() {
-        return nRFMeshRepository.isConnectedToNetwork().getValue();
-    }
-
     /**
      * Returns if currently connected to the mesh network.
      *
      * @return true if connected and false otherwise
      */
-    public LiveData<Boolean> isConnectedToNetwork() {
-        return nRFMeshRepository.isConnectedToNetwork();
+    public LiveData<Boolean> isConnectedToProxy() {
+        return nRFMeshRepository.isConnectedToProxy();
     }
 
     /**

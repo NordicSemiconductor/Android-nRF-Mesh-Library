@@ -175,7 +175,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
         mActionBindAppKey.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, BindAppKeysActivity.class);
-            final ProvisionedMeshNode node = ((ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode());
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
             bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) node.getAddedAppKeys());
             startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
         });
@@ -248,10 +248,12 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             fragmentMessage.show(getSupportFragmentManager(), null);
         });
 
-        mViewModel.isConnected().observe(this, aBoolean -> {
-            final DialogFragmentDisconnected dialogFragmentDisconnected = DialogFragmentDisconnected.newInstance(getString(R.string.title_disconnected_error),
-                    getString(R.string.disconnected_network_rationale));
-            dialogFragmentDisconnected.show(getSupportFragmentManager(), null);
+        mViewModel.isConnectedToProxy().observe(this, aBoolean -> {
+            if(aBoolean != null && !aBoolean) {
+                final DialogFragmentDisconnected dialogFragmentDisconnected = DialogFragmentDisconnected.newInstance(getString(R.string.title_disconnected_error),
+                        getString(R.string.disconnected_network_rationale));
+                dialogFragmentDisconnected.show(getSupportFragmentManager(), null);
+            }
         });
 
         mViewModel.getMeshMessageLiveData().observe(this, this::updateMeshMessage);
@@ -323,7 +325,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     @Override
     public void setSubscriptionAddress(final byte[] subscriptionAddress) {
-        final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         final byte[] elementAddress = mViewModel.getSelectedElement().getElement().getElementAddress();
         final int modelIdentifier = mViewModel.getSelectedModel().getMeshModel().getModelId();
         final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(meshNode, elementAddress, subscriptionAddress, modelIdentifier, 0);
@@ -357,7 +359,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     private void bindAppKey(final int appKeyIndex) {
-        final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
         final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(meshNode, element.getElementAddress(), model.getModelId(), appKeyIndex, 0);
@@ -369,7 +371,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         if (mBoundAppKeyAdapter.getItemCount() != 0) {
             final String appKey = mBoundAppKeyAdapter.getAppKey(position);
             final int keyIndex = getAppKeyIndex(appKey);
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+            final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
             final Element element = mViewModel.getSelectedElement().getElement();
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
             final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(meshNode, element.getElementAddress(), model.getModelId(), keyIndex, 0);
@@ -379,7 +381,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     private void setPublication(final Intent data) {
-        final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
 
@@ -409,7 +411,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     private void clearPublication() {
-        final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel meshModel = mViewModel.getSelectedModel().getMeshModel();
         if (meshModel != null && !meshModel.getBoundAppkeys().isEmpty()) {
@@ -428,7 +430,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     private void deleteSubscription(final int position) {
         if (mAddressAdapter.getItemCount() != 0) {
             final byte[] address = mGroupAddress.get(position);
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+            final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
             final Element element = mViewModel.getSelectedElement().getElement();
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
             final ConfigModelSubscriptionDelete configModelAppUnbind = new ConfigModelSubscriptionDelete(meshNode, element.getElementAddress(),
