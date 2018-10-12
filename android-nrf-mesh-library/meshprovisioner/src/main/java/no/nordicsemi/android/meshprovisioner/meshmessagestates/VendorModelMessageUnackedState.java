@@ -77,12 +77,4 @@ public class VendorModelMessageUnackedState extends GenericMessageState {
         }
         return false;
     }
-
-    @Override
-    public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
-        final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
-        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
-    }
 }

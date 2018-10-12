@@ -29,7 +29,7 @@ public class GenericLevelSetState extends GenericMessageState implements LowerTr
      * @param dstAddress      Destination address to which the message must be sent to
      * @param genericLevelSet Wrapper class {@link GenericLevelSet} containing the opcode and parameters for {@link GenericLevelSet} message
      * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException for any illegal arguments provided.
      */
     public GenericLevelSetState(@NonNull final Context context,
                                 @NonNull final byte[] dstAddress,
@@ -85,13 +85,5 @@ public class GenericLevelSetState extends GenericMessageState implements LowerTr
     public final void executeSend() {
         Log.v(TAG, "Sending Generic Level set acknowledged ");
         super.executeSend();
-    }
-
-    @Override
-    public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
-        final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
-        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 }

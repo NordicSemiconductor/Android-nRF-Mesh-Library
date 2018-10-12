@@ -163,6 +163,15 @@ public abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         }
     }
 
+    @Override
+    public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
+        //We don't send acks here
+        final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
+        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
+        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
+    }
+
     public boolean isIncompleteTimerExpired() {
         return isIncompleteTimerExpired;
     }

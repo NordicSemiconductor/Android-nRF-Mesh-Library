@@ -28,7 +28,7 @@ public class GenericOnOffSetUnacknowledgedState extends GenericMessageState {
      * @param dstAddress                    Destination address to which the message must be sent to
      * @param genericOnOffSetUnacknowledged Wrapper class {@link GenericOnOffSetUnacknowledged} containing the opcode and parameters for {@link GenericOnOffSetUnacknowledged} message
      * @param callbacks                     {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException for any illegal arguments provided.
      */
     public GenericOnOffSetUnacknowledgedState(@NonNull final Context context,
                                               @NonNull final byte[] dstAddress,
@@ -52,7 +52,7 @@ public class GenericOnOffSetUnacknowledgedState extends GenericMessageState {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
                 return true;
             } else {
-
+                //TODO
             }
         } else {
             Log.v(TAG, "Message reassembly may not be complete yet");
@@ -83,13 +83,5 @@ public class GenericOnOffSetUnacknowledgedState extends GenericMessageState {
             if (mMeshStatusCallbacks != null)
                 mMeshStatusCallbacks.onGenericOnOffSetUnacknowledgedSent(mNode);
         }
-    }
-
-    @Override
-    public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
-        final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
-        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 }

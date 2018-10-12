@@ -97,14 +97,8 @@ public class ConfigCompositionDataGetState extends ConfigMessageState {
     public final void executeSend() {
         Log.v(TAG, "Sending composition data get");
         super.executeSend();
-        if (!mPayloads.isEmpty()) {
-            if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onGetCompositionDataSent(mNode);
+        if (!mPayloads.isEmpty() && mMeshStatusCallbacks != null) {
+            mMeshStatusCallbacks.onGetCompositionDataSent(mNode);
         }
-    }
-
-    @Override
-    public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
-        //We don't send acks here
     }
 }

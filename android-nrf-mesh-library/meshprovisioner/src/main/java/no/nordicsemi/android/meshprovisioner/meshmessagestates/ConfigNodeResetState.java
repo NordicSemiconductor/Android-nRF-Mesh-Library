@@ -28,7 +28,7 @@ public class ConfigNodeResetState extends ConfigMessageState {
      * @param context         Context of the application
      * @param configNodeReset Wrapper class {@link ConfigNodeReset} containing the opcode and parameters for {@link ConfigNodeReset} message
      * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException for any illegal arguments provided.
      */
     public ConfigNodeResetState(@NonNull final Context context,
                                 @NonNull final ConfigNodeReset configNodeReset,
@@ -85,13 +85,5 @@ public class ConfigNodeResetState extends ConfigMessageState {
             if (mMeshStatusCallbacks != null)
                 mMeshStatusCallbacks.onMeshNodeResetSent(mNode);
         }
-    }
-
-    @Override
-    public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
-        final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
-        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 }

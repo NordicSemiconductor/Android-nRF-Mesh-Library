@@ -29,7 +29,7 @@ public class GenericOnOffSetState extends GenericMessageState implements LowerTr
      * @param dstAddress      Destination address to which the message must be sent to
      * @param genericOnOffSet Wrapper class {@link GenericOnOffSet} containing the opcode and parameters for {@link GenericOnOffSet} message
      * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException for any illegal arguments provided.
      */
     public GenericOnOffSetState(@NonNull final Context context,
                                 @NonNull final byte[] dstAddress,
@@ -85,13 +85,5 @@ public class GenericOnOffSetState extends GenericMessageState implements LowerTr
     public final void executeSend() {
         Log.v(TAG, "Sending Generic OnOff set acknowledged");
         super.executeSend();
-    }
-
-    @Override
-    public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
-        final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
-        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 }

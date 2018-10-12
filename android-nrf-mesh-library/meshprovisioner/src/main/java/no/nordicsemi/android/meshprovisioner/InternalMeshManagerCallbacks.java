@@ -24,7 +24,7 @@ package no.nordicsemi.android.meshprovisioner;
 
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 
-public interface InternalMeshManagerCallbacks {
+interface InternalMeshManagerCallbacks {
 
     /**
      * Internal callback to notify the {@link MeshManagerApi} of provisioned nodes

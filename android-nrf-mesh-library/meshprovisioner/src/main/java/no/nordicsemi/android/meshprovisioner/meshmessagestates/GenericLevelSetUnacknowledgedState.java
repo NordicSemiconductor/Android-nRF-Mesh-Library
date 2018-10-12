@@ -29,7 +29,7 @@ public class GenericLevelSetUnacknowledgedState extends GenericMessageState {
      * @param dstAddress             Destination address to which the message must be sent to
      * @param genericLevelSetUnacked Wrapper class {@link GenericLevelSetUnacknowledged} containing the opcode and parameters for {@link GenericLevelSetUnacknowledged} message
      * @param callbacks              {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException for any illegal arguments provided.
      */
     public GenericLevelSetUnacknowledgedState(@NonNull final Context context,
                                               @NonNull final byte[] dstAddress,
@@ -77,13 +77,5 @@ public class GenericLevelSetUnacknowledgedState extends GenericMessageState {
     public final void executeSend() {
         Log.v(TAG, "Sending Generic Level set acknowledged ");
         super.executeSend();
-    }
-
-    @Override
-    public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
-        final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
-        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 }
