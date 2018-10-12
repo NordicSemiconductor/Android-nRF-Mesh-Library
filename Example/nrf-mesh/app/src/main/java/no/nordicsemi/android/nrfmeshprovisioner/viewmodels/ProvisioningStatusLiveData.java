@@ -23,7 +23,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
-import android.content.Context;
 
 import java.util.ArrayList;
 
@@ -66,17 +65,17 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
         PUBLISH_ADDRESS_SET_SENT(23),
         PUBLISH_ADDRESS_STATUS_RECEIVED(24);
 
-        private int state;
+        private final int state;
 
         ProvisioningLiveDataState(final int state) {
             this.state = state;
         }
 
-        public int getState() {
+        int getState() {
             return state;
         }
 
-        public static ProvisioningLiveDataState fromStatusCode(final int statusCode){
+        static ProvisioningLiveDataState fromStatusCode(final int statusCode){
             for(ProvisioningLiveDataState state : ProvisioningLiveDataState.values()){
                 if(state.getState() == statusCode){
                     return state;

@@ -1,14 +1,15 @@
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-public class TransactionFailedLiveData extends SingleLiveEvent<TransactionFailedLiveData> {
+@SuppressWarnings("unchecked")
+public class TransactionStatusLiveData extends SingleLiveEvent<TransactionStatusLiveData> {
 
     private int mElementAddress;
     private boolean incompleteTimerExpired;
 
-    TransactionFailedLiveData() {
+    TransactionStatusLiveData() {
     }
 
-    public void onTransactionFailed(final int elementAddress, final boolean hasIncompleteTimerExpired) {
+    void onTransactionFailed(final int elementAddress, final boolean hasIncompleteTimerExpired) {
         this.mElementAddress = elementAddress;
         this.incompleteTimerExpired = hasIncompleteTimerExpired;
         postValue(this);

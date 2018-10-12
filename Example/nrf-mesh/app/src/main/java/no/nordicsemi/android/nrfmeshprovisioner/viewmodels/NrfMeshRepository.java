@@ -37,7 +37,6 @@ import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
-import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
@@ -98,11 +97,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private NetworkInformationLiveData mNetworkInformationLiveData;
 
     /**
-     * Contains the initial provisioning live data
-     **/
-    private final ProvisioningSettingsLiveData mProvisioningLiveData = new ProvisioningSettingsLiveData();
-
-    /**
      * Flag to determine if provisioning was completed
      **/
     private boolean mIsProvisioningComplete = false;
@@ -160,7 +154,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Contains the initial provisioning live data
      **/
-    private ProvisioningSettingsLiveData mProvisioningSettingsLiveData;
+    private final ProvisioningSettingsLiveData mProvisioningSettingsLiveData;
 
     private MeshMessageLiveData mMeshMessageLiveData = new MeshMessageLiveData();
     /**
@@ -168,7 +162,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      **/
     private final MutableLiveData<Map<Integer, ProvisionedMeshNode>> mProvisionedNodes = new MutableLiveData<>();
 
-    private final TransactionFailedLiveData mTransactionFailedLiveData = new TransactionFailedLiveData();
+    private final TransactionStatusLiveData mTransactionFailedLiveData = new TransactionStatusLiveData();
 
     //private static NrfMeshRepository mNrfMeshRepository;
     private MeshManagerApi mMeshManagerApi;
@@ -284,7 +278,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mProvisioningStateLiveData;
     }
 
-    TransactionFailedLiveData getTransactionFailedLiveData() {
+    TransactionStatusLiveData getTransactionStatusLiveData() {
         return mTransactionFailedLiveData;
     }
     /**
@@ -311,7 +305,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mMeshManagerApi.resetMeshNetwork();
         mProvisionedNodes.postValue(mMeshManagerApi.getProvisionedNodes());
         mNetworkInformation.refreshProvisioningData();
-        mProvisioningLiveData.reset(mMeshManagerApi.getProvisioningSettings());
+        mProvisioningSettingsLiveData.refresh(mMeshManagerApi.getProvisioningSettings());
     }
 
     /**
@@ -334,10 +328,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      * Connect to peripheral
      *
      * @param device bluetooth device
-     * @param connectToNetwork flag inidicating connect to network
      */
-    private void connect(final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
-        initIsConnectedLiveData(connectToNetwork);
+    private void connectToProxy(final ExtendedBluetoothDevice device) {
+        initIsConnectedLiveData(true);
         mBleMeshManager.connect(device.getDevice());
     }
 
@@ -508,7 +501,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onLinklossOccur(final BluetoothDevice device) {
-        Log.v(TAG, "Link loss occured");
+        Log.v(TAG, "Link loss occurred");
         mIsConnected.postValue(false);
     }
 
@@ -604,6 +597,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onTransactionFailed(final ProvisionedMeshNode node, final int src, final boolean hasIncompleteTimerExpired) {
         mMeshNode = node;
+        mTransactionFailedLiveData.onTransactionFailed(src, hasIncompleteTimerExpired);
     }
 
     @Override
@@ -857,7 +851,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 /*.setUseHardwareBatchingIfSupported(false)*/
                 .build();
 
-        // Let's use the filter to scan only for Blinky devices
+        // Let's use the filter to scan only for Mesh devices
         final List<ScanFilter> filters = new ArrayList<>();
         filters.add(new ScanFilter.Builder().setServiceUuid(new ParcelUuid((MESH_PROXY_UUID))).build());
 
@@ -880,8 +874,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private final ScanCallback scanCallback = new ScanCallback() {
         @Override
         public void onScanResult(final int callbackType, final ScanResult result) {
-            //In order to connect to the correct device, the hash advertised in the advertisement data should be matched.
-            //This is to make sure we connect to the same device as device addresses could change after provisioning.
+            //In order to connectToProxy to the correct device, the hash advertised in the advertisement data should be matched.
+            //This is to make sure we connectToProxy to the same device as device addresses could change after provisioning.
             final ScanRecord scanRecord = result.getScanRecord();
             if (scanRecord != null) {
                 final byte[] serviceData = scanRecord.getServiceData(new ParcelUuid((MESH_PROXY_UUID)));
@@ -913,7 +907,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mSetupProvisionedNode = true;
         node.setBluetoothDeviceAddress(device.getAddress());
         mMeshNode = node;
-        connect(device, true);
+        connectToProxy(device);
     }
 
     BleMeshManager getBleMeshManager() {

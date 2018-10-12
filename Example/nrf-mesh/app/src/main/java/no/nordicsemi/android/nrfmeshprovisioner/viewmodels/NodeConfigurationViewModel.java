@@ -28,10 +28,14 @@ import android.arch.lifecycle.ViewModel;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 
+/**
+ * View model class for {@link NodeConfigurationActivity}
+ */
 public class NodeConfigurationViewModel extends ViewModel {
 
     private final NrfMeshRepository mNrfMeshRepository;
@@ -41,12 +45,7 @@ public class NodeConfigurationViewModel extends ViewModel {
         this.mNrfMeshRepository = nrfMeshRepository;
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-    }
-
-    public ExtendedMeshNode getSelectedMeshNode(){
+    public ExtendedMeshNode getSelectedMeshNode() {
         return mNrfMeshRepository.getSelectedMeshNode();
     }
 
@@ -72,22 +71,31 @@ public class NodeConfigurationViewModel extends ViewModel {
         return mNrfMeshRepository.isConnected();
     }
 
-    public void setMeshNode(final ProvisionedMeshNode node) {
-        mNrfMeshRepository.setSelectedMeshNode(node);
-    }
-
     public MeshMessageLiveData getMeshMessageLiveData() {
         return mNrfMeshRepository.getMeshMessageLiveData();
     }
 
+    /**
+     * Returns an observable live data object containing the {@link ProvisioningSettings}
+     *
+     * @return {@link ProvisioningSettings}
+     */
     public ProvisioningSettingsLiveData getProvisioningSettingLiveData() {
         return mNrfMeshRepository.getProvisioningSettingsLiveData();
     }
 
-    public LiveData<TransactionFailedLiveData> getTransactionStatus() {
-        return mNrfMeshRepository.getTransactionFailedLiveData();
+    /**
+     * Returns an observable live data object containing the transaction status.
+     *
+     * @return {@link TransactionStatusLiveData}
+     */
+    public TransactionStatusLiveData getTransactionStatus() {
+        return mNrfMeshRepository.getTransactionStatusLiveData();
     }
 
+    /**
+     * Returns the {@link MeshManagerApi}
+     */
     public MeshManagerApi getMeshManagerApi() {
         return mNrfMeshRepository.getMeshManagerApi();
     }

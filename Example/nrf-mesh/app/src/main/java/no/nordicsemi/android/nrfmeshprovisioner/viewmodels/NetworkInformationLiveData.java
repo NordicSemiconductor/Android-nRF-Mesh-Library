@@ -9,7 +9,7 @@ public class NetworkInformationLiveData extends LiveData<NetworkInformation> {
 
     private NetworkInformation mNetworkInformation;
 
-    private NetworkInformation.NetworkInformationListener mListener = new NetworkInformation.NetworkInformationListener() {
+    private final NetworkInformation.NetworkInformationListener mListener = new NetworkInformation.NetworkInformationListener() {
         @Override
         public void onNetworkInformationUpdated(final NetworkInformation networkInformation) {
             mNetworkInformation = networkInformation;

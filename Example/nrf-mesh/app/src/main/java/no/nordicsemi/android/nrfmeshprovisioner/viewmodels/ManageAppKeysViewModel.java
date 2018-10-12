@@ -4,6 +4,11 @@ import android.arch.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
+
+/**
+ * ViewModel for {@link ManageAppKeysActivity}
+ */
 public class ManageAppKeysViewModel extends ViewModel {
 
     private final NrfMeshRepository mNrfMeshRepository;
@@ -13,20 +18,10 @@ public class ManageAppKeysViewModel extends ViewModel {
         mNrfMeshRepository = nrfMeshRepository;
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-    }
-
-
     /**
-     * Returns the {@link NrfMeshRepository}
+     * Returns live data object containing provisioning settings.
      */
-    public NrfMeshRepository getNrfMeshRepository(){
-        return mNrfMeshRepository;
-    }
-
-    public ProvisioningSettingsLiveData getProvisioningLiveData() {
+    public ProvisioningSettingsLiveData getProvisioningSettingsLiveData() {
         return mNrfMeshRepository.getProvisioningSettingsLiveData();
     }
 }

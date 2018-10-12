@@ -28,7 +28,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.LocationManager;
-import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
 
@@ -53,12 +52,14 @@ import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager.MESH_PROXY_UUID;
 
+/**
+ * Repository for scanning for bluetooth mesh devices
+ */
 public class ScannerRepository {
 
     private static final String TAG = ScannerRepository.class.getSimpleName();
     private final Context mContext;
     private final MeshManagerApi mMeshManagerApi;
-    private Handler mHandler;
     private String mNetworkId;
 
     /**
@@ -154,7 +155,6 @@ public class ScannerRepository {
     public ScannerRepository(final Context context, final MeshManagerApi meshManagerApi) {
         this.mContext = context;
         this.mMeshManagerApi = meshManagerApi;
-        this.mHandler = new Handler();
         mScannerLiveData = new ScannerLiveData(Utils.isBleEnabled(), Utils.isLocationEnabled(context));
     }
 
@@ -184,6 +184,8 @@ public class ScannerRepository {
 
     /**
      * Start scanning for Bluetooth devices.
+     *
+     * @param filterUuid UUID to filter scan results with
      */
     public void startScan(final UUID filterUuid) {
         mFilterUuid = filterUuid;

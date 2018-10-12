@@ -28,7 +28,11 @@ import android.arch.lifecycle.ViewModel;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
 
+/**
+ * View Model class for {@link ModelConfigurationActivity}
+ */
 public class ModelConfigurationViewModel extends ViewModel {
 
     private final NrfMeshRepository mNrfMeshRepository;
@@ -36,11 +40,6 @@ public class ModelConfigurationViewModel extends ViewModel {
     @Inject
     ModelConfigurationViewModel(final NrfMeshRepository nrfMeshRepository) {
         this.mNrfMeshRepository = nrfMeshRepository;
-    }
-
-    @Override
-    protected void onCleared() {
-        super.onCleared();
     }
 
     public LiveData<Boolean> isConnected() {
@@ -61,6 +60,11 @@ public class ModelConfigurationViewModel extends ViewModel {
         return mNrfMeshRepository.getMeshManagerApi();
     }
 
+    /**
+     * Returns an observable live data object containing the mesh message received
+     *
+     * @return {@link MeshMessageLiveData}
+     */
     public MeshMessageLiveData getMeshMessageLiveData() {
         return mNrfMeshRepository.getMeshMessageLiveData();
     }
@@ -92,7 +96,12 @@ public class ModelConfigurationViewModel extends ViewModel {
         return mNrfMeshRepository.getSelectedModel();
     }
 
-    public LiveData<TransactionFailedLiveData> getTransactionStatus() {
-        return mNrfMeshRepository.getTransactionFailedLiveData();
+    /**
+     * Returns an observable live data object containing the transaction status.
+     *
+     * @return {@link TransactionStatusLiveData}
+     */
+    public TransactionStatusLiveData getTransactionStatus() {
+        return mNrfMeshRepository.getTransactionStatusLiveData();
     }
 }

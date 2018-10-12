@@ -204,10 +204,10 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             resetNodeFragment.show(getSupportFragmentManager(), null);
         });
 
-        mViewModel.getTransactionStatus().observe(this, transactionFailedLiveData -> {
+        mViewModel.getTransactionStatus().observe(this, transactionStatus -> {
             hideProgressBar();
             final String message;
-            if(transactionFailedLiveData.isIncompleteTimerExpired()){
+            if(transactionStatus.isIncompleteTimerExpired()){
                 message = getString(R.string.segments_not_received_timed_out);
             } else {
                 message = getString(R.string.operation_timed_out);

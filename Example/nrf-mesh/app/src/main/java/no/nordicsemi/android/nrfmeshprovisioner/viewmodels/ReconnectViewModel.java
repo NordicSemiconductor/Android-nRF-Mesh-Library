@@ -40,11 +40,6 @@ public class ReconnectViewModel extends ViewModel {
         this.mNrfMeshRepository = nrfMeshRepository;
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-    }
-
     public LiveData<Void> isDeviceReady() {
         return mNrfMeshRepository.isDeviceReady();
     }

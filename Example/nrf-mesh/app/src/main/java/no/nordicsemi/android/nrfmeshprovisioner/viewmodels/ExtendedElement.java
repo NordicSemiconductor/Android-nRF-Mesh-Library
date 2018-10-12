@@ -30,7 +30,7 @@ public class ExtendedElement extends LiveData<Element> {
 
     private Element element;
 
-    protected ExtendedElement(final Element element) {
+    ExtendedElement(final Element element) {
         this.element = element;
         setValue(element);
     }

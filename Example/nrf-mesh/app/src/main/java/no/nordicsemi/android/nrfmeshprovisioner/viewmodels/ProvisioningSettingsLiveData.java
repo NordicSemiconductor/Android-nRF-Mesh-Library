@@ -29,15 +29,15 @@ import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 
+/**
+ * LiveData class for storing {@link ProvisioningSettings}
+ */
 public class ProvisioningSettingsLiveData extends LiveData<ProvisioningSettingsLiveData> {
 
     private ProvisioningSettings mProvisioningSettings;
     private String selectedAppKey;
 
-    public ProvisioningSettingsLiveData() {
-    }
-
-    protected ProvisioningSettingsLiveData(@NonNull final ProvisioningSettings provisioningSettings) {
+    ProvisioningSettingsLiveData(@NonNull final ProvisioningSettings provisioningSettings) {
         mProvisioningSettings = provisioningSettings;
         postValue(this);
     }
@@ -46,84 +46,136 @@ public class ProvisioningSettingsLiveData extends LiveData<ProvisioningSettingsL
         return mProvisioningSettings;
     }
 
-    public void loadProvisioningData(final ProvisioningSettings provisioningSettings) {
-        this.mProvisioningSettings = provisioningSettings;
-    }
-
-    public void reset(final ProvisioningSettings provisioningSettings) {
+    /**
+     * Refresh provisioning settings
+     *
+     * @param provisioningSettings provisioning settings
+     */
+    void refresh(final ProvisioningSettings provisioningSettings) {
         this.mProvisioningSettings = provisioningSettings;
         postValue(this);
     }
 
+    /**
+     * Returns the network key used for provisioning
+     */
     public String getNetworkKey() {
         return mProvisioningSettings.getNetworkKey();
     }
 
+    /**
+     * Set network key
+     *
+     * @param networkKey network key
+     */
     public void setNetworkKey(final String networkKey) {
         mProvisioningSettings.setNetworkKey(networkKey);
         postValue(this);
     }
 
+    /**
+     * Returns the app keys list
+     */
     public List<String> getAppKeys() {
         return mProvisioningSettings.getAppKeys();
     }
 
+    /**
+     * Returns the network key index
+     */
     public int getKeyIndex() {
         return mProvisioningSettings.getKeyIndex();
     }
 
+    /**
+     * Set network key index
+     * @param keyIndex network key index
+     */
     public void setKeyIndex(final int keyIndex) {
         mProvisioningSettings.setKeyIndex(keyIndex);
         postValue(this);
     }
 
+    /**
+     * Returns the IV Index used for provisioning
+     * @return iv index
+     */
     public int getIvIndex() {
         return mProvisioningSettings.getIvIndex();
     }
 
+    /**
+     * Set IV Index
+     * @param ivIndex 24-bit iv index
+     */
     public void setIvIndex(final int ivIndex) {
         mProvisioningSettings.setIvIndex(ivIndex);
         postValue(this);
     }
 
+    /**
+     * Returns unicast address
+     * @return 16-bit unicast address
+     */
     public int getUnicastAddress() {
         return mProvisioningSettings.getUnicastAddress();
     }
 
+    /**
+     * Set unicast address, this would be the address used for a node during the provisioning process.
+     * @param unicastAddress 16-bit unicast address
+     */
     public void setUnicastAddress(final int unicastAddress) {
         mProvisioningSettings.setUnicastAddress(unicastAddress);
         postValue(this);
     }
 
+    /**
+     * Provisioning flags
+     */
     public int getFlags() {
         return mProvisioningSettings.getFlags();
     }
 
+    /**
+     * Provisioning flags
+     * @param flags provisioning flags
+     */
     public void setFlags(final int flags) {
         mProvisioningSettings.setFlags(flags);
         postValue(this);
     }
 
+    /**
+     * Returns the global ttl set for the messages sent by the provisioner
+     */
     public int getGlobalTtl() {
         return mProvisioningSettings.getGlobalTtl();
     }
 
+    /**
+     * Sets a global ttl value that would be used on all messages sent from the provisioner
+     * @param globalTtl ttl value
+     */
     public void setGlobalTtl(final int globalTtl) {
         mProvisioningSettings.setGlobalTtl(globalTtl);
         postValue(this);
     }
 
-    public void update(final ProvisioningSettings provisioningSettings) {
-        this.mProvisioningSettings = provisioningSettings;
-        postValue(this);
-    }
-
+    /**
+     * Return the selected app key to be added during the provisioning process.
+     * @return app key
+     */
     public String getSelectedAppKey() {
         if (selectedAppKey == null)
             selectedAppKey = mProvisioningSettings.getAppKeys().get(0);
         return selectedAppKey;
     }
 
+    /**
+     * Set the selected app key to be added during the provisioning process.
+     * @return app key
+     */
     public void setSelectedAppKey(final String appKey) {
         this.selectedAppKey = appKey;
         postValue(this);
