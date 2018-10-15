@@ -291,7 +291,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      * @return unsegmented access message.
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    private byte[] createUnsegmentedControlMessage(final ControlMessage message) {
+    private void createUnsegmentedControlMessage(final ControlMessage message) {
         int pduLength;
         final ByteBuffer lowerTransportBuffer;
         message.setSegmented(false);
@@ -316,7 +316,6 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         final HashMap<Integer, byte[]> lowerTransportControlPduMap = new HashMap<>();
         lowerTransportControlPduMap.put(0, lowerTransportPDU);
         message.setLowerTransportControlPdu(lowerTransportControlPduMap);
-        return lowerTransportPDU;
     }
 
     /**
@@ -325,7 +324,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      * @param controlMessage control message to be sent.
      * @return Segmented control message.
      */
-    private HashMap<Integer, byte[]> createSegmentedControlMessage(final ControlMessage controlMessage) {
+    private void createSegmentedControlMessage(final ControlMessage controlMessage) {
         controlMessage.setSegmented(false);
         final byte[] encryptedUpperTransportControlPDU = controlMessage.getTransportControlPdu();
         final int opCode = controlMessage.getOpCode();
@@ -354,7 +353,6 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
             lowerTransportControlPduMap.put(segO, lowerTransportPDU);
         }
         controlMessage.setLowerTransportControlPdu(lowerTransportControlPduMap);
-        return lowerTransportControlPduMap;
     }
 
     /**
@@ -736,10 +734,8 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         final byte[] transportControlPdu = controlMessage.getTransportControlPdu();
         final int opCode = controlMessage.getOpCode();
 
-        final int offset;
         switch (opCode) {
             case TransportLayerOpCodes.SAR_ACK_OPCODE:
-                offset = 0;
                 final BlockAcknowledgementMessage acknowledgement = new BlockAcknowledgementMessage(transportControlPdu);
                 controlMessage.setTransportControlMessage(acknowledgement);
             default:
