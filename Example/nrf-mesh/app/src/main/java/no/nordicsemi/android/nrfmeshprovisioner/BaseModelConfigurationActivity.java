@@ -56,6 +56,7 @@ import no.nordicsemi.android.meshprovisioner.message.ConfigModelPublicationStatu
 import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionDelete;
 import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.message.MeshModel;
 import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
@@ -484,6 +485,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                         newInstance(getString(R.string.title_publlish_address_status), status.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
+        } else if (meshMessage instanceof ConfigNodeResetStatus) {
+            finish();
         }
         hideProgressBar();
     }
