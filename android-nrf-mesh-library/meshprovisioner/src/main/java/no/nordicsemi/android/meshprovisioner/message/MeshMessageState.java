@@ -59,7 +59,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
      *
      * @param callbacks callbacks
      */
-    public void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
+    void setTransportCallbacks(final InternalTransportCallbacks callbacks) {
         this.mInternalTransportCallbacks = callbacks;
     }
 
@@ -68,7 +68,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
      *
      * @param callbacks callbacks
      */
-    public void setStatusCallbacks(final MeshStatusCallbacks callbacks) {
+    void setStatusCallbacks(final MeshStatusCallbacks callbacks) {
         this.mMeshStatusCallbacks = callbacks;
     }
 
@@ -95,11 +95,9 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     /**
      * Checks if the message has to be retransmitted.
      *
-     * @param pdu received mesh pdu
      * @return true if retransmission is required or false otherwise
      */
-    public final boolean isRetransmissionRequired(final byte[] pdu) {
-        parseMeshPdu(pdu);
+    final boolean isRetransmissionRequired() {
         return !mRetransmitPayloads.isEmpty();
     }
 
@@ -132,21 +130,12 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     }
 
     /**
-     * Parses the raw encrypted mesh network pdu
-     *
-     * @param pdu mesh pdu to be parsed
-     */
-    protected boolean parseMeshPdu(final byte[] pdu) {
-        return false;
-    }
-
-    /**
      * Parses control message and returns the underlying configuration message
      *
      * @param controlMessage control message to be passed
      * @param segmentCount   number of segments
      */
-    protected final void parseControlMessage(final ControlMessage controlMessage, final int segmentCount) {
+    final void parseControlMessage(final ControlMessage controlMessage, final int segmentCount) {
         final TransportControlMessage transportControlMessage = controlMessage.getTransportControlMessage();
         switch (transportControlMessage.getState()) {
             case LOWER_TRANSPORT_BLOCK_ACKNOWLEDGEMENT:
@@ -166,7 +155,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         return mNode;
     }
 
-    public boolean isSegmented() {
+    boolean isSegmented() {
         return mPayloads.size() > 1;
     }
 

@@ -52,20 +52,6 @@ final class ConfigModelAppUnbindState extends ConfigMessageState {
         return MessageState.CONFIG_MODEL_APP_UNBIND_STATE;
     }
 
-    @Override
-    public boolean parseMeshPdu(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-            } else {
-                parseControlMessage((ControlMessage) message, mPayloads.size());
-            }
-        } else {
-            Log.v(TAG, "Message reassembly may not be complete yet");
-        }
-        return false;
-    }
-
     /**
      * Creates the access message to be sent to the node
      */

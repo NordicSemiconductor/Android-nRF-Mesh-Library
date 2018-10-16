@@ -61,18 +61,4 @@ class VendorModelMessageAckedState extends GenericMessageState {
         Log.v(TAG, "Sending acknowledged vendor model message");
         super.executeSend();
     }
-
-    @Override
-    public boolean parseMeshPdu(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-            } else {
-                parseControlMessage((ControlMessage) message, mPayloads.size());
-            }
-        } else {
-            Log.v(TAG, "Message reassembly may not be complete yet");
-        }
-        return false;
-    }
 }

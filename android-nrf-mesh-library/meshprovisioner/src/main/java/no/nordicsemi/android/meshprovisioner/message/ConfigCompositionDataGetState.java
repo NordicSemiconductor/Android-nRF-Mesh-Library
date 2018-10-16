@@ -48,29 +48,6 @@ class ConfigCompositionDataGetState extends ConfigMessageState {
         return MessageState.COMPOSITION_DATA_GET_STATE;
     }
 
-    @Override
-    public boolean parseMeshPdu(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message == null) {
-            Log.v(TAG, "Message reassembly may not be complete yet");
-            return false;
-        }
-
-        if (message instanceof AccessMessage) {
-            final AccessMessage accessMessage = ((AccessMessage) message);
-            final int opcode = accessMessage.getOpCode();
-            if (opcode == ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS) {
-                return true;
-
-            } else {
-                Log.v(TAG, "Message reassembly may not be complete yet");
-            }
-        } else {
-            parseControlMessage((ControlMessage) message, mPayloads.size());
-        }
-        return false;
-    }
-
     /**
      * Creates the access message to be sent to the node
      */

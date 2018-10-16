@@ -33,8 +33,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
         return null;
     }
 
-    @Override
-    public boolean parseMeshPdu(final byte[] pdu) {
+    void parseMeshPdu(final byte[] pdu) {
         final Message message = mMeshTransport.parsePdu(mSrc, pdu);
         if (message != null) {
             if (message instanceof AccessMessage) {
@@ -83,7 +82,6 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                             mMeshStatusCallbacks.onMeshMessageReceived(status);
 
                         } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_STATUS) {
-                            //TODO fix subscription status for add/delete
                             final ConfigModelSubscriptionStatus status = new ConfigModelSubscriptionStatus(mNode, (AccessMessage) message);
 
                             if (status.isSuccessful()) {
@@ -131,14 +129,13 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         mMeshStatusCallbacks.onUnknownPduReceived(mNode);
                         break;
                 }
-                return true;
             } else {
                 parseControlMessage((ControlMessage) message, mPayloads.size());
+                executeResend();
             }
         } else {
             Log.v(TAG, "Message reassembly may not be completed yet!");
         }
-        return false;
     }
 
 }

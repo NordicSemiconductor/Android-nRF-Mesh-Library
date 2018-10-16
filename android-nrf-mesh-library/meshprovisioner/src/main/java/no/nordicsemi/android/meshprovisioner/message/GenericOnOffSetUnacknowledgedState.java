@@ -37,22 +37,6 @@ class GenericOnOffSetUnacknowledgedState extends GenericMessageState {
         return MessageState.GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE;
     }
 
-    @Override
-    protected boolean parseMeshPdu(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof ControlMessage) {
-                parseControlMessage((ControlMessage) message, mPayloads.size());
-                return true;
-            } else {
-                //TODO
-            }
-        } else {
-            Log.v(TAG, "Message reassembly may not be complete yet");
-        }
-        return false;
-    }
-
     /**
      * Creates the access message to be sent to the node
      */

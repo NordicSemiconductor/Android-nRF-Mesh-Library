@@ -66,20 +66,6 @@ class ConfigAppKeyAddState extends ConfigMessageState {
     }
 
     @Override
-    public final boolean parseMeshPdu(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-            } else {
-                parseControlMessage((ControlMessage) message, mPayloads.size());
-            }
-        } else {
-            Log.v(TAG, "Message reassembly may not be complete yet");
-        }
-        return false;
-    }
-
-    @Override
     public final void executeSend() {
         Log.v(TAG, "Sending config app key add");
         super.executeSend();

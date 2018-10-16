@@ -54,7 +54,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * This method will jump to the current state and switch the current state according to the message that has been sent.
      * </p>
      *
-     * @param pdu      mesh pdu that was sent
+     * @param pdu mesh pdu that was sent
      */
     public final void handleMeshMsgWriteCallbacks(final byte[] pdu) {
         if (mMeshMessageState instanceof ConfigMessageState) {
@@ -139,105 +139,11 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * This method will jump to the current state and switch the state depending on the expected and the next message received.
      * </p>
      *
-     * @param pdu      mesh pdu that was sent
+     * @param pdu mesh pdu that was sent
      */
     public final void parseMeshMsgNotifications(final byte[] pdu) {
-        if (mMeshMessageState instanceof ConfigMessageState) {
-            final ConfigMessageState message = (ConfigMessageState) mMeshMessageState;
-            switch (message.getState()) {
-                case COMPOSITION_DATA_GET_STATE:
-                    final ConfigCompositionDataGetState compositionDataGet = (ConfigCompositionDataGetState) mMeshMessageState;
-                    if (compositionDataGet.isIncompleteTimerExpired() || compositionDataGet.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, compositionDataGet.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-                case APP_KEY_ADD_STATE:
-                    final ConfigAppKeyAddState appKeyAddState = (ConfigAppKeyAddState) mMeshMessageState;
-                    if (appKeyAddState.isIncompleteTimerExpired() || (appKeyAddState.parseMeshPdu(pdu))) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, appKeyAddState.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-                case CONFIG_MODEL_APP_BIND_STATE:
-                    final ConfigModelAppBindState configModelAppBind = (ConfigModelAppBindState) mMeshMessageState;
-                    if (configModelAppBind.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configModelAppBind.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-                case CONFIG_MODEL_APP_UNBIND_STATE:
-                    final ConfigModelAppUnbindState configModelAppUnbind = (ConfigModelAppUnbindState) mMeshMessageState;
-                    if (configModelAppUnbind.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configModelAppUnbind.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-                case CONFIG_MODEL_PUBLICATION_SET_STATE:
-                    final ConfigModelPublicationSetState publicationSetState = (ConfigModelPublicationSetState) mMeshMessageState;
-                    if (publicationSetState.isIncompleteTimerExpired() || publicationSetState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, publicationSetState.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-                case CONFIG_MODEL_SUBSCRIPTION_ADD_STATE:
-                    final ConfigModelSubscriptionAddState subscriptionAddState = (ConfigModelSubscriptionAddState) mMeshMessageState;
-                    if (subscriptionAddState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, subscriptionAddState.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-                case CONFIG_MODEL_SUBSCRIPTION_DELETE_STATE:
-                    final ConfigModelSubscriptionDeleteState subscriptionDeleteState = (ConfigModelSubscriptionDeleteState) mMeshMessageState;
-                    if (subscriptionDeleteState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, subscriptionDeleteState.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-                case CONFIG_NODE_RESET_STATE:
-                    final ConfigNodeResetState configNodeResetState = (ConfigNodeResetState) mMeshMessageState;
-                    if (configNodeResetState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configNodeResetState.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-            }
-        } else if (mMeshMessageState instanceof GenericMessageState) {
-            final GenericMessageState message = (GenericMessageState) mMeshMessageState;
-            switch (message.getState()) {
-                case GENERIC_ON_OFF_GET_STATE:
-                    final GenericOnOffGetState genericOnOffGetState = (GenericOnOffGetState) mMeshMessageState;
-                    if (genericOnOffGetState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, genericOnOffGetState.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-                case GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE:
-                    //We do nothing here since there is no status involved for unacknowledged messages
-                    switchState(new DefaultNoOperationMessageState(mContext, null, mMeshTransport, this), null);
-                    break;
-                case GENERIC_ON_OFF_SET_STATE:
-                    final GenericOnOffSetState genericOnOffSetState = (GenericOnOffSetState) mMeshMessageState;
-                    if (genericOnOffSetState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, genericOnOffSetState.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-                case GENERIC_LEVEL_GET_STATE:
-                    final GenericLevelGetState genericLevelGetState = (GenericLevelGetState) mMeshMessageState;
-                    if (genericLevelGetState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, genericLevelGetState.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-                case GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE:
-                    //We do nothing here since there is no status involved for unacknowledged messages
-                    switchState(new DefaultNoOperationMessageState(mContext, null, mMeshTransport, this), null);
-                    break;
-                case GENERIC_LEVEL_SET_STATE:
-                    final GenericLevelSetState genericLevelSetState = (GenericLevelSetState) mMeshMessageState;
-                    if (genericLevelSetState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, genericLevelSetState.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-                case VENDOR_MODEL_ACKNOWLEDGED_STATE:
-                    final VendorModelMessageAckedState vendorModelMessageAckedState = (VendorModelMessageAckedState) mMeshMessageState;
-                    if (vendorModelMessageAckedState.isIncompleteTimerExpired() || vendorModelMessageAckedState.parseMeshPdu(pdu)) {
-                        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, vendorModelMessageAckedState.getMeshMessage(), mMeshTransport, this));
-                    }
-                    break;
-            }
-        } else {
-            mMeshMessageState.parseMeshPdu(pdu);
+        if (mMeshMessageState instanceof DefaultNoOperationMessageState) {
+            ((DefaultNoOperationMessageState) mMeshMessageState).parseMeshPdu(pdu);
         }
     }
 
@@ -249,49 +155,14 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     }
 
     /**
-     * Switch the current state of the mesh configuration handler
+     * Switch the current state of the mesh message handler
      * <p>
-     * This method will switch the current state to the corresponding next state if the message sent was not a segmented message.
+     * This method will switch the current state of the mesh message handler
      * </p>
      *
      * @param newState new state that is to be switched to
      * @return true if the state was switched successfully
      */
-    private boolean switchState(final MeshMessageState newState) {
-        if (!mMeshMessageState.isSegmented()) {
-            Log.v(TAG, "Switching current state on write complete " + mMeshMessageState.getClass().getSimpleName() + " to " + newState.getClass().getSimpleName());
-            mMeshMessageState = newState;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Switch the current state of the mesh configuration handler
-     * <p>
-     * This method will switch the current state of the configuration handler based on the corresponding block acknowledgement pdu received.
-     * The block acknowledgement pdu explains if certain segments were lost on flight, based on this we retransmit the segments that were lost on flight.
-     * If there were no segments lost and the message that was sent was an acknowledged message, we switch the state to the corresponding message state.
-     * </p>
-     *
-     * @param newState new state that is to be switched to
-     * @param pdu      pdu received
-     * @return true if the state was switched successfully
-     */
-    private boolean switchState(final MeshMessageState newState, final byte[] pdu) {
-        if (pdu != null) {
-            if (mMeshMessageState.isSegmented() && mMeshMessageState.isRetransmissionRequired(pdu)) {
-                mMeshMessageState.executeResend();
-                return false;
-            } else {
-                Log.v(TAG, "Switching current state " + mMeshMessageState.getClass().getSimpleName() + " to " + newState.getClass().getSimpleName());
-                mMeshMessageState = newState;
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void switchToNoOperationState(final MeshMessageState newState) {
         //Switching to unknown message state here for messages that are not
         if (mMeshMessageState.getState() != null && newState.getState() != null) {
@@ -602,7 +473,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
         final int modelId = model.getModelId();
         final int companyIdentifier = model.getCompanyIdentifier();
-        final VendorModelMessageAcked vendorModelMessageAcked = new VendorModelMessageAcked(node, appKey,modelId, companyIdentifier, opcode, parameters, aszmic ? 1 : 0);
+        final VendorModelMessageAcked vendorModelMessageAcked = new VendorModelMessageAcked(node, appKey, modelId, companyIdentifier, opcode, parameters, aszmic ? 1 : 0);
         sendVendorModelAcknowledgedMessage(dstAddress, vendorModelMessageAcked);
     }
 

@@ -50,20 +50,6 @@ final class ConfigModelSubscriptionAddState extends ConfigMessageState {
         return MessageState.CONFIG_MODEL_SUBSCRIPTION_ADD_STATE;
     }
 
-    @Override
-    public boolean parseMeshPdu(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-            } else {
-                parseControlMessage((ControlMessage) message, mPayloads.size());
-            }
-        } else {
-            Log.v(TAG, "Message reassembly may not be complete yet");
-        }
-        return false;
-    }
-
     /**
      * Creates the access message to be sent to the node
      */
@@ -89,10 +75,6 @@ final class ConfigModelSubscriptionAddState extends ConfigMessageState {
             if (mMeshStatusCallbacks != null)
                 mMeshStatusCallbacks.onSubscriptionAddSent(mNode);
         }
-    }
-
-    public void parseData(final byte[] pdu) {
-        parseMeshPdu(pdu);
     }
 
     /**

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import no.nordicsemi.android.meshprovisioner.message.type.AccessMessage;
 import no.nordicsemi.android.meshprovisioner.message.type.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.message.type.Message;
 
@@ -57,19 +56,5 @@ class VendorModelMessageUnackedState extends GenericMessageState {
     public void executeSend() {
         Log.v(TAG, "Sending acknowledged vendor model message");
         super.executeSend();
-    }
-
-    @Override
-    public boolean parseMeshPdu(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof ControlMessage) {
-                parseControlMessage((ControlMessage) message, mPayloads.size());
-                return true;
-            }
-        } else {
-            Log.v(TAG, "Message reassembly may not be complete yet");
-        }
-        return false;
     }
 }

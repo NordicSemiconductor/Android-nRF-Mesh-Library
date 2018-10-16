@@ -40,24 +40,6 @@ class GenericLevelSetState extends GenericMessageState implements LowerTransport
         return MessageState.GENERIC_LEVEL_SET_STATE;
     }
 
-    @Override
-    public boolean parseMeshPdu(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-                if(message.getOpCode() == ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS) {
-                } else {
-                    Log.v(TAG, "Unknown pdu received! " + MeshParserUtils.bytesToHex(((AccessMessage) message).getAccessPdu(), false));
-                }
-            } else {
-                parseControlMessage((ControlMessage) message, mPayloads.size());
-            }
-        } else {
-            Log.v(TAG, "Message reassembly may not be complete yet");
-        }
-        return false;
-    }
-
     /**
      * Creates the access message to be sent to the node
      */

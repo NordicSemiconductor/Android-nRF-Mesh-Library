@@ -51,29 +51,6 @@ class ConfigModelPublicationSetState extends ConfigMessageState {
         return MessageState.CONFIG_MODEL_PUBLICATION_SET_STATE;
     }
 
-    @Override
-    public boolean parseMeshPdu(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(mSrc, pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-                final ConfigModelPublicationStatus configModelPublicationStatus = new ConfigModelPublicationStatus(mNode, (AccessMessage) message);
-                if (configModelPublicationStatus.isSuccessful()) {
-                    final Element element = mNode.getElements().get(configModelPublicationStatus.getElementAddress());
-                    final MeshModel model = element.getMeshModels().get(configModelPublicationStatus.getModelIdentifier());
-                    model.setPublicationStatus(configModelPublicationStatus);
-                }
-                mInternalTransportCallbacks.updateMeshNode(mNode);
-                mMeshStatusCallbacks.onPublicationStatusReceived(configModelPublicationStatus);
-                return true;
-            } else {
-                parseControlMessage((ControlMessage) message, mPayloads.size());
-            }
-        } else {
-            Log.v(TAG, "Message reassembly may not be complete yet");
-        }
-        return false;
-    }
-
     /**
      * Creates the access message to be sent to the node
      */
