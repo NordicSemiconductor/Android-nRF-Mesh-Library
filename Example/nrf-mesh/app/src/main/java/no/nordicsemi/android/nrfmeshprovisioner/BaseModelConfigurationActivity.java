@@ -485,8 +485,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                         newInstance(getString(R.string.title_publlish_address_status), status.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
-        } else if (meshMessage instanceof ConfigNodeResetStatus) {
-            finish();
         }
         hideProgressBar();
     }

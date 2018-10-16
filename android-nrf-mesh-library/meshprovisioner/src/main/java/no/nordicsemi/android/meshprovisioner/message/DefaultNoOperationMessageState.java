@@ -99,7 +99,9 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                             mInternalTransportCallbacks.updateMeshNode(mNode);
                             mMeshStatusCallbacks.onMeshMessageReceived(status);
                         } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS) {
+                            final ConfigNodeResetStatus status = new ConfigNodeResetStatus(mNode, (AccessMessage) message);
                             mInternalTransportCallbacks.onMeshNodeReset(mNode);
+                            mMeshStatusCallbacks.onMeshMessageReceived(status);
                         } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS) {
                             final GenericOnOffStatus genericOnOffStatus = new GenericOnOffStatus(mNode, (AccessMessage) message);
                             mInternalTransportCallbacks.updateMeshNode(mNode);

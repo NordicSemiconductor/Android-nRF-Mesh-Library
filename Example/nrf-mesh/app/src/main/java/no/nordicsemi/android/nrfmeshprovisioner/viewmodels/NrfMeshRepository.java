@@ -27,7 +27,6 @@ import no.nordicsemi.android.meshprovisioner.message.ConfigCompositionDataStatus
 import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.message.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionStatus;
-import no.nordicsemi.android.meshprovisioner.message.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.message.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.message.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.message.GenericOnOffStatus;
@@ -35,9 +34,7 @@ import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.message.MeshModel;
 import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageStatus;
-import no.nordicsemi.android.meshprovisioner.models.SigModel;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
-import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
@@ -613,7 +610,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onTransactionFailed(final ProvisionedMeshNode node, final int src, final boolean hasIncompleteTimerExpired) {
         mMeshNode = node;
-        mTransactionFailedLiveData.onTransactionFailed(src, hasIncompleteTimerExpired);
+        if(mTransactionFailedLiveData.hasActiveObservers()) {
+            mTransactionFailedLiveData.onTransactionFailed(src, hasIncompleteTimerExpired);
+        }
     }
 
     @Override
@@ -843,42 +842,63 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void onMeshMessageReceived(final MeshMessage meshMessage) {
         final ProvisionedMeshNode node = meshMessage.getMeshNode();
         mMeshNode = node;
-        mExtendedMeshNode.updateMeshNode(node);
-        if (meshMessage instanceof ConfigAppKeyStatus) {
-            //Do nothing here
+        if (meshMessage instanceof ConfigCompositionDataStatus || meshMessage instanceof ConfigAppKeyStatus) {
+            mExtendedMeshNode.updateMeshNode(node);
         } else if (meshMessage instanceof ConfigModelAppStatus) {
+
+            mExtendedMeshNode.updateMeshNode(node);
             final ConfigModelAppStatus status = (ConfigModelAppStatus) meshMessage;
             final Element element = node.getElements().get(status.getElementAddress());
             mExtendedElement.setElement(element);
             final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
             mExtendedMeshModel.setMeshModel(model);
+
         } else if (meshMessage instanceof ConfigModelPublicationStatus) {
+
+            mExtendedMeshNode.updateMeshNode(node);
             final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
             final Element element = node.getElements().get(status.getElementAddress());
             mExtendedElement.setElement(element);
             final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
             mExtendedMeshModel.setMeshModel(model);
+
         } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
+
+            mExtendedMeshNode.updateMeshNode(node);
             final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
             final Element element = node.getElements().get(status.getElementAddress());
             mExtendedElement.setElement(element);
             final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
             mExtendedMeshModel.setMeshModel(model);
+
         } else if (meshMessage instanceof ConfigNodeResetStatus) {
-            //Do nothing here
+
+            final ConfigNodeResetStatus status = (ConfigNodeResetStatus) meshMessage;
+            mExtendedMeshNode.clearNode();
+            mProvisionedNodes.postValue(mMeshManagerApi.getProvisionedNodes());
+            mMeshMessageLiveData.postValue(status);
+
         } else if (meshMessage instanceof GenericOnOffStatus) {
+
+            mExtendedMeshNode.updateMeshNode(node);
             final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
             final Element element = node.getElements().get(status.getSrcAddress());
             mExtendedElement.setElement(element);
-            final MeshModel model = element.getMeshModels().get((int)SigModelParser.GENERIC_ON_OFF_SERVER);
+            final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_ON_OFF_SERVER);
             mExtendedMeshModel.setMeshModel(model);
+
         } else if (meshMessage instanceof GenericLevelStatus) {
+
+            mExtendedMeshNode.updateMeshNode(node);
             final GenericLevelStatus status = (GenericLevelStatus) meshMessage;
             final Element element = node.getElements().get(status.getSrcAddress());
             mExtendedElement.setElement(element);
-            final MeshModel model = element.getMeshModels().get((int)SigModelParser.GENERIC_LEVEL_SERVER);
+            final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_LEVEL_SERVER);
             mExtendedMeshModel.setMeshModel(model);
+
         } else if (meshMessage instanceof VendorModelMessageStatus) {
+
+            mExtendedMeshNode.updateMeshNode(node);
             final VendorModelMessageStatus status = (VendorModelMessageStatus) meshMessage;
             final Element element = node.getElements().get(status.getSrcAddress());
             mExtendedElement.setElement(element);
