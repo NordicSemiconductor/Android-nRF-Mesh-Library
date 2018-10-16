@@ -442,11 +442,20 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
 
         Log.v(TAG, "Current SeqAuth value " + seqAuth);
 
+        final int payloadLength = pdu.length - 10;
+        final ByteBuffer payloadBuffer = ByteBuffer.allocate(payloadLength);
+        payloadBuffer.put(pdu, 10, payloadLength);
+
         //Check if the current SeqAuth value is greater than the last and if the incomplete timer has not started, start it!
-        if ((lastSeqAuth == null || lastSeqAuth < seqAuth) /*&& !mIncompleteTimerStarted*/) {
+        if ((lastSeqAuth == null || lastSeqAuth < seqAuth)) {
+            segmentedAccessMessageMap.clear();
+            segmentedAccessMessageMap.put(segO, payloadBuffer.array());
+            mMeshNode.setSeqAuth(blockAckDst, seqAuth);
+            //Reset the block acknowledgement value
+            mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(null, segO);
+
             Log.v(TAG, "Starting incomplete timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
             initIncompleteTimer();
-            mMeshNode.setSeqAuth(blockAckDst, seqAuth);
 
             //Start acknowledgement timer only for messages directed to a unicast address.
             if (MeshParserUtils.isValidUnicastAddress(dst)) {
@@ -455,60 +464,62 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
             }
         } else {
             //if the seqauth values are the same and the init complete timer has already started for a received segmented message, we need to restart the incomplete timer
-            if(lastSeqAuth == seqAuth && mIncompleteTimerStarted){
-                Log.v(TAG, "Restarting incomplete timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
-                restartIncompleteTimer();
+            if (lastSeqAuth == seqAuth) {
+                if (mIncompleteTimerStarted) {
+                    segmentedAccessMessageMap.put(segO, payloadBuffer.array());
+                    final int receivedSegmentedMessageCount = segmentedAccessMessageMap.size();
+                    Log.v(TAG, "Received segment message count: " + receivedSegmentedMessageCount);
+                    //Add +1 to segN since its zero based
+                    if (receivedSegmentedMessageCount != (segN + 1)) {
+                        mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
+                        Log.v(TAG, "Restarting incomplete timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
+                        restartIncompleteTimer();
 
-                //Start acknowledgement timer only for messages directed to a unicast address.
-                //We also have to make sure we restart the acknowledgement timer only if the acknowledgement timer is not active and the incomplete timer is active
-                if (MeshParserUtils.isValidUnicastAddress(dst) && !mSegmentedAccessAcknowledgementTimerStarted) {
-                    Log.v(TAG, "Restarting block acknowledgement timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
-                    //Start the block acknowledgement timer irrespective of which segment was received first
-                    initSegmentedAccessAcknowledgementTimer(seqZero, ttl, blockAckSrc, blockAckDst, segN);
+                        //Start acknowledgement timer only for messages directed to a unicast address.
+                        //We also have to make sure we restart the acknowledgement timer only if the acknowledgement timer is not active and the incomplete timer is active
+                        if (MeshParserUtils.isValidUnicastAddress(dst) && !mSegmentedAccessAcknowledgementTimerStarted) {
+                            Log.v(TAG, "Restarting block acknowledgement timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
+                            //Start the block acknowledgement timer irrespective of which segment was received first
+                            initSegmentedAccessAcknowledgementTimer(seqZero, ttl, blockAckSrc, blockAckDst, segN);
+                        }
+                    } else {
+                        mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
+                        Log.v(TAG, "SEG O BLOCK ACK VAL: " + mSegmentedAccessBlockAck);
+                        handleImmediateBlockAcks(seqZero, ttl, blockAckSrc, blockAckDst, segN);
+
+                        final int upperTransportSequenceNumber = getTransportLayerSequenceNumber(MeshParserUtils.getSequenceNumberFromPDU(pdu), seqZero);
+                        final byte[] sequenceNumber = MeshParserUtils.getSequenceNumberBytes(upperTransportSequenceNumber);
+                        final AccessMessage accessMessage = new AccessMessage();
+                        accessMessage.setAszmic(szmic);
+                        accessMessage.setSequenceNumber(sequenceNumber);
+                        accessMessage.setAkf(akf);
+                        accessMessage.setAid(aid);
+                        accessMessage.setSegmented(true);
+                        final HashMap<Integer, byte[]> segmentedMessages = new HashMap<>();
+                        segmentedMessages.putAll(segmentedAccessMessageMap);
+                        accessMessage.setLowerTransportAccessPdu(segmentedMessages);
+                        return accessMessage;
+                    }
+                } else {
+                    Log.v(TAG, "Ignoring message since the incomplete timer has expired and all messages have been received");
                 }
             }
         }
-
-        mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
-
-        final int payloadLength = pdu.length - 10;
-
-        final ByteBuffer payloadBuffer = ByteBuffer.allocate(payloadLength);
-        payloadBuffer.put(pdu, 10, payloadLength);
-        segmentedAccessMessageMap.put(segO, payloadBuffer.array());
-
-        //Check the message count against the zero-based segN;
-        final int receivedSegmentedMessageCount = segmentedAccessMessageMap.size() - 1;
-        if (segN == receivedSegmentedMessageCount) {
-            Log.v(TAG, "All segments received");
-            //Remove the incomplete timer if all segments were received
-            mHandler.removeCallbacks(mIncompleteTimerRunnable);
-            Log.v(TAG, "Block ack sent? " + mBlockAckSent);
-            if (mDuration > System.currentTimeMillis() && !mBlockAckSent) {
-                if (MeshParserUtils.isValidUnicastAddress(dst)) {
-                    mHandler.removeCallbacksAndMessages(null);
-                    Log.v(TAG, "Cancelling Scheduled block ack and incomplete timer, sending an immediate block ack");
-                    sendBlockAck(seqZero, ttl, blockAckSrc, blockAckDst, segN);
-                    //mBlockAckSent = false;
-                }
-            }
-
-            final int upperTransportSequenceNumber = getTransportLayerSequenceNumber(MeshParserUtils.getSequenceNumberFromPDU(pdu), seqZero);
-            final byte[] sequenceNumber = MeshParserUtils.getSequenceNumberBytes(upperTransportSequenceNumber);
-            final AccessMessage accessMessage = new AccessMessage();
-            accessMessage.setAszmic(szmic);
-            accessMessage.setSequenceNumber(sequenceNumber);
-            accessMessage.setAkf(akf);
-            accessMessage.setAid(aid);
-            accessMessage.setSegmented(true);
-            final HashMap<Integer, byte[]> segmentedMessages = new HashMap<>();
-            segmentedMessages.putAll(segmentedAccessMessageMap);
-            segmentedAccessMessageMap.clear();
-            accessMessage.setLowerTransportAccessPdu(segmentedMessages);
-            return accessMessage;
-        }
-
         return null;
+    }
+
+    /**
+     * Send immediate block acknowledgement
+     *
+     * @param seqZero
+     * @param ttl
+     * @param src
+     * @param dst
+     * @param segN
+     */
+    private void handleImmediateBlockAcks(final int seqZero, final int ttl, final byte[] src, final byte[] dst, final int segN) {
+        cancelIncompleteTimer();
+        sendBlockAck(seqZero, ttl, src, dst, segN);
     }
 
     /**
@@ -611,19 +622,27 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
     private void initIncompleteTimer() {
         mHandler.postDelayed(mIncompleteTimerRunnable, INCOMPLETE_TIMER_DELAY);
         mIncompleteTimerStarted = true;
-
     }
 
     /**
      * Restarts the incomplete timer
      */
-    private void restartIncompleteTimer(){
+    private void restartIncompleteTimer() {
         //Remove the existing incomplete timer
-        if(mIncompleteTimerStarted){
+        if (mIncompleteTimerStarted) {
             mHandler.removeCallbacks(mIncompleteTimerRunnable);
         }
         //Call init to start the timer again
         initIncompleteTimer();
+    }
+
+    /**
+     * Cancels an already started the incomplete timer
+     */
+    private void cancelIncompleteTimer() {
+        //Remove the existing incomplete timer
+        mIncompleteTimerStarted = false;
+        mHandler.removeCallbacks(mIncompleteTimerRunnable);
     }
 
     /**
@@ -647,10 +666,13 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      */
     private void initSegmentedAccessAcknowledgementTimer(final int seqZero, final int ttl, final byte[] src, final byte[] dst, final int segN) {
         if (!mSegmentedAccessAcknowledgementTimerStarted) {
+            mSegmentedAccessAcknowledgementTimerStarted = true;
             final int duration = (150 + (50 * ttl));
             mDuration = System.currentTimeMillis() + duration;
-            mHandler.postDelayed(() -> sendBlockAck(seqZero, ttl, src, dst, segN), duration);
-            mSegmentedAccessAcknowledgementTimerStarted = true;
+            mHandler.postDelayed(() -> {
+                Log.v(TAG, "Acknowledgement timer expiring");
+                sendBlockAck(seqZero, ttl, src, dst, segN);
+            }, duration);
         }
     }
 
@@ -681,9 +703,10 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      */
     private void sendBlockAck(final int seqZero, final int ttl, final byte[] src, final byte[] dst, final int segN) {
         final int blockAck = mSegmentedAccessBlockAck;
+        //mSegmentedAccessBlockAck = null;
         if (BlockAcknowledgementMessage.hasAllSegmentsBeenReceived(blockAck, segN)) {
             Log.v(TAG, "All segments received cancelling incomplete timer");
-            mHandler.removeCallbacks(mIncompleteTimerRunnable);
+            cancelIncompleteTimer();
         }
 
         final byte[] upperTransportControlPdu = createAcknowledgementPayload(seqZero, blockAck);
@@ -702,8 +725,31 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         mBlockAckSent = true;
         mLowerTransportLayerCallbacks.sendSegmentAcknowledgementMessage(controlMessage);
         mSegmentedAccessAcknowledgementTimerStarted = false;
-        Log.v(TAG, "Block ack value: " + blockAck);
-        mSegmentedAccessBlockAck = null;
+    }
+
+    private void sendBlockAck(final int blockAck, final int seqZero, final int ttl, final byte[] src, final byte[] dst, final int segN) {
+        //mSegmentedAccessBlockAck = null;
+        if (BlockAcknowledgementMessage.hasAllSegmentsBeenReceived(blockAck, segN)) {
+            Log.v(TAG, "All segments received cancelling incomplete timer");
+            cancelIncompleteTimer();
+        }
+
+        final byte[] upperTransportControlPdu = createAcknowledgementPayload(seqZero, blockAck);
+        Log.v(TAG, "Block acknowledgement payload: " + MeshParserUtils.bytesToHex(upperTransportControlPdu, false));
+        final ControlMessage controlMessage = new ControlMessage();
+        controlMessage.setOpCode(TransportLayerOpCodes.SAR_ACK_OPCODE);
+        controlMessage.setTransportControlPdu(upperTransportControlPdu);
+        controlMessage.setTtl(ttl);
+        controlMessage.setPduType(NETWORK_PDU);
+        controlMessage.setSrc(src);
+        controlMessage.setDst(dst);
+        controlMessage.setIvIndex(mMeshNode.getIvIndex());
+        final int sequenceNumber = incrementSequenceNumber();
+        final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
+        controlMessage.setSequenceNumber(sequenceNum);
+        mBlockAckSent = true;
+        mLowerTransportLayerCallbacks.sendSegmentAcknowledgementMessage(controlMessage);
+        mSegmentedAccessAcknowledgementTimerStarted = false;
     }
 
     /**

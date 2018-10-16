@@ -35,6 +35,7 @@ import java.util.Set;
 
 import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
@@ -322,7 +323,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
     }
 
     public void setSeqAuth(final byte[] src, final int seqAuth) {
-        final int srcAddress = ((src[0] << 8) & 0xFF) | src[1];
+        final int srcAddress = AddressUtils.getUnicastAddressInt(src);
         mSeqAuth.put(srcAddress, seqAuth);
     }
 
@@ -331,7 +332,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
             return null;
         }
 
-        final int srcAddress = ((src[0] & 0xFF) << 8) | (src[1] & 0xFF);
+        final int srcAddress = AddressUtils.getUnicastAddressInt(src);
         return mSeqAuth.get(srcAddress);
     }
 }
