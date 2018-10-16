@@ -24,10 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.SparseArray;
 
-import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
-import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
 public class ExtendedBluetoothDevice implements Parcelable {

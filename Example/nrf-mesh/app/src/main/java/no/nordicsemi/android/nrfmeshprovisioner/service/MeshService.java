@@ -48,10 +48,10 @@ import dagger.android.AndroidInjection;
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
 import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
-import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshManagerTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.message.MeshModel;
@@ -76,7 +76,16 @@ import no.nordicsemi.android.support.v18.scanner.ScanResult;
 import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager.MESH_PROXY_UUID;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.*;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONFIGURATION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_CONNECTION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_CONNECTED;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_IS_RECONNECTING;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_ON_DEVICE_READY;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.ACTION_TRANSACTION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_CONFIGURATION_STATE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
 
 public class MeshService extends Service implements BleMeshManagerCallbacks,
         MeshProvisioningStatusCallbacks,

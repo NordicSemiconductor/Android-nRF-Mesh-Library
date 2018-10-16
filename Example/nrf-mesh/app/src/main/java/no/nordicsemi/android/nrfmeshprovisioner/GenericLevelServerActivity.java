@@ -14,12 +14,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.message.MeshModel;
-import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.message.GenericLevelGet;
 import no.nordicsemi.android.meshprovisioner.message.GenericLevelSet;
 import no.nordicsemi.android.meshprovisioner.message.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;

@@ -56,7 +56,6 @@ import no.nordicsemi.android.meshprovisioner.message.ConfigModelPublicationStatu
 import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionDelete;
 import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionStatus;
-import no.nordicsemi.android.meshprovisioner.message.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.message.MeshModel;
 import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;

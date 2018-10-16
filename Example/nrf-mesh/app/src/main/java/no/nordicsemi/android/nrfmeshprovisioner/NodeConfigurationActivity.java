@@ -49,14 +49,14 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.message.MeshModel;
-import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.message.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.message.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.message.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.message.ConfigCompositionDataStatus;
 import no.nordicsemi.android.meshprovisioner.message.ConfigNodeResetStatus;
+import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;

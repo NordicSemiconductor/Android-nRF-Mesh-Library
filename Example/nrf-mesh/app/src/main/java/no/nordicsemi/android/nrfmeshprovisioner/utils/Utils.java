@@ -26,7 +26,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -37,8 +36,6 @@ import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import java.util.Map;
-
-import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
 
 public class Utils {
 

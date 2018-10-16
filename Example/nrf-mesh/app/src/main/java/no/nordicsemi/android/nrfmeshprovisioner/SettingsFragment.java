@@ -45,7 +45,6 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFlags;
