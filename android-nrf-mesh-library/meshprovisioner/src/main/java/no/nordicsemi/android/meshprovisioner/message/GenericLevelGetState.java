@@ -5,12 +5,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import no.nordicsemi.android.meshprovisioner.message.type.AccessMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.ControlMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.Message;
-import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-
 /**
  * State class for handling GenericLevelGet messages.
  */

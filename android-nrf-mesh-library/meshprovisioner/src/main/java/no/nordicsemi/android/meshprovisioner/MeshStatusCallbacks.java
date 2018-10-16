@@ -22,8 +22,6 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import android.support.annotation.NonNull;
-
 import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
 

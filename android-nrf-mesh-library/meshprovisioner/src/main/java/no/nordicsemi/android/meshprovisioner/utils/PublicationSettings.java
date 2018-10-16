@@ -2,7 +2,6 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

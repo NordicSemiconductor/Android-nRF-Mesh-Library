@@ -43,10 +43,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import no.nordicsemi.android.meshprovisioner.message.MeshModel;
-import no.nordicsemi.android.meshprovisioner.message.MeshTransport;
-import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.message.SequenceNumber;
 import no.nordicsemi.android.meshprovisioner.message.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.message.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppBind;
@@ -61,6 +57,10 @@ import no.nordicsemi.android.meshprovisioner.message.GenericLevelSetUnacknowledg
 import no.nordicsemi.android.meshprovisioner.message.GenericOnOffGet;
 import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSet;
 import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSetUnacknowledged;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.MeshTransport;
+import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.message.SequenceNumber;
 import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageAcked;
 import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageUnacked;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;

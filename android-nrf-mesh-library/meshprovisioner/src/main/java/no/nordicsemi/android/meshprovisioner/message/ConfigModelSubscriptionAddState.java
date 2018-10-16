@@ -26,10 +26,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import no.nordicsemi.android.meshprovisioner.message.type.AccessMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.ControlMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.Message;
-
 /**
  * This class handles subscribing a model to subscription address.
  */

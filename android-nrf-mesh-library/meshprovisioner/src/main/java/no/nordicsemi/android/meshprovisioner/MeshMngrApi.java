@@ -3,8 +3,6 @@ package no.nordicsemi.android.meshprovisioner;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import no.nordicsemi.android.meshprovisioner.message.MeshModel;
-import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.message.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.message.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppBind;
@@ -19,6 +17,8 @@ import no.nordicsemi.android.meshprovisioner.message.GenericLevelSetUnacknowledg
 import no.nordicsemi.android.meshprovisioner.message.GenericOnOffGet;
 import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSet;
 import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSetUnacknowledged;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageAcked;
 import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageUnacked;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;

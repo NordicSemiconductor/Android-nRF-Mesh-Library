@@ -26,11 +26,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import no.nordicsemi.android.meshprovisioner.message.type.AccessMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.ControlMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.Message;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
-
 /**
  * State class handling the publication set messages and its status message.
  */

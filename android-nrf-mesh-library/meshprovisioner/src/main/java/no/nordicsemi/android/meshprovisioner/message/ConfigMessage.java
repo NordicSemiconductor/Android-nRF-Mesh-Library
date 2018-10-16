@@ -1,7 +1,5 @@
 package no.nordicsemi.android.meshprovisioner.message;
 
-import android.support.annotation.NonNull;
-
 import no.nordicsemi.android.meshprovisioner.message.type.AccessMessage;
 
 public abstract class ConfigMessage extends MeshMessage {

@@ -5,9 +5,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import no.nordicsemi.android.meshprovisioner.message.type.ControlMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.Message;
-
 /**
  * State class for handling unacknowledged GenericLevelSet messages.
  */
