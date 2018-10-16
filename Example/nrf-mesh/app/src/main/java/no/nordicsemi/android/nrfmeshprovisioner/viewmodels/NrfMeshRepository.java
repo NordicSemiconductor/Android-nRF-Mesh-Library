@@ -610,7 +610,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onTransactionFailed(final ProvisionedMeshNode node, final int src, final boolean hasIncompleteTimerExpired) {
         mMeshNode = node;
-        if(mTransactionFailedLiveData.hasActiveObservers()) {
+        if (mTransactionFailedLiveData.hasActiveObservers()) {
             mTransactionFailedLiveData.onTransactionFailed(src, hasIncompleteTimerExpired);
         }
     }
@@ -842,8 +842,33 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void onMeshMessageReceived(final MeshMessage meshMessage) {
         final ProvisionedMeshNode node = meshMessage.getMeshNode();
         mMeshNode = node;
-        if (meshMessage instanceof ConfigCompositionDataStatus || meshMessage instanceof ConfigAppKeyStatus) {
+        if (meshMessage instanceof ConfigCompositionDataStatus) {
+            final ConfigCompositionDataStatus status = (ConfigCompositionDataStatus) meshMessage;
+            if (mSetupProvisionedNode) {
+                mMeshNodeLiveData.postValue(node);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.COMPOSITION_DATA_STATUS_RECEIVED);
+                //We send app key add after composition is complete. Adding a delay so that we don't send anything before the acknowledgement is sent out.
+                if (!mMeshManagerApi.getProvisioningSettings().getAppKeys().isEmpty()) {
+                    mHandler.postDelayed(() -> {
+                        final String appKey = mProvisioningSettingsLiveData.getSelectedAppKey();
+                        final int index = mMeshManagerApi.getProvisioningSettings().getAppKeys().indexOf(appKey);
+                        mMeshManagerApi.addAppKey(node, 0, appKey);
+                    }, 2500);
+                }
+            } else {
+                mExtendedMeshNode.updateMeshNode(node);
+            }
+        } else if (meshMessage instanceof ConfigAppKeyStatus) {
             mExtendedMeshNode.updateMeshNode(node);
+            final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
+            if (mSetupProvisionedNode) {
+                mSetupProvisionedNode = false;
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.APP_KEY_STATUS_RECEIVED);
+            } else {
+                mMeshNode = node;
+                mExtendedMeshNode.updateMeshNode(node);
+                mMeshMessageLiveData.postValue(status);
+            }
         } else if (meshMessage instanceof ConfigModelAppStatus) {
 
             mExtendedMeshNode.updateMeshNode(node);
@@ -905,7 +930,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
             mExtendedMeshModel.setMeshModel(model);
         }
-        mMeshMessageLiveData.postValue(meshMessage);
+
+        if(mMeshMessageLiveData.hasActiveObservers()) {
+            mMeshMessageLiveData.postValue(meshMessage);
+        }
     }
 
     /**
