@@ -25,7 +25,7 @@ import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 
-public interface MeshMngrApi {
+interface MeshMngrApi {
 
     /**
      * Identifies the node that is to be provisioned.

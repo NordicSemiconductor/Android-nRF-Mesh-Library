@@ -67,7 +67,7 @@ class ConfigCompositionDataGetState extends ConfigMessageState {
         Log.v(TAG, "Sending composition data get");
         super.executeSend();
         if (!mPayloads.isEmpty() && mMeshStatusCallbacks != null) {
-            mMeshStatusCallbacks.onGetCompositionDataSent(mNode);
+            mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
         }
     }
 }

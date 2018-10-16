@@ -64,7 +64,7 @@ class GenericLevelGetState extends GenericMessageState {
 
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onGenericLevelGetSent(mNode);
+                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
         }
     }
 }

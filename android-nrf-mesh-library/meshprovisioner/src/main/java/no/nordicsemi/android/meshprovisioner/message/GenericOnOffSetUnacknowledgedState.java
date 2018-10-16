@@ -59,7 +59,7 @@ class GenericOnOffSetUnacknowledgedState extends GenericMessageState {
 
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onGenericOnOffSetUnacknowledgedSent(mNode);
+                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
         }
     }
 }

@@ -75,7 +75,7 @@ final class ConfigModelAppUnbindState extends ConfigMessageState {
 
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onAppKeyUnbindSent(mNode);
+                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
         }
     }
 }

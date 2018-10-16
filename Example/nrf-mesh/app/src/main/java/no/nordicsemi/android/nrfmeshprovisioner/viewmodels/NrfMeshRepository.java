@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.os.Handler;
 import android.os.ParcelUuid;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -639,203 +638,20 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     @Override
-    public void onGetCompositionDataSent(@NonNull final ProvisionedMeshNode node) {
-        mMeshNode = node;
-        if (mSetupProvisionedNode) {
-            mMeshNodeLiveData.postValue(node);
-            mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.COMPOSITION_DATA_GET_SENT);
-        }
-    }
-
-    @Override
-    public void onCompositionDataStatusReceived(@NonNull final ConfigCompositionDataStatus status) {
-        final ProvisionedMeshNode node = status.getMeshNode();
-        mMeshNode = node;
-        if (mSetupProvisionedNode) {
-            mMeshNodeLiveData.postValue(node);
-            mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.COMPOSITION_DATA_STATUS_RECEIVED);
-            //We send app key add after composition is complete. Adding a delay so that we don't send anything before the acknowledgement is sent out.
-            if (!mMeshManagerApi.getProvisioningSettings().getAppKeys().isEmpty()) {
-                mHandler.postDelayed(() -> {
-                    final String appKey = mProvisioningSettingsLiveData.getSelectedAppKey();
-                    final int index = mMeshManagerApi.getProvisioningSettings().getAppKeys().indexOf(appKey);
-                    mMeshManagerApi.addAppKey(node, 0, appKey);
-                }, 2500);
-            }
-        } else {
-            mExtendedMeshNode.updateMeshNode(node);
-            mMeshMessageLiveData.postValue(status);
-        }
-    }
-
-    @Override
-    public void onAppKeyAddSent(final ProvisionedMeshNode node) {
-        mMeshNode = node;
-        if (mSetupProvisionedNode) {
-            mMeshNodeLiveData.postValue(node);
-            mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.SENDING_APP_KEY_ADD);
-        } else {
-            mExtendedMeshNode.updateMeshNode(node);
-        }
-    }
-
-    @Override
-    public void onAppKeyStatusReceived(final ConfigAppKeyStatus status) {
-        if (mSetupProvisionedNode) {
-            mSetupProvisionedNode = false;
-            mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.APP_KEY_STATUS_RECEIVED);
-        } else {
-            final ProvisionedMeshNode node = status.getMeshNode();
-            mMeshNode = node;
-            mExtendedMeshNode.updateMeshNode(node);
-            mMeshMessageLiveData.postValue(status);
-        }
-    }
-
-    @Override
-    public void onAppKeyBindSent(final ProvisionedMeshNode node) {
-
-    }
-
-    @Override
-    public void onAppKeyUnbindSent(final ProvisionedMeshNode node) {
-
-    }
-
-    @Override
-    public void onAppKeyBindStatusReceived(@NonNull final ConfigModelAppStatus status) {
-        final ProvisionedMeshNode node = status.getMeshNode();
-        mMeshNode = node;
-        mExtendedMeshNode.updateMeshNode(node);
-        final int elementAddress = status.getElementAddress();
-        final int modelId = status.getModelIdentifier();
-        mExtendedMeshModel.setMeshModel(node.getElements().get(elementAddress).getMeshModels().get(modelId));
-        mMeshMessageLiveData.postValue(status);
-    }
-
-    @Override
-    public void onPublicationSetSent(final ProvisionedMeshNode node) {
-
-    }
-
-    @Override
-    public void onPublicationStatusReceived(@NonNull final ConfigModelPublicationStatus status) {
-        final ProvisionedMeshNode node = status.getMeshNode();
-        mMeshNode = node;
-        mExtendedMeshNode.updateMeshNode(node);
-        final int elementAddress = status.getElementAddress();
-        final int modelId = status.getModelIdentifier();
-        mExtendedMeshModel.setMeshModel(node.getElements().get(elementAddress).getMeshModels().get(modelId));
-        mMeshMessageLiveData.postValue(status);
-    }
-
-    @Override
-    public void onSubscriptionAddSent(final ProvisionedMeshNode node) {
-
-    }
-
-    @Override
-    public void onSubscriptionDeleteSent(final ProvisionedMeshNode node) {
-
-    }
-
-    @Override
-    public void onSubscriptionStatusReceived(final ConfigModelSubscriptionStatus status) {
-        final ProvisionedMeshNode node = status.getMeshNode();
-        mMeshNode = node;
-        mExtendedMeshNode.updateMeshNode(node);
-        final int elementAddress = status.getElementAddress();
-        final int modelId = status.getModelIdentifier();
-        mExtendedMeshModel.setMeshModel(node.getElements().get(elementAddress).getMeshModels().get(modelId));
-        mMeshMessageLiveData.postValue(status);
-    }
-
-    @Override
-    public void onMeshNodeResetSent(final ProvisionedMeshNode node) {
-
-    }
-
-    @Override
-    public void onMeshNodeResetStatusReceived(@NonNull final ConfigNodeResetStatus status) {
-        mMeshNode = status.getMeshNode();
-        mExtendedMeshNode.clearNode();
-        mProvisionedNodes.postValue(mMeshManagerApi.getProvisionedNodes());
-        mMeshMessageLiveData.postValue(status);
-    }
-
-    @Override
-    public void onGenericOnOffGetSent(final ProvisionedMeshNode node) {
-
-    }
-
-    @Override
-    public void onGenericOnOffSetSent(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime) {
-
-    }
-
-    @Override
-    public void onGenericOnOffSetUnacknowledgedSent(final ProvisionedMeshNode node) {
-
-    }
-
-    @Override
-    public void onGenericOnOffStatusReceived(final GenericOnOffStatus status) {
-        final ProvisionedMeshNode node = status.getMeshNode();
-        mMeshNode = node;
-        mExtendedMeshNode.updateMeshNode(node);
-        final int elementAddress = status.getSrcAddress();
-        final Element element = node.getElements().get(elementAddress);
-        final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_ON_OFF_SERVER);
-        mExtendedMeshModel.setMeshModel(model);
-        mMeshMessageLiveData.postValue(status);
-    }
-
-    @Override
-    public void onGenericLevelGetSent(final ProvisionedMeshNode node) {
-
-    }
-
-    @Override
-    public void onGenericLevelSetSent(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime) {
-
-    }
-
-    @Override
-    public void onGenericLevelSetUnacknowledgedSent(final ProvisionedMeshNode node) {
-
-    }
-
-    @Override
-    public void onGenericLevelStatusReceived(final GenericLevelStatus status) {
-        final ProvisionedMeshNode node = status.getMeshNode();
-        mMeshNode = node;
-        mExtendedMeshNode.updateMeshNode(node);
-        mMeshMessageLiveData.postValue(status);
-    }
-
-    @Override
-    public void onUnacknowledgedVendorModelMessageSent(final ProvisionedMeshNode node) {
-
-    }
-
-    @Override
-    public void onAcknowledgedVendorModelMessageSent(final ProvisionedMeshNode node) {
-
-    }
-
-    @Override
-    public void onVendorModelMessageStatusReceived(final VendorModelMessageStatus status) {
-        final ProvisionedMeshNode node = status.getMeshNode();
-        mMeshNode = node;
-        mExtendedMeshNode.updateMeshNode(node);
-        mMeshMessageLiveData.postValue(status);
-    }
-
-    @Override
     public void onMeshMessageSent(final MeshMessage meshMessage) {
         final ProvisionedMeshNode node = meshMessage.getMeshNode();
         mMeshNode = node;
-        mExtendedMeshNode.updateMeshNode(node);
+        if(meshMessage instanceof ConfigCompositionDataGet) {
+            if (mSetupProvisionedNode) {
+                mMeshNodeLiveData.postValue(node);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.COMPOSITION_DATA_GET_SENT);
+            }
+        } else if(meshMessage instanceof ConfigAppKeyStatus) {
+            if (mSetupProvisionedNode) {
+                mMeshNodeLiveData.postValue(node);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.SENDING_APP_KEY_ADD);
+            }
+        }
     }
 
     @Override

@@ -75,7 +75,7 @@ final class ConfigModelAppBindState extends ConfigMessageState {
 
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onAppKeyBindSent(mNode);
+                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
         }
     }
 

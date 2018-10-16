@@ -61,7 +61,7 @@ class ConfigNodeResetState extends ConfigMessageState {
 
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshNodeResetSent(mNode);
+                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
         }
     }
 }

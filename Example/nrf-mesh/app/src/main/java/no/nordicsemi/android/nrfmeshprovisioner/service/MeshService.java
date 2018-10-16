@@ -32,7 +32,6 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.ParcelUuid;
-import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -57,15 +56,6 @@ import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.message.MeshModel;
 import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.message.ConfigAppKeyStatus;
-import no.nordicsemi.android.meshprovisioner.message.ConfigCompositionDataStatus;
-import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppStatus;
-import no.nordicsemi.android.meshprovisioner.message.ConfigModelPublicationStatus;
-import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionStatus;
-import no.nordicsemi.android.meshprovisioner.message.ConfigNodeResetStatus;
-import no.nordicsemi.android.meshprovisioner.message.GenericLevelStatus;
-import no.nordicsemi.android.meshprovisioner.message.GenericOnOffStatus;
-import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
@@ -443,203 +433,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     }
 
     @Override
-    public void onGetCompositionDataSent(@NonNull final ProvisionedMeshNode node) {
-        mMeshNode = node;
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.COMPOSITION_DATA_GET_SENT.getState());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onCompositionDataStatusReceived(@NonNull final ConfigCompositionDataStatus compositionDataStatus) {
-        mMeshNode = compositionDataStatus.getMeshNode();
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.COMPOSITION_DATA_STATUS_RECEIVED.getState());
-        intent.putExtra(EXTRA_DATA, compositionDataStatus);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-
-        if (mShouldAddAppKeyBeAdded) {
-            mShouldAddAppKeyBeAdded = false; //set it to false once the message is set on the handler
-            //We send app key add after composition is complete. Adding a delay so that we don't send anything before the acknowledgement is sent out.
-            mHandler.postDelayed(() -> {
-                final int appKeyIndex = mAppKeyIndex;
-                final String appKey = mAppKey = mProvisioningSettings.getAppKeys().get(appKeyIndex);
-                final ProvisionedMeshNode node = (ProvisionedMeshNode) mMeshNode;
-                mMeshManagerApi.addAppKey(node, appKeyIndex, appKey);
-                mAppKeyIndex = 0;
-                mAppKey = null;
-            }, 1500);
-        }
-    }
-
-    @Override
-    public void onAppKeyAddSent(final ProvisionedMeshNode node) {
-        mMeshNode = node;
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.SENDING_APP_KEY_ADD.getState());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onAppKeyStatusReceived(final ConfigAppKeyStatus status) {
-        final ProvisionedMeshNode node = status.getMeshNode();
-        mIsConfigurationComplete = true;
-        mMeshNode = node;
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.APP_KEY_STATUS_RECEIVED.getState());
-        intent.putExtra(EXTRA_DATA, status);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onAppKeyBindSent(final ProvisionedMeshNode node) {
-        mMeshNode = node;
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.APP_BIND_SENT.getState());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onAppKeyUnbindSent(final ProvisionedMeshNode node) {
-        mMeshNode = node;
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.APP_UNBIND_SENT.getState());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onAppKeyBindStatusReceived(@NonNull final ConfigModelAppStatus status) {
-        final ProvisionedMeshNode node  = status.getMeshNode();
-        mMeshNode = node;
-        final Element element = node.getElements().get(status.getElementAddress());
-        mElement = element;
-        mMeshModel = element.getMeshModels().get(status.getModelIdentifier());
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.APP_BIND_STATUS_RECEIVED.getState());
-        intent.putExtra(EXTRA_DATA, status);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onPublicationSetSent(final ProvisionedMeshNode node) {
-        mMeshNode = node;
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.PUBLISH_ADDRESS_SET_SENT.getState());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onPublicationStatusReceived(@NonNull final ConfigModelPublicationStatus status) {
-        final ProvisionedMeshNode node  = status.getMeshNode();
-        mMeshNode = node;
-        final Element element = node.getElements().get(status.getElementAddress());
-        mElement = element;
-        mMeshModel = element.getMeshModels().get(status.getModelIdentifier());
-
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.PUBLISH_ADDRESS_STATUS_RECEIVED.getState());
-        intent.putExtra(EXTRA_DATA, status);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onSubscriptionAddSent(final ProvisionedMeshNode node) {
-        mMeshNode = node;
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.SUBSCRIPTION_ADD_SENT.getState());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onSubscriptionDeleteSent(final ProvisionedMeshNode node) {
-        mMeshNode = node;
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.SUBSCRIPTION_DELETE_SENT.getState());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onSubscriptionStatusReceived(final ConfigModelSubscriptionStatus status) {
-        final ProvisionedMeshNode node  = status.getMeshNode();
-        mMeshNode = node;
-        final Element element = node.getElements().get(status.getElementAddress());
-        mElement = element;
-        mMeshModel = element.getMeshModels().get(status.getModelIdentifier());
-
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.SUBSCRIPTION_STATUS_RECEIVED.getState());
-        intent.putExtra(EXTRA_DATA, status);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onGenericOnOffGetSent(final ProvisionedMeshNode node) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onGenericOnOffSetSent(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onGenericOnOffSetUnacknowledgedSent(final ProvisionedMeshNode node) {
-        mMeshNode = node;
-        final Intent intent = new Intent(ACTION_GENERIC_STATE);
-        intent.putExtra(EXTRA_GENERIC_ON_OFF_SET_UNACK, "");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onGenericOnOffStatusReceived(final GenericOnOffStatus status) {
-        mMeshNode = status.getMeshNode();
-        final Intent intent = new Intent(ACTION_GENERIC_ON_OFF_STATE);
-        intent.putExtra(EXTRA_DATA, status);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onGenericLevelSetUnacknowledgedSent(ProvisionedMeshNode node) {
-        // TODO
-    }
-
-    @Override
-    public void onGenericLevelSetSent(ProvisionedMeshNode node, boolean presentOnOff, boolean targetOnOff, int remainingTime) {
-        // TODO
-    }
-
-    @Override
-    public void onGenericLevelGetSent(ProvisionedMeshNode node) {
-        // TODO
-    }
-
-    @Override
-    public void onGenericLevelStatusReceived(final GenericLevelStatus status) {
-        mMeshNode = status.getMeshNode();
-        final Intent intent = new Intent(ACTION_GENERIC_LEVEL_STATE);
-        intent.putExtra(EXTRA_DATA, status);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onUnacknowledgedVendorModelMessageSent(final ProvisionedMeshNode node) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onAcknowledgedVendorModelMessageSent(final ProvisionedMeshNode node) {
-        mMeshNode = node;
-    }
-
-    @Override
-    public void onVendorModelMessageStatusReceived(final VendorModelMessageStatus status) {
-        mMeshNode = status.getMeshNode();
-        final Intent intent = new Intent(ACTION_VENDOR_MODEL_MESSAGE_STATE);
-        intent.putExtra(EXTRA_DATA, status);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
     public void onMeshMessageSent(final MeshMessage meshMessage) {
 
     }
@@ -647,25 +440,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
     @Override
     public void onMeshMessageReceived(final MeshMessage meshMessage) {
 
-    }
-
-    @Override
-    public void onMeshNodeResetSent(final ProvisionedMeshNode node) {
-        mMeshNode = node;
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_DATA_NODE_RESET, "");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    @Override
-    public void onMeshNodeResetStatusReceived(@NonNull final ConfigNodeResetStatus status) {
-        mMeshNode = null;
-        mElement = null;
-        mMeshModel = null;
-        final Intent intent = new Intent(ACTION_CONFIGURATION_STATE);
-        intent.putExtra(EXTRA_DATA_NODE_RESET_STATUS, MeshNodeStates.MeshNodeStatus.NODE_RESET_STATUS_RECEIVED.getState());
-        intent.putExtra(EXTRA_DATA, status);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private void handleConnectivityStates(final boolean connected) {

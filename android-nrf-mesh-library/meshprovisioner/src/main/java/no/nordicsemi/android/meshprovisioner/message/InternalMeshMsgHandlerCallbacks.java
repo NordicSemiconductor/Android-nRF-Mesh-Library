@@ -25,7 +25,7 @@ package no.nordicsemi.android.meshprovisioner.message;
 /**
  * Callbacks to notify the mesh message handler to notify events from transport layers.
  */
-public interface InternalMeshMsgHandlerCallbacks {
+interface InternalMeshMsgHandlerCallbacks {
 
     /**
      * Callback to notify the incomplete timer has expired

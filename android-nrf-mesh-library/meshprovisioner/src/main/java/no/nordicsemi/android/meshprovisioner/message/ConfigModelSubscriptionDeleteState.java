@@ -73,7 +73,7 @@ final class ConfigModelSubscriptionDeleteState extends ConfigMessageState {
 
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onSubscriptionDeleteSent(mNode);
+                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
         }
     }
 

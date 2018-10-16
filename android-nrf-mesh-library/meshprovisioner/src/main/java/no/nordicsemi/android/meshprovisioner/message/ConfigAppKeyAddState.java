@@ -71,7 +71,7 @@ class ConfigAppKeyAddState extends ConfigMessageState {
         super.executeSend();
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onAppKeyAddSent(mNode);
+                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
         }
     }
 

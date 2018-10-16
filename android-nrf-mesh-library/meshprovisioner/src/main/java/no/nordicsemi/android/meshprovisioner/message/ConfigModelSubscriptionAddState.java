@@ -73,7 +73,7 @@ final class ConfigModelSubscriptionAddState extends ConfigMessageState {
 
         if (!mPayloads.isEmpty()) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onSubscriptionAddSent(mNode);
+                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
         }
     }
 
