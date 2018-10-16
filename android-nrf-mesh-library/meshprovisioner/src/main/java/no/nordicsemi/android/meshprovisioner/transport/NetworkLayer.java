@@ -51,7 +51,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     private int key;
     private HashMap<Integer, byte[]> segmentedAccessMessagesMessages;
     private HashMap<Integer, byte[]> segmentedControlMessagesMessages;
-    private byte[] mSrc;
 
     /**
      * Creates a mesh message
@@ -426,9 +425,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
         if(mMeshNode == null || mMeshNode.getUnicastAddressInt() != AddressUtils.getUnicastAddressInt(src)) {
             mMeshNode = mNetworkLayerCallbacks.getMeshNode(AddressUtils.getUnicastAddressInt(src));
-            //Store the src address of the received message
-            //This is to ignore messages from a different source address while processing segmented messages.
-            mSrc = src;
         }
 
         //Check if the sequence number has been incremented since the last message sent and return null if not
@@ -511,7 +507,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             Log.v(TAG, "Received a segmented access message from: " + MeshParserUtils.bytesToHex(src, false));
 
             //Check if the received segmented message is from the same src as the previous segment
-            if (!Arrays.equals(src, mSrc)) {
+            if (!Arrays.equals(src, mMeshNode.getUnicastAddress())) {
                 Log.v(TAG, "Segment received is from a different src than the one we are processing, let's drop it");
                 return null;
             }
@@ -528,7 +524,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             final AccessMessage message = parseSegmentedAccessLowerTransportPDU(pdu);
             if (message != null) {
                 //The segmented message is complete, lets clear the stored src address
-                mSrc = null;
 
                 final HashMap<Integer, byte[]> segmentedMessages = segmentedAccessMessagesMessages;
                 segmentedAccessMessagesMessages = null;
@@ -542,7 +537,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
                 parseUpperTransportPDU(message);
                 parseAccessLayerPDU(message);
-                mSrc = null;
             }
             return message;
 
@@ -563,7 +557,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             parseUpperTransportPDU(message);
             parseAccessLayerPDU(message);
 
-            mSrc = null;
             return message;
         }
     }
@@ -619,7 +612,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
                 parseUpperTransportPDU(message);
                 parseAccessLayerPDU(message);
-                mSrc = null;
             }
             return message;
 
@@ -639,7 +631,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             parseUnsegmentedAccessLowerTransportPDU(message, pdu);
             parseUpperTransportPDU(message);
 
-            mSrc = null;
             return message;
         }
     }
@@ -698,7 +689,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
                 message.setTtl(ttl);
                 message.setSrc(src);
                 message.setDst(dst);
-                mSrc = null;
             }
             return message;
 
@@ -717,7 +707,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
             parseUnsegmentedControlLowerTransportPDU(message, pdu);
 
-            mSrc = null;
             return message;
         }
     }
@@ -771,7 +760,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
                 message.setSrc(src);
                 message.setDst(dst);
 
-                mSrc = null;
             }
             return message;
 
@@ -790,7 +778,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
             parseUnsegmentedControlLowerTransportPDU(message, pdu);
 
-            mSrc = null;
             return message;
         }
     }
