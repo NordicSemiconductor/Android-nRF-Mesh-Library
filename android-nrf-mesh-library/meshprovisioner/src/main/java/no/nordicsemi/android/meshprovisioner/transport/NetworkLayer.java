@@ -33,9 +33,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
-import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
-import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
+import no.nordicsemi.android.meshprovisioner.message.type.AccessMessage;
+import no.nordicsemi.android.meshprovisioner.message.type.ControlMessage;
+import no.nordicsemi.android.meshprovisioner.message.type.Message;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -44,6 +45,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     protected static final int MESH_BEACON_PDU = 0x01;
     private static final int PROXY_CONFIGURATION_PDU = 0x02;
     private static final String TAG = NetworkLayer.class.getSimpleName();
+    protected NetworkLayerCallbacks mNetworkLayerCallbacks;
     private byte[] mEncryptionKey;
     private byte[] mPrivacyKey;
     private int key;
@@ -421,7 +423,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         final byte[] sequenceNumber = ByteBuffer.allocate(3).order(ByteOrder.BIG_ENDIAN).put(networkHeader, 1, 3).array();
         final byte[] src = ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).put(networkHeader, 4, 2).array();
         final byte[] networkNonce = createNetworkNonce((byte) ctlTtl, sequenceNumber, src);
-
+        mMeshNode = mNetworkLayerCallbacks.getMeshNode(AddressUtils.getUnicastAddressInt(src));
         //Check if the sequence number has been incremented since the last message sent and return null if not
         final int sequenceNo = MeshParserUtils.getSequenceNumber(sequenceNumber);
         Log.v(TAG, "Sequence number of received access message: " + MeshParserUtils.getSequenceNumber(sequenceNumber));

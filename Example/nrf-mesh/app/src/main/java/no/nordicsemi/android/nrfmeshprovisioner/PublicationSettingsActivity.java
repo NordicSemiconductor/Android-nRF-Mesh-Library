@@ -16,7 +16,7 @@ import java.io.Serializable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPubRetransmitIntervalSteps;

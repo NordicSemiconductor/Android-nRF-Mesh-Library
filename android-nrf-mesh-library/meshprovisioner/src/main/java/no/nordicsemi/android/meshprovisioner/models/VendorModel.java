@@ -29,7 +29,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 
 public class VendorModel extends MeshModel {

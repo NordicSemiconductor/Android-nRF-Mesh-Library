@@ -35,7 +35,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;

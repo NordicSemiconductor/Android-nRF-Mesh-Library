@@ -48,17 +48,17 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppBind;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppUnbind;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionAdd;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionDelete;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
-import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppBind;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppUnbind;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelPublicationSet;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelPublicationStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionAdd;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionDelete;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -124,6 +124,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected AddressAdapter mAddressAdapter;
     protected BoundAppKeysAdapter mBoundAppKeyAdapter;
     protected Button mActionRead;
+    private RecyclerView recyclerViewBoundKeys, recyclerViewAddresses;
 
     /**
      * Adds the control ui for the mesh model
@@ -155,7 +156,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final int modelId = mViewModel.getSelectedModel().getMeshModel().getModelId();
         getSupportActionBar().setSubtitle(getString(R.string.model_id, CompositionDataParser.formatModelIdentifier(modelId, false)));
 
-        final RecyclerView recyclerViewAddresses = findViewById(R.id.recycler_view_addresses);
+        recyclerViewAddresses = findViewById(R.id.recycler_view_addresses);
         recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(this));
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
@@ -164,7 +165,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         recyclerViewAddresses.setAdapter(mAddressAdapter);
         mAddressAdapter.setOnItemClickListener(this);
 
-        final RecyclerView recyclerViewBoundKeys = findViewById(R.id.recycler_view_bound_keys);
+        recyclerViewBoundKeys = findViewById(R.id.recycler_view_bound_keys);
         recyclerViewBoundKeys.setLayoutManager(new LinearLayoutManager(this));
         final ItemTouchHelper.Callback itemTouchHelperCallbackKeys = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelperKeys = new ItemTouchHelper(itemTouchHelperCallbackKeys);
@@ -201,43 +202,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
         mViewModel.getSelectedModel().observe(this, meshModel -> {
             if (meshModel != null) {
-                final List<Integer> keys = meshModel.getBoundAppKeyIndexes();
-                mKeyIndexes.clear();
-                mKeyIndexes.addAll(keys);
-                if (!keys.isEmpty()) {
-                    mUnbindHint.setVisibility(View.VISIBLE);
-                    mAppKeyView.setVisibility(View.GONE);
-                    recyclerViewBoundKeys.setVisibility(View.VISIBLE);
-                } else {
-                    mUnbindHint.setVisibility(View.GONE);
-                    mAppKeyView.setVisibility(View.VISIBLE);
-                    recyclerViewBoundKeys.setVisibility(View.GONE);
-                }
-
-                final PublicationSettings publicationSettings = meshModel.getPublicationSettings();
-                if (publicationSettings != null) {
-                    final byte[] publishAddress = publicationSettings.getPublishAddress();
-                    if (publishAddress != null && !Arrays.equals(publishAddress, MeshParserUtils.DISABLED_PUBLICATION_ADDRESS)) {
-                        mPublishAddressView.setText(MeshParserUtils.bytesToHex(publishAddress, true));
-                        mActionClearPublication.setVisibility(View.VISIBLE);
-                    } else {
-                        mPublishAddressView.setText(R.string.none);
-                        mActionClearPublication.setVisibility(View.GONE);
-                    }
-                }
-
-                final List<byte[]> subscriptionAddresses = meshModel.getSubscriptionAddresses();
-                mGroupAddress.clear();
-                mGroupAddress.addAll(subscriptionAddresses);
-                if (!subscriptionAddresses.isEmpty()) {
-                    mSubscribeHint.setVisibility(View.VISIBLE);
-                    mSubscribeAddressView.setVisibility(View.GONE);
-                    recyclerViewAddresses.setVisibility(View.VISIBLE);
-                } else {
-                    mSubscribeHint.setVisibility(View.GONE);
-                    mSubscribeAddressView.setVisibility(View.VISIBLE);
-                    recyclerViewAddresses.setVisibility(View.GONE);
-                }
+                updateAppStatusUi(meshModel);
+                updatePublicationUi(meshModel);
+                updateSubscriptionUi(meshModel);
             }
         });
 
@@ -249,7 +216,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         });
 
         mViewModel.isConnectedToProxy().observe(this, aBoolean -> {
-            if(aBoolean != null && !aBoolean) {
+            if (aBoolean != null && !aBoolean) {
                 final DialogFragmentDisconnected dialogFragmentDisconnected = DialogFragmentDisconnected.newInstance(getString(R.string.title_disconnected_error),
                         getString(R.string.disconnected_network_rationale));
                 dialogFragmentDisconnected.show(getSupportFragmentManager(), null);
@@ -519,5 +486,49 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             }
         }
         hideProgressBar();
+    }
+
+    private void updateAppStatusUi(final MeshModel meshModel) {
+        final List<Integer> keys = meshModel.getBoundAppKeyIndexes();
+        mKeyIndexes.clear();
+        mKeyIndexes.addAll(keys);
+        if (!keys.isEmpty()) {
+            mUnbindHint.setVisibility(View.VISIBLE);
+            mAppKeyView.setVisibility(View.GONE);
+            recyclerViewBoundKeys.setVisibility(View.VISIBLE);
+        } else {
+            mUnbindHint.setVisibility(View.GONE);
+            mAppKeyView.setVisibility(View.VISIBLE);
+            recyclerViewBoundKeys.setVisibility(View.GONE);
+        }
+    }
+
+    private void updatePublicationUi(final MeshModel meshModel) {
+        final PublicationSettings publicationSettings = meshModel.getPublicationSettings();
+        if (publicationSettings != null) {
+            final byte[] publishAddress = publicationSettings.getPublishAddress();
+            if (publishAddress != null && !Arrays.equals(publishAddress, MeshParserUtils.DISABLED_PUBLICATION_ADDRESS)) {
+                mPublishAddressView.setText(MeshParserUtils.bytesToHex(publishAddress, true));
+                mActionClearPublication.setVisibility(View.VISIBLE);
+            } else {
+                mPublishAddressView.setText(R.string.none);
+                mActionClearPublication.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void updateSubscriptionUi(final MeshModel meshModel) {
+        final List<byte[]> subscriptionAddresses = meshModel.getSubscriptionAddresses();
+        mGroupAddress.clear();
+        mGroupAddress.addAll(subscriptionAddresses);
+        if (!subscriptionAddresses.isEmpty()) {
+            mSubscribeHint.setVisibility(View.VISIBLE);
+            mSubscribeAddressView.setVisibility(View.GONE);
+            recyclerViewAddresses.setVisibility(View.VISIBLE);
+        } else {
+            mSubscribeHint.setVisibility(View.GONE);
+            mSubscribeAddressView.setVisibility(View.VISIBLE);
+            recyclerViewAddresses.setVisibility(View.GONE);
+        }
     }
 }

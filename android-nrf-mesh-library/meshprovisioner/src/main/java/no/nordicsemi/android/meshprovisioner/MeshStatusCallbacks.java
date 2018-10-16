@@ -24,39 +24,24 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.support.annotation.NonNull;
 
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigAppKeyAddState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigCompositionDataGetState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelAppBindState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelAppUnbindState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelPublicationSetState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelSubscriptionAddState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigModelSubscriptionDeleteState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigNodeResetState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericLevelGetState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericLevelSetState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericLevelSetUnacknowledgedState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericOnOffGetState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericOnOffSetState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.GenericOnOffSetUnacknowledgedState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.VendorModelMessageUnackedState;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppBind;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppUnbind;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionAdd;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionDelete;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeResetStatus;
-import no.nordicsemi.android.meshprovisioner.messages.GenericLevelGet;
-import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSet;
-import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
-import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
-import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
+import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.message.ConfigAppKeyStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigCompositionDataStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppBind;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppUnbind;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelPublicationSet;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelPublicationStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionAdd;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionDelete;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigNodeResetStatus;
+import no.nordicsemi.android.meshprovisioner.message.GenericLevelGet;
+import no.nordicsemi.android.meshprovisioner.message.GenericLevelSet;
+import no.nordicsemi.android.meshprovisioner.message.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.message.GenericOnOffStatus;
+import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageStatus;
 
 /**
  * Callbacks to notify the status of the mesh messgaes
@@ -99,7 +84,6 @@ public interface MeshStatusCallbacks {
     void onBlockAcknowledgementReceived(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigCompositionDataGetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
@@ -113,7 +97,6 @@ public interface MeshStatusCallbacks {
     void onCompositionDataStatusReceived(@NonNull final ConfigCompositionDataStatus compositionDataStatus);
 
     /**
-     * Notifies if {@link ConfigAppKeyAddState} was sent
      *
      * @param node mesh node that the message was sent to
      */
@@ -127,14 +110,12 @@ public interface MeshStatusCallbacks {
     void onAppKeyStatusReceived(final ConfigAppKeyStatus status);
 
     /**
-     * Notifies if {@link ConfigModelAppBindState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onAppKeyBindSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigModelAppUnbindState} was sent
      *
      * @param node mesh node that the message was sent to
      */
@@ -148,7 +129,6 @@ public interface MeshStatusCallbacks {
     void onAppKeyBindStatusReceived(@NonNull final ConfigModelAppStatus status);
 
     /**
-     * Notifies if {@link ConfigModelPublicationSetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
@@ -162,14 +142,12 @@ public interface MeshStatusCallbacks {
     void onPublicationStatusReceived(@NonNull final ConfigModelPublicationStatus status);
 
     /**
-     * Notifies if {@link ConfigModelSubscriptionAddState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onSubscriptionAddSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link ConfigModelSubscriptionDeleteState} was sent
      *
      * @param node mesh node that the message was sent to
      */
@@ -183,7 +161,6 @@ public interface MeshStatusCallbacks {
     void onSubscriptionStatusReceived(final ConfigModelSubscriptionStatus status);
 
     /**
-     * Notifies if the mesh {@link ConfigNodeResetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
@@ -197,21 +174,18 @@ public interface MeshStatusCallbacks {
     void onMeshNodeResetStatusReceived(@NonNull final ConfigNodeResetStatus status);
 
     /**
-     * Notifies if {@link GenericOnOffGetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onGenericOnOffGetSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link GenericOnOffSetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onGenericOnOffSetSent(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime);
 
     /**
-     * Notifies if {@link GenericOnOffSetUnacknowledgedState} was sent
      *
      * @param node mesh node that the message was sent to
      */
@@ -226,21 +200,18 @@ public interface MeshStatusCallbacks {
 
 
     /**
-     * Notifies if {@link GenericLevelGetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onGenericLevelGetSent(final ProvisionedMeshNode node);
 
     /**
-     * Notifies if {@link GenericLevelSetState} was sent
      *
      * @param node mesh node that the message was sent to
      */
     void onGenericLevelSetSent(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime);
 
     /**
-     * Notifies if {@link GenericLevelSetUnacknowledgedState} was sent
      *
      * @param node mesh node that the message was sent to
      */
@@ -254,7 +225,6 @@ public interface MeshStatusCallbacks {
     void onGenericLevelStatusReceived(final GenericLevelStatus status);
 
     /**
-     * Notifies if {@link VendorModelMessageUnackedState} was received
      *
      * @param node mesh node that the message was received from
      */

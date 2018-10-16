@@ -2,7 +2,7 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.os.Bundle;
 
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
 
 public class ModelConfigurationActivity extends BaseModelConfigurationActivity {
 

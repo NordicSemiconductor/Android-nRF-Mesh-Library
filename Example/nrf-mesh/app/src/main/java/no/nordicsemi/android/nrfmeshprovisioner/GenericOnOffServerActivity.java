@@ -15,12 +15,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffGet;
-import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffSet;
-import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
-import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.message.GenericOnOffGet;
+import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSet;
+import no.nordicsemi.android.meshprovisioner.message.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;

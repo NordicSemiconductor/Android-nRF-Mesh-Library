@@ -29,7 +29,7 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 

@@ -43,28 +43,29 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigMessageState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.SequenceNumber;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyAdd;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataGet;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppBind;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppUnbind;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionAdd;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionDelete;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeReset;
-import no.nordicsemi.android.meshprovisioner.messages.GenericLevelGet;
-import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSet;
-import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSetUnacknowledged;
-import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffGet;
-import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffSet;
-import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffSetUnacknowledged;
-import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageAcked;
-import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageUnacked;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.MeshTransport;
+import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.message.SequenceNumber;
+import no.nordicsemi.android.meshprovisioner.message.ConfigAppKeyAdd;
+import no.nordicsemi.android.meshprovisioner.message.ConfigCompositionDataGet;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppBind;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppUnbind;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelPublicationSet;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionAdd;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionDelete;
+import no.nordicsemi.android.meshprovisioner.message.ConfigNodeReset;
+import no.nordicsemi.android.meshprovisioner.message.GenericLevelGet;
+import no.nordicsemi.android.meshprovisioner.message.GenericLevelSet;
+import no.nordicsemi.android.meshprovisioner.message.GenericLevelSetUnacknowledged;
+import no.nordicsemi.android.meshprovisioner.message.GenericOnOffGet;
+import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSet;
+import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSetUnacknowledged;
+import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageAcked;
+import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageUnacked;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
@@ -72,7 +73,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 
-public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, InternalMeshManagerCallbacks {
+public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, InternalMeshManagerCallbacks, NetworkLayerCallbacks {
 
     public static final byte PDU_TYPE_PROVISIONING = 0x03;
     /**
@@ -146,7 +147,10 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         initProvisionedNodes();
         intiConfigurationSrc();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, this, this);
-        mMeshMessageHandler = new MeshMessageHandler(context, this, this);
+
+        final MeshTransport meshTransport = new MeshTransport(context);
+        meshTransport.setNetworkLayerCallbacks(this);
+        mMeshMessageHandler = new MeshMessageHandler(context, meshTransport, this);
     }
 
     private void intiConfigurationSrc() {
@@ -166,10 +170,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     public void setMeshStatusCallbacks(final MeshStatusCallbacks callbacks) {
         mMeshMessageHandler.setMeshStatusCallbacks(callbacks);
-    }
-
-    public ConfigMessageState.MessageState getConfigurationState() {
-        return mMeshMessageHandler.getConfigurationState();
     }
 
     /**
@@ -279,6 +279,14 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         saveProvisionedNode(meshNode);
     }
 
+    @Override
+    public ProvisionedMeshNode getMeshNode(final int unicastAddress) {
+        if (mProvisionedNodes.isEmpty() || !mProvisionedNodes.containsKey(unicastAddress))
+            return null;
+
+        return mProvisionedNodes.get(unicastAddress);
+    }
+
     private void saveSrc() {
         final SharedPreferences preferences = mContext.getSharedPreferences(CONFIGURATION_SRC, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = preferences.edit();
@@ -383,7 +391,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             case PDU_TYPE_NETWORK:
                 //Network PDU
                 Log.v(TAG, "Received network pdu: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshMessageHandler.parseMeshMsgNotifications((ProvisionedMeshNode) meshNode, unsegmentedPdu);
+                mMeshMessageHandler.parseMeshMsgNotifications(unsegmentedPdu);
                 break;
             case PDU_TYPE_MESH_BEACON:
                 //Mesh beacon
@@ -427,7 +435,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             case PDU_TYPE_NETWORK:
                 //Network PDU
                 Log.v(TAG, "Network pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                mMeshMessageHandler.handleMeshMsgWriteCallbacks((ProvisionedMeshNode) meshNode, data);
+                mMeshMessageHandler.handleMeshMsgWriteCallbacks(data);
                 break;
             case PDU_TYPE_MESH_BEACON:
                 //Mesh beacon

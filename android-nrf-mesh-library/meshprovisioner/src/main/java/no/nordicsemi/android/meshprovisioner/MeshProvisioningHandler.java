@@ -28,8 +28,8 @@ import android.support.annotation.NonNull;
 
 import java.nio.ByteBuffer;
 
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilitiesState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCompleteState;

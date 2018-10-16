@@ -20,21 +20,24 @@ import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshManagerTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyAdd;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataGet;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionStatus;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigNodeResetStatus;
-import no.nordicsemi.android.meshprovisioner.messages.GenericLevelStatus;
-import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffStatus;
-import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigAppKeyAdd;
+import no.nordicsemi.android.meshprovisioner.message.ConfigAppKeyStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigCompositionDataGet;
+import no.nordicsemi.android.meshprovisioner.message.ConfigCompositionDataStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelAppStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelPublicationStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigNodeReset;
+import no.nordicsemi.android.meshprovisioner.message.ConfigNodeResetStatus;
+import no.nordicsemi.android.meshprovisioner.message.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.message.GenericOnOffStatus;
+import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageStatus;
+import no.nordicsemi.android.meshprovisioner.models.SigModel;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
@@ -208,7 +211,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mNrfMeshRepository;
     }*/
 
-    void clearInstance(){
+    void clearInstance() {
         mBleMeshManager = null;
 
     }
@@ -284,6 +287,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     TransactionStatusLiveData getTransactionStatusLiveData() {
         return mTransactionFailedLiveData;
     }
+
     /**
      * Returns the mesh manager api
      *
@@ -295,6 +299,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     /**
      * Returns the ble mesh manager
+     *
      * @return {@link BleMeshManager}
      */
     BleMeshManager getBleMeshManager() {
@@ -371,8 +376,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mMeshNodeLiveData.setValue(null);
     }
 
-    private void clearExtendedMeshNode(){
-        if(mExtendedMeshNode != null){
+    private void clearExtendedMeshNode() {
+        if (mExtendedMeshNode != null) {
             mExtendedMeshNode.clearNode();
         }
     }
@@ -455,7 +460,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void onDataReceived(final BluetoothDevice bluetoothDevice, final int mtu, final byte[] pdu) {
         try {
             final BaseMeshNode node;
-            if(mExtendedMeshNode != null && mExtendedMeshNode.getMeshNode() != null) {
+            if (mExtendedMeshNode != null && mExtendedMeshNode.getMeshNode() != null) {
                 node = mMeshNode = mExtendedMeshNode.getMeshNode();
             } else {
                 node = mMeshNode = mMeshNodeLiveData.getValue();
@@ -781,7 +786,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mExtendedMeshNode.updateMeshNode(node);
         final int elementAddress = status.getSrcAddress();
         final Element element = node.getElements().get(elementAddress);
-        final MeshModel model = element.getMeshModels().get((int)SigModelParser.GENERIC_ON_OFF_SERVER);
+        final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_ON_OFF_SERVER);
         mExtendedMeshModel.setMeshModel(model);
         mMeshMessageLiveData.postValue(status);
     }
@@ -839,6 +844,47 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         final ProvisionedMeshNode node = meshMessage.getMeshNode();
         mMeshNode = node;
         mExtendedMeshNode.updateMeshNode(node);
+        if (meshMessage instanceof ConfigAppKeyStatus) {
+            //Do nothing here
+        } else if (meshMessage instanceof ConfigModelAppStatus) {
+            final ConfigModelAppStatus status = (ConfigModelAppStatus) meshMessage;
+            final Element element = node.getElements().get(status.getElementAddress());
+            mExtendedElement.setElement(element);
+            final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+            mExtendedMeshModel.setMeshModel(model);
+        } else if (meshMessage instanceof ConfigModelPublicationStatus) {
+            final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
+            final Element element = node.getElements().get(status.getElementAddress());
+            mExtendedElement.setElement(element);
+            final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+            mExtendedMeshModel.setMeshModel(model);
+        } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
+            final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
+            final Element element = node.getElements().get(status.getElementAddress());
+            mExtendedElement.setElement(element);
+            final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+            mExtendedMeshModel.setMeshModel(model);
+        } else if (meshMessage instanceof ConfigNodeResetStatus) {
+            //Do nothing here
+        } else if (meshMessage instanceof GenericOnOffStatus) {
+            final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
+            final Element element = node.getElements().get(status.getSrcAddress());
+            mExtendedElement.setElement(element);
+            final MeshModel model = element.getMeshModels().get((int)SigModelParser.GENERIC_ON_OFF_SERVER);
+            mExtendedMeshModel.setMeshModel(model);
+        } else if (meshMessage instanceof GenericLevelStatus) {
+            final GenericLevelStatus status = (GenericLevelStatus) meshMessage;
+            final Element element = node.getElements().get(status.getSrcAddress());
+            mExtendedElement.setElement(element);
+            final MeshModel model = element.getMeshModels().get((int)SigModelParser.GENERIC_LEVEL_SERVER);
+            mExtendedMeshModel.setMeshModel(model);
+        } else if (meshMessage instanceof VendorModelMessageStatus) {
+            final VendorModelMessageStatus status = (VendorModelMessageStatus) meshMessage;
+            final Element element = node.getElements().get(status.getSrcAddress());
+            mExtendedElement.setElement(element);
+            final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+            mExtendedMeshModel.setMeshModel(model);
+        }
         mMeshMessageLiveData.postValue(meshMessage);
     }
 

@@ -31,9 +31,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
-import no.nordicsemi.android.meshprovisioner.messagetypes.AccessMessage;
-import no.nordicsemi.android.meshprovisioner.messagetypes.ControlMessage;
-import no.nordicsemi.android.meshprovisioner.messagetypes.Message;
+import no.nordicsemi.android.meshprovisioner.message.type.AccessMessage;
+import no.nordicsemi.android.meshprovisioner.message.type.ControlMessage;
+import no.nordicsemi.android.meshprovisioner.message.type.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.TransportLayerOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 

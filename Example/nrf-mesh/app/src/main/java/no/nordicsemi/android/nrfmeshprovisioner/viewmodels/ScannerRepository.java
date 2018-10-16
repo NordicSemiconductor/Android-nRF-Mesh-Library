@@ -39,7 +39,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;

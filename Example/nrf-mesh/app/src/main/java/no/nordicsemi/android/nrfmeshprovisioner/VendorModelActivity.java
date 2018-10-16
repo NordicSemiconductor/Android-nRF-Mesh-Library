@@ -18,12 +18,12 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.messages.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageAcked;
-import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageStatus;
-import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageUnacked;
+import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.message.MeshModel;
+import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageAcked;
+import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageStatus;
+import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageUnacked;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -214,12 +214,12 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
      * @param parameters parameters of the message
      */
     public void sendVendorModelUnacknowledgedMessage(final int opcode, final byte[] parameters) {
-        final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final VendorModel model = (VendorModel) mViewModel.getSelectedModel().getMeshModel();
         final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
         final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
-        final VendorModelMessageUnacked vendorModelMessageUnacked = new VendorModelMessageUnacked(node, appKey, model.getCompanyIdentifier(), opcode, parameters, 0);
+        final VendorModelMessageUnacked vendorModelMessageUnacked = new VendorModelMessageUnacked(node, appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters, 0);
         mViewModel.getMeshManagerApi().sendVendorModelUnacknowledgedMessage(element.getElementAddress(), vendorModelMessageUnacked);
     }
 
@@ -230,12 +230,12 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
      * @param parameters parameters of the message
      */
     public void sendVendorModelAcknowledgedMessage(final int opcode, final byte[] parameters) {
-        final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final VendorModel model = (VendorModel) mViewModel.getSelectedModel().getMeshModel();
         final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
         final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
-        final VendorModelMessageAcked vendorModelMessageAcked = new VendorModelMessageAcked(node, appKey, model.getCompanyIdentifier(), opcode, parameters, 0);
+        final VendorModelMessageAcked vendorModelMessageAcked = new VendorModelMessageAcked(node, appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters, 0);
         mViewModel.getMeshManagerApi().sendVendorModelAcknowledgedMessage(element.getElementAddress(), vendorModelMessageAcked);
     }
 
