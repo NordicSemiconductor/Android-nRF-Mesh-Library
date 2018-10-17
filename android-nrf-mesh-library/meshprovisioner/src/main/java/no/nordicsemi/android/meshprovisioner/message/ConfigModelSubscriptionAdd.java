@@ -36,7 +36,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 public final class ConfigModelSubscriptionAdd extends ConfigMessage {
 
     private static final String TAG = ConfigModelSubscriptionAdd.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE;
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_ADD;
 
     private static final int SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 6;
     private static final int VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 8;
