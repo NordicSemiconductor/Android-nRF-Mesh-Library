@@ -16,7 +16,10 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.message.GenericLevelGet;
 import no.nordicsemi.android.meshprovisioner.message.GenericLevelSet;
+import no.nordicsemi.android.meshprovisioner.message.GenericLevelSetUnacknowledged;
 import no.nordicsemi.android.meshprovisioner.message.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSet;
+import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSetUnacknowledged;
 import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.message.MeshModel;
 import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
@@ -216,7 +219,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
      * Send generic on off get to mesh node
      */
     public void sendGenericLevelGet() {
-        final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
 
@@ -241,7 +244,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
      * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      */
     public void sendGenericLevel(final int level, final Integer delay) {
-        final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
 
@@ -249,13 +252,20 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
             final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
             final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
             if (!model.getSubscriptionAddresses().isEmpty()) {
-                final List<byte[]> addressList = model.getSubscriptionAddresses();
-                for (int i = 0; i < addressList.size(); i++) {
-                    final byte[] address = addressList.get(i);
-                    Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                            + ". Sending message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
-                    final GenericLevelSet genericLevelSet = new GenericLevelSet(node, appKey, mTransitionSteps, mTransitionStepResolution, delay, level, 0);
-                    mViewModel.getMeshManagerApi().setGenericLevel(address, genericLevelSet);
+                for(byte[] address : model.getSubscriptionAddresses()) {
+                    final MeshMessage message;
+                    if(!MeshParserUtils.isValidGroupAddress(address)) {
+                        Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                                + ". Sending acknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
+                        message = new GenericLevelSet(node, appKey, mTransitionSteps, mTransitionStepResolution, delay, level, 0);
+                        mViewModel.getMeshManagerApi().setGenericLevel(address, (GenericLevelSet) message);
+                        showProgressbar();
+                    } else {
+                        Log.v(TAG, "Group subscription address found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                                + ". Sending unacknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
+                        message = new GenericLevelSet(node, appKey, mTransitionSteps, mTransitionStepResolution, delay, level, 0);
+                        mViewModel.getMeshManagerApi().setGenericLevelUnacknowledged(address, (GenericLevelSetUnacknowledged) message);
+                    }
                 }
             } else {
                 final byte[] address = element.getElementAddress();

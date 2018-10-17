@@ -22,6 +22,7 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.nio.ByteBuffer;
@@ -47,12 +48,12 @@ public class MeshParserUtils {
     private static final int UNICAST_ADDRESS_MIN = 0;
     private static final char[] HEX_ARRAY = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
-    public static final int RESOLUTION_100_MS   = 0b00;
-    public static final int RESOLUTION_1_S      = 0b01;
-    public static final int RESOLUTION_10_S     = 0b10;
-    public static final int RESOLUTION_10_M     = 0b11;
+    public static final int RESOLUTION_100_MS = 0b00;
+    public static final int RESOLUTION_1_S = 0b01;
+    public static final int RESOLUTION_10_S = 0b10;
+    public static final int RESOLUTION_10_M = 0b11;
 
-    public static final byte[] DISABLED_PUBLICATION_ADDRESS = new byte[] {0x00,0x00};
+    public static final byte[] DISABLED_PUBLICATION_ADDRESS = new byte[]{0x00, 0x00};
     public static final int GENERIC_ON_OFF_5_MS = 5;
 
     public static String bytesToHex(final byte[] bytes, final boolean add0x) {
@@ -106,8 +107,21 @@ public class MeshParserUtils {
         return value != null && value == (value & 0x7FFF);
     }
 
+    /**
+     * Validates a given group address
+     *
+     * @param address group address
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidGroupAddress(@NonNull final byte[] address) {
+        if (address != null && address.length == 2) {
+            return address[0] == (address[0] & 0xC0);
+        }
+        return false;
+    }
+
     public static boolean isValidUnicastAddress(final byte[] value) {
-        if(value == null)
+        if (value == null)
             return false;
         final int address = ((value[0] & 0xFF) << 8) | value[1] & 0xFF;
         return address == (address & 0x7FFF);
@@ -479,8 +493,8 @@ public class MeshParserUtils {
      * @param opCode opCode of mesh message
      * @return if the opcode is valid
      */
-    public static final boolean isValidOpcode(final int opCode) throws IllegalArgumentException{
-        if(opCode != (opCode & 0xFFFFFF))
+    public static boolean isValidOpcode(final int opCode) throws IllegalArgumentException {
+        if (opCode != (opCode & 0xFFFFFF))
             throw new IllegalArgumentException("Invalid opcode, opcode must be 1-3 octets");
 
         return true;
@@ -492,8 +506,8 @@ public class MeshParserUtils {
      * @param parameters opCode of mesh message
      * @return if the opcode is valid
      */
-    public static final boolean isValidParameters(final byte[] parameters) throws IllegalArgumentException{
-        if(parameters != null && parameters.length > 379)
+    public static boolean isValidParameters(final byte[] parameters) throws IllegalArgumentException {
+        if (parameters != null && parameters.length > 379)
             throw new IllegalArgumentException("Invalid parameters, parameters must be 0-379 octets");
 
         return true;
@@ -531,16 +545,16 @@ public class MeshParserUtils {
 
     /**
      * Returns the remaining time as a string
-     * @param remainingTime remaining time that for the transition to finish
      *
+     * @param remainingTime remaining time that for the transition to finish
      * @return remaining time as string.
      */
     public static String getRemainingTime(final int remainingTime) {
         final int stepResolution = remainingTime >> 6;
         final int numberOfSteps = remainingTime & 0x3F;
-        switch (stepResolution){
+        switch (stepResolution) {
             case RESOLUTION_100_MS:
-                return (numberOfSteps * 100)+ " milliseconds";
+                return (numberOfSteps * 100) + " milliseconds";
             case RESOLUTION_1_S:
                 return numberOfSteps + " seconds";
             case RESOLUTION_10_S:
@@ -558,9 +572,9 @@ public class MeshParserUtils {
      * @return remaining time as string.
      */
     public static String getRemainingTransitionTime(final int stepResolution, final int numberOfSteps) {
-        switch (stepResolution){
+        switch (stepResolution) {
             case RESOLUTION_100_MS:
-                return (numberOfSteps * 100)+ " ms";
+                return (numberOfSteps * 100) + " ms";
             case RESOLUTION_1_S:
                 return numberOfSteps + " s";
             case RESOLUTION_10_S:
@@ -576,8 +590,7 @@ public class MeshParserUtils {
      * Returns the remaining time in milliseconds
      *
      * @param resolution time resolution
-     * @param steps number of steps
-     *
+     * @param steps      number of steps
      * @return time in milliseconds
      */
     public static int getRemainingTime(final int resolution, final int steps) {
@@ -591,7 +604,7 @@ public class MeshParserUtils {
             case RESOLUTION_10_M:
                 return (steps * 10) * 1000 * 60;
         }
-        return  0;
+        return 0;
     }
 
     public static int getValue(final byte[] bytes) {

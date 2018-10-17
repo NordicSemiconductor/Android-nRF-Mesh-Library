@@ -53,6 +53,7 @@ import no.nordicsemi.android.meshprovisioner.message.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.message.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.message.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.message.ConfigCompositionDataStatus;
+import no.nordicsemi.android.meshprovisioner.message.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.message.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.message.MeshModel;
@@ -301,8 +302,9 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @Override
     public void onNodeReset() {
         try {
-            final ProvisionedMeshNode provisionedMeshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-            mViewModel.getMeshManagerApi().resetMeshNode(provisionedMeshNode);
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+            final ConfigNodeReset configNodeReset = new ConfigNodeReset(node, 0);
+            mViewModel.getMeshManagerApi().resetMeshNode(configNodeReset);
         } catch(Exception ex) {
             Log.e(TAG, ex.getMessage());
         }

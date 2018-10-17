@@ -17,11 +17,15 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.message.GenericOnOffGet;
 import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSet;
+import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSetUnacknowledged;
 import no.nordicsemi.android.meshprovisioner.message.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.message.MeshModel;
 import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageAcked;
+import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageUnacked;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -240,13 +244,20 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
             final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
             if (!model.getSubscriptionAddresses().isEmpty()) {
-                final List<byte[]> addressList = model.getSubscriptionAddresses();
-                for (int i = 0; i < addressList.size(); i++) {
-                    final byte[] address = addressList.get(i);
-                    Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                            + ". Sending message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
-                    final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(node, appKey, state, mTransitionSteps, mTransitionStepResolution, delay, 0);
-                    mViewModel.getMeshManagerApi().setGenericOnOff(address, genericOnOffSet);
+                for(byte[] address : model.getSubscriptionAddresses()) {
+                    final MeshMessage message;
+                    if(!MeshParserUtils.isValidGroupAddress(address)) {
+                        Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                                + ". Sending acknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
+                        message = new GenericOnOffSet(node, appKey, state, mTransitionSteps, mTransitionStepResolution, delay, 0);
+                        mViewModel.getMeshManagerApi().setGenericOnOff(address, (GenericOnOffSet) message);
+                        showProgressbar();
+                    } else {
+                        Log.v(TAG, "Group subscription address found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                                + ". Sending unacknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
+                        message = new GenericOnOffSetUnacknowledged(node, appKey, state, mTransitionSteps, mTransitionStepResolution, delay, 0);
+                        mViewModel.getMeshManagerApi().setGenericOnOffUnacknowledged(address, (GenericOnOffSetUnacknowledged) message);
+                    }
                 }
             } else {
                 final byte[] address = element.getElementAddress();
@@ -255,7 +266,6 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                 final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(node, appKey, state, mTransitionSteps, mTransitionStepResolution, delay, 0);
                 mViewModel.getMeshManagerApi().setGenericOnOff(address, genericOnOffSet);
             }
-            showProgressbar();
         } else {
             Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
         }

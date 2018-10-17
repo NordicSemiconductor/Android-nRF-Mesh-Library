@@ -244,42 +244,12 @@ interface MeshMngrApi {
     void getGenericOnOff(final byte[] dstAddress, @NonNull final GenericOnOffGet genericOnOffGet);
 
     /**
-     * Send generic on off set to mesh node
-     *
-     * @param node                 mesh node to send generic on off get
-     * @param model                model to control
-     * @param dstAddress           address of the element the mesh model belongs to
-     * @param appKeyIndex          application key index
-     * @param transitionSteps      the number of steps
-     * @param transitionResolution the resolution for the number of steps
-     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param state                on off state
-     */
-    void setGenericOnOff(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state);
-
-    /**
      * Send generic on off set to mesh node, this message is an acknowledged message.
      *
      * @param dstAddress
      * @param genericOnOffSet {@link GenericOnOffSet} containing the generic on off get message opcode and parameters
      */
     void setGenericOnOff(final byte[] dstAddress, @NonNull final GenericOnOffSet genericOnOffSet);
-
-    /**
-     * Send generic on off set unacknowledged message to mesh node
-     *
-     * @param node                 mesh node to send generic on off get
-     * @param model                model to control
-     * @param dstAddress           address of the element the mesh model belongs to
-     * @param appKeyIndex          application key index
-     * @param transitionSteps      the number of steps
-     * @param transitionResolution the resolution for the number of steps
-     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param state                on off state
-     */
-    void setGenericOnOffUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                              @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state);
 
     /**
      * Send generic on off set to mesh node, this message is an unacknowledged message.
@@ -290,36 +260,12 @@ interface MeshMngrApi {
     void setGenericOnOffUnacknowledged(final byte[] dstAddress, @NonNull final GenericOnOffSetUnacknowledged genericOnOffSet);
 
     /**
-     * Send generic level get to mesh node
-     *
-     * @param node        mesh node to send generic on off get
-     * @param model       model to control
-     * @param appKeyIndex application key index
-     */
-    void getGenericLevel(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress, final int appKeyIndex);
-
-    /**
      * Send generic level get to mesh node, this message sent is an acknowledged message.
      *
      * @param dstAddress
      * @param genericLevelGet {@link GenericLevelGet} containing the generic level set message opcode and parameters
      */
     void getGenericLevel(@NonNull final byte[] dstAddress, @NonNull final GenericLevelGet genericLevelGet);
-
-    /**
-     * Send generic level set to mesh node
-     *
-     * @param node                 mesh node to send generic on off get
-     * @param model                model to control
-     * @param dstAddress           address of the element the mesh model belongs to
-     * @param appKeyIndex          application key index
-     * @param transitionSteps      the number of steps
-     * @param transitionResolution the resolution for the number of steps
-     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param level                level state
-     */
-    void setGenericLevel(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level);
 
     /**
      * Send generic level set to mesh node, this message sent is an acknowledged message.
@@ -330,22 +276,6 @@ interface MeshMngrApi {
     void setGenericLevel(@NonNull final byte[] dstAddress, @NonNull final GenericLevelSet genericLevelSet);
 
     /**
-     * Send generic level set unacknowledged message to mesh node
-     *
-     * @param node                 mesh node to send generic on off get
-     * @param model                model to control
-     * @param dstAddress           address of the element the mesh model belongs to
-     * @param appKeyIndex          application key index
-     * @param transitionSteps      the number of steps
-     * @param transitionResolution the resolution for the number of steps
-     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param level                level state
-     */
-    void setGenericLevelUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress,
-                                       final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                              @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level);
-
-    /**
      * Send generic level set to mesh node, this message sent is an acknowledged message.
      *
      * @param dstAddress
@@ -354,37 +284,12 @@ interface MeshMngrApi {
     void setGenericLevelUnacknowledged(@NonNull final byte[] dstAddress, @NonNull final GenericLevelSetUnacknowledged genericLevelSet);
 
     /**
-     * Send unacknowledged vendor model specific message to a node
-     *  @param node        target mesh nmesh node to send to
-     * @param model       Mesh model to control
-     * @param address     this address could be the unicast address of the element or the subscribe address
-     * @param appKeyIndex index of the app key to encrypt the message with
-     * @param opcode      opcode of the message
-     * @param parameters  parameters of the message
-     */
-
-    void sendVendorModelUnacknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] address,
-                                              final int appKeyIndex, final int opcode, @Nullable final byte[] parameters);
-
-    /**
      * Sends a raw unacknowledged vendor model message
      *
      * @param dstAddress
      * @param vendorModelMessageUnacked {@link VendorModelMessageUnacked} containing the unacknowledged vendor model message opcode and parameters
      */
     void sendVendorModelUnacknowledgedMessage(@NonNull final byte[] dstAddress, @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked);
-
-    /**
-     * Send acknowledged vendor model specific message to a node
-     *  @param node        target mesh nmesh node to send to
-     * @param model       Mesh model to control
-     * @param address     this address could be the unicast address of the element or the subscribe address
-     * @param appKeyIndex index of the app key to encrypt the message with
-     * @param opcode      opcode of the message
-     * @param parameters  parameters of the message
-     */
-
-    void sendVendorModelAcknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] address, final int appKeyIndex, final int opcode, @Nullable final byte[] parameters);
 
     /**
      * Sends a raw acknowledged vendor model message

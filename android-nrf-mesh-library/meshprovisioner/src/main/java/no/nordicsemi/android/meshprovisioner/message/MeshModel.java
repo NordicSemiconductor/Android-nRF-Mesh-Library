@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
 @SuppressWarnings("WeakerAccess")
@@ -159,6 +160,45 @@ public abstract class MeshModel implements Parcelable {
      */
     public List<byte[]> getSubscriptionAddresses() {
         return Collections.unmodifiableList(mSubscriptionAddress);
+    }
+
+    /**
+     * Checks if a model contains group addresses
+     * @return
+     */
+    public boolean hasGroupAddresses() {
+        for (byte[] address : mSubscriptionAddress) {
+            if (MeshParserUtils.isValidGroupAddress(address)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the list of group addresses the model may have subscribed to
+     */
+    public List<byte[]> getGroupAddresses() {
+        final List<byte[]> addresses = new ArrayList<>();
+        for (byte[] address : mSubscriptionAddress) {
+            if (MeshParserUtils.isValidGroupAddress(address)) {
+                addresses.add(address);
+            }
+        }
+        return addresses;
+    }
+
+    /**
+     * Returns the list of non-group addresses (unicast addresses) the model may have subscribed to
+     */
+    public List<byte[]> getNonGroupAddresses() {
+        final List<byte[]> addresses = new ArrayList<>();
+        for (byte[] address : mSubscriptionAddress) {
+            if (!MeshParserUtils.isValidGroupAddress(address)) {
+                addresses.add(address);
+            }
+        }
+        return addresses;
     }
 
     /**

@@ -838,22 +838,8 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     }
 
     @Override
-    public void setGenericOnOff(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
-                                @NonNull final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state) throws IllegalArgumentException {
-        mMeshMessageHandler.setGenericOnOff(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
-    }
-
-    @Override
     public void setGenericOnOff(final byte[] dstAddress, @NonNull final GenericOnOffSet genericOnOffSet) {
         mMeshMessageHandler.setGenericOnOff(dstAddress, genericOnOffSet);
-    }
-
-    @Override
-    public void setGenericOnOffUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
-                                              @NonNull final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                              @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state) throws IllegalArgumentException {
-        mMeshMessageHandler.setGenericOnOffUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
     }
 
     @Override
@@ -862,21 +848,8 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     }
 
     @Override
-    public void getGenericLevel(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
-                                @NonNull final byte[] dstAddress, final int appKeyIndex) throws IllegalArgumentException {
-        mMeshMessageHandler.getGenericLevel(node, model, dstAddress, false, appKeyIndex);
-    }
-
-    @Override
     public void getGenericLevel(@NonNull final byte[] dstAddress, @NonNull final GenericLevelGet genericLevelGet) throws IllegalArgumentException {
         mMeshMessageHandler.getGenericLevel(dstAddress, genericLevelGet);
-    }
-
-    @Override
-    public void setGenericLevel(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
-                                @NonNull final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level) throws IllegalArgumentException {
-        mMeshMessageHandler.setGenericLevel(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, level);
     }
 
     @Override
@@ -885,31 +858,13 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     }
 
     @Override
-    public void setGenericLevelUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
-                                              @NonNull final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                              @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level) throws IllegalArgumentException {
-        mMeshMessageHandler.setGenericLevelUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, level);
-    }
-
-    @Override
     public void setGenericLevelUnacknowledged(@NonNull final byte[] dstAddress, @NonNull final GenericLevelSetUnacknowledged genericLevelSetUnacked) {
         mMeshMessageHandler.setGenericLevelUnacknowledged(dstAddress, genericLevelSetUnacked);
     }
 
     @Override
-    public void sendVendorModelUnacknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
-        mMeshMessageHandler.sendVendorModelUnacknowledgedMessage(node, model, address, false, appKeyIndex, opcode, parameters);
-    }
-
-    @Override
     public void sendVendorModelUnacknowledgedMessage(@NonNull final byte[] dstAddress, @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked) {
         mMeshMessageHandler.sendVendorModelUnacknowledgedMessage(dstAddress, vendorModelMessageUnacked);
-    }
-
-
-    @Override
-    public void sendVendorModelAcknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
-        mMeshMessageHandler.sendVendorModelAcknowledgedMessage(node, model, address, false, appKeyIndex, opcode, parameters);
     }
 
     @Override

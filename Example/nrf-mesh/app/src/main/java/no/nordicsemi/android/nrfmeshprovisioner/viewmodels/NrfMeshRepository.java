@@ -37,6 +37,7 @@ import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManagerCallbacks;
@@ -641,12 +642,12 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void onMeshMessageSent(final MeshMessage meshMessage) {
         final ProvisionedMeshNode node = meshMessage.getMeshNode();
         mMeshNode = node;
-        if(meshMessage instanceof ConfigCompositionDataGet) {
+        if (meshMessage instanceof ConfigCompositionDataGet) {
             if (mSetupProvisionedNode) {
                 mMeshNodeLiveData.postValue(node);
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.COMPOSITION_DATA_GET_SENT);
             }
-        } else if(meshMessage instanceof ConfigAppKeyStatus) {
+        } else if (meshMessage instanceof ConfigAppKeyStatus) {
             if (mSetupProvisionedNode) {
                 mMeshNodeLiveData.postValue(node);
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.SENDING_APP_KEY_ADD);
@@ -747,7 +748,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mExtendedMeshModel.setMeshModel(model);
         }
 
-        if(mMeshMessageLiveData.hasActiveObservers()) {
+        if (mMeshMessageLiveData.hasActiveObservers()) {
             mMeshMessageLiveData.postValue(meshMessage);
         }
     }

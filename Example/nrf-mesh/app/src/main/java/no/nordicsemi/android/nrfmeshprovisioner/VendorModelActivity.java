@@ -16,6 +16,8 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
@@ -115,11 +117,7 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
                     params = MeshParserUtils.toByteArray(parameters);
                 }
 
-                if (chkAcknowledged.isChecked()) {
-                    sendVendorModelAcknowledgedMessage(Integer.parseInt(opCode, 16), params);
-                } else {
-                    sendVendorModelUnacknowledgedMessage(Integer.parseInt(opCode, 16), params);
-                }
+                sendVendorModelMessage(Integer.parseInt(opCode, 16), params, chkAcknowledged.isChecked());
             });
         }
     }
@@ -213,30 +211,31 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
      * @param opcode     opcode of the message
      * @param parameters parameters of the message
      */
-    public void sendVendorModelUnacknowledgedMessage(final int opcode, final byte[] parameters) {
+    public void sendVendorModelMessage(final int opcode, final byte[] parameters, final boolean acknowledged) {
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final VendorModel model = (VendorModel) mViewModel.getSelectedModel().getMeshModel();
         final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
         final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
-        final VendorModelMessageUnacked vendorModelMessageUnacked = new VendorModelMessageUnacked(node, appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters, 0);
-        mViewModel.getMeshManagerApi().sendVendorModelUnacknowledgedMessage(element.getElementAddress(), vendorModelMessageUnacked);
+        final MeshMessage message;
+        if (acknowledged) {
+            message = new VendorModelMessageAcked(node, appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters, 0);
+            final List<byte[]> addresses = model.getNonGroupAddresses();
+            for (byte[] address : addresses) {
+                mViewModel.getMeshManagerApi().sendVendorModelAcknowledgedMessage(address, (VendorModelMessageAcked) message);
+            }
+            mViewModel.getMeshManagerApi().sendVendorModelAcknowledgedMessage(element.getElementAddress(), (VendorModelMessageAcked) message);
+        } else {
+            message = new VendorModelMessageUnacked(node, appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters, 0);
+            final List<byte[]> addresses = model.getSubscriptionAddresses();
+            //Send to unicast if empty
+            if(addresses.isEmpty()) {
+                mViewModel.getMeshManagerApi().sendVendorModelUnacknowledgedMessage(element.getElementAddress(), (VendorModelMessageUnacked) message);
+            } else {
+                for (byte[] address : addresses) {
+                    mViewModel.getMeshManagerApi().sendVendorModelUnacknowledgedMessage(address, (VendorModelMessageUnacked) message);
+                }
+            }
+        }
     }
-
-    /**
-     * Send vendor model acknowledged message
-     *
-     * @param opcode     opcode of the message
-     * @param parameters parameters of the message
-     */
-    public void sendVendorModelAcknowledgedMessage(final int opcode, final byte[] parameters) {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getElement();
-        final VendorModel model = (VendorModel) mViewModel.getSelectedModel().getMeshModel();
-        final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-        final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
-        final VendorModelMessageAcked vendorModelMessageAcked = new VendorModelMessageAcked(node, appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters, 0);
-        mViewModel.getMeshManagerApi().sendVendorModelAcknowledgedMessage(element.getElementAddress(), vendorModelMessageAcked);
-    }
-
 }

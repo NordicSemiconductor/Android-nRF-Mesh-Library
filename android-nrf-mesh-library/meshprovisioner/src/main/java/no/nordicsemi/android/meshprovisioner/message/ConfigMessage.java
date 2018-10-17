@@ -1,10 +1,6 @@
 package no.nordicsemi.android.meshprovisioner.message;
 
-import no.nordicsemi.android.meshprovisioner.message.type.AccessMessage;
-
 public abstract class ConfigMessage extends MeshMessage {
-
-    private AccessMessage mMessage;
 
     ConfigMessage(final ProvisionedMeshNode node, final int aszmic) {
         super(node, aszmic);
