@@ -37,7 +37,7 @@ import no.nordicsemi.android.meshprovisioner.message.type.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.TransportLayerOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public abstract class LowerTransportLayer extends UpperTransportLayer {
+abstract class LowerTransportLayer extends UpperTransportLayer {
 
     protected static final int NETWORK_PDU = 0x00;
     private static final String TAG = LowerTransportLayer.class.getSimpleName();

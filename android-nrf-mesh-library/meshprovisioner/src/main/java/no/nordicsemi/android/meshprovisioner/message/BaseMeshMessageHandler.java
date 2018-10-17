@@ -42,11 +42,13 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     protected MeshStatusCallbacks mStatusCallbacks;
     private MeshMessageState mMeshMessageState;
 
-    protected BaseMeshMessageHandler(final Context context, final MeshTransport meshTransport, final InternalTransportCallbacks internalTransportCallbacks) {
+    protected BaseMeshMessageHandler(final Context context, final InternalTransportCallbacks internalTransportCallbacks) {
         this.mContext = context;
-        mMeshTransport = meshTransport;
+        mMeshTransport = new MeshTransport(context);
         this.mInternalTransportCallbacks = internalTransportCallbacks;
     }
+
+    protected abstract MeshTransport getMeshTransport();
 
     /**
      * Handle mesh message States on write callback complete

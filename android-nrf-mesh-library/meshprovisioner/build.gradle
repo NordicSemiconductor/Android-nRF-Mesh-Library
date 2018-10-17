@@ -24,7 +24,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 28
-
+    group "no.nordicsemi.android.meshprovisioner" //add group id
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 28

@@ -32,8 +32,13 @@ class MeshMessageHandler extends BaseMeshMessageHandler {
     private static final String TAG = MeshMessageHandler.class.getSimpleName();
 
 
-    MeshMessageHandler(final Context context, final MeshTransport meshTransport, final InternalTransportCallbacks internalTransportCallbacks) {
-        super(context, meshTransport, internalTransportCallbacks);
+    MeshMessageHandler(final Context context, final InternalTransportCallbacks internalTransportCallbacks) {
+        super(context, internalTransportCallbacks);
+    }
+
+    @Override
+    protected MeshTransport getMeshTransport() {
+        return mMeshTransport;
     }
 
     void setMeshStatusCallbacks(final MeshStatusCallbacks statusCallbacks) {

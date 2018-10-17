@@ -148,9 +148,8 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         intiConfigurationSrc();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, this, this);
 
-        final MeshTransport meshTransport = new MeshTransport(context);
-        meshTransport.setNetworkLayerCallbacks(this);
-        mMeshMessageHandler = new MeshMessageHandler(context, meshTransport, this);
+        mMeshMessageHandler = new MeshMessageHandler(context, this);
+        mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(this);
     }
 
     private void intiConfigurationSrc() {

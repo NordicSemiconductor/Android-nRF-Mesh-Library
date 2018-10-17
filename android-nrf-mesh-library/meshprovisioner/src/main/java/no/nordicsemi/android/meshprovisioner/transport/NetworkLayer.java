@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
@@ -40,6 +41,7 @@ import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class NetworkLayer extends LowerTransportLayer {
 
     protected static final int MESH_BEACON_PDU = 0x01;
@@ -79,7 +81,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     }
 
     @Override
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    @RestrictTo({RestrictTo.Scope.LIBRARY_GROUP})
     public final Message createNetworkLayerPDU(final Message message) {
         final SecureUtils.K2Output k2Output = mMeshNode.getK2Output();
         final int nid = k2Output.getNid();

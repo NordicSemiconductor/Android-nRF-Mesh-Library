@@ -39,7 +39,7 @@ public final class MeshTransport extends NetworkLayer {
 
     private static final String TAG = MeshTransport.class.getSimpleName();
 
-    public MeshTransport(final Context context) {
+    MeshTransport(final Context context) {
         super();
         this.mContext = context;
         initHandler();
