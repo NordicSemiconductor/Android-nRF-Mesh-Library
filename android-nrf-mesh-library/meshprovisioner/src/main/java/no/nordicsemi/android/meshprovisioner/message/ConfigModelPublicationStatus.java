@@ -87,6 +87,7 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
         final AccessMessage message = mMessage;
         final ByteBuffer buffer = ByteBuffer.wrap(message.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
         mStatusCode = mParameters[0];
+        mStatusCodeName = getStatusCodeName(mStatusCode);
         final byte[] elementAddress = new byte[]{mParameters[2], mParameters[1]};
         mElementAddress = ByteBuffer.wrap(elementAddress).order(ByteOrder.BIG_ENDIAN).getShort();
         publishAddress = new byte[]{mParameters[4], mParameters[3]};

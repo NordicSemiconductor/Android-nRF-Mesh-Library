@@ -741,9 +741,6 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             mMeshManagerApi.unbindAppKey(meshNode, elementAddress, meshModel, appKeyIndex);
         }
 
-        public void sendConfigModelPublicationSet(final ConfigModelPublicationSetParams configModelPublicationSetParams) {
-            mMeshManagerApi.sendConfigModelPublicationSet(configModelPublicationSetParams);
-        }
 
         public void sendConfigModelSubscriptionAdd(final ProvisionedMeshNode node, final Element element, final MeshModel meshModel, final byte[] subsciptionAddress) {
             mMeshManagerApi.addSubscriptionAddress(node,

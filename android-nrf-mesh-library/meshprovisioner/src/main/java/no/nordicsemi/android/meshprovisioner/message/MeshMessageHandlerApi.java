@@ -21,13 +21,6 @@ interface MeshMessageHandlerApi {
     void sendCompositionDataGet(@NonNull final ProvisionedMeshNode meshNode, final int aszmic);
 
     /**
-     * Sends a composition data get message to the node.
-     *
-     * @param compositionDataGet {@link ConfigCompositionDataGet} containing the config composition data get message opcode and parameters.
-     */
-    void sendCompositionDataGet(@NonNull final ConfigCompositionDataGet compositionDataGet);
-
-    /**
      * Send App key add message to the node.
      *
      * @param appKey      application key
@@ -35,13 +28,6 @@ interface MeshMessageHandlerApi {
      * @param aszmic      application size, if 0 uses 32-bit encryption and 64-bit otherwise
      */
     void sendAppKeyAdd(@NonNull final ProvisionedMeshNode meshNode, final int appKeyIndex, @NonNull final String appKey, final int aszmic);
-
-    /**
-     * Send App key add message to the node.
-     *
-     * @param configAppKeyAdd {@link ConfigAppKeyAdd} containing the config app key add message opcode and parameters.
-     */
-    void sendAppKeyAdd(@NonNull final ConfigAppKeyAdd configAppKeyAdd);
 
     /**
      * Binds app key to a specified model
@@ -56,13 +42,6 @@ interface MeshMessageHandlerApi {
                     @NonNull final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex);
 
     /**
-     * Binds app key to a specified model
-     *
-     * @param configModelAppBind {@link ConfigModelAppBind} containing the config model app bind message opcode and parameters.
-     */
-    void bindAppKey(@NonNull final ConfigModelAppBind configModelAppBind);
-
-    /**
      * Unbinds a previously bound app key from a specified model
      *
      * @param meshNode        mesh node containing the model
@@ -75,25 +54,11 @@ interface MeshMessageHandlerApi {
                       @NonNull final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex);
 
     /**
-     * Unbinds app key to a specified model
-     *
-     * @param configModelAppUnbind {@link ConfigModelAppUnbind} containing the config model app unbind message opcode and parameters.
-     */
-    void unbindAppKey(@NonNull final ConfigModelAppUnbind configModelAppUnbind);
-
-    /**
      * Set a publish address for configuration model
      *
      * @param configModelPublicationSetParams contains the parameters for configmodel publication set
      */
     void sendConfigModelPublicationSet(@NonNull final ConfigModelPublicationSetParams configModelPublicationSetParams);
-
-    /**
-     * Set a publish address for configuration model
-     *
-     * @param configModelPublicationSet {@link ConfigModelPublicationSet} containing config model publication set message opcode and parameters
-     */
-    void sendConfigModelPublicationSet(@NonNull final ConfigModelPublicationSet configModelPublicationSet);
 
     /**
      * Send App key add message to the node.
@@ -108,13 +73,6 @@ interface MeshMessageHandlerApi {
                                 @NonNull final byte[] elementAddress, @NonNull final byte[] subscriptionAddress, final int modelIdentifier);
 
     /**
-     * Adds subscription address to a specific model.
-     *
-     * @param configModelSubscriptionAdd {@link ConfigModelSubscriptionAdd} containing the config model subscription add
-     */
-    void addSubscriptionAddress(@NonNull final ConfigModelSubscriptionAdd configModelSubscriptionAdd);
-
-    /**
      * Send App key add message to the node.
      *
      * @param meshNode            Mesh node containing the model
@@ -127,25 +85,11 @@ interface MeshMessageHandlerApi {
                                    @NonNull final byte[] elementAddress, @NonNull final byte[] subscriptionAddress, final int modelIdentifier);
 
     /**
-     * Send App key add message to the node.
-     *
-     * @param configModelSubscriptionDelete {@link ConfigModelSubscriptionDelete} containing the Config model model subscription delete opcode and parameters
-     */
-    void deleteSubscriptionAddress(@NonNull final ConfigModelSubscriptionDelete configModelSubscriptionDelete);
-
-    /**
      * Resets the specific mesh node
      *
      * @param provisionedMeshNode mesh node to be reset
      */
     void resetMeshNode(@NonNull final ProvisionedMeshNode provisionedMeshNode);
-
-    /**
-     * Resets the specific mesh node
-     *
-     * @param configNodeReset {@link ConfigNodeReset} containing the config node reset message opcode and parameters
-     */
-    void resetMeshNode(@NonNull final ConfigNodeReset configNodeReset);
 
     /**
      * Send generic on off get to mesh node, this message sent is an acknowledged message.
@@ -158,14 +102,6 @@ interface MeshMessageHandlerApi {
      */
     void getGenericOnOff(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
                          @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex);
-
-    /**
-     * Send generic on off get to mesh node, this message is an acknowledged message.
-     *
-     * @param dstAddress      Destination address where the message is sent to
-     * @param genericOnOffGet {@link GenericOnOffGet} containing the generic on off get message opcode and parameters
-     */
-    void getGenericOnOff(@NonNull final byte[] dstAddress, @NonNull final GenericOnOffGet genericOnOffGet);
 
     /**
      * Send generic on off set to mesh node, this message sent is an acknowledged message.
@@ -335,16 +271,18 @@ interface MeshMessageHandlerApi {
     /**
      * Sends a mesh message specified within the {@link MeshMessage} object
      *
-     * @param meshMessage Mesh message containing the message opcode and message parameters
+     * @param configurationMessage {@link ConfigMessage} Mesh message containing the message opcode and message parameters
      */
-    void sendMeshMessage(@NonNull final MeshMessage meshMessage);
+    void sendMeshMessage(@NonNull final MeshMessage configurationMessage);
 
     /**
-     * Sends a mesh message specified within the {@link MeshMessage} object
-     * <p> This method can be used specifically when sending a message to a particular destination address</p>
-     *
-     * @param dstAddress Destination to which the message must be sent to
-     * @param meshMessage Mesh message containing the message opcode and message parameters
+     * Sends a mesh message specified within the {@link GenericMessage} object
+     * <p> This method can be used specifically when sending an application message with a unicast address or a group address.
+     * Application messages currently supported in the library are {@link GenericOnOffGet},{@link GenericOnOffSet}, {@link GenericOnOffSetUnacknowledged},
+     * {@link GenericLevelGet},  {@link GenericLevelSet},  {@link GenericLevelSetUnacknowledged},
+     * {@link VendorModelMessageAcked} and {@link VendorModelMessageUnacked}</p>
+     *  @param dstAddress  Destination to which the message must be sent to, this could be a unicast address or a group address.
+     * @param genericMessage Mesh message containing the message opcode and message parameters.
      */
-    void sendMeshMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage meshMessage);
+    void sendMeshMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage genericMessage);
 }

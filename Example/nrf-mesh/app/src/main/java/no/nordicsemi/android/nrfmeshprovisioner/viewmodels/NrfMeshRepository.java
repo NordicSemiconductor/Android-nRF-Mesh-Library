@@ -446,11 +446,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     void sendGetCompositionData() {
         final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
         final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet(node, 0);
-        mMeshManagerApi.getCompositionData(configCompositionDataGet);
+        mMeshManagerApi.sendMeshConfigurationMessage(configCompositionDataGet);
     }
 
     void sendAppKeyAdd(final ConfigAppKeyAdd configAppKeyAdd) {
-        mMeshManagerApi.addAppKey(configAppKeyAdd);
+        mMeshManagerApi.sendMeshConfigurationMessage(configAppKeyAdd);
     }
 
     @Override
@@ -658,7 +658,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onMeshMessageReceived(final MeshMessage meshMessage) {
         final ProvisionedMeshNode node = meshMessage.getMeshNode();
-        mMeshNode = node;
         if (meshMessage instanceof ConfigCompositionDataStatus) {
             final ConfigCompositionDataStatus status = (ConfigCompositionDataStatus) meshMessage;
             if (mSetupProvisionedNode) {
@@ -673,45 +672,52 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     }, 2500);
                 }
             } else {
-                mExtendedMeshNode.updateMeshNode(node);
+                updateNode(node);
             }
         } else if (meshMessage instanceof ConfigAppKeyStatus) {
-            mExtendedMeshNode.updateMeshNode(node);
             final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
             if (mSetupProvisionedNode) {
                 mSetupProvisionedNode = false;
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.APP_KEY_STATUS_RECEIVED);
             } else {
-                mMeshNode = node;
-                mExtendedMeshNode.updateMeshNode(node);
+                updateNode(node);
                 mMeshMessageLiveData.postValue(status);
             }
         } else if (meshMessage instanceof ConfigModelAppStatus) {
 
-            mExtendedMeshNode.updateMeshNode(node);
-            final ConfigModelAppStatus status = (ConfigModelAppStatus) meshMessage;
-            final Element element = node.getElements().get(status.getElementAddress());
-            mExtendedElement.setElement(element);
-            final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-            mExtendedMeshModel.setMeshModel(model);
+            if(updateNode(node)) {
+                final ConfigModelAppStatus status = (ConfigModelAppStatus) meshMessage;
+                final Element element = node.getElements().get(status.getElementAddress());
+                if(node.getElements().containsKey(status.getElementAddress())) {
+                    mExtendedElement.setElement(element);
+                    final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+                    mExtendedMeshModel.setMeshModel(model);
+                }
+            }
 
         } else if (meshMessage instanceof ConfigModelPublicationStatus) {
 
-            mExtendedMeshNode.updateMeshNode(node);
-            final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
-            final Element element = node.getElements().get(status.getElementAddress());
-            mExtendedElement.setElement(element);
-            final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-            mExtendedMeshModel.setMeshModel(model);
+            if(updateNode(node)) {
+                final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
+                if(node.getElements().containsKey(status.getElementAddress())) {
+                    final Element element = node.getElements().get(status.getElementAddress());
+                    mExtendedElement.setElement(element);
+                    final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+                    mExtendedMeshModel.setMeshModel(model);
+                }
+            }
 
         } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
 
-            mExtendedMeshNode.updateMeshNode(node);
-            final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
-            final Element element = node.getElements().get(status.getElementAddress());
-            mExtendedElement.setElement(element);
-            final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-            mExtendedMeshModel.setMeshModel(model);
+            if(updateNode(node)) {
+                final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
+                if(node.getElements().containsKey(status.getElementAddress())) {
+                    final Element element = node.getElements().get(status.getElementAddress());
+                    mExtendedElement.setElement(element);
+                    final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+                    mExtendedMeshModel.setMeshModel(model);
+                }
+            }
 
         } else if (meshMessage instanceof ConfigNodeResetStatus) {
 
@@ -721,36 +727,55 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mMeshMessageLiveData.postValue(status);
 
         } else if (meshMessage instanceof GenericOnOffStatus) {
-
-            mExtendedMeshNode.updateMeshNode(node);
-            final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
-            final Element element = node.getElements().get(status.getSrcAddress());
-            mExtendedElement.setElement(element);
-            final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_ON_OFF_SERVER);
-            mExtendedMeshModel.setMeshModel(model);
-
+            if(updateNode(node)) {
+                final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
+                if(node.getElements().containsKey(status.getSrcAddress())) {
+                    final Element element = node.getElements().get(status.getSrcAddress());
+                    mExtendedElement.setElement(element);
+                    final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_ON_OFF_SERVER);
+                    mExtendedMeshModel.setMeshModel(model);
+                }
+            }
         } else if (meshMessage instanceof GenericLevelStatus) {
 
-            mExtendedMeshNode.updateMeshNode(node);
-            final GenericLevelStatus status = (GenericLevelStatus) meshMessage;
-            final Element element = node.getElements().get(status.getSrcAddress());
-            mExtendedElement.setElement(element);
-            final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_LEVEL_SERVER);
-            mExtendedMeshModel.setMeshModel(model);
+            if(updateNode(node)) {
+                final GenericLevelStatus status = (GenericLevelStatus) meshMessage;
+                if(node.getElements().containsKey(status.getSrcAddress())) {
+                    final Element element = node.getElements().get(status.getSrcAddress());
+                    mExtendedElement.setElement(element);
+                    final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_LEVEL_SERVER);
+                    mExtendedMeshModel.setMeshModel(model);
+                }
+            }
 
         } else if (meshMessage instanceof VendorModelMessageStatus) {
 
-            mExtendedMeshNode.updateMeshNode(node);
-            final VendorModelMessageStatus status = (VendorModelMessageStatus) meshMessage;
-            final Element element = node.getElements().get(status.getSrcAddress());
-            mExtendedElement.setElement(element);
-            final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-            mExtendedMeshModel.setMeshModel(model);
+            if(updateNode(node)) {
+                final VendorModelMessageStatus status = (VendorModelMessageStatus) meshMessage;
+                if(node.getElements().containsKey(status.getSrcAddress())) {
+                    final Element element = node.getElements().get(status.getSrcAddress());
+                    mExtendedElement.setElement(element);
+                    final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+                    mExtendedMeshModel.setMeshModel(model);
+                }
+            }
         }
 
         if (mMeshMessageLiveData.hasActiveObservers()) {
             mMeshMessageLiveData.postValue(meshMessage);
         }
+    }
+
+    /**
+     * We should only update the selected node, since sending messages to group address will notify with nodes that is not on the UI
+     */
+    private boolean updateNode(final ProvisionedMeshNode node){
+        if(mMeshNode.getUnicastAddressInt() == node.getUnicastAddressInt()) {
+            mMeshNode = node;
+            mExtendedMeshNode.updateMeshNode(node);
+            return true;
+        }
+        return false;
     }
 
     /**

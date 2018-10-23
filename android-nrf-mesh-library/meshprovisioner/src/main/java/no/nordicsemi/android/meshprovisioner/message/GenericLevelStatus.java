@@ -71,7 +71,7 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received generic level status");
+        Log.v(TAG, "Received generic level status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         mPresentLevel = (int) (buffer.getShort());
         Log.v(TAG, "Present level: " + mPresentLevel);

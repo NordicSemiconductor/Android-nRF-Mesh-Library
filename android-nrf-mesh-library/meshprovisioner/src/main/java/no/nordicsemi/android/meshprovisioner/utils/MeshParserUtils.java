@@ -115,7 +115,7 @@ public class MeshParserUtils {
      */
     public static boolean isValidGroupAddress(@NonNull final byte[] address) {
         if (address != null && address.length == 2) {
-            return address[0] == (address[0] & 0xC0);
+            return (address[0] >= 0xC0 && address[0] <= 0xFF) && address[0] != 0xFF || !(address[1] >= 0x00 && address[1] <= 0xFB);
         }
         return false;
     }

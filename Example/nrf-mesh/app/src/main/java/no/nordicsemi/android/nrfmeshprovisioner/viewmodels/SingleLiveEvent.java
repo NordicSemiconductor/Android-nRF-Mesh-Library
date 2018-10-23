@@ -31,6 +31,8 @@ import android.util.Log;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static android.arch.lifecycle.Lifecycle.State.DESTROYED;
+
 /**
  * A lifecycle-aware observable that sends only new updates after subscription, used for events like
  * navigation and Snackbar messages.
@@ -49,7 +51,6 @@ class SingleLiveEvent<T> extends MutableLiveData<T> {
 
     @MainThread
     public void observe(LifecycleOwner owner, final Observer<T> observer) {
-
         if (hasActiveObservers()) {
             Log.w(TAG, "Multiple observers registered but only one will be notified of changes.");
         }

@@ -188,7 +188,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             showProgressbar();
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
             final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet(node, 0);
-            mViewModel.getMeshManagerApi().getCompositionData(configCompositionDataGet);
+            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configCompositionDataGet);
         });
 
         actionAddAppkey.setOnClickListener(v -> {
@@ -247,7 +247,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                     final int appKeyIndex = mViewModel.getMeshManagerApi().getProvisioningSettings().getAppKeys().indexOf(appKey);
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
                     final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node, key, appKeyIndex, 0);
-                    mViewModel.getMeshManagerApi().addAppKey(configAppKeyAdd);
+                    mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configAppKeyAdd);
                 }
             }
         }
@@ -304,7 +304,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         try {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
             final ConfigNodeReset configNodeReset = new ConfigNodeReset(node, 0);
-            mViewModel.getMeshManagerApi().resetMeshNode(configNodeReset);
+            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configNodeReset);
         } catch(Exception ex) {
             Log.e(TAG, ex.getMessage());
         }
