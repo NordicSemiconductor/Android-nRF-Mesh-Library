@@ -45,8 +45,16 @@ public final class MeshTransport extends NetworkLayer {
         initHandler();
     }
 
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    MeshTransport(final Context context, final ProvisionedMeshNode node) {
+        super();
+        this.mContext = context;
+        this.mMeshNode = node;
+        initHandler();
+    }
+
     @Override
-    protected void initHandler() {
+    protected final void initHandler() {
         this.mHandler = new Handler(mContext.getMainLooper());
     }
 
@@ -60,12 +68,12 @@ public final class MeshTransport extends NetworkLayer {
     }
 
     @Override
-    protected int incrementSequenceNumber() {
+    protected final int incrementSequenceNumber() {
         return SequenceNumber.incrementAndStore(mContext);
     }
 
     @Override
-    protected int incrementSequenceNumber(final byte[] sequenceNumber) {
+    protected final int incrementSequenceNumber(final byte[] sequenceNumber) {
         return SequenceNumber.incrementAndStore(mContext, sequenceNumber);
     }
 
@@ -75,7 +83,7 @@ public final class MeshTransport extends NetworkLayer {
      * @param controlMessage Control message containing the required opcodes and parameters to create the message
      * @return Control message containing the acknowledgement message pdu
      */
-    ControlMessage createSegmentBlockAcknowledgementMessage(final ControlMessage controlMessage) {
+    final ControlMessage createSegmentBlockAcknowledgementMessage(final ControlMessage controlMessage) {
         createLowerTransportControlPDU(controlMessage);
         createNetworkLayerPDU(controlMessage);
         return controlMessage;
@@ -98,7 +106,7 @@ public final class MeshTransport extends NetworkLayer {
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    AccessMessage createMeshMessage(final ProvisionedMeshNode node, final byte[] src,
+    final AccessMessage createMeshMessage(final ProvisionedMeshNode node, final byte[] src,
                                     final byte[] key, final int akf, final int aid, final int aszmic,
                                     final int accessOpCode, final byte[] accessMessageParameters) {
         this.mMeshNode = node;
@@ -114,7 +122,6 @@ public final class MeshTransport extends NetworkLayer {
         Log.v(TAG, "Sequence number: " + sequenceNumber);
         Log.v(TAG, "Access message opcode: " + accessOpCode);
         Log.v(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
-
 
         final AccessMessage message = new AccessMessage();
         message.setSrc(src);
@@ -150,9 +157,9 @@ public final class MeshTransport extends NetworkLayer {
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    AccessMessage createMeshMessage(final ProvisionedMeshNode node, final byte[] src, final byte[] dst,
-                                    final byte[] key, final int akf, final int aid, final int aszmic,
-                                    final int accessOpCode, final byte[] accessMessageParameters) {
+    final AccessMessage createMeshMessage(final ProvisionedMeshNode node, final byte[] src, final byte[] dst,
+                                                    final byte[] key, final int akf, final int aid, final int aszmic,
+                                                    final int accessOpCode, final byte[] accessMessageParameters) {
         this.mMeshNode = node;
         final int sequenceNumber = incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
@@ -201,9 +208,9 @@ public final class MeshTransport extends NetworkLayer {
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    AccessMessage createVendorMeshMessage(final ProvisionedMeshNode node, final int companyIdentifier, final byte[] src, final byte[] dst,
-                                          final byte[] key, final int akf, final int aid, final int aszmic,
-                                          final int accessOpCode, final byte[] accessMessageParameters) {
+    final AccessMessage createVendorMeshMessage(final ProvisionedMeshNode node, final int companyIdentifier, final byte[] src, final byte[] dst,
+                                                final byte[] key, final int akf, final int aid, final int aszmic,
+                                                final int accessOpCode, final byte[] accessMessageParameters) {
         this.mMeshNode = node;
         final int sequenceNumber = incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
@@ -236,7 +243,7 @@ public final class MeshTransport extends NetworkLayer {
         return message;
     }
 
-    Message createRetransmitMeshMessage(final Message message, final int segment) {
+    final Message createRetransmitMeshMessage(final Message message, final int segment) {
         createRetransmitNetworkLayerPDU(message, segment);
         return message;
     }
@@ -248,7 +255,7 @@ public final class MeshTransport extends NetworkLayer {
      * @param pdu              pdu received
      * @return Message
      */
-    Message parsePdu(final byte[] configurationSrc, final byte[] pdu) {
+    final Message parsePdu(final byte[] configurationSrc, final byte[] pdu) {
         return parseMeshMessage(configurationSrc, pdu);
     }
 
@@ -259,7 +266,7 @@ public final class MeshTransport extends NetworkLayer {
      * @return Message
      */
     @VisibleForTesting
-    Message parsePdu(final byte[] pdu) {
+    final Message parsePdu(final byte[] pdu) {
         return parseMeshMessage(pdu);
     }
 

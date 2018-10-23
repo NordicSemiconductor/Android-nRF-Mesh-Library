@@ -19,10 +19,8 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
@@ -41,16 +39,15 @@ import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+/**
+ * NetworkLayer implementation of the mesh network
+ * Do not touch this class, it's public because it has to be
+ */
 public abstract class NetworkLayer extends LowerTransportLayer {
 
-    protected static final int MESH_BEACON_PDU = 0x01;
     private static final int PROXY_CONFIGURATION_PDU = 0x02;
     private static final String TAG = NetworkLayer.class.getSimpleName();
     protected NetworkLayerCallbacks mNetworkLayerCallbacks;
-    private byte[] mEncryptionKey;
-    private byte[] mPrivacyKey;
-    private int key;
     private HashMap<Integer, byte[]> segmentedAccessMessagesMessages;
     private HashMap<Integer, byte[]> segmentedControlMessagesMessages;
 
@@ -81,14 +78,13 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     }
 
     @Override
-    @RestrictTo({RestrictTo.Scope.LIBRARY_GROUP})
     public final Message createNetworkLayerPDU(final Message message) {
         final SecureUtils.K2Output k2Output = mMeshNode.getK2Output();
         final int nid = k2Output.getNid();
-        final byte[] encryptionKey = mEncryptionKey = k2Output.getEncryptionKey();
+        final byte[] encryptionKey = k2Output.getEncryptionKey();
         Log.v(TAG, "Encryption key: " + MeshParserUtils.bytesToHex(encryptionKey, false));
 
-        final byte[] privacyKey = mPrivacyKey = k2Output.getPrivacyKey();
+        final byte[] privacyKey = k2Output.getPrivacyKey();
         Log.v(TAG, "Privacy key: " + MeshParserUtils.bytesToHex(privacyKey, false));
         final int ctl = message.getCtl();
         final int ttl = message.getTtl();
@@ -165,10 +161,10 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     public final Message createRetransmitNetworkLayerPDU(final Message message, final int segment) {
         final SecureUtils.K2Output k2Output = mMeshNode.getK2Output();
         final int nid = k2Output.getNid();
-        final byte[] encryptionKey = mEncryptionKey = k2Output.getEncryptionKey();
+        final byte[] encryptionKey = k2Output.getEncryptionKey();
         Log.v(TAG, "Encryption key: " + MeshParserUtils.bytesToHex(encryptionKey, false));
 
-        final byte[] privacyKey = mPrivacyKey = k2Output.getPrivacyKey();
+        final byte[] privacyKey = k2Output.getPrivacyKey();
         Log.v(TAG, "Privacy key: " + MeshParserUtils.bytesToHex(privacyKey, false));
         final int ctl = message.getCtl();
         final int ttl = message.getTtl();
@@ -409,9 +405,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
      * @return complete {@link Message} that was successfully parsed or null otherwise
      */
     protected final Message parseMeshMessage(final byte[] configurationSrc, final byte[] data) {
-        final SecureUtils.K2Output k2Output = mMeshNode.getK2Output();
-        mEncryptionKey = k2Output.getEncryptionKey();
-        mPrivacyKey = k2Output.getPrivacyKey();
 
         //D-eobfuscate network header
         final byte[] networkHeader = deobfuscateNetworkHeader(data);
@@ -448,10 +441,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
     @VisibleForTesting
     protected final Message parseMeshMessage(final byte[] data) {
-        final SecureUtils.K2Output k2Output = mMeshNode.getK2Output();
-
-        final byte[] encryptionKey = mEncryptionKey = k2Output.getEncryptionKey();
-        final byte[] privacyKey = mPrivacyKey = k2Output.getPrivacyKey();
 
         //D-eobfuscate network header
         final byte[] networkHeader = deobfuscateNetworkHeader(data);
@@ -488,8 +477,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     private AccessMessage parseAccessMessage(final byte[] configurationSrc, final byte[] data, final byte[] networkHeader, final byte[] networkNonce, final byte[] src, final byte[] sequenceNumber, final int micLength) {
         final SecureUtils.K2Output k2Output = mMeshNode.getK2Output();
 
-        final byte[] encryptionKey = mEncryptionKey = k2Output.getEncryptionKey();
-        mPrivacyKey = k2Output.getPrivacyKey();
+        final byte[] encryptionKey = k2Output.getEncryptionKey();
 
         final int ttl = networkHeader[0] & 0x7F;
 
@@ -529,7 +517,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
                 final HashMap<Integer, byte[]> segmentedMessages = segmentedAccessMessagesMessages;
                 segmentedAccessMessagesMessages = null;
-                key = 0;
                 message.setIvIndex(mMeshNode.getIvIndex());
                 message.setNetworkPdu(segmentedMessages);
                 message.setCtl(0);
@@ -578,8 +565,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     private AccessMessage parseAccessMessage(final byte[] data, final byte[] networkHeader, final byte[] networkNonce, final byte[] src, final byte[] sequenceNumber, final int micLength) {
         final SecureUtils.K2Output k2Output = mMeshNode.getK2Output();
 
-        final byte[] encryptionKey = mEncryptionKey = k2Output.getEncryptionKey();
-        mPrivacyKey = k2Output.getPrivacyKey();
+        final byte[] encryptionKey = k2Output.getEncryptionKey();
 
         final int ttl = networkHeader[0] & 0x7F;
 
@@ -604,7 +590,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             if (message != null) {
                 final HashMap<Integer, byte[]> segmentedMessages = segmentedAccessMessagesMessages;
                 segmentedAccessMessagesMessages = null;
-                key = 0;
                 message.setIvIndex(mMeshNode.getIvIndex());
                 message.setNetworkPdu(segmentedMessages);
                 message.setCtl(0);
@@ -652,8 +637,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     private ControlMessage parseControlMessage(final byte[] configurationSrc, final byte[] data, final byte[] networkHeader, final byte[] networkNonce, final byte[] src, final byte[] sequenceNumber, final int micLength) {
         final SecureUtils.K2Output k2Output = mMeshNode.getK2Output();
 
-        final byte[] encryptionKey = mEncryptionKey = k2Output.getEncryptionKey();
-        mPrivacyKey = k2Output.getPrivacyKey();
+        final byte[] encryptionKey = k2Output.getEncryptionKey();
 
         final int ttl = networkHeader[0] & 0x7F;
 
@@ -684,7 +668,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             if (message != null) {
                 final HashMap<Integer, byte[]> segmentedMessages = segmentedControlMessagesMessages;
                 segmentedControlMessagesMessages = null;
-                key = 0;
                 message.setIvIndex(mMeshNode.getIvIndex());
                 message.setNetworkPdu(segmentedMessages);
                 message.setCtl(1);
@@ -728,8 +711,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     private ControlMessage parseControlMessage(final byte[] data, final byte[] networkHeader, final byte[] networkNonce, final byte[] src, final byte[] sequenceNumber, final int micLength) {
         final SecureUtils.K2Output k2Output = mMeshNode.getK2Output();
 
-        final byte[] encryptionKey = mEncryptionKey = k2Output.getEncryptionKey();
-        mPrivacyKey = k2Output.getPrivacyKey();
+        final byte[] encryptionKey = k2Output.getEncryptionKey();
 
         final int ttl = networkHeader[0] & 0x7F;
 
@@ -754,7 +736,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             if (message != null) {
                 final HashMap<Integer, byte[]> segmentedMessages = segmentedControlMessagesMessages;
                 segmentedControlMessagesMessages = null;
-                key = 0;
                 message.setIvIndex(mMeshNode.getIvIndex());
                 message.setNetworkPdu(segmentedMessages);
                 message.setCtl(1);

@@ -70,7 +70,7 @@ public class LowerTransportLayerTests {
         final byte[] upperTransportPdu = MeshParserUtils.toByteArray("89511bf1d1a81c11dcef".toUpperCase());
 
         final ProvisionedMeshNode meshNode = new ProvisionedMeshNode();
-        final MeshTransport meshLayerTestBase = new MeshTransport(context);
+        final MeshTransport meshLayerTestBase = new MeshTransport(context, meshNode);
         final AccessMessage accessMessage = new AccessMessage();
         accessMessage.setCtl(ctl);
         accessMessage.setSrc(src);
@@ -105,7 +105,7 @@ public class LowerTransportLayerTests {
         final byte[] upperTransportPdu = MeshParserUtils.toByteArray("ee9dddfd2169326d23f3afdfcfdc18c52fdef772e0e17308".toUpperCase());
 
         final ProvisionedMeshNode meshNode = new ProvisionedMeshNode();
-        final MeshTransport meshLayerTestBase = new MeshTransport(context);
+        final MeshTransport meshLayerTestBase = new MeshTransport(context, meshNode);
         final AccessMessage accessMessage = new AccessMessage();
         accessMessage.setCtl(ctl);
         accessMessage.setSrc(src);
