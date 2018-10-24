@@ -108,7 +108,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(appKeysRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
         appKeysRecyclerView.addItemDecoration(dividerItemDecoration);
         appKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new ManageAppKeyAdapter(this, mViewModel.getProvisioningLiveData());
+        mAdapter = new ManageAppKeyAdapter(this, mViewModel.getProvisioningSettingsLiveData());
         mAdapter.setOnItemClickListener(this);
         appKeysRecyclerView.setAdapter(mAdapter);
 
@@ -120,7 +120,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
 
-        mViewModel.getProvisioningLiveData().observe(this, provisioningLiveData -> {
+        mViewModel.getProvisioningSettingsLiveData().observe(this, provisioningLiveData -> {
             final ProvisioningSettings settings = provisioningLiveData.getProvisioningSettings();
             if(settings != null) {
                 mEmptyView.setVisibility(settings.getAppKeys().isEmpty() ? View.VISIBLE : View.GONE);
@@ -168,19 +168,19 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
 
     @Override
     public void onAppKeysUpdated(final int position, final String appKey) {
-        mViewModel.getProvisioningLiveData().updateAppKey(position, appKey);
+        mViewModel.getProvisioningSettingsLiveData().updateAppKey(position, appKey);
     }
 
     @Override
     public void onAppKeyAdded(final String appKey) {
-        mViewModel.getProvisioningLiveData().addAppKey(appKey);
+        mViewModel.getProvisioningSettingsLiveData().addAppKey(appKey);
     }
 
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         final TextView textView = viewHolder.getSwipeableView().findViewById(R.id.app_key);
         final String appKey = textView.getText().toString();
-        mViewModel.getProvisioningLiveData().removeAppKey(appKey);
+        mViewModel.getProvisioningSettingsLiveData().removeAppKey(appKey);
         displaySnackBar(viewHolder.getAdapterPosition(), appKey);
         // Show the empty view
         final boolean empty = mAdapter.getItemCount() == 0;
@@ -195,7 +195,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         Snackbar.make(container, getString(R.string.app_key_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
                     mEmptyView.setVisibility(View.INVISIBLE);
-                    mViewModel.getProvisioningLiveData().addAppKey(key, appKey);
+                    mViewModel.getProvisioningSettingsLiveData().addAppKey(key, appKey);
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
                 .show();

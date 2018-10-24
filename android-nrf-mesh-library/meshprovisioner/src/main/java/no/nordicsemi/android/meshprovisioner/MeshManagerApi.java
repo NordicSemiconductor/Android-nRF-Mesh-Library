@@ -43,37 +43,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ConfigMessageState;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.MeshModel;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.SequenceNumber;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigAppKeyAdd;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigCompositionDataGet;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppBind;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelAppUnbind;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelPublicationSet;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionAdd;
-import no.nordicsemi.android.meshprovisioner.messages.ConfigModelSubscriptionDelete;
-import no.nordicsemi.android.meshprovisioner.messages.GenericLevelGet;
-import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSet;
-import no.nordicsemi.android.meshprovisioner.messages.GenericLevelSetUnacknowledged;
-import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffGet;
-import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffSet;
-import no.nordicsemi.android.meshprovisioner.messages.GenericOnOffSetUnacknowledged;
-import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageAcked;
-import no.nordicsemi.android.meshprovisioner.messages.VendorModelMessageUnacked;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppBind;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppUnbind;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionAdd;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionDelete;
+import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffGet;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.SequenceNumber;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
 import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
-import no.nordicsemi.android.meshprovisioner.utils.PublicationSettingsInstanceCreator;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 
-public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, InternalMeshManagerCallbacks {
+@SuppressWarnings("WeakerAccess")
+public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, InternalMeshManagerCallbacks, NetworkLayerCallbacks {
 
     public static final byte PDU_TYPE_PROVISIONING = 0x03;
     /**
@@ -147,7 +136,9 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         initProvisionedNodes();
         intiConfigurationSrc();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, this, this);
-        mMeshMessageHandler = new MeshMessageHandler(context, this, this);
+
+        mMeshMessageHandler = new MeshMessageHandler(context, this);
+        mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(this);
     }
 
     private void intiConfigurationSrc() {
@@ -169,12 +160,11 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         mMeshMessageHandler.setMeshStatusCallbacks(callbacks);
     }
 
-    public ConfigMessageState.MessageState getConfigurationState() {
-        return mMeshMessageHandler.getConfigurationState();
-    }
-
+    /**
+     * Returns an unmodifiable map of Provisioned nodes
+     */
     public Map<Integer, ProvisionedMeshNode> getProvisionedNodes() {
-        return mProvisionedNodes;
+        return Collections.unmodifiableMap(mProvisionedNodes);
     }
 
     /**
@@ -275,6 +265,14 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         mProvisionedNodes.put(unicastAddress, meshNode);
         incrementUnicastAddress(meshNode);
         saveProvisionedNode(meshNode);
+    }
+
+    @Override
+    public ProvisionedMeshNode getMeshNode(final int unicastAddress) {
+        if (mProvisionedNodes.isEmpty() || !mProvisionedNodes.containsKey(unicastAddress))
+            return null;
+
+        return mProvisionedNodes.get(unicastAddress);
     }
 
     private void saveSrc() {
@@ -381,7 +379,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             case PDU_TYPE_NETWORK:
                 //Network PDU
                 Log.v(TAG, "Received network pdu: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshMessageHandler.parseMeshMsgNotifications((ProvisionedMeshNode) meshNode, unsegmentedPdu);
+                mMeshMessageHandler.parseMeshMsgNotifications(unsegmentedPdu);
                 break;
             case PDU_TYPE_MESH_BEACON:
                 //Mesh beacon
@@ -425,7 +423,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             case PDU_TYPE_NETWORK:
                 //Network PDU
                 Log.v(TAG, "Network pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                mMeshMessageHandler.handleMeshMsgWriteCallbacks((ProvisionedMeshNode) meshNode, data);
+                mMeshMessageHandler.handleMeshMsgWriteCallbacks(data);
                 break;
             case PDU_TYPE_MESH_BEACON:
                 //Mesh beacon
@@ -721,17 +719,20 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         mProvisioningSettings.generateProvisioningData();
     }
 
+    /**
+     * @deprecated Use {@link #sendMeshConfigurationMessage(MeshMessage)}instead.
+     */
+    @Deprecated
     @Override
     public void getCompositionData(@NonNull final ProvisionedMeshNode meshNode) {
         final int aszmic = 0;
         mMeshMessageHandler.sendCompositionDataGet(meshNode, aszmic);
     }
 
-    @Override
-    public void getCompositionData(@NonNull final ConfigCompositionDataGet compositionDataGet) {
-        mMeshMessageHandler.sendCompositionDataGet(compositionDataGet);
-    }
-
+    /**
+     * @deprecated Use {@link #sendMeshConfigurationMessage(MeshMessage)}instead.
+     */
+    @Deprecated
     @Override
     public void addAppKey(@NonNull final ProvisionedMeshNode meshNode, final int appKeyIndex, @NonNull final String appKey) {
         if (appKey == null || appKey.isEmpty())
@@ -739,71 +740,52 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         mMeshMessageHandler.sendAppKeyAdd(meshNode, appKeyIndex, appKey, 0);
     }
 
-    @Override
-    public void addAppKey(@NonNull final ConfigAppKeyAdd configAppKeyAdd) {
-        mMeshMessageHandler.sendAppKeyAdd(configAppKeyAdd);
-    }
-
+    /**
+     * @deprecated Use {@link #sendMeshConfigurationMessage(MeshMessage)}instead.
+     */
+    @Deprecated
     @Override
     public void bindAppKey(@NonNull final ProvisionedMeshNode meshNode, @NonNull final byte[] elementAddress, @NonNull final MeshModel model, final int appKeyIndex) {
         final ConfigModelAppBind configModelAppBind = new ConfigModelAppBind(meshNode, elementAddress, model.getModelId(), appKeyIndex, 0);
-        bindAppKey(configModelAppBind);
+        sendMeshConfigurationMessage(configModelAppBind);
     }
 
-    @Override
-    public void bindAppKey(@NonNull final ConfigModelAppBind configModelAppBind) {
-        mMeshMessageHandler.bindAppKey(configModelAppBind);
-    }
-
+    /**
+     * @deprecated Use {@link #sendMeshConfigurationMessage(MeshMessage)}instead.
+     */
+    @Deprecated
     @Override
     public void unbindAppKey(@NonNull final ProvisionedMeshNode meshNode, @NonNull final byte[] elementAddress, @NonNull final MeshModel model, final int appKeyIndex) {
         final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(meshNode, elementAddress, model.getModelId(), appKeyIndex, 0);
-        unbindAppKey(configModelAppUnbind);
+        sendMeshConfigurationMessage(configModelAppUnbind);
     }
 
-    @Override
-    public void unbindAppKey(@NonNull final ConfigModelAppUnbind configModelAppUnbind) {
-        mMeshMessageHandler.unbindAppKey(configModelAppUnbind);
-    }
-
-    @Override
-    public void sendConfigModelPublicationSet(@NonNull ConfigModelPublicationSetParams configModelPublicationSetParams) {
-        final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(configModelPublicationSetParams.getMeshNode(),
-                configModelPublicationSetParams.getElementAddress(), configModelPublicationSetParams.getPublishAddress(), configModelPublicationSetParams.getAppKeyIndex(), configModelPublicationSetParams.getCredentialFlag(),
-                configModelPublicationSetParams.getPublishTtl(), configModelPublicationSetParams.getPublicationSteps(), configModelPublicationSetParams.getPublicationResolution(),
-                configModelPublicationSetParams.getPublishRetransmitCount(), configModelPublicationSetParams.getPublishRetransmitIntervalSteps(), configModelPublicationSetParams.getModelIdentifier(), configModelPublicationSetParams.getAszmic());
-        setPublication(configModelPublicationSet);
-    }
-
-    @Override
-    public void setPublication(@NonNull final ConfigModelPublicationSet configModelPublicationSet) {
-        mMeshMessageHandler.sendConfigModelPublicationSet(configModelPublicationSet);
-    }
-
+    /**
+     * @deprecated Use {@link #sendMeshConfigurationMessage(MeshMessage)}instead.
+     */
+    @Deprecated
     @Override
     public void addSubscriptionAddress(@NonNull final ProvisionedMeshNode meshNode, @NonNull final byte[] elementAddress, @NonNull final byte[] subscriptionAddress,
                                        final int modelIdentifier) {
         final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(meshNode, elementAddress, subscriptionAddress, modelIdentifier, 0);
-        addSubscriptionAddress(configModelSubscriptionAdd);
+        sendMeshConfigurationMessage(configModelSubscriptionAdd);
     }
 
-    @Override
-    public void addSubscriptionAddress(@NonNull final ConfigModelSubscriptionAdd configModelSubscriptionAdd) {
-        mMeshMessageHandler.addSubscriptionAddress(configModelSubscriptionAdd);
-    }
-
+    /**
+     * @deprecated Use {@link #sendMeshConfigurationMessage(MeshMessage)}instead.
+     */
+    @Deprecated
     @Override
     public void deleteSubscriptionAddress(@NonNull final ProvisionedMeshNode meshNode, @NonNull final byte[] elementAddress, @NonNull final byte[] subscriptionAddress,
                                           final int modelIdentifier) {
         final ConfigModelSubscriptionDelete configModelSubscriptionDelete = new ConfigModelSubscriptionDelete(meshNode, elementAddress, subscriptionAddress, modelIdentifier, 0);
-        deleteSubscriptionAddress(configModelSubscriptionDelete);
+        sendMeshConfigurationMessage(configModelSubscriptionDelete);
     }
 
-    @Override
-    public void deleteSubscriptionAddress(@NonNull final ConfigModelSubscriptionDelete configModelSubscriptionDelete) {
-        mMeshMessageHandler.deleteSubscriptionAddress(configModelSubscriptionDelete);
-    }
-
+    /**
+     * @deprecated Use {@link #sendMeshConfigurationMessage(MeshMessage)}instead.
+     */
+    @Deprecated
     @Override
     public void resetMeshNode(@NonNull final ProvisionedMeshNode provisionedMeshNode) {
         if (provisionedMeshNode == null)
@@ -811,94 +793,136 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         mMeshMessageHandler.resetMeshNode(provisionedMeshNode);
     }
 
+    /**
+     * @deprecated Use {@link #sendMeshApplicationMessage(byte[], MeshMessage)}instead.
+     */
     @Override
     public void getGenericOnOff(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
                                 @NonNull final byte[] dstAddress, final int appKeyIndex) throws IllegalArgumentException {
         mMeshMessageHandler.getGenericOnOff(node, model, dstAddress, false, appKeyIndex);
     }
 
+    /**
+     * @deprecated Use {@link #sendMeshApplicationMessage(byte[], MeshMessage)}instead.
+     */
     @Override
     public void getGenericOnOff(final byte[] dstAddress, @NonNull final GenericOnOffGet genericOnOffGet) {
         mMeshMessageHandler.getGenericOnOff(dstAddress, genericOnOffGet);
     }
 
+    /**
+     * @deprecated Use {@link #sendMeshApplicationMessage(byte[], MeshMessage)}instead.
+     */
     @Override
-    public void setGenericOnOff(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
-                                @NonNull final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state) throws IllegalArgumentException {
-        mMeshMessageHandler.setGenericOnOff(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+    public void setGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps, @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state) {
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshMessageHandler.setGenericOnOff(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+    /**
+     * @deprecated Use {@link #sendMeshApplicationMessage(byte[], MeshMessage)}instead.
+     */
+    @Override
+    public void setGenericOnOffUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps, @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state) {
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshMessageHandler.setGenericOnOffUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+    /**
+     * @deprecated Use {@link #sendMeshApplicationMessage(byte[], MeshMessage)}instead.
+     */
+    @Override
+    public void getGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex) {
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshMessageHandler.getGenericLevel(node, model, dstAddress, false, appKeyIndex);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+    /**
+     * @deprecated Use {@link #sendMeshApplicationMessage(byte[], MeshMessage)}instead.
+     */
+    @Override
+    public void setGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps, @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level) {
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshMessageHandler.setGenericLevel(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, level);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+    /**
+     * @deprecated Use {@link #sendMeshApplicationMessage(byte[], MeshMessage)}instead.
+     */
+    @Override
+    public void setGenericLevelUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps, @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level) {
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            if (appKeyIndex >= 0) {
+                if (dstAddress == null)
+                    throw new IllegalArgumentException("Destination address cannot be null!");
+                mMeshMessageHandler.setGenericLevelUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, level);
+            } else {
+                throw new IllegalArgumentException("Invalid app key index!");
+            }
+        } else {
+            throw new IllegalArgumentException("Please bind an app key to this model to control this model!");
+        }
+    }
+
+    /**
+     * @deprecated Use {@link #sendMeshApplicationMessage(byte[], MeshMessage)}instead.
+     */
+    @Override
+    public void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
+        mMeshMessageHandler.sendVendorModelUnacknowledgedMessage(node, (VendorModel) model, address, false, appKeyIndex, opcode, parameters);
+    }
+
+    /**
+     * @deprecated Use {@link #sendMeshApplicationMessage(byte[], MeshMessage)}instead.
+     */
+    @Override
+    public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
+        mMeshMessageHandler.sendVendorModelAcknowledgedMessage(node, (VendorModel) model, address, false, appKeyIndex, opcode, parameters);
     }
 
     @Override
-    public void setGenericOnOff(final byte[] dstAddress, @NonNull final GenericOnOffSet genericOnOffSet) {
-        mMeshMessageHandler.setGenericOnOff(dstAddress, genericOnOffSet);
+    public final void sendMeshConfigurationMessage(final MeshMessage configMessage) {
+        mMeshMessageHandler.sendMeshMessage(configMessage);
     }
 
     @Override
-    public void setGenericOnOffUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
-                                              @NonNull final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                              @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state) throws IllegalArgumentException {
-        mMeshMessageHandler.setGenericOnOffUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, state);
-    }
-
-    @Override
-    public void setGenericOnOffUnacknowledged(final byte[] dstAddress, @NonNull final GenericOnOffSetUnacknowledged genericOnOffSet) throws IllegalArgumentException {
-        mMeshMessageHandler.setGenericOnOffUnacknowledged(dstAddress, genericOnOffSet);
-    }
-
-    @Override
-    public void getGenericLevel(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
-                                @NonNull final byte[] dstAddress, final int appKeyIndex) throws IllegalArgumentException {
-        mMeshMessageHandler.getGenericLevel(node, model, dstAddress, false, appKeyIndex);
-    }
-
-    @Override
-    public void getGenericLevel(@NonNull final byte[] dstAddress, @NonNull final GenericLevelGet genericLevelGet) throws IllegalArgumentException {
-        mMeshMessageHandler.getGenericLevel(dstAddress, genericLevelGet);
-    }
-
-    @Override
-    public void setGenericLevel(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
-                                @NonNull final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level) throws IllegalArgumentException {
-        mMeshMessageHandler.setGenericLevel(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, level);
-    }
-
-    @Override
-    public void setGenericLevel(@NonNull final byte[] dstAddress, @NonNull final GenericLevelSet genericLevelSet) {
-        mMeshMessageHandler.setGenericLevel(dstAddress, genericLevelSet);
-    }
-
-    @Override
-    public void setGenericLevelUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
-                                              @NonNull final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                              @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level) throws IllegalArgumentException {
-        mMeshMessageHandler.setGenericLevelUnacknowledged(node, model, dstAddress, false, appKeyIndex, transitionSteps, transitionResolution, delay, level);
-    }
-
-    @Override
-    public void setGenericLevelUnacknowledged(@NonNull final byte[] dstAddress, @NonNull final GenericLevelSetUnacknowledged genericLevelSetUnacked) {
-        mMeshMessageHandler.setGenericLevelUnacknowledged(dstAddress, genericLevelSetUnacked);
-    }
-
-    @Override
-    public void sendVendorModelUnacknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
-        mMeshMessageHandler.sendVendorModelUnacknowledgedMessage(node, model, address, false, appKeyIndex, opcode, parameters);
-    }
-
-    @Override
-    public void sendVendorModelUnacknowledgedMessage(@NonNull final byte[] dstAddress, @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked) {
-        mMeshMessageHandler.sendVendorModelUnacknowledgedMessage(dstAddress, vendorModelMessageUnacked);
-    }
-
-
-    @Override
-    public void sendVendorModelAcknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] address, final int appKeyIndex, final int opcode, final byte[] parameters) {
-        mMeshMessageHandler.sendVendorModelAcknowledgedMessage(node, model, address, false, appKeyIndex, opcode, parameters);
-    }
-
-    @Override
-    public void sendVendorModelAcknowledgedMessage(@NonNull final byte[] dstAddress, @NonNull final VendorModelMessageAcked vendorModelMessageAcked) {
-        mMeshMessageHandler.sendVendorModelAcknowledgedMessage(dstAddress, vendorModelMessageAcked);
+    public final void sendMeshApplicationMessage(final byte[] dstAddress, final MeshMessage meshMessage) {
+        mMeshMessageHandler.sendMeshMessage(dstAddress, meshMessage);
     }
 }

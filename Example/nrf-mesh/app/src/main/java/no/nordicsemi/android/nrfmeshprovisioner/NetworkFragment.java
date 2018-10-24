@@ -42,7 +42,7 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.meshmessagestates.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.NodeAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -57,10 +57,6 @@ public class NetworkFragment extends Fragment implements Injectable,
     ViewModelProvider.Factory mViewModelFactory;
 
     private NodeAdapter mAdapter;
-
-    public interface NetworkFragmentListener {
-        void onProvisionedMeshNodeSelected();
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,13 +80,15 @@ public class NetworkFragment extends Fragment implements Injectable,
         } else {
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         }
-        mAdapter = new NodeAdapter(getActivity(), mViewModel.getMeshRepository().getProvisionedNodesLiveData());
+
+
+        mAdapter = new NodeAdapter(getActivity(), mViewModel.getProvisionedNodes());
         mAdapter.setOnItemClickListener(this);
         recyclerView.setAdapter(mAdapter);
 
         // Create view model containing utility methods for scanning
-        mViewModel.getMeshRepository().getProvisionedNodesLiveData().observe(this, provisionedNodesLiveData -> {
-            if(mAdapter.getItemCount() > 0) {
+        mViewModel.getProvisionedNodes().observe(this, nodes -> {
+            if(!nodes.isEmpty()) {
                 noNetworksConfiguredView.setVisibility(View.GONE);
             } else {
                 noNetworksConfiguredView.setVisibility(View.VISIBLE);
@@ -98,7 +96,13 @@ public class NetworkFragment extends Fragment implements Injectable,
             mAdapter.notifyDataSetChanged();
         });
 
+        mViewModel.getProvisionedNodes().observe(this, provisionedNodes -> getActivity().invalidateOptionsMenu());
 
+        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
+            if(isConnected != null) {
+                getActivity().invalidateOptionsMenu();
+            }
+        });
         return rootView;
 
     }
@@ -106,17 +110,16 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public void onStart() {
         super.onStart();
-        mViewModel.refreshProvisionedNodes();
     }
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        if(!mViewModel.getProvisionedNodesLiveData().getProvisionedNodes().isEmpty()){
-
-            if (!mViewModel.isConenctedToMesh()) {
-                inflater.inflate(R.menu.connect, menu);
-            } else {
+        if(!mViewModel.getProvisionedNodes().getValue().isEmpty()){
+            final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
+            if(isConnectedToNetwork != null && isConnectedToNetwork){
                 inflater.inflate(R.menu.disconnect, menu);
+            } else {
+                inflater.inflate(R.menu.connect, menu);
             }
         }
     }
@@ -127,7 +130,7 @@ public class NetworkFragment extends Fragment implements Injectable,
         switch (id) {
             case R.id.action_connect:
                 final Intent scannerActivity = new Intent(getContext(), ProvisionedNodesScannerActivity.class);
-                scannerActivity.putExtra(ProvisionedNodesScannerActivity.NETWORK_ID, mViewModel.getNetworkId());
+                scannerActivity.putExtra(ProvisionedNodesScannerActivity.NETWORK_ID, "");
                 startActivity(scannerActivity);
                 return true;
             case R.id.action_disconnect:
@@ -139,10 +142,10 @@ public class NetworkFragment extends Fragment implements Injectable,
 
     @Override
     public void onConfigureClicked(final ProvisionedMeshNode node) {
-        if(mViewModel.isConenctedToMesh()) {
-            ((NetworkFragmentListener) getActivity()).onProvisionedMeshNodeSelected();
+        final Boolean isConnectedToProxy = mViewModel.isConnectedToProxy().getValue();
+        if(isConnectedToProxy != null && isConnectedToProxy) {
+            mViewModel.setSelectedMeshNode(node);
             final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
-            meshConfigurationIntent.putExtra(Utils.EXTRA_DEVICE, node);
             getActivity().startActivity(meshConfigurationIntent);
         } else {
             Toast.makeText(getActivity(), R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();

@@ -23,14 +23,14 @@
 package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import dagger.Subcomponent;
-import  no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ViewModelFactory;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ManageAppKeysViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionedNodesScannerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ReconnectViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ViewModelFactory;
 
 /**
  * A sub component to create ViewModels. It is called by the

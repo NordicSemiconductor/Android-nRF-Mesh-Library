@@ -26,13 +26,25 @@ import android.content.Context;
 
 import dagger.Module;
 import dagger.Provides;
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetworkInformation;
 
 @Module
-public class BleMeshManagerModule {
+class BleMeshManagerModule {
 
     @Provides
     BleMeshManager provideBleMeshManager(final Context context) {
         return new BleMeshManager(context);
+    }
+
+    @Provides
+    MeshManagerApi provideMeshManagerApi(final Context context) {
+        return new MeshManagerApi(context);
+    }
+
+    @Provides
+    NetworkInformation provideNetworkInformation(final Context context) {
+        return new NetworkInformation(context);
     }
 }

@@ -29,8 +29,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 
-import no.nordicsemi.android.nrfmeshprovisioner.R;
-
 public class DialogFragmentMessage extends DialogFragment {
 
     protected static final String TITLE = "TITLE";

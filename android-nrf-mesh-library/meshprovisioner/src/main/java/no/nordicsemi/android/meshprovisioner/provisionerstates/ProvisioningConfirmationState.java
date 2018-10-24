@@ -41,7 +41,7 @@ public class ProvisioningConfirmationState extends ProvisioningState {
 
     private final MeshProvisioningHandler pduHandler;
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
-    private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
+    private final MeshProvisioningStatusCallbacks mStatusCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
     private String pin;
 
@@ -50,7 +50,7 @@ public class ProvisioningConfirmationState extends ProvisioningState {
         this.pduHandler = pduHandler;
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
         this.mInternalTransportCallbacks = mInternalTransportCallbacks;
-        this.mMeshProvisioningStatusCallbacks = meshProvisioningStatusCallbacks;
+        this.mStatusCallbacks = meshProvisioningStatusCallbacks;
     }
 
     public void setPin(final String pin) {
@@ -71,13 +71,13 @@ public class ProvisioningConfirmationState extends ProvisioningState {
         } else {
             provisioningConfirmationPDU = createProvisioningConfirmation(null);
         }
-        mMeshProvisioningStatusCallbacks.onProvisioningConfirmationSent(mUnprovisionedMeshNode);
+        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CONFIRMATION_SENT, provisioningConfirmationPDU);
         mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, provisioningConfirmationPDU);
     }
 
     @Override
     public boolean parseData(final byte[] data) {
-        mMeshProvisioningStatusCallbacks.onProvisioningConfirmationReceived(mUnprovisionedMeshNode);
+        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CONFIRMATION_RECEIVED, data);
         parseProvisioneeConfirmation(data);
         return true;
     }

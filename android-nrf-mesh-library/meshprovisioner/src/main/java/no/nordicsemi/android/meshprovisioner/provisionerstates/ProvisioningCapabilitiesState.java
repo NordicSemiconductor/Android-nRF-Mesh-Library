@@ -63,7 +63,7 @@ public class ProvisioningCapabilitiesState extends ProvisioningState {
     public boolean parseData(final byte[] data) {
         final boolean flag = parseProvisioningCapabilities(data);
         mUnprovisionedMeshNode.setProvisioningCapabilities(capabilities);
-        mCallbacks.onProvisioningCapabilitiesReceived(mUnprovisionedMeshNode);
+        mCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CAPABILITIES, data);
         return flag;
     }
 

@@ -28,7 +28,6 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 

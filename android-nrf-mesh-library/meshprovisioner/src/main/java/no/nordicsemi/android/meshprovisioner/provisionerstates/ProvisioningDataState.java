@@ -37,7 +37,7 @@ public class ProvisioningDataState extends ProvisioningState {
 
     private final String TAG = ProvisioningRandomConfirmationState.class.getSimpleName();
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
-    private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
+    private final MeshProvisioningStatusCallbacks mStatusCallbacks;
     private final MeshProvisioningHandler pduHandler;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
@@ -46,7 +46,7 @@ public class ProvisioningDataState extends ProvisioningState {
         this.pduHandler = pduHandler;
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
         this.mInternalTransportCallbacks = mInternalTransportCallbacks;
-        this.mMeshProvisioningStatusCallbacks = meshProvisioningStatusCallbacks;
+        this.mStatusCallbacks = meshProvisioningStatusCallbacks;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class ProvisioningDataState extends ProvisioningState {
 
     private void sendProvisioningData() {
         final byte[] provisioningDataPDU = createProvisioningDataPDU();
-        mMeshProvisioningStatusCallbacks.onProvisioningDataSent(mUnprovisionedMeshNode);
+        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_DATA_SENT, provisioningDataPDU);
         mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, provisioningDataPDU);
     }
 

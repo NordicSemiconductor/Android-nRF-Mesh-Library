@@ -31,14 +31,14 @@ public class ProvisioningInviteState extends ProvisioningState {
     private final String TAG = ProvisioningInviteState.class.getSimpleName();
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
     private final int attentionTimer;
-    private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
+    private final MeshProvisioningStatusCallbacks mStatusCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
     public ProvisioningInviteState(final UnprovisionedMeshNode unprovisionedMeshNode, final int attentionTimer, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
         this.attentionTimer = attentionTimer;
-        this.mMeshProvisioningStatusCallbacks = meshProvisioningStatusCallbacks;
+        this.mStatusCallbacks = meshProvisioningStatusCallbacks;
         this.mInternalTransportCallbacks = mInternalTransportCallbacks;
     }
 
@@ -50,7 +50,7 @@ public class ProvisioningInviteState extends ProvisioningState {
     @Override
     public void executeSend() {
         final byte[] invitePDU = createInvitePDU();
-        mMeshProvisioningStatusCallbacks.onProvisioningInviteSent(mUnprovisionedMeshNode);
+        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_INVITE, invitePDU);
         mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, invitePDU);
     }
 

@@ -50,10 +50,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
 public class MainActivity extends AppCompatActivity implements Injectable, HasSupportFragmentInjector,  BottomNavigationView.OnNavigationItemSelectedListener,
         BottomNavigationView.OnNavigationItemReselectedListener,
-        ScannerFragment.ScannerFragmentListener, FragmentManager.OnBackStackChangedListener,
-        NetworkFragment.NetworkFragmentListener {
+        ScannerFragment.ScannerFragmentListener, FragmentManager.OnBackStackChangedListener {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
     private static final String CURRENT_FRAGMENT = "CURRENT_FRAGMENT";
 
     @Inject
@@ -65,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     @BindView(R.id.state_scanning)
     View mScanningView;
 
-    private SharedViewModel mViewModel;
     private BottomNavigationView mBottomNavigationView;
 
     private NetworkFragment mNetworkFragment;
@@ -82,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
 
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(SharedViewModel.class);
+        final SharedViewModel mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(SharedViewModel.class);
 
         mNetworkFragment = (NetworkFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_network);
         mScannerFragment = (ScannerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_scanner);
@@ -92,21 +89,16 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
         mBottomNavigationView.setOnNavigationItemSelectedListener(this);
         mBottomNavigationView.setOnNavigationItemReselectedListener(this);
 
-        mViewModel.getProvisionedNodesLiveData().observe(this, provisionedNodesLiveData -> {
-            invalidateOptionsMenu();
-        });
-
-        mViewModel.isConnected().observe(this, isConnected -> {
-            if(isConnected != null) {
-                invalidateOptionsMenu();
-            }
-        });
-
         if(savedInstanceState == null) {
             onNavigationItemSelected(mBottomNavigationView.getMenu().findItem(R.id.action_network));
         } else {
             mBottomNavigationView.setSelectedItemId(savedInstanceState.getInt(CURRENT_FRAGMENT));
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -164,10 +156,5 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     @Override
     public AndroidInjector<Fragment> supportFragmentInjector() {
         return mDispatchingAndroidInjector;
-    }
-
-    @Override
-    public void onProvisionedMeshNodeSelected() {
-
     }
 }

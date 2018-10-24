@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
+@SuppressWarnings("unused")
 public abstract class ProvisioningState {
 
     static final byte TYPE_PROVISIONING_INVITE = 0x00;
@@ -48,9 +49,7 @@ public abstract class ProvisioningState {
         PROVISINING_INPUT_COMPLETE(4), PROVISIONING_CONFIRMATION(5), PROVISINING_RANDOM(6),
         PROVISINING_DATA(7), PROVISINING_COMPLETE(8), PROVISINING_FAILED(9);
 
-
         private int state;
-
 
         State(final int state) {
             this.state = state;
@@ -60,5 +59,48 @@ public abstract class ProvisioningState {
             return state;
         }
 
+    }
+
+    public enum States {
+        PROVISIONING_INVITE(0),
+        PROVISIONING_CAPABILITIES(1),
+        PROVISIONING_START(2),
+        PROVISIONING_PUBLIC_KEY_SENT(3),
+        PROVISIONING_PUBLIC_KEY_RECEIVED(4),
+        PROVISIONING_AUTHENTICATION_INPUT_WAITING(5),
+        PROVISIONING_AUTHENTICATION_INPUT_ENTERED(6),
+        PROVISIONING_INPUT_COMPLETE(7),
+        PROVISIONING_CONFIRMATION_SENT(8),
+        PROVISIONING_CONFIRMATION_RECEIVED(9),
+        PROVISIONING_RANDOM_SENT(10),
+        PROVISIONING_RANDOM_RECEIVED(11),
+        PROVISIONING_DATA_SENT(12),
+        PROVISIONING_COMPLETE(13),
+        PROVISIONING_FAILED(14),
+        COMPOSITION_DATA_GET_SENT(15),
+        COMPOSITION_DATA_STATUS_RECEIVED(16),
+        SENDING_BLOCK_ACKNOWLEDGEMENT(17),
+        SENDING_APP_KEY_ADD(18),
+        BLOCK_ACKNOWLEDGEMENT_RECEIVED(19),
+        APP_KEY_STATUS_RECEIVED(20);
+
+        private int state;
+
+        States(final int state) {
+            this.state = state;
+        }
+
+        public int getState() {
+            return state;
+        }
+
+        public static States fromStatusCode(final int statusCode){
+            for(States state : States.values()){
+                if(state.getState() == statusCode){
+                    return state;
+                }
+            }
+            throw new IllegalStateException("Invalid state");
+        }
     }
 }

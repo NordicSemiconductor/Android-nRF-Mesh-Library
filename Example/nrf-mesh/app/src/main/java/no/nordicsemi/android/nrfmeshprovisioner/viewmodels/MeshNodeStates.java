@@ -56,7 +56,7 @@ public class MeshNodeStates {
         SUBSCRIPTION_STATUS_RECEIVED(28),
         NODE_RESET_STATUS_RECEIVED(29);
 
-        private int state;
+        private final int state;
 
         MeshNodeStatus(final int state) {
             this.state = state;
