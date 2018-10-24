@@ -30,9 +30,6 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.message.type.AccessMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.ControlMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.Message;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 

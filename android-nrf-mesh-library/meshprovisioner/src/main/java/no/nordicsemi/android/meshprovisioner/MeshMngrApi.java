@@ -3,17 +3,17 @@ package no.nordicsemi.android.meshprovisioner;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import no.nordicsemi.android.meshprovisioner.message.GenericLevelGet;
-import no.nordicsemi.android.meshprovisioner.message.GenericLevelSet;
-import no.nordicsemi.android.meshprovisioner.message.GenericLevelSetUnacknowledged;
-import no.nordicsemi.android.meshprovisioner.message.GenericOnOffGet;
-import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSet;
-import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSetUnacknowledged;
-import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.message.MeshModel;
-import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageAcked;
-import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageUnacked;
+import no.nordicsemi.android.meshprovisioner.transport.GenericLevelGet;
+import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSet;
+import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSetUnacknowledged;
+import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffGet;
+import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSet;
+import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSetUnacknowledged;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageAcked;
+import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageUnacked;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 
 @SuppressWarnings("unused")

@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 interface InternalMeshManagerCallbacks {
 

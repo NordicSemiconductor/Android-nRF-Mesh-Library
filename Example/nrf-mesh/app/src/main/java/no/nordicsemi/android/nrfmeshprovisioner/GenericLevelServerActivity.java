@@ -10,19 +10,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.message.GenericLevelGet;
-import no.nordicsemi.android.meshprovisioner.message.GenericLevelSet;
-import no.nordicsemi.android.meshprovisioner.message.GenericLevelSetUnacknowledged;
-import no.nordicsemi.android.meshprovisioner.message.GenericLevelStatus;
-import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSet;
-import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSetUnacknowledged;
-import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.message.MeshModel;
-import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.GenericLevelGet;
+import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSet;
+import no.nordicsemi.android.meshprovisioner.transport.GenericLevelStatus;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;

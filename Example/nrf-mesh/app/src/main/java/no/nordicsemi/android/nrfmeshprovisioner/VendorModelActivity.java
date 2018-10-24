@@ -20,12 +20,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.message.MeshModel;
-import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageAcked;
-import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageStatus;
-import no.nordicsemi.android.meshprovisioner.message.VendorModelMessageUnacked;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageAcked;
+import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
+import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageUnacked;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;

@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.utils;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -412,7 +413,7 @@ public class MeshParserUtils {
         return ByteBuffer.allocate(2).put(pdu, 8, 2).array(); // get dst address from pdu
     }
 
-    private static int getSegmentedMessageLength(final HashMap<Integer, byte[]> segmentedMessageMap) {
+    private static int getSegmentedMessageLength(final SparseArray<byte[]> segmentedMessageMap) {
         int length = 0;
         for (int i = 0; i < segmentedMessageMap.size(); i++) {
             length += segmentedMessageMap.get(i).length;
@@ -420,7 +421,7 @@ public class MeshParserUtils {
         return length;
     }
 
-    public static byte[] concatenateSegmentedMessages(final HashMap<Integer, byte[]> segmentedMessages) {
+    public static byte[] concatenateSegmentedMessages(final SparseArray<byte[]> segmentedMessages) {
         final int length = getSegmentedMessageLength(segmentedMessages);
         final ByteBuffer completeBuffer = ByteBuffer.allocate(length);
         completeBuffer.order(ByteOrder.BIG_ENDIAN);

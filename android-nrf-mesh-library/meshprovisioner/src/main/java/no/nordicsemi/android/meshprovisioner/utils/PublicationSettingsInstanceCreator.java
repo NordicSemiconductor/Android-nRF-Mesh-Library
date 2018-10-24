@@ -4,7 +4,7 @@ import com.google.gson.InstanceCreator;
 
 import java.lang.reflect.Type;
 
-import no.nordicsemi.android.meshprovisioner.message.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 
 
 public class PublicationSettingsInstanceCreator implements InstanceCreator<MeshModel> {

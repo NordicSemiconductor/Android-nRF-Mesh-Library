@@ -13,12 +13,12 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.message.GenericOnOffGet;
-import no.nordicsemi.android.meshprovisioner.message.GenericOnOffSet;
-import no.nordicsemi.android.meshprovisioner.message.GenericOnOffStatus;
-import no.nordicsemi.android.meshprovisioner.message.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.message.MeshModel;
-import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffGet;
+import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSet;
+import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffStatus;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;

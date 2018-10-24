@@ -24,8 +24,8 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
 
-import no.nordicsemi.android.meshprovisioner.message.BaseMeshMessageHandler;
-import no.nordicsemi.android.meshprovisioner.message.MeshTransport;
+import no.nordicsemi.android.meshprovisioner.transport.BaseMeshMessageHandler;
+import no.nordicsemi.android.meshprovisioner.transport.MeshTransport;
 
 public final class MeshMessageHandler extends BaseMeshMessageHandler {
 

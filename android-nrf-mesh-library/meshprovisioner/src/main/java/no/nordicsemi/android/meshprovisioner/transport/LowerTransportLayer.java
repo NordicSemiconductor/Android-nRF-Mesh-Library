@@ -24,22 +24,18 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
+import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.AccessMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.ControlMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.TransportLayerOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 abstract class LowerTransportLayer extends UpperTransportLayer {
 
-    protected static final int NETWORK_PDU = 0x00;
+    static final int NETWORK_PDU = 0x00;
     private static final String TAG = LowerTransportLayer.class.getSimpleName();
     private static final int UNSEGMENTED_HEADER = 0;
     private static final int SEGMENTED_HEADER = 1;
@@ -50,8 +46,8 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     private static final int UNSEGMENTED_ACK_MESSAGE_HEADER_LENGTH = 3;
     private static final long INCOMPLETE_TIMER_DELAY = 10 * 1000; // According to the spec the incomplete timer must be a minimum of 10 seconds.
 
-    private final Map<Integer, byte[]> segmentedAccessMessageMap = new HashMap<>();
-    private final Map<Integer, byte[]> segmentedControlMessageMap = new HashMap<>();
+    private final SparseArray<byte[]> segmentedAccessMessageMap = new SparseArray<>();
+    private final SparseArray<byte[]> segmentedControlMessageMap = new SparseArray<>();
 
     private LowerTransportLayerCallbacks mLowerTransportLayerCallbacks;
 
@@ -95,11 +91,11 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public final void createLowerTransportAccessPDU(final AccessMessage message) {
         final byte[] upperTransportPDU = message.getUpperTransportPdu();
-        final HashMap<Integer, byte[]> lowerTransportAccessPduMap;
+        final SparseArray<byte[]> lowerTransportAccessPduMap;
         if (upperTransportPDU.length <= MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH) {
             message.setSegmented(false);
             final byte[] lowerTransportPDU = createUnsegmentedAccessMessage(message);
-            lowerTransportAccessPduMap = new HashMap<>();
+            lowerTransportAccessPduMap = new SparseArray<>();
             lowerTransportAccessPduMap.put(0, lowerTransportPDU);
         } else {
             message.setSegmented(true);
@@ -124,14 +120,14 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
 
     @Override
     final void reassembleLowerTransportAccessPDU(final AccessMessage accessMessage) {
-        final HashMap<Integer, byte[]> lowerTransportAccessPdu = removeLowerTransportAccessMessageHeader(accessMessage);
+        final SparseArray<byte[]> lowerTransportAccessPdu = removeLowerTransportAccessMessageHeader(accessMessage);
         final byte[] upperTransportPdu = MeshParserUtils.concatenateSegmentedMessages(lowerTransportAccessPdu);
         accessMessage.setUpperTransportPdu(upperTransportPdu);
     }
 
     @Override
     final void reassembleLowerTransportControlPDU(final ControlMessage controlMessage) {
-        final HashMap<Integer, byte[]> lowerTransportPdu = removeLowerTransportControlMessageHeader(controlMessage);
+        final SparseArray<byte[]> lowerTransportPdu = removeLowerTransportControlMessageHeader(controlMessage);
         final byte[] lowerTransportControlPdu = MeshParserUtils.concatenateSegmentedMessages(lowerTransportPdu);
         controlMessage.setTransportControlPdu(lowerTransportControlPdu);
     }
@@ -142,8 +138,8 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
      * @param message access message received.
      * @return map containing the messages.
      */
-    private HashMap<Integer, byte[]> removeLowerTransportAccessMessageHeader(final AccessMessage message) {
-        final HashMap<Integer, byte[]> messages = message.getLowerTransportAccessPdu();
+    private SparseArray<byte[]> removeLowerTransportAccessMessageHeader(final AccessMessage message) {
+        final SparseArray<byte[]> messages = message.getLowerTransportAccessPdu();
         if (message.isSegmented()) {
             for (int i = 0; i < messages.size(); i++) {
                 final byte[] data = messages.get(i);
@@ -164,8 +160,8 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
      * @param message control message.
      * @return map containing the messages.
      */
-    private HashMap<Integer, byte[]> removeLowerTransportControlMessageHeader(final ControlMessage message) {
-        final HashMap<Integer, byte[]> messages = message.getLowerTransportControlPdu();
+    private SparseArray<byte[]> removeLowerTransportControlMessageHeader(final ControlMessage message) {
+        final SparseArray<byte[]> messages = message.getLowerTransportControlPdu();
         if (messages.size() > 1) {
             for (int i = 0; i < messages.size(); i++) {
                 final byte[] data = messages.get(i);
@@ -254,7 +250,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
      * @param message access message.
      * @return Segmented access message.
      */
-    private HashMap<Integer, byte[]> createSegmentedAccessMessage(final AccessMessage message) {
+    private SparseArray<byte[]> createSegmentedAccessMessage(final AccessMessage message) {
         final byte[] encryptedUpperTransportPDU = message.getUpperTransportPdu();
         final int akfAid = ((message.getAkf() << 6) | message.getAid());
         final int aszmic = message.getAszmic();
@@ -263,7 +259,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
 
         final int numberOfSegments = (encryptedUpperTransportPDU.length + (MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH - 1)) / MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH;
         final int segN = numberOfSegments - 1; //Zero based segN
-        final HashMap<Integer, byte[]> lowerTransportPduMap = new HashMap<>();
+        final SparseArray<byte[]> lowerTransportPduMap = new SparseArray<>();
         int offset = 0;
         int length;
         for (int segO = 0; segO < numberOfSegments; segO++) {
@@ -313,7 +309,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         lowerTransportBuffer.put(upperTransportControlPDU);
         final byte[] lowerTransportPDU = lowerTransportBuffer.array();
         Log.v(TAG, "Unsegmented Lower transport control PDU " + MeshParserUtils.bytesToHex(lowerTransportPDU, false));
-        final HashMap<Integer, byte[]> lowerTransportControlPduMap = new HashMap<>();
+        final SparseArray<byte[]> lowerTransportControlPduMap = new SparseArray<>();
         lowerTransportControlPduMap.put(0, lowerTransportPDU);
         message.setLowerTransportControlPdu(lowerTransportControlPduMap);
     }
@@ -334,7 +330,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
 
         final int numberOfSegments = (encryptedUpperTransportControlPDU.length + (MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH - 1)) / MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH;
         final int segN = numberOfSegments - 1; //Zero based segN
-        final HashMap<Integer, byte[]> lowerTransportControlPduMap = new HashMap<>();
+        final SparseArray<byte[]> lowerTransportControlPduMap = new SparseArray<>();
         int offset = 0;
         int length;
         for (int segO = 0; segO < numberOfSegments; segO++) {
@@ -384,7 +380,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
                 final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(lowerTransportPduLength).order(ByteOrder.BIG_ENDIAN);
                 lowerTransportBuffer.put(pdu, 10, lowerTransportPduLength);
                 final byte[] lowerTransportPDU = lowerTransportBuffer.array();
-                final HashMap<Integer, byte[]> messages = new HashMap<>();
+                final SparseArray<byte[]> messages = new SparseArray<>();
                 messages.put(0, lowerTransportPDU);
                 message.setSegmented(false);
                 message.setAszmic(0); //aszmic is always 0 for unsegmented access messages
@@ -396,7 +392,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
                 final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(lowerTransportPduLength).order(ByteOrder.BIG_ENDIAN);
                 lowerTransportBuffer.put(pdu, 10, lowerTransportPduLength);
                 final byte[] lowerTransportPDU = lowerTransportBuffer.array();
-                final HashMap<Integer, byte[]> messages = new HashMap<>();
+                final SparseArray<byte[]> messages = new SparseArray<>();
                 messages.put(0, lowerTransportPDU);
                 message.setSegmented(false);
                 message.setAszmic(0); //aszmic is always 0 for unsegmented access messages
@@ -495,8 +491,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
                         accessMessage.setAkf(akf);
                         accessMessage.setAid(aid);
                         accessMessage.setSegmented(true);
-                        final HashMap<Integer, byte[]> segmentedMessages = new HashMap<>();
-                        segmentedMessages.putAll(segmentedAccessMessageMap);
+                        final SparseArray<byte[]> segmentedMessages = segmentedAccessMessageMap.clone();
                         accessMessage.setLowerTransportAccessPdu(segmentedMessages);
                         return accessMessage;
                     }
@@ -536,7 +531,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(lowerTransportPduLength).order(ByteOrder.BIG_ENDIAN);
         lowerTransportBuffer.put(pdu, 10, lowerTransportPduLength);
         final byte[] lowerTransportPDU = lowerTransportBuffer.array();
-        final HashMap<Integer, byte[]> segmentedMessages = new HashMap<>();
+        final SparseArray<byte[]> segmentedMessages = new SparseArray<>();
         segmentedMessages.put(0, lowerTransportPDU);
         controlMessage.setSegmented(false);
         controlMessage.setAszmic(0);
@@ -606,8 +601,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             accessMessage.setAkf(akf);
             accessMessage.setAid(aid);
             accessMessage.setSegmented(true);
-            final HashMap<Integer, byte[]> segmentedMessages = new HashMap<>();
-            segmentedMessages.putAll(segmentedControlMessageMap);
+            final SparseArray<byte[]> segmentedMessages =  segmentedControlMessageMap.clone();
             segmentedControlMessageMap.clear();
             accessMessage.setLowerTransportControlPdu(segmentedMessages);
             return accessMessage;

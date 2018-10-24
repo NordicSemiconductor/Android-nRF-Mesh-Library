@@ -30,9 +30,6 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.message.type.AccessMessage;
-import no.nordicsemi.android.meshprovisioner.message.type.Message;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 abstract class AccessLayer {

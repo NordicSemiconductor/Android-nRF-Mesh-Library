@@ -3,7 +3,7 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.support.annotation.NonNull;
 
-import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 public class ConfigModelPublicationSetParams {
 

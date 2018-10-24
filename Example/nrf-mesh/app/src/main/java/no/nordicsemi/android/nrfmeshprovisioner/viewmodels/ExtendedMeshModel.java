@@ -24,7 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
 
-import no.nordicsemi.android.meshprovisioner.message.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 
 @SuppressWarnings("WeakerAccess")
 public class ExtendedMeshModel extends LiveData<MeshModel> {

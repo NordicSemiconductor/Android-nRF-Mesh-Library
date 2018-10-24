@@ -29,7 +29,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.message.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 public class SharedViewModel extends ViewModel {
 
