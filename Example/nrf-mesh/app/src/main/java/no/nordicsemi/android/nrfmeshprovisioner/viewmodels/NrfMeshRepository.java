@@ -615,8 +615,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     @Override
-    public void onUnknownPduReceived(final ProvisionedMeshNode node) {
-        mMeshNode = node;
+    public void onUnknownPduReceived(final ProvisionedMeshNode node, final int src, final byte[] accessPayload) {
+        updateNode(node);
     }
 
     @Override

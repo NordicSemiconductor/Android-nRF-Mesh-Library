@@ -48,8 +48,10 @@ public interface MeshStatusCallbacks {
      * Notifies if an unknown pdu was received
      *
      * @param node mesh node that the message was received from
+     * @param src address where the message originated from
+     * @param accessPayload access payload of the message
      */
-    void onUnknownPduReceived(final ProvisionedMeshNode node);
+    void onUnknownPduReceived(final ProvisionedMeshNode node, final int src, final byte[] accessPayload);
 
     /**
      * Notifies if a block acknowledgement was sent

@@ -595,16 +595,16 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             }
             final int upperTransportSequenceNumber = getTransportLayerSequenceNumber(MeshParserUtils.getSequenceNumberFromPDU(pdu), seqZero);
             final byte[] sequenceNumber = MeshParserUtils.getSequenceNumberBytes(upperTransportSequenceNumber);
-            final ControlMessage accessMessage = new ControlMessage();
-            accessMessage.setAszmic(szmic);
-            accessMessage.setSequenceNumber(sequenceNumber);
-            accessMessage.setAkf(akf);
-            accessMessage.setAid(aid);
-            accessMessage.setSegmented(true);
+            final ControlMessage message = new ControlMessage();
+            message.setAszmic(szmic);
+            message.setSequenceNumber(sequenceNumber);
+            message.setAkf(akf);
+            message.setAid(aid);
+            message.setSegmented(true);
             final SparseArray<byte[]> segmentedMessages =  segmentedControlMessageMap.clone();
             segmentedControlMessageMap.clear();
-            accessMessage.setLowerTransportControlPdu(segmentedMessages);
-            return accessMessage;
+            message.setLowerTransportControlPdu(segmentedMessages);
+            return message;
         }
 
         return null;

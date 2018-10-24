@@ -7,6 +7,7 @@ import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -123,7 +124,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         break;
                     default:
                         Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-                        mMeshStatusCallbacks.onUnknownPduReceived(mNode);
+                        mMeshStatusCallbacks.onUnknownPduReceived(mNode, AddressUtils.getUnicastAddressInt(message.getSrc()), ((AccessMessage) message).getAccessPdu());
                         break;
                 }
             } else {

@@ -141,7 +141,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
                 break;
             default:
                 Log.v(TAG, "Unexpected control message received, ignoring message");
-                mMeshStatusCallbacks.onUnknownPduReceived(mNode);
+                mMeshStatusCallbacks.onUnknownPduReceived(mNode, AddressUtils.getUnicastAddressInt(controlMessage.getSrc()), controlMessage.getTransportControlPdu());
                 break;
         }
     }
