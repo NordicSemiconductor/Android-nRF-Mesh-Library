@@ -401,7 +401,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
      * @param data             pdu received from the mesh node
      * @return complete {@link Message} that was successfully parsed or null otherwise
      */
-    protected final Message parseMeshMessage(final byte[] configurationSrc, final byte[] data) {
+    final Message parseMeshMessage(final byte[] configurationSrc, final byte[] data) {
 
         //D-eobfuscate network header
         final byte[] networkHeader = deobfuscateNetworkHeader(data);
@@ -417,6 +417,8 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
         if(mMeshNode == null || mMeshNode.getUnicastAddressInt() != AddressUtils.getUnicastAddressInt(src)) {
             mMeshNode = mNetworkLayerCallbacks.getMeshNode(AddressUtils.getUnicastAddressInt(src));
+            if(mMeshNode == null)
+                return null;
         }
 
         //Check if the sequence number has been incremented since the last message sent and return null if not

@@ -269,10 +269,17 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     @Override
     public ProvisionedMeshNode getMeshNode(final int unicastAddress) {
-        if (mProvisionedNodes.isEmpty() || !mProvisionedNodes.containsKey(unicastAddress))
+        for (Map.Entry<Integer, ProvisionedMeshNode> entry : mProvisionedNodes.entrySet()) {
+            if(entry.getValue().getElements() != null && entry.getValue().getElements().containsKey(unicastAddress)){
+                return entry.getValue();
+            }
+        }
+
+        return null;
+        /*if (mProvisionedNodes.isEmpty() || !mProvisionedNodes.containsKey(unicastAddress))
             return null;
 
-        return mProvisionedNodes.get(unicastAddress);
+        return mProvisionedNodes.get(unicastAddress);*/
     }
 
     private void saveSrc() {
