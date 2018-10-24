@@ -91,7 +91,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
         final byte[] src = message.getSrc();
         final SparseArray<byte[]> lowerTransportPduMap;
-        if (ctl == 0) {
+        if (message instanceof AccessMessage) {
             lowerTransportPduMap = ((AccessMessage)message).getLowerTransportAccessPdu();
         } else {
             lowerTransportPduMap = ((ControlMessage)message).getLowerTransportControlPdu();
@@ -171,7 +171,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
         final byte[] src = message.getSrc();
         final SparseArray<byte[]> lowerTransportPduMap;
-        if (ctl == 0) {
+        if (message instanceof AccessMessage) {
             lowerTransportPduMap = ((AccessMessage)message).getLowerTransportAccessPdu();
         } else {
             lowerTransportPduMap = ((ControlMessage)message).getLowerTransportControlPdu();
