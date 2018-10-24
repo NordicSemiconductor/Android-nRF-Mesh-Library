@@ -67,8 +67,6 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
 
     private long mDuration;
 
-    private Object lock = new Object();
-
     protected void setLowerTransportLayerCallbacks(final LowerTransportLayerCallbacks callbacks) {
         mLowerTransportLayerCallbacks = callbacks;
     }

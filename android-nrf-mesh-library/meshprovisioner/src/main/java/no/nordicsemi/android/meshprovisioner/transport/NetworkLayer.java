@@ -513,8 +513,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
             final AccessMessage message = parseSegmentedAccessLowerTransportPDU(pdu);
             if (message != null) {
-                //The segmented message is complete, lets clear the stored src address
-
                 final HashMap<Integer, byte[]> segmentedMessages = segmentedAccessMessagesMessages;
                 segmentedAccessMessagesMessages = null;
                 message.setIvIndex(mMeshNode.getIvIndex());

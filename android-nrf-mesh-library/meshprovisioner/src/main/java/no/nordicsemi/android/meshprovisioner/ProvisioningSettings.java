@@ -31,7 +31,7 @@ import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-public class ProvisioningSettings extends NetworkSettings {
+public final class ProvisioningSettings extends NetworkSettings {
 
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
     private static final String PROVISIONING_DATA = "PROVISIONING_DATA";
@@ -89,11 +89,18 @@ public class ProvisioningSettings extends NetworkSettings {
         saveApplicationKeys();
     }
 
-    public String getNetworkKey() {
+    /**
+     * Returns the network key
+     */
+    public final String getNetworkKey() {
         return networkKey;
     }
 
-    public void setNetworkKey(final String networkKey) {
+    /**
+     * Set network key
+     * @param networkKey network key
+     */
+    public final void setNetworkKey(final String networkKey) {
         this.networkKey = networkKey;
         saveNetworkKey();
     }
@@ -103,7 +110,7 @@ public class ProvisioningSettings extends NetworkSettings {
      *
      * @return Map of application keys where the key is used as the application key index for a given application key in the map
      */
-    public List<String> getAppKeys() {
+    public final List<String> getAppKeys() {
         return Collections.unmodifiableList(appKeys);
     }
 
@@ -112,7 +119,7 @@ public class ProvisioningSettings extends NetworkSettings {
      *
      * @param applicationKey application key to be added in the specified position
      */
-    public void addAppKey(final String applicationKey) throws IllegalArgumentException {
+    public final void addAppKey(final String applicationKey) throws IllegalArgumentException {
         if (this.appKeys.contains(applicationKey))
             throw new IllegalArgumentException("App key already exists");
 
@@ -126,7 +133,7 @@ public class ProvisioningSettings extends NetworkSettings {
      * @param position       Position would be used as the key for the application key. Also during configuration steps position value would be used as the index for the application key index.
      * @param applicationKey application key to be added in the specified position
      */
-    public void addAppKey(final int position, final String applicationKey) {
+    public final void addAppKey(final int position, final String applicationKey) {
         if (this.appKeys.contains(applicationKey))
             throw new IllegalArgumentException("App key already exists");
 
@@ -140,7 +147,7 @@ public class ProvisioningSettings extends NetworkSettings {
      * @param position       Position would be used as the key for the application key. Also during configuration steps position value would be used as the index for the application key index.
      * @param applicationKey application key to be added in the specified position
      */
-    public void updateAppKey(final int position, final String applicationKey) {
+    public final void updateAppKey(final int position, final String applicationKey) {
         if (this.appKeys.contains(applicationKey))
             throw new IllegalArgumentException("App key already exists");
 
@@ -154,7 +161,7 @@ public class ProvisioningSettings extends NetworkSettings {
      * @param appKey App key to be removed
      */
     @SuppressWarnings("RedundantCollectionOperation")
-    public void removeAppKey(final String appKey) {
+    public final void removeAppKey(final String appKey) {
         if (appKeys.contains(appKey)) {
             final int index = appKeys.indexOf(appKey);
             appKeys.remove(index);
@@ -162,48 +169,70 @@ public class ProvisioningSettings extends NetworkSettings {
         }
     }
 
-    public int getKeyIndex() {
+    /**
+     * Return network key index used
+     */
+    public final int getKeyIndex() {
         return keyIndex;
     }
 
-    public void setKeyIndex(final int keyIndex) {
+    /**
+     * Set key index
+     * @param keyIndex key index of the network key
+     */
+    public final void setKeyIndex(final int keyIndex) {
         this.keyIndex = keyIndex;
         saveKeyIndex();
     }
 
-    public int getIvIndex() {
+    /**
+     * Returns the IV Index
+     */
+    public final int getIvIndex() {
         return ivIndex;
     }
 
-    public void setIvIndex(final int ivIndex) {
+    /**
+     * Set IV index of the network
+     */
+    public final void setIvIndex(final int ivIndex) {
         this.ivIndex = ivIndex;
         saveIvIndex();
     }
 
-    public int getUnicastAddress() {
+    /**
+     * Return the unicast address
+     */
+    public final int getUnicastAddress() {
         return unicastAddress;
     }
 
-    public void setUnicastAddress(final int unicastAddress) {
+    /**
+     * Set unicast address
+     */
+    public final void setUnicastAddress(final int unicastAddress) {
         //TODO implement a unicast address database to ensure addresses are not missed out or misused
         this.unicastAddress = unicastAddress;
         saveUnicastAddress();
     }
 
-    public int getFlags() {
+    /**
+     * Return the flags
+     */
+    public final int getFlags() {
         return flags;
     }
 
-    public void setFlags(final int flags) {
+    public final void setFlags(final int flags) {
         this.flags = flags;
         saveFlags();
     }
 
-    public int getGlobalTtl() {
+    public final int getGlobalTtl() {
         return globalTtl;
     }
 
-    public void setGlobalTtl(final int globalTtl) {
+    public final void setGlobalTtl(final int globalTtl) {
         this.globalTtl = globalTtl;
         saveGlobalTtl();
     }
