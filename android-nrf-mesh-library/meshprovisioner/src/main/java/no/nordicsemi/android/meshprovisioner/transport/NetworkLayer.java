@@ -44,7 +44,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
     private static final int PROXY_CONFIGURATION_PDU = 0x02;
     private static final String TAG = NetworkLayer.class.getSimpleName();
-    protected NetworkLayerCallbacks mNetworkLayerCallbacks;
+    NetworkLayerCallbacks mNetworkLayerCallbacks;
     private SparseArray<byte[]> segmentedAccessMessagesMessages;
     private SparseArray<byte[]> segmentedControlMessagesMessages;
 
@@ -155,7 +155,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    protected final Message createRetransmitNetworkLayerPDU(final Message message, final int segment) {
+    final Message createRetransmitNetworkLayerPDU(final Message message, final int segment) {
         final SecureUtils.K2Output k2Output = mMeshNode.getK2Output();
         final int nid = k2Output.getNid();
         final byte[] encryptionKey = k2Output.getEncryptionKey();
@@ -439,7 +439,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     }
 
     @VisibleForTesting
-    protected final Message parseMeshMessage(final byte[] data) {
+    final Message parseMeshMessage(final byte[] data) {
 
         //D-eobfuscate network header
         final byte[] networkHeader = deobfuscateNetworkHeader(data);

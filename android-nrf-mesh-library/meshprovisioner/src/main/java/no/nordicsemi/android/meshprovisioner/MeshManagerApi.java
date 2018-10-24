@@ -924,12 +924,12 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     }
 
     @Override
-    public final void sendMeshConfigurationMessage(final MeshMessage configMessage) {
+    public final void sendMeshConfigurationMessage(@NonNull final MeshMessage configMessage) {
         mMeshMessageHandler.sendMeshMessage(configMessage);
     }
 
     @Override
-    public final void sendMeshApplicationMessage(final byte[] dstAddress, final MeshMessage meshMessage) {
+    public final void sendMeshApplicationMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage meshMessage) {
         mMeshMessageHandler.sendMeshMessage(dstAddress, meshMessage);
     }
 }
