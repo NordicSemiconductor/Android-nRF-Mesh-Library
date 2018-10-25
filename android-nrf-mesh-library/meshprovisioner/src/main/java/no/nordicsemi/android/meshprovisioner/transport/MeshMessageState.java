@@ -3,15 +3,11 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
-import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
-import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -92,7 +88,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     public void executeSend() {
         if (message.getNetworkPdu().size() > 0) {
             for (int i = 0; i < message.getNetworkPdu().size(); i++) {
-                mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(i));
+                mInternalTransportCallbacks.sendMeshPdu(mNode, message.getNetworkPdu().get(i));
             }
         }
     }
@@ -108,7 +104,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
                     final byte[] pdu = message.getNetworkPdu().get(segO);
                     Log.v(TAG, "Resending segment " + segO + " : " + MeshParserUtils.bytesToHex(pdu, false));
                     final Message retransmitMeshMessage = mMeshTransport.createRetransmitMeshMessage(message, segO);
-                    mInternalTransportCallbacks.sendPdu(mNode, retransmitMeshMessage.getNetworkPdu().get(segO));
+                    mInternalTransportCallbacks.sendMeshPdu(mNode, retransmitMeshMessage.getNetworkPdu().get(segO));
                 }
             }
         }
@@ -143,7 +139,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         //We don't send acks here
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendPdu(mNode, message.getNetworkPdu().get(0));
+        mInternalTransportCallbacks.sendMeshPdu(mNode, message.getNetworkPdu().get(0));
         mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
     }
 

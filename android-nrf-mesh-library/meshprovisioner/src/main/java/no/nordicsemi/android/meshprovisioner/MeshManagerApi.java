@@ -356,10 +356,9 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
      * If its required the method will remove the segmentation bytes and combine the data together.
      * </p>
      *
-     * @param meshNode mesh node that the pdu was received from
      * @param data     pdu received by the client
      */
-    public final void handleNotifications(BaseMeshNode meshNode, final int mtuSize, final byte[] data) {
+    public final void handleNotifications(final int mtuSize, final byte[] data) {
         byte[] unsegmentedPdu;
         if (!shouldWaitForMoreData(data)) {
             unsegmentedPdu = data;
@@ -371,17 +370,16 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
                 unsegmentedPdu = removeSegmentation(mtuSize, combinedPdu);
             }
         }
-        parseNotifications(meshNode, unsegmentedPdu);
+        parseNotifications(unsegmentedPdu);
     }
 
 
     /**
      * Parses notifications received by the client.
      *
-     * @param meshNode       mesh node that the pdu was received from
      * @param unsegmentedPdu pdu received by the client.
      */
-    private void parseNotifications(final BaseMeshNode meshNode, final byte[] unsegmentedPdu) {
+    private void parseNotifications(final byte[] unsegmentedPdu) {
         switch (unsegmentedPdu[0]) {
             case PDU_TYPE_NETWORK:
                 //Network PDU
@@ -399,12 +397,12 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
                 Log.v(TAG, "Received provisioning message: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshProvisioningHandler.parseProvisioningNotifications((UnprovisionedMeshNode) meshNode, unsegmentedPdu);
+                mMeshProvisioningHandler.parseProvisioningNotifications(unsegmentedPdu);
                 break;
         }
     }
 
-    public final void handleWrites(BaseMeshNode meshNode, final int mtuSize, final byte[] data) {
+    public final void handleWriteCallbacks(final int mtuSize, final byte[] data) {
         byte[] unsegmentedPdu;
         if (!shouldWaitForMoreData(data)) {
             unsegmentedPdu = data;
@@ -416,16 +414,15 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
                 unsegmentedPdu = removeSegmentation(mtuSize, combinedPdu);
             }
         }
-        handleWriteCallbacks(meshNode, unsegmentedPdu);
+        handleWriteCallbacks(unsegmentedPdu);
     }
 
     /**
      * Handles callbacks after writing to characteristics to maintain/update the state machine
      *
-     * @param meshNode mesh node
      * @param data     written to the peripheral
      */
-    private void handleWriteCallbacks(final BaseMeshNode meshNode, final byte[] data) {
+    private void handleWriteCallbacks(final byte[] data) {
         switch (data[0]) {
             case PDU_TYPE_NETWORK:
                 //Network PDU
@@ -443,15 +440,21 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
                 Log.v(TAG, "Provisioning pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                mMeshProvisioningHandler.handleProvisioningWriteCallbacks((UnprovisionedMeshNode) meshNode);
+                mMeshProvisioningHandler.handleProvisioningWriteCallbacks();
                 break;
         }
     }
 
     @Override
-    public void sendPdu(final BaseMeshNode meshNode, byte[] pdu) {
+    public void sendProvisioningPdu(final UnprovisionedMeshNode meshNode, final byte[] pdu) {
         final int mtu = mTransportCallbacks.getMtu();
-        mTransportCallbacks.sendPdu(meshNode, applySegmentation(mtu, pdu));
+        mTransportCallbacks.sendProvisioningPdu(meshNode, applySegmentation(mtu, pdu));
+    }
+
+    @Override
+    public void sendMeshPdu(final ProvisionedMeshNode meshNode, final byte[] pdu) {
+        final int mtu = mTransportCallbacks.getMtu();
+        mTransportCallbacks.sendMeshPdu(meshNode, applySegmentation(mtu, pdu));
     }
 
     @Override

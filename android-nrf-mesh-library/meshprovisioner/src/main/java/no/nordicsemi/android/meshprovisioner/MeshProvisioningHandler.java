@@ -75,7 +75,8 @@ public class MeshProvisioningHandler {
         this.mInternalMeshManagerCallbacks = internalMeshManagerCallbacks;
     }
 
-    void parseProvisioningNotifications(final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] data) {
+    void parseProvisioningNotifications(final byte[] data) {
+        final UnprovisionedMeshNode unprovisionedMeshNode = mUnprovisionedMeshNode;
         switch (provisioningState.getState()) {
             case PROVISIONING_INVITE:
                 break;
@@ -126,7 +127,8 @@ public class MeshProvisioningHandler {
         }
     }
 
-    void handleProvisioningWriteCallbacks(final UnprovisionedMeshNode unprovisionedMeshNode) {
+    void handleProvisioningWriteCallbacks() {
+        final UnprovisionedMeshNode unprovisionedMeshNode = mUnprovisionedMeshNode;
         switch (provisioningState.getState()) {
             case PROVISIONING_INVITE:
                 provisioningState = new ProvisioningCapabilitiesState(unprovisionedMeshNode, mStatusCallbacks);
@@ -157,15 +159,14 @@ public class MeshProvisioningHandler {
             //Generate the network id and store it in the mesh node, this is needed to reconnect to the device at a later stage.
             final ProvisionedMeshNode provisionedMeshNode = new ProvisionedMeshNode(unprovisionedMeshNode);
             mInternalMeshManagerCallbacks.onNodeProvisioned(provisionedMeshNode);
-            mStatusCallbacks.onProvisioningStateChanged(provisionedMeshNode, ProvisioningState.States.PROVISIONING_COMPLETE, data);
+            mStatusCallbacks.onProvisioningCompleted(provisionedMeshNode, ProvisioningState.States.PROVISIONING_COMPLETE, data);
         } else {
             isProvisioningPublicKeySent = false;
             isProvisioneePublicKeyReceived = false;
             final ProvisioningFailedState provisioningFailedState = new ProvisioningFailedState(mContext, unprovisionedMeshNode);
             provisioningState = provisioningFailedState;
             if (provisioningFailedState.parseData(data)) {
-                unprovisionedMeshNode.setIsProvisioned(false);
-                mStatusCallbacks.onProvisioningStateChanged(unprovisionedMeshNode, ProvisioningState.States.PROVISIONING_FAILED, data);
+                mStatusCallbacks.onProvisioningFailed(unprovisionedMeshNode, ProvisioningState.States.PROVISIONING_FAILED, data);
             }
         }
     }
@@ -222,6 +223,7 @@ public class MeshProvisioningHandler {
             unprovisionedMeshNode.setUnicastAddress(unicastBytes);
             unprovisionedMeshNode.setTtl(globalTtl);
             unprovisionedMeshNode.setConfigurationSrc(srcAddress);
+            mUnprovisionedMeshNode = unprovisionedMeshNode;
         }
         return unprovisionedMeshNode;
     }

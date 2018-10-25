@@ -22,16 +22,29 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
+import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+
 /**
  * Implement this class in order to get the transport callbacks from the {@link MeshManagerApi}
  */
 public interface MeshManagerTransportCallbacks {
+
     /**
-     * Passes the pdu to the ble module of the app
-     *  @param meshNode peripheral mesh node to send to
-     * @param pdu      mesh pdu to be sent out to the node
+     * Send mesh pdu
+     *
+     * @param meshNode mesh node to send to
+     * @param pdu      mesh pdu to be sent
      */
-    void sendPdu(final BaseMeshNode meshNode, final byte[] pdu);
+    void sendProvisioningPdu(final UnprovisionedMeshNode meshNode, final byte[] pdu);
+
+    /**
+     * Send mesh pdu
+     *
+     * @param meshNode mesh node to send to
+     * @param pdu      mesh pdu to be sent
+     */
+    void sendMeshPdu(final ProvisionedMeshNode meshNode, final byte[] pdu);
 
     /**
      * Get mtu size supported by the peripheral node

@@ -84,7 +84,7 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
         generateKeyPairs();
         final byte[] pdu = generatePublicKeyXYPDU();
         mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_PUBLIC_KEY_SENT, pdu);
-        mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, pdu);
+        mInternalTransportCallbacks.sendProvisioningPdu(mUnprovisionedMeshNode, pdu);
     }
 
     @Override

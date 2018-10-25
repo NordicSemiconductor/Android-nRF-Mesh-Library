@@ -59,7 +59,7 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
     public void executeSend() {
         final byte[] provisionerRandomConfirmationPDU = createProvisionerRandomPDU();
         mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CONFIRMATION_SENT, provisionerRandomConfirmationPDU);
-        mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, provisionerRandomConfirmationPDU);
+        mInternalTransportCallbacks.sendProvisioningPdu(mUnprovisionedMeshNode, provisionerRandomConfirmationPDU);
     }
 
     @Override

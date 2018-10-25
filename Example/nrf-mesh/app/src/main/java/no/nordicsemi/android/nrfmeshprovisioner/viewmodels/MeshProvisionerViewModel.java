@@ -28,7 +28,6 @@ import android.content.Context;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
@@ -92,8 +91,8 @@ public class MeshProvisionerViewModel extends ViewModel {
         mNrfMeshRepository.removeCallbacks();
     }
 
-    public LiveData<BaseMeshNode> getBaseMeshNode() {
-        return mNrfMeshRepository.getBaseMeshNode();
+    public LiveData<UnprovisionedMeshNode> getUnProvisionedMeshNode() {
+        return mNrfMeshRepository.getUnprovisionedMeshNode();
     }
 
     public void identifyNode(final String address, final String nodeName) {

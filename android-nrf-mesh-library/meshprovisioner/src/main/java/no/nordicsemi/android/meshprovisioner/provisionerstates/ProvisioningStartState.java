@@ -63,7 +63,7 @@ public class ProvisioningStartState extends ProvisioningState {
     public void executeSend() {
         final byte[] provisioningStartPDU = createProvisioningStartPDU();
         mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_START, provisioningStartPDU);
-        mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, provisioningStartPDU);
+        mInternalTransportCallbacks.sendProvisioningPdu(mUnprovisionedMeshNode, provisioningStartPDU);
     }
 
     @Override

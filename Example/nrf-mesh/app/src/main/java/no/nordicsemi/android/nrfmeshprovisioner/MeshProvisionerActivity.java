@@ -50,7 +50,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningFailedState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
@@ -196,7 +195,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
         mViewModel.isReconnecting().observe(this, isReconnecting -> {
             if (isReconnecting) {
-                mViewModel.getBaseMeshNode().removeObservers(this);
+                mViewModel.getUnProvisionedMeshNode().removeObservers(this);
                 provisioningStatusContainer.setVisibility(View.GONE);
                 container.setVisibility(View.GONE);
                 mProvisioningProgressBar.setVisibility(View.GONE);
@@ -213,30 +212,27 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             }
         });
 
-        mViewModel.getBaseMeshNode().observe(this, baseMeshNode -> {
-            if (baseMeshNode instanceof UnprovisionedMeshNode) {
-                final UnprovisionedMeshNode node = (UnprovisionedMeshNode) baseMeshNode;
-                if (node.getProvisioningCapabilities() != null) {
+        mViewModel.getUnProvisionedMeshNode().observe(this, meshNode -> {
+            if (meshNode != null) {
+                if (meshNode.getProvisioningCapabilities() != null) {
                     mProvisioningProgressBar.setVisibility(View.INVISIBLE);
                     provisioner.setText(R.string.provision_action);
-                    updateCapabilitiesUi(node.getProvisioningCapabilities());
+                    updateCapabilitiesUi(meshNode.getProvisioningCapabilities());
                 }
             }
         });
 
         provisioner.setOnClickListener(v -> {
-            final BaseMeshNode node = mViewModel.getBaseMeshNode().getValue();
+            final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
             if (node == null) {
                 mViewModel.identifyNode(device.getAddress(), mViewModel.getNetworkInformationLiveData().getValue().getNodeName());
                 return;
             }
 
-            if (node instanceof UnprovisionedMeshNode) {
-                if (node.getProvisioningCapabilities() != null) {
-                    setupProvisionerStateObservers(provisioningStatusContainer);
-                    mProvisioningProgressBar.setVisibility(View.VISIBLE);
-                    mViewModel.startProvisioning((UnprovisionedMeshNode) node);
-                }
+            if (node.getProvisioningCapabilities() != null) {
+                setupProvisionerStateObservers(provisioningStatusContainer);
+                mProvisioningProgressBar.setVisibility(View.VISIBLE);
+                mViewModel.startProvisioning(node);
             }
         });
     }
@@ -335,7 +331,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     }
 
     private void disconnect() {
-        mViewModel.getBaseMeshNode().removeObservers(this);
+        mViewModel.getUnProvisionedMeshNode().removeObservers(this);
         mViewModel.disconnect();
     }
 

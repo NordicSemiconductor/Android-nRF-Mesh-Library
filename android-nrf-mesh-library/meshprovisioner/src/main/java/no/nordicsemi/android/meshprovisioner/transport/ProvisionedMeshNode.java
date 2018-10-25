@@ -33,14 +33,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
-public class ProvisionedMeshNode extends BaseMeshNode {
+@SuppressWarnings("WeakerAccess")
+public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     private SecureUtils.K2Output k2Output;
 
@@ -172,7 +172,7 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         return deviceKey;
     }
 
-    protected void setDeviceKey(final byte[] deviceKey) {
+    void setDeviceKey(final byte[] deviceKey) {
         this.deviceKey = deviceKey;
     }
 
@@ -184,11 +184,11 @@ public class ProvisionedMeshNode extends BaseMeshNode {
         mReceivedSequenceNumber = receivedSequenceNumber;
     }
 
-    public SecureUtils.K2Output getK2Output() {
+    public final SecureUtils.K2Output getK2Output() {
         return k2Output;
     }
 
-    public final void setK2Ouput(final SecureUtils.K2Output k2Output) {
+    final void setK2Ouput(final SecureUtils.K2Output k2Output) {
         this.k2Output = k2Output;
     }
 

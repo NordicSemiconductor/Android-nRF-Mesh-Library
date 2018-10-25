@@ -24,12 +24,10 @@ package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
 import android.os.Parcel;
 
-import no.nordicsemi.android.meshprovisioner.BaseMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-
-public final class UnprovisionedMeshNode extends BaseMeshNode {
-
-    private static final String TAG = UnprovisionedMeshNode.class.getSimpleName();
+@SuppressWarnings("WeakerAccess")
+public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
 
     public UnprovisionedMeshNode() {
 
@@ -103,7 +101,7 @@ public final class UnprovisionedMeshNode extends BaseMeshNode {
         return sharedECDHSecret;
     }
 
-    public final void setSharedECDHSecret(final byte[] sharedECDHSecret) {
+    final void setSharedECDHSecret(final byte[] sharedECDHSecret) {
         this.sharedECDHSecret = sharedECDHSecret;
     }
 
@@ -119,7 +117,7 @@ public final class UnprovisionedMeshNode extends BaseMeshNode {
         return provisioneePublicKeyXY;
     }
 
-    public final void setProvisioneePublicKeyXY(final byte[] provisioneePublicKeyXY) {
+    final void setProvisioneePublicKeyXY(final byte[] provisioneePublicKeyXY) {
         this.provisioneePublicKeyXY = provisioneePublicKeyXY;
     }
 
@@ -127,7 +125,7 @@ public final class UnprovisionedMeshNode extends BaseMeshNode {
         return provisionerRandom;
     }
 
-    public final void setProvisionerRandom(final byte[] provisionerRandom) {
+    final void setProvisionerRandom(final byte[] provisionerRandom) {
         this.provisionerRandom = provisionerRandom;
     }
 
@@ -135,7 +133,7 @@ public final class UnprovisionedMeshNode extends BaseMeshNode {
         return provisioneeConfirmation;
     }
 
-    public final void setProvisioneeConfirmation(final byte[] provisioneeConfirmation) {
+    final void setProvisioneeConfirmation(final byte[] provisioneeConfirmation) {
         this.provisioneeConfirmation = provisioneeConfirmation;
     }
 
@@ -143,7 +141,7 @@ public final class UnprovisionedMeshNode extends BaseMeshNode {
         return authenticationValue;
     }
 
-    public final void setAuthenticationValue(final byte[] authenticationValue) {
+    final void setAuthenticationValue(final byte[] authenticationValue) {
         this.authenticationValue = authenticationValue;
     }
 
@@ -151,7 +149,7 @@ public final class UnprovisionedMeshNode extends BaseMeshNode {
         return provisioneeRandom;
     }
 
-    public final void setProvisioneeRandom(final byte[] provisioneeRandom) {
+    final void setProvisioneeRandom(final byte[] provisioneeRandom) {
         this.provisioneeRandom = provisioneeRandom;
     }
 
@@ -163,16 +161,23 @@ public final class UnprovisionedMeshNode extends BaseMeshNode {
         this.networkKey = networkKey;
     }
 
-    protected final void setDeviceKey(final byte[] deviceKey) {
+    final void setDeviceKey(final byte[] deviceKey) {
         this.deviceKey = deviceKey;
     }
 
-    public final void setProvisionedTime(final long timeStampInMillis) {
+    final void setProvisionedTime(final long timeStampInMillis) {
         mTimeStampInMillis = timeStampInMillis;
     }
 
-    protected void setProvisioningCapabilities(final ProvisioningCapabilities provisioningCapabilities) {
+    void setProvisioningCapabilities(final ProvisioningCapabilities provisioningCapabilities) {
         numberOfElements = provisioningCapabilities.getNumberOfElements();
         this.provisioningCapabilities = provisioningCapabilities;
+    }
+
+    final void setIsProvisioned(final boolean isProvisioned) {
+        this.isProvisioned = isProvisioned;
+        if(isProvisioned) {
+            identityKey = SecureUtils.calculateIdentityKey(networkKey);
+        }
     }
 }

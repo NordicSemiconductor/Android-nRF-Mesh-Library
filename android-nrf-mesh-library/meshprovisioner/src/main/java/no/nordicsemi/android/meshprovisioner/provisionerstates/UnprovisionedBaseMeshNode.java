@@ -20,72 +20,42 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.meshprovisioner;
+package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
 import android.os.Parcelable;
 import android.text.TextUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
-import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
-import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
 
-public abstract class BaseMeshNode implements Parcelable {
+abstract class UnprovisionedBaseMeshNode implements Parcelable {
 
-    protected static final String TAG = BaseMeshNode.class.getSimpleName();
+    protected static final String TAG = UnprovisionedBaseMeshNode.class.getSimpleName();
 
-    protected byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
+    private byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
     protected byte[] ivIndex;
-    protected boolean isProvisioned;
-    protected boolean isConfigured;
+    boolean isProvisioned;
+    boolean isConfigured;
     protected String nodeName = "My Node";
-    protected byte[] provisionerPublicKeyXY;
-    protected byte[] provisioneePublicKeyXY;
-    protected byte[] sharedECDHSecret;
-    protected byte[] provisionerRandom;
-    protected byte[] provisioneeConfirmation;
-    protected byte[] authenticationValue;
-    protected byte[] provisioneeRandom;
+    byte[] provisionerPublicKeyXY;
+    byte[] provisioneePublicKeyXY;
+    byte[] sharedECDHSecret;
+    byte[] provisionerRandom;
+    byte[] provisioneeConfirmation;
+    byte[] authenticationValue;
+    byte[] provisioneeRandom;
     protected byte[] networkKey;
-    protected byte[] identityKey;
+    byte[] identityKey;
     protected byte[] keyIndex;
-    protected byte[] mFlags;
+    byte[] mFlags;
     protected byte[] unicastAddress;
-    protected byte[] deviceKey;
+    byte[] deviceKey;
     protected int ttl = 5;
-    protected int mReceivedSequenceNumber;
-    protected String bluetoothAddress;
-    protected String nodeIdentifier;
-    protected Integer companyIdentifier = null;
-    protected Integer productIdentifier = null;
-    protected Integer versionIdentifier = null;
-    protected Integer crpl = null;
-    protected Integer features = null;
-    protected boolean relayFeatureSupported;
-    protected boolean proxyFeatureSupported;
-    protected boolean friendFeatureSupported;
-    protected boolean lowPowerFeatureSupported;
-    protected final Map<Integer, Element> mElements = new LinkedHashMap<>();
-    protected List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
-    protected Map<Integer, String> mAddedAppKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
-    protected byte[] generatedNetworkId;
     private String bluetoothDeviceAddress;
-    protected long mTimeStampInMillis;
-    protected SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
-    protected ProvisioningCapabilities provisioningCapabilities;
-    protected int numberOfElements;
-
-    protected BaseMeshNode() {
-
-    }
+    long mTimeStampInMillis;
+    ProvisioningCapabilities provisioningCapabilities;
+    int numberOfElements;
 
     @Override
     public int describeContents() {
@@ -94,11 +64,6 @@ public abstract class BaseMeshNode implements Parcelable {
 
     public boolean isProvisioned() {
         return isProvisioned;
-    }
-
-    public final void setIsProvisioned(final boolean isProvisioned) {
-        identityKey = SecureUtils.calculateIdentityKey(networkKey);
-        this.isProvisioned = isProvisioned;
     }
 
     public final boolean isConfigured() {
@@ -113,7 +78,7 @@ public abstract class BaseMeshNode implements Parcelable {
         return nodeName;
     }
 
-    protected final void setNodeName(final String nodeName) {
+    public final void setNodeName(final String nodeName) {
         if (!TextUtils.isEmpty(nodeName))
             this.nodeName = nodeName;
     }

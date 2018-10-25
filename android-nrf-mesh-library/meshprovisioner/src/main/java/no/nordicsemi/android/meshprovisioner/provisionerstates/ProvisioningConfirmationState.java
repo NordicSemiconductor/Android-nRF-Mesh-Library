@@ -72,7 +72,7 @@ public class ProvisioningConfirmationState extends ProvisioningState {
             provisioningConfirmationPDU = createProvisioningConfirmation(null);
         }
         mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CONFIRMATION_SENT, provisioningConfirmationPDU);
-        mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, provisioningConfirmationPDU);
+        mInternalTransportCallbacks.sendProvisioningPdu(mUnprovisionedMeshNode, provisioningConfirmationPDU);
     }
 
     @Override

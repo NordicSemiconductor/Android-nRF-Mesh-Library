@@ -48,7 +48,7 @@ public class ProvisioningInputCompleteState extends ProvisioningState {
     @Override
     public void executeSend() {
         mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_AUTHENTICATION_INPUT_ENTERED, null);
-        mInternalTransportCallbacks.sendPdu(mUnprovisionedMeshNode, createProvisioningInputComplete());
+        mInternalTransportCallbacks.sendProvisioningPdu(mUnprovisionedMeshNode, createProvisioningInputComplete());
     }
 
     @Override
