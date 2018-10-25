@@ -39,6 +39,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.DeviceFeatureUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
  * To be used as a wrapper class for when creating the ConfigCompositionDataStatus Message.
@@ -89,34 +90,34 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
 
     @Override
     final void parseStatusParameters() {
-        pareCompositionDataPages();
+        parseCompositionDataPages();
     }
 
     /**
      * Parses the identifiers and the payloads
      */
-    private void pareCompositionDataPages() {
+    private void parseCompositionDataPages() {
         final AccessMessage message = mMessage;
         final byte[] accessPayload = message.getAccessPdu();
 
         //Bluetooth SIG 16-bit company identifier
-        companyIdentifier = accessPayload[3] << 8 | accessPayload[2];
+        companyIdentifier = MeshParserUtils.unsignedBytesToInt(accessPayload[2], accessPayload[3]);
         Log.v(TAG, "Company identifier: " + String.format(Locale.US, "%04X", companyIdentifier));
 
         //16-bit vendor-assigned product identifier;
-        productIdentifier = accessPayload[5] << 8 | accessPayload[4];
+        productIdentifier = MeshParserUtils.unsignedBytesToInt(accessPayload[4], accessPayload[5]);
         Log.v(TAG, "Product identifier: " + String.format(Locale.US, "%04X", productIdentifier));
 
         //16-bit vendor-assigned product version identifier;
-        versionIdentifier = accessPayload[7] << 8 | accessPayload[6];
+        versionIdentifier = MeshParserUtils.unsignedBytesToInt(accessPayload[6], accessPayload[7]);
         Log.v(TAG, "Version identifier: " + String.format(Locale.US, "%04X", versionIdentifier));
 
         //16-bit representation of the minimum number of replay protection list entries in a device
-        crpl = accessPayload[9] << 8 | accessPayload[8];
+        crpl = MeshParserUtils.unsignedBytesToInt(accessPayload[8], accessPayload[9]);
         Log.v(TAG, "crpl: " + String.format(Locale.US, "%04X", crpl));
 
         //16-bit device features
-        features = accessPayload[11] << 8 | accessPayload[10];
+        features = MeshParserUtils.unsignedBytesToInt(accessPayload[10], accessPayload[11]);
         Log.v(TAG, "Features: " + String.format(Locale.US, "%04X", features));
 
         relayFeatureSupported = DeviceFeatureUtils.supportsRelayFeature(features);
@@ -169,7 +170,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
             tempOffset = tempOffset + 1;
             if (numSigModelIds > 0) {
                 for (int i = 0; i < numSigModelIds; i++) {
-                    final int modelId = accessPayload[tempOffset + 1] << 8 | accessPayload[tempOffset];
+                    final int modelId = MeshParserUtils.unsignedBytesToInt(accessPayload[tempOffset], accessPayload[tempOffset + 1]);
                     models.put(modelId, SigModelParser.getSigModel(modelId)); // sig models are 16-bit
                     Log.v(TAG, "Sig model ID " + i + " : " + String.format(Locale.US, "%04X", modelId));
                     tempOffset = tempOffset + 2;
@@ -179,10 +180,11 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
             if (numVendorModelIds > 0) {
                 for (int i = 0; i < numVendorModelIds; i++) {
                     // vendor models are 32-bit that contains a 16-bit company identifier and a 16-bit model identifier
-                    final int modelIdentifier = accessPayload[tempOffset + 1] << 24 | accessPayload[tempOffset] << 16 |
-                            accessPayload[tempOffset + 3] << 8 | accessPayload[tempOffset + 2];
-                    models.put(modelIdentifier, new VendorModel(modelIdentifier));
-                    Log.v(TAG, "Vendor - model ID " + i + " : " + String.format(Locale.US, "%08X", modelIdentifier));
+                    final int companyIdentifier = MeshParserUtils.unsignedBytesToInt(accessPayload[tempOffset], accessPayload[tempOffset + 1]);
+                    final int modelIdentifier = MeshParserUtils.unsignedBytesToInt(accessPayload[tempOffset + 2], accessPayload[tempOffset + 3]);
+                    final int vendorModelIdentifier = companyIdentifier << 16 + modelIdentifier;
+                    models.put(vendorModelIdentifier, new VendorModel(vendorModelIdentifier));
+                    Log.v(TAG, "Vendor - model ID " + i + " : " + String.format(Locale.US, "%08X", vendorModelIdentifier));
                     tempOffset = tempOffset + 4;
                 }
             }
