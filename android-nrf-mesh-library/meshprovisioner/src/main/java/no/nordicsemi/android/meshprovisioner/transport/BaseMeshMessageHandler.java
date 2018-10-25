@@ -46,7 +46,6 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         this.mContext = context;
         this.mMeshTransport = new MeshTransport(context);
         this.mInternalTransportCallbacks = internalTransportCallbacks;
-        this.mMeshMessageState = new DefaultNoOperationMessageState(context, null, mMeshTransport, this);
     }
 
     protected abstract MeshTransport getMeshTransport();
@@ -462,7 +461,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         sendGenericMessage(dstAddress, genericMessage);
     }
 
-    protected final void sendConfigMessage(@NonNull final MeshMessage configMessage) {
+    private final void sendConfigMessage(@NonNull final MeshMessage configMessage) {
         if (configMessage instanceof ConfigCompositionDataGet) {
             final ConfigCompositionDataGetState compositionDataGetState = new ConfigCompositionDataGetState(mContext, (ConfigCompositionDataGet) configMessage, mMeshTransport, this);
             compositionDataGetState.setTransportCallbacks(mInternalTransportCallbacks);
@@ -517,7 +516,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         }
     }
 
-    protected final void sendGenericMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage genericMessage) {
+    private final void sendGenericMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage genericMessage) {
         if (genericMessage instanceof GenericOnOffGet) {
             final GenericOnOffGetState genericOnOffGetState = new GenericOnOffGetState(mContext, dstAddress, (GenericOnOffGet) genericMessage, mMeshTransport, this);
             genericOnOffGetState.setTransportCallbacks(mInternalTransportCallbacks);
