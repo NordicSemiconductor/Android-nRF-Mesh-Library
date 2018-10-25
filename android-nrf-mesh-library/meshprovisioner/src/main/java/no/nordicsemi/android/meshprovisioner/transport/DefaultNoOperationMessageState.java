@@ -28,8 +28,6 @@ class DefaultNoOperationMessageState extends MeshMessageState {
         super(context, meshMessage, meshTransport, callbacks);
     }
 
-
-
     @Override
     public MessageState getState() {
         return null;

@@ -44,8 +44,9 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
 
     protected BaseMeshMessageHandler(final Context context, final InternalTransportCallbacks internalTransportCallbacks) {
         this.mContext = context;
-        mMeshTransport = new MeshTransport(context);
+        this.mMeshTransport = new MeshTransport(context);
         this.mInternalTransportCallbacks = internalTransportCallbacks;
+        this.mMeshMessageState = new DefaultNoOperationMessageState(context, null, mMeshTransport, this);
     }
 
     protected abstract MeshTransport getMeshTransport();
@@ -150,7 +151,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     }
 
     @Override
-    public void onIncompleteTimerExpired(final ProvisionedMeshNode meshNode, final byte[] src, final boolean incompleteTimerExpired) {
+    public final void onIncompleteTimerExpired(final boolean incompleteTimerExpired) {
         //We switch no operation state if the incomplete timer has expired so that we don't wait on the same state if a particular message fails.
         final MeshMessage meshMessage = mMeshMessageState.getMeshMessage();
         switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshMessage, mMeshTransport, this));

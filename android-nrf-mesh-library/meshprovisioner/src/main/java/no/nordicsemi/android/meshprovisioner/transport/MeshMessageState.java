@@ -39,8 +39,8 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         this.mMeshMessage = meshMessage;
         this.message = meshMessage.getMessage();
         this.mNode = meshMessage.getMeshNode();
-        this.meshMessageHandlerCallbacks = callbacks;
         this.mSrc = mNode.getConfigurationSrc();
+        this.meshMessageHandlerCallbacks = callbacks;
         this.mMeshTransport = meshTransport;
         this.mMeshTransport.setLowerTransportLayerCallbacks(this);
     }
@@ -124,11 +124,10 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         isIncompleteTimerExpired = true;
         if (meshMessageHandlerCallbacks != null) {
 
-            final byte[] src = mSrc; //The destination of the message sent would be src address of the device
-            meshMessageHandlerCallbacks.onIncompleteTimerExpired(mNode, src, true);
+            meshMessageHandlerCallbacks.onIncompleteTimerExpired(true);
 
             if (mMeshStatusCallbacks != null) {
-                final int srcAddress = AddressUtils.getUnicastAddressInt(src);
+                final int srcAddress = AddressUtils.getUnicastAddressInt(mSrc);
                 mMeshStatusCallbacks.onTransactionFailed(mNode, srcAddress, true);
             }
         }

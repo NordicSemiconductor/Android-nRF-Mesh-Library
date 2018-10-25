@@ -30,9 +30,6 @@ interface InternalMeshMsgHandlerCallbacks {
     /**
      * Callback to notify the incomplete timer has expired
      *
-     * @param meshNode               mesh node
-     * @param src                    address of the source device
-     * @param incompleteTimerExpired state of the incomplete timer
-     */
-    void onIncompleteTimerExpired(final ProvisionedMeshNode meshNode, final byte[] src, final boolean incompleteTimerExpired);
+     * @param incompleteTimerExpired state of the incomplete timer*/
+    void onIncompleteTimerExpired(final boolean incompleteTimerExpired);
 }

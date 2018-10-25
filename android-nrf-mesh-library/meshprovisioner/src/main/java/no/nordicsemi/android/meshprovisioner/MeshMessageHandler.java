@@ -27,7 +27,7 @@ import android.content.Context;
 import no.nordicsemi.android.meshprovisioner.transport.BaseMeshMessageHandler;
 import no.nordicsemi.android.meshprovisioner.transport.MeshTransport;
 
-public final class MeshMessageHandler extends BaseMeshMessageHandler {
+final class MeshMessageHandler extends BaseMeshMessageHandler {
 
     private static final String TAG = MeshMessageHandler.class.getSimpleName();
 
