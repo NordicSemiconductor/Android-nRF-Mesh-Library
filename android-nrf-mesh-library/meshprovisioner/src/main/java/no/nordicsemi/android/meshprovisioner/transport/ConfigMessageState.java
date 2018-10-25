@@ -37,9 +37,4 @@ abstract class ConfigMessageState extends MeshMessageState {
     }
 
     public abstract MessageState getState();
-
-    @Override
-    public void executeResend() {
-        super.executeResend();
-    }
 }

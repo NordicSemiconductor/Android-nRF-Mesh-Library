@@ -3,6 +3,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseIntArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,6 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     protected final MeshMessage mMeshMessage;
     protected final ProvisionedMeshNode mNode;
     final MeshTransport mMeshTransport;
-    private final List<Integer> mRetransmitPayloads = new ArrayList<>();
     final byte[] mSrc;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     protected MeshStatusCallbacks mMeshStatusCallbacks;
@@ -81,19 +81,9 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
     /**
      * Returns the network pdu
-     * @return
      */
     public SparseArray<byte[]> getNetworkPdu() {
         return message.getNetworkPdu();
-    }
-
-    /**
-     * Checks if the message has to be retransmitted.
-     *
-     * @return true if retransmission is required or false otherwise
-     */
-    final boolean isRetransmissionRequired() {
-        return !mRetransmitPayloads.isEmpty();
     }
 
     /**
@@ -110,10 +100,10 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     /**
      * Re-sends the mesh pdu segments that were lost in flight
      */
-    public void executeResend() {
-        if (message.getNetworkPdu().size() > 0 && !mRetransmitPayloads.isEmpty()) {
-            for (int i = 0; i < mRetransmitPayloads.size(); i++) {
-                final int segO = mRetransmitPayloads.get(i);
+    final void executeResend(final List<Integer> retransmitPduIndexes) {
+        if (message.getNetworkPdu().size() > 0 && !retransmitPduIndexes.isEmpty()) {
+            for (int i = 0; i < retransmitPduIndexes.size(); i++) {
+                final int segO = retransmitPduIndexes.get(i);
                 if (message.getNetworkPdu().get(segO) != null) {
                     final byte[] pdu = message.getNetworkPdu().get(segO);
                     Log.v(TAG, "Resending segment " + segO + " : " + MeshParserUtils.bytesToHex(pdu, false));
@@ -121,28 +111,6 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
                     mInternalTransportCallbacks.sendPdu(mNode, retransmitMeshMessage.getNetworkPdu().get(segO));
                 }
             }
-        }
-    }
-
-    /**
-     * Parses control message and returns the underlying configuration message
-     *
-     * @param controlMessage control message to be passed
-     * @param segmentCount   number of segments
-     */
-    final void parseControlMessage(final ControlMessage controlMessage, final int segmentCount) {
-        final TransportControlMessage transportControlMessage = controlMessage.getTransportControlMessage();
-        switch (transportControlMessage.getState()) {
-            case LOWER_TRANSPORT_BLOCK_ACKNOWLEDGEMENT:
-                Log.v(TAG, "Acknowledgement payload: " + MeshParserUtils.bytesToHex(controlMessage.getTransportControlPdu(), false));
-                mRetransmitPayloads.clear();
-                mRetransmitPayloads.addAll(BlockAcknowledgementMessage.getSegmentsToBeRetransmitted(controlMessage.getTransportControlPdu(), segmentCount));
-                mMeshStatusCallbacks.onBlockAcknowledgementReceived(mNode);
-                break;
-            default:
-                Log.v(TAG, "Unexpected control message received, ignoring message");
-                mMeshStatusCallbacks.onUnknownPduReceived(mNode, AddressUtils.getUnicastAddressInt(controlMessage.getSrc()), controlMessage.getTransportControlPdu());
-                break;
         }
     }
 
