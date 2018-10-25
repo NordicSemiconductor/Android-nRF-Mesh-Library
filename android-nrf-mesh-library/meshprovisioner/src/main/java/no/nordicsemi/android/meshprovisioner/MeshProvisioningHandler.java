@@ -403,51 +403,12 @@ public class MeshProvisioningHandler {
 
     }
 
-    public String getCurrentState() {
-        String msg = "";
-        switch (provisioningState.getState()) {
-            case PROVISIONING_INVITE:
-                msg = "Sending provisioning invite";
-                break;
-            case PROVISIONING_CAPABILITIES:
-                msg = "Waiting for provisioning capabilities";
-                break;
-            case PROVISIONING_START:
-                msg = "Sending for provisioning start";
-                break;
-            case PROVISIONING_PUBLIC_KEY:
-                if (isProvisioningPublicKeySent) {
-                    msg = "Sending provsioner public key xy";
-                } else if (isProvisioneePublicKeyReceived) {
-                    msg = "Waiting for provsionee public key xy";
-                }
-                break;
-            case PROVISINING_INPUT_COMPLETE:
-                break;
-            case PROVISIONING_CONFIRMATION:
-                msg = "Sending provisioning confirmation";
-                break;
-            case PROVISINING_RANDOM:
-                msg = "Sending provisioning random";
-                break;
-            case PROVISINING_DATA:
-            case PROVISINING_COMPLETE:
-            case PROVISINING_FAILED:
-                break;
-
-        }
-
-        return msg;
-    }
-
     public final byte[] generateConfirmationInputs(final byte[] provisionerKeyXY, final byte[] provisioneeKeyXY) {
         //invite: 1 bytes, capabilities: 11 bytes, start: 5 bytes, provisionerKey: 64 bytes, deviceKey: 64 bytes
         //Append all the raw data together
         final byte[] invite = new byte[]{(byte) attentionTimer};
         final byte[] capabilities = generateCapabilities();
         final byte[] startData = generateStartData();
-        /*final byte[] provisionerKeyXY = mUnprovisionedMeshNode.getProvisionerPublicKeyXY();
-        final byte[] provisioneeKeyXY = mUnprovisionedMeshNode.getProvisioneePublicKeyXY();*/
 
         final int length = invite.length +
                 capabilities.length +
