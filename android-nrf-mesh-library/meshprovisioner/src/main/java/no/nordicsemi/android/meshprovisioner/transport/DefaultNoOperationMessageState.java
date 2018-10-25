@@ -154,7 +154,8 @@ class DefaultNoOperationMessageState extends MeshMessageState {
      * @param controlMessage control message received by the transport layer
      */
     private void parseControlMessage(final ControlMessage controlMessage){
-        final int segmentCount = controlMessage.getNetworkPdu().size();
+        //Get the segment count count of the access message
+        final int segmentCount = message.getNetworkPdu().size();
         final TransportControlMessage transportControlMessage = controlMessage.getTransportControlMessage();
         switch (transportControlMessage.getState()) {
             case LOWER_TRANSPORT_BLOCK_ACKNOWLEDGEMENT:
