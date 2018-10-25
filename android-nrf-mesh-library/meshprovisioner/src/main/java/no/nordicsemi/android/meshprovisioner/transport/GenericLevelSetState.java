@@ -38,7 +38,7 @@ class GenericLevelSetState extends GenericMessageState implements LowerTransport
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        final GenericLevelGet genericLevelSet = (GenericLevelGet) mMeshMessage;
+        final GenericLevelSet genericLevelSet = (GenericLevelSet) mMeshMessage;
         final byte[] key = genericLevelSet.getAppKey();
         final int akf = genericLevelSet.getAkf();
         final int aid = genericLevelSet.getAid();
