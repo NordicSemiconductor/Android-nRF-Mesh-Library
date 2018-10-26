@@ -102,11 +102,6 @@
             android:name=".ModelConfigurationActivity"
             android:launchMode="singleTop"/>
 
-        <service
-            android:name=".service.MeshService"
-            android:exported="false">
-        </service>
-
     </application>
 
 </manifest>

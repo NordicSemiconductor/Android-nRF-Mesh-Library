@@ -26,6 +26,7 @@ import android.util.Log;
 
 import java.util.Locale;
 
+@SuppressWarnings("WeakerAccess")
 public class SigModelParser {
     private static final String TAG = SigModelParser.class.getSimpleName();
 
@@ -34,10 +35,10 @@ public class SigModelParser {
     private static final short HEALTH_SERVER_MODEL = 0x0002;
     private static final short HEALTH_CLIENT_MODEL = 0x0003;
 
-    private static final short GENERIC_ON_OFF_SERVER = 0x1000;
-    private static final short GENERIC_ON_OFF_CLIENT = 0x1001;
-    private static final short GENERIC_LEVEL_SERVER = 0x1002;
-    private static final short GENERIC_LEVEL_CLIENT = 0x1003;
+    public static final short GENERIC_ON_OFF_SERVER = 0x1000;
+    public static final short GENERIC_ON_OFF_CLIENT = 0x1001;
+    public static final short GENERIC_LEVEL_SERVER = 0x1002;
+    public static final short GENERIC_LEVEL_CLIENT = 0x1003;
 
     private static final short GENERIC_DEFAULT_TRANSITION_TIME_SERVER = 0x1004;
     private static final short GENERIC_DEFAULT_TRANSITION_TIME_CLIENT = 0x1005;

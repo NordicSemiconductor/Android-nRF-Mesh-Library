@@ -71,7 +71,7 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
 		// Create view model containing utility methods for scanning
 		mReconnectViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ReconnectViewModel.class);
 
-		mReconnectViewModel.connect(device);
+		mReconnectViewModel.connect(this, device, true);
 		mReconnectViewModel.isConnected().observe(this, isConnected -> {
 			if(!isConnected){
 				finish();
@@ -81,7 +81,7 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
 		mReconnectViewModel.getConnectionState().observe(this, connectionState::setText);
 
 		mReconnectViewModel.isDeviceReady().observe(this, deviceReady -> {
-		    if(deviceReady) {
+		    if(mReconnectViewModel.getBleMeshManager().isDeviceReady()) {
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra(Utils.ACTIVITY_RESULT, true);
                 setResult(Activity.RESULT_OK, returnIntent);

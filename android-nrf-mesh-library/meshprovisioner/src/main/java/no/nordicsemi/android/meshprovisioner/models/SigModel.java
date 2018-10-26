@@ -24,7 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 
 public abstract class SigModel extends MeshModel {
 

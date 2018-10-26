@@ -37,7 +37,7 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningSettingsLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapter.ViewHolder> {
@@ -46,7 +46,7 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public ManageAppKeyAdapter(final ManageAppKeysActivity activity, final ProvisioningLiveData provisioningLiveData) {
+    public ManageAppKeyAdapter(final ManageAppKeysActivity activity, final ProvisioningSettingsLiveData provisioningLiveData) {
         this.mContext = activity;
         provisioningLiveData.observe(activity, provisioningData -> {
             final ProvisioningSettings provisioningSettings = provisioningData.getProvisioningSettings();

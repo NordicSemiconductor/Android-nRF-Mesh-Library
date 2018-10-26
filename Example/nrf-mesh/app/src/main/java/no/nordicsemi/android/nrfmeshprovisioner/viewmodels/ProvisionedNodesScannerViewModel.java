@@ -22,56 +22,44 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
+
+import java.util.UUID;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ScannerLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshProvisionerRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ProvisionedNodesScannerRepository;
-
 public class ProvisionedNodesScannerViewModel extends ViewModel {
 
-	private final ProvisionedNodesScannerRepository mScannerRepository;
-	private final MeshProvisionerRepository mMeshProvisionerRepository;
-
+	private final ScannerRepository mScannerRepository;
 	@Inject
-	public ProvisionedNodesScannerViewModel(final ProvisionedNodesScannerRepository scannerRepository, final MeshProvisionerRepository meshProvisionerRepository) {
+	public ProvisionedNodesScannerViewModel(final ScannerRepository scannerRepository) {
 		this.mScannerRepository = scannerRepository;
-		this.mMeshProvisionerRepository = meshProvisionerRepository;
 		mScannerRepository.registerBroadcastReceivers();
-		mMeshProvisionerRepository.registerBroadcastReceiver();
 	}
 
 	@Override
 	protected void onCleared() {
 		super.onCleared();
 		mScannerRepository.unregisterBroadcastReceivers();
-		mMeshProvisionerRepository.unregisterBroadcastReceiver();
 	}
 
 	public ScannerLiveData getScannerState() {
 		return mScannerRepository.getScannerState();
 	}
 
-	public LiveData<Boolean> isDeviceReady(){
-		return mMeshProvisionerRepository.isDeviceReady();
-	}
-
 	public void refresh() {
 		mScannerRepository.getScannerState().refresh();
 	}
 
-	public void startScan(final String networkId){
-		mScannerRepository.startScanning(networkId);
+	public void startScan(final UUID uuid){
+		mScannerRepository.startScan(uuid);
 	}
 
 	/**
 	 * stop scanning for bluetooth devices.
 	 */
 	public void stopScan() {
-		mScannerRepository.stopScanning();
+		mScannerRepository.stopScan();
 	}
 
 }

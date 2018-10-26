@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -37,15 +38,15 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
 
 public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHolder> {
 
@@ -57,9 +58,9 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
 
     public ElementAdapter(final NodeConfigurationActivity nodeConfigurationActivity, final ExtendedMeshNode extendedMeshnode) {
         this.mContext = nodeConfigurationActivity.getApplicationContext();
-        extendedMeshnode.observe(nodeConfigurationActivity, extendedMeshNode -> {
-            if(extendedMeshNode.getMeshNode() != null) {
-                mProvisionedMeshNode = (ProvisionedMeshNode) extendedMeshnode.getMeshNode();
+        extendedMeshnode.observe(nodeConfigurationActivity, meshNode -> {
+            if(meshNode != null) {
+                mProvisionedMeshNode = meshNode;
                 mElements.clear();
                 mElements.addAll(mProvisionedMeshNode.getElements().values());
                 notifyDataSetChanged();
@@ -72,14 +73,15 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         mOnItemClickListener = listener;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.element_item, parent, false);
         return new ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Element element = mElements.get(position);
         holder.mElementContainer.setTag(element.getElementAddressInt());
         final int modelCount = element.getSigModelCount() + element.getVendorModelCount();

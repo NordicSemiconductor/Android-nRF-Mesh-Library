@@ -104,7 +104,7 @@ public class DialogFragmentModelConfiguration extends DialogFragment{
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null)
-                .setNeutralButton(R.string.generate_app_key, null);;
+                .setNeutralButton(R.string.generate_app_key, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
         alertDialogBuilder.setTitle(R.string.title_manage_app_keys);

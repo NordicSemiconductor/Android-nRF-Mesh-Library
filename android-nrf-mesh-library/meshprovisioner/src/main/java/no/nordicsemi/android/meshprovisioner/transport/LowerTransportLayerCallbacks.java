@@ -22,8 +22,6 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
-
 public interface LowerTransportLayerCallbacks {
 
     /**

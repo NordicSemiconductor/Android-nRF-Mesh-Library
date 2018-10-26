@@ -16,8 +16,9 @@ import java.io.Serializable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPubRetransmitIntervalSteps;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublicationResolution;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublicationSteps;
@@ -102,7 +103,6 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
 
         if(savedInstanceState == null) {
             updateUi(meshModel);
-        } else {
         }
 
         actionPublishAddress.setOnClickListener(v -> {
@@ -246,34 +246,39 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
     }
 
     private void updateUi(final MeshModel model){
-        mPublishAddress = model.getPublishAddress();
-        if(mPublishAddress != null) {
-            mPublishAddressView.setText(MeshParserUtils.bytesToHex(mPublishAddress, true));
+        final PublicationSettings publicationSettings = model.getPublicationSettings();
+
+        //Default app key index to the 0th key in the list of bound app keys
+        if(!model.getBoundAppKeyIndexes().isEmpty()) {
+            mAppKeyIndex = mMeshModel.getBoundAppKeyIndexes().get(0);
         }
 
-        if(!model.getBoundAppKeyIndexes().isEmpty()){
-            mAppKeyIndex = mMeshModel.getPublishAppKeyIndexInt();
-            if(mAppKeyIndex == null)
-                mAppKeyIndex = mMeshModel.getBoundAppKeyIndexes().get(0);
-            mAppKeyIndexView.setText(getString(R.string.app_key_index, mAppKeyIndex));
+        if(publicationSettings != null) {
+            mPublishAddress = publicationSettings.getPublishAddress();
+            if (mPublishAddress != null) {
+                mPublishAddressView.setText(MeshParserUtils.bytesToHex(mPublishAddress, true));
+            }
+
+            mActionFriendshipCredentialSwitch.setChecked(publicationSettings.getCredentialFlag());
+            mPublishTtl = publicationSettings.getPublishTtl();
+            mPublishTtlView.setText(String.valueOf(mPublishTtl));
+
+            mPublicationSteps = publicationSettings.getPublicationSteps();
+            mPublicationStepsView.setText(getString(R.string.publication_steps, mPublicationSteps));
+
+            mPublicationResolution = publicationSettings.getPublicationResolution();
+            mPublicationResolutionView.setText(getResolutionSummary(mPublicationResolution));
+
+            mPublishRetransmitCount = publicationSettings.getPublishRetransmitCount();
+            mRetransmitCountView.setText(getString(R.string.retransmit_count, mPublishRetransmitCount));
+
+            mPublishRetransmitIntervalSteps = publicationSettings.getPublishRetransmitIntervalSteps();
+            mIntervalStepsView.setText(getString(R.string.retransmit_interval_steps, mPublishRetransmitIntervalSteps));
+
+            if(!model.getBoundAppKeyIndexes().isEmpty()) {
+                mAppKeyIndex = publicationSettings.getAppKeyIndex();
+            }
         }
-
-        mActionFriendshipCredentialSwitch.setChecked(mMeshModel.getCredentialFlag() == 1);
-        mPublishTtl = mMeshModel.getPublishTtl();
-        mPublishTtlView.setText(String.valueOf(mPublishTtl));
-
-        mPublicationSteps = mMeshModel.getPublicationSteps();
-        mPublicationStepsView.setText(getString(R.string.publication_steps, mPublicationSteps));
-
-        mPublicationResolution = mMeshModel.getPublicationResolution();
-        mPublicationResolutionView.setText(getResolutionSummary(mPublicationResolution));
-
-        mPublishRetransmitCount = mMeshModel.getPublishRetransmitCount();
-        mRetransmitCountView.setText(getString(R.string.retransmit_count, mPublishRetransmitCount));
-
-        mPublishRetransmitIntervalSteps = mMeshModel.getPublishRetransmitIntervalSteps();
-        mIntervalStepsView.setText(getString(R.string.retransmit_interval_steps, mPublishRetransmitIntervalSteps));
-
     }
 
     private void updateUi(final boolean credentialFlag){

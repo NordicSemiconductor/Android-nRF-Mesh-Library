@@ -52,6 +52,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
 		creators.put(ReconnectViewModel.class, viewModelSubComponent::reconnectViewModule);
 	}
 
+	@SuppressWarnings("unchecked")
 	@NonNull
 	@Override
 	public <T extends ViewModel> T create(@NonNull final Class<T> modelClass) {

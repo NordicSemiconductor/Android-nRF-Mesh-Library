@@ -26,7 +26,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -37,8 +36,6 @@ import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import java.util.Map;
-
-import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
 
 public class Utils {
 
@@ -222,26 +219,6 @@ public class Utils {
             }
         }
         return -1;
-    }
-
-    /**
-     * Create the intent filters to listen for events on the {@link MeshService}
-     *
-     * @return intent filter
-     */
-    public static IntentFilter createIntentFilters() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_CONNECTION_STATE);
-        intentFilter.addAction(ACTION_IS_CONNECTED);
-        intentFilter.addAction(ACTION_IS_RECONNECTING);
-        intentFilter.addAction(ACTION_ON_DEVICE_READY);
-        intentFilter.addAction(ACTION_PROVISIONING_STATE);
-        intentFilter.addAction(ACTION_CONFIGURATION_STATE);
-        intentFilter.addAction(ACTION_TRANSACTION_STATE);
-        intentFilter.addAction(ACTION_GENERIC_ON_OFF_STATE);
-        intentFilter.addAction(ACTION_GENERIC_LEVEL_STATE);
-        intentFilter.addAction(ACTION_VENDOR_MODEL_MESSAGE_STATE);
-        return intentFilter;
     }
 
     public static boolean checkIfVersionIsOreoOrAbove() {

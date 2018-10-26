@@ -24,22 +24,18 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
+import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
-import no.nordicsemi.android.meshprovisioner.messages.AccessMessage;
-import no.nordicsemi.android.meshprovisioner.messages.ControlMessage;
-import no.nordicsemi.android.meshprovisioner.messages.Message;
 import no.nordicsemi.android.meshprovisioner.opcodes.TransportLayerOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public abstract class LowerTransportLayer extends UpperTransportLayer {
+abstract class LowerTransportLayer extends UpperTransportLayer {
 
-    protected static final int NETWORK_PDU = 0x00;
+    static final int NETWORK_PDU = 0x00;
     private static final String TAG = LowerTransportLayer.class.getSimpleName();
     private static final int UNSEGMENTED_HEADER = 0;
     private static final int SEGMENTED_HEADER = 1;
@@ -50,8 +46,8 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
     private static final int UNSEGMENTED_ACK_MESSAGE_HEADER_LENGTH = 3;
     private static final long INCOMPLETE_TIMER_DELAY = 10 * 1000; // According to the spec the incomplete timer must be a minimum of 10 seconds.
 
-    private final Map<Integer, byte[]> segmentedAccessMessageMap = new HashMap<>();
-    private final Map<Integer, byte[]> segmentedControlMessageMap = new HashMap<>();
+    private final SparseArray<byte[]> segmentedAccessMessageMap = new SparseArray<>();
+    private final SparseArray<byte[]> segmentedControlMessageMap = new SparseArray<>();
 
     private LowerTransportLayerCallbacks mLowerTransportLayerCallbacks;
 
@@ -95,11 +91,11 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public final void createLowerTransportAccessPDU(final AccessMessage message) {
         final byte[] upperTransportPDU = message.getUpperTransportPdu();
-        final HashMap<Integer, byte[]> lowerTransportAccessPduMap;
+        final SparseArray<byte[]> lowerTransportAccessPduMap;
         if (upperTransportPDU.length <= MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH) {
             message.setSegmented(false);
             final byte[] lowerTransportPDU = createUnsegmentedAccessMessage(message);
-            lowerTransportAccessPduMap = new HashMap<>();
+            lowerTransportAccessPduMap = new SparseArray<>();
             lowerTransportAccessPduMap.put(0, lowerTransportPDU);
         } else {
             message.setSegmented(true);
@@ -124,14 +120,14 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
 
     @Override
     final void reassembleLowerTransportAccessPDU(final AccessMessage accessMessage) {
-        final HashMap<Integer, byte[]> lowerTransportAccessPdu = removeLowerTransportAccessMessageHeader(accessMessage);
+        final SparseArray<byte[]> lowerTransportAccessPdu = removeLowerTransportAccessMessageHeader(accessMessage);
         final byte[] upperTransportPdu = MeshParserUtils.concatenateSegmentedMessages(lowerTransportAccessPdu);
         accessMessage.setUpperTransportPdu(upperTransportPdu);
     }
 
     @Override
     final void reassembleLowerTransportControlPDU(final ControlMessage controlMessage) {
-        final HashMap<Integer, byte[]> lowerTransportPdu = removeLowerTransportControlMessageHeader(controlMessage);
+        final SparseArray<byte[]> lowerTransportPdu = removeLowerTransportControlMessageHeader(controlMessage);
         final byte[] lowerTransportControlPdu = MeshParserUtils.concatenateSegmentedMessages(lowerTransportPdu);
         controlMessage.setTransportControlPdu(lowerTransportControlPdu);
     }
@@ -142,8 +138,8 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      * @param message access message received.
      * @return map containing the messages.
      */
-    private HashMap<Integer, byte[]> removeLowerTransportAccessMessageHeader(final AccessMessage message) {
-        final HashMap<Integer, byte[]> messages = message.getLowerTransportAccessPdu();
+    private SparseArray<byte[]> removeLowerTransportAccessMessageHeader(final AccessMessage message) {
+        final SparseArray<byte[]> messages = message.getLowerTransportAccessPdu();
         if (message.isSegmented()) {
             for (int i = 0; i < messages.size(); i++) {
                 final byte[] data = messages.get(i);
@@ -164,8 +160,8 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      * @param message control message.
      * @return map containing the messages.
      */
-    private HashMap<Integer, byte[]> removeLowerTransportControlMessageHeader(final ControlMessage message) {
-        final HashMap<Integer, byte[]> messages = message.getLowerTransportControlPdu();
+    private SparseArray<byte[]> removeLowerTransportControlMessageHeader(final ControlMessage message) {
+        final SparseArray<byte[]> messages = message.getLowerTransportControlPdu();
         if (messages.size() > 1) {
             for (int i = 0; i < messages.size(); i++) {
                 final byte[] data = messages.get(i);
@@ -254,7 +250,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      * @param message access message.
      * @return Segmented access message.
      */
-    private HashMap<Integer, byte[]> createSegmentedAccessMessage(final AccessMessage message) {
+    private SparseArray<byte[]> createSegmentedAccessMessage(final AccessMessage message) {
         final byte[] encryptedUpperTransportPDU = message.getUpperTransportPdu();
         final int akfAid = ((message.getAkf() << 6) | message.getAid());
         final int aszmic = message.getAszmic();
@@ -263,7 +259,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
 
         final int numberOfSegments = (encryptedUpperTransportPDU.length + (MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH - 1)) / MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH;
         final int segN = numberOfSegments - 1; //Zero based segN
-        final HashMap<Integer, byte[]> lowerTransportPduMap = new HashMap<>();
+        final SparseArray<byte[]> lowerTransportPduMap = new SparseArray<>();
         int offset = 0;
         int length;
         for (int segO = 0; segO < numberOfSegments; segO++) {
@@ -291,7 +287,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      * @return unsegmented access message.
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    private byte[] createUnsegmentedControlMessage(final ControlMessage message) {
+    private void createUnsegmentedControlMessage(final ControlMessage message) {
         int pduLength;
         final ByteBuffer lowerTransportBuffer;
         message.setSegmented(false);
@@ -313,10 +309,9 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         lowerTransportBuffer.put(upperTransportControlPDU);
         final byte[] lowerTransportPDU = lowerTransportBuffer.array();
         Log.v(TAG, "Unsegmented Lower transport control PDU " + MeshParserUtils.bytesToHex(lowerTransportPDU, false));
-        final HashMap<Integer, byte[]> lowerTransportControlPduMap = new HashMap<>();
+        final SparseArray<byte[]> lowerTransportControlPduMap = new SparseArray<>();
         lowerTransportControlPduMap.put(0, lowerTransportPDU);
         message.setLowerTransportControlPdu(lowerTransportControlPduMap);
-        return lowerTransportPDU;
     }
 
     /**
@@ -325,7 +320,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      * @param controlMessage control message to be sent.
      * @return Segmented control message.
      */
-    private HashMap<Integer, byte[]> createSegmentedControlMessage(final ControlMessage controlMessage) {
+    private void createSegmentedControlMessage(final ControlMessage controlMessage) {
         controlMessage.setSegmented(false);
         final byte[] encryptedUpperTransportControlPDU = controlMessage.getTransportControlPdu();
         final int opCode = controlMessage.getOpCode();
@@ -335,7 +330,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
 
         final int numberOfSegments = (encryptedUpperTransportControlPDU.length + (MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH - 1)) / MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH;
         final int segN = numberOfSegments - 1; //Zero based segN
-        final HashMap<Integer, byte[]> lowerTransportControlPduMap = new HashMap<>();
+        final SparseArray<byte[]> lowerTransportControlPduMap = new SparseArray<>();
         int offset = 0;
         int length;
         for (int segO = 0; segO < numberOfSegments; segO++) {
@@ -354,7 +349,6 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
             lowerTransportControlPduMap.put(segO, lowerTransportPDU);
         }
         controlMessage.setLowerTransportControlPdu(lowerTransportControlPduMap);
-        return lowerTransportControlPduMap;
     }
 
     /**
@@ -386,7 +380,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
                 final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(lowerTransportPduLength).order(ByteOrder.BIG_ENDIAN);
                 lowerTransportBuffer.put(pdu, 10, lowerTransportPduLength);
                 final byte[] lowerTransportPDU = lowerTransportBuffer.array();
-                final HashMap<Integer, byte[]> messages = new HashMap<>();
+                final SparseArray<byte[]> messages = new SparseArray<>();
                 messages.put(0, lowerTransportPDU);
                 message.setSegmented(false);
                 message.setAszmic(0); //aszmic is always 0 for unsegmented access messages
@@ -398,7 +392,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
                 final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(lowerTransportPduLength).order(ByteOrder.BIG_ENDIAN);
                 lowerTransportBuffer.put(pdu, 10, lowerTransportPduLength);
                 final byte[] lowerTransportPDU = lowerTransportBuffer.array();
-                final HashMap<Integer, byte[]> messages = new HashMap<>();
+                final SparseArray<byte[]> messages = new SparseArray<>();
                 messages.put(0, lowerTransportPDU);
                 message.setSegmented(false);
                 message.setAszmic(0); //aszmic is always 0 for unsegmented access messages
@@ -444,11 +438,20 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
 
         Log.v(TAG, "Current SeqAuth value " + seqAuth);
 
+        final int payloadLength = pdu.length - 10;
+        final ByteBuffer payloadBuffer = ByteBuffer.allocate(payloadLength);
+        payloadBuffer.put(pdu, 10, payloadLength);
+
         //Check if the current SeqAuth value is greater than the last and if the incomplete timer has not started, start it!
-        if ((lastSeqAuth == null || lastSeqAuth < seqAuth) /*&& !mIncompleteTimerStarted*/) {
+        if ((lastSeqAuth == null || lastSeqAuth < seqAuth)) {
+            segmentedAccessMessageMap.clear();
+            segmentedAccessMessageMap.put(segO, payloadBuffer.array());
+            mMeshNode.setSeqAuth(blockAckDst, seqAuth);
+            //Reset the block acknowledgement value
+            mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(null, segO);
+
             Log.v(TAG, "Starting incomplete timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
             initIncompleteTimer();
-            mMeshNode.setSeqAuth(blockAckDst, seqAuth);
 
             //Start acknowledgement timer only for messages directed to a unicast address.
             if (MeshParserUtils.isValidUnicastAddress(dst)) {
@@ -457,60 +460,61 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
             }
         } else {
             //if the seqauth values are the same and the init complete timer has already started for a received segmented message, we need to restart the incomplete timer
-            if(lastSeqAuth == seqAuth && mIncompleteTimerStarted){
-                Log.v(TAG, "Restarting incomplete timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
-                restartIncompleteTimer();
+            if (lastSeqAuth == seqAuth) {
+                if (mIncompleteTimerStarted) {
+                    segmentedAccessMessageMap.put(segO, payloadBuffer.array());
+                    final int receivedSegmentedMessageCount = segmentedAccessMessageMap.size();
+                    Log.v(TAG, "Received segment message count: " + receivedSegmentedMessageCount);
+                    //Add +1 to segN since its zero based
+                    if (receivedSegmentedMessageCount != (segN + 1)) {
+                        mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
+                        Log.v(TAG, "Restarting incomplete timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
+                        restartIncompleteTimer();
 
-                //Start acknowledgement timer only for messages directed to a unicast address.
-                //We also have to make sure we restart the acknowledgement timer only if the acknowledgement timer is not active and the incomplete timer is active
-                if (MeshParserUtils.isValidUnicastAddress(dst) && !mSegmentedAccessAcknowledgementTimerStarted) {
-                    Log.v(TAG, "Restarting block acknowledgement timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
-                    //Start the block acknowledgement timer irrespective of which segment was received first
-                    initSegmentedAccessAcknowledgementTimer(seqZero, ttl, blockAckSrc, blockAckDst, segN);
+                        //Start acknowledgement timer only for messages directed to a unicast address.
+                        //We also have to make sure we restart the acknowledgement timer only if the acknowledgement timer is not active and the incomplete timer is active
+                        if (MeshParserUtils.isValidUnicastAddress(dst) && !mSegmentedAccessAcknowledgementTimerStarted) {
+                            Log.v(TAG, "Restarting block acknowledgement timer for src: " + MeshParserUtils.bytesToHex(blockAckDst, false));
+                            //Start the block acknowledgement timer irrespective of which segment was received first
+                            initSegmentedAccessAcknowledgementTimer(seqZero, ttl, blockAckSrc, blockAckDst, segN);
+                        }
+                    } else {
+                        mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
+                        Log.v(TAG, "SEG O BLOCK ACK VAL: " + mSegmentedAccessBlockAck);
+                        handleImmediateBlockAcks(seqZero, ttl, blockAckSrc, blockAckDst, segN);
+
+                        final int upperTransportSequenceNumber = getTransportLayerSequenceNumber(MeshParserUtils.getSequenceNumberFromPDU(pdu), seqZero);
+                        final byte[] sequenceNumber = MeshParserUtils.getSequenceNumberBytes(upperTransportSequenceNumber);
+                        final AccessMessage accessMessage = new AccessMessage();
+                        accessMessage.setAszmic(szmic);
+                        accessMessage.setSequenceNumber(sequenceNumber);
+                        accessMessage.setAkf(akf);
+                        accessMessage.setAid(aid);
+                        accessMessage.setSegmented(true);
+                        final SparseArray<byte[]> segmentedMessages = segmentedAccessMessageMap.clone();
+                        accessMessage.setLowerTransportAccessPdu(segmentedMessages);
+                        return accessMessage;
+                    }
+                } else {
+                    Log.v(TAG, "Ignoring message since the incomplete timer has expired and all messages have been received");
                 }
             }
         }
-
-        mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
-
-        final int payloadLength = pdu.length - 10;
-
-        final ByteBuffer payloadBuffer = ByteBuffer.allocate(payloadLength);
-        payloadBuffer.put(pdu, 10, payloadLength);
-        segmentedAccessMessageMap.put(segO, payloadBuffer.array());
-
-        //Check the message count against the zero-based segN;
-        final int receivedSegmentedMessageCount = segmentedAccessMessageMap.size() - 1;
-        if (segN == receivedSegmentedMessageCount) {
-            Log.v(TAG, "All segments received");
-            //Remove the incomplete timer if all segments were received
-            mHandler.removeCallbacks(mIncompleteTimerRunnable);
-            Log.v(TAG, "Block ack sent? " + mBlockAckSent);
-            if (mDuration > System.currentTimeMillis() && !mBlockAckSent) {
-                if (MeshParserUtils.isValidUnicastAddress(dst)) {
-                    mHandler.removeCallbacksAndMessages(null);
-                    Log.v(TAG, "Cancelling Scheduled block ack and incomplete timer, sending an immediate block ack");
-                    sendBlockAck(seqZero, ttl, blockAckSrc, blockAckDst, segN);
-                    //mBlockAckSent = false;
-                }
-            }
-
-            final int upperTransportSequenceNumber = getTransportLayerSequenceNumber(MeshParserUtils.getSequenceNumberFromPDU(pdu), seqZero);
-            final byte[] sequenceNumber = MeshParserUtils.getSequenceNumberBytes(upperTransportSequenceNumber);
-            final AccessMessage accessMessage = new AccessMessage();
-            accessMessage.setAszmic(szmic);
-            accessMessage.setSequenceNumber(sequenceNumber);
-            accessMessage.setAkf(akf);
-            accessMessage.setAid(aid);
-            accessMessage.setSegmented(true);
-            final HashMap<Integer, byte[]> segmentedMessages = new HashMap<>();
-            segmentedMessages.putAll(segmentedAccessMessageMap);
-            segmentedAccessMessageMap.clear();
-            accessMessage.setLowerTransportAccessPdu(segmentedMessages);
-            return accessMessage;
-        }
-
         return null;
+    }
+
+    /**
+     * Send immediate block acknowledgement
+     *
+     * @param seqZero
+     * @param ttl
+     * @param src
+     * @param dst
+     * @param segN
+     */
+    private void handleImmediateBlockAcks(final int seqZero, final int ttl, final byte[] src, final byte[] dst, final int segN) {
+        cancelIncompleteTimer();
+        sendBlockAck(seqZero, ttl, src, dst, segN);
     }
 
     /**
@@ -527,7 +531,7 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(lowerTransportPduLength).order(ByteOrder.BIG_ENDIAN);
         lowerTransportBuffer.put(pdu, 10, lowerTransportPduLength);
         final byte[] lowerTransportPDU = lowerTransportBuffer.array();
-        final HashMap<Integer, byte[]> segmentedMessages = new HashMap<>();
+        final SparseArray<byte[]> segmentedMessages = new SparseArray<>();
         segmentedMessages.put(0, lowerTransportPDU);
         controlMessage.setSegmented(false);
         controlMessage.setAszmic(0);
@@ -591,17 +595,16 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
             }
             final int upperTransportSequenceNumber = getTransportLayerSequenceNumber(MeshParserUtils.getSequenceNumberFromPDU(pdu), seqZero);
             final byte[] sequenceNumber = MeshParserUtils.getSequenceNumberBytes(upperTransportSequenceNumber);
-            final ControlMessage accessMessage = new ControlMessage();
-            accessMessage.setAszmic(szmic);
-            accessMessage.setSequenceNumber(sequenceNumber);
-            accessMessage.setAkf(akf);
-            accessMessage.setAid(aid);
-            accessMessage.setSegmented(true);
-            final HashMap<Integer, byte[]> segmentedMessages = new HashMap<>();
-            segmentedMessages.putAll(segmentedControlMessageMap);
+            final ControlMessage message = new ControlMessage();
+            message.setAszmic(szmic);
+            message.setSequenceNumber(sequenceNumber);
+            message.setAkf(akf);
+            message.setAid(aid);
+            message.setSegmented(true);
+            final SparseArray<byte[]> segmentedMessages =  segmentedControlMessageMap.clone();
             segmentedControlMessageMap.clear();
-            accessMessage.setLowerTransportControlPdu(segmentedMessages);
-            return accessMessage;
+            message.setLowerTransportControlPdu(segmentedMessages);
+            return message;
         }
 
         return null;
@@ -613,19 +616,27 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
     private void initIncompleteTimer() {
         mHandler.postDelayed(mIncompleteTimerRunnable, INCOMPLETE_TIMER_DELAY);
         mIncompleteTimerStarted = true;
-
     }
 
     /**
      * Restarts the incomplete timer
      */
-    private void restartIncompleteTimer(){
+    private void restartIncompleteTimer() {
         //Remove the existing incomplete timer
-        if(mIncompleteTimerStarted){
+        if (mIncompleteTimerStarted) {
             mHandler.removeCallbacks(mIncompleteTimerRunnable);
         }
         //Call init to start the timer again
         initIncompleteTimer();
+    }
+
+    /**
+     * Cancels an already started the incomplete timer
+     */
+    private void cancelIncompleteTimer() {
+        //Remove the existing incomplete timer
+        mIncompleteTimerStarted = false;
+        mHandler.removeCallbacks(mIncompleteTimerRunnable);
     }
 
     /**
@@ -649,10 +660,13 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      */
     private void initSegmentedAccessAcknowledgementTimer(final int seqZero, final int ttl, final byte[] src, final byte[] dst, final int segN) {
         if (!mSegmentedAccessAcknowledgementTimerStarted) {
+            mSegmentedAccessAcknowledgementTimerStarted = true;
             final int duration = (150 + (50 * ttl));
             mDuration = System.currentTimeMillis() + duration;
-            mHandler.postDelayed(() -> sendBlockAck(seqZero, ttl, src, dst, segN), duration);
-            mSegmentedAccessAcknowledgementTimerStarted = true;
+            mHandler.postDelayed(() -> {
+                Log.v(TAG, "Acknowledgement timer expiring");
+                sendBlockAck(seqZero, ttl, src, dst, segN);
+            }, duration);
         }
     }
 
@@ -683,9 +697,10 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
      */
     private void sendBlockAck(final int seqZero, final int ttl, final byte[] src, final byte[] dst, final int segN) {
         final int blockAck = mSegmentedAccessBlockAck;
+        //mSegmentedAccessBlockAck = null;
         if (BlockAcknowledgementMessage.hasAllSegmentsBeenReceived(blockAck, segN)) {
             Log.v(TAG, "All segments received cancelling incomplete timer");
-            mHandler.removeCallbacks(mIncompleteTimerRunnable);
+            cancelIncompleteTimer();
         }
 
         final byte[] upperTransportControlPdu = createAcknowledgementPayload(seqZero, blockAck);
@@ -704,8 +719,31 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         mBlockAckSent = true;
         mLowerTransportLayerCallbacks.sendSegmentAcknowledgementMessage(controlMessage);
         mSegmentedAccessAcknowledgementTimerStarted = false;
-        Log.v(TAG, "Block ack value: " + blockAck);
-        mSegmentedAccessBlockAck = null;
+    }
+
+    private void sendBlockAck(final int blockAck, final int seqZero, final int ttl, final byte[] src, final byte[] dst, final int segN) {
+        //mSegmentedAccessBlockAck = null;
+        if (BlockAcknowledgementMessage.hasAllSegmentsBeenReceived(blockAck, segN)) {
+            Log.v(TAG, "All segments received cancelling incomplete timer");
+            cancelIncompleteTimer();
+        }
+
+        final byte[] upperTransportControlPdu = createAcknowledgementPayload(seqZero, blockAck);
+        Log.v(TAG, "Block acknowledgement payload: " + MeshParserUtils.bytesToHex(upperTransportControlPdu, false));
+        final ControlMessage controlMessage = new ControlMessage();
+        controlMessage.setOpCode(TransportLayerOpCodes.SAR_ACK_OPCODE);
+        controlMessage.setTransportControlPdu(upperTransportControlPdu);
+        controlMessage.setTtl(ttl);
+        controlMessage.setPduType(NETWORK_PDU);
+        controlMessage.setSrc(src);
+        controlMessage.setDst(dst);
+        controlMessage.setIvIndex(mMeshNode.getIvIndex());
+        final int sequenceNumber = incrementSequenceNumber();
+        final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
+        controlMessage.setSequenceNumber(sequenceNum);
+        mBlockAckSent = true;
+        mLowerTransportLayerCallbacks.sendSegmentAcknowledgementMessage(controlMessage);
+        mSegmentedAccessAcknowledgementTimerStarted = false;
     }
 
     /**
@@ -736,10 +774,8 @@ public abstract class LowerTransportLayer extends UpperTransportLayer {
         final byte[] transportControlPdu = controlMessage.getTransportControlPdu();
         final int opCode = controlMessage.getOpCode();
 
-        final int offset;
         switch (opCode) {
             case TransportLayerOpCodes.SAR_ACK_OPCODE:
-                offset = 0;
                 final BlockAcknowledgementMessage acknowledgement = new BlockAcknowledgementMessage(transportControlPdu);
                 controlMessage.setTransportControlMessage(acknowledgement);
             default:
