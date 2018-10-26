@@ -32,8 +32,8 @@
 
     <string name="error_empty_network_name">Network name cannot be empty!</string>
 
-    <string name="error_empty_global_ttl">Global TTL cannot be empty!</string>
-    <string name="error_invalid_global_ttl">Global TTL value must be 0 or between 2 and 127!</string>
+    <string name="error_empty_global_ttl">TTL cannot be empty!</string>
+    <string name="error_invalid_global_ttl">TTL value must range from 0 to 127!</string>
 
     <string name="error_empty_network_key">Network key cannot be empty!</string>
     <string name="error_invalid_network_key">Network key must be 16 bytes long!</string>

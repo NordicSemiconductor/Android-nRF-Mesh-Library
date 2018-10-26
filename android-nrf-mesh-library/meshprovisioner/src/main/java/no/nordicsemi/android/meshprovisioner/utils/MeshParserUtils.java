@@ -28,7 +28,6 @@ import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
@@ -39,8 +38,10 @@ public class MeshParserUtils {
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MIN = 0x01;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MID = 0x80;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MAX = 0xFF;
-    public static final int DEFAULT_TTL = 0xFF;
+    public static final int USE_DEFAULT_TTL = 0xFF;
 
+    private static final int MIN_TTL = 0x00;
+    private static final int MAX_TTL = 0x7F;
     private static final int PROHIBITED_PUBLISH_TTL_MIN = 0x80;
     private static final int PROHIBITED_PUBLISH_TTL_MAX = 0xFE;
 
@@ -168,7 +169,7 @@ public class MeshParserUtils {
 
         if (ttlInput == null) {
             throw new IllegalArgumentException(context.getString(R.string.error_empty_global_ttl));
-        } else if (ttlInput == PROHIBITED_DEFAULT_TTL_STATE_MIN || (ttlInput >= PROHIBITED_DEFAULT_TTL_STATE_MID && ttlInput <= PROHIBITED_DEFAULT_TTL_STATE_MAX)) {
+        } else if (!isValidTtl(ttlInput)) {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_global_ttl));
         }
 
@@ -515,13 +516,23 @@ public class MeshParserUtils {
     }
 
     /**
-     * Checks if the publish ttl value is within the allowed range
+     * Checks if the ttl value is within the allowed range where the range is 0x00 - 0x7F
+     *
+     * @param ttl ttl
+     * @return true if valid and false otherwise
+     */
+    public static boolean isValidTtl(final int ttl) {
+        return (ttl >= MIN_TTL) && (ttl <= MAX_TTL);
+    }
+
+    /**
+     * Checks if the default publish ttl is used for publication
      *
      * @param publishTtl publish ttl
      * @return true if valid and false otherwise
      */
-    public static boolean validatePublishTtl(final int publishTtl) {
-        return (publishTtl < PROHIBITED_PUBLISH_TTL_MIN) || (publishTtl > PROHIBITED_PUBLISH_TTL_MAX) || (publishTtl == PROHIBITED_DEFAULT_TTL_STATE_MAX);
+    public static boolean isDefaultPublishTtl(final int publishTtl) {
+        return publishTtl == USE_DEFAULT_TTL;
     }
 
     /**
