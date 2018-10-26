@@ -39,8 +39,10 @@ public class MeshParserUtils {
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MIN = 0x01;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MID = 0x80;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MAX = 0xFF;
-    public static final int DEFAULT_TTL = 0xFF;
+    public static final int USE_DEFAULT_TTL = 0xFF;
 
+    private static final int MIN_TTL = 0x00;
+    private static final int MAX_TTL = 0x7F;
     private static final int PROHIBITED_PUBLISH_TTL_MIN = 0x80;
     private static final int PROHIBITED_PUBLISH_TTL_MAX = 0xFE;
 
@@ -515,13 +517,23 @@ public class MeshParserUtils {
     }
 
     /**
-     * Checks if the publish ttl value is within the allowed range
+     * Checks if the publish ttl value is within the allowed range where the range is 0x00 - 0x7F
      *
      * @param publishTtl publish ttl
      * @return true if valid and false otherwise
      */
-    public static boolean validatePublishTtl(final int publishTtl) {
-        return (publishTtl < PROHIBITED_PUBLISH_TTL_MIN) || (publishTtl > PROHIBITED_PUBLISH_TTL_MAX) || (publishTtl == PROHIBITED_DEFAULT_TTL_STATE_MAX);
+    public static boolean isValidPublishTtl(final int publishTtl) {
+        return (publishTtl >= MIN_TTL) && (publishTtl <= MAX_TTL);
+    }
+
+    /**
+     * Checks if the default publish ttl is used for publication
+     *
+     * @param publishTtl publish ttl
+     * @return true if valid and false otherwise
+     */
+    public static boolean isDefaultPublishTtl(final int publishTtl) {
+        return publishTtl == USE_DEFAULT_TTL;
     }
 
     /**

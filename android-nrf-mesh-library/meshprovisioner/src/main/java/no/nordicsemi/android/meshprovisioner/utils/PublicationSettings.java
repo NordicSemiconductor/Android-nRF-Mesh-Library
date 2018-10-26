@@ -12,7 +12,7 @@ import java.nio.ByteOrder;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class PublicationSettings implements Parcelable {
 
-    private static final int DEFAULT_PUBLISH_TTL = 0xFF;
+    private static final int DEFAULT_PUBLISH_TTL = 0x7F;
     private static final int DEFAULT_PUBLICATION_STEPS = 0;
     private static final int DEFAULT_PUBLICATION_RESOLUTION = 0b00;
     private static final int DEFAULT_PUBLICATION_RETRANSMIT_COUNT = 0b000;

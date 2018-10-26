@@ -365,7 +365,7 @@
     <string name="error_empty_publication_steps">Number of publication steps cannot be empty!</string>
     <string name="error_invalid_publication_steps">Publication steps must be in range of 0 to 63!</string>
     <string name="error_empty_publish_ttl">Publish TTL cannot be empty!</string>
-    <string name="error_invalid_publish_ttl">Publish TTL value must be in range of 0 to 127 or 255 for default TTL!</string>
+    <string name="error_invalid_publish_ttl">Publish TTL value must be in range of 0 to 127!</string>
 
     <string name="dialog_summary_retransmit_count">Enter the desired number of retransmissions.</string>
     <string name="dialog_summary_interval_steps">Enter the desired number of interval steps for retransmission. \n1 step = 50ms</string>
@@ -390,7 +390,7 @@
     </string-array>
 
     <string name="dialog_summary_publication_resolution">Select desired resolution for publish period</string>
-    <string name="hint_publish_ttl">Pubilsh TTL</string>
+    <string name="hint_publish_ttl">TTL ranges from 0 to 127</string>
     <string name="hint_publication_steps">Publication steps</string>
     <string name="model_id">Model ID: %s</string>
     <string name="title_disconnected_error">Error</string>
@@ -401,4 +401,6 @@
     <string name="generic_level_percent">%d%%</string>
     <string name="title_generic_level_controls">Generic Level Controls</string>
     <string name="invalid_value">Invalid value!</string>
+    <string name="use_default_ttl">Use default ttl value (0xFF)</string>
+    <string name="uses_default_ttl">Uses default ttl (0xFF)</string>
 </resources>
