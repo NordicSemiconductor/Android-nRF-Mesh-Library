@@ -28,7 +28,6 @@ import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
@@ -170,7 +169,7 @@ public class MeshParserUtils {
 
         if (ttlInput == null) {
             throw new IllegalArgumentException(context.getString(R.string.error_empty_global_ttl));
-        } else if (ttlInput == PROHIBITED_DEFAULT_TTL_STATE_MIN || (ttlInput >= PROHIBITED_DEFAULT_TTL_STATE_MID && ttlInput <= PROHIBITED_DEFAULT_TTL_STATE_MAX)) {
+        } else if (!isValidTtl(ttlInput)) {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_global_ttl));
         }
 
@@ -517,13 +516,13 @@ public class MeshParserUtils {
     }
 
     /**
-     * Checks if the publish ttl value is within the allowed range where the range is 0x00 - 0x7F
+     * Checks if the ttl value is within the allowed range where the range is 0x00 - 0x7F
      *
-     * @param publishTtl publish ttl
+     * @param ttl ttl
      * @return true if valid and false otherwise
      */
-    public static boolean isValidPublishTtl(final int publishTtl) {
-        return (publishTtl >= MIN_TTL) && (publishTtl <= MAX_TTL);
+    public static boolean isValidTtl(final int ttl) {
+        return (ttl >= MIN_TTL) && (ttl <= MAX_TTL);
     }
 
     /**

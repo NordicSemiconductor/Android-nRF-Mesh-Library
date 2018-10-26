@@ -151,7 +151,7 @@ public class DialogFragmentPublishTtl extends DialogFragment {
                 ttlInputLayout.setError(getString(R.string.error_empty_publish_ttl));
                 return false;
             }
-            if(!MeshParserUtils.isValidPublishTtl(Integer.parseInt(input))) {
+            if(!MeshParserUtils.isValidTtl(Integer.parseInt(input))) {
                 ttlInputLayout.setError(getString(R.string.error_invalid_publish_ttl));
                 return false;
             }
