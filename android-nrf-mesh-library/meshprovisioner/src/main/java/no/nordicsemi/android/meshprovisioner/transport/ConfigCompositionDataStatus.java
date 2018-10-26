@@ -48,6 +48,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
 
     private static final String TAG = ConfigCompositionDataStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS;
+    private static final int ELEMENTS_OFFSET = 12;
 
     private int companyIdentifier;
     private int productIdentifier;
@@ -89,13 +90,13 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
 
     @Override
     final void parseStatusParameters() {
-        pareCompositionDataPages();
+        parseCompositionDataPages();
     }
 
     /**
-     * Parses the identifiers and the payloads
+     * Parses composition data status received from the mesh node
      */
-    private void pareCompositionDataPages() {
+    private void parseCompositionDataPages() {
         final AccessMessage message = mMessage;
         final byte[] accessPayload = message.getAccessPdu();
 
@@ -138,7 +139,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
         // Number of vendor model in this element
         // SIG model ID octents - Variable
         // Vendor model ID octents - Variable
-        parseElements(accessPayload, message.getSrc(), 12);
+        parseElements(accessPayload, message.getSrc());
         Log.v(TAG, "Number of elements: " + mElements.size());
     }
 
@@ -147,10 +148,9 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
      *
      * @param accessPayload underlying payload containing the elements
      * @param src           source address
-     * @param offset        offset within the payload
      */
-    private void parseElements(final byte[] accessPayload, final byte[] src, final int offset) {
-        int tempOffset = offset;
+    private void parseElements(final byte[] accessPayload, final byte[] src) {
+        int tempOffset = ELEMENTS_OFFSET;
         int counter = 0;
         byte[] elementAddress = null;
         while (tempOffset < accessPayload.length) {
