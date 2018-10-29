@@ -617,14 +617,14 @@ public class MeshParserUtils {
     /**
      * Convert a signed byte to an unsigned int.
      */
-    private static int unsignedByteToInt(byte b) {
+    public static int unsignedByteToInt(byte b) {
         return b & 0xFF;
     }
 
     /**
      * Convert signed bytes to a 16-bit unsigned int.
      */
-    private static int unsignedBytesToInt(byte b0, byte b1) {
+    public static int unsignedBytesToInt(byte b0, byte b1) {
         return (unsignedByteToInt(b0) + (unsignedByteToInt(b1) << 8));
     }
 
