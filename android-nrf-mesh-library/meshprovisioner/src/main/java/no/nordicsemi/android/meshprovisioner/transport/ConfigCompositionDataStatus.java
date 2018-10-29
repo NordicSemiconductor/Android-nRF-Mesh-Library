@@ -182,7 +182,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
                     // vendor models are 32-bit that contains a 16-bit company identifier and a 16-bit model identifier
                     final int companyIdentifier = MeshParserUtils.unsignedBytesToInt(accessPayload[tempOffset], accessPayload[tempOffset + 1]);
                     final int modelIdentifier = MeshParserUtils.unsignedBytesToInt(accessPayload[tempOffset + 2], accessPayload[tempOffset + 3]);
-                    final int vendorModelIdentifier = companyIdentifier << 16 + modelIdentifier;
+                    final int vendorModelIdentifier = companyIdentifier << 16 | modelIdentifier;
                     models.put(vendorModelIdentifier, new VendorModel(vendorModelIdentifier));
                     Log.v(TAG, "Vendor - model ID " + i + " : " + String.format(Locale.US, "%08X", vendorModelIdentifier));
                     tempOffset = tempOffset + 4;
