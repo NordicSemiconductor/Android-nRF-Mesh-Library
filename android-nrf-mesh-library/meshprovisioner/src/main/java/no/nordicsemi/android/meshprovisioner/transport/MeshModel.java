@@ -51,7 +51,7 @@ public abstract class MeshModel implements Parcelable {
     @Expose
     final Map<Integer, ApplicationKey> mBoundApplicationKeys = new LinkedHashMap<>();
     @Expose
-    private PublicationSettings mPublicationSettings;
+    PublicationSettings mPublicationSettings;
     @Expose
     final List<byte[]> mSubscriptionAddress = new ArrayList<>();
 
@@ -69,7 +69,7 @@ public abstract class MeshModel implements Parcelable {
             mModelId = (short) modelId;
         }
         in.readList(mBoundAppKeyIndexes, Integer.class.getClassLoader());
-        sortAppKeys(in.readHashMap(String.class.getClassLoader()));
+        sortAppKeys(in.readHashMap(ApplicationKey.class.getClassLoader()));
         try {
             mPublicationSettings = in.readParcelable(PublicationSettings.class.getClassLoader());
             in.readList(mSubscriptionAddress, byte[].class.getClassLoader());

@@ -263,10 +263,10 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         switch (requestCode) {
             case ManageAppKeysActivity.SELECT_APP_KEY:
                 if (resultCode == RESULT_OK) {
-                    final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
+                    final ApplicationKey appKey = data.getParcelableExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                     final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
                     if (appKey != null) {
-                        bindAppKey(appKeyIndex);
+                        bindAppKey(appKey.getKeyIndex());
                     }
                 }
                 break;

@@ -3,13 +3,17 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Wrapper class for application key
  */
 @SuppressWarnings("WeakerAccess")
 public final class ApplicationKey implements Parcelable {
 
+    @Expose
     final int keyIndex;
+    @Expose
     final byte[] key;
     /**
      * Constructs a ApplicationKey object with a given key index and network key

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,8 +15,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModelDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public final class MeshNetwork {
@@ -24,16 +29,16 @@ public final class MeshNetwork {
     private static final String CONFIGURATION_SRC = "CONFIGURATION_SRC";
     private static final String SRC = "SRC";
     private final Context mContext;
-    private final Gson mGson;
+    private Gson mGson;
     private final Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new LinkedHashMap<>();
     private final ProvisioningSettings mProvisioningSettings;
     private String networkName = "nRF Mesh Network";
     private byte[] mConfigurationSrc = {0x07, (byte) 0xFF}; //0x07FF;
 
-    MeshNetwork(final Context context, final Gson gson){
+    MeshNetwork(final Context context){
         mContext = context;
-        mGson = gson;
         this.mProvisioningSettings = new ProvisioningSettings(context);
+        initGson();
         initConfigurationSrc();
         initProvisionedNodesForMigration();
         /*if(BuildConfig.VERSION_CODE == 14) {
@@ -63,6 +68,16 @@ public final class MeshNetwork {
         this.networkName = networkName;
     }
 
+    private void initGson() {
+        final GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.excludeFieldsWithoutExposeAnnotation();
+        gsonBuilder.enableComplexMapKeySerialization();
+        gsonBuilder.registerTypeAdapter(ApplicationKey.class, new InterfaceAdapter<ApplicationKey>());
+        gsonBuilder.registerTypeAdapter(MeshModel.class, new MeshModelDeserializer());
+        gsonBuilder.setVersion(1.1);
+        gsonBuilder.setPrettyPrinting();
+        mGson = gsonBuilder.create();
+    }
     /**
      * Load serialized provisioned nodes from preferences
      */

@@ -26,6 +26,8 @@ import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,10 +40,12 @@ import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
+import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
 @SuppressWarnings("WeakerAccess")
 public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
+    @Expose
     private SecureUtils.K2Output k2Output;
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
@@ -99,7 +103,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         mAddedAppKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mTimeStampInMillis = in.readLong();
         mConfigurationSrc = in.createByteArray();
-        mSeqAuth = in.readParcelable(Integer.class.getClassLoader());
+        mSeqAuth = in.readParcelable(SparseIntArrayParcelable.class.getClassLoader());
         numberOfElements = in.readInt();
     }
 

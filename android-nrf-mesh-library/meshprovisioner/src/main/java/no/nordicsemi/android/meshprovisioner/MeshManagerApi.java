@@ -105,7 +105,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
      */
     private final static int ADVERTISED_NETWWORK_ID_LENGTH = 8;
     private Context mContext;
-    private Gson mGson;
     private MeshManagerTransportCallbacks mTransportCallbacks;
     private MeshProvisioningHandler mMeshProvisioningHandler;
     private MeshMessageHandler mMeshMessageHandler;
@@ -117,10 +116,9 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     public MeshManagerApi(final Context context) {
         this.mContext = context;
-        initGson();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, this, this);
         mMeshMessageHandler = new MeshMessageHandler(context, this);
-        meshNetwork = new MeshNetwork(context, mGson);
+        meshNetwork = new MeshNetwork(context);
         mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(this);
     }
 
@@ -139,15 +137,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     public MeshNetwork getMeshNetwork(){
         return meshNetwork;
-    }
-
-    private void initGson() {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.excludeFieldsWithoutExposeAnnotation();
-        gsonBuilder.enableComplexMapKeySerialization();
-        gsonBuilder.registerTypeAdapter(MeshModel.class, new InterfaceAdapter<MeshModel>());
-        gsonBuilder.setPrettyPrinting();
-        mGson = gsonBuilder.create();
     }
 
     @Override
