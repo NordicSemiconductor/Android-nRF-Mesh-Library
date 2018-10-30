@@ -25,6 +25,8 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,15 +42,18 @@ import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 @SuppressWarnings("WeakerAccess")
 public abstract class MeshModel implements Parcelable {
 
+    @Expose
     protected int mModelId;
+    @Expose
     final List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
+    @Expose(serialize = false)
     final Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
+    @Expose
+    final Map<Integer, ApplicationKey> mBoundApplicationKeys = new LinkedHashMap<>();
+    @Expose
     private PublicationSettings mPublicationSettings;
+    @Expose
     final List<byte[]> mSubscriptionAddress = new ArrayList<>();
-
-    private MeshModel(){
-
-    }
 
     public MeshModel(final int modelId) {
         this.mModelId = modelId;
@@ -84,7 +89,7 @@ public abstract class MeshModel implements Parcelable {
     protected final void parcelMeshModel(final Parcel dest, final int flags) {
         dest.writeInt(mModelId);
         dest.writeList(mBoundAppKeyIndexes);
-        dest.writeMap(mBoundAppKeys);
+        dest.writeMap(mBoundApplicationKeys);
         dest.writeParcelable(mPublicationSettings, flags);
         dest.writeList(mSubscriptionAddress);
     }
@@ -94,13 +99,13 @@ public abstract class MeshModel implements Parcelable {
      *
      * @param unorderedBoundAppKeys app keys
      */
-    private void sortAppKeys(final HashMap<Integer, String> unorderedBoundAppKeys) {
+    private void sortAppKeys(final HashMap<Integer, ApplicationKey> unorderedBoundAppKeys) {
         final Set<Integer> unorderedKeys = unorderedBoundAppKeys.keySet();
 
         final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
         Collections.sort(orderedKeys);
         for (int key : orderedKeys) {
-            mBoundAppKeys.put(key, unorderedBoundAppKeys.get(key));
+            mBoundApplicationKeys.put(key, unorderedBoundAppKeys.get(key));
         }
     }
 
@@ -125,10 +130,10 @@ public abstract class MeshModel implements Parcelable {
         return Collections.unmodifiableList(mBoundAppKeyIndexes);
     }
 
-    protected void setBoundAppKey(final int appKeyIndex, final String appKey) {
+    protected void setBoundAppKey(final int appKeyIndex, final ApplicationKey appKey) {
         if (!mBoundAppKeyIndexes.contains(appKeyIndex))
             mBoundAppKeyIndexes.add(appKeyIndex);
-        mBoundAppKeys.put(appKeyIndex, appKey);
+        mBoundApplicationKeys.put(appKeyIndex, appKey);
     }
 
     @SuppressWarnings("RedundantCollectionOperation")
@@ -137,20 +142,32 @@ public abstract class MeshModel implements Parcelable {
             final int position = mBoundAppKeyIndexes.indexOf(appKeyIndex);
             mBoundAppKeyIndexes.remove(position);
         }
-        mBoundAppKeys.remove(appKeyIndex);
+        mBoundApplicationKeys.remove(appKeyIndex);
     }
 
     /**
      * Returns an unmodifiable map of bound app keys for this model.
      *
      * @return LinkedHashMap containing the bound app keys for this model
+     * @deprecated use {@link #getBoundApplicationKeys}
      */
+    @Deprecated
     public Map<Integer, String> getBoundAppkeys() {
         return Collections.unmodifiableMap(mBoundAppKeys);
     }
 
-    public String getBoundAppKey(final int appKeyIndex) {
-        return mBoundAppKeys.get(appKeyIndex);
+
+    /**
+     * Returns an unmodifiable map of bound app keys for this model.
+     *
+     * @return LinkedHashMap containing the bound app keys for this model
+     */
+    public Map<Integer, ApplicationKey> getBoundApplicationKeys() {
+        return Collections.unmodifiableMap(mBoundApplicationKeys);
+    }
+
+    public ApplicationKey getBoundAppKey(final int appKeyIndex) {
+        return mBoundApplicationKeys.get(appKeyIndex);
     }
 
     /**
@@ -164,6 +181,7 @@ public abstract class MeshModel implements Parcelable {
 
     /**
      * Checks if a model contains group addresses
+     *
      * @return
      */
     public boolean hasGroupAddresses() {

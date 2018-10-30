@@ -96,7 +96,7 @@ public class ProvisioningDataState extends ProvisioningState {
         Log.v(TAG, "Network key: " + MeshParserUtils.bytesToHex(networkKey, false));
 
         /* Generate random 2 byte Key index*/
-        final byte[] keyIndex = mUnprovisionedMeshNode.getKeyIndex();
+        final byte[] keyIndex = MeshParserUtils.addKeyIndexPadding(mUnprovisionedMeshNode.getKeyIndex());
         Log.v(TAG, "Key index: " + MeshParserUtils.bytesToHex(keyIndex, false));
 
         /* Generate random 1 byte Flags */

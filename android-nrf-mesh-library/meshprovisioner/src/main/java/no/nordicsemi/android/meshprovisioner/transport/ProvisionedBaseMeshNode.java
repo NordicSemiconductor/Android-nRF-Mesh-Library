@@ -25,6 +25,8 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.google.gson.annotations.Expose;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -32,7 +34,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
@@ -41,46 +42,79 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     protected static final String TAG = ProvisionedBaseMeshNode.class.getSimpleName();
 
+    @Expose
     byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
+    @Expose
     protected byte[] ivIndex;
+    @Expose
     boolean isProvisioned;
+    @Expose
     boolean isConfigured;
+    @Expose
     protected String nodeName = "My Node";
+    @Expose(serialize = false)
     protected byte[] networkKey;
+    @Expose
+    List<NetworkKey> networkKeys = new ArrayList<>();
+    @Expose
     byte[] identityKey;
-    protected byte[] keyIndex;
+    @Expose(serialize = false)
+    byte[] keyIndex;
+    @Expose(serialize = false)
+    int netKeyIndex;
+    @Expose
     byte[] mFlags;
+    @Expose
     protected byte[] unicastAddress;
+    @Expose
     byte[] deviceKey;
+    @Expose
     protected int ttl = 5;
+    @Expose
     int mReceivedSequenceNumber;
+    @Expose
     String bluetoothAddress;
+    @Expose
     String nodeIdentifier;
+    @Expose
     protected Integer companyIdentifier = null;
+    @Expose
     Integer productIdentifier = null;
+    @Expose
     Integer versionIdentifier = null;
+    @Expose
     Integer crpl = null;
+    @Expose
     Integer features = null;
+    @Expose
     boolean relayFeatureSupported;
+    @Expose
     boolean proxyFeatureSupported;
+    @Expose
     boolean friendFeatureSupported;
+    @Expose
     boolean lowPowerFeatureSupported;
+    @Expose
     final Map<Integer, Element> mElements = new LinkedHashMap<>();
+    @Expose
     List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
+    @Expose
     Map<Integer, String> mAddedAppKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
+    @Expose
+    Map<Integer, ApplicationKey> mAddedApplicationKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
+    @Expose
     byte[] generatedNetworkId;
+    @Expose
     private String bluetoothDeviceAddress;
+    @Expose
     long mTimeStampInMillis;
+    @Expose
     SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
+    @Expose
     int numberOfElements;
 
     ProvisionedBaseMeshNode() {
 
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     public boolean isProvisioned() {
@@ -128,12 +162,18 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         return identityKey;
     }
 
+    /**
+     * Returns the key index
+     * @return network key index
+     * @deprecated Use {@link #getNetworkKeys()} instead
+     */
+    @Deprecated
     public final byte[] getKeyIndex() {
         return keyIndex;
     }
 
-    public final void setKeyIndex(final byte[] keyIndex) {
-        this.keyIndex = keyIndex;
+    public List<NetworkKey> getNetworkKeys() {
+        return networkKeys;
     }
 
     public final byte[] getFlags() {
@@ -175,4 +215,5 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     public int getNumberOfElements() {
         return numberOfElements;
     }
+
 }

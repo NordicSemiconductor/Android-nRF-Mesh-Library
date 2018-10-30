@@ -32,6 +32,7 @@ import java.util.HashMap;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
+@SuppressWarnings("WeakerAccess")
 public class MeshParserUtils {
 
     private static final String PATTERN_NETWORK_KEY = "[0-9a-fA-F]{32}";
@@ -154,6 +155,10 @@ public class MeshParserUtils {
 
     public static byte[] addKeyIndexPadding(final Integer keyIndex) {
         return ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).putShort((short) (keyIndex & 0x0FFF)).array();
+    }
+
+    public static int removeKeyIndexPadding(final byte[] keyIndex) {
+        return keyIndex[0] & 0x0F | keyIndex[1];
     }
 
     /**

@@ -47,7 +47,7 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
     byte[] provisioneeRandom;
     protected byte[] networkKey;
     byte[] identityKey;
-    protected byte[] keyIndex;
+    protected int keyIndex;
     byte[] mFlags;
     protected byte[] unicastAddress;
     byte[] deviceKey;
@@ -107,11 +107,11 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
         return identityKey;
     }
 
-    public final byte[] getKeyIndex() {
+    public final int getKeyIndex() {
         return keyIndex;
     }
 
-    public final void setKeyIndex(final byte[] keyIndex) {
+    public final void setKeyIndex(final int keyIndex) {
         this.keyIndex = keyIndex;
     }
 

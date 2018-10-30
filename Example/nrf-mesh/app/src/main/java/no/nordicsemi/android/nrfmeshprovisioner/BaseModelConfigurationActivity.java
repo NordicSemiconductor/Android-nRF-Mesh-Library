@@ -48,6 +48,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppUnbind;
@@ -184,7 +185,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mPublishAddressView.setText(R.string.none);
         mActionSetPublication.setOnClickListener(v -> {
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-            if (model != null && !model.getBoundAppkeys().isEmpty()) {
+            if (model != null && !model.getBoundApplicationKeys().isEmpty()) {
                 final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
                 publicationSettings.putExtra(EXTRA_DEVICE, model);
                 startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
@@ -316,7 +317,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public void onItemClick(final int position, final String appKey) {
+    public void onItemClick(final int position, final ApplicationKey appKey) {
 
     }
 
@@ -336,8 +337,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     private void unbindAppKey(final int position) {
         if (mBoundAppKeyAdapter.getItemCount() != 0) {
-            final String appKey = mBoundAppKeyAdapter.getAppKey(position);
-            final int keyIndex = getAppKeyIndex(appKey);
+            final ApplicationKey appKey = mBoundAppKeyAdapter.getAppKey(position);
+            final int keyIndex = appKey.getKeyIndex();//getAppKeyIndex(appKey);
             final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
             final Element element = mViewModel.getSelectedElement().getElement();
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
@@ -381,7 +382,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel meshModel = mViewModel.getSelectedModel().getMeshModel();
-        if (meshModel != null && !meshModel.getBoundAppkeys().isEmpty()) {
+        if (meshModel != null && !meshModel.getBoundApplicationKeys().isEmpty()) {
             final byte[] address = MeshParserUtils.DISABLED_PUBLICATION_ADDRESS;
             final int appKeyIndex = meshModel.getPublicationSettings().getAppKeyIndex();
             final boolean credentialFlag = meshModel.getPublicationSettings().getCredentialFlag();
@@ -449,8 +450,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     private Integer getAppKeyIndex(final String appKey) {
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-        for (Integer key : model.getBoundAppkeys().keySet()) {
-            if (model.getBoundAppkeys().get(key).equals(appKey)) {
+        for (Integer key : model.getBoundApplicationKeys().keySet()) {
+            if (model.getBoundApplicationKeys().get(key).equals(appKey)) {
                 return key;
             }
         }

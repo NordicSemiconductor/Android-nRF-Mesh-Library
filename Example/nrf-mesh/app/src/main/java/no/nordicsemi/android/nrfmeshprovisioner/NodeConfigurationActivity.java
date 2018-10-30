@@ -49,6 +49,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataGet;
@@ -173,7 +174,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             }
 
             if (!meshNode.getAddedAppKeys().isEmpty()) {
-                final Map<Integer, String> appKeys = meshNode.getAddedAppKeys();
+                final Map<Integer, ApplicationKey> appKeys = meshNode.getAddedAppKeys();
                 if (!appKeys.isEmpty()) {
                     noAppKeysFound.setVisibility(View.GONE);
                     recyclerViewAppKeys.setVisibility(View.VISIBLE);
@@ -244,9 +245,10 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 if(appKey != null){
                     final byte[] key = MeshParserUtils.toByteArray(appKey);
-                    final int appKeyIndex = mViewModel.getMeshManagerApi().getProvisioningSettings().getAppKeys().indexOf(appKey);
+                    final int appKeyIndex = mViewModel.getMeshNetwork().getProvisioningSettings().getAppKeys().indexOf(appKey);
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-                    final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node, key, appKeyIndex, 0);
+                    final ApplicationKey applicationKey = new ApplicationKey(appKeyIndex, key);
+                    final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node, node.getNetworkKeys().get(0), applicationKey, 0);
                     mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configAppKeyAdd);
                 }
             }
@@ -295,7 +297,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     @Override
-    public void onItemClick(final String appKey) {
+    public void onItemClick(final ApplicationKey appKey) {
 
     }
 
