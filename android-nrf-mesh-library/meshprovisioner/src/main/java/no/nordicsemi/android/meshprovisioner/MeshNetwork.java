@@ -15,12 +15,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.transport.MeshModelDeserializer;
+import no.nordicsemi.android.meshprovisioner.transport.InternalMeshModelDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public final class MeshNetwork {
@@ -72,9 +70,7 @@ public final class MeshNetwork {
         final GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.excludeFieldsWithoutExposeAnnotation();
         gsonBuilder.enableComplexMapKeySerialization();
-        gsonBuilder.registerTypeAdapter(ApplicationKey.class, new InterfaceAdapter<ApplicationKey>());
-        gsonBuilder.registerTypeAdapter(MeshModel.class, new MeshModelDeserializer());
-        gsonBuilder.setVersion(1.1);
+        gsonBuilder.registerTypeAdapter(MeshModel.class, new InternalMeshModelDeserializer());
         gsonBuilder.setPrettyPrinting();
         mGson = gsonBuilder.create();
     }
@@ -120,24 +116,34 @@ public final class MeshNetwork {
                 if (json != null) {
                     try {
                         final ProvisionedMeshNode node = mGson.fromJson(json, ProvisionedMeshNode.class);
-
-                        final Method tempMigrateNetworkKey = node.getClass().getDeclaredMethod("tempMigrateNetworkKey");
-                        if(tempMigrateNetworkKey != null){
-                            tempMigrateNetworkKey.setAccessible(true);
-                            tempMigrateNetworkKey.invoke(node);
-                        }
-                        final Method tempMigrateAddedApplicationKeys = node.getClass().getDeclaredMethod("tempMigrateAddedApplicationKeys");
-                        if(tempMigrateAddedApplicationKeys != null){
-                            tempMigrateAddedApplicationKeys.setAccessible(true);
-                            tempMigrateAddedApplicationKeys.invoke(node);
-                        }
-                        final Method tempMigrateBoundApplicationKeys = node.getClass().getDeclaredMethod("tempMigrateBoundApplicationKeys");
-                        if(tempMigrateBoundApplicationKeys != null){
-                            tempMigrateBoundApplicationKeys.setAccessible(true);
-                            tempMigrateBoundApplicationKeys.invoke(node);
+                        //TODO Temporary check to handle data migration this is to be removed in the version after next
+                        if(node.getNetworkKeys().isEmpty()) {
+                            final Method tempMigrateNetworkKey = node.getClass().getDeclaredMethod("tempMigrateNetworkKey");
+                            if (tempMigrateNetworkKey != null) {
+                                tempMigrateNetworkKey.setAccessible(true);
+                                tempMigrateNetworkKey.invoke(node);
+                            }
+                            final Method tempMigrateAddedApplicationKeys = node.getClass().getDeclaredMethod("tempMigrateAddedApplicationKeys");
+                            if (tempMigrateAddedApplicationKeys != null) {
+                                tempMigrateAddedApplicationKeys.setAccessible(true);
+                                tempMigrateAddedApplicationKeys.invoke(node);
+                            }
+                            final Method tempMigrateBoundApplicationKeys = node.getClass().getDeclaredMethod("tempMigrateBoundApplicationKeys");
+                            if (tempMigrateBoundApplicationKeys != null) {
+                                tempMigrateBoundApplicationKeys.setAccessible(true);
+                                tempMigrateBoundApplicationKeys.invoke(node);
+                            }
+                        } else {
+                            //TODO Temporary check to handle data migration this is to be removed in the version after next
+                            final GsonBuilder gsonBuilder = new GsonBuilder();
+                            gsonBuilder.excludeFieldsWithoutExposeAnnotation();
+                            gsonBuilder.enableComplexMapKeySerialization();
+                            gsonBuilder.setPrettyPrinting();
+                            mGson = gsonBuilder.create();
                         }
                         final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
                         mProvisionedNodes.put(unicastAddress, node);
+
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
