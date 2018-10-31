@@ -12,9 +12,14 @@ import com.google.gson.annotations.Expose;
 public final class ApplicationKey implements Parcelable {
 
     @Expose
-    final int keyIndex;
+    private String name = "Application Key";
     @Expose
-    final byte[] key;
+    private final int keyIndex;
+    @Expose
+    private final byte[] key;
+    @Expose
+    private int boundNetKeyIndex = 0;
+
     /**
      * Constructs a ApplicationKey object with a given key index and network key
      *
@@ -27,8 +32,23 @@ public final class ApplicationKey implements Parcelable {
     }
 
     protected ApplicationKey(Parcel in) {
+        name = in.readString();
         keyIndex = in.readInt();
         key = in.createByteArray();
+        boundNetKeyIndex = in.readInt();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeInt(keyIndex);
+        dest.writeByteArray(key);
+        dest.writeInt(boundNetKeyIndex);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<ApplicationKey> CREATOR = new Creator<ApplicationKey>() {
@@ -43,22 +63,56 @@ public final class ApplicationKey implements Parcelable {
         }
     };
 
+    /**
+     * Returns a friendly name of the application key
+     *
+     * @return string containing the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets a friendly name of the application key
+     *
+     * @param name friendly name for the application key
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    /**
+     * Returns the application key
+     * @return 16 byte application key
+     */
     public byte[] getKey() {
         return key;
     }
 
+    /**
+     * Returns the application key index
+     * @return key index
+     */
     public int getKeyIndex() {
         return keyIndex;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    /**
+     * Returns the index of the associated netkey
+     *
+     * @return network key index
+     */
+    public int getBoundNetKeyIndex() {
+        return boundNetKeyIndex;
     }
 
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeInt(keyIndex);
-        dest.writeByteArray(key);
+    /**
+     * Set the net key index to which the app key is associated with
+     *
+     * @param boundNetKeyIndex network key index
+     */
+    public void setBoundNetKeyIndex(final int boundNetKeyIndex) {
+        this.boundNetKeyIndex = boundNetKeyIndex;
     }
+
 }
