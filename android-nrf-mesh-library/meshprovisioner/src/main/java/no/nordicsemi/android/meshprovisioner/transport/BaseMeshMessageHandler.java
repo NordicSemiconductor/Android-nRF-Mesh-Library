@@ -96,6 +96,14 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     final ConfigNodeResetState resetState = (ConfigNodeResetState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, resetState.getMeshMessage(), mMeshTransport, this));
                     break;
+                case CONFIG_NETWORK_TRANSMIT_GET_STATE:
+                    final ConfigNetworkTransmitGetState networkTransmitGet = (ConfigNetworkTransmitGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, networkTransmitGet.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case CONFIG_NETWORK_TRANSMIT_SET_STATE:
+                    final ConfigNetworkTransmitSetState networkTransmitSet = (ConfigNetworkTransmitSetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, networkTransmitSet.getMeshMessage(), mMeshTransport, this));
+                    break;
             }
         } else if (mMeshMessageState instanceof GenericMessageState) {
             switch (mMeshMessageState.getState()) {
@@ -514,6 +522,18 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             configNodeResetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configNodeResetState;
             configNodeResetState.executeSend();
+        } else if (configMessage instanceof ConfigNetworkTransmitGet) {
+            final ConfigNetworkTransmitGetState configNetworkTransmitGetState = new ConfigNetworkTransmitGetState(mContext, (ConfigNetworkTransmitGet) configMessage, mMeshTransport, this);
+            configNetworkTransmitGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            configNetworkTransmitGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = configNetworkTransmitGetState;
+            configNetworkTransmitGetState.executeSend();
+        } else if (configMessage instanceof ConfigNetworkTransmitSet) {
+            final ConfigNetworkTransmitSetState configNetworkTransmitSetState = new ConfigNetworkTransmitSetState(mContext, (ConfigNetworkTransmitSet) configMessage, mMeshTransport, this);
+            configNetworkTransmitSetState.setTransportCallbacks(mInternalTransportCallbacks);
+            configNetworkTransmitSetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = configNetworkTransmitSetState;
+            configNetworkTransmitSetState.executeSend();
         }
     }
 
