@@ -24,8 +24,10 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 
 /**
@@ -61,13 +63,13 @@ public final class ConfigNetworkTransmitSet extends ConfigMessage {
             throw new IllegalArgumentException("Network Transmit Interval Steps must be between 0 and 31 (inclusive)");
         }
         this.mNetworkTransmitCount = networkTransmitCount;
-        this.mNetworkTransmitIntervalSteps = networkTransmitCount;
+        this.mNetworkTransmitIntervalSteps = networkTransmitIntervalSteps;
         assembleMessageParameters();
     }
 
     @Override
     final void assembleMessageParameters() {
-        mParameters = new byte[] { (byte) (mNetworkTransmitCount << 5 | mNetworkTransmitIntervalSteps) };
+        mParameters = new byte[] { (byte) (((mNetworkTransmitCount << 5) & 0xFF) | (mNetworkTransmitIntervalSteps & 0xFF)) };
     }
 
     @Override

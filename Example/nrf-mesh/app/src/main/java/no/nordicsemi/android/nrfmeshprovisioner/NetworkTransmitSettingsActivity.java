@@ -50,8 +50,8 @@ public class NetworkTransmitSettingsActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         final Intent intent = getIntent();
-        mTransmitCount = intent.getIntExtra(TRANSMIT_COUNT, 0);
-        mTransmitIntervalSteps = intent.getIntExtra(TRANSMIT_INTERVAL_STEPS, 0);
+        setTransmitCount(intent.getIntExtra(TRANSMIT_COUNT, 0));
+        setTransmitIntervalSteps(intent.getIntExtra(TRANSMIT_INTERVAL_STEPS, 0));
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -60,16 +60,42 @@ public class NetworkTransmitSettingsActivity extends AppCompatActivity {
 
         networkTransmitCountBar.setProgress(mTransmitCount);
         networkTransmitCountBar.setMax(MAX_TRANSMIT_COUNT);
-        networkTransmitCountBar.incrementProgressBy(1);
+        networkTransmitCountBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                setTransmitCount(i);
+            }
 
-        networkTransmitCountText.setText(getTransmitCountString());
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
 
         networkTransmitIntervalStepsBar.setProgress(mTransmitIntervalSteps);
         networkTransmitIntervalStepsBar.setMax(MAX_TRANSMIT_INTERVAL_STEPS);
-        networkTransmitCountBar.incrementProgressBy(1);
+        networkTransmitIntervalStepsBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                setTransmitIntervalSteps(i);
+            }
 
-        networkTransmitIntervalStepsText.setText(getTransmitIntervalStepsString());
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
 
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
     @Override
@@ -108,13 +134,17 @@ public class NetworkTransmitSettingsActivity extends AppCompatActivity {
     }
 
 
-    private String getTransmitCountString() {
-        return (mTransmitCount + 1) + " " + R.string.unit_network_transmit_count;
+    private void setTransmitCount(final int transmitCount) {
+        mTransmitCount = transmitCount;
+        networkTransmitCountText.setText(getResources().getString(
+                R.string.text_network_transmit_count, mTransmitCount + 1));
     }
 
 
-    private String getTransmitIntervalStepsString() {
-        return (mTransmitIntervalSteps + 1) + " " + R.string.unit_network_transmit_interval_steps;
+    private void setTransmitIntervalSteps(final int transmitIntervalSteps) {
+        mTransmitIntervalSteps = transmitIntervalSteps;
+        networkTransmitIntervalStepsText.setText(getResources().getString(
+                R.string.text_network_transmit_interval_steps, mTransmitIntervalSteps + 1));
     }
 
 
@@ -125,5 +155,4 @@ public class NetworkTransmitSettingsActivity extends AppCompatActivity {
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
     }
-
 }

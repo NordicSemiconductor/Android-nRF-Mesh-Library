@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 
 public final class ConfigNetworkTransmitSetState extends ConfigMessageState {
 
@@ -33,6 +35,7 @@ public final class ConfigNetworkTransmitSetState extends ConfigMessageState {
         final int aszmic = configNetworkTransmitSet.getAszmic();
         final int opCode = configNetworkTransmitSet.getOpCode();
         final byte[] parameters = configNetworkTransmitSet.getParameters();
+        Log.v(TAG, "State, parameters: " + MeshParserUtils.bytesToHex(parameters, false));
         message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
         configNetworkTransmitSet.setMessage(message);
     }
