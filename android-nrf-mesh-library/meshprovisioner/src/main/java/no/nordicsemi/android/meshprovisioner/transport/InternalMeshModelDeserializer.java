@@ -38,9 +38,9 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
         final int modelId = jsonObject.getAsJsonObject().get("mModelId").getAsInt();
         final MeshModel meshModel;
         if (modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
-            meshModel = SigModelParser.getSigModel(modelId);
-        } else {
             meshModel = new VendorModel(modelId);
+        } else {
+            meshModel = SigModelParser.getSigModel(modelId);
         }
 
         final JsonArray jsonArrayBoundKeyIndexes = jsonObject.getAsJsonObject().getAsJsonArray("mBoundAppKeyIndexes");
