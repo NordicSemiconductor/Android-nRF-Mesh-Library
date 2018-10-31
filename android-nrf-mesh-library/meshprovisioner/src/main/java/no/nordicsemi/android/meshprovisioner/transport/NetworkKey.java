@@ -31,7 +31,7 @@ public final class NetworkKey implements Parcelable {
     @Expose
     final byte[] key;
     @Expose
-    private int keyRefreshPhase = PHASE_0;
+    private int phase = PHASE_0;
 
     /**
      * Constructs a NetworkKey object with a given key index and network key
@@ -48,7 +48,7 @@ public final class NetworkKey implements Parcelable {
         name = in.readString();
         keyIndex = in.readInt();
         key = in.createByteArray();
-        keyRefreshPhase = in.readInt();
+        phase = in.readInt();
     }
 
     @Override
@@ -56,7 +56,7 @@ public final class NetworkKey implements Parcelable {
         dest.writeString(name);
         dest.writeInt(keyIndex);
         dest.writeByteArray(key);
-        dest.writeInt(keyRefreshPhase);
+        dest.writeInt(phase);
     }
 
     @Override
@@ -104,17 +104,17 @@ public final class NetworkKey implements Parcelable {
     }
 
     /**
-     * Returns the key refresh keyRefreshPhase of the network key
+     * Returns the key refresh phase of the network key
      *
-     * @return int keyRefreshPhase
+     * @return int phase
      */
     @KeyRefreshPhases
-    public int getKeyRefreshPhase() {
-        return keyRefreshPhase;
+    public int getPhase() {
+        return phase;
     }
 
-    public void setKeyRefreshPhase(@KeyRefreshPhases final int keyRefreshPhase) {
-        this.keyRefreshPhase = keyRefreshPhase;
+    public void setPhase(@KeyRefreshPhases final int phase) {
+        this.phase = phase;
     }
 
     /**
