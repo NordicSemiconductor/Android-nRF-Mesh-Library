@@ -89,7 +89,7 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @param accessMessage The access message required to create the encrypted upper transport pdu
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    public void createUpperTransportPDU(final AccessMessage accessMessage) { //Access message
+    void createUpperTransportPDU(final AccessMessage accessMessage) { //Access message
         final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
         Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
         accessMessage.setUpperTransportPdu(encryptedTransportPDU);
@@ -233,9 +233,9 @@ abstract class UpperTransportLayer extends AccessLayer {
     }
 
     private byte[] getApplicationKey(final int receivedAid){
-        final List<String> keys = new ArrayList<>(mMeshNode.getAddedAppKeys().values());
-        for(String key : keys){
-            final byte[] k = MeshParserUtils.toByteArray(key);
+        final List<ApplicationKey> keys = new ArrayList<>(mMeshNode.getAddedAppKeys().values());
+        for(ApplicationKey key : keys){
+            final byte[] k = key.getKey();
             final int aid = SecureUtils.calculateK4(k);
             if(receivedAid == aid){
                 return k;

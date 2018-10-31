@@ -25,6 +25,8 @@ package no.nordicsemi.android.meshprovisioner.utils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -39,10 +41,15 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 
 public class Element implements Parcelable {
 
+    @Expose
     private final byte[] elementAddress;
+    @Expose
     private final int locationDescriptor;
+    @Expose
     private final int sigModelCount;
+    @Expose
     private final int vendorModelCount;
+    @Expose
     private final Map<Integer, MeshModel> meshModels;
 
     public Element(final byte[] elementAddress, final int locationDescriptor, final int sigModelCount, final int vendorModelCount, final Map<Integer, MeshModel> models) {

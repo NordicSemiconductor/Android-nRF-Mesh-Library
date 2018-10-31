@@ -41,6 +41,7 @@ import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.BindAppKeyAdapter;
 
 public class BindAppKeysActivity extends AppCompatActivity implements BindAppKeyAdapter.OnItemClickListener {
@@ -55,14 +56,14 @@ public class BindAppKeysActivity extends AppCompatActivity implements BindAppKey
     @BindView(R.id.container)
     View container;
 
-    private SparseArray<String> mAppKeysMap = new SparseArray<>();
+    private SparseArray<ApplicationKey> mAppKeysMap = new SparseArray<>();
     private BindAppKeyAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bind_app_keys);
-        final HashMap<Integer, String> tempAppKeys = (HashMap<Integer, String>) getIntent().getSerializableExtra(APP_KEYS);
+        final HashMap<Integer, ApplicationKey> tempAppKeys = (HashMap<Integer, ApplicationKey>) getIntent().getSerializableExtra(APP_KEYS);
         populateAppKeysMap(tempAppKeys);
 
         //Bind ui
@@ -103,7 +104,7 @@ public class BindAppKeysActivity extends AppCompatActivity implements BindAppKey
     }
 
     @Override
-    public void onItemClick(final int keyIndex, final String appKey) {
+    public void onItemClick(final int keyIndex, final ApplicationKey appKey) {
         Intent returnIntent = new Intent();
         returnIntent.putExtra(RESULT_APP_KEY_INDEX, keyIndex);
         returnIntent.putExtra(RESULT_APP_KEY, appKey);
@@ -111,7 +112,7 @@ public class BindAppKeysActivity extends AppCompatActivity implements BindAppKey
         finish();
     }
 
-    private void populateAppKeysMap(final HashMap<Integer, String> tempAppKeys){
+    private void populateAppKeysMap(final HashMap<Integer, ApplicationKey> tempAppKeys){
         final Set<Integer> appKeyIndexes = tempAppKeys.keySet();
 
         for(Integer keyIndex : appKeyIndexes){

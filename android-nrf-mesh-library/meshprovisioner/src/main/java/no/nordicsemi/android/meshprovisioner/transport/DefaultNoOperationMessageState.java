@@ -69,7 +69,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     if (status.isSuccessful()) {
                         if (mMeshMessage instanceof ConfigAppKeyAdd) {
                             final ConfigAppKeyAdd configAppKeyAdd = (ConfigAppKeyAdd) mMeshMessage;
-                            mNode.setAddedAppKey(status.getAppKeyIndex(), MeshParserUtils.bytesToHex(configAppKeyAdd.getAppKey(), false));
+                            mNode.setAddedAppKey(status.getAppKeyIndex(), configAppKeyAdd.getAppKey());//MeshParserUtils.bytesToHex(configAppKeyAdd.getAppKey(), false));
                         }
                     }
                     mInternalTransportCallbacks.updateMeshNode(mNode);

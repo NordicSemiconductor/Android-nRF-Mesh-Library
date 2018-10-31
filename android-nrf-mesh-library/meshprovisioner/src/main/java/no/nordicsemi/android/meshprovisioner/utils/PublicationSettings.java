@@ -3,6 +3,8 @@ package no.nordicsemi.android.meshprovisioner.utils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -17,14 +19,21 @@ public class PublicationSettings implements Parcelable {
     private static final int DEFAULT_PUBLICATION_RESOLUTION = 0b00;
     private static final int DEFAULT_PUBLICATION_RETRANSMIT_COUNT = 0b000;
     private static final int DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS = 0;
-
+    @Expose
     private byte[] publishAddress;
+    @Expose
     private int appKeyIndex;
+    @Expose
     private boolean credentialFlag;
+    @Expose
     private int publishTtl = DEFAULT_PUBLISH_TTL;
+    @Expose
     private int publicationSteps = DEFAULT_PUBLICATION_STEPS;
+    @Expose
     private int publicationResolution = DEFAULT_PUBLICATION_RESOLUTION;
+    @Expose
     private int publishRetransmitCount = DEFAULT_PUBLICATION_RETRANSMIT_COUNT;
+    @Expose
     private int publishRetransmitIntervalSteps = DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS;
 
     public PublicationSettings(){
