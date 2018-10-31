@@ -24,6 +24,8 @@ package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import android.content.Context;
 
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
@@ -39,6 +41,7 @@ class BleMeshManagerModule {
     }
 
     @Provides
+    @Singleton
     MeshManagerApi provideMeshManagerApi(final Context context) {
         return new MeshManagerApi(context);
     }

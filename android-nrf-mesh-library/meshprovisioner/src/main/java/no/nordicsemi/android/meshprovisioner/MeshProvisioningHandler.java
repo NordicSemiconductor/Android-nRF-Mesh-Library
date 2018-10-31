@@ -217,7 +217,7 @@ public class MeshProvisioningHandler {
             unprovisionedMeshNode.setBluetoothDeviceAddress(address);
             unprovisionedMeshNode.setNodeName(nodeName);
             unprovisionedMeshNode.setNetworkKey(networkKey);
-            unprovisionedMeshNode.setKeyIndex(keyIndexBytes);
+            unprovisionedMeshNode.setKeyIndex(keyIndex);
             unprovisionedMeshNode.setFlags(flagBytes);
             unprovisionedMeshNode.setIvIndex(ivIndexBytes);
             unprovisionedMeshNode.setUnicastAddress(unicastBytes);

@@ -26,6 +26,8 @@ import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,12 +38,14 @@ import java.util.Set;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
 @SuppressWarnings("WeakerAccess")
 public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
+    @Expose
     private SecureUtils.K2Output k2Output;
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
@@ -54,14 +58,16 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         isConfigured = unprovisionedMeshNode.isConfigured();
         nodeName = unprovisionedMeshNode.getNodeName();
         networkKey = unprovisionedMeshNode.getNetworkKey();
+        netKeyIndex = unprovisionedMeshNode.getKeyIndex();
+        final NetworkKey networkKey = new NetworkKey(netKeyIndex, unprovisionedMeshNode.getNetworkKey());
+        networkKeys.add(networkKey);
         identityKey = unprovisionedMeshNode.getIdentityKey();
-        keyIndex = unprovisionedMeshNode.getKeyIndex();
         mFlags = unprovisionedMeshNode.getFlags();
         ivIndex = unprovisionedMeshNode.getIvIndex();
         unicastAddress = unprovisionedMeshNode.getUnicastAddress();
         deviceKey = unprovisionedMeshNode.getDeviceKey();
         ttl = unprovisionedMeshNode.getTtl();
-        k2Output = SecureUtils.calculateK2(networkKey, SecureUtils.K2_MASTER_INPUT);
+        k2Output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
         mTimeStampInMillis = unprovisionedMeshNode.getTimeStamp();
         mConfigurationSrc = unprovisionedMeshNode.getConfigurationSrc();
         numberOfElements = unprovisionedMeshNode.getNumberOfElements();
@@ -71,9 +77,8 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         isProvisioned = in.readByte() != 0;
         isConfigured = in.readByte() != 0;
         nodeName = in.readString();
-        networkKey = in.createByteArray();
+        networkKeys = in.readArrayList(NetworkKey.class.getClassLoader());
         identityKey = in.createByteArray();
-        keyIndex = in.createByteArray();
         mFlags = in.createByteArray();
         ivIndex = in.createByteArray();
         unicastAddress = in.createByteArray();
@@ -107,9 +112,8 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeByte((byte) (isProvisioned ? 1 : 0));
         dest.writeByte((byte) (isConfigured ? 1 : 0));
         dest.writeString(nodeName);
-        dest.writeByteArray(networkKey);
+        dest.writeList(networkKeys);
         dest.writeByteArray(identityKey);
-        dest.writeByteArray(keyIndex);
         dest.writeByteArray(mFlags);
         dest.writeByteArray(ivIndex);
         dest.writeByteArray(unicastAddress);
@@ -240,12 +244,16 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         this.nodeIdentifier = nodeIdentifier;
     }
 
-    public final Map<Integer, String> getAddedAppKeys() {
+    public final Map<Integer, String> getTempAddedAppKeys() {
         return Collections.unmodifiableMap(mAddedAppKeys);
     }
 
-    protected final void setAddedAppKey(final int index, final String appKey) {
-        this.mAddedAppKeys.put(index, appKey);
+    public final Map<Integer, ApplicationKey> getAddedAppKeys() {
+        return Collections.unmodifiableMap(mAddedApplicationKeys);
+    }
+
+    protected final void setAddedAppKey(final int index, final ApplicationKey appKey) {
+        this.mAddedApplicationKeys.put(index, appKey);
     }
 
     public final byte[] getGeneratedNetworkId() {
@@ -279,7 +287,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     /**
      * Sets the bound app key data from the {@link ConfigModelAppStatus}
      *
-     * @param configModelAppStatus ConfigModelAppStatus contaiing the bound app key information
+     * @param configModelAppStatus ConfigModelAppStatus containing the bound app key information
      */
     protected final void setAppKeyBindStatus(@NonNull final ConfigModelAppStatus configModelAppStatus) {
         if (configModelAppStatus != null) {
@@ -288,7 +296,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
                 final int modelIdentifier = configModelAppStatus.getModelIdentifier();
                 final MeshModel model = element.getMeshModels().get(modelIdentifier);
                 final int appKeyIndex = configModelAppStatus.getAppKeyIndex();
-                final String appKey = mAddedAppKeys.get(appKeyIndex);
+                final ApplicationKey appKey = mAddedApplicationKeys.get(appKeyIndex);
                 model.setBoundAppKey(appKeyIndex, appKey);
             }
         }
@@ -334,5 +342,53 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
         final int srcAddress = AddressUtils.getUnicastAddressInt(src);
         return mSeqAuth.get(srcAddress);
+    }
+
+    /**
+     * Method for migrating old network key data
+     */
+    @SuppressWarnings("unused")
+    private void tempMigrateNetworkKey() {
+        if (networkKey != null) {
+            netKeyIndex = MeshParserUtils.removeKeyIndexPadding(keyIndex);
+            NetworkKey netKey = new NetworkKey(netKeyIndex, networkKey);
+            networkKeys.add(netKey);
+        }
+    }
+
+    /**
+     * Method for migrating old Application key data
+     */
+    @SuppressWarnings("unused")
+    private void tempMigrateAddedApplicationKeys() {
+        for (Map.Entry<Integer, String> entry : mAddedAppKeys.entrySet()) {
+            if (entry.getValue() != null) {
+                final ApplicationKey applicationKey = new ApplicationKey(entry.getKey(), MeshParserUtils.toByteArray(entry.getValue()));
+                mAddedApplicationKeys.put(applicationKey.getKeyIndex(), applicationKey);
+            }
+        }
+    }
+
+    /**
+     * Method for migrating old Application key data
+     */
+    @SuppressWarnings("unused")
+    private void tempMigrateBoundApplicationKeys() {
+        for (Map.Entry<Integer, Element> elementEntry : mElements.entrySet()) {
+            if (elementEntry.getValue() != null) {
+                final Element element = elementEntry.getValue();
+                for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                    if (modelEntry.getValue() != null) {
+                        final MeshModel meshModel = modelEntry.getValue();
+                        for (Map.Entry<Integer, String> appKeyEntry :meshModel.getBoundAppkeys().entrySet()){
+                            final int keyIndex = appKeyEntry.getKey();
+                            final byte[] key = MeshParserUtils.toByteArray(appKeyEntry.getValue());
+                            final ApplicationKey applicationKey = new ApplicationKey(keyIndex, key);
+                            meshModel.mBoundApplicationKeys.put(keyIndex, applicationKey);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

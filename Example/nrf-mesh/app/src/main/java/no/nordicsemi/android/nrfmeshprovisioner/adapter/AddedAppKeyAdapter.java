@@ -35,6 +35,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
@@ -42,7 +44,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.ViewHolder> {
 
-    private final List<String> appKeys = new ArrayList<>();
+    private final List<ApplicationKey> appKeys = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
@@ -72,7 +74,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     public void onBindViewHolder(@NonNull final AddedAppKeyAdapter.ViewHolder holder, final int position) {
         if(appKeys.size() > 0) {
             holder.appKeyId.setText(mContext.getString(R.string.app_key_item , position + 1));
-            final String appKey = appKeys.get(position);
+            final String appKey = MeshParserUtils.bytesToHex(appKeys.get(position).getKey(), false);
             holder.appKey.setText(appKey.toUpperCase());
         }
     }
@@ -93,7 +95,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final String appKey);
+        void onItemClick(final ApplicationKey appKey);
     }
 
     final class ViewHolder extends RemovableViewHolder {
@@ -108,7 +110,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
             ButterKnife.bind(this, view);
             view.findViewById(R.id.removable).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    final String key = appKeys.get(getAdapterPosition());
+                    final ApplicationKey key = appKeys.get(getAdapterPosition());
                     mOnItemClickListener.onItemClick(key);
                 }
             });

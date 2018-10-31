@@ -25,6 +25,8 @@ package no.nordicsemi.android.meshprovisioner.utils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+
 import org.spongycastle.crypto.BlockCipher;
 import org.spongycastle.crypto.CipherParameters;
 import org.spongycastle.crypto.InvalidCipherTextException;
@@ -41,6 +43,7 @@ import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.security.Security;
 
+@SuppressWarnings("WeakerAccess")
 public class SecureUtils {
 
     /**
@@ -114,7 +117,7 @@ public class SecureUtils {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
     }
 
-    public static final byte[] generateRandomNumber() {
+    public static byte[] generateRandomNumber() {
         final SecureRandom random = new SecureRandom();
         final byte[] randomBytes = new byte[16];
         random.nextBytes(randomBytes);
@@ -128,7 +131,7 @@ public class SecureUtils {
      * @param bits number of bits of the random number
      * @return random number of bytes
      */
-    public static final byte[] generateRandomNumber(final int bits) {
+    public static byte[] generateRandomNumber(final int bits) {
         final SecureRandom random = new SecureRandom();
         final byte[] randomBytes = new byte[bits / 8];
         random.nextBytes(randomBytes);
@@ -136,7 +139,7 @@ public class SecureUtils {
         return randomBytes;
     }
 
-    public static final byte[] generateRandomNonce() {
+    public static byte[] generateRandomNonce() {
         final SecureRandom random = new SecureRandom();
         final byte[] randomBytes = new byte[8];
         random.nextBytes(randomBytes);
@@ -147,21 +150,21 @@ public class SecureUtils {
         return randomBytes;
     }
 
-    public static final String generateRandomNetworkKey() {
+    public static String generateRandomNetworkKey() {
         final byte[] networkKey = generateRandomNumber();
         return MeshParserUtils.bytesToHex(networkKey, false);
     }
 
-    public static final String generateRandomApplicationKey() {
+    public static String generateRandomApplicationKey() {
         return MeshParserUtils.bytesToHex(generateRandomNumber(), false);
     }
 
 
-    public static final byte[] calculateSalt(final byte[] data) {
+    public static byte[] calculateSalt(final byte[] data) {
         return calculateCMAC(data, SALT_KEY);
     }
 
-    public static final byte[] calculateCMAC(final byte[] data, final byte[] key) {
+    public static byte[] calculateCMAC(final byte[] data, final byte[] key) {
         final byte[] cmac = new byte[16];
 
         CipherParameters cipherParameters = new KeyParameter(key);
@@ -174,7 +177,7 @@ public class SecureUtils {
         return cmac;
     }
 
-    public static final byte[] calculateCMAC(final byte[] data, final byte[] key, final int offset) {
+    public static byte[] calculateCMAC(final byte[] data, final byte[] key, final int offset) {
         final byte[] cmac = new byte[data.length];
 
         CipherParameters cipherParameters = new KeyParameter(key);
@@ -187,7 +190,7 @@ public class SecureUtils {
         return cmac;
     }
 
-    public static final byte[] encryptCCM(final byte[] data, final byte[] key, final byte[] nonce) {
+    public static byte[] encryptCCM(final byte[] data, final byte[] key, final byte[] nonce) {
         final byte[] ccm = new byte[25 + 8];
         final ByteBuffer buffer = ByteBuffer.allocate(ccm.length + 8);
         CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
@@ -204,7 +207,7 @@ public class SecureUtils {
     }
 
 
-    public static final byte[] encryptCCM(final byte[] data, final byte[] key, final byte[] nonce, final int micSize) {
+    public static byte[] encryptCCM(final byte[] data, final byte[] key, final byte[] nonce, final int micSize) {
         final byte[] ccm = new byte[data.length + micSize];
 
         CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
@@ -221,7 +224,7 @@ public class SecureUtils {
     }
 
 
-    public static final byte[] decryptCCM(final byte[] data, final byte[] key, final byte[] nonce, final int micSize) {
+    public static byte[] decryptCCM(final byte[] data, final byte[] key, final byte[] nonce, final int micSize) {
         final byte[] ccm = new byte[data.length];
 
         CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
@@ -239,7 +242,7 @@ public class SecureUtils {
         return ccmBuffer.array();
     }
 
-    public static final byte[] calculateK1(final byte[] ecdh, final byte[] confirmationSalt, final byte[] text) {
+    public static byte[] calculateK1(final byte[] ecdh, final byte[] confirmationSalt, final byte[] text) {
         return calculateCMAC(text, calculateCMAC(ecdh, confirmationSalt));
     }
 
@@ -311,7 +314,7 @@ public class SecureUtils {
      * @param n network key
      * @return
      */
-    public static final byte calculateK4(final byte[] n) {
+    public static byte calculateK4(final byte[] n) {
 
         byte[] salt = calculateSalt(SMK4);
 
@@ -334,7 +337,7 @@ public class SecureUtils {
      * @param n network key
      * @return hash value
      */
-    public static final byte[] calculateIdentityKey(final byte[] n) {
+    public static byte[] calculateIdentityKey(final byte[] n) {
         final byte[] salt = calculateSalt(NKIK);
         ByteBuffer buffer = ByteBuffer.allocate(ID128.length + 1);
         buffer.put(ID128);
@@ -366,7 +369,7 @@ public class SecureUtils {
         return buffer.array();
     }
 
-    public static final byte[] encryptWithAES(final byte[] data, final byte[] key) {
+    public static byte[] encryptWithAES(final byte[] data, final byte[] key) {
         final byte[] encrypted = new byte[data.length];
         final CipherParameters cipherParameters = new KeyParameter(key);
         final AESLightEngine engine = new AESLightEngine();
@@ -376,7 +379,7 @@ public class SecureUtils {
         return encrypted;
     }
 
-    public static final byte[] decryptWithAES(final byte[] data, final byte[] key) {
+    public static byte[] decryptWithAES(final byte[] data, final byte[] key) {
         final byte[] decrypted = new byte[data.length];
         final CipherParameters cipherParameters = new KeyParameter(key);
         final AESLightEngine engine = new AESLightEngine();
@@ -420,8 +423,11 @@ public class SecureUtils {
                 return new K2Output[size];
             }
         };
+        @Expose
         private byte nid;
+        @Expose
         private byte[] encryptionKey;
+        @Expose
         private byte[] privacyKey;
 
         private K2Output(final byte nid, final byte[] encryptionKey, final byte[] privacyKey) {

@@ -63,12 +63,11 @@
             android:orientation="vertical">
             <TextView
                 android:id="@+id/app_key_id"
-                android:text="AppKey 0"
+                tools:text="AppKey 0"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_centerVertical="true"
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textSize="16sp"
@@ -76,11 +75,11 @@
 
             <TextView
                 android:id="@+id/app_key"
+                tools:text="11223344556677889900AABBCCDDEEFF"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_centerVertical="true"
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textSize="12sp"

@@ -201,7 +201,7 @@ public class ScannerRepository {
         }
 
         if (mFilterUuid.equals(BleMeshManager.MESH_PROXY_UUID)) {
-            final byte[] networkKey = MeshParserUtils.toByteArray(mMeshManagerApi.getProvisioningSettings().getNetworkKey());
+            final byte[] networkKey = MeshParserUtils.toByteArray(mMeshManagerApi.getMeshNetwork().getProvisioningSettings().getNetworkKey());
             mNetworkId = mMeshManagerApi.generateNetworkId(networkKey);
         }
 
@@ -242,7 +242,7 @@ public class ScannerRepository {
      * @return true if the node identity matches or false otherwise
      */
     private boolean checkIfNodeIdentityMatches(final byte[] serviceData) {
-        for (Map.Entry<Integer, ProvisionedMeshNode> node : mMeshManagerApi.getProvisionedNodes().entrySet()) {
+        for (Map.Entry<Integer, ProvisionedMeshNode> node : mMeshManagerApi.getMeshNetwork().getProvisionedNodes().entrySet()) {
             if (mMeshManagerApi != null) {
                 if (mMeshManagerApi.nodeIdentityMatches(node.getValue(), serviceData)) {
                     return true;

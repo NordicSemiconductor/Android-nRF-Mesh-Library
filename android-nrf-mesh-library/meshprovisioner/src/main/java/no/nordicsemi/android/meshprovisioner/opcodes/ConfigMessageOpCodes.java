@@ -25,12 +25,12 @@ package no.nordicsemi.android.meshprovisioner.opcodes;
 public class ConfigMessageOpCodes {
 
     /**
-     * Opcode for the "AppKey Add" message.
+     * Opcode for the "ApplicationKey Add" message.
      */
     public static final byte CONFIG_APPKEY_ADD = 0x00;
 
     /**
-     * Opcode for the "AppKey Update" message.
+     * Opcode for the "ApplicationKey Update" message.
      */
     public static final int CONFIG_APPKEY_UPDATE = 0x01;
 
@@ -50,22 +50,22 @@ public class ConfigMessageOpCodes {
     public static final int CONFIG_HEARTBEAT_PUBLICATION_STATUS = 0x06;
 
     /**
-     * Opcode for the "AppKey Delete" message.
+     * Opcode for the "ApplicationKey Delete" message.
      */
     public static final int CONFIG_APPKEY_DELETE = 0x8000;
 
     /**
-     * Opcode for the "AppKey Get" message.
+     * Opcode for the "ApplicationKey Get" message.
      */
     public static final int CONFIG_APPKEY_GET = 0x8001;
 
     /**
-     * Opcode for the "AppKey List" message.
+     * Opcode for the "ApplicationKey List" message.
      */
     public static final int CONFIG_APPKEY_LIST = 0x8002;
 
     /**
-     * Opcode for the "AppKey Status" message.
+     * Opcode for the "ApplicationKey Status" message.
      */
     public static final short CONFIG_APPKEY_STATUS = (short) 0x8003;
 

@@ -39,8 +39,8 @@ public class ConfigAppKeyAdd extends ConfigMessage {
     private static final String TAG = ConfigAppKeyAdd.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_APPKEY_ADD;
 
-    private final byte[] mAppKey;
-    private final int mAppKeyIndex;
+    private final NetworkKey mNetKey;
+    private final ApplicationKey mAppKey;
     private byte[] mDeviceKey;
 
     /**
@@ -48,18 +48,28 @@ public class ConfigAppKeyAdd extends ConfigMessage {
      *
      * @param node        Mesh node this message is to be sent to
      * @param appKey      application key for this message
-     * @param appKeyIndex application key index of this message
      * @param aszmic      size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigAppKeyAdd(@NonNull final ProvisionedMeshNode node, @NonNull final byte[] appKey, final int appKeyIndex, final int aszmic) throws IllegalArgumentException {
+    public ConfigAppKeyAdd(@NonNull final ProvisionedMeshNode node, @NonNull final NetworkKey networkKey, @NonNull final ApplicationKey appKey, final int aszmic) throws IllegalArgumentException {
         super(node, aszmic);
-        if (appKey.length != 16)
+        if (networkKey != null && networkKey.key.length != 16)
+            throw new IllegalArgumentException("Network key must be 16 bytes");
+
+        if (appKey != null && appKey.key.length != 16)
             throw new IllegalArgumentException("App key must be 16 bytes");
 
+        this.mNetKey = networkKey;
         this.mAppKey = appKey;
-        this.mAppKeyIndex = appKeyIndex;
         assembleMessageParameters();
+    }
+    /**
+     * Returns the Network key that is needs to be sent to the node
+     *
+     * @return app key
+     */
+    public NetworkKey getNetKey() {
+        return mNetKey;
     }
 
     /**
@@ -67,17 +77,8 @@ public class ConfigAppKeyAdd extends ConfigMessage {
      *
      * @return app key
      */
-    public byte[] getAppKey() {
+    public ApplicationKey getAppKey() {
         return mAppKey;
-    }
-
-    /**
-     * Returns the application key index.
-     *
-     * @return app key index
-     */
-    public int getAppKeyIndex() {
-        return mAppKeyIndex;
     }
 
     /**
@@ -98,14 +99,14 @@ public class ConfigAppKeyAdd extends ConfigMessage {
     @Override
     void assembleMessageParameters() {
         mDeviceKey = mNode.getDeviceKey();
-        final byte[] networkKeyIndex = mNode.getKeyIndex();
-        final byte[] applicationKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKeyIndex);
+        final byte[] networkKeyIndex = MeshParserUtils.addKeyIndexPadding(mNetKey.getKeyIndex());
+        final byte[] applicationKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKey.getKeyIndex());
 
         final ByteBuffer paramsBuffer = ByteBuffer.allocate(19).order(ByteOrder.BIG_ENDIAN);
         paramsBuffer.put(networkKeyIndex[1]);
         paramsBuffer.put((byte) ((applicationKeyIndex[1] << 4) | networkKeyIndex[0] & 0x0F));
         paramsBuffer.put((byte) ((applicationKeyIndex[0] << 4) | applicationKeyIndex[1] >> 4));
-        paramsBuffer.put(mAppKey);
+        paramsBuffer.put(mAppKey.getKey());
         mParameters = paramsBuffer.array();
     }
 }

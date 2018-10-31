@@ -28,6 +28,7 @@ import android.arch.lifecycle.ViewModel;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.Element;
@@ -102,5 +103,12 @@ public class NodeConfigurationViewModel extends ViewModel {
      */
     public MeshManagerApi getMeshManagerApi() {
         return mNrfMeshRepository.getMeshManagerApi();
+    }
+
+    /**
+     * Returns the {@link MeshManagerApi}
+     */
+    public MeshNetwork getMeshNetwork() {
+        return mNrfMeshRepository.getMeshManagerApi().getMeshNetwork();
     }
 }

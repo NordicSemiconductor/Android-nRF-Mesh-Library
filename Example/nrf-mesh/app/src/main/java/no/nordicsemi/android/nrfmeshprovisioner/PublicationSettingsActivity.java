@@ -132,7 +132,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
 
         actionKeyIndex.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(this, BindAppKeysActivity.class);
-            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) meshModel.getBoundAppkeys());
+            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) meshModel.getBoundApplicationKeys());
             startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 

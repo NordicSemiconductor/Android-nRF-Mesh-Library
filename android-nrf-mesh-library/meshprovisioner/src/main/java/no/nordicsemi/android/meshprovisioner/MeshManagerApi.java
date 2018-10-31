@@ -23,26 +23,17 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
+import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppUnbind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionAdd;
@@ -50,13 +41,9 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionDe
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffGet;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.SequenceNumber;
-import no.nordicsemi.android.meshprovisioner.models.VendorModel;
-import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.InterfaceAdapter;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -70,9 +57,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
      */
     public final static UUID MESH_PROXY_UUID = UUID.fromString("00001828-0000-1000-8000-00805F9B34FB");
     private static final String TAG = MeshManagerApi.class.getSimpleName();
-    private static final String PROVISIONED_NODES_FILE = "PROVISIONED_FILES";
-    private static final String CONFIGURATION_SRC = "CONFIGURATION_SRC";
-    private static final String SRC = "SRC";
     //PDU types
     private static final byte PDU_TYPE_NETWORK = 0x00;
     private static final byte PDU_TYPE_MESH_BEACON = 0x01;
@@ -116,11 +100,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
      * Length of the network id contained in the advertisement service data
      */
     private final static int ADVERTISED_NETWWORK_ID_LENGTH = 8;
-    private final Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new LinkedHashMap<>();
-    private final ProvisioningSettings mProvisioningSettings;
     private Context mContext;
-    private Gson mGson;
-    private byte[] mConfigurationSrc = {0x07, (byte) 0xFF}; //0x07FF;
     private MeshManagerTransportCallbacks mTransportCallbacks;
     private MeshProvisioningHandler mMeshProvisioningHandler;
     private MeshMessageHandler mMeshMessageHandler;
@@ -128,24 +108,14 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     private int mIncomingBufferOffset;
     private byte[] mOutgoingBuffer;
     private int mOutgoingBufferOffset;
+    private final MeshNetwork meshNetwork;
 
     public MeshManagerApi(final Context context) {
         this.mContext = context;
-        this.mProvisioningSettings = new ProvisioningSettings(context);
-        initGson();
-        initProvisionedNodes();
-        intiConfigurationSrc();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, this, this);
-
         mMeshMessageHandler = new MeshMessageHandler(context, this);
+        meshNetwork = new MeshNetwork(context);
         mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(this);
-    }
-
-    private void intiConfigurationSrc() {
-        final SharedPreferences preferences = mContext.getSharedPreferences(CONFIGURATION_SRC, Context.MODE_PRIVATE);
-        final int tempSrc = preferences.getInt(SRC, 0);
-        if (tempSrc != 0)
-            mConfigurationSrc = new byte[]{(byte) ((tempSrc >> 8) & 0xFF), (byte) (tempSrc & 0xFF)};
     }
 
     public void setProvisionerManagerTransportCallbacks(final MeshManagerTransportCallbacks transportCallbacks) {
@@ -160,193 +130,21 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         mMeshMessageHandler.setMeshStatusCallbacks(callbacks);
     }
 
-    /**
-     * Returns an unmodifiable map of Provisioned nodes
-     */
-    public Map<Integer, ProvisionedMeshNode> getProvisionedNodes() {
-        return Collections.unmodifiableMap(mProvisionedNodes);
-    }
 
-    /**
-     * Returns the default provisioning settings from {@link ProvisioningSettings}
-     *
-     * @return provisioning settings
-     */
-    public ProvisioningSettings getProvisioningSettings() {
-        return mProvisioningSettings;
-    }
-
-    /**
-     * Returns the source unicast address set to the the library in the mesh network
-     *
-     * @return byte array containing the address
-     */
-    public byte[] getConfiguratorSrc() {
-        return mConfigurationSrc;
-    }
-
-    /**
-     * Set the source unicast address to the the library in the mesh network. This method will check if the addres is already taken by a node
-     *
-     * @return true is successful
-     */
-    public boolean setConfiguratorSrc(final byte[] configurationSrc) throws IllegalArgumentException {
-        final int tempSrc = (configurationSrc[0] & 0xFF) << 8 | (configurationSrc[1] & 0xFF);
-        if (MeshParserUtils.validateUnicastAddressInput(mContext, tempSrc)) {
-            if (!mProvisionedNodes.containsKey(tempSrc)) {
-                mConfigurationSrc = configurationSrc;
-                saveSrc();
-
-                //Set the configuration source for all provisioned nodes
-                for (Map.Entry<Integer, ProvisionedMeshNode> entry : mProvisionedNodes.entrySet()) {
-                    entry.getValue().setConfigurationSrc(mConfigurationSrc);
-                }
-
-                //Save all nodes
-                saveProvisionedNodes();
-                return true;
-            } else {
-                throw new IllegalArgumentException("Address already occupied by a node");
-            }
-        }
-        return false;
-    }
-
-    private void initGson() {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.enableComplexMapKeySerialization();
-        gsonBuilder.registerTypeAdapter(MeshModel.class, new InterfaceAdapter<MeshModel>());
-        gsonBuilder.setPrettyPrinting();
-        mGson = gsonBuilder.create();
-    }
-
-    /**
-     * Load serialized provisioned nodes from preferences
-     */
-    private void initProvisionedNodes() {
-        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
-        final Map<String, ?> nodes = preferences.getAll();
-
-        if (!nodes.isEmpty()) {
-            final List<Integer> orderedKeys = reOrderProvisionedNodes(nodes);
-            mProvisionedNodes.clear();
-            for (int orderedKey : orderedKeys) {
-                final String key = String.format(Locale.US, "0x%04X", orderedKey);
-                final String json = preferences.getString(key, null);
-                if (json != null) {
-                    final ProvisionedMeshNode node = mGson.fromJson(json, ProvisionedMeshNode.class);
-                    final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
-                    mProvisionedNodes.put(unicastAddress, node);
-                }
-            }
-        }
-    }
-
-    /**
-     * Order the keys so that the nodes are read in insertion order
-     *
-     * @param nodes list containing unordered nodes
-     * @return node list
-     */
-    private List<Integer> reOrderProvisionedNodes(final Map<String, ?> nodes) {
-        final Set<String> unorderedKeys = nodes.keySet();
-        final List<Integer> orderedKeys = new ArrayList<>();
-        for (String k : unorderedKeys) {
-            final int key = Integer.decode(k);
-            orderedKeys.add(key);
-        }
-        Collections.sort(orderedKeys);
-        return orderedKeys;
+    public MeshNetwork getMeshNetwork(){
+        return meshNetwork;
     }
 
     @Override
     public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
-        final int unicastAddress = AddressUtils.getUnicastAddressInt(meshNode.getUnicastAddress());
-        mProvisionedNodes.put(unicastAddress, meshNode);
-        incrementUnicastAddress(meshNode);
-        saveProvisionedNode(meshNode);
+        meshNetwork.addMeshNode(meshNode);
+        meshNetwork.incrementUnicastAddress(meshNode);
+        meshNetwork.saveProvisionedNode(meshNode);
     }
 
     @Override
     public ProvisionedMeshNode getMeshNode(final int unicastAddress) {
-        for (Map.Entry<Integer, ProvisionedMeshNode> entry : mProvisionedNodes.entrySet()) {
-            if(entry.getValue().getElements() != null && entry.getValue().getElements().containsKey(unicastAddress)){
-                return entry.getValue();
-            }
-        }
-
-        return null;
-        /*if (mProvisionedNodes.isEmpty() || !mProvisionedNodes.containsKey(unicastAddress))
-            return null;
-
-        return mProvisionedNodes.get(unicastAddress);*/
-    }
-
-    private void saveSrc() {
-        final SharedPreferences preferences = mContext.getSharedPreferences(CONFIGURATION_SRC, Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(SRC, (mConfigurationSrc[0] & 0xFF) << 8 | (mConfigurationSrc[1] & 0xFF));
-        editor.apply();
-    }
-
-    /**
-     * Serialize and save provisioned node
-     */
-    private void saveProvisionedNode(final ProvisionedMeshNode node) {
-        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = preferences.edit();
-        final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
-        final String provisionedNode = mGson.toJson(node);
-        editor.putString(unicastAddress, provisionedNode);
-        editor.apply();
-    }
-
-    /**
-     * Serialize and save all provisioned nodes
-     */
-    private void saveProvisionedNodes() {
-        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = preferences.edit();
-        for (Map.Entry<Integer, ProvisionedMeshNode> entry : mProvisionedNodes.entrySet()) {
-            final ProvisionedMeshNode node = entry.getValue();
-            final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
-            final String provisionedNode = mGson.toJson(node);
-            editor.putString(unicastAddress, provisionedNode);
-        }
-        editor.apply();
-    }
-
-    /**
-     * Serialize and save provisioned node
-     */
-    private void deleteProvisionedNode(final ProvisionedMeshNode node) {
-        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = preferences.edit();
-        final String unicastAddress = MeshParserUtils.bytesToHex(node.getUnicastAddress(), true);
-        editor.remove(unicastAddress);
-        editor.apply();
-    }
-
-    /**
-     * Clear provisioned ndoes
-     */
-    private void clearProvisionedNodes() {
-        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = preferences.edit();
-        editor.clear();
-        editor.apply();
-    }
-
-    private void incrementUnicastAddress(final ProvisionedMeshNode meshNode) {
-        //Since we know the number of elements this node contains we can predict the next available address for the next node.
-        int unicastAdd = (meshNode.getUnicastAddressInt() + meshNode.getNumberOfElements());
-        //We check if the incremented unicast address is already taken by the app/configurator
-        final int tempSrc = (mConfigurationSrc[0] & 0xFF) << 8 | (mConfigurationSrc[1] & 0xFF);
-        if (unicastAdd == tempSrc) {
-            unicastAdd = unicastAdd + 1;
-        }
-        mProvisioningSettings.setUnicastAddress(unicastAdd);
-
+        return  meshNetwork.getMeshNode(unicastAddress);
     }
 
     /**
@@ -460,19 +258,14 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     @Override
     public void updateMeshNode(final ProvisionedMeshNode meshNode) {
         if (meshNode != null) {
-            final int unicast = AddressUtils.getUnicastAddressInt(meshNode.getUnicastAddress());
-            //We update the mesh node in our map of mesh nodes
-            mProvisionedNodes.put(unicast, meshNode);
-            saveProvisionedNode(meshNode);
+            meshNetwork.saveProvisionedNode(meshNode);
         }
     }
 
     @Override
     public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
         if (meshNode != null) {
-            final int unicast = AddressUtils.getUnicastAddressInt(meshNode.getUnicastAddress());
-            deleteProvisionedNode(meshNode);
-            mProvisionedNodes.remove(unicast);
+            meshNetwork.deleteProvisionedNode(meshNode);
         }
     }
 
@@ -609,13 +402,14 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     @Override
     public void identifyNode(@NonNull final String address, final String nodeName) throws IllegalArgumentException {
         //We must save all the provisioning data here so that they could be reused when provisioning the next devices
+        final ProvisioningSettings provisioningSettings = meshNetwork.getProvisioningSettings();
         mMeshProvisioningHandler.identify(address, nodeName,
-                mProvisioningSettings.getNetworkKey(),
-                mProvisioningSettings.getKeyIndex(),
-                mProvisioningSettings.getFlags(),
-                mProvisioningSettings.getIvIndex(),
-                mProvisioningSettings.getUnicastAddress(),
-                mProvisioningSettings.getGlobalTtl(), mConfigurationSrc);
+                provisioningSettings.getNetworkKey(),
+                provisioningSettings.getKeyIndex(),
+                provisioningSettings.getFlags(),
+                provisioningSettings.getIvIndex(),
+                provisioningSettings.getUnicastAddress(),
+                provisioningSettings.getGlobalTtl(), meshNetwork.getConfiguratorSrc());
     }
 
     @Override
@@ -722,11 +516,10 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
      * <p>This method will clear the provisioned nodes, reset the sequence number and generate new provisioning data</p>
      */
     public final void resetMeshNetwork() {
-        mProvisionedNodes.clear();
-        clearProvisionedNodes();
+        meshNetwork.clearProvisionedNodes();
         SequenceNumber.resetSequenceNumber(mContext);
-        mProvisioningSettings.clearProvisioningData();
-        mProvisioningSettings.generateProvisioningData();
+        meshNetwork.getProvisioningSettings().clearProvisioningData();
+        meshNetwork.getProvisioningSettings().generateProvisioningData();
     }
 
     /**

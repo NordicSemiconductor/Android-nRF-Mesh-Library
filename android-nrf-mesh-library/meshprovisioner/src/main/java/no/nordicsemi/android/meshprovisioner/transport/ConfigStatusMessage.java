@@ -69,7 +69,7 @@ public abstract class ConfigStatusMessage extends MeshMessage {
             case INVALID_MODEL:
                 return "Invalid Model";
             case INVALID_APPKEY_INDEX:
-                return "Invalid AppKey Index";
+                return "Invalid ApplicationKey Index";
             case INVALID_NETKEY_INDEX:
                 return "Invalid NetKey Index";
             case INSUFFICIENT_RESOURCES:

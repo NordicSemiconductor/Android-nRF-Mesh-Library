@@ -57,5 +57,5 @@ dependencies {
     // Spongycastle - Android implementation of Bouncy Castle
     implementation 'com.madgag.spongycastle:core:1.56.0.0'
     implementation 'com.madgag.spongycastle:prov:1.56.0.0'
-    implementation 'com.google.code.gson:gson:2.8.3'
+    implementation 'com.google.code.gson:gson:2.8.5'
 }

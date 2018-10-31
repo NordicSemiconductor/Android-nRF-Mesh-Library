@@ -69,9 +69,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             });
 
             mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
-            mActionRead.setOnClickListener(v -> {
-                sendGenericOnOffGet();
-            });
+            mActionRead.setOnClickListener(v -> sendGenericOnOffGet());
 
             transitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 int lastValue = 0;
@@ -210,7 +208,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
 
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
             final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-            final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
+            final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
 
             final byte[] address = element.getElementAddress();
             Log.v(TAG, "Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
@@ -236,7 +234,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
 
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
             final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-            final byte[] appKey = MeshParserUtils.toByteArray(model.getBoundAppKey(appKeyIndex));
+            final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
             if (!model.getSubscriptionAddresses().isEmpty()) {
                 for (byte[] address : model.getSubscriptionAddresses()) {
                     final MeshMessage message;

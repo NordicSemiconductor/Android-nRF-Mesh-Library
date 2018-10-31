@@ -46,7 +46,7 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         provisioneeRandom = in.createByteArray();
         networkKey = in.createByteArray();
         identityKey = in.createByteArray();
-        keyIndex = in.createByteArray();
+        keyIndex = in.readInt();
         mFlags = in.createByteArray();
         ivIndex = in.createByteArray();
         unicastAddress = in.createByteArray();
@@ -70,7 +70,7 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         dest.writeByteArray(provisioneeRandom);
         dest.writeByteArray(networkKey);
         dest.writeByteArray(identityKey);
-        dest.writeByteArray(keyIndex);
+        dest.writeInt(keyIndex);
         dest.writeByteArray(mFlags);
         dest.writeByteArray(ivIndex);
         dest.writeByteArray(unicastAddress);
