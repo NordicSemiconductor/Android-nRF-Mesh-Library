@@ -122,6 +122,16 @@ public class MeshParserUtils {
         return false;
     }
 
+    /**
+     * Validates a given group address
+     *
+     * @param address group address
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidGroupAddress(final int address) {
+        return (address >= 0xC000 && address <= 0xFEFF) || (address >= 0xFFFC && address <= 0xFFFF);
+    }
+
     public static boolean isValidUnicastAddress(final byte[] value) {
         if (value == null)
             return false;

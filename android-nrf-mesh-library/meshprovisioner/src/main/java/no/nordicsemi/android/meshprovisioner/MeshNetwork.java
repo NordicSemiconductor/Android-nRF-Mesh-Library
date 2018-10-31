@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,9 +29,11 @@ public final class MeshNetwork {
     private static final String SRC = "SRC";
     private final Context mContext;
     private Gson mGson;
-    private final Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new LinkedHashMap<>();
-    private final ProvisioningSettings mProvisioningSettings;
+
+    @Expose
     private String networkName = "nRF Mesh Network";
+    private final ProvisioningSettings mProvisioningSettings;
+    private final Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new LinkedHashMap<>();
     private byte[] mConfigurationSrc = {0x07, (byte) 0xFF}; //0x07FF;
 
     MeshNetwork(final Context context){
@@ -39,11 +42,6 @@ public final class MeshNetwork {
         initGson();
         initConfigurationSrc();
         initProvisionedNodesForMigration();
-        /*if(BuildConfig.VERSION_CODE == 14) {
-            initProvisionedNodes();
-        } else {
-            initProvisionedNodesForMigration();
-        }*/
     }
 
     public Map<Integer, ProvisionedMeshNode> getProvisionedNodes() {
