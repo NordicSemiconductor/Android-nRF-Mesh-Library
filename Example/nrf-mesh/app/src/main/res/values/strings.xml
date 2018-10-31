@@ -294,6 +294,13 @@
     <string name="title_added_app_keys">Added App Keys</string>
     <string name="action_view_added_keys">VIEW</string>
 
+    <string name="title_network_transmit">Network Transmit Settings</string>
+    <string name="title_network_transmit_count">Transmit Count</string>
+    <string name="title_network_transmit_interval_steps">Transmit Interval Steps</string>
+    <string name="action_network_transmit_set">Set Network Transmit</string>
+    <string name="unit_network_transmit_count">time(s)</string>
+    <string name="unit_network_transmit_interval_steps">step(s)</string>
+
     <string name="no_app_keys_added">No app keys are added to this node!</string>
     <string name="app_keys_added">%d app keys added</string>
     <string name="error_no_app_keys_bound">No app keys are bound for this model. Please bind an app key first!</string>
@@ -403,4 +410,5 @@
     <string name="invalid_value">Invalid value!</string>
     <string name="use_default_ttl">Use default ttl value (0xFF)</string>
     <string name="uses_default_ttl">Uses default ttl (0xFF)</string>
+    <string name="title_activity_network_transmit_settings">NetworkTransmitSettingsActivity</string>
 </resources>
