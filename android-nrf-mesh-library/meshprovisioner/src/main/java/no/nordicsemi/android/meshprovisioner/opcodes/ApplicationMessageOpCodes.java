@@ -43,5 +43,22 @@ public class ApplicationMessageOpCodes {
      * Opcode for the "Generic OnOff Status" message.
      */
     public static final short GENERIC_ON_OFF_STATUS = (short) 0x8204;
+    //config relay
+    public static final int CONFIG_RELAY_GET = 0x8026;
+    public static final int CONFIG_RELAY_SET = 0x8027;
+    public static final int CONFIG_RELAY_STATUS = 0x8028;
+    //config network transmit
+    public static final int CONFIG_NETWORK_TRANSMIT_GET = 0x8023;
+    public static final int CONFIG_NETWORK_TRANSMIT_SET = 0x8024;
+    public static final int CONFIG_NETWORK_TRANSMIT_STATUS = 0x8025;
 
+    //config default ttl
+    public static final int CONFIG_DEFAULT_TTL_GET = 0x800C;
+    public static final int CONFIG_DEFAULT_TTL_SET = 0x800D;
+    public static final int CONFIG_DEFAULT_TTL_STATUS = 0x800E;
+
+    //config gatt proxy
+    public static final int CONFIG_GATT_PROXY_GET = 0x8012;
+    public static final int CONFIG_GATT_PROXY_SET = 0x8013;
+    public static final int CONFIG_GATT_PROXY_STATUS = 0x8014;
 }

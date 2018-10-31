@@ -28,6 +28,9 @@ import no.nordicsemi.android.meshprovisioner.configuration.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigCompositionDataStatus;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigGattProxyGet;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigGattProxySet;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigGattProxyStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigMessage;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelAppStatus;
@@ -36,8 +39,17 @@ import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelPublicatio
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionDelete;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigNetworkTransmitGet;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigNetworkTransmitSet;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigNetworkTransmitStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.configuration.ConfigNodeResetStatus;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigRelayGet;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigRelaySet;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigRelayStatus;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigTTLGet;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigTTLSet;
+import no.nordicsemi.android.meshprovisioner.configuration.ConfigTTLStatus;
 import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffGet;
 import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffSet;
 import no.nordicsemi.android.meshprovisioner.configuration.GenericOnOffSetUnacknowledged;
@@ -103,6 +115,24 @@ class MeshConfigurationHandler {
                 //Switch to config node reset status since we are expecting a status back
                 configMessage = new ConfigNodeResetStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
                 break;
+            case CONFIG_RELAY_GET:
+            case CONFIG_RELAY_SET:
+                configMessage = new ConfigRelayStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                break;
+            case CONFIG_NETWORK_TRANSMIT_GET:
+            case CONFIG_NETWORK_TRANSMIT_SET:
+                configMessage = new ConfigNetworkTransmitStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                break;
+            case CONFIG_DEFAULT_TTL_GET:
+            case CONFIG_DEFAULT_TTL_SET:
+                configMessage = new ConfigTTLStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                break;
+            case CONFIG_GATT_PROXY_GET:
+            case CONFIG_GATT_PROXY_SET:
+                configMessage = new ConfigGattProxyStatus(mContext, configMessage.getMeshNode(), mInternalTransportCallbacks, mStatusCallbacks);
+                break;
+            default:
+                break;
         }
     }
 
@@ -163,6 +193,24 @@ class MeshConfigurationHandler {
             case CONFIG_NODE_RESET_STATUS:
                 final ConfigNodeResetStatus configNodeResetStatus = (ConfigNodeResetStatus) configMessage;
                 configNodeResetStatus.parseData(pdu);
+                break;
+            case CONFIG_RELAY_STATUS:
+                ConfigRelayStatus relayStatus = (ConfigRelayStatus) configMessage;
+                relayStatus.parseData(pdu);
+                break;
+            case CONFIG_GATT_PROXY_STATUS:
+                ConfigGattProxyStatus proxyStatus = (ConfigGattProxyStatus) configMessage;
+                proxyStatus.parseData(pdu);
+                break;
+            case CONFIG_DEFAULT_TTL_STATUS:
+                ConfigTTLStatus ttlStatus = (ConfigTTLStatus) configMessage;
+                ttlStatus.parseData(pdu);
+                break;
+            case CONFIG_NETWORK_TRANSMIT_STATUS:
+                ConfigNetworkTransmitStatus s = (ConfigNetworkTransmitStatus) configMessage;
+                s.parseData(pdu);
+                break;
+            default:
                 break;
         }
     }
@@ -343,5 +391,52 @@ class MeshConfigurationHandler {
        final ConfigNodeReset configNodeReset = new ConfigNodeReset(mContext, provisionedMeshNode, false, mInternalTransportCallbacks, mStatusCallbacks);
        configNodeReset.executeSend();
        configMessage = configNodeReset;
+    }
+    public void getConfigRelay(final ProvisionedMeshNode node) {
+        final ConfigRelayGet configRelayGet = new ConfigRelayGet(mContext, node, false, mInternalTransportCallbacks, mStatusCallbacks);
+        configMessage = configRelayGet;
+        configRelayGet.executeSend();
+    }
+
+    public void setRelayStatus(final ProvisionedMeshNode node, final int relayStatus,final int  relayRetransmitCount,final int relayRetransmitIntervalSteps) {
+        final ConfigRelaySet lightnessGet = new ConfigRelaySet(mContext, node, false, mInternalTransportCallbacks, mStatusCallbacks, relayStatus,relayRetransmitCount,relayRetransmitIntervalSteps);
+        configMessage = lightnessGet;
+        lightnessGet.executeSend();
+    }
+
+    public void getGattProxyStatus(final ProvisionedMeshNode node) {
+        final ConfigGattProxyGet lightnessGet = new ConfigGattProxyGet(mContext, node, false, mInternalTransportCallbacks, mStatusCallbacks);
+        configMessage = lightnessGet;
+        lightnessGet.executeSend();
+    }
+
+    public void setGattProxyStatus(final ProvisionedMeshNode node, final int status) {
+        final ConfigGattProxySet lightnessGet = new ConfigGattProxySet(mContext, node, false, mInternalTransportCallbacks, mStatusCallbacks, status);
+        configMessage = lightnessGet;
+        lightnessGet.executeSend();
+    }
+
+    public void getNetworkTransmit(final ProvisionedMeshNode node) {
+        final ConfigNetworkTransmitGet lightnessGet = new ConfigNetworkTransmitGet(mContext, node, false, mInternalTransportCallbacks, mStatusCallbacks);
+        configMessage = lightnessGet;
+        lightnessGet.executeSend();
+    }
+
+    public void setNetworkTransmit(final ProvisionedMeshNode node, final int  networkTransmitCount,final int networkTransmitIntervalSteps) {
+        final ConfigNetworkTransmitSet lightnessGet = new ConfigNetworkTransmitSet(mContext, node, false, mInternalTransportCallbacks, mStatusCallbacks, networkTransmitCount,networkTransmitIntervalSteps);
+        configMessage = lightnessGet;
+        lightnessGet.executeSend();
+    }
+
+    public void getDefaultTTL(final ProvisionedMeshNode node) {
+        final ConfigTTLGet lightnessGet = new ConfigTTLGet(mContext, node, false, mInternalTransportCallbacks, mStatusCallbacks);
+        configMessage = lightnessGet;
+        lightnessGet.executeSend();
+    }
+
+    public void setDefaultTTL(final ProvisionedMeshNode node, final int ttl) {
+        final ConfigTTLSet lightnessGet = new ConfigTTLSet(mContext, node, false, mInternalTransportCallbacks, mStatusCallbacks, ttl);
+        configMessage = lightnessGet;
+        lightnessGet.executeSend();
     }
 }

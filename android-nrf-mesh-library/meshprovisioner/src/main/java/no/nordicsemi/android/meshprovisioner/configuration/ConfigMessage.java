@@ -112,7 +112,26 @@ public abstract class ConfigMessage implements LowerTransportLayerCallbacks {
         GENERIC_ON_OFF_GET(ApplicationMessageOpCodes.GENERIC_ON_OFF_GET),
         GENERIC_ON_OFF_SET(ApplicationMessageOpCodes.GENERIC_ON_OFF_SET),
         GENERIC_ON_OFF_SET_UNACKNOWLEDGED(ApplicationMessageOpCodes.GENERIC_ON_OFF_SET_UNACKNOWLEDGED),
-        GENERIC_ON_OFF_STATUS(ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS);
+        GENERIC_ON_OFF_STATUS(ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS),
+        //config relay
+        CONFIG_RELAY_GET(ApplicationMessageOpCodes.CONFIG_RELAY_GET),
+        CONFIG_RELAY_SET(ApplicationMessageOpCodes.CONFIG_RELAY_SET),
+        CONFIG_RELAY_STATUS(ApplicationMessageOpCodes.CONFIG_RELAY_STATUS),
+
+        //config network transmit
+        CONFIG_NETWORK_TRANSMIT_GET(ApplicationMessageOpCodes.CONFIG_NETWORK_TRANSMIT_GET),
+        CONFIG_NETWORK_TRANSMIT_SET(ApplicationMessageOpCodes.CONFIG_NETWORK_TRANSMIT_SET),
+        CONFIG_NETWORK_TRANSMIT_STATUS(ApplicationMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS),
+
+        //config default ttl
+        CONFIG_DEFAULT_TTL_GET(ApplicationMessageOpCodes.CONFIG_DEFAULT_TTL_GET),
+        CONFIG_DEFAULT_TTL_SET(ApplicationMessageOpCodes.CONFIG_DEFAULT_TTL_SET),
+        CONFIG_DEFAULT_TTL_STATUS(ApplicationMessageOpCodes.CONFIG_DEFAULT_TTL_STATUS),
+
+        //config gatt proxy
+        CONFIG_GATT_PROXY_GET(ApplicationMessageOpCodes.CONFIG_GATT_PROXY_GET),
+        CONFIG_GATT_PROXY_SET(ApplicationMessageOpCodes.CONFIG_GATT_PROXY_SET),
+        CONFIG_GATT_PROXY_STATUS(ApplicationMessageOpCodes.CONFIG_GATT_PROXY_STATUS);
 
         private int state;
 

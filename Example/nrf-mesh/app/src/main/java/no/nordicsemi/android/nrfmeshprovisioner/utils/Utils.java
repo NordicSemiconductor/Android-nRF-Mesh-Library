@@ -68,6 +68,14 @@ public class Utils {
     public static final String EXTRA_ELEMENT_ADDRESS = "EXTRA_ELEMENT_ADDRESS";
     public static final String EXTRA_DATA_MODEL_NAME = "EXTRA_DATA_MODEL_NAME";
     public static final String EXTRA_DATA_NODE_RESET_STATUS = "EXTRA_DATA_NODE_RESET_STATUS";
+    public static final String EXTRA_DATA_RELAY_STATUS = "EXTRA_DATA_RELAY_STATUS";
+    public static final String EXTRA_DATA_RELAY_TRANSMIT_COUNT = "EXTRA_DATA_RELAY_TRANSMIT_COUNT";
+    public static final String EXTRA_DATA_RELAY_TRANSMIT_INTERVAL_STEPS = "EXTRA_DATA_RELAY_TRANSMIT_INTERVAL_STEPS";
+
+    public static final String EXTRA_DATA_TTL_STATUS = "EXTRA_DATA_TTL_STATUS";
+    public static final String EXTRA_DATA_GATT_PROXY_STATUS = "EXTRA_DATA_GATT_PROXY_STATUS";
+    public static final String EXTRA_DATA_NETWORK_TRANSMIT_COUNT = "EXTRA_DATA_NETWORK_TRANSMIT_COUNT";
+    public static final String EXTRA_DATA_NETWORK_TRANSMIT_INTERVAL_STEPS = "EXTRA_DATA_NETWORK_TRANSMIT_INTERVAL_STEPS";
 
     public static final String EXTRA_DEVICE = "EXTRA_DEVICE";
     public static final String ACTIVITY_RESULT = "RESULT_APP_KEY";

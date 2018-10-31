@@ -892,4 +892,34 @@ public class MeshManagerApi implements InternalTransportCallbacks, InternalMeshM
             throw new IllegalArgumentException("Mesh node cannot be null!");
         mMeshConfigurationHandler.resetMeshNode(provisionedMeshNode);
     }
+    public void getConfigRelay(final ProvisionedMeshNode node) {
+
+        mMeshConfigurationHandler.getConfigRelay(node);
+    }
+    public void setRelayStatus(final ProvisionedMeshNode node, final int relayStatus,final int  relayRetransmitCount,final int relayRetransmitIntervalSteps) {
+        mMeshConfigurationHandler.setRelayStatus(node,relayStatus,relayRetransmitCount,relayRetransmitIntervalSteps);
+    }
+    public void getGattProxyStatus(final ProvisionedMeshNode node) {
+        mMeshConfigurationHandler.getGattProxyStatus(node);
+    }
+
+    public void setGattProxyStatus(final ProvisionedMeshNode node, final int status) {
+        mMeshConfigurationHandler.setGattProxyStatus(node,status);
+    }
+
+    public void getNetworkTransmit(final ProvisionedMeshNode node) {
+        mMeshConfigurationHandler.getNetworkTransmit(node);
+    }
+
+    public void setNetworkTransmit(final ProvisionedMeshNode node, final int  networkTransmitCount,final int networkTransmitIntervalSteps) {
+        mMeshConfigurationHandler.setNetworkTransmit(node,networkTransmitCount,networkTransmitIntervalSteps);
+    }
+
+    public void getDefaultTTL(final ProvisionedMeshNode node) {
+        mMeshConfigurationHandler.getDefaultTTL(node);
+    }
+
+    public void setDefaultTTL(final ProvisionedMeshNode node, final int ttl) {
+        mMeshConfigurationHandler.setDefaultTTL(node,ttl);
+    }
 }

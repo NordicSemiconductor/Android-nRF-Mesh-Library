@@ -56,4 +56,12 @@ public interface MeshConfigurationStatusCallbacks {
     void onMeshNodeResetSent(final ProvisionedMeshNode node);
 
     void onMeshNodeResetStatusReceived(final ProvisionedMeshNode node);
+
+    void onMeshNodeRelayStatusReceived(final ProvisionedMeshNode node,final int relay,final int relayRetransmitCount,final int relayRetransmitIntervalSteps);
+
+    void onMeshNodeTTLStatusReceived(final ProvisionedMeshNode node,final int ttl);
+
+    void onMeshNodeGattProxyStatusReceived(final ProvisionedMeshNode node,final int gattProxy);
+
+    void onMeshNodeNetworkTransmitStatusReceived(final ProvisionedMeshNode node,final int networkTransmitCount,final int networkTransmitIntervalSteps);
 }

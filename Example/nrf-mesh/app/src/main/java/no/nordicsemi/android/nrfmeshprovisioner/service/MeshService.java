@@ -39,7 +39,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -704,6 +703,52 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
     }
+    @Override
+    public void onMeshNodeRelayStatusReceived(ProvisionedMeshNode node, int relay, int relayRetransmitCount, int relayRetransmitIntervalSteps) {
+        if(node != null) {
+            final Intent intent = new Intent(Utils.ACTION_CONFIGURATION_STATE);
+            intent.putExtra(Utils.EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.NODE_RELAY_STATUS_RECEIVED.getState());
+            intent.putExtra(Utils.EXTRA_DATA, node.getUnicastAddressInt());
+            intent.putExtra(Utils.EXTRA_DATA_RELAY_STATUS, relay);
+            intent.putExtra(Utils.EXTRA_DATA_RELAY_TRANSMIT_COUNT, relayRetransmitCount);
+            intent.putExtra(Utils.EXTRA_DATA_RELAY_TRANSMIT_INTERVAL_STEPS, relayRetransmitIntervalSteps);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
+    }
+
+    @Override
+    public void onMeshNodeTTLStatusReceived(ProvisionedMeshNode node, int ttl) {
+        if(node != null) {
+            final Intent intent = new Intent(Utils.ACTION_CONFIGURATION_STATE);
+            intent.putExtra(Utils.EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.NODE_TTL_STATUS_RECEIVED.getState());
+            intent.putExtra(Utils.EXTRA_DATA, node.getUnicastAddressInt());
+            intent.putExtra(Utils.EXTRA_DATA_TTL_STATUS, ttl);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
+    }
+
+    @Override
+    public void onMeshNodeGattProxyStatusReceived(ProvisionedMeshNode node, int gattProxy) {
+        if(node != null) {
+            final Intent intent = new Intent(Utils.ACTION_CONFIGURATION_STATE);
+            intent.putExtra(Utils.EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.NODE_GATT_PROXY_STATUS_RECEIVED.getState());
+            intent.putExtra(Utils.EXTRA_DATA, node.getUnicastAddressInt());
+            intent.putExtra(Utils.EXTRA_DATA_GATT_PROXY_STATUS, gattProxy);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
+    }
+
+    @Override
+    public void onMeshNodeNetworkTransmitStatusReceived(ProvisionedMeshNode node, int networkTransmitCount, int networkTransmitIntervalSteps) {
+        if(node != null) {
+            final Intent intent = new Intent(Utils.ACTION_CONFIGURATION_STATE);
+            intent.putExtra(Utils.EXTRA_CONFIGURATION_STATE, MeshNodeStates.MeshNodeStatus.NODE_NETWORK_TRANSMIT_STATUS_RECEIVED.getState());
+            intent.putExtra(Utils.EXTRA_DATA, node.getUnicastAddressInt());
+            intent.putExtra(Utils.EXTRA_DATA_NETWORK_TRANSMIT_COUNT, networkTransmitCount);
+            intent.putExtra(Utils.EXTRA_DATA_NETWORK_TRANSMIT_INTERVAL_STEPS, networkTransmitIntervalSteps);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
+    }
 
     private void handleConnectivityStates(final boolean connected) {
         //Check if provisioning is complete
@@ -1074,6 +1119,71 @@ public class MeshService extends Service implements BleMeshManagerCallbacks,
 
         public void resetMeshNode(final ProvisionedMeshNode provisionedMeshNode) {
             mMeshManagerApi.resetMeshNode(provisionedMeshNode);
+        }
+        public void sendRelayGet(final ProvisionedMeshNode node) {
+
+            mMeshManagerApi.getConfigRelay(node);
+        }
+
+        /**
+         * The Relay state indicates support for the Relay feature.
+         * If the Relay feature is supported, then this also indicates and controls whether the Relay feature is enabled or disabled.
+         * @param node
+         * @param relayStatus  0x00 The node support Relay feature that is disabled
+         *      *              0x01 The node supports Relay feature that is enabled
+         *      *              0x02 Relay feature is not supported
+         *      *              0x03–0xFF Prohibited
+         * @param relayRetransmitCount 0~7
+         * @param relayRetransmitIntervalSteps 0~31
+         */
+        public void sendRelaySet(final ProvisionedMeshNode node,final int relayStatus,final int  relayRetransmitCount,final int relayRetransmitIntervalSteps) {
+            mMeshManagerApi.setRelayStatus(node,relayStatus,relayRetransmitCount,relayRetransmitIntervalSteps);
+        }
+        public void sendGattProxyGet(final ProvisionedMeshNode node) {
+            mMeshManagerApi.getGattProxyStatus(node);
+        }
+
+        /**
+         *The GATT Proxy state indicates if the Mesh Proxy Service
+         * @param node
+         * @param status 0x00 The Mesh Proxy Service is running, Proxy feature is disabled
+         *               0x01 The Mesh Proxy Service is running, Proxy feature is enabled
+         *               0x02 The Mesh Proxy Service is not supported, Proxy feature is not supported
+         *               0x03–0xFF Prohibited
+         */
+        public void sendGattProxySet(final ProvisionedMeshNode node, final int status) {
+            mMeshManagerApi.setGattProxyStatus(node,status);
+        }
+
+        public void sendNetworkTransmitGet(final ProvisionedMeshNode node) {
+            mMeshManagerApi.getNetworkTransmit(node);
+        }
+
+        /**
+         * The Network Transmit state is a composite state that controls the number and timing of the transmissions of Network PDU originating from a node.
+         * The state includes a Network Transmit Count field and a Network Transmit Interval Steps field.
+         * There is a single instance of this state for the node.
+         * @param node
+         * @param networkTransmitCount 0~7
+         * @param networkTransmitIntervalSteps 0~31
+         */
+        public void sendNetworkTransmitSet(final ProvisionedMeshNode node,  final int  networkTransmitCount,final int networkTransmitIntervalSteps) {
+            mMeshManagerApi.setNetworkTransmit(node,networkTransmitCount,networkTransmitIntervalSteps);
+        }
+
+        public void sendDefaultTTLGet(final ProvisionedMeshNode node) {
+            mMeshManagerApi.getDefaultTTL(node);
+        }
+
+        /**
+         *The Default TTL state determines the TTL value used when sending messages.
+         *The Default TTL is applied by the access layer unless the application specifies a TTL
+         * @param node
+         * @param ttl  0x00, 0x02– 0x7F The Default TTL state
+         *             0x01, 0x80– 0xFF Prohibited
+         */
+        public void sendDefaultTTLSet(final ProvisionedMeshNode node, final int ttl) {
+            mMeshManagerApi.setDefaultTTL(node,ttl);
         }
     }
 }
