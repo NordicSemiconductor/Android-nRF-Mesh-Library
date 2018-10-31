@@ -87,6 +87,5 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:2.17"
     annotationProcessor 'com.google.dagger:dagger-compiler:2.17'
     annotationProcessor "com.google.dagger:dagger-android-processor:2.17"
-    implementation 'com.google.code.gson:gson:2.8.3'
     implementation project(':meshprovisioner')
 }
