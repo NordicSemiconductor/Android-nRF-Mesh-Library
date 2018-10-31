@@ -16,7 +16,7 @@ public final class ApplicationKey implements Parcelable {
     @Expose
     private final int keyIndex;
     @Expose
-    private final byte[] key;
+    final byte[] key;
     @Expose
     private int boundNetKeyIndex = 0;
 
