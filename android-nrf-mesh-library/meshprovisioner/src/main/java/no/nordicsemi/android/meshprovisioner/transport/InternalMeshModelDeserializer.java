@@ -32,15 +32,16 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
 
     /**
      * Parses mesh model data prior to migration
+     *
      * @param jsonObject jsonObject
      */
     private MeshModel parsePreMigrationMeshModel(final JsonObject jsonObject) {
         final int modelId = jsonObject.getAsJsonObject().get("mModelId").getAsInt();
         final MeshModel meshModel;
         if (modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
-            meshModel = SigModelParser.getSigModel(modelId);
-        } else {
             meshModel = new VendorModel(modelId);
+        } else {
+            meshModel = SigModelParser.getSigModel(modelId);
         }
 
         final JsonArray jsonArrayBoundKeyIndexes = jsonObject.getAsJsonObject().getAsJsonArray("mBoundAppKeyIndexes");
@@ -85,12 +86,37 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                 meshModel.mPublicationSettings = new PublicationSettings(publishAddress,
                         appKeyIndex, credentialFlag, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
             }
+        } else {
+            final byte[] publishKeyAppIndex = new byte[2];
+            if (jsonObject.getAsJsonObject().has("publishAppKeyIndex")) {
+                final JsonArray jsonPublishKeyIndex = jsonObject.getAsJsonObject().get("publishAppKeyIndex").getAsJsonArray();
+                for (int i = 0; i < jsonPublishKeyIndex.size(); i++) {
+                    publishKeyAppIndex[i] = jsonPublishKeyIndex.get(i).getAsByte();
+                }
+            }
+
+            final byte[] publishAddress = new byte[2];
+            if (jsonObject.getAsJsonObject().has("publishAddress")) {
+                final JsonArray jsonPublishAddress = jsonObject.getAsJsonObject().get("publishAddress").getAsJsonArray();
+                for (int i = 0; i < jsonPublishAddress.size(); i++) {
+                    publishAddress[i] = jsonPublishAddress.get(i).getAsByte();
+                }
+            }
+            final int publicationResolution = jsonObject.getAsJsonObject().get("publicationResolution").getAsInt();
+            final int publicationSteps = jsonObject.getAsJsonObject().get("publicationSteps").getAsInt();
+            final int publishPeriod = jsonObject.getAsJsonObject().get("publishPeriod").getAsInt();
+            final int publishRetransmitCount = jsonObject.getAsJsonObject().get("publishRetransmitCount").getAsInt();
+            final int publishRetransmitIntervalSteps = jsonObject.getAsJsonObject().get("publishRetransmitIntervalSteps").getAsInt();
+            final int publishTtl = jsonObject.getAsJsonObject().get("publishTtl").getAsInt();
+            meshModel.mPublicationSettings = new PublicationSettings(publishAddress,
+                    MeshParserUtils.removeKeyIndexPadding(publishKeyAppIndex), false, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
         }
         return meshModel;
     }
 
     /**
      * Parses migrated mesh model data
+     *
      * @param jsonObject jsonObject
      */
     private MeshModel parseMigratedMeshModel(final JsonObject jsonObject) {
