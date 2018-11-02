@@ -16,8 +16,10 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigNetworkTransmitStat
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkTransmitSettings;
 
-public class ModelConfigurationActivity extends BaseModelConfigurationActivity {
+public class ModelConfigurationActivity extends BaseModelConfigurationActivity
+    implements DialogFragmentNetworkTransmitSettings.DialogFragmentNetworkTransmitSettingsListener {
 
     private static final String TAG = ModelConfigurationActivity.class.getSimpleName();
 
@@ -25,6 +27,7 @@ public class ModelConfigurationActivity extends BaseModelConfigurationActivity {
 
     private static final String NETWORK_TRANSMIT_COUNT = "NETWORK_TRANSMIT_COUNT";
     private static final String NETWORK_TRANSMIT_INTERVAL_STEPS = "NETWORK_TRANSMIT_INTERVAL_STEPS";
+
 
     Button mReadNetworkTransmitStateButton;
     Button mConfigureNetworkTransmitStateButton;
@@ -52,14 +55,8 @@ public class ModelConfigurationActivity extends BaseModelConfigurationActivity {
 
             mConfigureNetworkTransmitStateButton = nodeControlsContainer.findViewById(R.id.action_network_transmit_configure);
             mConfigureNetworkTransmitStateButton.setOnClickListener(v -> {
-                final Intent transmitSettings = new Intent(this, NetworkTransmitSettingsActivity.class);
-                if (mNetworkTransmitCount != NETWORK_TRANSMIT_SETTING_UNKNOWN) {
-                    transmitSettings.putExtra(NetworkTransmitSettingsActivity.TRANSMIT_COUNT, mNetworkTransmitCount);
-                }
-                if (mNetworkTransmitIntervalSteps != NETWORK_TRANSMIT_SETTING_UNKNOWN) {
-                    transmitSettings.putExtra(NetworkTransmitSettingsActivity.TRANSMIT_INTERVAL_STEPS, mNetworkTransmitIntervalSteps);
-                }
-                startActivityForResult(transmitSettings, NetworkTransmitSettingsActivity.SET_NETWORK_TRANSMIT_SETTINGS);
+                final DialogFragmentNetworkTransmitSettings fragment = DialogFragmentNetworkTransmitSettings.newInstance(mNetworkTransmitCount, mNetworkTransmitIntervalSteps);
+                fragment.show(getSupportFragmentManager(), null);
             });
             // Disable the Configuration button until the Network Transmit State is known
             mConfigureNetworkTransmitStateButton.setEnabled(false);
@@ -94,14 +91,6 @@ public class ModelConfigurationActivity extends BaseModelConfigurationActivity {
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case NetworkTransmitSettingsActivity.SET_NETWORK_TRANSMIT_SETTINGS:
-                if (resultCode == RESULT_OK) {
-                    final int networkTransmitCount = data.getIntExtra(NetworkTransmitSettingsActivity.TRANSMIT_COUNT, NETWORK_TRANSMIT_SETTING_UNKNOWN);
-                    final int networkTransmitIntervalSteps = data.getIntExtra(NetworkTransmitSettingsActivity.TRANSMIT_INTERVAL_STEPS, NETWORK_TRANSMIT_SETTING_UNKNOWN);
-                    setNetworkTransmit(networkTransmitCount, networkTransmitIntervalSteps);
-                }
-        }
     }
 
 
@@ -145,12 +134,14 @@ public class ModelConfigurationActivity extends BaseModelConfigurationActivity {
         if (mNetworkTransmitCount == NETWORK_TRANSMIT_SETTING_UNKNOWN) {
             mNetworkTransmitCountText.setText(getResources().getString(R.string.text_network_transmit_unknown));
         } else {
-            mNetworkTransmitCountText.setText(getResources().getString(R.string.text_network_transmit_count, mNetworkTransmitCount + 1));
+            final int transmitCountActual = mNetworkTransmitCount + 1;
+            mNetworkTransmitCountText.setText(getResources().getString(R.string.text_network_transmit_count, transmitCountActual));
         }
         if (mNetworkTransmitIntervalSteps == NETWORK_TRANSMIT_SETTING_UNKNOWN) {
             mNetworkTransmitIntervalStepsText.setText(getResources().getString(R.string.text_network_transmit_unknown));
         } else {
-            mNetworkTransmitIntervalStepsText.setText(getResources().getString(R.string.text_network_transmit_interval_steps, mNetworkTransmitIntervalSteps + 1));
+            final int transmitIntervalMs = (mNetworkTransmitIntervalSteps + 1) * 10;
+            mNetworkTransmitIntervalStepsText.setText(getResources().getString(R.string.text_network_transmit_interval_steps, transmitIntervalMs));
         }
     }
 
@@ -171,5 +162,10 @@ public class ModelConfigurationActivity extends BaseModelConfigurationActivity {
         super.disableClickableViews();
         mReadNetworkTransmitStateButton.setEnabled(false);
         mConfigureNetworkTransmitStateButton.setEnabled(false);
+    }
+
+    @Override
+    public void onNetworkTransmitSettingsEntered(int transmitCount, int transmitIntervalSteps) {
+        this.setNetworkTransmit(transmitCount, transmitIntervalSteps);
     }
 }

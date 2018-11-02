@@ -297,11 +297,12 @@
     <string name="title_network_transmit_info">Network Transmit</string>
     <string name="title_network_transmit">Network Transmit Settings</string>
     <string name="title_network_transmit_count">Transmit Count</string>
-    <string name="title_network_transmit_interval_steps">Transmit Interval Steps</string>
+    <string name="title_network_transmit_interval">Transmit Interval</string>
+    <string name="title_network_transmit_interval_steps">Transmit Interval (10ms steps)</string>
     <string name="action_network_transmit_get">READ STATE</string>
     <string name="action_network_transmit_set">CONFIGURE NETWORK TRANSMIT</string>
     <string name="text_network_transmit_count">%d time(s)</string>
-    <string name="text_network_transmit_interval_steps">%d step(s)</string>
+    <string name="text_network_transmit_interval_steps">%d ms</string>
     <string name="text_network_transmit_unknown">Unknown</string>
 
     <string name="no_app_keys_added">No app keys are added to this node!</string>
