@@ -2,6 +2,7 @@ package no.nordicsemi.android.meshprovisioner;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -14,9 +15,11 @@ public class Provisioner {
     @Expose
     private UUID uuid = UUID.randomUUID();
     @Expose
-    private AllocatedGroupRange allocatedGroupRange;
+    private List<AllocatedGroupRange> allocatedGroupRange;
     @Expose
-    private AllocatedUnicastRange allocatedUnicastRange;
+    private List<AllocatedUnicastRange> allocatedUnicastRange;
+    @Expose
+    private List<AllocatedSceneRange> allocatedSceneRange;
 
     /**
      * Constructs {@link Provisioner}
@@ -53,7 +56,7 @@ public class Provisioner {
      * Returns {@link AllocatedGroupRange} for this provisioner
      * @return allocated range of group addresses
      */
-    public AllocatedGroupRange getAllocatedGroupRange() {
+    public List<AllocatedGroupRange> getAllocatedGroupRange() {
         return allocatedGroupRange;
     }
 
@@ -61,16 +64,15 @@ public class Provisioner {
      * Sets {@link AllocatedGroupRange} for this provisioner
      * @param allocatedGroupRange allocated range of group addresses
      */
-    public void setAllocatedGroupRange(final AllocatedGroupRange allocatedGroupRange) {
+    public void setAllocatedGroupRange(final List<AllocatedGroupRange> allocatedGroupRange) {
         this.allocatedGroupRange = allocatedGroupRange;
     }
-
 
     /**
      * Returns {@link AllocatedUnicastRange} for this provisioner
      * @return allocated range of unicast addresses
      */
-    public AllocatedUnicastRange getAllocatedUnicastRange() {
+    public List<AllocatedUnicastRange> getAllocatedUnicastRange() {
         return allocatedUnicastRange;
     }
 
@@ -78,7 +80,23 @@ public class Provisioner {
      * Sets {@link AllocatedGroupRange} for this provisioner
      * @param allocatedUnicastRange allocated range of unicast addresses
      */
-    public void setAllocatedUnicastRange(final AllocatedUnicastRange allocatedUnicastRange) {
+    public void setAllocatedUnicastRange(final List<AllocatedUnicastRange> allocatedUnicastRange) {
         this.allocatedUnicastRange = allocatedUnicastRange;
+    }
+
+    /**
+     * Returns {@link AllocatedSceneRange} for this provisioner
+     * @return allocated range of unicast addresses
+     */
+    public List<AllocatedSceneRange> getAllocatedSceneRange() {
+        return allocatedSceneRange;
+    }
+
+    /**
+     * Sets {@link AllocatedSceneRange} for this provisioner
+     * @param allocatedSceneRange allocated range of unicast addresses
+     */
+    public void setAllocatedSceneRange(final List<AllocatedSceneRange> allocatedSceneRange) {
+        this.allocatedSceneRange = allocatedSceneRange;
     }
 }

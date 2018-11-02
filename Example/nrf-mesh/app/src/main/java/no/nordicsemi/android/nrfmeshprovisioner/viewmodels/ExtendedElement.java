@@ -24,7 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
 
-import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 
 public class ExtendedElement extends LiveData<Element> {
 

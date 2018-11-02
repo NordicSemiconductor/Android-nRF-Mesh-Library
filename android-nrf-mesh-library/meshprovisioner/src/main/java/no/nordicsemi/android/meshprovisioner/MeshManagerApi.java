@@ -27,6 +27,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -34,6 +41,7 @@ import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppUnbind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionAdd;
@@ -41,6 +49,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionDe
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffGet;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.SequenceNumber;
@@ -108,7 +117,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     private int mIncomingBufferOffset;
     private byte[] mOutgoingBuffer;
     private int mOutgoingBufferOffset;
-    private final MeshNetwork meshNetwork;
+    private MeshNetwork meshNetwork;
 
     public MeshManagerApi(final Context context) {
         this.mContext = context;
@@ -180,7 +189,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     private void parseNotifications(final byte[] unsegmentedPdu) {
         switch (unsegmentedPdu[0]) {
             case PDU_TYPE_NETWORK:
-                //Network PDU
+                //MeshNetwork PDU
                 Log.v(TAG, "Received network pdu: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
                 mMeshMessageHandler.parseMeshMsgNotifications(unsegmentedPdu);
                 break;
@@ -223,8 +232,8 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     private void handleWriteCallbacks(final byte[] data) {
         switch (data[0]) {
             case PDU_TYPE_NETWORK:
-                //Network PDU
-                Log.v(TAG, "Network pdu sent: " + MeshParserUtils.bytesToHex(data, true));
+                //MeshNetwork PDU
+                Log.v(TAG, "MeshNetwork pdu sent: " + MeshParserUtils.bytesToHex(data, true));
                 mMeshMessageHandler.handleMeshMsgWriteCallbacks(data);
                 break;
             case PDU_TYPE_MESH_BEACON:
@@ -727,5 +736,41 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     @Override
     public final void sendMeshApplicationMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage meshMessage) {
         mMeshMessageHandler.sendMeshMessage(dstAddress, meshMessage);
+    }
+
+    public boolean importNetwork(final String path) {
+        return importNet(path);
+    }
+
+    boolean importNet(final String path) {
+        BufferedReader br = null;
+        try {
+
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(NetworkKey.class, new NetKeyDeserializer());
+            gsonBuilder.registerTypeAdapter(ApplicationKey.class, new AppKeyDeserializer());
+            gsonBuilder.registerTypeAdapter(AllocatedGroupRange.class, new AllocatedGroupRangeDeserializer());
+            gsonBuilder.registerTypeAdapter(AllocatedUnicastRange.class, new AllocatedUnicastRangeDeserializer());
+            gsonBuilder.registerTypeAdapter(AllocatedSceneRange.class, new AllocatedSceneRangeDeserializer());
+            Gson gson = gsonBuilder.create();
+
+            File f = new File(path, "example_database.json");
+            br = new BufferedReader(new FileReader(f));
+            MeshNetwork network = gson.fromJson(br, MeshNetwork.class);
+            if (network != null) {
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+        return false;
     }
 }

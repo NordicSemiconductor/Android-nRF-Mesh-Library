@@ -38,7 +38,7 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
@@ -177,7 +177,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private boolean mIsScanning;
     private boolean mSetupProvisionedNode;
     private ProvisioningStatusLiveData mProvisioningStateLiveData;
-    private final MeshNetwork mMeshNetwork;
+    private final MeshNetwork mBaseMeshNetwork;
 
     private final Runnable mReconnectRunnable = this::startScan;
 
@@ -189,13 +189,13 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mMeshManagerApi.setProvisionerManagerTransportCallbacks(this);
         mMeshManagerApi.setProvisioningStatusCallbacks(this);
         mMeshManagerApi.setMeshStatusCallbacks(this);
-        mMeshNetwork = mMeshManagerApi.getMeshNetwork();
+        mBaseMeshNetwork = mMeshManagerApi.getMeshNetwork();
         //Load live data with provisioned nodes
-        mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
+        mProvisionedNodes.postValue(mBaseMeshNetwork.getProvisionedNodes());
         //Load live data with provisioning settings
-        mProvisioningSettingsLiveData = new ProvisioningSettingsLiveData(mMeshNetwork.getProvisioningSettings());
+        mProvisioningSettingsLiveData = new ProvisioningSettingsLiveData(mBaseMeshNetwork.getProvisioningSettings());
         //Load live data with configuration address
-        mConfigurationSrc.postValue(mMeshNetwork.getConfiguratorSrc());
+        mConfigurationSrc.postValue(mBaseMeshNetwork.getConfiguratorSrc());
 
         //Initialize the ble manager
         mBleMeshManager = bleMeshManager;
@@ -269,8 +269,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     boolean setConfiguratorSrc(final byte[] configuratorSrc) {
-        if (mMeshNetwork.setConfiguratorSrc(configuratorSrc)) {
-            mConfigurationSrc.postValue(mMeshNetwork.getConfiguratorSrc());
+        if (mBaseMeshNetwork.setConfiguratorSrc(configuratorSrc)) {
+            mConfigurationSrc.postValue(mBaseMeshNetwork.getConfiguratorSrc());
             return true;
         }
         return false;
@@ -315,9 +315,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     void resetMeshNetwork() {
         disconnect();
         mMeshManagerApi.resetMeshNetwork();
-        mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
+        mProvisionedNodes.postValue(mBaseMeshNetwork.getProvisionedNodes());
         mNetworkInformation.refreshProvisioningData();
-        mProvisioningSettingsLiveData.refresh(mMeshNetwork.getProvisioningSettings());
+        mProvisioningSettingsLiveData.refresh(mBaseMeshNetwork.getProvisioningSettings());
     }
 
     /**
@@ -631,7 +631,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mIsReconnecting.postValue(true);
         mBleMeshManager.disconnect();
         mBleMeshManager.refreshDeviceCache();
-        mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
+        mProvisionedNodes.postValue(mBaseMeshNetwork.getProvisionedNodes());
         mHandler.postDelayed(mReconnectRunnable, 1500); //Added a slight delay to disconnect and refresh the cache
     }
 
@@ -692,10 +692,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 mProvisionedMeshNodeLiveData.postValue(node);
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.COMPOSITION_DATA_STATUS_RECEIVED);
                 //We send app key add after composition is complete. Adding a delay so that we don't send anything before the acknowledgement is sent out.
-                if (!mMeshNetwork.getProvisioningSettings().getAppKeys().isEmpty()) {
+                if (!mBaseMeshNetwork.getProvisioningSettings().getAppKeys().isEmpty()) {
                     mHandler.postDelayed(() -> {
                         final byte[] appKey = MeshParserUtils.toByteArray(mProvisioningSettingsLiveData.getSelectedAppKey());
-                        final int index = mMeshNetwork.getProvisioningSettings().getAppKeys().indexOf(appKey);
+                        final int index = mBaseMeshNetwork.getProvisioningSettings().getAppKeys().indexOf(appKey);
                         final ApplicationKey applicationKey = new ApplicationKey(index, appKey);
                         final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node, node.getNetworkKeys().get(0), applicationKey, 0);
                             mMeshManagerApi.sendMeshConfigurationMessage(configAppKeyAdd);
@@ -753,7 +753,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
             final ConfigNodeResetStatus status = (ConfigNodeResetStatus) meshMessage;
             mExtendedMeshNode.clearNode();
-            mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
+            mProvisionedNodes.postValue(mBaseMeshNetwork.getProvisionedNodes());
             mMeshMessageLiveData.postValue(status);
 
         } else if (meshMessage instanceof GenericOnOffStatus) {

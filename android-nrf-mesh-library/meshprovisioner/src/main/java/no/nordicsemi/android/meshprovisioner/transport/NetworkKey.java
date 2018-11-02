@@ -4,7 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.IntDef;
 
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -32,6 +35,12 @@ public final class NetworkKey implements Parcelable {
     final byte[] key;
     @Expose
     private int phase = PHASE_0;
+    @Expose
+    private boolean minSecurity;
+    @Expose
+    private byte[] oldKey;
+    @Expose
+    private long timestamp;
 
     /**
      * Constructs a NetworkKey object with a given key index and network key
@@ -126,4 +135,51 @@ public final class NetworkKey implements Parcelable {
         return keyIndex;
     }
 
+    /**
+     * Uses min security
+     * @return true if minimum security or false otherwise
+     */
+    public boolean isMinSecurity() {
+        return minSecurity;
+    }
+
+    /**
+     * Set security
+     * @param minSecurity boolean security true if min false otherwise
+     */
+    public void setMinSecurity(final boolean minSecurity) {
+        this.minSecurity = minSecurity;
+    }
+
+    /**
+     * Returns the old network key
+     * @return old key
+     */
+    public byte[] getOldKey() {
+        return oldKey;
+    }
+
+    /**
+     * Set the old key
+     * @param oldKey old network key
+     */
+    public void setOldKey(final byte[] oldKey) {
+        this.oldKey = oldKey;
+    }
+
+    /**
+     * Returns the timestamp of the phase change
+     * @return timestamp
+     */
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    /**
+     * Set the timestamp when the the phase change happened
+     * @param timestamp timestamp
+     */
+    public void setTimestamp(final long timestamp) {
+        this.timestamp = timestamp;
+    }
 }

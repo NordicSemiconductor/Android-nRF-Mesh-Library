@@ -26,6 +26,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -34,7 +35,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
 
@@ -96,6 +96,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     boolean lowPowerFeatureSupported;
     @Expose
     final Map<Integer, Element> mElements = new LinkedHashMap<>();
+    @SerializedName("appKeys")
     @Expose
     List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
     @Expose

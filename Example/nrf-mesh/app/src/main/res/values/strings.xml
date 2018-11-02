@@ -403,4 +403,5 @@
     <string name="invalid_value">Invalid value!</string>
     <string name="use_default_ttl">Use default ttl value (0xFF)</string>
     <string name="uses_default_ttl">Uses default ttl (0xFF)</string>
+    <string name="action_import_network">Import</string>
 </resources>

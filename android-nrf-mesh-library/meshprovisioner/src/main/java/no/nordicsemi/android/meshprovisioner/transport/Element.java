@@ -20,7 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.meshprovisioner.utils;
+package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -37,22 +37,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public final class Element implements Parcelable {
 
-public class Element implements Parcelable {
-
     @Expose
-    private final byte[] elementAddress;
+    final byte[] elementAddress;
     @Expose
-    private final int locationDescriptor;
+    final int locationDescriptor;
     @Expose
-    private final int sigModelCount;
+    final int sigModelCount;
     @Expose
-    private final int vendorModelCount;
+    final int vendorModelCount;
     @Expose
-    private final Map<Integer, MeshModel> meshModels;
-
-    public Element(final byte[] elementAddress, final int locationDescriptor, final int sigModelCount, final int vendorModelCount, final Map<Integer, MeshModel> models) {
+    final Map<Integer, MeshModel> meshModels;
+    Element(final byte[] elementAddress, final int locationDescriptor, final int sigModelCount, final int vendorModelCount, final Map<Integer, MeshModel> models) {
         this.elementAddress = elementAddress;
         this.locationDescriptor = locationDescriptor;
         this.sigModelCount = sigModelCount;

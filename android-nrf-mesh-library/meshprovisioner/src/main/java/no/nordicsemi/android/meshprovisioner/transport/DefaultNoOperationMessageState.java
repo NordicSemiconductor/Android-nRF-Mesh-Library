@@ -12,7 +12,6 @@ import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 @SuppressWarnings("WeakerAccess")

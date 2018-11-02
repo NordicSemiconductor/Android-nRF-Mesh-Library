@@ -63,7 +63,7 @@ import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddedAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;

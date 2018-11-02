@@ -16,9 +16,11 @@ public final class ApplicationKey implements Parcelable {
     @Expose
     private final int keyIndex;
     @Expose
-    final byte[] key;
-    @Expose
     private int boundNetKeyIndex = 0;
+    @Expose
+    private final byte[] key;
+    @Expose
+    private byte[] oldKey;
 
     /**
      * Constructs a ApplicationKey object with a given key index and network key
@@ -115,4 +117,19 @@ public final class ApplicationKey implements Parcelable {
         this.boundNetKeyIndex = boundNetKeyIndex;
     }
 
+    /**
+     * Returns the old app key
+     * @return old key
+     */
+    public byte[] getOldKey() {
+        return oldKey;
+    }
+
+    /**
+     * Set the old key
+     * @param oldKey old app key
+     */
+    public void setOldKey(final byte[] oldKey) {
+        this.oldKey = oldKey;
+    }
 }

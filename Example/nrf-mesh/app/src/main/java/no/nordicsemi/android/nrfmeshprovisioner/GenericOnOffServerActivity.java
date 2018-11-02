@@ -21,7 +21,7 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {

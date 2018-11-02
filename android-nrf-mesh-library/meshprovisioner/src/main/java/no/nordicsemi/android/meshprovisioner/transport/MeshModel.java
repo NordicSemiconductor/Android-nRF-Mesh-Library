@@ -39,7 +39,7 @@ import java.util.Set;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class MeshModel implements Parcelable {
 
     @Expose
@@ -54,6 +54,10 @@ public abstract class MeshModel implements Parcelable {
     PublicationSettings mPublicationSettings;
     @Expose
     final List<byte[]> mSubscriptionAddress = new ArrayList<>();
+
+    MeshModel(){
+
+    }
 
     public MeshModel(final int modelId) {
         this.mModelId = modelId;

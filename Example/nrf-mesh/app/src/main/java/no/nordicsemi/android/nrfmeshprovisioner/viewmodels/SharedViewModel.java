@@ -29,6 +29,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 public class SharedViewModel extends ViewModel {
@@ -41,6 +42,10 @@ public class SharedViewModel extends ViewModel {
         mScannerRepository = scannerRepository;
         nRFMeshRepository = nrfMeshRepository;
         scannerRepository.registerBroadcastReceivers();
+    }
+
+    public MeshManagerApi getMeshManagerApi(){
+        return nRFMeshRepository.getMeshManagerApi();
     }
 
     public NetworkInformationLiveData getNetworkInformation() {

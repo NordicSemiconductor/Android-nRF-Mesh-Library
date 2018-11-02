@@ -37,7 +37,6 @@ import java.util.Set;
 
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
@@ -294,7 +293,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
             if (configModelAppStatus.isSuccessful()) {
                 final Element element = mElements.get(configModelAppStatus.getElementAddress());
                 final int modelIdentifier = configModelAppStatus.getModelIdentifier();
-                final MeshModel model = element.getMeshModels().get(modelIdentifier);
+                final MeshModel model = (MeshModel) element.getMeshModels().get(modelIdentifier);
                 final int appKeyIndex = configModelAppStatus.getAppKeyIndex();
                 final ApplicationKey appKey = mAddedApplicationKeys.get(appKeyIndex);
                 model.setBoundAppKey(appKeyIndex, appKey);

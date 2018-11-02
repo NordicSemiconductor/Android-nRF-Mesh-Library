@@ -120,8 +120,8 @@ public final class ProvisioningSettings extends NetworkSettings {
      * @param applicationKey application key to be added in the specified position
      */
     public final void addAppKey(final String applicationKey) throws IllegalArgumentException {
-        if (this.appKeys.contains(applicationKey))
-            throw new IllegalArgumentException("App key already exists");
+        /*if (this.appKeys.contains(applicationKey))
+            throw new IllegalArgumentException("App key already exists");*/
 
         this.appKeys.add(applicationKey);
         saveApplicationKeys();
@@ -134,8 +134,8 @@ public final class ProvisioningSettings extends NetworkSettings {
      * @param applicationKey application key to be added in the specified position
      */
     public final void addAppKey(final int position, final String applicationKey) {
-        if (this.appKeys.contains(applicationKey))
-            throw new IllegalArgumentException("App key already exists");
+        /*if (this.appKeys.contains(applicationKey))
+            throw new IllegalArgumentException("App key already exists");*/
 
         this.appKeys.add(position, applicationKey);
         saveApplicationKeys();

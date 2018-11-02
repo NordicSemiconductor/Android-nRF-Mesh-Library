@@ -232,7 +232,7 @@ public class MeshProvisioningHandler {
         String error;
 
         if (networkKeyValue == null || networkKeyValue.isEmpty()) {
-            error = "Network key cannot be null or empty!";
+            error = "MeshNetwork key cannot be null or empty!";
             throw new IllegalArgumentException(error);
         }
 
@@ -268,7 +268,7 @@ public class MeshProvisioningHandler {
      *
      * @param address         Bluetooth address of the node
      * @param nodeName        Friendly node name
-     * @param networkKeyValue Network key
+     * @param networkKeyValue MeshNetwork key
      * @param keyIndex        Index of the network key
      * @param flags           Flag containing the key refresh or the iv update operations
      * @param ivIndex         32-bit value shared across the network

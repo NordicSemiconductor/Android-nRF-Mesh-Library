@@ -38,7 +38,6 @@ import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.DeviceFeatureUtils;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**

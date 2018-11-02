@@ -56,7 +56,7 @@ public class ConfigAppKeyAdd extends ConfigMessage {
         if (networkKey != null && networkKey.key.length != 16)
             throw new IllegalArgumentException("Network key must be 16 bytes");
 
-        if (appKey != null && appKey.key.length != 16)
+        if (appKey != null && appKey.getKey().length != 16)
             throw new IllegalArgumentException("App key must be 16 bytes");
 
         this.mNetKey = networkKey;

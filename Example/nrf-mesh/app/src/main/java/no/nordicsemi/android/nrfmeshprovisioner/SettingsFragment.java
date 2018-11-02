@@ -27,6 +27,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -39,6 +40,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -238,15 +240,25 @@ public class SettingsFragment extends Fragment implements Injectable,
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        if (!mViewModel.getProvisionedNodes().getValue().isEmpty()) {
-            inflater.inflate(R.menu.reset_network, menu);
-        }
+        /*if (!mViewModel.getProvisionedNodes().getValue().isEmpty()) {
+            inflater.inflate(R.menu.network_settings_more, menu);
+        }*/
+        inflater.inflate(R.menu.network_settings, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         final int id = item.getItemId();
         switch (id) {
+            case R.id.action_import_network:
+                final String path = Environment.getExternalStorageDirectory()
+                        + File.separator
+                        + "Nordic Semiconductor"
+                        + File.separator
+                        + "nRF Mesh"
+                        + File.separator;
+                mViewModel.getMeshManagerApi().importNetwork(path);
+                return true;
             case R.id.action_reset_network:
                 final DialogFragmentResetNetwork dialogFragmentResetNetwork = DialogFragmentResetNetwork.
                         newInstance(getString(R.string.title_reset_network), getString(R.string.message_reset_network));
