@@ -1,6 +1,5 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.util.Log;
@@ -65,12 +64,10 @@ public class ModelConfigurationActivity extends BaseModelConfigurationActivity
         }
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
-
 
     @Override
     protected void onSaveInstanceState(final Bundle outState) {
@@ -79,20 +76,12 @@ public class ModelConfigurationActivity extends BaseModelConfigurationActivity
         outState.putInt(NETWORK_TRANSMIT_INTERVAL_STEPS, mNetworkTransmitIntervalSteps);
     }
 
-
     @Override
     protected void onRestoreInstanceState(final Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         mNetworkTransmitCount = savedInstanceState.getInt(NETWORK_TRANSMIT_COUNT);
         mNetworkTransmitIntervalSteps = savedInstanceState.getInt(NETWORK_TRANSMIT_INTERVAL_STEPS);
     }
-
-
-    @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
 
     private void getNetworkTransmit() {
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
@@ -105,7 +94,6 @@ public class ModelConfigurationActivity extends BaseModelConfigurationActivity
         }
     }
 
-
     private void setNetworkTransmit(final int networkTransmitCount, final int networkTransmitIntervalSteps) {
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         try {
@@ -117,7 +105,6 @@ public class ModelConfigurationActivity extends BaseModelConfigurationActivity
         }
     }
 
-
     @Override
     protected void updateMeshMessage(final MeshMessage meshMessage) {
         if (meshMessage instanceof ConfigNetworkTransmitStatus) {
@@ -128,7 +115,6 @@ public class ModelConfigurationActivity extends BaseModelConfigurationActivity
         }
         super.updateMeshMessage(meshMessage);
     }
-
 
     private void updateUi() {
         if (mNetworkTransmitCount == NETWORK_TRANSMIT_SETTING_UNKNOWN) {
@@ -145,7 +131,6 @@ public class ModelConfigurationActivity extends BaseModelConfigurationActivity
         }
     }
 
-
     @Override
     protected void enableClickableViews() {
         super.enableClickableViews();
@@ -155,7 +140,6 @@ public class ModelConfigurationActivity extends BaseModelConfigurationActivity
             mConfigureNetworkTransmitStateButton.setEnabled(true);
         }
     }
-
 
     @Override
     protected void disableClickableViews() {

@@ -18,12 +18,10 @@ public final class ConfigNetworkTransmitGetState extends ConfigMessageState {
         createAccessMessage();
     }
 
-
     @Override
     public MeshMessageState.MessageState getState() {
         return MeshMessageState.MessageState.CONFIG_NETWORK_TRANSMIT_GET_STATE;
     }
-
 
     private void createAccessMessage() {
         final byte[] key = mNode.getDeviceKey();
@@ -36,7 +34,6 @@ public final class ConfigNetworkTransmitGetState extends ConfigMessageState {
         message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
         configNetworkTransmitGet.setMessage(message);
     }
-
 
     @Override
     public final void executeSend() {

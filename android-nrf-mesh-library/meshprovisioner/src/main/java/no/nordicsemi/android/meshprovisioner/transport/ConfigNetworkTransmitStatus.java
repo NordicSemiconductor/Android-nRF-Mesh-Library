@@ -55,7 +55,6 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
         parseStatusParameters();
     }
 
-
     private static final Creator<ConfigNetworkTransmitStatus> CREATOR = new Creator<ConfigNetworkTransmitStatus>() {
         @Override
         public ConfigNetworkTransmitStatus createFromParcel(Parcel in) {
@@ -69,7 +68,6 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
             return new ConfigNetworkTransmitStatus[size];
         }
     };
-
 
     @Override
     public int getOpCode() {

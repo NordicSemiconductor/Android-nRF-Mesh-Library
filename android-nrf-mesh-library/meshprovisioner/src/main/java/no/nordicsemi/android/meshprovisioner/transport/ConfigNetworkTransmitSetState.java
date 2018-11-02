@@ -20,12 +20,10 @@ public final class ConfigNetworkTransmitSetState extends ConfigMessageState {
         createAccessMessage();
     }
 
-
     @Override
     public MessageState getState() {
         return MessageState.CONFIG_NETWORK_TRANSMIT_SET_STATE;
     }
-
 
     private void createAccessMessage() {
         final byte[] key = mNode.getDeviceKey();
@@ -39,7 +37,6 @@ public final class ConfigNetworkTransmitSetState extends ConfigMessageState {
         message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
         configNetworkTransmitSet.setMessage(message);
     }
-
 
     @Override
     public final void executeSend() {
