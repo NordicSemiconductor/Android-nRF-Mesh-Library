@@ -1,5 +1,6 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -9,33 +10,40 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-final class AppKeyDeserializer implements JsonSerializer<ApplicationKey>, JsonDeserializer<ApplicationKey> {
+final class AppKeyDeserializer implements JsonSerializer<List<ApplicationKey>>, JsonDeserializer<List<ApplicationKey>> {
     private static final String TAG = AppKeyDeserializer.class.getSimpleName();
 
     @Override
-    public JsonElement serialize(final ApplicationKey src, final Type typeOfSrc, final JsonSerializationContext context) {
+    public JsonElement serialize(final List<ApplicationKey> src, final Type typeOfSrc, final JsonSerializationContext context) {
         return null;
     }
 
     @Override
-    public ApplicationKey deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
-        final JsonObject jsonObject = json.getAsJsonObject();
-        final String name = jsonObject.get("name").getAsString();
-        final int index = jsonObject.get("index").getAsInt();
-        final int boundNetKeyIndex = jsonObject.get("boundNetKey").getAsInt();
-        final byte[] key = MeshParserUtils.toByteArray(jsonObject.get("key").getAsString());
-        final byte[] oldKey = getOldKey(jsonObject);
+    public List<ApplicationKey> deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
+        final List<ApplicationKey> appKeys = new ArrayList<>();
+        final JsonArray jsonArray = json.getAsJsonArray();
+        for(int i = 0; i < jsonArray.size(); i++) {
+            final JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+            final String name = jsonObject.get("name").getAsString();
+            final int index = jsonObject.get("index").getAsInt();
+            final int boundNetKeyIndex = jsonObject.get("boundNetKey").getAsInt();
+            final byte[] key = MeshParserUtils.toByteArray(jsonObject.get("key").getAsString());
+            final byte[] oldKey = getOldKey(jsonObject);
 
-        final ApplicationKey applicationKey = new ApplicationKey(index, key);
-        applicationKey.setName(name);
-        applicationKey.setBoundNetKeyIndex(boundNetKeyIndex);
-        applicationKey.setOldKey(oldKey);
-        return applicationKey;
+            final ApplicationKey applicationKey = new ApplicationKey(index, key);
+            applicationKey.setName(name);
+            applicationKey.setBoundNetKeyIndex(boundNetKeyIndex);
+            applicationKey.setOldKey(oldKey);
+            appKeys.add(applicationKey);
+        }
+        return appKeys;
     }
 
     private byte[] getOldKey(final JsonObject jsonObject){

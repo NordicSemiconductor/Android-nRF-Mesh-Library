@@ -48,7 +48,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     private SecureUtils.K2Output k2Output;
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    public ProvisionedMeshNode() {
+    ProvisionedMeshNode() {
 
     }
 
@@ -383,7 +383,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
                             final int keyIndex = appKeyEntry.getKey();
                             final byte[] key = MeshParserUtils.toByteArray(appKeyEntry.getValue());
                             final ApplicationKey applicationKey = new ApplicationKey(keyIndex, key);
-                            meshModel.mBoundApplicationKeys.put(keyIndex, applicationKey);
+                            //meshModel.mBoundApplicationKeys.put(keyIndex, applicationKey);
                         }
                     }
                 }

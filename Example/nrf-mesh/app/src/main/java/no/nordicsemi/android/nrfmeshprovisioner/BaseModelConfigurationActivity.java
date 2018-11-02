@@ -185,9 +185,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mPublishAddressView.setText(R.string.none);
         mActionSetPublication.setOnClickListener(v -> {
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-            if (model != null && !model.getBoundApplicationKeys().isEmpty()) {
+            if (model != null && !model.getBoundAppKeyIndexes().isEmpty()) {
                 final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
-                publicationSettings.putExtra(EXTRA_DEVICE, model);
                 startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
             } else {
                 Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
@@ -382,7 +381,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel meshModel = mViewModel.getSelectedModel().getMeshModel();
-        if (meshModel != null && !meshModel.getBoundApplicationKeys().isEmpty()) {
+        if (meshModel != null && !meshModel.getBoundAppKeyIndexes().isEmpty()) {
             final byte[] address = MeshParserUtils.DISABLED_PUBLICATION_ADDRESS;
             final int appKeyIndex = meshModel.getPublicationSettings().getAppKeyIndex();
             final boolean credentialFlag = meshModel.getPublicationSettings().getCredentialFlag();
@@ -446,16 +445,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             mActionRead.setEnabled(false);
 
 
-    }
-
-    private Integer getAppKeyIndex(final String appKey) {
-        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-        for (Integer key : model.getBoundApplicationKeys().keySet()) {
-            if (model.getBoundApplicationKeys().get(key).equals(appKey)) {
-                return key;
-            }
-        }
-        return null;
     }
 
     /**

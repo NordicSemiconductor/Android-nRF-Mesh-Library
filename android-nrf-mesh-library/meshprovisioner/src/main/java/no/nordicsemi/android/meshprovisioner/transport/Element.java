@@ -37,32 +37,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@SuppressWarnings("WeakerAccess")
+import no.nordicsemi.android.meshprovisioner.models.SigModel;
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
+
+@SuppressWarnings({"WeakerAccess", "unused"})
 public final class Element implements Parcelable {
 
     @Expose
-    final byte[] elementAddress;
+    byte[] elementAddress;
     @Expose
     final int locationDescriptor;
     @Expose
-    final int sigModelCount;
-    @Expose
-    final int vendorModelCount;
-    @Expose
     final Map<Integer, MeshModel> meshModels;
-    Element(final byte[] elementAddress, final int locationDescriptor, final int sigModelCount, final int vendorModelCount, final Map<Integer, MeshModel> models) {
+
+    Element(final byte[] elementAddress, final int locationDescriptor, final Map<Integer, MeshModel> models) {
         this.elementAddress = elementAddress;
         this.locationDescriptor = locationDescriptor;
-        this.sigModelCount = sigModelCount;
-        this.vendorModelCount = vendorModelCount;
+        this.meshModels = models;
+    }
+
+    Element(final int locationDescriptor, final Map<Integer, MeshModel> models) {
+        this.locationDescriptor = locationDescriptor;
         this.meshModels = models;
     }
 
     protected Element(Parcel in) {
         elementAddress = in.createByteArray();
         locationDescriptor = in.readInt();
-        sigModelCount = in.readInt();
-        vendorModelCount = in.readInt();
         meshModels = new LinkedHashMap<>();
         sortModels(in.readHashMap(MeshModel.class.getClassLoader()));
     }
@@ -71,8 +72,6 @@ public final class Element implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByteArray(elementAddress);
         dest.writeInt(locationDescriptor);
-        dest.writeInt(sigModelCount);
-        dest.writeInt(vendorModelCount);
         dest.writeMap(meshModels);
     }
 
@@ -113,11 +112,23 @@ public final class Element implements Parcelable {
     }
 
     public int getSigModelCount() {
-        return sigModelCount;
+        int count = 0;
+        for(Map.Entry<Integer, MeshModel> modelEntry : meshModels.entrySet()){
+            if(modelEntry.getValue() instanceof SigModel){
+                count++;
+            }
+        }
+        return count;
     }
 
     public int getVendorModelCount() {
-        return vendorModelCount;
+        int count = 0;
+        for(Map.Entry<Integer, MeshModel> modelEntry : meshModels.entrySet()){
+            if(modelEntry.getValue() instanceof VendorModel){
+                count++;
+            }
+        }
+        return count;
     }
 
     /**

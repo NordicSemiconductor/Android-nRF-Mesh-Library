@@ -1,4 +1,4 @@
-package no.nordicsemi.android.meshprovisioner;
+package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,10 +8,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,11 +17,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
-import no.nordicsemi.android.meshprovisioner.transport.InternalMeshModelDeserializer;
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.Group;
+import no.nordicsemi.android.meshprovisioner.Provisioner;
+import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
+import no.nordicsemi.android.meshprovisioner.Scene;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -40,36 +35,39 @@ abstract class BaseMeshNetwork {
     @SerializedName("$schema")
     @Expose
     String schema;
-    @SerializedName("appKeys")
+    @SerializedName("id")
     @Expose
-    protected List<ApplicationKey> appKeys = null;
-    @SerializedName("groups")
+    String id;
+    @SerializedName("version")
     @Expose
-    List<Group> groups = null;
-    @SerializedName("ivIndex")
-    @Expose
-    protected int ivIndex;
-    @SerializedName("ivUpdate")
-    @Expose
-    int ivUpdate;
-    @SerializedName("meshName")
-    @Expose
-    String meshName;
+    String version;
     @SerializedName("meshUUID")
     @Expose
     String meshUUID;
-    @SerializedName("netKeys")
+    @SerializedName("meshName")
     @Expose
-    List<NetworkKey> netKeys = null;
-    @SerializedName("nodes")
-    @Expose
-    List<ProvisionedMeshNode> nodes = null;
-    @SerializedName("provisioners")
-    @Expose
-    List<Provisioner> provisioners = null;
+    String meshName;
     @SerializedName("timestamp")
     @Expose
     String timestamp;
+    @SerializedName("netKeys")
+    @Expose
+    List<NetworkKey> netKeys = null;
+    @SerializedName("appKeys")
+    @Expose
+    List<ApplicationKey> appKeys = null;
+    @SerializedName("provisioners")
+    @Expose
+    List<Provisioner> provisioners = null;
+    @SerializedName("nodes")
+    @Expose
+    List<ProvisionedMeshNode> nodes = null;
+    @SerializedName("groups")
+    @Expose
+    List<Group> groups = null;
+    @SerializedName("scenes")
+    @Expose
+    List<Scene> scenes = null;
 
     private ProvisioningSettings mProvisioningSettings;
     private Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new LinkedHashMap<>();
@@ -91,7 +89,7 @@ abstract class BaseMeshNetwork {
         return Collections.unmodifiableMap(mProvisionedNodes);
     }
 
-    void addMeshNode(final ProvisionedMeshNode node) {
+    public void addMeshNode(final ProvisionedMeshNode node) {
         mProvisionedNodes.put(node.getUnicastAddressInt(), node);
     }
 
@@ -186,7 +184,7 @@ abstract class BaseMeshNetwork {
         }
     }
 
-    ProvisionedMeshNode getMeshNode(final int unicastAddress) {
+    public final ProvisionedMeshNode getMeshNode(final int unicastAddress) {
         for (Map.Entry<Integer, ProvisionedMeshNode> entry : mProvisionedNodes.entrySet()) {
             if (entry.getValue().getElements() != null && entry.getValue().getElements().containsKey(unicastAddress)) {
                 return entry.getValue();
@@ -215,7 +213,7 @@ abstract class BaseMeshNetwork {
     /**
      * Serialize and save provisioned node
      */
-    void saveProvisionedNode(final ProvisionedMeshNode node) {
+    public void saveProvisionedNode(final ProvisionedMeshNode node) {
         mProvisionedNodes.put(node.getUnicastAddressInt(), node);
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = preferences.edit();
@@ -243,7 +241,7 @@ abstract class BaseMeshNetwork {
     /**
      * Serialize and save provisioned node
      */
-    void deleteProvisionedNode(final ProvisionedMeshNode node) {
+    public void deleteProvisionedNode(final ProvisionedMeshNode node) {
         mProvisionedNodes.remove(node.getUnicastAddressInt());
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = preferences.edit();
@@ -255,7 +253,7 @@ abstract class BaseMeshNetwork {
     /**
      * Clear provisioned ndoes
      */
-    void clearProvisionedNodes() {
+    public void clearProvisionedNodes() {
         final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
@@ -312,7 +310,7 @@ abstract class BaseMeshNetwork {
         return mConfigurationSrc;
     }
 
-    void incrementUnicastAddress(final ProvisionedMeshNode meshNode) {
+    public void incrementUnicastAddress(final ProvisionedMeshNode meshNode) {
         //Since we know the number of elements this node contains we can predict the next available address for the next node.
         int unicastAdd = (meshNode.getUnicastAddressInt() + meshNode.getNumberOfElements());
         //We check if the incremented unicast address is already taken by the app/configurator

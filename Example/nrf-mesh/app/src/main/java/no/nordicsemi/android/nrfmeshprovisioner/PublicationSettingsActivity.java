@@ -1,6 +1,8 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.app.Activity;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,21 +16,27 @@ import android.widget.TextView;
 
 import java.io.Serializable;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
+import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPubRetransmitIntervalSteps;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublicationResolution;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublicationSteps;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentRetransmitCount;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
 
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
 
-public class PublicationSettingsActivity extends AppCompatActivity implements DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
+public class PublicationSettingsActivity extends AppCompatActivity implements Injectable, DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
         DialogFragmentPublicationSteps.DialogFragmentPublicationStepsListener,
         DialogFragmentPublicationResolution.DialogFragmentPublicationResolutionListener,
         DialogFragmentRetransmitCount.DialogFragmentRetransmitCountListener,
@@ -59,6 +67,9 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
     private int mPublishRetransmitCount = DEFAULT_PUB_RETRANSMIT_COUNT;
     private int mPublishRetransmitIntervalSteps = DEFAULT_PUB_RETRANSMIT_INTERVAL_STEPS;
 
+    @Inject
+    ViewModelProvider.Factory mViewModelFactory;
+
     @BindView(R.id.publish_address)
     TextView mPublishAddressView;
     @BindView(R.id.retransmit_count)
@@ -82,8 +93,11 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
         setContentView(R.layout.activity_publication_settings);
         ButterKnife.bind(this);
 
-        final Intent intent = getIntent();
-        final MeshModel meshModel = mMeshModel = intent.getParcelableExtra(EXTRA_DEVICE);
+        final PublicationViewModel viewModel = ViewModelProviders.of(this, mViewModelFactory).get(PublicationViewModel.class);
+
+        //final Intent intent = getIntent();
+        //intent.getParcelableExtra(EXTRA_DEVICE);
+        final MeshModel meshModel = mMeshModel = viewModel.getSelectedModel().getMeshModel();
         if(meshModel == null)
             finish();
 

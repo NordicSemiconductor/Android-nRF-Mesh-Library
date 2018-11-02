@@ -29,14 +29,17 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
@@ -46,11 +49,17 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppUnbind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionDelete;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.transport.ElementListDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffGet;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModelListDeserializer;
+import no.nordicsemi.android.meshprovisioner.transport.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.transport.MeshNetworkDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
+import no.nordicsemi.android.meshprovisioner.transport.NodeDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.SequenceNumber;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -746,17 +755,26 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         BufferedReader br = null;
         try {
 
-            GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(NetworkKey.class, new NetKeyDeserializer());
-            gsonBuilder.registerTypeAdapter(ApplicationKey.class, new AppKeyDeserializer());
+            Type netKeyList = new TypeToken<List<NetworkKey>>() {}.getType();
+            Type appKeyList = new TypeToken<List<ApplicationKey>>() {}.getType();
+            Type meshModelList = new TypeToken<List<MeshModel>>() {}.getType();
+            Type elementList = new TypeToken<List<Element>>() {}.getType();
+
+            final GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(MeshNetwork.class, new MeshNetworkDeserializer());
+            gsonBuilder.registerTypeAdapter(netKeyList, new NetKeyDeserializer());
+            gsonBuilder.registerTypeAdapter(appKeyList, new AppKeyDeserializer());
             gsonBuilder.registerTypeAdapter(AllocatedGroupRange.class, new AllocatedGroupRangeDeserializer());
             gsonBuilder.registerTypeAdapter(AllocatedUnicastRange.class, new AllocatedUnicastRangeDeserializer());
             gsonBuilder.registerTypeAdapter(AllocatedSceneRange.class, new AllocatedSceneRangeDeserializer());
-            Gson gson = gsonBuilder.create();
+            gsonBuilder.registerTypeAdapter(ProvisionedMeshNode.class, new NodeDeserializer());
+            gsonBuilder.registerTypeAdapter(elementList, new ElementListDeserializer());
+            gsonBuilder.registerTypeAdapter(meshModelList, new MeshModelListDeserializer());
+            final Gson gson = gsonBuilder.create();
 
-            File f = new File(path, "example_database.json");
+            final File f = new File(path, "example_database.json");
             br = new BufferedReader(new FileReader(f));
-            MeshNetwork network = gson.fromJson(br, MeshNetwork.class);
+            final MeshNetwork network = gson.fromJson(br, MeshNetwork.class);
             if (network != null) {
             }
         } catch (Exception e) {

@@ -5,7 +5,7 @@ import com.google.gson.annotations.Expose;
 /**
  * Class definitions for creating scenes in a mesh network
  */
-public class Scenes {
+public class Scene {
 
     @Expose
     private String name;

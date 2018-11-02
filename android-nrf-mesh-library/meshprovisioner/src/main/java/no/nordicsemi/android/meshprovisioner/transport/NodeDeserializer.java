@@ -1,5 +1,6 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -7,46 +8,61 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class NodeDeserializer implements JsonSerializer<ProvisionedMeshNode>, JsonDeserializer<ProvisionedMeshNode> {
+public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMeshNode>>, JsonDeserializer<List<ProvisionedMeshNode>> {
+
     @Override
-    public ProvisionedMeshNode deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
-        final ProvisionedMeshNode node = new ProvisionedMeshNode();
-        JsonObject jsonObject = json.getAsJsonObject();
-        final byte[] deviceKey = MeshParserUtils.toByteArray(jsonObject.get("deviceKey").getAsString());
-        node.deviceKey = deviceKey;
-        final int unicastAddress = Integer.parseInt(jsonObject.get("unicastAddress").getAsString(), 16);
-        final boolean security = jsonObject.get("security").getAsString().equals("high");
-        final boolean configComplete = jsonObject.get("configComplete").getAsBoolean();
-        node.isConfigured = configComplete;
+    public List<ProvisionedMeshNode> deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
+        final List<ProvisionedMeshNode> nodes = new ArrayList<>();
+        final JsonArray jsonArray = json.getAsJsonArray();
+        for(int i = 0; i < jsonArray.size(); i++) {
+            JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+            final ProvisionedMeshNode node = new ProvisionedMeshNode();
+            node.deviceKey = MeshParserUtils.toByteArray(jsonObject.get("deviceKey").getAsString());
+            final int unicastAddress = Integer.parseInt(jsonObject.get("unicastAddress").getAsString(), 16);
+            final boolean security = jsonObject.get("security").getAsString().equals("high");
+            final boolean configComplete = jsonObject.get("configComplete").getAsBoolean();
+            node.isConfigured = configComplete;
 
-        if (configComplete) {
-            final int cid = Integer.parseInt(jsonObject.get("cid").getAsString(), 16);
-            node.companyIdentifier = cid;
-            final int pid = Integer.parseInt(jsonObject.get("pid").getAsString(), 16);
-            node.productIdentifier = pid;
-            final int vid =  Integer.parseInt(jsonObject.get("vid").getAsString(), 16);
-            node.versionIdentifier = vid;
-            final int crpl =  Integer.parseInt(jsonObject.get("crpl").getAsString(), 16);
-            node.crpl = crpl;
+            if (configComplete) {
+                node.companyIdentifier = Integer.parseInt(jsonObject.get("cid").getAsString(), 16);
+                node.productIdentifier = Integer.parseInt(jsonObject.get("pid").getAsString(), 16);
+                node.versionIdentifier = Integer.parseInt(jsonObject.get("vid").getAsString(), 16);
+                node.crpl = Integer.parseInt(jsonObject.get("crpl").getAsString(), 16);
 
-            final JsonObject featuresJson = jsonObject.get("features").getAsJsonObject();
-            node.relayFeatureSupported = isSupported(featuresJson.get("relay").getAsInt());
-            node.proxyFeatureSupported = isSupported(featuresJson.get("proxy").getAsInt());
-            node.friendFeatureSupported = isSupported(featuresJson.get("friend").getAsInt());
-            node.lowPowerFeatureSupported = isSupported(featuresJson.get("lowPower").getAsInt());
+                final JsonObject featuresJson = jsonObject.get("features").getAsJsonObject();
+                node.relayFeatureSupported = isSupported(featuresJson.get("relay").getAsInt());
+                node.proxyFeatureSupported = isSupported(featuresJson.get("proxy").getAsInt());
+                node.friendFeatureSupported = isSupported(featuresJson.get("friend").getAsInt());
+                node.lowPowerFeatureSupported = isSupported(featuresJson.get("lowPower").getAsInt());
+
+                final List<Element> elements = deserializeElements(context, jsonObject);
+                final Map<Integer, Element> elementMap = populateElements(elements);
+                node.mElements.clear();
+                node.mElements.putAll(elementMap);
+            }
         }
 
-        return null;
+        return nodes;
     }
 
     @Override
-    public JsonElement serialize(final ProvisionedMeshNode src, final Type typeOfSrc, final JsonSerializationContext context) {
+    public JsonElement serialize(final List<ProvisionedMeshNode> src, final Type typeOfSrc, final JsonSerializationContext context) {
         return null;
+    }
+
+    private List<Element> deserializeElements(final JsonDeserializationContext context, final JsonObject json){
+        Type elementList = new TypeToken<List<Element>>() {}.getType();
+        return context.deserialize(json.getAsJsonArray("elements"), elementList);
     }
 
     private boolean isSupported(final int value) {
@@ -59,5 +75,20 @@ public final class NodeDeserializer implements JsonSerializer<ProvisionedMeshNod
             default:
                 return false;
         }
+    }
+
+    /**
+     * Populates the require map of {@link MeshModel} where key is the model identifier and model is the value
+     *
+     * @param elementsList list of MeshModels
+     * @return Map of mesh models
+     */
+    private Map<Integer, Element> populateElements(final List<Element> elementsList) {
+        final Map<Integer, Element> elements = new LinkedHashMap<>();
+
+        for (Element element : elementsList) {
+            elements.put(element.getElementAddressInt(), element);
+        }
+        return elements;
     }
 }
