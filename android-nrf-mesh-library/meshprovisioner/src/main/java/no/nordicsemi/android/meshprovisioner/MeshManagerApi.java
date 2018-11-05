@@ -757,6 +757,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
             Type netKeyList = new TypeToken<List<NetworkKey>>() {}.getType();
             Type appKeyList = new TypeToken<List<ApplicationKey>>() {}.getType();
+            Type nodeList = new TypeToken<List<ProvisionedMeshNode>>() {}.getType();
             Type meshModelList = new TypeToken<List<MeshModel>>() {}.getType();
             Type elementList = new TypeToken<List<Element>>() {}.getType();
 
@@ -767,7 +768,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             gsonBuilder.registerTypeAdapter(AllocatedGroupRange.class, new AllocatedGroupRangeDeserializer());
             gsonBuilder.registerTypeAdapter(AllocatedUnicastRange.class, new AllocatedUnicastRangeDeserializer());
             gsonBuilder.registerTypeAdapter(AllocatedSceneRange.class, new AllocatedSceneRangeDeserializer());
-            gsonBuilder.registerTypeAdapter(ProvisionedMeshNode.class, new NodeDeserializer());
+            gsonBuilder.registerTypeAdapter(nodeList, new NodeDeserializer());
             gsonBuilder.registerTypeAdapter(elementList, new ElementListDeserializer());
             gsonBuilder.registerTypeAdapter(meshModelList, new MeshModelListDeserializer());
             final Gson gson = gsonBuilder.create();

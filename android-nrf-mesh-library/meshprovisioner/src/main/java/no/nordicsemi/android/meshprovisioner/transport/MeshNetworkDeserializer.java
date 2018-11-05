@@ -1,5 +1,6 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -23,8 +24,9 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         network.version = jsonObject.get("version").getAsString();
         network.meshUUID = jsonObject.get("meshUUID").getAsString();
         network.timestamp = jsonObject.get("timestamp").getAsString();
-        network.netKeys = deserializeNetKeys(context, jsonObject);
-        network.appKeys = deserializeAppKeys(context, jsonObject);
+        network.netKeys = deserializeNetKeys(context, jsonObject.getAsJsonArray("netKeys"));
+        network.appKeys = deserializeAppKeys(context, jsonObject.getAsJsonArray("appKeys"));
+        network.nodes = deserializeNodes(context, jsonObject.getAsJsonArray("nodes"));
         return network;
     }
 
@@ -40,9 +42,9 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
      * @param json    json array containing the netkeys
      * @return List of network keys
      */
-    private List<NetworkKey> deserializeNetKeys(final JsonDeserializationContext context, final JsonObject json) {
+    private List<NetworkKey> deserializeNetKeys(final JsonDeserializationContext context, final JsonArray json) {
         final Type networkKey = new TypeToken<List<NetworkKey>>() {}.getType();
-        return context.deserialize(json.getAsJsonArray("netKeys"), networkKey);
+        return context.deserialize(json, networkKey);
     }
 
     /**
@@ -52,8 +54,20 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
      * @param json   json array containing the app keys
      * @return List of app keys
      */
-    private List<ApplicationKey> deserializeAppKeys(final JsonDeserializationContext context, final JsonObject json) {
+    private List<ApplicationKey> deserializeAppKeys(final JsonDeserializationContext context, final JsonArray json) {
         final Type applicationKeys = new TypeToken<List<ApplicationKey>>() {}.getType();
-        return context.deserialize(json.getAsJsonArray("appKeys"), applicationKeys);
+        return context.deserialize(json, applicationKeys);
+    }
+
+    /**
+     * Returns a list of nodes deserializing the json array containing the provisioned mesh nodes
+     *
+     * @param context deserializer context
+     * @param json   json array containing the nodes
+     * @return List of nodes
+     */
+    private List<ProvisionedMeshNode> deserializeNodes(final JsonDeserializationContext context, final JsonArray json) {
+        final Type nodes = new TypeToken<List<ProvisionedMeshNode>>() {}.getType();
+        return context.deserialize(json, nodes);
     }
 }

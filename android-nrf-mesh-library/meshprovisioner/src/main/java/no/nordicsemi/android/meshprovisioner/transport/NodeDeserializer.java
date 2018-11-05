@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMeshNode>>, JsonDeserializer<List<ProvisionedMeshNode>> {
@@ -24,7 +25,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
     public List<ProvisionedMeshNode> deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
         final List<ProvisionedMeshNode> nodes = new ArrayList<>();
         final JsonArray jsonArray = json.getAsJsonArray();
-        for(int i = 0; i < jsonArray.size(); i++) {
+        for (int i = 0; i < jsonArray.size(); i++) {
             JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
             final ProvisionedMeshNode node = new ProvisionedMeshNode();
             node.deviceKey = MeshParserUtils.toByteArray(jsonObject.get("deviceKey").getAsString());
@@ -46,7 +47,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 node.lowPowerFeatureSupported = isSupported(featuresJson.get("lowPower").getAsInt());
 
                 final List<Element> elements = deserializeElements(context, jsonObject);
-                final Map<Integer, Element> elementMap = populateElements(elements);
+                final Map<Integer, Element> elementMap = populateElements(unicastAddress, elements);
                 node.mElements.clear();
                 node.mElements.putAll(elementMap);
             }
@@ -60,8 +61,9 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
         return null;
     }
 
-    private List<Element> deserializeElements(final JsonDeserializationContext context, final JsonObject json){
-        Type elementList = new TypeToken<List<Element>>() {}.getType();
+    private List<Element> deserializeElements(final JsonDeserializationContext context, final JsonObject json) {
+        Type elementList = new TypeToken<List<Element>>() {
+        }.getType();
         return context.deserialize(json.getAsJsonArray("elements"), elementList);
     }
 
@@ -80,13 +82,19 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
     /**
      * Populates the require map of {@link MeshModel} where key is the model identifier and model is the value
      *
-     * @param elementsList list of MeshModels
+     * @param unicastAddress unicast address of the node
+     * @param elementsList   list of MeshModels
      * @return Map of mesh models
      */
-    private Map<Integer, Element> populateElements(final List<Element> elementsList) {
+    private Map<Integer, Element> populateElements(final int unicastAddress, final List<Element> elementsList) {
         final Map<Integer, Element> elements = new LinkedHashMap<>();
-
-        for (Element element : elementsList) {
+        for (int i = 0; i < elementsList.size(); i++) {
+            final Element element = elementsList.get(i);
+            if(i == 0){
+                element.elementAddress = AddressUtils.getUnicastAddressBytes(unicastAddress);
+            } else {
+                element.elementAddress = AddressUtils.getUnicastAddressBytes(unicastAddress + 1);
+            }
             elements.put(element.getElementAddressInt(), element);
         }
         return elements;

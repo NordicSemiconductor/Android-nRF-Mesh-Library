@@ -16,6 +16,7 @@ import java.util.List;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
 /**
@@ -60,8 +61,8 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             return null;
 
         final JsonObject publish = jsonObject.get("publish").getAsJsonObject();
-        final int address = Integer.parseInt(publish.get("address").getAsString(), 16);
-        final byte[] publishAddress = AddressUtils.getUnicastAddressBytes(address);
+        //final int address = Integer.parseInt(publish.get("address").getAsString(), 16);
+        final byte[] publishAddress = MeshParserUtils.toByteArray(publish.get("address").getAsString());//AddressUtils.getUnicastAddressBytes(address);
 
         final int index = publish.get("index").getAsInt();
         final int ttl = publish.get("ttl").getAsByte();
@@ -99,11 +100,12 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         final List<byte[]> subscriptions = new ArrayList<>();
         if (!(jsonObject.has("subscribe")))
             return subscriptions;
-
+        
         final JsonArray jsonArray = jsonObject.get("subscribe").getAsJsonArray();
         for (int i = 0; i < jsonArray.size(); i++) {
-            final int address = Integer.parseInt(jsonArray.get(i).getAsString(), 16);
-            subscriptions.add(AddressUtils.getUnicastAddressBytes(address));
+            //final int address = Integer.parseInt(jsonArray.get(i).getAsString(), 16);
+            final byte[] publishAddress = MeshParserUtils.toByteArray(jsonArray.get(i).getAsString());
+            subscriptions.add(publishAddress);
         }
         return subscriptions;
     }
