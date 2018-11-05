@@ -24,7 +24,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return schema;
     }
 
-    public void setSchema(String schema) {
+    void setSchema(String schema) {
         this.schema = schema;
     }
 
@@ -32,7 +32,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return id;
     }
 
-    public void setId(String id) {
+    void setId(String id) {
         this.id = id;
     }
 
@@ -40,7 +40,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return version;
     }
 
-    public void setVersion(String version) {
+    void setVersion(String version) {
         this.version = version;
     }
 
@@ -48,7 +48,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return meshUUID;
     }
 
-    public void setMeshUUID(String meshUUID) {
+    void setMeshUUID(String meshUUID) {
         this.meshUUID = meshUUID;
     }
 
@@ -56,7 +56,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return meshName;
     }
 
-    public void setMeshName(String meshName) {
+    void setMeshName(String meshName) {
         this.meshName = meshName;
     }
 
@@ -64,7 +64,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -72,7 +72,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return netKeys;
     }
 
-    public void setNetKeys(List<NetworkKey> netKeys) {
+    void setNetKeys(List<NetworkKey> netKeys) {
         this.netKeys = netKeys;
     }
 
@@ -80,7 +80,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return appKeys;
     }
 
-    public void setAppKeys(List<ApplicationKey> appKeys) {
+    void setAppKeys(List<ApplicationKey> appKeys) {
         this.appKeys = appKeys;
     }
 
@@ -88,7 +88,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return provisioners;
     }
 
-    public void setProvisioners(List<Provisioner> provisioners) {
+    void setProvisioners(List<Provisioner> provisioners) {
         this.provisioners = provisioners;
     }
 
@@ -96,7 +96,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return nodes;
     }
 
-    public void setNodes(List<ProvisionedMeshNode> nodes) {
+    void setNodes(List<ProvisionedMeshNode> nodes) {
         this.nodes = nodes;
     }
 
@@ -104,7 +104,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return groups;
     }
 
-    public void setGroups(List<Group> groups) {
+    void setGroups(List<Group> groups) {
         this.groups = groups;
     }
 
@@ -112,7 +112,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return scenes;
     }
 
-    public void setScenes(List<Scene> scenes) {
+    void setScenes(List<Scene> scenes) {
         this.scenes = scenes;
     }
 
