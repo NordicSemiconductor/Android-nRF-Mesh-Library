@@ -81,11 +81,6 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         final String format = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(node.getTimeStamp());
         timestamp.setText(format);
 
-        final View containerNodeIdentifier = findViewById(R.id.container_identifier);
-        containerNodeIdentifier.setClickable(false);
-        final TextView nodeIdentifier = containerNodeIdentifier.findViewById(R.id.text);
-        nodeIdentifier.setText(node.getNodeIdentifier());
-
         final View containerUnicastAddress = findViewById(R.id.container_supported_algorithm);
         containerUnicastAddress.setClickable(false);
         final TextView unicastAddress = containerUnicastAddress.findViewById(R.id.text);

@@ -235,14 +235,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         this.bluetoothAddress = address;
     }
 
-    public final String getNodeIdentifier() {
-        return nodeIdentifier;
-    }
-
-    public final void setNodeIdentifier(final String nodeIdentifier) {
-        this.nodeIdentifier = nodeIdentifier;
-    }
-
     public final Map<Integer, String> getTempAddedAppKeys() {
         return Collections.unmodifiableMap(mAddedAppKeys);
     }

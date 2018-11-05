@@ -74,7 +74,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     int mReceivedSequenceNumber;
     @Expose
     String bluetoothAddress;
-    @Expose
+    @Expose(serialize = false, deserialize = false)
     String nodeIdentifier;
     @Expose
     protected Integer companyIdentifier = null;
