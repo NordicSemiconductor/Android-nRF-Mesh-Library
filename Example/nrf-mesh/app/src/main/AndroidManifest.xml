@@ -101,9 +101,6 @@
         <activity
             android:name=".ModelConfigurationActivity"
             android:launchMode="singleTop"/>
-        <activity
-            android:name=".NetworkTransmitSettingsActivity"
-            android:launchMode="singleTop"/>
     </application>
 
 </manifest>
