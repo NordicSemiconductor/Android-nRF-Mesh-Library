@@ -25,7 +25,9 @@ package no.nordicsemi.android.meshprovisioner.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class GenericDefaultTransitionTimeServer extends SigModel {
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+
+public class GenericDefaultTransitionTimeServer extends MeshModel {
 
     public static final Parcelable.Creator<GenericDefaultTransitionTimeServer> CREATOR = new Parcelable.Creator<GenericDefaultTransitionTimeServer>() {
         @Override
@@ -59,6 +61,6 @@ public class GenericDefaultTransitionTimeServer extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.parcelMeshModel(dest, flags);
+        super.writeToParcel(dest, flags);
     }
 }

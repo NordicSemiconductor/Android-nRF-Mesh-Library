@@ -85,13 +85,13 @@ public class GenericLevelSet extends GenericMessage {
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mLevel);
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put((byte) mNode.getReceivedSequenceNumber());
         } else {
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) (mLevel));
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put((byte) mNode.getReceivedSequenceNumber());
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
             paramsBuffer.put((byte) delay);

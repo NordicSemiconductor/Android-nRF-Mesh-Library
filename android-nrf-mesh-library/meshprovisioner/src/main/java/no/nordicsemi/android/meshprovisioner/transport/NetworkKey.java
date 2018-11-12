@@ -1,46 +1,85 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+
+import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 /**
  * Wrapper class for network key
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
+@Entity(tableName = "network_key",
+        foreignKeys = @ForeignKey(
+                entity = MeshNetwork.class,
+                parentColumns = "mesh_uuid",
+                childColumns = "uuid",
+                onUpdate = CASCADE,
+                onDelete = CASCADE),
+        indices = @Index("uuid"))
 public final class NetworkKey implements Parcelable {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({PHASE_0, PHASE_1, PHASE_2})
-    public @interface KeyRefreshPhases {}
+    public @interface KeyRefreshPhases {
+    }
 
     // Key refresh phases
     public static final int PHASE_0 = 0; //Distribution of new keys
     public static final int PHASE_1 = 1; //Switching to the new keys
     public static final int PHASE_2 = 2; //Revoking the old keys
 
+    @ColumnInfo(name = "uuid")
+    @Expose
+    String uuid;
+
+    @PrimaryKey
+    @ColumnInfo(name = "index")
+    @Expose
+    private int keyIndex;
+
+    @ColumnInfo(name = "name")
     @Expose
     private String name = "Network Key";
+
+    @ColumnInfo(name = "key")
     @Expose
-    final int keyIndex;
-    @Expose
-    final byte[] key;
+    private byte[] key;
+
+    @ColumnInfo(name = "phase")
     @Expose
     private int phase = PHASE_0;
+
+    @ColumnInfo(name = "security")
     @Expose
     private boolean minSecurity;
+
+    @ColumnInfo(name = "old_key")
     @Expose
     private byte[] oldKey;
+
+    @ColumnInfo(name = "timestamp")
     @Expose
     private long timestamp;
+
+    NetworkKey() {
+
+    }
 
     /**
      * Constructs a NetworkKey object with a given key index and network key
@@ -48,24 +87,33 @@ public final class NetworkKey implements Parcelable {
      * @param keyIndex 12-bit network key index
      * @param key      16-byte network key
      */
+    @Ignore
     public NetworkKey(final int keyIndex, final byte[] key) {
         this.key = key;
         this.keyIndex = keyIndex;
     }
 
     protected NetworkKey(Parcel in) {
-        name = in.readString();
+        uuid = in.readString();
         keyIndex = in.readInt();
+        name = in.readString();
         key = in.createByteArray();
         phase = in.readInt();
+        minSecurity = in.readByte() != 0;
+        oldKey = in.createByteArray();
+        timestamp = in.readLong();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
+        dest.writeString(uuid);
         dest.writeInt(keyIndex);
+        dest.writeString(name);
         dest.writeByteArray(key);
         dest.writeInt(phase);
+        dest.writeByte((byte) (minSecurity ? 1 : 0));
+        dest.writeByteArray(oldKey);
+        dest.writeLong(timestamp);
     }
 
     @Override
@@ -84,6 +132,14 @@ public final class NetworkKey implements Parcelable {
             return new NetworkKey[size];
         }
     };
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(final String uuid) {
+        this.uuid = uuid;
+    }
 
     /**
      * Returns the friendly name assigned to a network key
@@ -113,6 +169,15 @@ public final class NetworkKey implements Parcelable {
     }
 
     /**
+     * Sets a network key
+     *
+     * @param key 16-byte network key
+     */
+    void setKey(@NonNull final byte[] key) {
+        this.key = key;
+    }
+
+    /**
      * Returns the key refresh phase of the network key
      *
      * @return int phase
@@ -136,7 +201,17 @@ public final class NetworkKey implements Parcelable {
     }
 
     /**
+     * Sets a network key index
+     *
+     * @param keyIndex network key index
+     */
+    void setKeyIndex(@NonNull final int keyIndex) {
+        this.keyIndex = keyIndex;
+    }
+
+    /**
      * Uses min security
+     *
      * @return true if minimum security or false otherwise
      */
     public boolean isMinSecurity() {
@@ -145,6 +220,7 @@ public final class NetworkKey implements Parcelable {
 
     /**
      * Set security
+     *
      * @param minSecurity boolean security true if min false otherwise
      */
     public void setMinSecurity(final boolean minSecurity) {
@@ -153,6 +229,7 @@ public final class NetworkKey implements Parcelable {
 
     /**
      * Returns the old network key
+     *
      * @return old key
      */
     public byte[] getOldKey() {
@@ -161,7 +238,9 @@ public final class NetworkKey implements Parcelable {
 
     /**
      * Set the old key
+     *
      * @param oldKey old network key
+     *
      */
     public void setOldKey(final byte[] oldKey) {
         this.oldKey = oldKey;
@@ -169,6 +248,7 @@ public final class NetworkKey implements Parcelable {
 
     /**
      * Returns the timestamp of the phase change
+     *
      * @return timestamp
      */
     public long getTimestamp() {
@@ -177,6 +257,7 @@ public final class NetworkKey implements Parcelable {
 
     /**
      * Set the timestamp when the the phase change happened
+     *
      * @param timestamp timestamp
      */
     public void setTimestamp(final long timestamp) {

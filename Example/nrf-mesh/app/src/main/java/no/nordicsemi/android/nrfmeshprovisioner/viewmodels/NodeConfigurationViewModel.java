@@ -28,7 +28,7 @@ import android.arch.lifecycle.ViewModel;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.transport.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;

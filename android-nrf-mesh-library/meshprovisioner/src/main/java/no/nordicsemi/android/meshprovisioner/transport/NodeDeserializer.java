@@ -1,5 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.support.annotation.RestrictTo;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -16,9 +18,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import no.nordicsemi.android.meshprovisioner.Subscription;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMeshNode>>, JsonDeserializer<List<ProvisionedMeshNode>> {
 
     @Override
@@ -33,7 +37,6 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             final boolean security = jsonObject.get("security").getAsString().equals("high");
             final boolean configComplete = jsonObject.get("configComplete").getAsBoolean();
             node.isConfigured = configComplete;
-
             if (configComplete) {
                 node.companyIdentifier = Integer.parseInt(jsonObject.get("cid").getAsString(), 16);
                 node.productIdentifier = Integer.parseInt(jsonObject.get("pid").getAsString(), 16);
@@ -95,8 +98,19 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             } else {
                 element.elementAddress = AddressUtils.getUnicastAddressBytes(unicastAddress + 1);
             }
+            populateSubscriptions(element);
             elements.put(element.getElementAddressInt(), element);
         }
         return elements;
+    }
+
+    private void populateSubscriptions(final Element element){
+        for(Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+            final MeshModel model = modelEntry.getValue();
+            for(int i = 0; i < model.getSubscriptionAddresses().size(); i++) {
+                final byte[] address = model.getSubscriptionAddresses().get(i);
+                model.mSubscriptions.add(new Subscription(address, element.getElementAddress()));
+            }
+        }
     }
 }

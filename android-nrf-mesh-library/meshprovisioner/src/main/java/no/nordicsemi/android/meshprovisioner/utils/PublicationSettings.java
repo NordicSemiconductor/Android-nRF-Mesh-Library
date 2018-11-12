@@ -1,5 +1,6 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
+import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -19,20 +20,31 @@ public class PublicationSettings implements Parcelable {
     private static final int DEFAULT_PUBLICATION_RESOLUTION = 0b00;
     private static final int DEFAULT_PUBLICATION_RETRANSMIT_COUNT = 0b000;
     private static final int DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS = 0;
+
+    byte[] parentAddress;
+
     @Expose
     private byte[] publishAddress;
+
     @Expose
     private int appKeyIndex;
+
+
     @Expose
     private boolean credentialFlag;
+
     @Expose
     private int publishTtl = DEFAULT_PUBLISH_TTL;
+
     @Expose
     private int publicationSteps = DEFAULT_PUBLICATION_STEPS;
+
     @Expose
     private int publicationResolution = DEFAULT_PUBLICATION_RESOLUTION;
+
     @Expose
     private int publishRetransmitCount = DEFAULT_PUBLICATION_RETRANSMIT_COUNT;
+
     @Expose
     private int publishRetransmitIntervalSteps = DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS;
 
@@ -49,6 +61,7 @@ public class PublicationSettings implements Parcelable {
      * @param publishRetransmitCount         Number of publication retransmits
      * @param publishRetransmitIntervalSteps Publish retransmit interval steps
      */
+    @Ignore
     public PublicationSettings(final byte[] publishAddress,
                                final int appKeyIndex,
                                final boolean credentialFlag,
@@ -74,6 +87,7 @@ public class PublicationSettings implements Parcelable {
      * @param publishRetransmitCount         Number of publication retransmits
      * @param publishRetransmitIntervalSteps Publish retransmit interval steps
      */
+    @Ignore
     public PublicationSettings(final byte[] publishAddress,
                                final int appKeyIndex,
                                final boolean credentialFlag,
@@ -133,7 +147,7 @@ public class PublicationSettings implements Parcelable {
         publishRetransmitIntervalSteps = in.readInt();
     }
 
-    public static final Parcelable.Creator<PublicationSettings> CREATOR = new Creator<PublicationSettings>() {
+    protected static final Parcelable.Creator<PublicationSettings> CREATOR = new Creator<PublicationSettings>() {
         @Override
         public PublicationSettings createFromParcel(Parcel in) {
             return new PublicationSettings(in);
@@ -144,6 +158,14 @@ public class PublicationSettings implements Parcelable {
             return new PublicationSettings[size];
         }
     };
+
+    public byte[] getParentAddress() {
+        return parentAddress;
+    }
+
+    public void setParentAddress(final byte[] parentAddress) {
+        this.parentAddress = parentAddress;
+    }
 
     /**
      * Returns the publish address, this is the address the model may publish messages when set

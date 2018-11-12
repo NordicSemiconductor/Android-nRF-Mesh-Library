@@ -29,7 +29,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
@@ -424,11 +423,11 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         //Check if the sequence number has been incremented since the last message sent and return null if not
         final int sequenceNo = MeshParserUtils.getSequenceNumber(sequenceNumber);
         Log.v(TAG, "Sequence number of received access message: " + MeshParserUtils.getSequenceNumber(sequenceNumber));
-        if (sequenceNo > mMeshNode.getSequenceNumber()) {
+        if (sequenceNo > mMeshNode.getReceivedSequenceNumber()) {
             if (!MeshParserUtils.isValidSequenceNumber(sequenceNo)) {
                 return null;
             }
-            mMeshNode.setSequenceNumber(sequenceNo);
+            mMeshNode.setReceivedSequenceNumber(sequenceNo);
         }
 
         if (ctl == 1) {

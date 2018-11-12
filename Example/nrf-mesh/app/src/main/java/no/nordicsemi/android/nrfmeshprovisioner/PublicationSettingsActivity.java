@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -31,10 +30,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublication
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentRetransmitCount;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
-
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
 
 public class PublicationSettingsActivity extends AppCompatActivity implements Injectable, DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
         DialogFragmentPublicationSteps.DialogFragmentPublicationStepsListener,

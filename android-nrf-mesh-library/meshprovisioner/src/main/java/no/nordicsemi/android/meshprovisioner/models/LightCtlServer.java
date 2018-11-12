@@ -24,7 +24,9 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-public class LightCtlServer extends SigModel {
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+
+public class LightCtlServer extends MeshModel {
 
     public static final Creator<LightCtlServer> CREATOR = new Creator<LightCtlServer>() {
         @Override
@@ -58,7 +60,7 @@ public class LightCtlServer extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.parcelMeshModel(dest, flags);
+        super.writeToParcel(dest, flags);
     }
 
 }

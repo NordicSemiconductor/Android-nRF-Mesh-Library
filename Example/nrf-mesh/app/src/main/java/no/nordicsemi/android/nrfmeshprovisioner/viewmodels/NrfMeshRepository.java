@@ -16,7 +16,7 @@ import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshManagerTransportCallbacks;
-import no.nordicsemi.android.meshprovisioner.transport.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
@@ -193,7 +193,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         //Load live data with provisioned nodes
         mProvisionedNodes.postValue(mBaseMeshNetwork.getProvisionedNodes());
         //Load live data with provisioning settings
-        mProvisioningSettingsLiveData = new ProvisioningSettingsLiveData(mBaseMeshNetwork.getProvisioningSettings());
+        mProvisioningSettingsLiveData = new ProvisioningSettingsLiveData(mMeshManagerApi.getProvisioningSettings());
         //Load live data with configuration address
         mConfigurationSrc.postValue(mBaseMeshNetwork.getConfiguratorSrc());
 
@@ -269,7 +269,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     boolean setConfiguratorSrc(final byte[] configuratorSrc) {
-        if (mBaseMeshNetwork.setConfiguratorSrc(configuratorSrc)) {
+        if (mMeshManagerApi.setConfiguratorSrc(configuratorSrc)) {
             mConfigurationSrc.postValue(mBaseMeshNetwork.getConfiguratorSrc());
             return true;
         }

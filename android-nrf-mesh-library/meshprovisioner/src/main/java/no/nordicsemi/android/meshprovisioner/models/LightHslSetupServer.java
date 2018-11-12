@@ -24,7 +24,9 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-public class LightHslSetupServer extends SigModel {
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+
+public class LightHslSetupServer extends MeshModel {
 
     public static final Creator<LightHslSetupServer> CREATOR = new Creator<LightHslSetupServer>() {
         @Override
@@ -58,6 +60,6 @@ public class LightHslSetupServer extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.parcelMeshModel(dest, flags);
+        super.writeToParcel(dest, flags);
     }
 }

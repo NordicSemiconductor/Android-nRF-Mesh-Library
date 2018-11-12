@@ -1,19 +1,45 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
+
 import com.google.gson.annotations.Expose;
 
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import java.util.Arrays;
+
+import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 /**
  * Defines a group in a mesh network
  */
 @SuppressWarnings("unused")
+@Entity(tableName = "groups",
+        foreignKeys = @ForeignKey(entity = MeshNetwork.class,
+                parentColumns = "mesh_uuid",
+                childColumns = "mesh_uuid",
+                onUpdate = CASCADE, onDelete = CASCADE),
+        indices = {@Index("mesh_uuid")})
 public class Group {
 
+    @ColumnInfo(name = "mesh_uuid")
     @Expose
-    private int groupAddress;
+    private String meshUuid;
+
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "group_address")
     @Expose
-    private int parentAddress;
+    private byte[] groupAddress;
+
+    @ColumnInfo(name = "parent_address")
+    @Expose
+    private byte[] parentAddress;
 
     /**
      * Constructs a mesh group
@@ -21,12 +47,31 @@ public class Group {
      * @param groupAddress  groupAddress of the group
      * @param parentAddress parent address
      */
-    public Group(final int groupAddress, final int parentAddress) {
+    public Group(@NonNull final byte[] groupAddress, @Nullable final byte[] parentAddress) {
         this.groupAddress = groupAddress;
-        if (groupAddress == parentAddress) {
+        if (Arrays.equals(groupAddress, parentAddress)) {
             throw new IllegalArgumentException("Address cannot match parent adddress");
         }
         this.parentAddress = parentAddress;
+    }
+
+    /**
+     * Returns the uuid of the network
+     *
+     * @return uuid
+     */
+    public String getMeshUuid() {
+        return meshUuid;
+    }
+
+    /**
+     * Sets the uuid of the network
+     *
+     * @param meshUuid network uuid
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setMeshUuid(final String meshUuid) {
+        this.meshUuid = meshUuid;
     }
 
     /**
@@ -34,7 +79,7 @@ public class Group {
      *
      * @return 2 byte group address
      */
-    public int getGroupAddress() {
+    public byte[] getGroupAddress() {
         return groupAddress;
     }
 
@@ -43,26 +88,25 @@ public class Group {
      *
      * @param groupAddress 2 byte group address
      */
-    public void setGroupAddress(final int groupAddress) {
-        if (!MeshParserUtils.isValidGroupAddress(groupAddress)) {
-            throw new IllegalArgumentException("Invalid group address");
-        }
+    public void setGroupAddress(@NonNull final byte[] groupAddress) {
         this.groupAddress = groupAddress;
     }
 
     /**
-     * Returns the parent address a group is associated with
+     * Returns address of the parent group if the group has one
      *
      * @return parent address
      */
-    public int getParentAddress() {
+    public byte[] getParentAddress() {
         return parentAddress;
     }
 
     /**
-     * Sets the parent address to which this group belongs to
+     * Sets the parent address, if this group belongs to a parent group
+     *
+     * @param parentAddress address of the parent group
      */
-    public void setParentAddress(final int parentAddress) {
+    public void setParentAddress(final byte[] parentAddress) {
         this.parentAddress = parentAddress;
     }
 }

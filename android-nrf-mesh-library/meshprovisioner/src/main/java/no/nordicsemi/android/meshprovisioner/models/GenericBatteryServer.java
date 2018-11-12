@@ -24,7 +24,9 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-public class GenericBatteryServer extends SigModel {
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+
+public class GenericBatteryServer extends MeshModel {
 
     public static final Creator<GenericBatteryServer> CREATOR = new Creator<GenericBatteryServer>() {
         @Override
@@ -58,6 +60,6 @@ public class GenericBatteryServer extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.parcelMeshModel(dest, flags);
+        super.writeToParcel(dest, flags);
     }
 }

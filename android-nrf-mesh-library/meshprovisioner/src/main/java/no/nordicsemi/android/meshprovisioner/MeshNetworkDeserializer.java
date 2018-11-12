@@ -1,4 +1,4 @@
-package no.nordicsemi.android.meshprovisioner.transport;
+package no.nordicsemi.android.meshprovisioner;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -12,6 +12,11 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.List;
+
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork>, JsonDeserializer<MeshNetwork> {
     @Override

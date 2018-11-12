@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 
 import javax.inject.Inject;

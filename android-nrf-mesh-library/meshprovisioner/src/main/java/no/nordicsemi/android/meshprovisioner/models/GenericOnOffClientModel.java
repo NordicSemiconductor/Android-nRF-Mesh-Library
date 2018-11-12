@@ -25,7 +25,9 @@ package no.nordicsemi.android.meshprovisioner.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class GenericOnOffClientModel extends SigModel {
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+
+public class GenericOnOffClientModel extends MeshModel {
 
     public static final Parcelable.Creator<GenericOnOffClientModel> CREATOR = new Parcelable.Creator<GenericOnOffClientModel>() {
         @Override
@@ -59,7 +61,7 @@ public class GenericOnOffClientModel extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.parcelMeshModel(dest, flags);
+        super.writeToParcel(dest, flags);
     }
 
 }

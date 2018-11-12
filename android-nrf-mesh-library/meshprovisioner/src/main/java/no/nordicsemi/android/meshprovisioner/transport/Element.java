@@ -22,8 +22,16 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
 
@@ -40,25 +48,48 @@ import java.util.Set;
 import no.nordicsemi.android.meshprovisioner.models.SigModel;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 
+import static android.arch.persistence.room.ForeignKey.CASCADE;
+
 @SuppressWarnings({"WeakerAccess", "unused"})
+@Entity(tableName = "elements",
+        foreignKeys =
+        @ForeignKey(
+                entity = ProvisionedMeshNode.class,
+                parentColumns = "uuid",
+                childColumns = "uuid",
+                onUpdate = CASCADE,
+                onDelete = CASCADE),
+        indices = @Index("uuid"))
 public final class Element implements Parcelable {
 
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "address")
     @Expose
     byte[] elementAddress;
-    @Expose
-    final int locationDescriptor;
-    @Expose
-    final Map<Integer, MeshModel> meshModels;
 
-    Element(final byte[] elementAddress, final int locationDescriptor, final Map<Integer, MeshModel> models) {
+    @ColumnInfo(name = "uuid")
+    String uuid;
+
+    @ColumnInfo(name = "parent_address")
+    @Expose
+    byte[] parentAddress;
+
+    @ColumnInfo(name = "location_descriptor")
+    @Expose
+    int locationDescriptor;
+
+    @Ignore
+    @Expose
+    Map<Integer, MeshModel> meshModels;
+
+    public Element(@NonNull final byte[] elementAddress) {
         this.elementAddress = elementAddress;
-        this.locationDescriptor = locationDescriptor;
-        this.meshModels = models;
     }
 
-    Element(final int locationDescriptor, final Map<Integer, MeshModel> models) {
+    @Ignore
+    Element(final int locationDescriptor) {
         this.locationDescriptor = locationDescriptor;
-        this.meshModels = models;
     }
 
     protected Element(Parcel in) {
@@ -76,12 +107,12 @@ public final class Element implements Parcelable {
     }
 
 
-    private void sortModels(final HashMap<Integer, MeshModel> unorderedElements){
-        final Set<Integer> unorderedKeys =  unorderedElements.keySet();
+    private void sortModels(final HashMap<Integer, MeshModel> unorderedElements) {
+        final Set<Integer> unorderedKeys = unorderedElements.keySet();
 
         final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
         Collections.sort(orderedKeys);
-        for(int key : orderedKeys) {
+        for (int key : orderedKeys) {
             meshModels.put(key, unorderedElements.get(key));
         }
     }
@@ -103,6 +134,26 @@ public final class Element implements Parcelable {
         return 0;
     }
 
+    /**
+     * Returns the unique device uuid of the node to which this model belongs to
+     */
+    public String getUuid() {
+        return uuid;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setUuid(final String uuid) {
+        this.uuid = uuid;
+    }
+
+    public byte[] getParentAddress() {
+        return parentAddress;
+    }
+
+    public void setParentAddress(final byte[] parentAddress) {
+        this.parentAddress = parentAddress;
+    }
+
     public byte[] getElementAddress() {
         return elementAddress;
     }
@@ -111,10 +162,14 @@ public final class Element implements Parcelable {
         return locationDescriptor;
     }
 
+    public void setLocationDescriptor(final int locationDescriptor) {
+        this.locationDescriptor = locationDescriptor;
+    }
+
     public int getSigModelCount() {
         int count = 0;
-        for(Map.Entry<Integer, MeshModel> modelEntry : meshModels.entrySet()){
-            if(modelEntry.getValue() instanceof SigModel){
+        for (Map.Entry<Integer, MeshModel> modelEntry : meshModels.entrySet()) {
+            if (modelEntry.getValue() instanceof SigModel) {
                 count++;
             }
         }
@@ -123,8 +178,8 @@ public final class Element implements Parcelable {
 
     public int getVendorModelCount() {
         int count = 0;
-        for(Map.Entry<Integer, MeshModel> modelEntry : meshModels.entrySet()){
-            if(modelEntry.getValue() instanceof VendorModel){
+        for (Map.Entry<Integer, MeshModel> modelEntry : meshModels.entrySet()) {
+            if (modelEntry.getValue() instanceof VendorModel) {
                 count++;
             }
         }
@@ -133,10 +188,15 @@ public final class Element implements Parcelable {
 
     /**
      * Returns a list of sig models avaialable in this element
+     *
      * @return List containing sig models
      */
     public Map<Integer, MeshModel> getMeshModels() {
         return Collections.unmodifiableMap(meshModels);
+    }
+
+    void setMeshModels(final Map<Integer, MeshModel> models) {
+        this.meshModels = models;
     }
 
     public int getElementAddressInt() {

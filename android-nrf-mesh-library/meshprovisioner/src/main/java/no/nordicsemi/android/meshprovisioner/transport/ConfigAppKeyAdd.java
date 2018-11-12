@@ -53,7 +53,7 @@ public class ConfigAppKeyAdd extends ConfigMessage {
      */
     public ConfigAppKeyAdd(@NonNull final ProvisionedMeshNode node, @NonNull final NetworkKey networkKey, @NonNull final ApplicationKey appKey, final int aszmic) throws IllegalArgumentException {
         super(node, aszmic);
-        if (networkKey != null && networkKey.key.length != 16)
+        if (networkKey != null && networkKey.getKey().length != 16)
             throw new IllegalArgumentException("Network key must be 16 bytes");
 
         if (appKey != null && appKey.getKey().length != 16)

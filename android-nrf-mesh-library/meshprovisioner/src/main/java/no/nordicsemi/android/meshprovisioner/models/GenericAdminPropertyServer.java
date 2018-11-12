@@ -24,7 +24,9 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-public class GenericAdminPropertyServer extends SigModel {
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+
+public class GenericAdminPropertyServer extends MeshModel {
 
     public static final Creator<GenericAdminPropertyServer> CREATOR = new Creator<GenericAdminPropertyServer>() {
         @Override
@@ -58,6 +60,6 @@ public class GenericAdminPropertyServer extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.parcelMeshModel(dest, flags);
+        super.writeToParcel(dest, flags);
     }
 }

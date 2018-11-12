@@ -23,10 +23,13 @@
 package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
-public class SchedulerServer extends SigModel {
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 
-    public static final Creator<SchedulerServer> CREATOR = new Creator<SchedulerServer>() {
+public class SchedulerServer extends MeshModel {
+
+    public static final Parcelable.Creator<SchedulerServer> CREATOR = new Parcelable.Creator<SchedulerServer>() {
         @Override
         public SchedulerServer createFromParcel(final Parcel source) {
             return new SchedulerServer(source);
@@ -51,13 +54,4 @@ public class SchedulerServer extends SigModel {
         return "Scheduler Server";
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        super.parcelMeshModel(dest, flags);
-    }
 }

@@ -22,7 +22,12 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
@@ -37,85 +42,181 @@ import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
-
+@SuppressWarnings({"unused", "WeakerAccess"})
 abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     protected static final String TAG = ProvisionedBaseMeshNode.class.getSimpleName();
+    /**Unique identifier of the mesh network*/
+    @ColumnInfo(name = "mesh_uuid")
+    @Expose(serialize = false, deserialize = false)
+    String meshUuid;
 
-    @Expose
-    byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
-    @Expose
-    protected byte[] ivIndex;
+    /**Device UUID*/
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "uuid")
+    String uuid;
+
+    @Ignore
     @Expose
     boolean isProvisioned;
+
+    @ColumnInfo(name = "unicast_address")
     @Expose
-    boolean isConfigured;
+    byte[] unicastAddress;
+
+    @ColumnInfo(name = "name")
     @Expose
     protected String nodeName = "My Node";
-    @Expose(serialize = false)
-    protected byte[] networkKey;
+
+    @ColumnInfo(name = "configured")
     @Expose
-    List<NetworkKey> networkKeys = new ArrayList<>();
-    @Expose
-    byte[] identityKey;
-    @Expose(serialize = false)
-    byte[] keyIndex;
-    @Expose(serialize = false)
-    int netKeyIndex;
-    @Expose
-    byte[] mFlags;
-    @Expose
-    protected byte[] unicastAddress;
+    boolean isConfigured;
+
+    @ColumnInfo(name = "device_key")
     @Expose
     byte[] deviceKey;
+
+    @ColumnInfo(name = "ttl")
     @Expose
     protected int ttl = 5;
+
+    @ColumnInfo(name = "seq_number")
     @Expose
     int mReceivedSequenceNumber;
+
+    @Ignore
     @Expose
     String bluetoothAddress;
+
+    @Ignore
     @Expose(serialize = false, deserialize = false)
     String nodeIdentifier;
+
+    @ColumnInfo(name = "cid")
     @Expose
-    protected Integer companyIdentifier = null;
+    Integer companyIdentifier = null;
+
+    @ColumnInfo(name = "pid")
     @Expose
     Integer productIdentifier = null;
+
+    @ColumnInfo(name = "vid")
     @Expose
     Integer versionIdentifier = null;
+
+    @ColumnInfo(name = "crpl")
     @Expose
     Integer crpl = null;
-    @Expose
-    Integer features = null;
+
+    @ColumnInfo(name = "relay")
     @Expose
     boolean relayFeatureSupported;
+
+    @ColumnInfo(name = "proxy")
     @Expose
     boolean proxyFeatureSupported;
+
+    @ColumnInfo(name = "friend")
     @Expose
     boolean friendFeatureSupported;
+
+    @ColumnInfo(name = "low_power")
     @Expose
     boolean lowPowerFeatureSupported;
+
+    @ColumnInfo(name = "timestamp")
+    @Expose
+    public long mTimeStampInMillis;
+
+    @Embedded
+    @Expose
+    SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
+
+    //Fields ignored by the entity as they have been migrated to the mesh network object
+    @Ignore
+    @Expose(serialize = false)
+    protected byte[] networkKey;
+
+    @Ignore
+    @Expose
+    List<NetworkKey> networkKeys = new ArrayList<>();
+
+    @Ignore
+    @Expose
+    byte[] identityKey;
+
+    @Ignore
+    @Expose(serialize = false)
+    byte[] keyIndex;
+
+    @Ignore
+    @Expose(serialize = false)
+    int netKeyIndex;
+
+    @Ignore
+    @Expose
+    byte[] mFlags;
+
+    @Ignore
+    @Expose
+    Integer features = null;
+
+    @Ignore
     @Expose
     final Map<Integer, Element> mElements = new LinkedHashMap<>();
+
+    @Ignore
     @SerializedName("appKeys")
     @Expose
     List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
+
+    @Ignore
     @Expose
     Map<Integer, String> mAddedAppKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
+
+    @Ignore
     @Expose
     Map<Integer, ApplicationKey> mAddedApplicationKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
+
+    @Ignore
     @Expose
     byte[] generatedNetworkId;
+
+    @Ignore
     @Expose
     private String bluetoothDeviceAddress;
-    @Expose
-    long mTimeStampInMillis;
-    @Expose
-    SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
+
+    @Ignore
     @Expose
     int numberOfElements;
 
-    ProvisionedBaseMeshNode() {
+    @Ignore
+    @Expose
+    byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
 
+    @Ignore
+    @Expose
+    protected byte[] ivIndex;
+
+    public ProvisionedBaseMeshNode() {
+
+    }
+
+    public String getMeshUuid() {
+        return meshUuid;
+    }
+
+    public void setMeshUuid(final String meshUuid) {
+        this.meshUuid = meshUuid;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(final String uuid) {
+        this.uuid = uuid;
     }
 
     public boolean isProvisioned() {
@@ -134,7 +235,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         return nodeName;
     }
 
-    protected final void setNodeName(final String nodeName) {
+    public final void setNodeName(final String nodeName) {
         if (!TextUtils.isEmpty(nodeName))
             this.nodeName = nodeName;
     }
@@ -151,10 +252,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         this.unicastAddress = unicastAddress;
     }
 
-    public byte[] getDeviceKey() {
-        return deviceKey;
-    }
-
     public int getTtl() {
         return ttl;
     }
@@ -165,6 +262,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     /**
      * Returns the key index
+     *
      * @return network key index
      * @deprecated Use {@link #getNetworkKeys()} instead
      */
@@ -205,6 +303,10 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         return mTimeStampInMillis;
     }
 
+    public void setTimeStamp(final long timestamp){
+        mTimeStampInMillis = timestamp;
+    }
+
     public final byte[] getConfigurationSrc() {
         return mConfigurationSrc;
     }
@@ -212,9 +314,4 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     public final void setConfigurationSrc(final byte[] src) {
         mConfigurationSrc = src;
     }
-
-    public int getNumberOfElements() {
-        return numberOfElements;
-    }
-
 }

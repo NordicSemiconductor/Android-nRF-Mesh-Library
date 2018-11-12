@@ -10,6 +10,8 @@ import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 final class AllocatedUnicastRangeDeserializer implements JsonSerializer<AllocatedUnicastRange>, JsonDeserializer<AllocatedUnicastRange> {
     private static final String TAG = AllocatedUnicastRangeDeserializer.class.getSimpleName();
 
@@ -21,8 +23,8 @@ final class AllocatedUnicastRangeDeserializer implements JsonSerializer<Allocate
     @Override
     public AllocatedUnicastRange deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
         final JsonObject jsonObject = json.getAsJsonObject();
-        final int lowAddress = Integer.parseInt(jsonObject.get("lowAddress").getAsString(), 16);
-        final int highAddress = Integer.parseInt(jsonObject.get("highAddress").getAsString(), 16);
+        final byte[] lowAddress = MeshParserUtils.toByteArray(jsonObject.get("lowAddress").getAsString());
+        final byte[] highAddress = MeshParserUtils.toByteArray(jsonObject.get("highAddress").getAsString());
         return new AllocatedUnicastRange(lowAddress, highAddress);
     }
 }

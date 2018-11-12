@@ -26,6 +26,8 @@ import android.util.Log;
 
 import java.util.Locale;
 
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+
 @SuppressWarnings("WeakerAccess")
 public class SigModelParser {
     private static final String TAG = SigModelParser.class.getSimpleName();
@@ -101,7 +103,7 @@ public class SigModelParser {
      * @param sigModelId bluetooth sig model id
      * @return SigModel
      */
-    public static SigModel getSigModel(final int sigModelId) {
+    public static MeshModel getSigModel(final int sigModelId) {
         switch (sigModelId) {
             case CONFIGURATION_SERVER:
                 return new ConfigurationServerModel(sigModelId);

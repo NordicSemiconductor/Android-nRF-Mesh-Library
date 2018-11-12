@@ -1,25 +1,49 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+
 import com.google.gson.annotations.Expose;
+
+import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 /**
  * Class definition for allocating group range for provisioners.
  */
+@SuppressWarnings("unused")
+@Entity(tableName = "allocated_group_range")
 public class AllocatedGroupRange {
 
-    @Expose
-    private int highAddress;
-    @Expose
-    private int lowAdddress;
+    @PrimaryKey(autoGenerate = true)
+    int id;
 
+    @ForeignKey(entity = Provisioner.class, parentColumns = "uuid", childColumns = "provisioner_uuid", onUpdate = CASCADE, onDelete = CASCADE)
+    @ColumnInfo(name = "provisioner_uuid")
+    String uuid;
+
+    @ColumnInfo(name = "high_address")
+    @Expose
+    private byte[] highAddress;
+
+    @ColumnInfo(name = "low_address")
+    @Expose
+    private byte[] lowAddress;
+
+    public AllocatedGroupRange(){
+
+    }
     /**
      * Constructs {@link AllocatedGroupRange} for provisioner
      *
-     * @param lowAdddress low address of group range
+     * @param lowAddress low address of group range
      * @param highAddress high address of group range
      */
-    public AllocatedGroupRange(final int lowAdddress, final int highAddress) {
-        this.lowAdddress = lowAdddress;
+    @Ignore
+    AllocatedGroupRange(final byte[] lowAddress, final byte[] highAddress) {
+        this.lowAddress = lowAddress;
         this.highAddress = highAddress;
     }
 
@@ -28,17 +52,17 @@ public class AllocatedGroupRange {
      *
      * @return low address
      */
-    public int getLowAdddress() {
-        return lowAdddress;
+    public byte[] getLowAddress() {
+        return lowAddress;
     }
 
     /**
      * Sets the low address of the allocated group address
      *
-     * @param lowAdddress of the group range
+     * @param lowAddress of the group range
      */
-    public void setLowAdddress(final int lowAdddress) {
-        this.lowAdddress = lowAdddress;
+    public void setLowAddress(final byte[] lowAddress) {
+        this.lowAddress = lowAddress;
     }
 
     /**
@@ -46,7 +70,7 @@ public class AllocatedGroupRange {
      *
      * @return highAddress of the group range
      */
-    public int getHighAddress() {
+    public byte[] getHighAddress() {
         return highAddress;
     }
 
@@ -55,7 +79,7 @@ public class AllocatedGroupRange {
      *
      * @param highAddress of the group range
      */
-    public void setHighAddress(final int highAddress) {
+    public void setHighAddress(final byte[] highAddress) {
         this.highAddress = highAddress;
     }
 }

@@ -1,22 +1,21 @@
 
-package no.nordicsemi.android.meshprovisioner.transport;
+package no.nordicsemi.android.meshprovisioner;
 
-import android.content.Context;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
 
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.Group;
-import no.nordicsemi.android.meshprovisioner.Provisioner;
-import no.nordicsemi.android.meshprovisioner.Scene;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
+@Entity(tableName = "mesh_network")
 public final class MeshNetwork extends BaseMeshNetwork {
 
-    public MeshNetwork(final Context context){
-        super(context);
-    }
-
-    MeshNetwork() {
+    public MeshNetwork() {
         super();
     }
 
@@ -48,7 +47,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return meshUUID;
     }
 
-    void setMeshUUID(String meshUUID) {
+    public void setMeshUUID(String meshUUID) {
         this.meshUUID = meshUUID;
     }
 
@@ -56,7 +55,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return meshName;
     }
 
-    void setMeshName(String meshName) {
+    public void setMeshName(String meshName) {
         this.meshName = meshName;
     }
 
@@ -64,7 +63,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return timestamp;
     }
 
-    void setTimestamp(String timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -116,4 +115,31 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.scenes = scenes;
     }
 
+    public byte[] getConfiguratorSrc() {
+        return mConfigurationSrc;
+    }
+
+    public int getGlobalTtl() {
+        return globalTtl;
+    }
+
+    public void setGlobalTtl(final int globalTtl) {
+        this.globalTtl = globalTtl;
+    }
+
+    public byte[] getConfigurationSrc() {
+        return mConfigurationSrc;
+    }
+
+    public void setConfigurationSrc(final byte[] configurationSrc) {
+        mConfigurationSrc = configurationSrc;
+    }
+
+    public boolean isLastSelected() {
+        return lastSelected;
+    }
+
+    public void setLastSelected(final boolean lastSelected) {
+        this.lastSelected = lastSelected;
+    }
 }

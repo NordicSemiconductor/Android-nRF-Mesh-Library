@@ -25,7 +25,9 @@ package no.nordicsemi.android.meshprovisioner.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class HealthServerModel extends SigModel {
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+
+public class HealthServerModel extends MeshModel {
 
     public static final Parcelable.Creator<HealthServerModel> CREATOR = new Parcelable.Creator<HealthServerModel>() {
         @Override
@@ -59,7 +61,7 @@ public class HealthServerModel extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.parcelMeshModel(dest, flags);
+        super.writeToParcel(dest, flags);
     }
 
 }

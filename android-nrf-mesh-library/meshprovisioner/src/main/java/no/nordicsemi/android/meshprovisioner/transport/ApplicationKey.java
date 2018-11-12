@@ -1,26 +1,70 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
+
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+
+import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 /**
  * Wrapper class for application key
  */
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused"})
+@Entity(tableName = "application_key",
+        foreignKeys = {
+                @ForeignKey(entity = MeshNetwork.class,
+                        parentColumns = "mesh_uuid",
+                        childColumns = "uuid",
+                        onUpdate = CASCADE,
+                        onDelete = CASCADE),
+                @ForeignKey(entity = NetworkKey.class,
+                        parentColumns = "index",
+                        childColumns = "bound_key_index",
+                        onUpdate = CASCADE, onDelete = CASCADE)},
+        indices = {
+                @Index("uuid"),
+                @Index("bound_key_index")})
 public final class ApplicationKey implements Parcelable {
 
+    @ColumnInfo(name = "uuid")
+    @Expose
+    String uuid;
+
+    @PrimaryKey
+    @ColumnInfo(name = "index")
+    @Expose
+    private int keyIndex;
+
+    @ColumnInfo(name = "name")
     @Expose
     private String name = "Application Key";
-    @Expose
-    private final int keyIndex;
+
+    @ColumnInfo(name = "bound_key_index")
     @Expose
     private int boundNetKeyIndex = 0;
+
+    @NonNull
+    @ColumnInfo(name = "key")
     @Expose
-    private final byte[] key;
+    private byte[] key;
+
+    @ColumnInfo(name = "old_key")
     @Expose
     private byte[] oldKey;
+
+    public ApplicationKey() {
+
+    }
 
     /**
      * Constructs a ApplicationKey object with a given key index and network key
@@ -28,24 +72,29 @@ public final class ApplicationKey implements Parcelable {
      * @param keyIndex 12-bit app key index
      * @param key      16-byte app key
      */
-    public ApplicationKey(final int keyIndex, final byte[] key) {
+    @Ignore
+    public ApplicationKey(final int keyIndex, @NonNull final byte[] key) {
         this.key = key;
         this.keyIndex = keyIndex;
     }
 
     protected ApplicationKey(Parcel in) {
-        name = in.readString();
+        uuid = in.readString();
         keyIndex = in.readInt();
-        key = in.createByteArray();
+        name = in.readString();
         boundNetKeyIndex = in.readInt();
+        key = in.createByteArray();
+        oldKey = in.createByteArray();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
+        dest.writeString(uuid);
         dest.writeInt(keyIndex);
-        dest.writeByteArray(key);
+        dest.writeString(name);
         dest.writeInt(boundNetKeyIndex);
+        dest.writeByteArray(key);
+        dest.writeByteArray(oldKey);
     }
 
     @Override
@@ -64,6 +113,14 @@ public final class ApplicationKey implements Parcelable {
             return new ApplicationKey[size];
         }
     };
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(final String uuid) {
+        this.uuid = uuid;
+    }
 
     /**
      * Returns a friendly name of the application key
@@ -85,6 +142,7 @@ public final class ApplicationKey implements Parcelable {
 
     /**
      * Returns the application key
+     *
      * @return 16 byte application key
      */
     public byte[] getKey() {
@@ -92,11 +150,30 @@ public final class ApplicationKey implements Parcelable {
     }
 
     /**
+     * Sets a network key
+     *
+     * @param key 16-byte network key
+     */
+    public void setKey(@NonNull final byte[] key) {
+        this.key = key;
+    }
+
+    /**
      * Returns the application key index
+     *
      * @return key index
      */
     public int getKeyIndex() {
         return keyIndex;
+    }
+
+    /**
+     * Sets the key index of network key
+     *
+     * @param keyIndex index
+     */
+    public void setKeyIndex(final int keyIndex) {
+        this.keyIndex = keyIndex;
     }
 
     /**
@@ -119,6 +196,7 @@ public final class ApplicationKey implements Parcelable {
 
     /**
      * Returns the old app key
+     *
      * @return old key
      */
     public byte[] getOldKey() {
@@ -127,6 +205,7 @@ public final class ApplicationKey implements Parcelable {
 
     /**
      * Set the old key
+     *
      * @param oldKey old app key
      */
     public void setOldKey(final byte[] oldKey) {

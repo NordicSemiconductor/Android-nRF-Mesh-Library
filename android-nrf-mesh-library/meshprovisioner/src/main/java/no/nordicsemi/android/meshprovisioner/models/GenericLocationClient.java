@@ -24,7 +24,9 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-public class GenericLocationClient extends SigModel {
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+
+public class GenericLocationClient extends MeshModel {
 
     public static final Creator<GenericLocationClient> CREATOR = new Creator<GenericLocationClient>() {
         @Override
@@ -58,6 +60,6 @@ public class GenericLocationClient extends SigModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.parcelMeshModel(dest, flags);
+        super.writeToParcel(dest, flags);
     }
 }
