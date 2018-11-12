@@ -10,7 +10,6 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
@@ -19,6 +18,7 @@ import no.nordicsemi.android.meshprovisioner.MeshManagerTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
@@ -32,13 +32,13 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeResetStatus;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
@@ -163,7 +163,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Contains the provisioned nodes
      **/
-    private final MutableLiveData<Map<Integer, ProvisionedMeshNode>> mProvisionedNodes = new MutableLiveData<>();
+    private final MutableLiveData<List<ProvisionedMeshNode>> mProvisionedNodes = new MutableLiveData<>();
 
     private final TransactionStatusLiveData mTransactionFailedLiveData = new TransactionStatusLiveData();
 
@@ -195,7 +195,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         //Load live data with provisioning settings
         mProvisioningSettingsLiveData = new ProvisioningSettingsLiveData(mMeshManagerApi.getProvisioningSettings());
         //Load live data with configuration address
-        mConfigurationSrc.postValue(mBaseMeshNetwork.getConfiguratorSrc());
+        mConfigurationSrc.postValue(mBaseMeshNetwork.getProvisioners().get(0).getProvisionerAddress());
 
         //Initialize the ble manager
         mBleMeshManager = bleMeshManager;
@@ -248,7 +248,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mIsProvisioningComplete;
     }
 
-    LiveData<Map<Integer, ProvisionedMeshNode>> getProvisionedNodes() {
+    LiveData<List<ProvisionedMeshNode>> getProvisionedNodes() {
         return mProvisionedNodes;
     }
 
@@ -269,8 +269,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     boolean setConfiguratorSrc(final byte[] configuratorSrc) {
-        if (mMeshManagerApi.setConfiguratorSrc(configuratorSrc)) {
-            mConfigurationSrc.postValue(mBaseMeshNetwork.getConfiguratorSrc());
+        final Provisioner provisioner = mMeshManagerApi.getProvisioner(configuratorSrc);
+        if(provisioner != null) {
+            provisioner.setProvisionerAddress(configuratorSrc);
+            mConfigurationSrc.postValue(configuratorSrc);
             return true;
         }
         return false;
@@ -698,7 +700,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                         final int index = mBaseMeshNetwork.getProvisioningSettings().getAppKeys().indexOf(appKey);
                         final ApplicationKey applicationKey = new ApplicationKey(index, appKey);
                         final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node, node.getNetworkKeys().get(0), applicationKey, 0);
-                            mMeshManagerApi.sendMeshConfigurationMessage(configAppKeyAdd);
+                        mMeshManagerApi.sendMeshConfigurationMessage(configAppKeyAdd);
                     }, 2500);
                 }
             } else {
@@ -715,10 +717,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             }
         } else if (meshMessage instanceof ConfigModelAppStatus) {
 
-            if(updateNode(node)) {
+            if (updateNode(node)) {
                 final ConfigModelAppStatus status = (ConfigModelAppStatus) meshMessage;
                 final Element element = node.getElements().get(status.getElementAddress());
-                if(node.getElements().containsKey(status.getElementAddress())) {
+                if (node.getElements().containsKey(status.getElementAddress())) {
                     mExtendedElement.setElement(element);
                     final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
                     mExtendedMeshModel.setMeshModel(model);
@@ -727,9 +729,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
         } else if (meshMessage instanceof ConfigModelPublicationStatus) {
 
-            if(updateNode(node)) {
+            if (updateNode(node)) {
                 final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
-                if(node.getElements().containsKey(status.getElementAddress())) {
+                if (node.getElements().containsKey(status.getElementAddress())) {
                     final Element element = node.getElements().get(status.getElementAddress());
                     mExtendedElement.setElement(element);
                     final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
@@ -739,9 +741,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
         } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
 
-            if(updateNode(node)) {
+            if (updateNode(node)) {
                 final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
-                if(node.getElements().containsKey(status.getElementAddress())) {
+                if (node.getElements().containsKey(status.getElementAddress())) {
                     final Element element = node.getElements().get(status.getElementAddress());
                     mExtendedElement.setElement(element);
                     final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
@@ -757,9 +759,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mMeshMessageLiveData.postValue(status);
 
         } else if (meshMessage instanceof GenericOnOffStatus) {
-            if(updateNode(node)) {
+            if (updateNode(node)) {
                 final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
-                if(node.getElements().containsKey(status.getSrcAddress())) {
+                if (node.getElements().containsKey(status.getSrcAddress())) {
                     final Element element = node.getElements().get(status.getSrcAddress());
                     mExtendedElement.setElement(element);
                     final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_ON_OFF_SERVER);
@@ -768,9 +770,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             }
         } else if (meshMessage instanceof GenericLevelStatus) {
 
-            if(updateNode(node)) {
+            if (updateNode(node)) {
                 final GenericLevelStatus status = (GenericLevelStatus) meshMessage;
-                if(node.getElements().containsKey(status.getSrcAddress())) {
+                if (node.getElements().containsKey(status.getSrcAddress())) {
                     final Element element = node.getElements().get(status.getSrcAddress());
                     mExtendedElement.setElement(element);
                     final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_LEVEL_SERVER);
@@ -780,9 +782,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
         } else if (meshMessage instanceof VendorModelMessageStatus) {
 
-            if(updateNode(node)) {
+            if (updateNode(node)) {
                 final VendorModelMessageStatus status = (VendorModelMessageStatus) meshMessage;
-                if(node.getElements().containsKey(status.getSrcAddress())) {
+                if (node.getElements().containsKey(status.getSrcAddress())) {
                     final Element element = node.getElements().get(status.getSrcAddress());
                     mExtendedElement.setElement(element);
                     final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
@@ -799,8 +801,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * We should only update the selected node, since sending messages to group address will notify with nodes that is not on the UI
      */
-    private boolean updateNode(final ProvisionedMeshNode node){
-        if(mProvisionedMeshNode.getUnicastAddressInt() == node.getUnicastAddressInt()) {
+    private boolean updateNode(final ProvisionedMeshNode node) {
+        if (mProvisionedMeshNode.getUnicastAddressInt() == node.getUnicastAddressInt()) {
             mProvisionedMeshNode = node;
             mExtendedMeshNode.updateMeshNode(node);
             return true;

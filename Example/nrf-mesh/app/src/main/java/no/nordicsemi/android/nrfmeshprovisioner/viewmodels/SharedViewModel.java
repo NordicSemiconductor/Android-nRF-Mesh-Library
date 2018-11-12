@@ -25,7 +25,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 
-import java.util.Map;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -78,7 +78,7 @@ public class SharedViewModel extends ViewModel {
     /**
      * Returns the provisioned nodes as a live data object.
      */
-    public LiveData<Map<Integer, ProvisionedMeshNode>> getProvisionedNodes() {
+    public LiveData<List<ProvisionedMeshNode>> getProvisionedNodes() {
         return nRFMeshRepository.getProvisionedNodes();
     }
 

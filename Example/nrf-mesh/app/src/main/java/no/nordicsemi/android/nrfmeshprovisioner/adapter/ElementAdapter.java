@@ -84,7 +84,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Element element = mElements.get(position);
         holder.mElementContainer.setTag(element.getElementAddressInt());
-        final int modelCount = element.getSigModelCount() + element.getVendorModelCount();
+        final int modelCount = element.getMeshModels().size();
         holder.mElementTitle.setText(mContext.getString(R.string.element_address, MeshParserUtils.bytesToHex(element.getElementAddress(), false)));
         holder.mElementSubtitle.setText(mContext.getString(R.string.model_count, modelCount));
 

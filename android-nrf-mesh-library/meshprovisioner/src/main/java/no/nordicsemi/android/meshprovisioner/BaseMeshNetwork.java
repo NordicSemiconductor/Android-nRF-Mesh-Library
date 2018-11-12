@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -85,20 +84,13 @@ abstract class BaseMeshNetwork {
     List<Scene> scenes = null;
 
     //Library related attributes
-    @ColumnInfo(name = "configurator_unicast")
-    @Expose
-    byte[] mConfigurationSrc = {0x07, (byte) 0xFF}; //0x07FF;
-
-    @ColumnInfo(name = "global_ttl")
-    @Expose
-    int globalTtl;
-
     @ColumnInfo(name = "last_selected")
     @Expose
     boolean lastSelected;
 
     @Ignore
     private ProvisioningSettings mProvisioningSettings;
+
     @Ignore
     private Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new LinkedHashMap<>();
 
@@ -111,8 +103,8 @@ abstract class BaseMeshNetwork {
 
     }
 
-    public final Map<Integer, ProvisionedMeshNode> getProvisionedNodes() {
-        return Collections.unmodifiableMap(mProvisionedNodes);
+    public final List<ProvisionedMeshNode> getProvisionedNodes() {
+        return Collections.unmodifiableList(nodes);
     }
 
     public ProvisioningSettings getProvisioningSettings() {

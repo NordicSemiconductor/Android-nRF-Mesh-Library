@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "990e95c46a36f705eaf5bc03f41751fa",
+    "identityHash": "659fffcd29006862a64fafba6b446c5e",
     "entities": [
       {
         "tableName": "mesh_network",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` TEXT, `configurator_unicast` BLOB, `global_ttl` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`mesh_uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` TEXT, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`mesh_uuid`))",
         "fields": [
           {
             "fieldPath": "meshUUID",
@@ -25,18 +25,6 @@
             "columnName": "timestamp",
             "affinity": "TEXT",
             "notNull": false
-          },
-          {
-            "fieldPath": "mConfigurationSrc",
-            "columnName": "configurator_unicast",
-            "affinity": "BLOB",
-            "notNull": false
-          },
-          {
-            "fieldPath": "globalTtl",
-            "columnName": "global_ttl",
-            "affinity": "INTEGER",
-            "notNull": true
           },
           {
             "fieldPath": "lastSelected",
@@ -229,7 +217,7 @@
       },
       {
         "tableName": "provisioner",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `provisioner_uuid` TEXT NOT NULL, `name` TEXT, PRIMARY KEY(`provisioner_uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `provisioner_uuid` TEXT NOT NULL, `name` TEXT, `sequence_number` INTEGER NOT NULL, `provisioner_address` BLOB, `global_ttl` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`provisioner_uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "meshUuid",
@@ -248,6 +236,30 @@
             "columnName": "name",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "sequenceNumber",
+            "columnName": "sequence_number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "provisionerAddress",
+            "columnName": "provisioner_address",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "globalTtl",
+            "columnName": "global_ttl",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSelected",
+            "columnName": "last_selected",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -291,7 +303,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "uuid",
+            "fieldPath": "provisionerUuid",
             "columnName": "provisioner_uuid",
             "affinity": "TEXT",
             "notNull": false
@@ -409,7 +421,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "uuid",
+            "fieldPath": "provisionerUuid",
             "columnName": "provisioner_uuid",
             "affinity": "TEXT",
             "notNull": false
@@ -895,7 +907,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"990e95c46a36f705eaf5bc03f41751fa\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"659fffcd29006862a64fafba6b446c5e\")"
     ]
   }
 }

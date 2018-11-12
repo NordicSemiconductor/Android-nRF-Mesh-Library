@@ -33,12 +33,12 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
@@ -201,8 +201,10 @@ public class ScannerRepository {
         }
 
         if (mFilterUuid.equals(BleMeshManager.MESH_PROXY_UUID)) {
-            final byte[] networkKey = MeshParserUtils.toByteArray(mMeshManagerApi.getMeshNetwork().getProvisioningSettings().getNetworkKey());
-            mNetworkId = mMeshManagerApi.generateNetworkId(networkKey);
+            final List<NetworkKey> networkKeys = mMeshManagerApi.getMeshNetwork().getNetKeys();
+            if(!networkKeys.isEmpty()) {
+                mNetworkId = mMeshManagerApi.generateNetworkId(networkKeys.get(0).getKey());
+            }
         }
 
         mScannerLiveData.scanningStarted();
@@ -242,11 +244,9 @@ public class ScannerRepository {
      * @return true if the node identity matches or false otherwise
      */
     private boolean checkIfNodeIdentityMatches(final byte[] serviceData) {
-        for (Map.Entry<Integer, ProvisionedMeshNode> node : mMeshManagerApi.getMeshNetwork().getProvisionedNodes().entrySet()) {
-            if (mMeshManagerApi != null) {
-                if (mMeshManagerApi.nodeIdentityMatches(node.getValue(), serviceData)) {
-                    return true;
-                }
+        for (ProvisionedMeshNode node : mMeshManagerApi.getMeshNetwork().getProvisionedNodes()) {
+            if (mMeshManagerApi.nodeIdentityMatches(node, serviceData)) {
+                return true;
             }
         }
         return false;

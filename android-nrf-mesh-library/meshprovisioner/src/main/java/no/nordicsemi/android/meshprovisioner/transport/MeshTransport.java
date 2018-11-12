@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public final class MeshTransport extends NetworkLayer {
@@ -62,13 +63,17 @@ public final class MeshTransport extends NetworkLayer {
     }
 
     @Override
-    protected final int incrementSequenceNumber() {
-        return SequenceNumber.incrementAndStore(mContext);
+    protected final int incrementSequenceNumber(final byte[] src) {
+        final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
+        return provisioner.incrementSequenceNumber();
     }
 
     @Override
-    protected final int incrementSequenceNumber(final byte[] sequenceNumber) {
-        return SequenceNumber.incrementAndStore(mContext, sequenceNumber);
+    protected final int incrementSequenceNumber(final byte[] src, final byte[] sequenceNumber) {
+        final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
+        final int seqNumber = MeshParserUtils.getSequenceNumber(sequenceNumber);
+        provisioner.setSequenceNumber(seqNumber);
+        return provisioner.incrementSequenceNumber();
     }
 
     /**
@@ -104,7 +109,7 @@ public final class MeshTransport extends NetworkLayer {
                                     final byte[] key, final int akf, final int aid, final int aszmic,
                                     final int accessOpCode, final byte[] accessMessageParameters) {
         this.mMeshNode = node;
-        final int sequenceNumber = incrementSequenceNumber();
+        final int sequenceNumber = incrementSequenceNumber(src);
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
         Log.v(TAG, "Src address: " + MeshParserUtils.bytesToHex(src, false));
@@ -155,7 +160,7 @@ public final class MeshTransport extends NetworkLayer {
                                                     final byte[] key, final int akf, final int aid, final int aszmic,
                                                     final int accessOpCode, final byte[] accessMessageParameters) {
         this.mMeshNode = node;
-        final int sequenceNumber = incrementSequenceNumber();
+        final int sequenceNumber = incrementSequenceNumber(src);
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
         Log.v(TAG, "Src address: " + MeshParserUtils.bytesToHex(src, false));
@@ -206,7 +211,7 @@ public final class MeshTransport extends NetworkLayer {
                                                 final byte[] key, final int akf, final int aid, final int aszmic,
                                                 final int accessOpCode, final byte[] accessMessageParameters) {
         this.mMeshNode = node;
-        final int sequenceNumber = incrementSequenceNumber();
+        final int sequenceNumber = incrementSequenceNumber(src);
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
         Log.v(TAG, "Src address: " + MeshParserUtils.bytesToHex(src, false));

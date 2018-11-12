@@ -245,7 +245,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 if(appKey != null){
                     final byte[] key = MeshParserUtils.toByteArray(appKey);
-                    final int appKeyIndex = mViewModel.getMeshNetwork().getProvisioningSettings().getAppKeys().indexOf(appKey);
+                    final int appKeyIndex = mViewModel.getMeshNetwork().getAppKeys().indexOf(appKey);
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
                     final ApplicationKey applicationKey = new ApplicationKey(appKeyIndex, key);
                     final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node, node.getNetworkKeys().get(0), applicationKey, 0);

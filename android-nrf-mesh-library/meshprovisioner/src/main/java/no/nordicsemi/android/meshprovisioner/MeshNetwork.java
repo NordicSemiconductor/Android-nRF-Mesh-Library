@@ -116,26 +116,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.scenes = scenes;
     }
 
-    public byte[] getConfiguratorSrc() {
-        return mConfigurationSrc;
-    }
-
-    public int getGlobalTtl() {
-        return globalTtl;
-    }
-
-    public void setGlobalTtl(final int globalTtl) {
-        this.globalTtl = globalTtl;
-    }
-
-    public byte[] getConfigurationSrc() {
-        return mConfigurationSrc;
-    }
-
-    public void setConfigurationSrc(final byte[] configurationSrc) {
-        mConfigurationSrc = configurationSrc;
-    }
-
     public boolean isLastSelected() {
         return lastSelected;
     }

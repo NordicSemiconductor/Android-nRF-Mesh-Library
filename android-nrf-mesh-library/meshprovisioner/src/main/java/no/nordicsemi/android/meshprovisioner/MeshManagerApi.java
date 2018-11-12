@@ -83,7 +83,6 @@ import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.NodeDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.transport.SequenceNumber;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -95,6 +94,8 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     private static final String PROVISIONED_NODES_FILE = "PROVISIONED_FILES";
     private static final String CONFIGURATION_SRC = "CONFIGURATION_SRC";
     private static final String SRC = "SRC";
+    private static final String PREFS_SEQUENCE_NUMBER = "PREFS_SEQUENCE_NUMBER";
+    private static final String SEQUENCE_NUMBER_KEY = "NRF_MESH_SEQUENCE_NUMBER";
     public static final byte PDU_TYPE_PROVISIONING = 0x03;
     /**
      * Mesh provisioning service UUID
@@ -271,8 +272,12 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
      */
     private void initProvisionedNodesForMigration() {
         final MeshNetwork meshNetwork = new MeshNetwork();
-        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
-        final Map<String, ?> nodes = preferences.getAll();
+        final SharedPreferences preferences = mContext.getSharedPreferences(PREFS_SEQUENCE_NUMBER, Context.MODE_PRIVATE);
+        final int sequenceNumber = preferences.getInt(SEQUENCE_NUMBER_KEY, 0);
+
+
+        final SharedPreferences preferencesNodes = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
+        final Map<String, ?> nodes = preferencesNodes.getAll();
 
         if(TextUtils.isEmpty(meshNetwork.getMeshUUID())){
             meshNetwork.setMeshUUID(MeshParserUtils.generateRandomUuid());
@@ -284,7 +289,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             final List<ProvisionedMeshNode> tempNodes = new ArrayList<>();
             for (int orderedKey : orderedKeys) {
                 final String key = String.format(Locale.US, "0x%04X", orderedKey);
-                final String json = preferences.getString(key, null);
+                final String json = preferencesNodes.getString(key, null);
                 if (json != null) {
                     try {
                         final ProvisionedMeshNode node = mGson.fromJson(json, ProvisionedMeshNode.class);
@@ -337,8 +342,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             }
 
             meshNetwork.nodes = tempNodes;
-            meshNetwork.mConfigurationSrc = mConfigurationSrc;
-            meshNetwork.globalTtl = mProvisioningSettings.getGlobalTtl();
             final NetworkKey networkKey = new NetworkKey(mProvisioningSettings.keyIndex, MeshParserUtils.toByteArray(mProvisioningSettings.getNetworkKey()));
             networkKey.setUuid(meshNetwork.getMeshUUID());
             final List<NetworkKey> netKeys = new ArrayList<>();
@@ -356,6 +359,9 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             if(meshNetwork.provisioners == null || meshNetwork.provisioners.isEmpty()) {
 
                 final Provisioner provisioner = new Provisioner();
+
+                provisioner.setProvisionerAddress(mConfigurationSrc);
+                provisioner.setGlobalTtl(mProvisioningSettings.getGlobalTtl());
                 if(TextUtils.isEmpty(provisioner.getProvisionerUuid())){
                     provisioner.setProvisionerUuid(MeshParserUtils.generateRandomUuid());
                 }
@@ -385,9 +391,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
                 provisioners.add(provisioner);
                 meshNetwork.provisioners = provisioners;
             }
-
-            meshNetwork.mConfigurationSrc = mConfigurationSrc;
-            meshNetwork.globalTtl = mProvisioningSettings.getGlobalTtl();
             this.meshNetwork = meshNetwork;
 
             insertNetwork(meshNetwork);
@@ -569,6 +572,15 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         return getMeshNode(unicastAddress);
     }
 
+    @Override
+    public Provisioner getProvisioner(final byte[] unicastAddress) {
+        for (Provisioner provisioner : meshNetwork.getProvisioners()){
+            if(Arrays.equals(unicastAddress, provisioner.getProvisionerAddress()))
+                return provisioner;
+        }
+        return null;
+    }
+
     /**
      * Handles notifications received by the client.
      * <p>
@@ -680,14 +692,14 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     @Override
     public void updateMeshNode(final ProvisionedMeshNode meshNode) {
         if (meshNode != null) {
-            saveProvisionedNode(meshNode);
+            mProvisionedNodeDao.insert(meshNode);
         }
     }
 
     @Override
     public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
         if (meshNode != null) {
-            deleteProvisionedNode(meshNode);
+            mProvisionedNodeDao.delete(meshNode);
         }
     }
 
@@ -831,7 +843,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
                 provisioningSettings.getFlags(),
                 provisioningSettings.getIvIndex(),
                 provisioningSettings.getUnicastAddress(),
-                provisioningSettings.getGlobalTtl(), meshNetwork.getConfiguratorSrc());
+                provisioningSettings.getGlobalTtl(), meshNetwork.getProvisioners().get(0).getProvisionerAddress());
     }
 
     @Override
@@ -935,7 +947,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
      */
     public final void resetMeshNetwork() {
         clearProvisionedNodes();
-        SequenceNumber.resetSequenceNumber(mContext);
+        meshNetwork.getProvisioners().get(0).setSequenceNumber(0);
         meshNetwork.getProvisioningSettings().clearProvisioningData();
         meshNetwork.getProvisioningSettings().generateProvisioningData();
     }

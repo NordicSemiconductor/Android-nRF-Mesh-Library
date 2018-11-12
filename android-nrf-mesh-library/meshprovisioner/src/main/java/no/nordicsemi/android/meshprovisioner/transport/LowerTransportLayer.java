@@ -205,17 +205,19 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     /**
      * Increments the sequence number and returns the new sequence number.
      *
+     * @param src source address, which is the address of the provisioner
      * @return Incremented sequence number.
      */
-    protected abstract int incrementSequenceNumber();
+    protected abstract int incrementSequenceNumber(final byte[] src);
 
     /**
      * Increments the given sequence number.
      *
+     * @param src            source address, which is the address of the provisioner
      * @param sequenceNumber Sequence number to be incremented.
      * @return Incremented sequence number.
      */
-    protected abstract int incrementSequenceNumber(final byte[] sequenceNumber);
+    protected abstract int incrementSequenceNumber(final byte[] src, final byte[] sequenceNumber);
 
     /**
      * Creates the network layer pdu
@@ -284,7 +286,6 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
      * Creates an unsegmented control.
      *
      * @param message control message.
-     * @return unsegmented access message.
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     private void createUnsegmentedControlMessage(final ControlMessage message) {
@@ -318,7 +319,6 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
      * Creates a segmented control message.
      *
      * @param controlMessage control message to be sent.
-     * @return Segmented control message.
      */
     private void createSegmentedControlMessage(final ControlMessage controlMessage) {
         controlMessage.setSegmented(false);
@@ -506,11 +506,11 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     /**
      * Send immediate block acknowledgement
      *
-     * @param seqZero
-     * @param ttl
-     * @param src
-     * @param dst
-     * @param segN
+     * @param seqZero seqzero of the message
+     * @param ttl     ttl of the message
+     * @param src     source address of the message
+     * @param dst     destination address of the message
+     * @param segN    total segment count
      */
     private void handleImmediateBlockAcks(final int seqZero, final int ttl, final byte[] src, final byte[] dst, final int segN) {
         cancelIncompleteTimer();
@@ -601,7 +601,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             message.setAkf(akf);
             message.setAid(aid);
             message.setSegmented(true);
-            final SparseArray<byte[]> segmentedMessages =  segmentedControlMessageMap.clone();
+            final SparseArray<byte[]> segmentedMessages = segmentedControlMessageMap.clone();
             segmentedControlMessageMap.clear();
             message.setLowerTransportControlPdu(segmentedMessages);
             return message;
@@ -713,7 +713,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         controlMessage.setSrc(src);
         controlMessage.setDst(dst);
         controlMessage.setIvIndex(mMeshNode.getIvIndex());
-        final int sequenceNumber = incrementSequenceNumber();
+        final int sequenceNumber = incrementSequenceNumber(controlMessage.getSrc());
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
         controlMessage.setSequenceNumber(sequenceNum);
         mBlockAckSent = true;
@@ -738,7 +738,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         controlMessage.setSrc(src);
         controlMessage.setDst(dst);
         controlMessage.setIvIndex(mMeshNode.getIvIndex());
-        final int sequenceNumber = incrementSequenceNumber();
+        final int sequenceNumber = incrementSequenceNumber(controlMessage.getSrc());
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
         controlMessage.setSequenceNumber(sequenceNum);
         mBlockAckSent = true;

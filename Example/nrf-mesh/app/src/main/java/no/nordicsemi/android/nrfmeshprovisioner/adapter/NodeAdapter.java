@@ -50,15 +50,14 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
     private final List<ProvisionedMeshNode> mNodes = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
 
-    public NodeAdapter(final FragmentActivity fragmentActivity, LiveData<Map<Integer, ProvisionedMeshNode>> provisionedNodesLiveData) {
+    public NodeAdapter(final FragmentActivity fragmentActivity, LiveData<List<ProvisionedMeshNode>> provisionedNodesLiveData) {
         this.mContext = fragmentActivity;
         provisionedNodesLiveData.observe(fragmentActivity, provisionedNodes -> {
             if(provisionedNodes != null){
                 mNodes.clear();
-                mNodes.addAll(provisionedNodes.values());
+                mNodes.addAll(provisionedNodes);
             }
         });
-
     }
 
     public void setOnItemClickListener(final OnItemClickListener listener) {
@@ -78,7 +77,7 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
         holder.name.setText(node.getNodeName());
         holder.unicastAddress.setText(MeshParserUtils.bytesToHex(node.getUnicastAddress(), false));
         final Map<Integer, Element> elements = node.getElements();
-        if(elements != null && !elements.isEmpty()) {
+        if(!elements.isEmpty()) {
             holder.notConfiguredView.setVisibility(View.GONE);
             holder.nodeInfoContainer.setVisibility(View.VISIBLE);
             holder.companyIdentifier.setText(CompanyIdentifiers.getCompanyName(node.getCompanyIdentifier().shortValue()));

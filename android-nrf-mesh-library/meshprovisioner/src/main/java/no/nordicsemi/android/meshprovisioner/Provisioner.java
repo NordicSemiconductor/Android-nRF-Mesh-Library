@@ -18,7 +18,7 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
 /**
  * Class definition of a Provisioner of mesh network
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 @Entity(tableName = "provisioner",
         foreignKeys = @ForeignKey(entity = MeshNetwork.class,
                 parentColumns = "mesh_uuid",
@@ -52,6 +52,22 @@ public class Provisioner {
     @Ignore
     @Expose
     private List<AllocatedSceneRange> allocatedSceneRange = new ArrayList<>();
+
+    @ColumnInfo(name = "sequence_number")
+    @Expose
+    private int sequenceNumber;
+
+    @ColumnInfo(name = "provisioner_address")
+    @Expose
+    private byte[] provisionerAddress = {0x07, (byte) 0xFF}; //0x07FF;
+
+    @ColumnInfo(name = "global_ttl")
+    @Expose
+    private int globalTtl;
+
+    @ColumnInfo(name = "last_selected")
+    @Expose
+    private boolean lastSelected;
 
     /**
      * Constructs {@link Provisioner}
@@ -99,11 +115,12 @@ public class Provisioner {
      *
      * @return UUID
      */
+    @NonNull
     public String getProvisionerUuid() {
         return provisionerUuid;
     }
 
-    public void setProvisionerUuid(final String provisionerUuid) {
+    public void setProvisionerUuid(@NonNull final String provisionerUuid) {
         this.provisionerUuid = provisionerUuid;
     }
 
@@ -159,5 +176,43 @@ public class Provisioner {
      */
     public void setAllocatedSceneRange(final List<AllocatedSceneRange> allocatedSceneRange) {
         this.allocatedSceneRange = allocatedSceneRange;
+    }
+
+
+    public int getSequenceNumber() {
+        return sequenceNumber;
+    }
+
+    public void setSequenceNumber(final int sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
+    }
+
+    public byte[] getProvisionerAddress() {
+        return provisionerAddress;
+    }
+
+    public void setProvisionerAddress(final byte[] provisionerAddress) {
+        this.provisionerAddress = provisionerAddress;
+    }
+
+    public int getGlobalTtl() {
+        return globalTtl;
+    }
+
+    public void setGlobalTtl(final int globalTtl) {
+        this.globalTtl = globalTtl;
+    }
+
+    public boolean isLastSelected() {
+        return lastSelected;
+    }
+
+    public void setLastSelected(final boolean lastSelected) {
+        this.lastSelected = lastSelected;
+    }
+
+    public int incrementSequenceNumber() {
+        sequenceNumber = sequenceNumber + 1;
+        return sequenceNumber;
     }
 }
