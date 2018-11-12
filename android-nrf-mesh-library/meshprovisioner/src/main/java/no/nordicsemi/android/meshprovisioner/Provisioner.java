@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static android.arch.persistence.room.ForeignKey.CASCADE;
@@ -32,9 +33,9 @@ public class Provisioner {
 
     @PrimaryKey
     @NonNull
-    @ColumnInfo(name = "uuid")
+    @ColumnInfo(name = "provisioner_uuid")
     @Expose
-    private String uuid;
+    private String provisionerUuid;
 
     @ColumnInfo(name = "name")
     @Expose
@@ -42,15 +43,15 @@ public class Provisioner {
 
     @Ignore
     @Expose
-    private List<AllocatedGroupRange> allocatedGroupRange;
+    private List<AllocatedGroupRange> allocatedGroupRange = new ArrayList<>();
 
     @Ignore
     @Expose
-    private List<AllocatedUnicastRange> allocatedUnicastRange;
+    private List<AllocatedUnicastRange> allocatedUnicastRange = new ArrayList<>();
 
     @Ignore
     @Expose
-    private List<AllocatedSceneRange> allocatedSceneRange;
+    private List<AllocatedSceneRange> allocatedSceneRange = new ArrayList<>();
 
     /**
      * Constructs {@link Provisioner}
@@ -59,12 +60,20 @@ public class Provisioner {
 
     }
 
-    String getMeshUuid() {
+    /**
+     * Returns the provisionerUuid of the Mesh network
+     * @return String provisionerUuid
+     */
+    public String getMeshUuid() {
         return meshUuid;
     }
 
-    void setMeshUuid(final String meshUuid) {
-        this.meshUuid = meshUuid;
+    /**
+     * Sets the provisionerUuid of the mesh network to this application key
+     * @param uuid mesh network provisionerUuid
+     */
+    public void setMeshUuid(final String uuid) {
+        meshUuid = uuid;
     }
 
     /**
@@ -86,16 +95,16 @@ public class Provisioner {
     }
 
     /**
-     * Returns a unique uuid generated for this provisioner
+     * Returns the provisionerUuid
      *
      * @return UUID
      */
-    public String getUuid() {
-        return uuid;
+    public String getProvisionerUuid() {
+        return provisionerUuid;
     }
 
-    public void setUuid(final String uuid) {
-        this.uuid = uuid;
+    public void setProvisionerUuid(final String provisionerUuid) {
+        this.provisionerUuid = provisionerUuid;
     }
 
     /**

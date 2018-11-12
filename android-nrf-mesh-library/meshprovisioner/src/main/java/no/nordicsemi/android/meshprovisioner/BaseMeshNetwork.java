@@ -57,22 +57,22 @@ abstract class BaseMeshNetwork {
     @Ignore
     @SerializedName("netKeys")
     @Expose
-    List<NetworkKey> netKeys = new ArrayList<>();
+    List<NetworkKey> netKeys;
 
     @Ignore
     @SerializedName("appKeys")
     @Expose
-    List<ApplicationKey> appKeys = null;
+    List<ApplicationKey> appKeys;
 
     @Ignore
     @SerializedName("provisioners")
     @Expose
-    List<Provisioner> provisioners = null;
+    List<Provisioner> provisioners;
 
     @Ignore
     @SerializedName("nodes")
     @Expose
-    List<ProvisionedMeshNode> nodes = null;
+    List<ProvisionedMeshNode> nodes;
 
     @Ignore
     @SerializedName("groups")

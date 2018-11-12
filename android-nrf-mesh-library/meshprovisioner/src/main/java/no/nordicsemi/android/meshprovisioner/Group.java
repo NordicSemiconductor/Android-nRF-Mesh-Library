@@ -56,18 +56,18 @@ public class Group {
     }
 
     /**
-     * Returns the uuid of the network
+     * Returns the provisionerUuid of the network
      *
-     * @return uuid
+     * @return provisionerUuid
      */
     public String getMeshUuid() {
         return meshUuid;
     }
 
     /**
-     * Sets the uuid of the network
+     * Sets the provisionerUuid of the network
      *
-     * @param meshUuid network uuid
+     * @param meshUuid network provisionerUuid
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setMeshUuid(final String meshUuid) {

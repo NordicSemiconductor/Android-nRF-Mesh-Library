@@ -4,6 +4,7 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.google.gson.annotations.Expose;
@@ -14,16 +15,21 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
  * Class definition for allocating group range for provisioners.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-@Entity(tableName = "allocated_scene_range")
+@Entity(tableName = "allocated_scene_range",
+        foreignKeys = @ForeignKey(entity = Provisioner.class,
+                parentColumns = "provisioner_uuid",
+                childColumns = "provisioner_uuid",
+                onUpdate = CASCADE, onDelete =
+                CASCADE),
+indices = @Index("provisioner_uuid"))
 public class AllocatedSceneRange {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     int id;
 
-    @ForeignKey(entity = Provisioner.class, parentColumns = "uuid", childColumns = "provisioner_uuid", onUpdate = CASCADE, onDelete = CASCADE)
     @ColumnInfo(name = "provisioner_uuid")
-    String uuid;
+    String provisionerUuid;
 
     @ColumnInfo(name = "first_scene")
     @Expose
@@ -33,19 +39,44 @@ public class AllocatedSceneRange {
     @Expose
     private int lastScene;
 
-    public AllocatedSceneRange(){
+    @Ignore
+    public AllocatedSceneRange() {
 
     }
+
     /**
      * Constructs {@link AllocatedSceneRange} for provisioner
      *
      * @param firstScene high address of group range
      * @param lastScene  low address of group range
      */
-    @Ignore
     public AllocatedSceneRange(final int firstScene, final int lastScene) {
         this.firstScene = firstScene;
         this.lastScene = lastScene;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(final int id) {
+        this.id = id;
+    }
+
+    /**
+     * Returns the provisionerUuid of the Mesh network
+     * @return String provisionerUuid
+     */
+    public String getProvisionerUuid() {
+        return provisionerUuid;
+    }
+
+    /**
+     * Sets the provisionerUuid of the mesh network to this application key
+     * @param provisionerUuid mesh network provisionerUuid
+     */
+    public void setProvisionerUuid(final String provisionerUuid) {
+        this.provisionerUuid = provisionerUuid;
     }
 
     /**

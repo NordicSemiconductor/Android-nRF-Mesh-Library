@@ -28,6 +28,7 @@ import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
@@ -663,5 +664,14 @@ public class MeshParserUtils {
             unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
         }
         return unsigned;
+    }
+
+    /**
+     * Generates a random uuid
+     *
+     * @return uuid string
+     */
+    public static String generateRandomUuid() {
+        return UUID.randomUUID().toString().replace("-", "").toUpperCase();
     }
 }

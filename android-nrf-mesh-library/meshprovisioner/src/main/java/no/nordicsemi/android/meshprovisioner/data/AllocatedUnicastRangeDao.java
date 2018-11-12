@@ -10,29 +10,26 @@ import android.support.annotation.RestrictTo;
 
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.AllocatedUnicastRange;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("unused")
 @Dao
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public interface MeshNetworkDao {
+public interface AllocatedUnicastRangeDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(final MeshNetwork meshNetwork);
+    void insert(final AllocatedUnicastRange allocatedUnicastRange);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(final List<AllocatedUnicastRange> allocatedUnicastRanges);
 
     @Update
-    void update(final MeshNetwork meshNetwork);
+    void update(final AllocatedUnicastRange allocatedUnicastRange);
 
     @Delete
-    void delete(final MeshNetwork meshNetwork);
+    void delete(final AllocatedUnicastRange allocatedUnicastRange);
 
-    @Query("DELETE FROM mesh_network")
+    @Query("DELETE FROM allocated_unicast_range")
     void deleteAll();
-
-    @Query("SELECT * from mesh_network")
-    List<MeshNetwork> getAllMeshNetworks();
-
-    @Query("SELECT * from mesh_network WHERE mesh_uuid == :uuid")
-    MeshNetwork getMeshNetwork(final String uuid);
 
 }

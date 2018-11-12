@@ -114,10 +114,18 @@ public final class ApplicationKey implements Parcelable {
         }
     };
 
+    /**
+     * Returns the uuid of the Mesh network
+     * @return String uuid
+     */
     public String getUuid() {
         return uuid;
     }
 
+    /**
+     * Sets the uuid of the mesh network to this application key
+     * @param uuid mesh network uuid
+     */
     public void setUuid(final String uuid) {
         this.uuid = uuid;
     }

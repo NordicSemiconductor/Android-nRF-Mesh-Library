@@ -4,6 +4,7 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.google.gson.annotations.Expose;
@@ -14,15 +15,20 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
  * Class definition for allocating group range for provisioners.
  */
 @SuppressWarnings("unused")
-@Entity(tableName = "allocated_group_range")
+@Entity(tableName = "allocated_group_range",
+        foreignKeys = @ForeignKey(entity = Provisioner.class,
+                parentColumns = "provisioner_uuid",
+                childColumns = "provisioner_uuid",
+                onUpdate = CASCADE,
+                onDelete = CASCADE),
+        indices = @Index("provisioner_uuid"))
 public class AllocatedGroupRange {
 
     @PrimaryKey(autoGenerate = true)
     int id;
 
-    @ForeignKey(entity = Provisioner.class, parentColumns = "uuid", childColumns = "provisioner_uuid", onUpdate = CASCADE, onDelete = CASCADE)
     @ColumnInfo(name = "provisioner_uuid")
-    String uuid;
+    private String provisionerUuid;
 
     @ColumnInfo(name = "high_address")
     @Expose
@@ -32,19 +38,44 @@ public class AllocatedGroupRange {
     @Expose
     private byte[] lowAddress;
 
-    public AllocatedGroupRange(){
+    @Ignore
+    public AllocatedGroupRange() {
 
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(final int id) {
+        this.id = id;
+    }
+
     /**
      * Constructs {@link AllocatedGroupRange} for provisioner
      *
-     * @param lowAddress low address of group range
+     * @param lowAddress  low address of group range
      * @param highAddress high address of group range
      */
-    @Ignore
-    AllocatedGroupRange(final byte[] lowAddress, final byte[] highAddress) {
+    public AllocatedGroupRange(final byte[] lowAddress, final byte[] highAddress) {
         this.lowAddress = lowAddress;
         this.highAddress = highAddress;
+    }
+
+    /**
+     * Returns the provisionerUuid of the Mesh network
+     * @return String provisionerUuid
+     */
+    public String getProvisionerUuid() {
+        return provisionerUuid;
+    }
+
+    /**
+     * Sets the provisionerUuid of the mesh network to this application key
+     * @param provisionerUuid mesh network provisionerUuid
+     */
+    public void setProvisionerUuid(final String provisionerUuid) {
+        this.provisionerUuid = provisionerUuid;
     }
 
     /**
