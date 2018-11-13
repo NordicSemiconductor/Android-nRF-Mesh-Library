@@ -52,7 +52,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         }.getType();
         final List<NetworkKey> networkKeys = context.deserialize(json, networkKey);
         for (NetworkKey key : networkKeys) {
-            key.setUuid(meshUuid);
+            key.setMeshUuid(meshUuid);
         }
         return networkKeys;
     }
@@ -70,7 +70,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         }.getType();
         final List<ApplicationKey> applicationKeys = context.deserialize(json, applicationKeyList);
         for (ApplicationKey key : applicationKeys) {
-            key.setUuid(meshUuid);
+            key.setMeshUuid(meshUuid);
         }
         return applicationKeys;
     }

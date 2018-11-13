@@ -13,6 +13,6 @@ import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 @Dao
 public interface ApplicationKeysDao {
 
-    @Query("SELECT * from application_key WHERE uuid = :meshUuid")
+    @Query("SELECT * from application_key WHERE meshUuid = :meshUuid")
     List<ApplicationKey> loadApplicationKeys(final String meshUuid);
 }

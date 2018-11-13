@@ -24,11 +24,10 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public class GenericPowerLevelSetupServer extends SigModel {
 
-public class GenericPowerLevelSetupServer extends MeshModel {
-
-    public static final Creator<GenericPowerLevelSetupServer> CREATOR = new Creator<GenericPowerLevelSetupServer>() {
+    protected static final Creator<GenericPowerLevelSetupServer> CREATOR = new Creator<GenericPowerLevelSetupServer>() {
         @Override
         public GenericPowerLevelSetupServer createFromParcel(final Parcel source) {
             return new GenericPowerLevelSetupServer(source);
@@ -60,6 +59,6 @@ public class GenericPowerLevelSetupServer extends MeshModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.writeToParcel(dest, flags);
+        super.parcelMeshModel(dest, flags);
     }
 }

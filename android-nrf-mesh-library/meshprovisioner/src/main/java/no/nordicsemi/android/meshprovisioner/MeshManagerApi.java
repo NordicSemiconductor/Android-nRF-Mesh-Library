@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -52,13 +53,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import no.nordicsemi.android.meshprovisioner.data.AllocatedGroupRangeDao;
-import no.nordicsemi.android.meshprovisioner.data.AllocatedSceneRangeDao;
-import no.nordicsemi.android.meshprovisioner.data.AllocatedUnicastRangeDao;
 import no.nordicsemi.android.meshprovisioner.data.ApplicationKeyDao;
-import no.nordicsemi.android.meshprovisioner.data.ElementDao;
 import no.nordicsemi.android.meshprovisioner.data.GroupDao;
-import no.nordicsemi.android.meshprovisioner.data.MeshModelDao;
 import no.nordicsemi.android.meshprovisioner.data.MeshNetworkDao;
 import no.nordicsemi.android.meshprovisioner.data.MeshNetworkDatabase;
 import no.nordicsemi.android.meshprovisioner.data.NetworkKeyDao;
@@ -83,13 +79,14 @@ import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.NodeDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 
 @SuppressWarnings("WeakerAccess")
-public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, InternalMeshManagerCallbacks, NetworkLayerCallbacks {
+public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, InternalMeshManagerCallbacks, UpperTransportLayerCallbacks, NetworkLayerCallbacks {
 
     private static final String PROVISIONED_NODES_FILE = "PROVISIONED_FILES";
     private static final String CONFIGURATION_SRC = "CONFIGURATION_SRC";
@@ -165,12 +162,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     private NetworkKeyDao mNetworkKeyDao;
     private ApplicationKeyDao mApplicationKeyDao;
     private ProvisionerDao mProvisionerDao;
-    private AllocatedGroupRangeDao mAllocatedGroupRangeDao;
-    private AllocatedUnicastRangeDao mAllocatedUnicastRangeDao;
-    private AllocatedSceneRangeDao mAllocatedSceneRangeDao;
     private ProvisionedMeshNodeDao mProvisionedNodeDao;
-    private ElementDao mElementDao;
-    private MeshModelDao mMeshModelDao;
     private GroupDao mGroupDao;
     private SceneDao mSceneDao;
 
@@ -185,7 +177,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         initDb(context);
         initGson();
         initConfigurationSrc();
-        initProvisionedNodesForMigration();
+        initNetwork(context);
 
     }
 
@@ -209,18 +201,13 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         return meshNetwork;
     }
 
-    private void initDb(final Context context){
+    private void initDb(final Context context) {
         mMeshNetworkDatabase = MeshNetworkDatabase.getDatabase(context);
         mMeshNetworkDao = mMeshNetworkDatabase.meshNetworkDao();
         mNetworkKeyDao = mMeshNetworkDatabase.networkKeyDao();
         mApplicationKeyDao = mMeshNetworkDatabase.applicationKeyDao();
         mProvisionerDao = mMeshNetworkDatabase.provisionerDao();
-        mAllocatedGroupRangeDao = mMeshNetworkDatabase.allocatedGroupRangeDao();
-        mAllocatedUnicastRangeDao = mMeshNetworkDatabase.allocatedUnicastRangeDao();
-        mAllocatedSceneRangeDao = mMeshNetworkDatabase.allocatedSceneRangeDao();
         mProvisionedNodeDao = mMeshNetworkDatabase.provisionedMeshNodeDao();
-        mElementDao = mMeshNetworkDatabase.elementDao();
-        mMeshModelDao = mMeshNetworkDatabase.meshModelDao();
         mGroupDao = mMeshNetworkDatabase.groupDao();
         mSceneDao = mMeshNetworkDatabase.sceneDao();
     }
@@ -242,196 +229,73 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     }
 
     /**
-     * Load serialized provisioned nodes from preferences
+     * Migrates the old network data and loads a new mesh network object
+     * @param context
      */
-    private void initProvisionedNodes() {
-        final SharedPreferences preferences = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
-        final Map<String, ?> nodes = preferences.getAll();
-
-        if (!nodes.isEmpty()) {
-            final List<Integer> orderedKeys = reOrderProvisionedNodes(nodes);
-            mProvisionedNodes.clear();
-            for (int orderedKey : orderedKeys) {
-                final String key = String.format(Locale.US, "0x%04X", orderedKey);
-                final String json = preferences.getString(key, null);
-                if (json != null) {
-                    try {
-                        final ProvisionedMeshNode node = mGson.fromJson(json, ProvisionedMeshNode.class);
-                        final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
-                        mProvisionedNodes.put(unicastAddress, node);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Load serialized provisioned nodes from preferences
-     */
-    private void initProvisionedNodesForMigration() {
-        final MeshNetwork meshNetwork = new MeshNetwork();
-        final SharedPreferences preferences = mContext.getSharedPreferences(PREFS_SEQUENCE_NUMBER, Context.MODE_PRIVATE);
-        final int sequenceNumber = preferences.getInt(SEQUENCE_NUMBER_KEY, 0);
-
-
-        final SharedPreferences preferencesNodes = mContext.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
-        final Map<String, ?> nodes = preferencesNodes.getAll();
-
-        if(TextUtils.isEmpty(meshNetwork.getMeshUUID())){
-            meshNetwork.setMeshUUID(MeshParserUtils.generateRandomUuid());
-        }
-
-        if (!nodes.isEmpty()) {
-            final List<Integer> orderedKeys = reOrderProvisionedNodes(nodes);
-            mProvisionedNodes.clear();
-            final List<ProvisionedMeshNode> tempNodes = new ArrayList<>();
-            for (int orderedKey : orderedKeys) {
-                final String key = String.format(Locale.US, "0x%04X", orderedKey);
-                final String json = preferencesNodes.getString(key, null);
-                if (json != null) {
-                    try {
-                        final ProvisionedMeshNode node = mGson.fromJson(json, ProvisionedMeshNode.class);
-                        //TODO Temporary check to handle data migration this is to be removed in the version after next
-                        if (node.getNetworkKeys().isEmpty()) {
-                            final Method tempMigrateNetworkKey = node.getClass().getDeclaredMethod("tempMigrateNetworkKey");
-                            tempMigrateNetworkKey.setAccessible(true);
-                            tempMigrateNetworkKey.invoke(node);
-
-                            final Method tempMigrateAddedApplicationKeys = node.getClass().getDeclaredMethod("tempMigrateAddedApplicationKeys");
-                            tempMigrateAddedApplicationKeys.setAccessible(true);
-                            tempMigrateAddedApplicationKeys.invoke(node);
-
-                            final Method tempMigrateBoundApplicationKeys = node.getClass().getDeclaredMethod("tempMigrateBoundApplicationKeys");
-                            tempMigrateBoundApplicationKeys.setAccessible(true);
-                            tempMigrateBoundApplicationKeys.invoke(node);
-
-                            final Method tempMigrateSubscriptions = node.getClass().getDeclaredMethod("tempMigrateSubscriptions");
-                            tempMigrateSubscriptions.setAccessible(true);
-                            tempMigrateSubscriptions.invoke(node);
-                        } else {
-                            //TODO Temporary check to handle data migration this is to be removed in the version after next
-                            final GsonBuilder gsonBuilder = new GsonBuilder();
-                            gsonBuilder.excludeFieldsWithoutExposeAnnotation();
-                            gsonBuilder.enableComplexMapKeySerialization();
-                            gsonBuilder.setPrettyPrinting();
-                            mGson = gsonBuilder.create();
-                        }
-                        final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
-                        mProvisionedNodes.put(unicastAddress, node);
-                        //Since the current version of the app does not store the unique provisionerUuid of the
-                        //device we manually generate one for exporting purposes as a work around
-                        node.setUuid(MeshParserUtils.generateRandomUuid());
-                        node.setMeshUuid(meshNetwork.meshUUID);
-                        for(final Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()){
-                            final Element element = elementEntry.getValue();
-                            element.setUuid(node.getUuid());
-                            for(final Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()){
-                                final MeshModel model = modelEntry.getValue();
-                                model.setUuid(node.getUuid());
-                            }
-                        }
-
-                        tempNodes.add(node);
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-
-            meshNetwork.nodes = tempNodes;
-            final NetworkKey networkKey = new NetworkKey(mProvisioningSettings.keyIndex, MeshParserUtils.toByteArray(mProvisioningSettings.getNetworkKey()));
-            networkKey.setUuid(meshNetwork.getMeshUUID());
-            final List<NetworkKey> netKeys = new ArrayList<>();
-            netKeys.add(networkKey);
-            meshNetwork.netKeys = netKeys;
-
-            final List<ApplicationKey> appKeys = new ArrayList<>();
-            for (int i = 0; i < mProvisioningSettings.getAppKeys().size(); i++) {
-                final ApplicationKey applicationKey = new ApplicationKey(i, MeshParserUtils.toByteArray(mProvisioningSettings.getAppKeys().get(i)));
-                applicationKey.setUuid(meshNetwork.getMeshUUID());
-                appKeys.add(applicationKey);
-            }
-            meshNetwork.appKeys = appKeys;
-
-            if(meshNetwork.provisioners == null || meshNetwork.provisioners.isEmpty()) {
-
-                final Provisioner provisioner = new Provisioner();
-
-                provisioner.setProvisionerAddress(mConfigurationSrc);
-                provisioner.setGlobalTtl(mProvisioningSettings.getGlobalTtl());
-                if(TextUtils.isEmpty(provisioner.getProvisionerUuid())){
-                    provisioner.setProvisionerUuid(MeshParserUtils.generateRandomUuid());
-                }
-
-                final AllocatedGroupRange groupRange = new AllocatedGroupRange(new byte[]{(byte) 0xC0, 0x00}, new byte[]{(byte) 0xFE, (byte) 0xFF});
-                groupRange.setProvisionerUuid(provisioner.getProvisionerUuid());
-                final AllocatedUnicastRange unicastRange = new AllocatedUnicastRange(new byte[]{(byte) 0x00, 0x00}, new byte[]{(byte) 0x7F, (byte) 0xFF});
-                unicastRange.setProvisionerUuid(provisioner.getProvisionerUuid());
-                final AllocatedSceneRange sceneRange = new AllocatedSceneRange(0,0);
-                sceneRange.setProvisionerUuid(provisioner.getProvisionerUuid());
-
-                provisioner.setMeshUuid(meshNetwork.getMeshUUID());
-
-                final List<AllocatedGroupRange> groupRanges = new ArrayList<>();
-                groupRanges.add(groupRange);
-                final List<AllocatedUnicastRange> unicastRanges = new ArrayList<>();
-                unicastRanges.add(unicastRange);
-                final List<AllocatedSceneRange> sceneRanges = new ArrayList<>();
-                sceneRanges.add(sceneRange);
-
-                provisioner.setAllocatedGroupRange(groupRanges);
-                provisioner.setAllocatedUnicastRange(unicastRanges);
-                provisioner.setAllocatedSceneRange(sceneRanges);
-                provisioner.setMeshUuid(meshNetwork.getMeshUUID());
-
-                final List<Provisioner> provisioners = new ArrayList<>();
-                provisioners.add(provisioner);
-                meshNetwork.provisioners = provisioners;
-            }
+    private void initNetwork(final Context context){
+        final DataMigrator migrator = new DataMigrator();
+        final MeshNetwork meshNetwork = migrator.migrateData(context, mGson, mProvisioningSettings);
+        if(meshNetwork != null) {
             this.meshNetwork = meshNetwork;
-
             insertNetwork(meshNetwork);
+        } else {
+            loadMeshNetwork();
         }
     }
 
     private void insertNetwork(final MeshNetwork meshNetwork) {
         new Thread(() -> {
+            meshNetwork.setLastSelected(true);
             mMeshNetworkDao.insert(meshNetwork);
             mNetworkKeyDao.insert(meshNetwork.netKeys);
             mApplicationKeyDao.insert(meshNetwork.appKeys);
-
-            for(Provisioner provisioner :  meshNetwork.provisioners) {
+            int i = 0;
+            for (Provisioner provisioner : meshNetwork.provisioners) {
+                if(i == 0){
+                    provisioner.setLastSelected(true);
+                }
                 mProvisionerDao.insert(provisioner);
-                for(AllocatedGroupRange range : provisioner.getAllocatedGroupRange()){
-                    mAllocatedGroupRangeDao.insert(range);
-                }
-                for(AllocatedUnicastRange range : provisioner.getAllocatedUnicastRange()){
-                    mAllocatedUnicastRangeDao.insert(range);
-                }
-                for(AllocatedSceneRange range : provisioner.getAllocatedSceneRange()){
-                    mAllocatedSceneRangeDao.insert(range);
-                }
+                i++;
             }
 
             mProvisionedNodeDao.insert(meshNetwork.nodes);
-            for(ProvisionedMeshNode node : meshNetwork.nodes) {
-                mElementDao.insert(new ArrayList<>(node.getElements().values()));
-                for(Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
-                    final Element  element = elementEntry.getValue();
-                    mMeshModelDao.insert(new ArrayList<>(element.getMeshModels().values()));
-                }
-            }
-            if(meshNetwork.groups != null) {
+
+            if (meshNetwork.groups != null) {
                 mGroupDao.insert(meshNetwork.groups);
             }
 
-            if(meshNetwork.scenes != null) {
+            if (meshNetwork.scenes != null) {
                 mSceneDao.insert(meshNetwork.scenes);
             }
         }).start();
+    }
+
+    private void updateNetwork(final MeshNetwork meshNetwork) {
+        new Thread(() -> {
+            mMeshNetworkDao.update(meshNetwork);
+            mNetworkKeyDao.update(meshNetwork.netKeys);
+            mApplicationKeyDao.update(meshNetwork.appKeys);
+            mProvisionerDao.update(meshNetwork.provisioners);
+            mProvisionedNodeDao.update(meshNetwork.nodes);
+            if (meshNetwork.groups != null) {
+                mGroupDao.update(meshNetwork.groups);
+            }
+            if (meshNetwork.scenes != null) {
+                mSceneDao.update(meshNetwork.scenes);
+            }
+        }).start();
+    }
+
+    private void updateProvisionedMeshNode(final ProvisionedMeshNode node) {
+        new Thread(() -> mProvisionedNodeDao.update(node)).start();
+    }
+
+    private void updateProvisioner(final Provisioner provisioner) {
+        new Thread(() -> mProvisionerDao.update(provisioner)).start();
+    }
+
+    private void loadMeshNetwork(){
+        mMeshNetworkDao.getAllMeshNetworks();
     }
 
     void addMeshNode(final ProvisionedMeshNode node) {
@@ -505,49 +369,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         editor.apply();
     }
 
-    private void saveSrc() {
-        final SharedPreferences preferences = mContext.getSharedPreferences(CONFIGURATION_SRC, Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(SRC, (mConfigurationSrc[0] & 0xFF) << 8 | (mConfigurationSrc[1] & 0xFF));
-        editor.apply();
-    }
-
-    /**
-     * Set the source unicast address to the the library in the mesh network. This method will check if the addres is already taken by a node
-     *
-     * @return true is successful
-     */
-    public boolean setConfiguratorSrc(final byte[] configurationSrc) throws IllegalArgumentException {
-        final int tempSrc = (configurationSrc[0] & 0xFF) << 8 | (configurationSrc[1] & 0xFF);
-        if (MeshParserUtils.validateUnicastAddressInput(mContext, tempSrc)) {
-            if (!mProvisionedNodes.containsKey(tempSrc)) {
-                mConfigurationSrc = configurationSrc;
-                saveSrc();
-
-                //Set the configuration source for all provisioned nodes
-                for (Map.Entry<Integer, ProvisionedMeshNode> entry : mProvisionedNodes.entrySet()) {
-                    entry.getValue().setConfigurationSrc(mConfigurationSrc);
-                }
-
-                //Save all nodes
-                saveProvisionedNodes();
-                return true;
-            } else {
-                throw new IllegalArgumentException("Address already occupied by a node");
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns the source unicast address set to the the library in the mesh network
-     *
-     * @return byte array containing the address
-     */
-    public byte[] getConfiguratorSrc() {
-        return mConfigurationSrc;
-    }
-
     public void incrementUnicastAddress(final ProvisionedMeshNode meshNode) {
         //Since we know the number of elements this node contains we can predict the next available address for the next node.
         int unicastAdd = (meshNode.getUnicastAddressInt() + meshNode.getNumberOfElements());
@@ -556,26 +377,33 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         if (unicastAdd == tempSrc) {
             unicastAdd = unicastAdd + 1;
         }
-        mProvisioningSettings.setUnicastAddress(unicastAdd);
+        meshNetwork.provisioners.get(0).setUnicastAddress(AddressUtils.getUnicastAddressBytes(unicastAdd));
+        updateProvisioner(meshNetwork.getProvisioners().get(0));
     }
 
 
     @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
-        addMeshNode(meshNode);
+        meshNetwork.nodes.add(meshNode);
         incrementUnicastAddress(meshNode);
-        saveProvisionedNode(meshNode);
+        updateProvisionedMeshNode(meshNode);
     }
 
     @Override
     public ProvisionedMeshNode getMeshNode(final int unicastAddress) {
-        return getMeshNode(unicastAddress);
+        for (ProvisionedMeshNode node : meshNetwork.getProvisionedNodes()) {
+            if (unicastAddress == node.getUnicastAddressInt()) {
+                return node;
+            }
+        }
+        return null;
     }
 
     @Override
     public Provisioner getProvisioner(final byte[] unicastAddress) {
-        for (Provisioner provisioner : meshNetwork.getProvisioners()){
-            if(Arrays.equals(unicastAddress, provisioner.getProvisionerAddress()))
+        for (Provisioner provisioner : meshNetwork.getProvisioners()) {
+            if (Arrays.equals(unicastAddress, provisioner.getProvisionerAddress()))
                 return provisioner;
         }
         return null;
@@ -689,10 +517,18 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         mTransportCallbacks.sendMeshPdu(meshNode, applySegmentation(mtu, pdu));
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
-    public void updateMeshNode(final ProvisionedMeshNode meshNode) {
+    public void updateMeshNetwork(final MeshMessage message) {
+        final ProvisionedMeshNode meshNode = message.getMeshNode();
         if (meshNode != null) {
-            mProvisionedNodeDao.insert(meshNode);
+            for (int i = 0; i < meshNetwork.nodes.size(); i++) {
+                if (meshNode.getUnicastAddressInt() == meshNetwork.nodes.get(i).getUnicastAddressInt()) {
+                    meshNetwork.nodes.set(i, meshNode);
+                    updateNetwork(meshNetwork);
+                    break;
+                }
+            }
         }
     }
 
@@ -1256,5 +1092,16 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
                 }
             }
         }
+    }
+
+    @Override
+    public byte[] getApplicationKey(final int aid) {
+        for (ApplicationKey key : meshNetwork.getAppKeys()) {
+            final byte[] k = key.getKey();
+            if (aid == SecureUtils.calculateK4(k)) {
+                return key.getKey();
+            }
+        }
+        return null;
     }
 }

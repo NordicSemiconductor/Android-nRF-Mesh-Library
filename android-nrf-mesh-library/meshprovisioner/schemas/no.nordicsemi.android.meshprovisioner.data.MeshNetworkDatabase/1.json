@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "659fffcd29006862a64fafba6b446c5e",
+    "identityHash": "5ffb070bf169b4f8b667cbb71444dd43",
     "entities": [
       {
         "tableName": "mesh_network",
@@ -44,11 +44,11 @@
       },
       {
         "tableName": "network_key",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `key` BLOB, `phase` INTEGER NOT NULL, `security` INTEGER NOT NULL, `old_key` BLOB, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`index`), FOREIGN KEY(`uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `key` BLOB, `phase` INTEGER NOT NULL, `security` INTEGER NOT NULL, `old_key` BLOB, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`index`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
-            "fieldPath": "uuid",
-            "columnName": "uuid",
+            "fieldPath": "meshUuid",
+            "columnName": "mesh_uuid",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -103,12 +103,12 @@
         },
         "indices": [
           {
-            "name": "index_network_key_uuid",
+            "name": "index_network_key_mesh_uuid",
             "unique": false,
             "columnNames": [
-              "uuid"
+              "mesh_uuid"
             ],
-            "createSql": "CREATE  INDEX `index_network_key_uuid` ON `${TABLE_NAME}` (`uuid`)"
+            "createSql": "CREATE  INDEX `index_network_key_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
           }
         ],
         "foreignKeys": [
@@ -117,7 +117,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "CASCADE",
             "columns": [
-              "uuid"
+              "mesh_uuid"
             ],
             "referencedColumns": [
               "mesh_uuid"
@@ -127,11 +127,11 @@
       },
       {
         "tableName": "application_key",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `bound_key_index` INTEGER NOT NULL, `key` BLOB NOT NULL, `old_key` BLOB, PRIMARY KEY(`index`), FOREIGN KEY(`uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`bound_key_index`) REFERENCES `network_key`(`index`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `bound_key_index` INTEGER NOT NULL, `key` BLOB NOT NULL, `old_key` BLOB, PRIMARY KEY(`index`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`bound_key_index`) REFERENCES `network_key`(`index`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
-            "fieldPath": "uuid",
-            "columnName": "uuid",
+            "fieldPath": "meshUuid",
+            "columnName": "mesh_uuid",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -174,12 +174,12 @@
         },
         "indices": [
           {
-            "name": "index_application_key_uuid",
+            "name": "index_application_key_mesh_uuid",
             "unique": false,
             "columnNames": [
-              "uuid"
+              "mesh_uuid"
             ],
-            "createSql": "CREATE  INDEX `index_application_key_uuid` ON `${TABLE_NAME}` (`uuid`)"
+            "createSql": "CREATE  INDEX `index_application_key_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
           },
           {
             "name": "index_application_key_bound_key_index",
@@ -196,7 +196,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "CASCADE",
             "columns": [
-              "uuid"
+              "mesh_uuid"
             ],
             "referencedColumns": [
               "mesh_uuid"
@@ -217,7 +217,7 @@
       },
       {
         "tableName": "provisioner",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `provisioner_uuid` TEXT NOT NULL, `name` TEXT, `sequence_number` INTEGER NOT NULL, `provisioner_address` BLOB, `global_ttl` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`provisioner_uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `provisioner_uuid` TEXT NOT NULL, `name` TEXT, `allocatedGroupRange` TEXT, `allocatedUnicastRange` TEXT, `allocatedSceneRange` TEXT, `sequence_number` INTEGER NOT NULL, `provisioner_address` BLOB, `unicast_address` BLOB, `global_ttl` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`provisioner_uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "meshUuid",
@@ -238,6 +238,24 @@
             "notNull": false
           },
           {
+            "fieldPath": "allocatedGroupRange",
+            "columnName": "allocatedGroupRange",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "allocatedUnicastRange",
+            "columnName": "allocatedUnicastRange",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "allocatedSceneRange",
+            "columnName": "allocatedSceneRange",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "sequenceNumber",
             "columnName": "sequence_number",
             "affinity": "INTEGER",
@@ -246,6 +264,12 @@
           {
             "fieldPath": "provisionerAddress",
             "columnName": "provisioner_address",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "unicast_address",
+            "columnName": "unicast_address",
             "affinity": "BLOB",
             "notNull": false
           },
@@ -293,185 +317,8 @@
         ]
       },
       {
-        "tableName": "allocated_group_range",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `provisioner_uuid` TEXT, `high_address` BLOB, `low_address` BLOB, FOREIGN KEY(`provisioner_uuid`) REFERENCES `provisioner`(`provisioner_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "provisionerUuid",
-            "columnName": "provisioner_uuid",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "highAddress",
-            "columnName": "high_address",
-            "affinity": "BLOB",
-            "notNull": false
-          },
-          {
-            "fieldPath": "lowAddress",
-            "columnName": "low_address",
-            "affinity": "BLOB",
-            "notNull": false
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "id"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [
-          {
-            "name": "index_allocated_group_range_provisioner_uuid",
-            "unique": false,
-            "columnNames": [
-              "provisioner_uuid"
-            ],
-            "createSql": "CREATE  INDEX `index_allocated_group_range_provisioner_uuid` ON `${TABLE_NAME}` (`provisioner_uuid`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "provisioner",
-            "onDelete": "CASCADE",
-            "onUpdate": "CASCADE",
-            "columns": [
-              "provisioner_uuid"
-            ],
-            "referencedColumns": [
-              "provisioner_uuid"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "allocated_unicast_range",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `provisioner_uuid` TEXT, `high_address` BLOB, `low_address` BLOB, FOREIGN KEY(`provisioner_uuid`) REFERENCES `provisioner`(`provisioner_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "provisionerUuid",
-            "columnName": "provisioner_uuid",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "highAddress",
-            "columnName": "high_address",
-            "affinity": "BLOB",
-            "notNull": false
-          },
-          {
-            "fieldPath": "lowAddress",
-            "columnName": "low_address",
-            "affinity": "BLOB",
-            "notNull": false
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "id"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [
-          {
-            "name": "index_allocated_unicast_range_provisioner_uuid",
-            "unique": false,
-            "columnNames": [
-              "provisioner_uuid"
-            ],
-            "createSql": "CREATE  INDEX `index_allocated_unicast_range_provisioner_uuid` ON `${TABLE_NAME}` (`provisioner_uuid`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "provisioner",
-            "onDelete": "CASCADE",
-            "onUpdate": "CASCADE",
-            "columns": [
-              "provisioner_uuid"
-            ],
-            "referencedColumns": [
-              "provisioner_uuid"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "allocated_scene_range",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `provisioner_uuid` TEXT, `first_scene` INTEGER NOT NULL, `last_scene` INTEGER NOT NULL, FOREIGN KEY(`provisioner_uuid`) REFERENCES `provisioner`(`provisioner_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "provisionerUuid",
-            "columnName": "provisioner_uuid",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "firstScene",
-            "columnName": "first_scene",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lastScene",
-            "columnName": "last_scene",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "id"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [
-          {
-            "name": "index_allocated_scene_range_provisioner_uuid",
-            "unique": false,
-            "columnNames": [
-              "provisioner_uuid"
-            ],
-            "createSql": "CREATE  INDEX `index_allocated_scene_range_provisioner_uuid` ON `${TABLE_NAME}` (`provisioner_uuid`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "provisioner",
-            "onDelete": "CASCADE",
-            "onUpdate": "CASCADE",
-            "columns": [
-              "provisioner_uuid"
-            ],
-            "referencedColumns": [
-              "provisioner_uuid"
-            ]
-          }
-        ]
-      },
-      {
         "tableName": "nodes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `uuid` TEXT NOT NULL, `unicast_address` BLOB, `name` TEXT, `configured` INTEGER NOT NULL, `device_key` BLOB, `ttl` INTEGER NOT NULL, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `relay` INTEGER NOT NULL, `proxy` INTEGER NOT NULL, `friend` INTEGER NOT NULL, `low_power` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `meshUuid` TEXT NOT NULL, `unicast_address` BLOB, `name` TEXT, `configured` INTEGER NOT NULL, `device_key` BLOB, `ttl` INTEGER NOT NULL, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `relay` INTEGER NOT NULL, `proxy` INTEGER NOT NULL, `friend` INTEGER NOT NULL, `low_power` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `mAddedApplicationKeys` TEXT, PRIMARY KEY(`meshUuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "meshUuid",
@@ -481,7 +328,7 @@
           },
           {
             "fieldPath": "uuid",
-            "columnName": "uuid",
+            "columnName": "meshUuid",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -574,11 +421,17 @@
             "columnName": "timestamp",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "mAddedApplicationKeys",
+            "columnName": "mAddedApplicationKeys",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "uuid"
+            "meshUuid"
           ],
           "autoGenerate": false
         },
@@ -602,186 +455,6 @@
             ],
             "referencedColumns": [
               "mesh_uuid"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "elements",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`address` BLOB NOT NULL, `uuid` TEXT, `parent_address` BLOB, `location_descriptor` INTEGER NOT NULL, PRIMARY KEY(`address`), FOREIGN KEY(`uuid`) REFERENCES `nodes`(`uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "elementAddress",
-            "columnName": "address",
-            "affinity": "BLOB",
-            "notNull": true
-          },
-          {
-            "fieldPath": "uuid",
-            "columnName": "uuid",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "parentAddress",
-            "columnName": "parent_address",
-            "affinity": "BLOB",
-            "notNull": false
-          },
-          {
-            "fieldPath": "locationDescriptor",
-            "columnName": "location_descriptor",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "address"
-          ],
-          "autoGenerate": false
-        },
-        "indices": [
-          {
-            "name": "index_elements_uuid",
-            "unique": false,
-            "columnNames": [
-              "uuid"
-            ],
-            "createSql": "CREATE  INDEX `index_elements_uuid` ON `${TABLE_NAME}` (`uuid`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "nodes",
-            "onDelete": "CASCADE",
-            "onUpdate": "CASCADE",
-            "columns": [
-              "uuid"
-            ],
-            "referencedColumns": [
-              "uuid"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "models",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `parent_address` BLOB, `uuid` TEXT, `model_id` INTEGER NOT NULL, `parentAddress` BLOB, `publishAddress` BLOB, `appKeyIndex` INTEGER, `credentialFlag` INTEGER, `publishTtl` INTEGER, `publicationSteps` INTEGER, `publicationResolution` INTEGER, `publishRetransmitCount` INTEGER, `publishRetransmitIntervalSteps` INTEGER, FOREIGN KEY(`uuid`) REFERENCES `nodes`(`uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "parentAddress",
-            "columnName": "parent_address",
-            "affinity": "BLOB",
-            "notNull": false
-          },
-          {
-            "fieldPath": "uuid",
-            "columnName": "uuid",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "mModelId",
-            "columnName": "model_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "mPublicationSettings.parentAddress",
-            "columnName": "parentAddress",
-            "affinity": "BLOB",
-            "notNull": false
-          },
-          {
-            "fieldPath": "mPublicationSettings.publishAddress",
-            "columnName": "publishAddress",
-            "affinity": "BLOB",
-            "notNull": false
-          },
-          {
-            "fieldPath": "mPublicationSettings.appKeyIndex",
-            "columnName": "appKeyIndex",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "mPublicationSettings.credentialFlag",
-            "columnName": "credentialFlag",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "mPublicationSettings.publishTtl",
-            "columnName": "publishTtl",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "mPublicationSettings.publicationSteps",
-            "columnName": "publicationSteps",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "mPublicationSettings.publicationResolution",
-            "columnName": "publicationResolution",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "mPublicationSettings.publishRetransmitCount",
-            "columnName": "publishRetransmitCount",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "mPublicationSettings.publishRetransmitIntervalSteps",
-            "columnName": "publishRetransmitIntervalSteps",
-            "affinity": "INTEGER",
-            "notNull": false
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "id"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [
-          {
-            "name": "index_models_parent_address",
-            "unique": false,
-            "columnNames": [
-              "parent_address"
-            ],
-            "createSql": "CREATE  INDEX `index_models_parent_address` ON `${TABLE_NAME}` (`parent_address`)"
-          },
-          {
-            "name": "index_models_uuid",
-            "unique": false,
-            "columnNames": [
-              "uuid"
-            ],
-            "createSql": "CREATE  INDEX `index_models_uuid` ON `${TABLE_NAME}` (`uuid`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "nodes",
-            "onDelete": "CASCADE",
-            "onUpdate": "CASCADE",
-            "columns": [
-              "uuid"
-            ],
-            "referencedColumns": [
-              "uuid"
             ]
           }
         ]
@@ -907,7 +580,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"659fffcd29006862a64fafba6b446c5e\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"5ffb070bf169b4f8b667cbb71444dd43\")"
     ]
   }
 }

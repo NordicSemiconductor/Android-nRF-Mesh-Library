@@ -25,11 +25,10 @@ package no.nordicsemi.android.meshprovisioner.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public class GenericLevelClientModel extends SigModel {
 
-public class GenericLevelClientModel extends MeshModel {
-
-    public static final Parcelable.Creator<GenericLevelClientModel> CREATOR = new Parcelable.Creator<GenericLevelClientModel>() {
+    protected static final Parcelable.Creator<GenericLevelClientModel> CREATOR = new Parcelable.Creator<GenericLevelClientModel>() {
         @Override
         public GenericLevelClientModel createFromParcel(final Parcel source) {
             return new GenericLevelClientModel(source);
@@ -61,7 +60,7 @@ public class GenericLevelClientModel extends MeshModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.writeToParcel(dest, flags);
+        super.parcelMeshModel(dest, flags);
     }
 
 }

@@ -26,10 +26,12 @@ public interface ApplicationKeyDao {
     @Update
     void update(final ApplicationKey applicationKey);
 
+    @Update
+    void update(List<ApplicationKey> appKeys);
+    
     @Delete
     void delete(final ApplicationKey applicationKey);
 
     @Query("DELETE FROM application_key")
     void deleteAll();
-
 }

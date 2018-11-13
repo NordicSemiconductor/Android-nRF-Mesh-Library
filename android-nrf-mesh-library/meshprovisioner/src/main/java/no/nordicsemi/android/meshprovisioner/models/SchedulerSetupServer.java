@@ -23,13 +23,11 @@
 package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public class SchedulerSetupServer extends SigModel {
 
-public class SchedulerSetupServer extends MeshModel {
-
-    public static final Parcelable.Creator<SchedulerSetupServer> CREATOR = new Parcelable.Creator<SchedulerSetupServer>() {
+    protected static final Creator<SchedulerSetupServer> CREATOR = new Creator<SchedulerSetupServer>() {
         @Override
         public SchedulerSetupServer createFromParcel(final Parcel source) {
             return new SchedulerSetupServer(source);
@@ -55,7 +53,12 @@ public class SchedulerSetupServer extends MeshModel {
     }
 
     @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.writeToParcel(dest, flags);
+        super.parcelMeshModel(dest, flags);
     }
 }

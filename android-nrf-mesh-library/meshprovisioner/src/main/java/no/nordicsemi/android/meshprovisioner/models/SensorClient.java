@@ -24,11 +24,10 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public class SensorClient extends SigModel {
 
-public class SensorClient extends MeshModel {
-
-    public static final Creator<SensorClient> CREATOR = new Creator<SensorClient>() {
+    protected static final Creator<SensorClient> CREATOR = new Creator<SensorClient>() {
         @Override
         public SensorClient createFromParcel(final Parcel source) {
             return new SensorClient(source);
@@ -60,6 +59,6 @@ public class SensorClient extends MeshModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.writeToParcel(dest, flags);
+        super.parcelMeshModel(dest, flags);
     }
 }

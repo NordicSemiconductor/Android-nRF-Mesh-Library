@@ -194,9 +194,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
                 elementAddress = AddressUtils.incrementUnicastAddress(elementAddress);
             }
             counter++;
-            final Element element = new Element(elementAddress);
-            element.setLocationDescriptor(locationDescriptor);
-            element.setMeshModels(models);
+            final Element element = new Element(elementAddress, locationDescriptor, models);
             final int unicastAddress = AddressUtils.getUnicastAddressInt(elementAddress);
             mElements.put(unicastAddress, element);
         }

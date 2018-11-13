@@ -24,11 +24,10 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public class SceneSetupServer extends SigModel {
 
-public class SceneSetupServer extends MeshModel {
-
-    public static final Creator<SceneSetupServer> CREATOR = new Creator<SceneSetupServer>() {
+    protected static final Creator<SceneSetupServer> CREATOR = new Creator<SceneSetupServer>() {
         @Override
         public SceneSetupServer createFromParcel(final Parcel source) {
             return new SceneSetupServer(source);
@@ -60,6 +59,6 @@ public class SceneSetupServer extends MeshModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.writeToParcel(dest, flags);
+        super.parcelMeshModel(dest, flags);
     }
 }

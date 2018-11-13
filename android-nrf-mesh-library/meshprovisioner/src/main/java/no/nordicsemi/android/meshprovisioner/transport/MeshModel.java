@@ -22,16 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Embedded;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.Index;
-import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
 
@@ -44,104 +36,64 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import no.nordicsemi.android.meshprovisioner.Subscription;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
-import static android.arch.persistence.room.ForeignKey.CASCADE;
-import static android.support.annotation.RestrictTo.Scope;
-
 
 @SuppressWarnings({"WeakerAccess", "unused"})
-@Entity(tableName = "models",
-        foreignKeys = {
-                @ForeignKey(
-                        entity = ProvisionedMeshNode.class,
-                        parentColumns = "uuid",
-                        childColumns = "uuid",
-                        onUpdate = CASCADE,
-                        onDelete = CASCADE)},
-        indices = {@Index("parent_address"), @Index("uuid")})
-public class MeshModel implements Parcelable {
+public abstract class MeshModel implements Parcelable {
 
-    /**
-     * Used as a unique key in the database
-     */
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    public int id;
-
-    @ColumnInfo(name = "parent_address")
-    byte[] parentAddress;
-
-    @ColumnInfo(name = "uuid")
-    String uuid;
-
-    @ColumnInfo(name = "model_id")
     @Expose
     protected int mModelId;
-
-    @Ignore
     @Expose
     final List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
-
-    @Ignore
     @Expose(serialize = false)
     final Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
-
-    @Ignore
     @Expose
     final Map<Integer, ApplicationKey> mBoundApplicationKeys = new LinkedHashMap<>();
-
-    @Embedded
     @Expose
     PublicationSettings mPublicationSettings;
-
-    @Ignore
-    @Expose(serialize = false)
+    @Expose
     final List<byte[]> mSubscriptionAddress = new ArrayList<>();
 
-    @Ignore
-    @Expose
-    final List<Subscription> mSubscriptions = new ArrayList<>();
-
-    @Ignore
-    MeshModel() {
-    }
-
-    @RestrictTo(Scope.LIBRARY)
     public MeshModel(final int modelId) {
         this.mModelId = modelId;
     }
 
-    protected MeshModel(Parcel in) {
-        id = in.readInt();
-        parentAddress = in.createByteArray();
-        mModelId = in.readInt();
-        mPublicationSettings = in.readParcelable(PublicationSettings.class.getClassLoader());
-    }
+    @SuppressWarnings("unchecked")
+    protected MeshModel(final Parcel in) {
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        parcelMeshModel(dest, flags);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<MeshModel> CREATOR = new Creator<MeshModel>() {
-        @Override
-        public MeshModel createFromParcel(Parcel in) {
-            return new MeshModel(in);
+        final int modelId = in.readInt();
+        if (modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
+            mModelId = modelId;
+        } else {
+            mModelId = (short) modelId;
         }
-
-        @Override
-        public MeshModel[] newArray(int size) {
-            return new MeshModel[size];
+        in.readList(mBoundAppKeyIndexes, Integer.class.getClassLoader());
+        sortAppKeys(in.readHashMap(ApplicationKey.class.getClassLoader()));
+        try {
+            mPublicationSettings = (PublicationSettings) in.readValue(PublicationSettings.class.getClassLoader());
+            in.readList(mSubscriptionAddress, byte[].class.getClassLoader());
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-    };
+    }
+
+    /**
+     * Write the mesh model in to parcel
+     *
+     * @param dest  The Parcel in which the object should be written.
+     * @param flags Additional flags about how the object should be written.
+     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
+     */
+    @SuppressWarnings("unused")
+    protected final void parcelMeshModel(final Parcel dest, final int flags) {
+        dest.writeInt(mModelId);
+        dest.writeList(mBoundAppKeyIndexes);
+        dest.writeMap(mBoundApplicationKeys);
+        dest.writeValue(mPublicationSettings);
+        dest.writeList(mSubscriptionAddress);
+    }
 
     /**
      * Sorts the app keys as the order is not maintained when parcelled.
@@ -163,47 +115,14 @@ public class MeshModel implements Parcelable {
      *
      * @return modelId
      */
-    public int getModelId() {
-        return mModelId;
-    }
-
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void setModelId(final int modelId) {
-        mModelId = modelId;
-    }
-
-    /**
-     * Returns the address of the element this model belongs to
-     */
-    public byte[] getParentAddress() {
-        return parentAddress;
-    }
-
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void setParentAddress(final byte[] parentAddress) {
-        this.parentAddress = parentAddress;
-    }
-
-    /**
-     * Returns the unique device uuid of the node to which this model belongs to
-     */
-    public String getUuid() {
-        return uuid;
-    }
-
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void setUuid(final String uuid) {
-        this.uuid = uuid;
-    }
+    public abstract int getModelId();
 
     /**
      * Returns the Bluetooth SIG defined model name
      *
      * @return model name
      */
-    public String getModelName() {
-        return "MeshModel";
-    }
+    public abstract String getModelName();
 
     /**
      * Returns bound appkey index
@@ -259,15 +178,6 @@ public class MeshModel implements Parcelable {
      */
     public List<byte[]> getSubscriptionAddresses() {
         return Collections.unmodifiableList(mSubscriptionAddress);
-    }
-
-    /**
-     * Returns the list of {@link Subscription} addresses belonging to this model
-     *
-     * @return subscription addresses
-     */
-    public List<Subscription> getSubscriptions() {
-        return Collections.unmodifiableList(mSubscriptions);
     }
 
     /**
@@ -338,17 +248,13 @@ public class MeshModel implements Parcelable {
         return mPublicationSettings;
     }
 
-    public void setPublicationSettings(final PublicationSettings publicationSettings) {
-        mPublicationSettings = publicationSettings;
-    }
-
     /**
      * Sets the subscription address in a mesh model
      *
      * @param subscriptionAddress subscription address
      */
     protected void addSubscriptionAddress(final byte[] subscriptionAddress) {
-        if (subscriptionAddress != null && !isAlreadySubscribed(subscriptionAddress)) {
+        if (subscriptionAddress != null && !checkIfAlreadySubscribed(subscriptionAddress)) {
             mSubscriptionAddress.add(subscriptionAddress);
         }
     }
@@ -367,32 +273,7 @@ public class MeshModel implements Parcelable {
         }
     }
 
-    /**
-     * Sets the subscription address in a mesh model
-     *
-     * @param subscription subscribe address
-     */
-    protected void addSubscription(final Subscription subscription) {
-        if (subscription != null && !isAlreadySubscribed(subscription)) {
-            mSubscriptions.add(subscription);
-        }
-    }
-
-    /**
-     * Removes the subscription address in a mesh model
-     *
-     * @param subscription subscribe address
-     */
-    protected void removeSubscription(final Subscription subscription) {
-        if (subscription != null) {
-            final int index = getSubscriptionIndex(subscription);
-            if (index > -1) {
-                mSubscriptions.remove(index);
-            }
-        }
-    }
-
-    private boolean isAlreadySubscribed(final byte[] subscriptionAddress) {
+    private boolean checkIfAlreadySubscribed(final byte[] subscriptionAddress) {
         for (byte[] address : mSubscriptionAddress) {
             if (Arrays.equals(address, subscriptionAddress))
                 return true;
@@ -409,32 +290,4 @@ public class MeshModel implements Parcelable {
         }
         return -1;
     }
-
-
-    private boolean isAlreadySubscribed(final Subscription subscription) {
-        for (Subscription subscription1 : mSubscriptions) {
-            if (subscription.getAddress() == subscription1.getAddress())
-                return true;
-        }
-        return false;
-    }
-
-    private int getSubscriptionIndex(final Subscription subscription) {
-        int counter = 0;
-        for (int i = 0; i < mSubscriptions.size(); i++) {
-            if (subscription.getAddress() == mSubscriptions.get(i).getAddress())
-                return i;
-        }
-
-        return -1;
-    }
-
-    private void parcelMeshModel(final Parcel dest, final int flags) {
-        dest.writeInt(mModelId);
-        dest.writeList(mBoundAppKeyIndexes);
-        dest.writeMap(mBoundApplicationKeys);
-        dest.writeParcelable(mPublicationSettings, flags);
-        dest.writeList(mSubscriptionAddress);
-    }
-
 }

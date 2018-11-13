@@ -25,11 +25,10 @@ package no.nordicsemi.android.meshprovisioner.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public class GenericDefaultTransitionTimeServer extends SigModel {
 
-public class GenericDefaultTransitionTimeServer extends MeshModel {
-
-    public static final Parcelable.Creator<GenericDefaultTransitionTimeServer> CREATOR = new Parcelable.Creator<GenericDefaultTransitionTimeServer>() {
+    protected static final Parcelable.Creator<GenericDefaultTransitionTimeServer> CREATOR = new Parcelable.Creator<GenericDefaultTransitionTimeServer>() {
         @Override
         public GenericDefaultTransitionTimeServer createFromParcel(final Parcel source) {
             return new GenericDefaultTransitionTimeServer(source);
@@ -61,6 +60,6 @@ public class GenericDefaultTransitionTimeServer extends MeshModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.writeToParcel(dest, flags);
+        super.parcelMeshModel(dest, flags);
     }
 }

@@ -24,6 +24,9 @@ public interface ProvisionerDao {
     void insert(final List<Provisioner> provisioners);
 
     @Update
+    void update(List<Provisioner> provisioners);
+
+    @Update
     void update(final Provisioner provisioner);
 
     @Delete

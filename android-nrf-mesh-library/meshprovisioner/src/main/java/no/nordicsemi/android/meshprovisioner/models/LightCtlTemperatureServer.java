@@ -24,11 +24,10 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public class LightCtlTemperatureServer extends SigModel {
 
-public class LightCtlTemperatureServer extends MeshModel {
-
-    public static final Creator<LightCtlTemperatureServer> CREATOR = new Creator<LightCtlTemperatureServer>() {
+    protected static final Creator<LightCtlTemperatureServer> CREATOR = new Creator<LightCtlTemperatureServer>() {
         @Override
         public LightCtlTemperatureServer createFromParcel(final Parcel source) {
             return new LightCtlTemperatureServer(source);
@@ -60,6 +59,6 @@ public class LightCtlTemperatureServer extends MeshModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.writeToParcel(dest, flags);
+        super.parcelMeshModel(dest, flags);
     }
 }

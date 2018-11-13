@@ -33,7 +33,6 @@ import android.support.annotation.VisibleForTesting;
 
 import com.google.gson.annotations.Expose;
 
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.Subscription;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -116,7 +114,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         lowPowerFeatureSupported = in.readByte() != 0;
         generatedNetworkId = in.createByteArray();
         sortElements(in.readHashMap(Element.class.getClassLoader()));
-        mAddedAppKeys = in.readHashMap(String.class.getClassLoader());
+        mAddedApplicationKeys = in.readHashMap(ApplicationKey.class.getClassLoader());
         mAddedAppKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mTimeStampInMillis = in.readLong();
         mConfigurationSrc = in.createByteArray();
@@ -151,7 +149,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeByte((byte) (lowPowerFeatureSupported ? 1 : 0));
         dest.writeByteArray(generatedNetworkId);
         dest.writeMap(mElements);
-        dest.writeMap(mAddedAppKeys);
+        dest.writeMap(mAddedApplicationKeys);
         dest.writeList(mAddedAppKeyIndexes);
         dest.writeLong(mTimeStampInMillis);
         dest.writeByteArray(mConfigurationSrc);
@@ -293,8 +291,13 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return Collections.unmodifiableMap(mAddedAppKeys);
     }
 
-    public final Map<Integer, ApplicationKey> getAddedAppKeys() {
+    public final Map<Integer, ApplicationKey> getAddedApplicationKeys() {
         return Collections.unmodifiableMap(mAddedApplicationKeys);
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public final void setAddedApplicationKeys(final Map<Integer, ApplicationKey> applicationKeys){
+        mAddedApplicationKeys = applicationKeys;
     }
 
     protected final void setAddedAppKey(final int index, final ApplicationKey appKey) {
@@ -339,7 +342,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
             if (configModelAppStatus.isSuccessful()) {
                 final Element element = mElements.get(configModelAppStatus.getElementAddress());
                 final int modelIdentifier = configModelAppStatus.getModelIdentifier();
-                final MeshModel model = (MeshModel) element.getMeshModels().get(modelIdentifier);
+                final MeshModel model = element.getMeshModels().get(modelIdentifier);
                 final int appKeyIndex = configModelAppStatus.getAppKeyIndex();
                 final ApplicationKey appKey = mAddedApplicationKeys.get(appKeyIndex);
                 model.setBoundAppKey(appKeyIndex, appKey);
@@ -450,8 +453,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
                         final MeshModel meshModel = modelEntry.getValue();
                         for (int i = 0; i < meshModel.getSubscriptionAddresses().size(); i++) {
                             final byte[] address = meshModel.getSubscriptionAddresses().get(i);
-                            final Subscription subscription = new Subscription(address, element.getElementAddress());
-                            meshModel.mSubscriptions.add(subscription);
+                            meshModel.mSubscriptionAddress.add(address);
                         }
                     }
                 }

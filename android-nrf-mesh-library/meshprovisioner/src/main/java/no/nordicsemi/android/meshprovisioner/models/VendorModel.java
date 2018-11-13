@@ -32,13 +32,14 @@ import java.nio.ByteOrder;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 
-public class VendorModel extends MeshModel implements Parcelable {
+@SuppressWarnings("unused")
+public class VendorModel extends MeshModel {
 
     private static final String TAG = VendorModel.class.getSimpleName();
     private final short companyIdentifier;
     private final String companyName;
 
-    public static final Parcelable.Creator<VendorModel> CREATOR = new Parcelable.Creator<VendorModel>() {
+    protected static final Parcelable.Creator<VendorModel> CREATOR = new Parcelable.Creator<VendorModel>() {
         @Override
         public VendorModel createFromParcel(final Parcel source) {
             return new VendorModel(source);
@@ -92,7 +93,7 @@ public class VendorModel extends MeshModel implements Parcelable {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.writeToParcel(dest, flags);
+        super.parcelMeshModel(dest, flags);
     }
 
 }

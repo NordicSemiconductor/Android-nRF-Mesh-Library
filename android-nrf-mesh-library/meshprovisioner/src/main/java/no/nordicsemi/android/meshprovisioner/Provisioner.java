@@ -3,15 +3,17 @@ package no.nordicsemi.android.meshprovisioner;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverters;
 import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
@@ -41,15 +43,15 @@ public class Provisioner {
     @Expose
     private String provisionerName = "nRF Mesh Provisioner";
 
-    @Ignore
+    @TypeConverters(MeshTypeConverters.class)
     @Expose
     private List<AllocatedGroupRange> allocatedGroupRange = new ArrayList<>();
 
-    @Ignore
+    @TypeConverters(MeshTypeConverters.class)
     @Expose
     private List<AllocatedUnicastRange> allocatedUnicastRange = new ArrayList<>();
 
-    @Ignore
+    @TypeConverters(MeshTypeConverters.class)
     @Expose
     private List<AllocatedSceneRange> allocatedSceneRange = new ArrayList<>();
 
@@ -59,7 +61,11 @@ public class Provisioner {
 
     @ColumnInfo(name = "provisioner_address")
     @Expose
-    private byte[] provisionerAddress = {0x07, (byte) 0xFF}; //0x07FF;
+    private byte[] provisionerAddress = {0x07, (byte) 0xFF};
+
+    @ColumnInfo(name = "unicast_address")
+    @Expose
+    private byte[] unicastAddress;
 
     @ColumnInfo(name = "global_ttl")
     @Expose
@@ -78,6 +84,7 @@ public class Provisioner {
 
     /**
      * Returns the provisionerUuid of the Mesh network
+     *
      * @return String provisionerUuid
      */
     public String getMeshUuid() {
@@ -86,6 +93,7 @@ public class Provisioner {
 
     /**
      * Sets the provisionerUuid of the mesh network to this application key
+     *
      * @param uuid mesh network provisionerUuid
      */
     public void setMeshUuid(final String uuid) {
@@ -193,6 +201,24 @@ public class Provisioner {
 
     public void setProvisionerAddress(final byte[] provisionerAddress) {
         this.provisionerAddress = provisionerAddress;
+    }
+
+    /**
+     * Returns the next available unicast address
+     *
+     * @return unicast address
+     */
+    public byte[] getUnicastAddress() {
+        return unicastAddress;
+    }
+
+    /**
+     * Sets the next available unicast address
+     *
+     * @param unicastAddress address
+     */
+    public void setUnicastAddress(final byte[] unicastAddress) {
+        this.unicastAddress = unicastAddress;
     }
 
     public int getGlobalTtl() {

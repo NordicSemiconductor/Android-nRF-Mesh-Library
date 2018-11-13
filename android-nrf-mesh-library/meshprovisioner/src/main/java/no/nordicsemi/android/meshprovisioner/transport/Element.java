@@ -22,16 +22,9 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.Index;
-import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
 
@@ -48,55 +41,36 @@ import java.util.Set;
 import no.nordicsemi.android.meshprovisioner.models.SigModel;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 
-import static android.arch.persistence.room.ForeignKey.CASCADE;
-
 @SuppressWarnings({"WeakerAccess", "unused"})
-@Entity(tableName = "elements",
-        foreignKeys =
-        @ForeignKey(
-                entity = ProvisionedMeshNode.class,
-                parentColumns = "uuid",
-                childColumns = "uuid",
-                onUpdate = CASCADE,
-                onDelete = CASCADE),
-        indices = @Index("uuid"))
 public final class Element implements Parcelable {
 
-    @PrimaryKey
-    @NonNull
-    @ColumnInfo(name = "address")
     @Expose
     byte[] elementAddress;
 
-    @ColumnInfo(name = "uuid")
-    String uuid;
-
-    @ColumnInfo(name = "parent_address")
     @Expose
-    byte[] parentAddress;
+    final int locationDescriptor;
 
-    @ColumnInfo(name = "location_descriptor")
     @Expose
-    int locationDescriptor;
+    final Map<Integer, MeshModel> meshModels;
 
-    @Ignore
-    @Expose
-    Map<Integer, MeshModel> meshModels;
-
-    public Element(@NonNull final byte[] elementAddress) {
+    Element(@NonNull final byte[] elementAddress, final int locationDescriptor, final Map<Integer, MeshModel> models) {
         this.elementAddress = elementAddress;
+        this.locationDescriptor = locationDescriptor;
+        this.meshModels = models;
     }
 
-    @Ignore
-    Element(final int locationDescriptor) {
+    Element(final int locationDescriptor, final Map<Integer, MeshModel> models) {
         this.locationDescriptor = locationDescriptor;
+        this.meshModels = models;
     }
+
+
 
     protected Element(Parcel in) {
         elementAddress = in.createByteArray();
         locationDescriptor = in.readInt();
-        meshModels = new LinkedHashMap<>();
-        sortModels(in.readHashMap(MeshModel.class.getClassLoader()));
+        meshModels = in.readHashMap(MeshModel.class.getClassLoader());
+        //sortModels());
     }
 
     @Override
@@ -110,7 +84,7 @@ public final class Element implements Parcelable {
     private void sortModels(final HashMap<Integer, MeshModel> unorderedElements) {
         final Set<Integer> unorderedKeys = unorderedElements.keySet();
 
-        final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
+        final ArrayList<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
         Collections.sort(orderedKeys);
         for (int key : orderedKeys) {
             meshModels.put(key, unorderedElements.get(key));
@@ -134,36 +108,12 @@ public final class Element implements Parcelable {
         return 0;
     }
 
-    /**
-     * Returns the unique device uuid of the node to which this model belongs to
-     */
-    public String getUuid() {
-        return uuid;
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void setUuid(final String uuid) {
-        this.uuid = uuid;
-    }
-
-    public byte[] getParentAddress() {
-        return parentAddress;
-    }
-
-    public void setParentAddress(final byte[] parentAddress) {
-        this.parentAddress = parentAddress;
-    }
-
     public byte[] getElementAddress() {
         return elementAddress;
     }
 
     public int getLocationDescriptor() {
         return locationDescriptor;
-    }
-
-    public void setLocationDescriptor(final int locationDescriptor) {
-        this.locationDescriptor = locationDescriptor;
     }
 
     public int getSigModelCount() {
@@ -193,10 +143,6 @@ public final class Element implements Parcelable {
      */
     public Map<Integer, MeshModel> getMeshModels() {
         return Collections.unmodifiableMap(meshModels);
-    }
-
-    void setMeshModels(final Map<Integer, MeshModel> models) {
-        this.meshModels = models;
     }
 
     public int getElementAddressInt() {

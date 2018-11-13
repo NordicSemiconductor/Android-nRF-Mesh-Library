@@ -60,7 +60,6 @@ public final class ProvisioningSettings extends NetworkSettings {
         flags = preferences.getInt(FLAGS, 0);
         globalTtl = preferences.getInt(GLOBAL_TTL, 5);
         addAppKeys();
-        saveProvisioningData();
     }
 
     /**
@@ -280,25 +279,5 @@ public final class ProvisioningSettings extends NetworkSettings {
     }
 
     private void saveApplicationKeys() {
-        final SharedPreferences preferences = mContext.getSharedPreferences(APPLICATION_KEYS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        if (appKeys.isEmpty()) {
-            editor.clear();
-        } else {
-            for (int i = 0; i < appKeys.size(); i++) {
-                editor.putString(String.valueOf(i), appKeys.get(i));
-            }
-        }
-        editor.apply();
-    }
-
-    private void saveProvisioningData() {
-        saveNetworkKey();
-        saveUnicastAddress();
-        saveKeyIndex();
-        saveIvIndex();
-        saveFlags();
-        saveGlobalTtl();
-        saveApplicationKeys();
     }
 }

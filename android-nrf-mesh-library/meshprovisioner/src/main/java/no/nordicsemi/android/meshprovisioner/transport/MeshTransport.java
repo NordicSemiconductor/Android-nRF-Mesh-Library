@@ -62,6 +62,11 @@ public final class MeshTransport extends NetworkLayer {
         this.mNetworkLayerCallbacks = callbacks;
     }
 
+
+    public final void setUpperTransportLayerCallbacks(final UpperTransportLayerCallbacks callbacks){
+        this.mUpperTransportLayerCallbacks = callbacks;
+    }
+
     @Override
     protected final int incrementSequenceNumber(final byte[] src) {
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);

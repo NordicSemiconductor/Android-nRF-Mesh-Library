@@ -28,12 +28,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
         NetworkKey.class,
         ApplicationKey.class,
         Provisioner.class,
-        AllocatedGroupRange.class,
-        AllocatedUnicastRange.class,
-        AllocatedSceneRange.class,
         ProvisionedMeshNode.class,
-        Element.class,
-        MeshModel.class,
         Group.class,
         Scene.class},
         version = 1)
@@ -47,23 +42,9 @@ public abstract class MeshNetworkDatabase extends RoomDatabase {
 
     public abstract ProvisionerDao provisionerDao();
 
-    public abstract AllocatedGroupRangeDao allocatedGroupRangeDao();
-
-    public abstract AllocatedUnicastRangeDao allocatedUnicastRangeDao();
-
-    public abstract AllocatedSceneRangeDao allocatedSceneRangeDao();
-
     public abstract ProvisionedMeshNodesDao provisionedMeshNodesDao();
 
     public abstract ProvisionedMeshNodeDao provisionedMeshNodeDao();
-
-    public abstract ElementsDao elementsDao();
-
-    public abstract ElementDao elementDao();
-
-    public abstract MeshModelsDao meshModelsDao();
-
-    public abstract MeshModelDao meshModelDao();
 
     public abstract GroupsDao groupsDao();
 

@@ -26,10 +26,12 @@ public interface ProvisionedMeshNodeDao {
     @Update
     void update(final ProvisionedMeshNode meshNode);
 
+    @Update
+    void update(List<ProvisionedMeshNode> nodes);
+
     @Delete
     void delete(final ProvisionedMeshNode meshNode);
 
     @Query("DELETE from nodes")
     void deleteAll();
-
 }

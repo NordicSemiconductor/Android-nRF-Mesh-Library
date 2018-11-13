@@ -24,11 +24,10 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public class GenericBatteryServer extends SigModel {
 
-public class GenericBatteryServer extends MeshModel {
-
-    public static final Creator<GenericBatteryServer> CREATOR = new Creator<GenericBatteryServer>() {
+    protected static final Creator<GenericBatteryServer> CREATOR = new Creator<GenericBatteryServer>() {
         @Override
         public GenericBatteryServer createFromParcel(final Parcel source) {
             return new GenericBatteryServer(source);
@@ -60,6 +59,6 @@ public class GenericBatteryServer extends MeshModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.writeToParcel(dest, flags);
+        super.parcelMeshModel(dest, flags);
     }
 }

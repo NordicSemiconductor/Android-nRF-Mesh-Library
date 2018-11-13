@@ -24,10 +24,12 @@ public interface NetworkKeyDao {
     @Update
     void update(final NetworkKey networkKey);
 
+    @Update
+    void update(List<NetworkKey> netKeys);
+
     @Delete
     void delete(final NetworkKey networkKey);
 
     @Query("DELETE FROM network_key")
     void deleteAll();
-
 }

@@ -29,8 +29,7 @@ public final class ElementListDeserializer implements JsonSerializer<List<Elemen
             final int index = jsonObject.get("index").getAsInt();
             final int location = Integer.parseInt(jsonObject.get("location").getAsString(), 16);
             final List<MeshModel> models = deserializeModels(context, jsonObject);
-            final Element element = new Element(location);
-            element.meshModels = populateModels(models);
+            final Element element = new Element(location, populateModels(models));
 
             elements.add(element);
         }

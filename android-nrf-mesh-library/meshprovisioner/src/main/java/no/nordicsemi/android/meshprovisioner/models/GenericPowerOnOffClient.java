@@ -24,11 +24,10 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public class GenericPowerOnOffClient extends SigModel {
 
-public class GenericPowerOnOffClient extends MeshModel {
-
-    public static final Creator<GenericPowerOnOffClient> CREATOR = new Creator<GenericPowerOnOffClient>() {
+    protected static final Creator<GenericPowerOnOffClient> CREATOR = new Creator<GenericPowerOnOffClient>() {
         @Override
         public GenericPowerOnOffClient createFromParcel(final Parcel source) {
             return new GenericPowerOnOffClient(source);
@@ -60,6 +59,6 @@ public class GenericPowerOnOffClient extends MeshModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.writeToParcel(dest, flags);
+        super.parcelMeshModel(dest, flags);
     }
 }

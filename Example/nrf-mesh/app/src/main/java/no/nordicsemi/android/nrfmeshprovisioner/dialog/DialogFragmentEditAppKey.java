@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import android.view.View;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AppKeyAdapter;
@@ -141,7 +143,7 @@ public class DialogFragmentEditAppKey extends DialogFragment implements AppKeyAd
     }
 
     @Override
-    public void onItemClick(final int position, final String appKey) {
+    public void onItemClick(final int position, final ApplicationKey appKey) {
 
     }
 

@@ -24,11 +24,10 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public class LightHslServer extends SigModel {
 
-public class LightHslServer extends MeshModel {
-
-    public static final Creator<LightHslServer> CREATOR = new Creator<LightHslServer>() {
+    protected static final Creator<LightHslServer> CREATOR = new Creator<LightHslServer>() {
         @Override
         public LightHslServer createFromParcel(final Parcel source) {
             return new LightHslServer(source);
@@ -60,6 +59,6 @@ public class LightHslServer extends MeshModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.writeToParcel(dest, flags);
+        super.parcelMeshModel(dest, flags);
     }
 }

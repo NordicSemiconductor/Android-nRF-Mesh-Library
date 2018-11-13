@@ -26,10 +26,12 @@ public interface GroupDao {
     @Update
     void update(final Group group);
 
+    @Update
+    void update(List<Group> groups);
+
     @Delete
     void delete(final Group group);
 
     @Query("DELETE FROM groups")
     void deleteAll();
-
 }

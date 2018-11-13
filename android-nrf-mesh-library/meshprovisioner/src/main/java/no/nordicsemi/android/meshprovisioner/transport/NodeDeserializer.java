@@ -18,7 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import no.nordicsemi.android.meshprovisioner.Subscription;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -109,7 +108,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             final MeshModel model = modelEntry.getValue();
             for(int i = 0; i < model.getSubscriptionAddresses().size(); i++) {
                 final byte[] address = model.getSubscriptionAddresses().get(i);
-                model.mSubscriptions.add(new Subscription(address, element.getElementAddress()));
+                model.mSubscriptionAddress.add(address);
             }
         }
     }

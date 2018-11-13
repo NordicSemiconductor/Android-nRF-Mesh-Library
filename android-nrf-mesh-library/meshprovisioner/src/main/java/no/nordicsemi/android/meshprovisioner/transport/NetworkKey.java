@@ -28,10 +28,10 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
         foreignKeys = @ForeignKey(
                 entity = MeshNetwork.class,
                 parentColumns = "mesh_uuid",
-                childColumns = "uuid",
+                childColumns = "mesh_uuid",
                 onUpdate = CASCADE,
                 onDelete = CASCADE),
-        indices = @Index("uuid"))
+        indices = @Index("mesh_uuid"))
 public final class NetworkKey implements Parcelable {
 
     @Retention(RetentionPolicy.SOURCE)
@@ -44,9 +44,9 @@ public final class NetworkKey implements Parcelable {
     public static final int PHASE_1 = 1; //Switching to the new keys
     public static final int PHASE_2 = 2; //Revoking the old keys
 
-    @ColumnInfo(name = "uuid")
+    @ColumnInfo(name = "mesh_uuid")
     @Expose
-    String uuid;
+    String meshUuid;
 
     @PrimaryKey
     @ColumnInfo(name = "index")
@@ -94,7 +94,7 @@ public final class NetworkKey implements Parcelable {
     }
 
     protected NetworkKey(Parcel in) {
-        uuid = in.readString();
+        meshUuid = in.readString();
         keyIndex = in.readInt();
         name = in.readString();
         key = in.createByteArray();
@@ -106,7 +106,7 @@ public final class NetworkKey implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(uuid);
+        dest.writeString(meshUuid);
         dest.writeInt(keyIndex);
         dest.writeString(name);
         dest.writeByteArray(key);
@@ -133,12 +133,12 @@ public final class NetworkKey implements Parcelable {
         }
     };
 
-    public String getUuid() {
-        return uuid;
+    public String getMeshUuid() {
+        return meshUuid;
     }
 
-    public void setUuid(final String uuid) {
-        this.uuid = uuid;
+    public void setMeshUuid(final String meshUuid) {
+        this.meshUuid = meshUuid;
     }
 
     /**

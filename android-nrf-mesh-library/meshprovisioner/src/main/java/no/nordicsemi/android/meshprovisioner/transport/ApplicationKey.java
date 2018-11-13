@@ -24,7 +24,7 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
         foreignKeys = {
                 @ForeignKey(entity = MeshNetwork.class,
                         parentColumns = "mesh_uuid",
-                        childColumns = "uuid",
+                        childColumns = "mesh_uuid",
                         onUpdate = CASCADE,
                         onDelete = CASCADE),
                 @ForeignKey(entity = NetworkKey.class,
@@ -32,13 +32,13 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
                         childColumns = "bound_key_index",
                         onUpdate = CASCADE, onDelete = CASCADE)},
         indices = {
-                @Index("uuid"),
+                @Index("mesh_uuid"),
                 @Index("bound_key_index")})
 public final class ApplicationKey implements Parcelable {
 
-    @ColumnInfo(name = "uuid")
+    @ColumnInfo(name = "mesh_uuid")
     @Expose
-    String uuid;
+    String meshUuid;
 
     @PrimaryKey
     @ColumnInfo(name = "index")
@@ -79,7 +79,7 @@ public final class ApplicationKey implements Parcelable {
     }
 
     protected ApplicationKey(Parcel in) {
-        uuid = in.readString();
+        meshUuid = in.readString();
         keyIndex = in.readInt();
         name = in.readString();
         boundNetKeyIndex = in.readInt();
@@ -89,7 +89,7 @@ public final class ApplicationKey implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(uuid);
+        dest.writeString(meshUuid);
         dest.writeInt(keyIndex);
         dest.writeString(name);
         dest.writeInt(boundNetKeyIndex);
@@ -115,19 +115,19 @@ public final class ApplicationKey implements Parcelable {
     };
 
     /**
-     * Returns the uuid of the Mesh network
-     * @return String uuid
+     * Returns the meshUuid of the Mesh network
+     * @return String meshUuid
      */
-    public String getUuid() {
-        return uuid;
+    public String getMeshUuid() {
+        return meshUuid;
     }
 
     /**
-     * Sets the uuid of the mesh network to this application key
-     * @param uuid mesh network uuid
+     * Sets the meshUuid of the mesh network to this application key
+     * @param meshUuid mesh network meshUuid
      */
-    public void setUuid(final String uuid) {
-        this.uuid = uuid;
+    public void setMeshUuid(final String meshUuid) {
+        this.meshUuid = meshUuid;
     }
 
     /**

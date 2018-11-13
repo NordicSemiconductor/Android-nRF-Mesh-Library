@@ -26,10 +26,12 @@ public interface SceneDao {
     @Update
     void update(final Scene scene);
 
+    @Update
+    void update(List<Scene> scenes);
+
     @Delete
     void delete(final Scene scene);
 
     @Query("DELETE FROM scene")
     void deleteAll();
-
 }

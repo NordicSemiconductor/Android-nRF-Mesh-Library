@@ -24,11 +24,10 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public class TimeSetupServer extends SigModel {
 
-public class TimeSetupServer extends MeshModel {
-
-    public static final Creator<TimeSetupServer> CREATOR = new Creator<TimeSetupServer>() {
+    protected static final Creator<TimeSetupServer> CREATOR = new Creator<TimeSetupServer>() {
         @Override
         public TimeSetupServer createFromParcel(final Parcel source) {
             return new TimeSetupServer(source);
@@ -60,6 +59,6 @@ public class TimeSetupServer extends MeshModel {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        super.writeToParcel(dest, flags);
+        super.parcelMeshModel(dest, flags);
     }
 }

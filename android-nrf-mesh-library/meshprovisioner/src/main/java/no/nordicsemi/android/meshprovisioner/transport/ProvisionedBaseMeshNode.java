@@ -26,6 +26,7 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverters;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -40,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
@@ -54,7 +56,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     /**Device UUID*/
     @PrimaryKey
     @NonNull
-    @ColumnInfo(name = "uuid")
+    @ColumnInfo(name = "meshUuid")
     String uuid;
 
     @Ignore
@@ -172,10 +174,10 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
 
     @Ignore
-    @Expose
+    @Expose(serialize = false)
     Map<Integer, String> mAddedAppKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
 
-    @Ignore
+    @TypeConverters(MeshTypeConverters.class)
     @Expose
     Map<Integer, ApplicationKey> mAddedApplicationKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
 
