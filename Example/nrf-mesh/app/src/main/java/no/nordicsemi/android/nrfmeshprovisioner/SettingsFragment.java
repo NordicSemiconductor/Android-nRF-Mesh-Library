@@ -213,7 +213,7 @@ public class SettingsFragment extends Fragment implements Injectable,
             }
         });
 
-        mViewModel.getProvisioningSettingsLiveData().observe(this, provisioningSettingsLiveData -> {
+        /*mViewModel.getProvisioningSettingsLiveData().observe(this, provisioningSettingsLiveData -> {
             if (provisioningSettingsLiveData != null) {
                 globalTtlView.setText(String.valueOf(provisioningSettingsLiveData.getGlobalTtl()));
                 keyView.setText(getString(R.string.hex_format, provisioningSettingsLiveData.getNetworkKey()));
@@ -223,7 +223,7 @@ public class SettingsFragment extends Fragment implements Injectable,
                 unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningSettingsLiveData.getUnicastAddress())));
                 manageAppKeysView.setText(getString(R.string.app_key_count, provisioningSettingsLiveData.getAppKeys().size()));
             }
-        });
+        });*/
         mViewModel.getConfigurationSrc().observe(this, configuratorSrc -> {
             if (configuratorSrc != null) {
                 sourceAddressView.setText(MeshParserUtils.bytesToHex(configuratorSrc, true));

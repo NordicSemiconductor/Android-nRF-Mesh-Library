@@ -157,7 +157,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Contains the initial provisioning live data
      **/
-    private final ProvisioningSettingsLiveData mProvisioningSettingsLiveData;
+    private ProvisioningSettingsLiveData mProvisioningSettingsLiveData;
 
     private MeshMessageLiveData mMeshMessageLiveData = new MeshMessageLiveData();
     /**
@@ -177,7 +177,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private boolean mIsScanning;
     private boolean mSetupProvisionedNode;
     private ProvisioningStatusLiveData mProvisioningStateLiveData;
-    private final MeshNetwork mBaseMeshNetwork;
+    private MeshNetwork mBaseMeshNetwork;
 
     private final Runnable mReconnectRunnable = this::startScan;
 
@@ -189,17 +189,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mMeshManagerApi.setProvisionerManagerTransportCallbacks(this);
         mMeshManagerApi.setProvisioningStatusCallbacks(this);
         mMeshManagerApi.setMeshStatusCallbacks(this);
-        mBaseMeshNetwork = mMeshManagerApi.getMeshNetwork();
-        //Load live data with provisioned nodes
-        mProvisionedNodes.postValue(mBaseMeshNetwork.getProvisionedNodes());
-        //Load live data with provisioning settings
-        mProvisioningSettingsLiveData = new ProvisioningSettingsLiveData(mMeshManagerApi.getProvisioningSettings());
-        //Load live data with configuration address
-        mConfigurationSrc.postValue(mBaseMeshNetwork.getProvisioners().get(0).getProvisionerAddress());
-
+        mMeshManagerApi.loadMeshNetwork();
         //Initialize the ble manager
         mBleMeshManager = bleMeshManager;
         mBleMeshManager.setGattCallbacks(this);
+
 
         mNetworkInformation = networkInformation;
         //Load live data with network information
@@ -566,6 +560,20 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onDeviceNotSupported(final BluetoothDevice device) {
 
+    }
+
+    @Override
+    public void onNetworkLoaded() {
+        mBaseMeshNetwork = mMeshManagerApi.getMeshNetwork();
+        if(mBaseMeshNetwork != null) {
+            //Load live data with provisioned nodes
+            mProvisionedNodes.postValue(mBaseMeshNetwork.getProvisionedNodes());
+            //Load live data with provisioning settings
+
+            mProvisioningSettingsLiveData = new ProvisioningSettingsLiveData(mMeshManagerApi.getProvisioningSettings());
+            //Load live data with configuration address
+            mConfigurationSrc.postValue(mBaseMeshNetwork.getProvisioners().get(0).getProvisionerAddress());
+        }
     }
 
     @Override

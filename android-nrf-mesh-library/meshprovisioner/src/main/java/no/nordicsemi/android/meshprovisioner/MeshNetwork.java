@@ -72,7 +72,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
     }
 
     void setNetKeys(List<NetworkKey> netKeys) {
-
         this.netKeys = netKeys;
     }
 

@@ -77,6 +77,7 @@ public final class NetworkKey implements Parcelable {
     @Expose
     private long timestamp;
 
+    @Ignore
     NetworkKey() {
 
     }
@@ -87,7 +88,6 @@ public final class NetworkKey implements Parcelable {
      * @param keyIndex 12-bit network key index
      * @param key      16-byte network key
      */
-    @Ignore
     public NetworkKey(final int keyIndex, final byte[] key) {
         this.key = key;
         this.keyIndex = keyIndex;
@@ -173,7 +173,7 @@ public final class NetworkKey implements Parcelable {
      *
      * @param key 16-byte network key
      */
-    void setKey(@NonNull final byte[] key) {
+    public void setKey(@NonNull final byte[] key) {
         this.key = key;
     }
 

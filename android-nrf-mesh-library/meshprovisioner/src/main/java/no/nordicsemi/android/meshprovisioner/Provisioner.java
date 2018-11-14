@@ -7,6 +7,7 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
 
@@ -27,6 +28,7 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
                 childColumns = "mesh_uuid",
                 onUpdate = CASCADE, onDelete = CASCADE),
         indices = @Index("mesh_uuid"))
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Provisioner {
 
     @ColumnInfo(name = "mesh_uuid")
@@ -78,7 +80,7 @@ public class Provisioner {
     /**
      * Constructs {@link Provisioner}
      */
-    Provisioner() {
+    public Provisioner() {
 
     }
 

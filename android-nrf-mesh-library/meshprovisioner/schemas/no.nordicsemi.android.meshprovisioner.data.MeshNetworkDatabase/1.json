@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5ffb070bf169b4f8b667cbb71444dd43",
+    "identityHash": "14aa4edf391fe001674ed333ab5911af",
     "entities": [
       {
         "tableName": "mesh_network",
@@ -268,7 +268,7 @@
             "notNull": false
           },
           {
-            "fieldPath": "unicast_address",
+            "fieldPath": "unicastAddress",
             "columnName": "unicast_address",
             "affinity": "BLOB",
             "notNull": false
@@ -318,7 +318,7 @@
       },
       {
         "tableName": "nodes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `meshUuid` TEXT NOT NULL, `unicast_address` BLOB, `name` TEXT, `configured` INTEGER NOT NULL, `device_key` BLOB, `ttl` INTEGER NOT NULL, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `relay` INTEGER NOT NULL, `proxy` INTEGER NOT NULL, `friend` INTEGER NOT NULL, `low_power` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `mAddedApplicationKeys` TEXT, PRIMARY KEY(`meshUuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `uuid` TEXT NOT NULL, `unicast_address` BLOB, `name` TEXT, `configured` INTEGER NOT NULL, `device_key` BLOB, `ttl` INTEGER NOT NULL, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `relay` INTEGER NOT NULL, `proxy` INTEGER NOT NULL, `friend` INTEGER NOT NULL, `low_power` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `mElements` TEXT, `mAddedApplicationKeys` TEXT, PRIMARY KEY(`uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "meshUuid",
@@ -328,7 +328,7 @@
           },
           {
             "fieldPath": "uuid",
-            "columnName": "meshUuid",
+            "columnName": "uuid",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -423,6 +423,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "mElements",
+            "columnName": "mElements",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "mAddedApplicationKeys",
             "columnName": "mAddedApplicationKeys",
             "affinity": "TEXT",
@@ -431,7 +437,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "meshUuid"
+            "uuid"
           ],
           "autoGenerate": false
         },
@@ -580,7 +586,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"5ffb070bf169b4f8b667cbb71444dd43\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"14aa4edf391fe001674ed333ab5911af\")"
     ]
   }
 }

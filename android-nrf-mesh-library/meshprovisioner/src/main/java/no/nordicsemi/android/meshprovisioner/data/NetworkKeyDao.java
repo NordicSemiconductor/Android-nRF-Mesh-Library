@@ -27,6 +27,9 @@ public interface NetworkKeyDao {
     @Update
     void update(List<NetworkKey> netKeys);
 
+    @Query("SELECT * from network_key WHERE mesh_uuid = :meshUuid")
+    List<NetworkKey> loadNetworkKeys(final String meshUuid);
+
     @Delete
     void delete(final NetworkKey networkKey);
 

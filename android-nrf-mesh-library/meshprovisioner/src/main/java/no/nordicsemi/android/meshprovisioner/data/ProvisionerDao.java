@@ -11,6 +11,7 @@ import android.support.annotation.RestrictTo;
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.Provisioner;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("unused")
@@ -28,6 +29,9 @@ public interface ProvisionerDao {
 
     @Update
     void update(final Provisioner provisioner);
+
+    @Query("SELECT * from provisioner WHERE last_selected IS :lastSelected")
+    List<Provisioner> getProvisioner(final boolean lastSelected);
 
     @Delete
     void delete(final Provisioner provisioner);

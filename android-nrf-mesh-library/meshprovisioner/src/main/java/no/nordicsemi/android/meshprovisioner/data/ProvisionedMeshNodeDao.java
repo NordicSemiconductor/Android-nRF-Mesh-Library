@@ -10,6 +10,7 @@ import android.support.annotation.RestrictTo;
 
 import java.util.List;
 
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -28,6 +29,9 @@ public interface ProvisionedMeshNodeDao {
 
     @Update
     void update(List<ProvisionedMeshNode> nodes);
+
+    @Query("SELECT * from nodes WHERE mesh_uuid IS :meshUuid")
+    List<ProvisionedMeshNode> getNodes(final String meshUuid);
 
     @Delete
     void delete(final ProvisionedMeshNode meshNode);

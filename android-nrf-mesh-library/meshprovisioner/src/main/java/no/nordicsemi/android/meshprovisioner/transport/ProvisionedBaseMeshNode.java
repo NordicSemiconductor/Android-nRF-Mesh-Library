@@ -56,7 +56,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     /**Device UUID*/
     @PrimaryKey
     @NonNull
-    @ColumnInfo(name = "meshUuid")
+    @ColumnInfo(name = "uuid")
     String uuid;
 
     @Ignore
@@ -164,9 +164,9 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Expose
     Integer features = null;
 
-    @Ignore
+    @TypeConverters(MeshTypeConverters.class)
     @Expose
-    final Map<Integer, Element> mElements = new LinkedHashMap<>();
+    Map<Integer, Element> mElements = new LinkedHashMap<>();
 
     @Ignore
     @SerializedName("appKeys")

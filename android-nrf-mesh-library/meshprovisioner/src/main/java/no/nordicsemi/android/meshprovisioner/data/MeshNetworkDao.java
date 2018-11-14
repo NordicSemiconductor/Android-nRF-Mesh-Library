@@ -33,6 +33,6 @@ public interface MeshNetworkDao {
     List<MeshNetwork> getAllMeshNetworks();
 
     @Query("SELECT * from mesh_network WHERE last_selected IS :lastSelected")
-    List<MeshNetwork> getMeshNetwork(final boolean lastSelected);
+    MeshNetwork getMeshNetwork(final boolean lastSelected);
 
 }

@@ -28,7 +28,10 @@ public interface ApplicationKeyDao {
 
     @Update
     void update(List<ApplicationKey> appKeys);
-    
+
+    @Query("SELECT * from application_key WHERE mesh_uuid = :meshUuid")
+    List<ApplicationKey> loadApplicationKeys(final String meshUuid);
+
     @Delete
     void delete(final ApplicationKey applicationKey);
 

@@ -27,7 +27,6 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -39,7 +38,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -48,7 +46,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -177,7 +174,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         initDb(context);
         initGson();
         initConfigurationSrc();
-        initNetwork(context);
+        migrateMeshNetwork(context);
 
     }
 
@@ -195,6 +192,10 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     public ProvisioningSettings getProvisioningSettings() {
         return mProvisioningSettings;
+    }
+
+    public void loadMeshNetwork() {
+        loadNetworkFromDb();
     }
 
     public MeshNetwork getMeshNetwork() {
@@ -230,16 +231,15 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     /**
      * Migrates the old network data and loads a new mesh network object
+     *
      * @param context
      */
-    private void initNetwork(final Context context){
+    private void migrateMeshNetwork(final Context context) {
         final DataMigrator migrator = new DataMigrator();
         final MeshNetwork meshNetwork = migrator.migrateData(context, mGson, mProvisioningSettings);
-        if(meshNetwork != null) {
+        if (meshNetwork != null) {
             this.meshNetwork = meshNetwork;
             insertNetwork(meshNetwork);
-        } else {
-            loadMeshNetwork();
         }
     }
 
@@ -251,7 +251,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             mApplicationKeyDao.insert(meshNetwork.appKeys);
             int i = 0;
             for (Provisioner provisioner : meshNetwork.provisioners) {
-                if(i == 0){
+                if (i == 0) {
                     provisioner.setLastSelected(true);
                 }
                 mProvisionerDao.insert(provisioner);
@@ -294,8 +294,15 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         new Thread(() -> mProvisionerDao.update(provisioner)).start();
     }
 
-    private void loadMeshNetwork(){
-        mMeshNetworkDao.getAllMeshNetworks();
+    private void loadNetworkFromDb() {
+        new Thread(() -> {
+            meshNetwork = mMeshNetworkDao.getMeshNetwork(true);
+            meshNetwork.netKeys = mNetworkKeyDao.loadNetworkKeys(meshNetwork.getMeshUUID());
+            meshNetwork.appKeys = mApplicationKeyDao.loadApplicationKeys(meshNetwork.getMeshUUID());
+            meshNetwork.nodes = mProvisionedNodeDao.getNodes(meshNetwork.getMeshUUID());
+            meshNetwork.provisioners = mProvisionerDao.getProvisioner(true);
+            mTransportCallbacks.onNetworkLoaded();
+        }).start();
     }
 
     void addMeshNode(final ProvisionedMeshNode node) {

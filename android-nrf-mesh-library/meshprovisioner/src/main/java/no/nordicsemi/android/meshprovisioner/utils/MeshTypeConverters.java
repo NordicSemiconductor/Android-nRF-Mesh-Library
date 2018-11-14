@@ -14,6 +14,7 @@ import no.nordicsemi.android.meshprovisioner.AllocatedGroupRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedSceneRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedUnicastRange;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeshTypeConverters {
@@ -28,6 +29,18 @@ public class MeshTypeConverters {
         Type addedAppKeys = new TypeToken<Map<Integer, ApplicationKey>>() {
         }.getType();
         return new Gson().fromJson(appKeyJson, addedAppKeys);
+    }
+
+    @TypeConverter
+    public String elementsToJson(final Map<Integer, Element> elements){
+        return new Gson().toJson(elements);
+    }
+
+    @TypeConverter
+    public Map<Integer, Element> fromJsonToElements(final String elementsJson){
+        Type elements = new TypeToken<Map<Integer, Element>>() {
+        }.getType();
+        return new Gson().fromJson(elementsJson, elements);
     }
 
     @TypeConverter

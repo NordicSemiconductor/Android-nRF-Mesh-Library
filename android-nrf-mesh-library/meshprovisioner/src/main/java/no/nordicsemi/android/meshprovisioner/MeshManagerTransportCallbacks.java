@@ -30,6 +30,8 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
  */
 public interface MeshManagerTransportCallbacks {
 
+    void onNetworkLoaded();
+
     /**
      * Send mesh pdu
      *
