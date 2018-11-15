@@ -80,8 +80,48 @@ public class ApplicationMessageOpCodes {
     public static final short LIGHT_LIGHTNESS_SET_UNACKNOWLEDGED = (short) 0x824D;
 
     /**
-     * Opcode for the "Light Lightness Get" message
+     * Opcode for the "Light Lightness Status" message
      */
     public static final short LIGHT_LIGHTNESS_STATUS = (short) 0x824E;
+
+    /**
+     * Opcode for the "Light Ctl Get" message
+     */
+    public static final short LIGHT_CTL_GET = (short) 0x825D;
+
+    /**
+     * Opcode for the "Light Ctl Set" message
+     */
+    public static final short LIGHT_CTL_SET = (short) 0x825E;
+
+    /**
+     * Opcode for the "Light Ctl Set Unacknowledged" message
+     */
+    public static final short LIGHT_CTL_SET_UNACKNOWLEDGED = (short) 0x825F;
+
+    /**
+     * Opcode for the "Light Ctl Status" message
+     */
+    public static final short LIGHT_CTL_STATUS = (short) 0x8260;
+
+    /**
+     * Opcode for the "Light Hsl Get" message
+     */
+    public static final short LIGHT_HSL_GET = (short) 0x826D;
+
+    /**
+     * Opcode for the "Light Hsl Set" message
+     */
+    public static final short LIGHT_HSL_SET = (short) 0x8276;
+
+    /**
+     * Opcode for the "Light Hsl Set Unacknowledged" message
+     */
+    public static final short LIGHT_HSL_SET_UNACKNOWLEDGED = (short) 0x8277;
+
+    /**
+     * Opcode for the "Light Hsl Status" message
+     */
+    public static final short LIGHT_HSL_STATUS = (short) 0x8278;
 
 }

@@ -1,0 +1,125 @@
+package no.nordicsemi.android.meshprovisioner.transport;
+
+
+import android.support.annotation.NonNull;
+import android.util.Log;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
+
+/**
+ * To be used as a wrapper class when creating a LightHslSet message.
+ */
+@SuppressWarnings("unused")
+public class LightHslSet extends GenericMessage {
+
+    private static final String TAG = LightCtlSet.class.getSimpleName();
+    private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_HSL_SET;
+    private static final int LIGHT_LIGHTNESS_SET_TRANSITION_PARAMS_LENGTH = 9;
+    private static final int LIGHT_LIGHTNESS_SET_PARAMS_LENGTH = 7;
+
+    private final Integer mTransitionSteps;
+    private final Integer mTransitionResolution;
+    private final Integer mDelay;
+    private final int mLightness;
+    private final int mHue;
+    private final int mSaturation;
+
+    /**
+     * Constructs LightHslSet message.
+     *
+     * @param node            Mesh node this message is to be sent to
+     * @param appKey          application key for this message
+     * @param lightLightness  lightness of the LightHslModel
+     * @param lightHue        hue of the LightHslModel
+     * @param lightSaturation saturation of the LightHslModel
+     * @param aszmic          size of message integrity check
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    public LightHslSet (@NonNull final ProvisionedMeshNode node,
+                       @NonNull final byte[] appKey,
+                       final int lightLightness,
+                       final int lightHue,
+                       final int lightSaturation,
+                       final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, null, null, null, lightLightness, lightHue, lightSaturation, aszmic);
+    }
+
+    /**
+     * Constructs LightHslSet message.
+     *
+     * @param node                 Mesh node this message is to be sent to
+     * @param appKey               application key for this message
+     * @param transitionSteps      transition steps for the lightLightness
+     * @param transitionResolution transition resolution for the lightLightness
+     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
+     * @param lightLightness  lightness of the LightHslModel
+     * @param lightHue        hue of the LightHslModel
+     * @param lightSaturation saturation of the LightHslModel
+     * @param aszmic               size of message integrity check
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    @SuppressWarnings("WeakerAccess")
+    public LightHslSet (@NonNull final ProvisionedMeshNode node,
+                       @NonNull final byte[] appKey,
+                       @NonNull final Integer transitionSteps,
+                       @NonNull final Integer transitionResolution,
+                       @NonNull final Integer delay,
+                       final int lightLightness,
+                       final int lightHue,
+                       final int lightSaturation,
+                       final int aszmic) throws IllegalArgumentException {
+        super(node, appKey, aszmic);
+        this.mTransitionSteps = transitionSteps;
+        this.mTransitionResolution = transitionResolution;
+        this.mDelay = delay;
+        if (lightLightness < 0 || lightLightness > 65535)
+            throw new IllegalArgumentException("Light lightness value must be between 0 to 65535");
+        if (lightHue < 0 || lightHue > 65535)
+            throw new IllegalArgumentException("Light hue value must be between 0 to 65535");
+        if (lightSaturation < 0 || lightSaturation > 65535)
+            throw new IllegalArgumentException("Light hue value must be between 0 to 65535");
+        this.mLightness = lightLightness;
+        this.mHue = lightHue;
+        this.mSaturation = lightSaturation;
+        assembleMessageParameters();
+    }
+
+    @Override
+    public int getOpCode() {
+        return OP_CODE;
+    }
+
+    @Override
+    void assembleMessageParameters() {
+        mAid = SecureUtils.calculateK4(mAppKey);
+        final ByteBuffer paramsBuffer;
+        Log.v(TAG, "Lightness: " + mLightness);
+        Log.v(TAG, "Hue: " + mHue);
+        Log.v(TAG, "Saturation: " + mSaturation);
+        if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
+            paramsBuffer = ByteBuffer.allocate(LIGHT_LIGHTNESS_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer.putShort((short) mLightness);
+            paramsBuffer.putShort((short) mHue);
+            paramsBuffer.putShort((short) mSaturation);
+            paramsBuffer.put((byte) mNode.getSequenceNumber());
+        } else {
+            Log.v(TAG, "Transition steps: " + mTransitionSteps);
+            Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
+            paramsBuffer = ByteBuffer.allocate(LIGHT_LIGHTNESS_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer.putShort((short) mLightness);
+            paramsBuffer.putShort((short) mHue);
+            paramsBuffer.putShort((short) mSaturation);
+            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
+            final int delay = mDelay;
+            paramsBuffer.put((byte) delay);
+        }
+        mParameters = paramsBuffer.array();
+    }
+
+
+}

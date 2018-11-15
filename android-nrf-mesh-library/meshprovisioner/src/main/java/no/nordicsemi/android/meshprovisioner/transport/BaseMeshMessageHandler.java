@@ -135,6 +135,30 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     final LightLightnessSetUnacknowledgedState lightnessSetUnacknowledgedState = (LightLightnessSetUnacknowledgedState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, lightnessSetUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
                     break;
+                case LIGHT_CTL_GET_STATE:
+                    final LightCtlGetState ctlGetState = (LightCtlGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, ctlGetState .getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_CTL_SET_STATE:
+                    final LightCtlSetState ctlSetState = (LightCtlSetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, ctlSetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_CTL_SET_UNACKNOWLEDGED_STATE:
+                    final LightCtlSetUnacknowledgedState ctlSetUnacknowledgedState = (LightCtlSetUnacknowledgedState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, ctlSetUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_HSL_GET_STATE:
+                    final LightHslGetState hslGetState = (LightHslGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, hslGetState .getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_HSL_SET_STATE:
+                    final LightHslSetState hslSetState = (LightHslSetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, hslSetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_HSL_SET_UNACKNOWLEDGED_STATE:
+                    final LightHslSetUnacknowledgedState hslSetUnacknowledgedState = (LightHslSetUnacknowledgedState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, hslSetUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
+                    break;
                 case VENDOR_MODEL_ACKNOWLEDGED_STATE:
                     final VendorModelMessageAckedState vendorModelMessageAckedState = (VendorModelMessageAckedState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, vendorModelMessageAckedState.getMeshMessage(), mMeshTransport, this));
