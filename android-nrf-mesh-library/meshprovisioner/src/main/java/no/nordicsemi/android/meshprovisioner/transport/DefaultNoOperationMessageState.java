@@ -133,7 +133,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final VendorModelMessageStatus status = new VendorModelMessageStatus(mNode, message, vendorModelMessageAcked.getModelIdentifier());
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
                     Log.v(TAG, "Vendor model Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-                } else {
+                } else if(mMeshMessage instanceof  VendorModelMessageUnacked) {
                     final VendorModelMessageUnacked vendorModelMessageUnacked = (VendorModelMessageUnacked) mMeshMessage;
                     final VendorModelMessageStatus status = new VendorModelMessageStatus(mNode, message, vendorModelMessageUnacked.getModelIdentifier());
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
