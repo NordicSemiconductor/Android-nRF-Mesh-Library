@@ -74,17 +74,14 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         mPresentLevel = (int) (buffer.getShort());
         Log.v(TAG, "Present level: " + mPresentLevel);
-        int transitionSteps = 0;
-        int transitionResolution = 0;
-        int targetLevel = 0;
         if(buffer.limit() > GENERIC_LEVEL_STATUS_MANDATORY_LENGTH) {
             mTargetLevel = (int) (buffer.getShort());
             final int remainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (remainingTime & 0x3F);
             mTransitionResolution = (remainingTime >> 6);
             Log.v(TAG, "Target level: " + mTargetLevel);
-            Log.v(TAG, "Remaining time, transition number of steps: " + transitionSteps);
-            Log.v(TAG, "Remaining time, transition number of step resolution: " + transitionResolution);
+            Log.v(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
+            Log.v(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
             Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(remainingTime));
         }
     }
