@@ -17,16 +17,16 @@ import no.nordicsemi.android.meshprovisioner.Group;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface GroupDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final Group group);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final List<Group> groups);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(final Group group);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(List<Group> groups);
 
     @Delete

@@ -24,10 +24,10 @@ public interface ProvisionedMeshNodeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final List<ProvisionedMeshNode> provisionedMeshNode);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(final ProvisionedMeshNode meshNode);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(List<ProvisionedMeshNode> nodes);
 
     @Query("SELECT * from nodes WHERE mesh_uuid IS :meshUuid")

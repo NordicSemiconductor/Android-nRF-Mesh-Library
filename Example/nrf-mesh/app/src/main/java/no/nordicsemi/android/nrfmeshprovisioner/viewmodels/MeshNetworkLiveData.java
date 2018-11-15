@@ -40,6 +40,7 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
 
     private MeshNetwork meshNetwork;
     private ApplicationKey selectedAppKey;
+    private String nodeName;
 
     MeshNetworkLiveData() {
 
@@ -260,5 +261,23 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
     public void setNetworkName(final String name) {
         meshNetwork.setMeshName(name);
         postValue(this);
+    }
+    /**
+     * Sets the node name
+     *
+     * @param nodeName node name
+     */
+    public void setNodeName(final String nodeName) {
+        if (nodeName != null && !nodeName.isEmpty()) {
+            this.nodeName = nodeName;
+            postValue(this);
+        }
+    }
+
+    /**
+     * Returns the node name
+     */
+    public String getNodeName() {
+        return nodeName;
     }
 }

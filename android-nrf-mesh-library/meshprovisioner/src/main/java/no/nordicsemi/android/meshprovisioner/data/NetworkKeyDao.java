@@ -15,7 +15,7 @@ import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 @Dao
 public interface NetworkKeyDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final NetworkKey networkKey);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -24,10 +24,10 @@ public interface NetworkKeyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final List<NetworkKey> networkKeys);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(final NetworkKey networkKey);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(List<NetworkKey> netKeys);
 
     @Query("SELECT * from network_key WHERE mesh_uuid = :meshUuid")

@@ -24,11 +24,11 @@ public interface ProvisionerDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final List<Provisioner> provisioners);
 
-    @Update
-    void update(List<Provisioner> provisioners);
-
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(final Provisioner provisioner);
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    void update(List<Provisioner> provisioners);
 
     @Query("SELECT * from provisioner WHERE mesh_uuid IS :meshUuid AND last_selected IS :lastSelected")
     Provisioner getProvisioner(final String meshUuid, final boolean lastSelected);

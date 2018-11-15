@@ -357,18 +357,17 @@ abstract class BaseMeshNetwork {
      * Set a unicast address, to be assigned to a node
      *
      * @param address unciast address
-     * @return true if success, false otherwise
+     * @return true if success, false if the address is in use by another device
      */
     public boolean setUnicastAddress(final int address) {
-        for (ProvisionedMeshNode node : nodes) {
-            if (address == node.getUnicastAddressInt()) {
-                final Provisioner provisioner = provisioners.get(0);
-                provisioner.setUnicastAddress(AddressUtils.getUnicastAddressBytes(address));
-                notifyProvisionerUpdated(provisioner);
-                return true;
-            }
+        if (isAddressInUse(address)) {
+            return false;
+        } else {
+            final Provisioner provisioner = provisioners.get(0);
+            provisioner.setUnicastAddress(AddressUtils.getUnicastAddressBytes(address));
+            notifyProvisionerUpdated(provisioner);
+            return true;
         }
-        return false;
     }
 
     public byte[] getProvisionerAddress() {
@@ -379,7 +378,7 @@ abstract class BaseMeshNetwork {
      * Set provisioner address
      *
      * @param address unciast address
-     * @return true if success, false otherwise
+     * @return true if success, false if the address is in use by another device
      */
     public boolean setProvisionerAddress(final int address) {
         if (!isAddressInUse(address)) {

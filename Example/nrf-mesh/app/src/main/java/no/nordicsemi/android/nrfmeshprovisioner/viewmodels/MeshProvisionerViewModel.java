@@ -107,10 +107,6 @@ public class MeshProvisionerViewModel extends ViewModel {
         return mNrfMeshRepository.getMeshNetworkLiveData();
     }
 
-    public LiveData<NetworkInformation> getNetworkInformationLiveData(){
-        return mNrfMeshRepository.getNetworkInformationLiveData();
-    }
-
     public NrfMeshRepository getNrfMeshRepository() {
         return mNrfMeshRepository;
     }

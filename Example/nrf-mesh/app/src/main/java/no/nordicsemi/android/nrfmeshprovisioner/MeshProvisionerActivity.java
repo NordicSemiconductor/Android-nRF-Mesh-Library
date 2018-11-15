@@ -204,12 +204,11 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             }
         });
 
-        mViewModel.getNetworkInformationLiveData().observe(this, networkInformation -> nameView.setText(networkInformation.getNodeName()));
-
-        mViewModel.getMeshNetworkLiveData().observe(this, provisioningSettings -> {
-            unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningSettings.getUnicastAddress())));
-            if (provisioningSettings != null) {
-                final ApplicationKey applicationKey = provisioningSettings.getSelectedAppKey();
+        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+            nameView.setText(meshNetworkLiveData.getNodeName());
+            unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", meshNetworkLiveData.getUnicastAddress())));
+            if (meshNetworkLiveData != null) {
+                final ApplicationKey applicationKey = meshNetworkLiveData.getSelectedAppKey();
                 appKeyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
             }
         });
@@ -227,7 +226,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         provisioner.setOnClickListener(v -> {
             final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
             if (node == null) {
-                mViewModel.identifyNode(device.getAddress(), mViewModel.getNetworkInformationLiveData().getValue().getNodeName());
+                mViewModel.identifyNode(device.getAddress(), mViewModel.getMeshNetworkLiveData().getValue().getNodeName());
                 return;
             }
 
@@ -291,38 +290,38 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
     @Override
     public void onNodeNameUpdated(final String nodeName) {
-        final NetworkInformation networkInformation = mViewModel.getNetworkInformationLiveData().getValue();
-        networkInformation.setNodeName(nodeName);
+        final MeshNetworkLiveData networkLiveData = mViewModel.getMeshNetworkLiveData().getValue();
+        networkLiveData.setNodeName(nodeName);
     }
 
     @Override
     public void onNetworkKeyGenerated(final String networkKey) {
-        final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
-        provisioningSettings.setPrimaryNetworkKey(networkKey);
+        final MeshNetworkLiveData networkLiveData = mViewModel.getMeshNetworkLiveData().getValue();
+        networkLiveData.setPrimaryNetworkKey(networkKey);
     }
 
     @Override
     public void onKeyIndexGenerated(final int keyIndex) {
-        final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
-        provisioningSettings.setKeyIndex(keyIndex);
+        final MeshNetworkLiveData networkLiveData = mViewModel.getMeshNetworkLiveData().getValue();
+        networkLiveData.setKeyIndex(keyIndex);
     }
 
     @Override
     public void onFlagsSelected(final int keyRefreshFlag, final int ivUpdateFlag) {
-        final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
-        provisioningSettings.setFlags(MeshParserUtils.parseUpdateFlags(keyRefreshFlag, ivUpdateFlag));
+        final MeshNetworkLiveData networkLiveData = mViewModel.getMeshNetworkLiveData().getValue();
+        networkLiveData.setFlags(MeshParserUtils.parseUpdateFlags(keyRefreshFlag, ivUpdateFlag));
     }
 
     @Override
     public void setIvIndex(final int ivIndex) {
-        final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
-        provisioningSettings.setIvIndex(ivIndex);
+        final MeshNetworkLiveData networkLiveData = mViewModel.getMeshNetworkLiveData().getValue();
+        networkLiveData.setIvIndex(ivIndex);
     }
 
     @Override
     public void setUnicastAddress(final int unicastAddress) {
-        final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
-        provisioningSettings.setUnicastAddress(unicastAddress);
+        final MeshNetworkLiveData networkLiveData = mViewModel.getMeshNetworkLiveData().getValue();
+        networkLiveData.setUnicastAddress(unicastAddress);
     }
 
     @Override

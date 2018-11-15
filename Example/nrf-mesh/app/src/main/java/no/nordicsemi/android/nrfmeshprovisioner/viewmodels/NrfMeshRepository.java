@@ -312,7 +312,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      * @param device bluetooth device
      */
     public void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
-        mNetworkInformationLiveData.getValue().setNodeName(device.getName());
+        mMeshNetworkLiveData.getValue().setNodeName(device.getName());
         mIsProvisioningComplete = false;
         clearExtendedMeshNode();
         final LogSession logSession = Logger.newSession(context, null, device.getAddress(), device.getName());

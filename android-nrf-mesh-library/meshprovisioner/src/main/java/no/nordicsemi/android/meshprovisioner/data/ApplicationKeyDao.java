@@ -23,10 +23,10 @@ public interface ApplicationKeyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final List<ApplicationKey> applicationKeys);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(final ApplicationKey applicationKey);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(List<ApplicationKey> appKeys);
 
     @Query("SELECT * from application_key WHERE mesh_uuid = :meshUuid")

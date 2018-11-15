@@ -17,16 +17,16 @@ import no.nordicsemi.android.meshprovisioner.Scene;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface SceneDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final Scene scene);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final List<Scene> scenes);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(final Scene scene);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(List<Scene> scenes);
 
     @Delete

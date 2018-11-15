@@ -20,7 +20,7 @@ public interface MeshNetworkDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final MeshNetwork meshNetwork);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(final MeshNetwork meshNetwork);
 
     @Delete
