@@ -64,4 +64,24 @@ public class ApplicationMessageOpCodes {
      */
     public static final short GENERIC_LEVEL_STATUS = (short) 0x8208;
 
+    /**
+     * Opcode for the "Light Lightness Get" message
+     */
+    public static final short LIGHT_LIGHTNESS_GET = (short) 0x824B;
+
+    /**
+     * Opcode for the "Light Lightness Set" message
+     */
+    public static final short LIGHT_LIGHTNESS_SET = (short) 0x824C;
+
+    /**
+     * Opcode for the "Light Lightness Set Unacknowledged" message
+     */
+    public static final short LIGHT_LIGHTNESS_SET_UNACKNOWLEDGED = (short) 0x824D;
+
+    /**
+     * Opcode for the "Light Lightness Get" message
+     */
+    public static final short LIGHT_LIGHTNESS_STATUS = (short) 0x824E;
+
 }

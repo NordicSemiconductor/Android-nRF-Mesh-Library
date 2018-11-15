@@ -123,6 +123,18 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     final GenericLevelSetUnacknowledgedState levelSetUnacknowledgedState = (GenericLevelSetUnacknowledgedState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, levelSetUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
                     break;
+                case LIGHT_LIGHTNESS_GET_STATE:
+                    final LightLightnessGetState lightnessGetState = (LightLightnessGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, lightnessGetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_LIGHTNESS_SET_STATE:
+                    final LightLightnessSetState lightnessSetState = (LightLightnessSetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, lightnessSetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_LIGHTNESS_SET_UNACKNOWLEDGED_STATE:
+                    final LightLightnessSetUnacknowledgedState lightnessSetUnacknowledgedState = (LightLightnessSetUnacknowledgedState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, lightnessSetUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
+                    break;
                 case VENDOR_MODEL_ACKNOWLEDGED_STATE:
                     final VendorModelMessageAckedState vendorModelMessageAckedState = (VendorModelMessageAckedState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, vendorModelMessageAckedState.getMeshMessage(), mMeshTransport, this));
@@ -555,6 +567,24 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             genericLevelSetUnAckedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = genericLevelSetUnAckedState;
             genericLevelSetUnAckedState.executeSend();
+        } else if (genericMessage instanceof LightLightnessGet) {
+            final LightLightnessGetState lightLightnessGetState = new LightLightnessGetState(mContext, dstAddress, (LightLightnessGet) genericMessage, mMeshTransport, this);
+            lightLightnessGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightLightnessGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightLightnessGetState;
+            lightLightnessGetState.executeSend();
+        } else if (genericMessage instanceof LightLightnessSet) {
+            final LightLightnessSetState lightLightnessSetState = new LightLightnessSetState(mContext, dstAddress, (LightLightnessSet) genericMessage, mMeshTransport, this);
+            lightLightnessSetState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightLightnessSetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightLightnessSetState;
+            lightLightnessSetState.executeSend();
+        } else if (genericMessage instanceof LightLightnessSetUnacknowledged) {
+            final LightLightnessSetUnacknowledgedState lightLightnessSetUnacknowledgedState = new LightLightnessSetUnacknowledgedState(mContext, dstAddress, (LightLightnessSetUnacknowledged) genericMessage, mMeshTransport, this);
+            lightLightnessSetUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightLightnessSetUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightLightnessSetUnacknowledgedState;
+            lightLightnessSetUnacknowledgedState.executeSend();
         } else if (genericMessage instanceof VendorModelMessageAcked) {
             final VendorModelMessageAckedState message = new VendorModelMessageAckedState(mContext, dstAddress, (VendorModelMessageAcked) genericMessage, mMeshTransport, this);
             message.setTransportCallbacks(mInternalTransportCallbacks);
