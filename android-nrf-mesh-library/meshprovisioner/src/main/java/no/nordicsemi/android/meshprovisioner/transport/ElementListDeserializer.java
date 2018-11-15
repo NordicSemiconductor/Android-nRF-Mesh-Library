@@ -60,7 +60,7 @@ public final class ElementListDeserializer implements JsonSerializer<List<Elemen
      * @return Map of mesh models
      */
     private Map<Integer, MeshModel> populateModels(final List<MeshModel> models) {
-        final Map<Integer, MeshModel> meshModels = new LinkedHashMap<>();
+        final LinkedHashMap<Integer, MeshModel> meshModels = new LinkedHashMap<>();
         for (MeshModel model : models) {
             meshModels.put(model.getModelId(), model);
         }

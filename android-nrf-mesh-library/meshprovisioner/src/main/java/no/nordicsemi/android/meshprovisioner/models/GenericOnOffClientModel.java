@@ -28,7 +28,7 @@ import android.os.Parcelable;
 @SuppressWarnings("WeakerAccess")
 public class GenericOnOffClientModel extends SigModel {
 
-    protected static final Parcelable.Creator<GenericOnOffClientModel> CREATOR = new Parcelable.Creator<GenericOnOffClientModel>() {
+    public static final Parcelable.Creator<GenericOnOffClientModel> CREATOR = new Parcelable.Creator<GenericOnOffClientModel>() {
         @Override
         public GenericOnOffClientModel createFromParcel(final Parcel source) {
             return new GenericOnOffClientModel(source);

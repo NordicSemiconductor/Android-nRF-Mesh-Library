@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class SceneServer extends SigModel {
 
-    protected static final Creator<SceneServer> CREATOR = new Creator<SceneServer>() {
+    public static final Creator<SceneServer> CREATOR = new Creator<SceneServer>() {
         @Override
         public SceneServer createFromParcel(final Parcel source) {
             return new SceneServer(source);

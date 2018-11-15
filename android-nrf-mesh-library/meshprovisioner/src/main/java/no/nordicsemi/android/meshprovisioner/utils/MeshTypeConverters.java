@@ -4,6 +4,7 @@ import android.arch.persistence.room.TypeConverter;
 import android.support.annotation.RestrictTo;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -15,6 +16,8 @@ import no.nordicsemi.android.meshprovisioner.AllocatedSceneRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedUnicastRange;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.transport.InternalMeshModelDeserializer;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeshTypeConverters {
@@ -40,7 +43,10 @@ public class MeshTypeConverters {
     public Map<Integer, Element> fromJsonToElements(final String elementsJson){
         Type elements = new TypeToken<Map<Integer, Element>>() {
         }.getType();
-        return new Gson().fromJson(elementsJson, elements);
+        return new GsonBuilder().
+                excludeFieldsWithoutExposeAnnotation().
+                registerTypeAdapter(MeshModel.class, new InternalMeshModelDeserializer()).
+                create().fromJson(elementsJson, elements);
     }
 
     @TypeConverter

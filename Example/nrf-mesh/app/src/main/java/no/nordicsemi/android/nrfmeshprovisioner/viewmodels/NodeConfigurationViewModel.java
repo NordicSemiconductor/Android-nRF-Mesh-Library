@@ -85,8 +85,8 @@ public class NodeConfigurationViewModel extends ViewModel {
      *
      * @return {@link ProvisioningSettings}
      */
-    public ProvisioningSettingsLiveData getProvisioningSettingLiveData() {
-        return mNrfMeshRepository.getProvisioningSettingsLiveData();
+    public MeshNetworkLiveData getProvisioningSettingLiveData() {
+        return mNrfMeshRepository.getMeshNetworkLiveData();
     }
 
     /**
@@ -105,10 +105,4 @@ public class NodeConfigurationViewModel extends ViewModel {
         return mNrfMeshRepository.getMeshManagerApi();
     }
 
-    /**
-     * Returns the {@link MeshManagerApi}
-     */
-    public MeshNetwork getMeshNetwork() {
-        return mNrfMeshRepository.getMeshManagerApi().getMeshNetwork();
-    }
 }

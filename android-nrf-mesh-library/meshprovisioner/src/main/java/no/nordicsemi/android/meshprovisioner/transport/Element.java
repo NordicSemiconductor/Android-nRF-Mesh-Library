@@ -69,8 +69,8 @@ public final class Element implements Parcelable {
     protected Element(Parcel in) {
         elementAddress = in.createByteArray();
         locationDescriptor = in.readInt();
-        meshModels = in.readHashMap(MeshModel.class.getClassLoader());
-        //sortModels());
+        meshModels = new LinkedHashMap<>();
+        sortModels(in.readHashMap(MeshModel.class.getClassLoader()));
     }
 
     @Override

@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class LightCtlTemperatureServer extends SigModel {
 
-    protected static final Creator<LightCtlTemperatureServer> CREATOR = new Creator<LightCtlTemperatureServer>() {
+    public static final Creator<LightCtlTemperatureServer> CREATOR = new Creator<LightCtlTemperatureServer>() {
         @Override
         public LightCtlTemperatureServer createFromParcel(final Parcel source) {
             return new LightCtlTemperatureServer(source);

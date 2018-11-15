@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class SchedulerClient extends SigModel {
 
-    protected static final Creator<SchedulerClient> CREATOR = new Creator<SchedulerClient>() {
+    public static final Creator<SchedulerClient> CREATOR = new Creator<SchedulerClient>() {
         @Override
         public SchedulerClient createFromParcel(final Parcel source) {
             return new SchedulerClient(source);

@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class LightHslServer extends SigModel {
 
-    protected static final Creator<LightHslServer> CREATOR = new Creator<LightHslServer>() {
+    public static final Creator<LightHslServer> CREATOR = new Creator<LightHslServer>() {
         @Override
         public LightHslServer createFromParcel(final Parcel source) {
             return new LightHslServer(source);

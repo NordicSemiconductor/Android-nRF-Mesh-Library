@@ -9,6 +9,7 @@ import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
 
@@ -53,7 +54,6 @@ public final class ApplicationKey implements Parcelable {
     @Expose
     private int boundNetKeyIndex = 0;
 
-    @NonNull
     @ColumnInfo(name = "key")
     @Expose
     private byte[] key;
@@ -62,17 +62,12 @@ public final class ApplicationKey implements Parcelable {
     @Expose
     private byte[] oldKey;
 
-    public ApplicationKey() {
-
-    }
-
     /**
      * Constructs a ApplicationKey object with a given key index and network key
      *
      * @param keyIndex 12-bit app key index
      * @param key      16-byte app key
      */
-    @Ignore
     public ApplicationKey(final int keyIndex, @NonNull final byte[] key) {
         this.key = key;
         this.keyIndex = keyIndex;

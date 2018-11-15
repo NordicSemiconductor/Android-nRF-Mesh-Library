@@ -20,13 +20,14 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork>, JsonDeserializer<MeshNetwork> {
     @Override
     public MeshNetwork deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
-        final MeshNetwork network = new MeshNetwork();
-
         final JsonObject jsonObject = json.getAsJsonObject();
+        final String meshUuid = jsonObject.get("meshUUID").getAsString();
+
+        final MeshNetwork network = new MeshNetwork(meshUuid);
+
         network.schema = jsonObject.get("$schema").getAsString();
         network.id = jsonObject.get("$schema").getAsString();
         network.version = jsonObject.get("version").getAsString();
-        network.meshUUID = jsonObject.get("meshUUID").getAsString();
         network.timestamp = jsonObject.get("timestamp").getAsString();
         network.netKeys = deserializeNetKeys(context, jsonObject.getAsJsonArray("netKeys"), network.meshUUID);
         network.appKeys = deserializeAppKeys(context, jsonObject.getAsJsonArray("appKeys"), network.meshUUID);

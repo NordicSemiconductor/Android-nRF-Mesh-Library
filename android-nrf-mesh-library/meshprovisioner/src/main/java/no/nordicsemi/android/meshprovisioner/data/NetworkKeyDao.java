@@ -19,6 +19,9 @@ public interface NetworkKeyDao {
     void insert(final NetworkKey networkKey);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(final NetworkKey...networkKeys);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final List<NetworkKey> networkKeys);
 
     @Update

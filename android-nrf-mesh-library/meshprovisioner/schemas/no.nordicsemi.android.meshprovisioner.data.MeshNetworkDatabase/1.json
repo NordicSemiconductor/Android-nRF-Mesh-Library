@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "14aa4edf391fe001674ed333ab5911af",
+    "identityHash": "2411597d7c0c1ef00a9dad01d8828cbb",
     "entities": [
       {
         "tableName": "mesh_network",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` TEXT, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`mesh_uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` TEXT, `iv_index` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`mesh_uuid`))",
         "fields": [
           {
             "fieldPath": "meshUUID",
@@ -25,6 +25,12 @@
             "columnName": "timestamp",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "ivIndex",
+            "columnName": "iv_index",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "lastSelected",
@@ -586,7 +592,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"14aa4edf391fe001674ed333ab5911af\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"2411597d7c0c1ef00a9dad01d8828cbb\")"
     ]
   }
 }

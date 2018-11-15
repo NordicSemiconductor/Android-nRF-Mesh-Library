@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class LightLightnessSetupServer extends SigModel {
 
-    protected static final Creator<LightLightnessSetupServer> CREATOR = new Creator<LightLightnessSetupServer>() {
+    public static final Creator<LightLightnessSetupServer> CREATOR = new Creator<LightLightnessSetupServer>() {
         @Override
         public LightLightnessSetupServer createFromParcel(final Parcel source) {
             return new LightLightnessSetupServer(source);

@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class SensorClient extends SigModel {
 
-    protected static final Creator<SensorClient> CREATOR = new Creator<SensorClient>() {
+    public static final Creator<SensorClient> CREATOR = new Creator<SensorClient>() {
         @Override
         public SensorClient createFromParcel(final Parcel source) {
             return new SensorClient(source);

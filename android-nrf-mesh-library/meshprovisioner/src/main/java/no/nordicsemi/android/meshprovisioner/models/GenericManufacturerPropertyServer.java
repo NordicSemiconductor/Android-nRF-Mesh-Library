@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class GenericManufacturerPropertyServer extends SigModel {
 
-    protected static final Creator<GenericManufacturerPropertyServer> CREATOR = new Creator<GenericManufacturerPropertyServer>() {
+    public static final Creator<GenericManufacturerPropertyServer> CREATOR = new Creator<GenericManufacturerPropertyServer>() {
         @Override
         public GenericManufacturerPropertyServer createFromParcel(final Parcel source) {
             return new GenericManufacturerPropertyServer(source);

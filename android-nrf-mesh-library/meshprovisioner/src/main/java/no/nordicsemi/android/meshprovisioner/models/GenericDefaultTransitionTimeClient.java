@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class GenericDefaultTransitionTimeClient extends SigModel {
 
-    protected static final Creator<GenericDefaultTransitionTimeClient> CREATOR = new Creator<GenericDefaultTransitionTimeClient>() {
+    public static final Creator<GenericDefaultTransitionTimeClient> CREATOR = new Creator<GenericDefaultTransitionTimeClient>() {
         @Override
         public GenericDefaultTransitionTimeClient createFromParcel(final Parcel source) {
             return new GenericDefaultTransitionTimeClient(source);

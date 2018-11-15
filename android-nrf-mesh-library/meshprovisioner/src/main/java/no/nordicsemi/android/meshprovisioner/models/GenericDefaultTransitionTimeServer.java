@@ -28,7 +28,7 @@ import android.os.Parcelable;
 @SuppressWarnings("WeakerAccess")
 public class GenericDefaultTransitionTimeServer extends SigModel {
 
-    protected static final Parcelable.Creator<GenericDefaultTransitionTimeServer> CREATOR = new Parcelable.Creator<GenericDefaultTransitionTimeServer>() {
+    public static final Parcelable.Creator<GenericDefaultTransitionTimeServer> CREATOR = new Parcelable.Creator<GenericDefaultTransitionTimeServer>() {
         @Override
         public GenericDefaultTransitionTimeServer createFromParcel(final Parcel source) {
             return new GenericDefaultTransitionTimeServer(source);

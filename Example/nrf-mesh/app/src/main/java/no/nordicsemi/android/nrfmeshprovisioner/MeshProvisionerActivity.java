@@ -53,6 +53,7 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningFailedState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.AlgorithmInformationParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
@@ -72,10 +73,10 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisioningFailedErrorMessage;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetworkInformation;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionerProgress;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningSettingsLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningStatusLiveData;
 
 public class MeshProvisionerActivity extends AppCompatActivity implements Injectable,
@@ -150,7 +151,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         unicastAddressTitle.setText(R.string.summary_unicast_address);
         final TextView unicastAddressView = containerUnicastAddress.findViewById(R.id.text);
         containerUnicastAddress.setOnClickListener(v -> {
-            final int unicastAddress = mViewModel.getProvisioningSettings().getValue().getUnicastAddress();
+            final int unicastAddress = mViewModel.getMeshNetworkLiveData().getValue().getUnicastAddress();
             final DialogFragmentUnicastAddress dialogFragmentFlags = DialogFragmentUnicastAddress.newInstance(unicastAddress);
             dialogFragmentFlags.show(getSupportFragmentManager(), null);
         });
@@ -161,7 +162,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         appKeyTitle.setText(R.string.summary_app_keys);
         final TextView appKeyView = containerAppKey.findViewById(R.id.text);
         containerAppKey.setOnClickListener(v -> {
-            final List<String> appKeys = mViewModel.getProvisioningSettings().getValue().getAppKeys();
+            final List<ApplicationKey> appKeys = mViewModel.getMeshNetworkLiveData().getValue().getAppKeys();
             final Intent manageAppKeys = new Intent(MeshProvisionerActivity.this, ManageAppKeysActivity.class);
             manageAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
             startActivityForResult(manageAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
@@ -205,10 +206,11 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
         mViewModel.getNetworkInformationLiveData().observe(this, networkInformation -> nameView.setText(networkInformation.getNodeName()));
 
-        mViewModel.getProvisioningSettings().observe(this, provisioningSettings -> {
+        mViewModel.getMeshNetworkLiveData().observe(this, provisioningSettings -> {
             unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningSettings.getUnicastAddress())));
             if (provisioningSettings != null) {
-                appKeyView.setText(provisioningSettings.getSelectedAppKey());
+                final ApplicationKey applicationKey = provisioningSettings.getSelectedAppKey();
+                appKeyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
             }
         });
 
@@ -264,9 +266,9 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ManageAppKeysActivity.SELECT_APP_KEY) {
             if (resultCode == RESULT_OK) {
-                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
+                final ApplicationKey appKey = data.getParcelableExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 if (appKey != null) {
-                    final ProvisioningSettingsLiveData provisioningSettings = mViewModel.getProvisioningSettings().getValue();
+                    final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
                     //final int appKeyIndex = provisioningSettings.getAppKeys().indexOf(appKey);
                     provisioningSettings.setSelectedAppKey(appKey);
                 }
@@ -295,31 +297,31 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
     @Override
     public void onNetworkKeyGenerated(final String networkKey) {
-        final ProvisioningSettingsLiveData provisioningSettings = mViewModel.getProvisioningSettings().getValue();
-        provisioningSettings.setNetworkKey(networkKey);
+        final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
+        provisioningSettings.setPrimaryNetworkKey(networkKey);
     }
 
     @Override
     public void onKeyIndexGenerated(final int keyIndex) {
-        final ProvisioningSettingsLiveData provisioningSettings = mViewModel.getProvisioningSettings().getValue();
+        final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
         provisioningSettings.setKeyIndex(keyIndex);
     }
 
     @Override
     public void onFlagsSelected(final int keyRefreshFlag, final int ivUpdateFlag) {
-        final ProvisioningSettingsLiveData provisioningSettings = mViewModel.getProvisioningSettings().getValue();
+        final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
         provisioningSettings.setFlags(MeshParserUtils.parseUpdateFlags(keyRefreshFlag, ivUpdateFlag));
     }
 
     @Override
     public void setIvIndex(final int ivIndex) {
-        final ProvisioningSettingsLiveData provisioningSettings = mViewModel.getProvisioningSettings().getValue();
+        final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
         provisioningSettings.setIvIndex(ivIndex);
     }
 
     @Override
     public void setUnicastAddress(final int unicastAddress) {
-        final ProvisioningSettingsLiveData provisioningSettings = mViewModel.getProvisioningSettings().getValue();
+        final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
         provisioningSettings.setUnicastAddress(unicastAddress);
     }
 

@@ -10,6 +10,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
 
@@ -77,17 +78,13 @@ public final class NetworkKey implements Parcelable {
     @Expose
     private long timestamp;
 
-    @Ignore
-    NetworkKey() {
-
-    }
-
     /**
      * Constructs a NetworkKey object with a given key index and network key
      *
      * @param keyIndex 12-bit network key index
      * @param key      16-byte network key
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public NetworkKey(final int keyIndex, final byte[] key) {
         this.key = key;
         this.keyIndex = keyIndex;
@@ -205,7 +202,7 @@ public final class NetworkKey implements Parcelable {
      *
      * @param keyIndex network key index
      */
-    void setKeyIndex(@NonNull final int keyIndex) {
+    public void setKeyIndex(final int keyIndex) {
         this.keyIndex = keyIndex;
     }
 

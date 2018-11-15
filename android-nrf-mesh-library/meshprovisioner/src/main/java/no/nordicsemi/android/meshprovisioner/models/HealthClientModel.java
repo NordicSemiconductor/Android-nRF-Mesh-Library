@@ -28,7 +28,7 @@ import android.os.Parcelable;
 @SuppressWarnings("WeakerAccess")
 public class HealthClientModel extends SigModel {
 
-    protected static final Parcelable.Creator<HealthClientModel> CREATOR = new Parcelable.Creator<HealthClientModel>() {
+    public static final Parcelable.Creator<HealthClientModel> CREATOR = new Parcelable.Creator<HealthClientModel>() {
         @Override
         public HealthClientModel createFromParcel(final Parcel source) {
             return new HealthClientModel(source);

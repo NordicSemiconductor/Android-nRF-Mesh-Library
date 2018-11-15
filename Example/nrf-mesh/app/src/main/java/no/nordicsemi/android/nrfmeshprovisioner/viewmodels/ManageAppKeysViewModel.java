@@ -21,7 +21,7 @@ public class ManageAppKeysViewModel extends ViewModel {
     /**
      * Returns live data object containing provisioning settings.
      */
-    public ProvisioningSettingsLiveData getProvisioningSettingsLiveData() {
-        return mNrfMeshRepository.getProvisioningSettingsLiveData();
+    public MeshNetworkLiveData getMeshNetworkLiveData() {
+        return mNrfMeshRepository.getMeshNetworkLiveData();
     }
 }

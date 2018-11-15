@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class GenericLocationClient extends SigModel {
 
-    protected static final Creator<GenericLocationClient> CREATOR = new Creator<GenericLocationClient>() {
+    public static final Creator<GenericLocationClient> CREATOR = new Creator<GenericLocationClient>() {
         @Override
         public GenericLocationClient createFromParcel(final Parcel source) {
             return new GenericLocationClient(source);

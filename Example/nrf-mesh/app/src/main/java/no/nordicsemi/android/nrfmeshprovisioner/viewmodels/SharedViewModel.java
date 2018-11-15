@@ -52,8 +52,8 @@ public class SharedViewModel extends ViewModel {
         return nRFMeshRepository.getNetworkInformationLiveData();
     }
 
-    public ProvisioningSettingsLiveData getProvisioningSettingsLiveData() {
-        return nRFMeshRepository.getProvisioningSettingsLiveData();
+    public MeshNetworkLiveData getMeshNetworkLiveData() {
+        return nRFMeshRepository.getMeshNetworkLiveData();
     }
 
     public LiveData<byte[]> getConfigurationSrc() {

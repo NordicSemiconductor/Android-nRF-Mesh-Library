@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class LightXylClient extends SigModel {
 
-    protected static final Creator<LightXylClient> CREATOR = new Creator<LightXylClient>() {
+    public static final Creator<LightXylClient> CREATOR = new Creator<LightXylClient>() {
         @Override
         public LightXylClient createFromParcel(final Parcel source) {
             return new LightXylClient(source);

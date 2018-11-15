@@ -103,8 +103,8 @@ public class MeshProvisionerViewModel extends ViewModel {
         mNrfMeshRepository.getMeshManagerApi().startProvisioning(node);
     }
 
-    public ProvisioningSettingsLiveData getProvisioningSettings(){
-        return mNrfMeshRepository.getProvisioningSettingsLiveData();
+    public MeshNetworkLiveData getMeshNetworkLiveData(){
+        return mNrfMeshRepository.getMeshNetworkLiveData();
     }
 
     public LiveData<NetworkInformation> getNetworkInformationLiveData(){

@@ -19,7 +19,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 public interface ProvisionerDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(final Provisioner group);
+    void insert(final Provisioner provisioner);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final List<Provisioner> provisioners);
@@ -30,8 +30,8 @@ public interface ProvisionerDao {
     @Update
     void update(final Provisioner provisioner);
 
-    @Query("SELECT * from provisioner WHERE last_selected IS :lastSelected")
-    List<Provisioner> getProvisioner(final boolean lastSelected);
+    @Query("SELECT * from provisioner WHERE mesh_uuid IS :meshUuid AND last_selected IS :lastSelected")
+    Provisioner getProvisioner(final String meshUuid, final boolean lastSelected);
 
     @Delete
     void delete(final Provisioner provisioner);

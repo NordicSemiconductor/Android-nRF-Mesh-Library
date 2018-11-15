@@ -80,6 +80,7 @@ public class Provisioner {
     /**
      * Constructs {@link Provisioner}
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public Provisioner() {
 
     }
@@ -201,6 +202,7 @@ public class Provisioner {
         return provisionerAddress;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setProvisionerAddress(final byte[] provisionerAddress) {
         this.provisionerAddress = provisionerAddress;
     }
@@ -219,6 +221,7 @@ public class Provisioner {
      *
      * @param unicastAddress address
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setUnicastAddress(final byte[] unicastAddress) {
         this.unicastAddress = unicastAddress;
     }
@@ -231,10 +234,12 @@ public class Provisioner {
         this.globalTtl = globalTtl;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean isLastSelected() {
         return lastSelected;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setLastSelected(final boolean lastSelected) {
         this.lastSelected = lastSelected;
     }

@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class GenericBatteryClient extends SigModel {
 
-    protected static final Creator<GenericBatteryClient> CREATOR = new Creator<GenericBatteryClient>() {
+    public static final Creator<GenericBatteryClient> CREATOR = new Creator<GenericBatteryClient>() {
         @Override
         public GenericBatteryClient createFromParcel(final Parcel source) {
             return new GenericBatteryClient(source);

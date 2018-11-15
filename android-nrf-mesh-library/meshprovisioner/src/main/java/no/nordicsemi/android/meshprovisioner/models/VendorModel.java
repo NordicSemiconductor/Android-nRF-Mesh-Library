@@ -39,7 +39,7 @@ public class VendorModel extends MeshModel {
     private final short companyIdentifier;
     private final String companyName;
 
-    protected static final Parcelable.Creator<VendorModel> CREATOR = new Parcelable.Creator<VendorModel>() {
+    public static final Parcelable.Creator<VendorModel> CREATOR = new Parcelable.Creator<VendorModel>() {
         @Override
         public VendorModel createFromParcel(final Parcel source) {
             return new VendorModel(source);

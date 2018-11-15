@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class GenericPowerOnOffSetupServer extends SigModel {
 
-    protected static final Creator<GenericPowerOnOffSetupServer> CREATOR = new Creator<GenericPowerOnOffSetupServer>() {
+    public static final Creator<GenericPowerOnOffSetupServer> CREATOR = new Creator<GenericPowerOnOffSetupServer>() {
         @Override
         public GenericPowerOnOffSetupServer createFromParcel(final Parcel source) {
             return new GenericPowerOnOffSetupServer(source);

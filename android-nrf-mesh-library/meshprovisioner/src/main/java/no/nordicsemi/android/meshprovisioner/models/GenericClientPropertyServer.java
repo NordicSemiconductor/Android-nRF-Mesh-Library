@@ -26,7 +26,7 @@ import android.os.Parcel;
 
 public class GenericClientPropertyServer extends SigModel {
 
-    protected static final Creator<GenericClientPropertyServer> CREATOR = new Creator<GenericClientPropertyServer>() {
+    public static final Creator<GenericClientPropertyServer> CREATOR = new Creator<GenericClientPropertyServer>() {
         @Override
         public GenericClientPropertyServer createFromParcel(final Parcel source) {
             return new GenericClientPropertyServer(source);

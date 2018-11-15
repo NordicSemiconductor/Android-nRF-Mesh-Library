@@ -47,6 +47,10 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFlags;
@@ -120,7 +124,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         containerSource.setText(R.string.summary_src_address);
         final TextView sourceAddressView = containerSourceAddress.findViewById(R.id.text);
         containerSourceAddress.setOnClickListener(v -> {
-            final byte[] configuratorSrc = mViewModel.getConfigurationSrc().getValue();
+            final byte[] configuratorSrc = mViewModel.getMeshNetworkLiveData().getProvisionerAddress();
             final int src = (configuratorSrc[0] & 0xFF) << 8 | (configuratorSrc[1] & 0xFF);
             final DialogFragmentSourceAddress dialogFragmentSrc = DialogFragmentSourceAddress.newInstance(src);
             dialogFragmentSrc.show(getChildFragmentManager(), null);
@@ -132,7 +136,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         keyTitle.setText(R.string.summary_key);
         final TextView keyView = containerKey.findViewById(R.id.text);
         containerKey.setOnClickListener(v -> {
-            final String networkKey = mViewModel.getProvisioningSettingsLiveData().getNetworkKey();
+            final NetworkKey networkKey = mViewModel.getMeshNetworkLiveData().getPrimaryNetworkKey();
             final DialogFragmentNetworkKey dialogFragmentNetworkKey = DialogFragmentNetworkKey.newInstance(networkKey);
             dialogFragmentNetworkKey.show(getChildFragmentManager(), null);
         });
@@ -143,7 +147,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         keyIndexTitle.setText(R.string.summary_index);
         final TextView keyIndexView = containerKeyIndex.findViewById(R.id.text);
         containerKeyIndex.setOnClickListener(v -> {
-            final int keyIndex = mViewModel.getProvisioningSettingsLiveData().getKeyIndex();
+            final int keyIndex = mViewModel.getMeshNetworkLiveData().getKeyIndex();
             final DialogFragmentKeyIndex dialogFragmentNetworkKey = DialogFragmentKeyIndex.newInstance(keyIndex);
             dialogFragmentNetworkKey.show(getChildFragmentManager(), null);
         });
@@ -154,7 +158,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         flagsTitle.setText(R.string.summary_flags);
         final TextView flagsView = containerFlags.findViewById(R.id.text);
         containerFlags.setOnClickListener(v -> {
-            final int flags = mViewModel.getProvisioningSettingsLiveData().getFlags();
+            final int flags = mViewModel.getMeshNetworkLiveData().getFlags();
             final int keyRefreshFlag = MeshParserUtils.getBitValue(flags, 0);
             final int ivUpdateFlag = MeshParserUtils.getBitValue(flags, 1);
             final DialogFragmentFlags dialogFragmentFlags = DialogFragmentFlags.newInstance(keyRefreshFlag, ivUpdateFlag);
@@ -167,7 +171,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         ivIndexTitle.setText(R.string.title_iv_index);
         final TextView ivIndexView = containerIVIndex.findViewById(R.id.text);
         containerIVIndex.setOnClickListener(v -> {
-            final int ivIndex = mViewModel.getProvisioningSettingsLiveData().getIvIndex();
+            final int ivIndex = mViewModel.getMeshNetworkLiveData().getIvIndex();
             final DialogFragmentIvIndex dialogFragmentFlags = DialogFragmentIvIndex.newInstance(ivIndex);
             dialogFragmentFlags.show(getChildFragmentManager(), null);
         });
@@ -178,7 +182,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         unicastAddressTitle.setText(R.string.summary_unicast_address);
         final TextView unicastAddressView = containerUnicastAddress.findViewById(R.id.text);
         containerUnicastAddress.setOnClickListener(v -> {
-            final int unicastAddress = mViewModel.getProvisioningSettingsLiveData().getValue().getUnicastAddress();
+            final int unicastAddress = mViewModel.getMeshNetworkLiveData().getValue().getUnicastAddress();
             final DialogFragmentUnicastAddress dialogFragmentFlags = DialogFragmentUnicastAddress.newInstance(unicastAddress);
             dialogFragmentFlags.show(getChildFragmentManager(), null);
         });
@@ -190,7 +194,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         manageAppKeysView = containerManageAppKeys.findViewById(R.id.text);
         containerManageAppKeys.setOnClickListener(v -> {
             final Intent intent = new Intent(getActivity(), ManageAppKeysActivity.class);
-            final List<String> appKeys = mViewModel.getProvisioningSettingsLiveData().getAppKeys();
+            final List<ApplicationKey> appKeys = mViewModel.getMeshNetworkLiveData().getAppKeys();
             intent.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
             startActivityForResult(intent, ManageAppKeysActivity.MANAGE_APP_KEYS);
         });
@@ -207,26 +211,18 @@ public class SettingsFragment extends Fragment implements Injectable,
         }
 
 
-        mViewModel.getNetworkInformation().observe(getActivity(), networkInformation -> {
-            if (networkInformation != null) {
-                networkNameView.setText(networkInformation.getNetworkName());
-            }
-        });
-
-        /*mViewModel.getProvisioningSettingsLiveData().observe(this, provisioningSettingsLiveData -> {
-            if (provisioningSettingsLiveData != null) {
-                globalTtlView.setText(String.valueOf(provisioningSettingsLiveData.getGlobalTtl()));
-                keyView.setText(getString(R.string.hex_format, provisioningSettingsLiveData.getNetworkKey()));
-                keyIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%03X", provisioningSettingsLiveData.getKeyIndex())));
-                flagsView.setText(parseFlagsMessage(provisioningSettingsLiveData.getFlags()));
-                ivIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%08X", provisioningSettingsLiveData.getIvIndex())));
-                unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", provisioningSettingsLiveData.getUnicastAddress())));
-                manageAppKeysView.setText(getString(R.string.app_key_count, provisioningSettingsLiveData.getAppKeys().size()));
-            }
-        });*/
-        mViewModel.getConfigurationSrc().observe(this, configuratorSrc -> {
-            if (configuratorSrc != null) {
-                sourceAddressView.setText(MeshParserUtils.bytesToHex(configuratorSrc, true));
+        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+            if (meshNetworkLiveData != null) {
+                networkNameView.setText(meshNetworkLiveData.getNetworkName());
+                globalTtlView.setText(String.valueOf(meshNetworkLiveData.getGlobalTtl()));
+                final NetworkKey key = meshNetworkLiveData.getPrimaryNetworkKey();
+                keyView.setText(MeshParserUtils.bytesToHex(key.getKey(), false));
+                keyIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%03X", key.getKeyIndex())));
+                flagsView.setText(parseFlagsMessage(meshNetworkLiveData.getFlags()));
+                ivIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%08X", meshNetworkLiveData.getIvIndex())));
+                unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", meshNetworkLiveData.getUnicastAddress())));
+                manageAppKeysView.setText(getString(R.string.app_key_count, meshNetworkLiveData.getAppKeys().size()));
+                sourceAddressView.setText(MeshParserUtils.bytesToHex(meshNetworkLiveData.getProvisionerAddress(), true));
             }
         });
         return rootView;
@@ -299,42 +295,42 @@ public class SettingsFragment extends Fragment implements Injectable,
 
     @Override
     public void onNetworkNameEntered(final String networkName) {
-        mViewModel.getNetworkInformation().getValue().setNetworkName(getContext(), networkName);
+        mViewModel.getMeshNetworkLiveData().setNetworkName(networkName);
     }
 
     @Override
     public void onGlobalTtlEntered(final int globalTtl) {
-        mViewModel.getProvisioningSettingsLiveData().setGlobalTtl(globalTtl);
+        mViewModel.getMeshNetworkLiveData().setGlobalTtl(globalTtl);
     }
 
     @Override
     public void onNetworkKeyGenerated(final String networkKey) {
-        mViewModel.getProvisioningSettingsLiveData().getValue().setNetworkKey(networkKey);
+        mViewModel.getMeshNetworkLiveData().setPrimaryNetworkKey(networkKey);
     }
 
     @Override
     public void onKeyIndexGenerated(final int keyIndex) {
-        mViewModel.getProvisioningSettingsLiveData().getValue().setKeyIndex(keyIndex);
+        mViewModel.getMeshNetworkLiveData().setKeyIndex(keyIndex);
     }
 
     @Override
     public void onFlagsSelected(final int keyRefreshFlag, final int ivUpdateFlag) {
-        mViewModel.getProvisioningSettingsLiveData().getValue().setFlags(MeshParserUtils.parseUpdateFlags(keyRefreshFlag, ivUpdateFlag));
+        mViewModel.getMeshNetworkLiveData().setFlags(MeshParserUtils.parseUpdateFlags(keyRefreshFlag, ivUpdateFlag));
     }
 
     @Override
     public void setIvIndex(final int ivIndex) {
-        mViewModel.getProvisioningSettingsLiveData().getValue().setIvIndex(ivIndex);
+        mViewModel.getMeshNetworkLiveData().setIvIndex(ivIndex);
     }
 
     @Override
     public void setUnicastAddress(final int unicastAddress) {
-        mViewModel.getProvisioningSettingsLiveData().getValue().setUnicastAddress(unicastAddress);
+        mViewModel.getMeshNetworkLiveData().setUnicastAddress(unicastAddress);
     }
 
     @Override
     public boolean setSourceAddress(final int sourceAddress) {
-        return mViewModel.setConfiguratorSource(new byte[]{(byte) ((sourceAddress >> 8) & 0xFF), (byte) (sourceAddress & 0xFF)});
+        return mViewModel.getMeshNetworkLiveData().setProvisionerAddress(sourceAddress);
     }
 
     @Override

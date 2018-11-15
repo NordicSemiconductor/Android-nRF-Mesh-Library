@@ -27,7 +27,7 @@ import android.os.Parcel;
 @SuppressWarnings("WeakerAccess")
 public class TimeServer extends SigModel {
 
-    protected static final Creator<TimeServer> CREATOR = new Creator<TimeServer>() {
+    public static final Creator<TimeServer> CREATOR = new Creator<TimeServer>() {
         @Override
         public TimeServer createFromParcel(final Parcel source) {
             return new TimeServer(source);

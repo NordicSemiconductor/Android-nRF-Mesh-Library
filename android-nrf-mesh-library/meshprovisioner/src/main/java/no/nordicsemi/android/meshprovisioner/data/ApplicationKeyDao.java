@@ -17,8 +17,8 @@ import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 @Dao
 public interface ApplicationKeyDao {
 
-    @Insert
-    void insert(final ApplicationKey applicationKey);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    long insert(final ApplicationKey applicationKey);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final List<ApplicationKey> applicationKeys);

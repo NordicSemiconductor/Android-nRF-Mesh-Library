@@ -37,17 +37,13 @@ class DataMigrator {
      */
     final MeshNetwork migrateData(final Context context, final Gson gson, final ProvisioningSettings provisioningSettings) {
         if (sharedPrefsExists(context)) {
-            final MeshNetwork meshNetwork = new MeshNetwork();
+            final MeshNetwork meshNetwork = new MeshNetwork(MeshParserUtils.generateRandomUuid());
             final SharedPreferences preferences = context.getSharedPreferences(PREFS_SEQUENCE_NUMBER, Context.MODE_PRIVATE);
             final int sequenceNumber = preferences.getInt(SEQUENCE_NUMBER_KEY, 0);
             final byte[] srcAddress = initConfigurationSrc(context);
 
             final SharedPreferences preferencesNodes = context.getSharedPreferences(PROVISIONED_NODES_FILE, Context.MODE_PRIVATE);
             final Map<String, ?> nodes = preferencesNodes.getAll();
-
-            if (TextUtils.isEmpty(meshNetwork.getMeshUUID())) {
-                meshNetwork.setMeshUUID(MeshParserUtils.generateRandomUuid());
-            }
 
             if (!nodes.isEmpty()) {
                 final List<Integer> orderedKeys = reOrderProvisionedNodes(nodes);
@@ -91,11 +87,11 @@ class DataMigrator {
                         }
                     }
                 }
-
+                meshNetwork.ivIndex = provisioningSettings.getIvIndex();
                 meshNetwork.nodes = tempNodes;
                 meshNetwork.netKeys = migrateNetKeys(meshNetwork, provisioningSettings);
                 meshNetwork.appKeys = migrateAppKeys(meshNetwork, provisioningSettings);
-                meshNetwork.provisioners = migrateProvisioner(meshNetwork, srcAddress, sequenceNumber, provisioningSettings.getGlobalTtl());
+                meshNetwork.provisioners = migrateProvisioner(meshNetwork, srcAddress, sequenceNumber, provisioningSettings);
 
             }
             //Remove redundant preferences file
@@ -156,16 +152,16 @@ class DataMigrator {
         return appKeys;
     }
 
-    private List<Provisioner> migrateProvisioner(final MeshNetwork meshNetwork, final byte[] srcAddress, final int sequenceNumber, final int globalTtl) {
+    private List<Provisioner> migrateProvisioner(final MeshNetwork meshNetwork, final byte[] srcAddress, final int sequenceNumber, final ProvisioningSettings settings) {
 
         final List<Provisioner> provisioners = new ArrayList<>();
         if (meshNetwork.provisioners == null || meshNetwork.provisioners.isEmpty()) {
 
             final Provisioner provisioner = new Provisioner();
-
             provisioner.setProvisionerAddress(srcAddress);
+            provisioner.setUnicastAddress(AddressUtils.getUnicastAddressBytes(settings.getUnicastAddress()));
             provisioner.setSequenceNumber(sequenceNumber);
-            provisioner.setGlobalTtl(globalTtl);
+            provisioner.setGlobalTtl(settings.getGlobalTtl());
             if (TextUtils.isEmpty(provisioner.getProvisionerUuid())) {
                 provisioner.setProvisionerUuid(MeshParserUtils.generateRandomUuid());
             }
@@ -201,7 +197,7 @@ class DataMigrator {
         final int tempSrc = preferences.getInt(SRC, 0);
         if (tempSrc != 0)
             return new byte[]{(byte) ((tempSrc >> 8) & 0xFF), (byte) (tempSrc & 0xFF)};
-        return null;
+        return new byte[]{0x7F, (byte) 0xFF};
     }
 
     /**
