@@ -34,4 +34,6 @@ public interface NetworkLayerCallbacks {
     ProvisionedMeshNode getMeshNode(final int unicastAddress);
 
     Provisioner getProvisioner(final byte[] unicastAddress);
+
+    NetworkKey getPrimaryNetworkKey();
 }

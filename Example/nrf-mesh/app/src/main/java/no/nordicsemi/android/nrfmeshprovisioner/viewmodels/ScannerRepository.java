@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.LocationManager;
 import android.os.ParcelUuid;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class ScannerRepository {
                     if (mMeshManagerApi != null) {
                         if (mMeshManagerApi.isAdvertisingWithNetworkIdentity(serviceData)) {
                             if (mMeshManagerApi.networkIdMatches(mNetworkId, serviceData)) {
-                                mScannerLiveData.deviceDiscovered(result, mMeshManagerApi.getBeacon(serviceData));
+                                mScannerLiveData.deviceDiscovered(result);//, mMeshManagerApi.getBeacon(serviceData));
                             }
                         } else if (mMeshManagerApi.isAdvertisedWithNodeIdentity(serviceData)) {
                             if (checkIfNodeIdentityMatches(serviceData)) {
@@ -159,6 +160,7 @@ public class ScannerRepository {
         return mScannerLiveData;
     }
 
+    @Nullable
     private byte[] getServiceData(final ScanResult result, final UUID serviceUuid) {
         final ScanRecord scanRecord = result.getScanRecord();
         if (scanRecord != null)

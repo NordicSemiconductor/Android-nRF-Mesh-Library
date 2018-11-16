@@ -25,6 +25,7 @@ import android.bluetooth.BluetoothDevice;
 import android.os.Parcel;
 import android.os.ParcelUuid;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -38,20 +39,31 @@ import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
 public class ExtendedBluetoothDevice implements Parcelable {
-    public final static UUID MESH_PROVISIONING_UUID = UUID.fromString("00001827-0000-1000-8000-00805F9B34FB");
     private final BluetoothDevice device;
     private final ScanResult scanResult;
-    private String name;
+    private String name = "Unknown";
     private int rssi;
-    private final MeshBeacon beacon;
-
+    private MeshBeacon beacon;
 
     public ExtendedBluetoothDevice(final ScanResult scanResult, final MeshBeacon beacon) {
         this.scanResult = scanResult;
         this.device = scanResult.getDevice();
-        this.name = scanResult.getScanRecord().getDeviceName();
+        final ScanRecord scanRecord = scanResult.getScanRecord();
+        if(scanRecord != null) {
+            this.name = scanRecord.getDeviceName();
+        }
         this.rssi = scanResult.getRssi();
         this.beacon = beacon;
+    }
+
+    public ExtendedBluetoothDevice(final ScanResult scanResult) {
+        this.scanResult = scanResult;
+        this.device = scanResult.getDevice();
+        final ScanRecord scanRecord = scanResult.getScanRecord();
+        if(scanRecord != null) {
+            this.name = scanRecord.getDeviceName();
+        }
+        this.rssi = scanResult.getRssi();
     }
 
     protected ExtendedBluetoothDevice(Parcel in) {

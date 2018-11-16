@@ -58,6 +58,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
@@ -244,7 +245,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 final ApplicationKey appKey = data.getParcelableExtra(ManageNodeAppKeysActivity.RESULT);
                 if(appKey != null){
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-                    final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node, node.getNetworkKeys().get(0), appKey, 0);
+                    final NetworkKey networkKey = mViewModel.getMeshManagerApi().getMeshNetwork().getPrimaryNetworkKey();
+                    final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node, networkKey, appKey, 0);
                     mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configAppKeyAdd);
                 }
             }

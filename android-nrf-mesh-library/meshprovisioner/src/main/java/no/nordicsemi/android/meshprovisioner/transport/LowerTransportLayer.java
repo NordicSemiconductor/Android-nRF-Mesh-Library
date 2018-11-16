@@ -430,7 +430,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         Log.v(TAG, "SEG O: " + segO);
         Log.v(TAG, "SEG N: " + segN);
 
-        final int ivIndex = ByteBuffer.wrap(mMeshNode.getIvIndex()).order(ByteOrder.BIG_ENDIAN).getInt();
+        final int ivIndex = ByteBuffer.wrap(mUpperTransportLayerCallbacks.getIvIndex()).order(ByteOrder.BIG_ENDIAN).getInt();
         final int seqAuth = ivIndex | getTransportLayerSequenceNumber(MeshParserUtils.getSequenceNumberFromPDU(pdu), seqZero);
         final Integer lastSeqAuth = mMeshNode.getSeqAuth(blockAckDst);
         if (lastSeqAuth != null)
@@ -712,7 +712,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         controlMessage.setPduType(NETWORK_PDU);
         controlMessage.setSrc(src);
         controlMessage.setDst(dst);
-        controlMessage.setIvIndex(mMeshNode.getIvIndex());
+        controlMessage.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         final int sequenceNumber = incrementSequenceNumber(controlMessage.getSrc());
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
         controlMessage.setSequenceNumber(sequenceNum);
@@ -737,7 +737,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         controlMessage.setPduType(NETWORK_PDU);
         controlMessage.setSrc(src);
         controlMessage.setDst(dst);
-        controlMessage.setIvIndex(mMeshNode.getIvIndex());
+        controlMessage.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         final int sequenceNumber = incrementSequenceNumber(controlMessage.getSrc());
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
         controlMessage.setSequenceNumber(sequenceNum);

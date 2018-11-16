@@ -30,6 +30,7 @@ import android.arch.persistence.room.TypeConverters;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
@@ -198,7 +199,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     byte[] generatedNetworkId;
 
     @Ignore
-    @Expose
+    @Expose(deserialize = false)
     private String bluetoothDeviceAddress;
 
     @Ignore
@@ -214,7 +215,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
      */
     @Deprecated
     @Ignore
-    @Expose
+    @Expose(serialize = false)
     protected byte[] ivIndex;
 
     public ProvisionedBaseMeshNode() {
@@ -246,6 +247,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         return isConfigured;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setConfigured(final boolean configured) {
         isConfigured = configured;
     }
@@ -302,6 +304,9 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         this.mFlags = flags;
     }
 
+    /**
+     * @deprecated IV Index is a part of the network {@link MeshNetwork#getIvIndex()}
+     */
     @Deprecated
     public final byte[] getIvIndex() {
         return ivIndex;

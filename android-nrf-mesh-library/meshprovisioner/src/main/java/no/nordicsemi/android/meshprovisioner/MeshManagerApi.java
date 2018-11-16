@@ -167,6 +167,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, this, this);
         mMeshMessageHandler = new MeshMessageHandler(context, this);
         mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(this);
+        mMeshMessageHandler.getMeshTransport().setUpperTransportLayerCallbacks(this);
         mProvisioningSettings = new ProvisioningSettings(context);
 
         //Init database
@@ -393,6 +394,11 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         return null;
     }
 
+    @Override
+    public NetworkKey getPrimaryNetworkKey() {
+        return mMeshNetwork.getPrimaryNetworkKey();
+    }
+
     /**
      * Handles notifications received by the client.
      * <p>
@@ -519,7 +525,8 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     @Override
     public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
         if (meshNode != null) {
-            mProvisionedNodeDao.delete(meshNode);
+            mMeshNetwork.deleteNode(meshNode);
+            mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
         }
     }
 
@@ -716,7 +723,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
 
     @Override
-    public boolean isAdvertisedWithNodeIdentity(@NonNull final byte[] serviceData) {
+    public boolean isAdvertisedWithNodeIdentity(@Nullable final byte[] serviceData) {
         return serviceData != null &&
                 serviceData[ADVERTISED_HASH_OFFSET - 1] == ADVERTISEMENT_TYPE_NODE_IDENTITY;
     }
@@ -750,13 +757,13 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     }
 
     @Override
-    public boolean networkIdMatches(@NonNull final String networkId, @NonNull final byte[] serviceData) {
+    public boolean networkIdMatches(@NonNull final String networkId, @Nullable final byte[] serviceData) {
         final byte[] advertisedNetworkId = getAdvertisedNetworkId(serviceData);
         return advertisedNetworkId != null && networkId.equals(MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase());
     }
 
     @Override
-    public boolean isAdvertisingWithNetworkIdentity(@NonNull final byte[] serviceData) {
+    public boolean isAdvertisingWithNetworkIdentity(@Nullable final byte[] serviceData) {
         return serviceData != null && serviceData[ADVERTISED_NETWWORK_ID_OFFSET - 1] == ADVERTISEMENT_TYPE_NETWORK_ID;
     }
 
@@ -801,7 +808,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     @Deprecated
     @Override
     public void addAppKey(@NonNull final ProvisionedMeshNode meshNode, final int appKeyIndex, @NonNull final String appKey) {
-        if (appKey == null || appKey.isEmpty())
+        if (appKey.isEmpty())
             throw new IllegalArgumentException(mContext.getString(R.string.error_null_key));
         mMeshMessageHandler.sendAppKeyAdd(meshNode, appKeyIndex, appKey, 0);
     }
@@ -854,8 +861,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     @Deprecated
     @Override
     public void resetMeshNode(@NonNull final ProvisionedMeshNode provisionedMeshNode) {
-        if (provisionedMeshNode == null)
-            throw new IllegalArgumentException("Mesh node cannot be null!");
         mMeshMessageHandler.resetMeshNode(provisionedMeshNode);
     }
 
@@ -1089,6 +1094,11 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
                 }
             }
         }
+    }
+
+    @Override
+    public byte[] getIvIndex() {
+        return ByteBuffer.allocate(4).putInt(mMeshNetwork.getIvIndex()).array();
     }
 
     @Override

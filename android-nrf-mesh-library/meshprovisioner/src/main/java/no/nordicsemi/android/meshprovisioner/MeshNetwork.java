@@ -150,4 +150,17 @@ public final class MeshNetwork extends BaseMeshNetwork {
     void setAppKeys(List<ApplicationKey> appKeys) {
         this.appKeys = appKeys;
     }
+
+    /**
+     * Deletes a mesh node from the list of provisioned ndoes
+     * @param meshNode node to be deleted
+     */
+    public void deleteNode(final ProvisionedMeshNode meshNode) {
+        for(ProvisionedMeshNode node : nodes){
+            if(meshNode.getUnicastAddressInt() == node.getUnicastAddressInt()){
+                nodes.remove(node);
+                break;
+            }
+        }
+    }
 }

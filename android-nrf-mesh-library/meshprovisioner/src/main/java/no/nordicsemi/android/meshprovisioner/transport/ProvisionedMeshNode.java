@@ -204,7 +204,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return k2Output;
     }
 
-    final void setK2Ouput(final SecureUtils.K2Output k2Output) {
+    final void setK2Output(final SecureUtils.K2Output k2Output) {
         this.k2Output = k2Output;
     }
 

@@ -130,7 +130,7 @@ public final class MeshTransport extends NetworkLayer {
         final AccessMessage message = new AccessMessage();
         message.setSrc(src);
         message.setDst(node.getUnicastAddress());
-        message.setIvIndex(node.getIvIndex());
+        message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         message.setSequenceNumber(sequenceNum);
         message.setKey(key);
         message.setAkf(akf);
@@ -181,7 +181,7 @@ public final class MeshTransport extends NetworkLayer {
         final AccessMessage message = new AccessMessage();
         message.setSrc(src);
         message.setDst(dst);
-        message.setIvIndex(node.getIvIndex());
+        message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         message.setSequenceNumber(sequenceNum);
         message.setKey(key);
         message.setAkf(akf);
@@ -233,7 +233,7 @@ public final class MeshTransport extends NetworkLayer {
         message.setCompanyIdentifier(companyIdentifier);
         message.setSrc(src);
         message.setDst(dst);
-        message.setIvIndex(node.getIvIndex());
+        message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         message.setSequenceNumber(sequenceNum);
         message.setKey(key);
         message.setAkf(akf);

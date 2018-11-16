@@ -109,6 +109,25 @@ public class ScannerLiveData extends LiveData<ScannerLiveData> {
         postValue(this);
     }
 
+    void deviceDiscovered(final ScanResult result) {
+        ExtendedBluetoothDevice device;
+
+        final int index = indexOf(result);
+        if (index == -1) {
+            device = new ExtendedBluetoothDevice(result);
+            mDevices.add(device);
+            mUpdatedDeviceIndex = null;
+        } else {
+            device = mDevices.get(index);
+            mUpdatedDeviceIndex = index;
+        }
+        // Update RSSI and name
+        device.setRssi(result.getRssi());
+        device.setName(result.getScanRecord().getDeviceName());
+
+        postValue(this);
+    }
+
     void deviceDiscovered(final ScanResult result, final MeshBeacon beacon) {
         ExtendedBluetoothDevice device;
 

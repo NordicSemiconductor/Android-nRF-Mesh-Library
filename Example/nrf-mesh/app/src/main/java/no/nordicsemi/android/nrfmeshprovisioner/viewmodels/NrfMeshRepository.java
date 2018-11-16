@@ -256,7 +256,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     boolean setConfiguratorSrc(final byte[] configuratorSrc) {
         final Provisioner provisioner = mMeshManagerApi.getProvisioner(configuratorSrc);
-        if(provisioner != null) {
+        if (provisioner != null) {
             provisioner.setProvisionerAddress(configuratorSrc);
             mConfigurationSrc.postValue(configuratorSrc);
             return true;
@@ -554,7 +554,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onNetworkLoaded(final MeshNetwork meshNetwork) {
         mMeshNetwork = meshNetwork;//mMeshManagerApi.getMeshNetwork();
-        if(mMeshNetwork != null) {
+        if (mMeshNetwork != null) {
             //Load live data with mesh network
             mMeshNetworkLiveData.refresh(meshNetwork);
 
@@ -792,6 +792,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         if (mMeshMessageLiveData.hasActiveObservers()) {
             mMeshMessageLiveData.postValue(meshMessage);
         }
+
+        //Refresh mesh network live data
+        mMeshNetworkLiveData.refresh(mMeshManagerApi.getMeshNetwork());
     }
 
     /**
@@ -860,8 +863,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                         if (mMeshManagerApi.nodeIdentityMatches(node, serviceData)) {
                             stopScan();
                             mConnectionState.postValue("Provisioned node found");
-                            final MeshBeacon beacon = mMeshManagerApi.getBeacon(serviceData);
-                            onProvisionedDeviceFound(node, new ExtendedBluetoothDevice(result, beacon));
+                            onProvisionedDeviceFound(node, new ExtendedBluetoothDevice(result));
                         }
                     }
                 }

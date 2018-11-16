@@ -22,7 +22,20 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+/**
+ * Upper transport layer call backs
+ */
 public interface UpperTransportLayerCallbacks {
 
+    /**
+     * Returns the IV Index of the mesh network
+     */
+    byte[] getIvIndex();
+
+    /**
+     * Returns the application key with the specific application key identifier
+     *
+     * @param aid application key identifier
+     */
     byte[] getApplicationKey(final int aid);
 }
