@@ -23,40 +23,77 @@ package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.bluetooth.BluetoothDevice;
 import android.os.Parcel;
+import android.os.ParcelUuid;
 import android.os.Parcelable;
 
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import no.nordicsemi.android.meshprovisioner.MeshBeacon;
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
+import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
 public class ExtendedBluetoothDevice implements Parcelable {
-    public static final Creator<ExtendedBluetoothDevice> CREATOR = new Creator<ExtendedBluetoothDevice>() {
-        @Override
-        public ExtendedBluetoothDevice createFromParcel(final Parcel source) {
-            return new ExtendedBluetoothDevice(source);
-        }
-
-        @Override
-        public ExtendedBluetoothDevice[] newArray(final int size) {
-            return new ExtendedBluetoothDevice[size];
-        }
-    };
+    public final static UUID MESH_PROVISIONING_UUID = UUID.fromString("00001827-0000-1000-8000-00805F9B34FB");
     private final BluetoothDevice device;
+    private final ScanResult scanResult;
     private String name;
     private int rssi;
+    private final MeshBeacon beacon;
 
-    public ExtendedBluetoothDevice(final ScanResult scanResult) {
+
+    public ExtendedBluetoothDevice(final ScanResult scanResult, final MeshBeacon beacon) {
+        this.scanResult = scanResult;
         this.device = scanResult.getDevice();
         this.name = scanResult.getScanRecord().getDeviceName();
         this.rssi = scanResult.getRssi();
+        this.beacon = beacon;
     }
 
-    private ExtendedBluetoothDevice(final Parcel in) {
-        this.device = in.readParcelable(BluetoothDevice.class.getClassLoader());
-        this.name = in.readString();
-        this.rssi = in.readInt();
+    protected ExtendedBluetoothDevice(Parcel in) {
+        device = in.readParcelable(BluetoothDevice.class.getClassLoader());
+        scanResult = in.readParcelable(ScanResult.class.getClassLoader());
+        name = in.readString();
+        rssi = in.readInt();
+        beacon = in.readParcelable(MeshBeacon.class.getClassLoader());
     }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(device, flags);
+        dest.writeParcelable(scanResult, flags);
+        dest.writeString(name);
+        dest.writeInt(rssi);
+        dest.writeParcelable(beacon, flags);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<ExtendedBluetoothDevice> CREATOR = new Creator<ExtendedBluetoothDevice>() {
+        @Override
+        public ExtendedBluetoothDevice createFromParcel(Parcel in) {
+            return new ExtendedBluetoothDevice(in);
+        }
+
+        @Override
+        public ExtendedBluetoothDevice[] newArray(int size) {
+            return new ExtendedBluetoothDevice[size];
+        }
+    };
 
     public BluetoothDevice getDevice() {
         return device;
+    }
+
+    public MeshBeacon getBeacon() {
+        return beacon;
     }
 
     public String getAddress() {
@@ -92,17 +129,5 @@ public class ExtendedBluetoothDevice implements Parcelable {
             return device.getAddress().equals(that.device.getAddress());
         }
         return super.equals(o);
-    }
-
-    @Override
-    public void writeToParcel(final Parcel parcel, final int flags) {
-        parcel.writeParcelable(device, flags);
-        parcel.writeString(name);
-        parcel.writeInt(rssi);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 }

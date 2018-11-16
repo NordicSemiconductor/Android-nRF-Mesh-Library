@@ -13,6 +13,7 @@ import java.util.List;
 
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
+import no.nordicsemi.android.meshprovisioner.MeshBeacon;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshManagerTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
@@ -513,8 +514,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
         if (mBleMeshManager.isProvisioningComplete()) {
             if (mSetupProvisionedNode) {
-                //We update the bluetooth device after a startScan because some devices may start advertising with different mac address
-                mProvisionedMeshNode.setBluetoothDeviceAddress(device.getAddress());
                 //Adding a slight delay here so we don't send anything before we receive the mesh beacon message
                 final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet(mProvisionedMeshNode, 0);
                 mHandler.postDelayed(() -> mMeshManagerApi.sendMeshConfigurationMessage(compositionDataGet), 2000);
@@ -610,6 +609,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onProvisioningCompleted(final ProvisionedMeshNode meshNode, final ProvisioningState.States state, final byte[] data) {
+        mMeshNetwork = mMeshManagerApi.getMeshNetwork();
+        mMeshNetworkLiveData.refresh(mMeshNetwork);
+
         mProvisionedMeshNode = meshNode;
         mUnprovisionedMeshNodeLiveData.postValue(null);
         mProvisionedMeshNodeLiveData.postValue(meshNode);
@@ -858,7 +860,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                         if (mMeshManagerApi.nodeIdentityMatches(node, serviceData)) {
                             stopScan();
                             mConnectionState.postValue("Provisioned node found");
-                            onProvisionedDeviceFound(node, new ExtendedBluetoothDevice(result));
+                            final MeshBeacon beacon = mMeshManagerApi.getBeacon(serviceData);
+                            onProvisionedDeviceFound(node, new ExtendedBluetoothDevice(result, beacon));
                         }
                     }
                 }
@@ -878,7 +881,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     private void onProvisionedDeviceFound(final ProvisionedMeshNode node, final ExtendedBluetoothDevice device) {
         mSetupProvisionedNode = true;
-        node.setBluetoothDeviceAddress(device.getAddress());
         mProvisionedMeshNode = node;
         connectToProxy(device);
     }

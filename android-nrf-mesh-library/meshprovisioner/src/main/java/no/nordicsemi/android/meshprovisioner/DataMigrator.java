@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
@@ -37,7 +38,7 @@ class DataMigrator {
      */
     final MeshNetwork migrateData(final Context context, final Gson gson, final ProvisioningSettings provisioningSettings) {
         if (sharedPrefsExists(context)) {
-            final MeshNetwork meshNetwork = new MeshNetwork(MeshParserUtils.generateRandomUuid());
+            final MeshNetwork meshNetwork = new MeshNetwork(UUID.randomUUID().toString());
             final SharedPreferences preferences = context.getSharedPreferences(PREFS_SEQUENCE_NUMBER, Context.MODE_PRIVATE);
             final int sequenceNumber = preferences.getInt(SEQUENCE_NUMBER_KEY, 0);
             final byte[] srcAddress = initConfigurationSrc(context);
@@ -77,7 +78,7 @@ class DataMigrator {
                             final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
                             //Since the current version of the app does not store the unique provisionerUuid of the
                             //device we manually generate one for exporting purposes as a work around
-                            node.setUuid(MeshParserUtils.generateRandomUuid());
+                            node.setUuid(UUID.randomUUID().toString());
                             node.setMeshUuid(meshNetwork.meshUUID);
 
                             tempNodes.add(node);
@@ -118,6 +119,7 @@ class DataMigrator {
         return false;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void removeSharedPrefs(final Context context) {
         final File directory = new File(context.getCacheDir().getParent() + "/shared_prefs");
         if (directory.exists()) {
@@ -163,7 +165,7 @@ class DataMigrator {
             provisioner.setSequenceNumber(sequenceNumber);
             provisioner.setGlobalTtl(settings.getGlobalTtl());
             if (TextUtils.isEmpty(provisioner.getProvisionerUuid())) {
-                provisioner.setProvisionerUuid(MeshParserUtils.generateRandomUuid());
+                provisioner.setProvisionerUuid(UUID.randomUUID().toString());
             }
 
             final AllocatedGroupRange groupRange = new AllocatedGroupRange(new byte[]{(byte) 0xC0, 0x00}, new byte[]{(byte) 0xFE, (byte) 0xFF});

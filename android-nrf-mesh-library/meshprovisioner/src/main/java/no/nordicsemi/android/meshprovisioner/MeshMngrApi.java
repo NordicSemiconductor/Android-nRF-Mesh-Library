@@ -3,6 +3,9 @@ package no.nordicsemi.android.meshprovisioner;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.UUID;
+
+import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelGet;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSet;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSetUnacknowledged;
@@ -14,7 +17,6 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageAcked;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageUnacked;
-import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 
 @SuppressWarnings("unused")
 interface MeshMngrApi {
@@ -26,15 +28,15 @@ interface MeshMngrApi {
      * This method must be invoked before calling {@link #startProvisioning(UnprovisionedMeshNode)}
      * </p
      *
-     * @param address  Bluetooth address of the node
-     * @param nodeName Friendly node name
+     * @param deviceUUID Device uuid of the unprovisioned mesh node. This could be obtain by calling {{@link #getBeacon(byte[])}}
+     * @param nodeName   Friendly node name
      */
-    void identifyNode(@NonNull final String address, @Nullable final String nodeName) throws IllegalArgumentException;
+    void identifyNode(@NonNull final UUID deviceUUID, @Nullable final String nodeName) throws IllegalArgumentException;
 
     /**
      * Starts provisioning an unprovisioned mesh node
      * <p>
-     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(String, String)}.
+     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
      * </p>
      *
      * @param unprovisionedMeshNode Bluetooth address of the node
@@ -47,6 +49,13 @@ interface MeshMngrApi {
      * @param pin confirmation pin
      */
     void setProvisioningConfirmation(@NonNull final String pin);
+
+    /**
+     * Returns a {@link UnprovisionedBeacon}, {@link SecureNetworkBeacon} based on the advertised service data
+     *
+     * @param serviceData advertised service data
+     */
+    MeshBeacon getBeacon(final byte[] serviceData);
 
     /**
      * Generate network id
@@ -134,7 +143,7 @@ interface MeshMngrApi {
      * @param modelIdentifier     Identifier of the model. This could be 16-bit SIG Model or a 32-bit Vendor model identifier
      */
     void addSubscriptionAddress(@NonNull final ProvisionedMeshNode meshNode, @NonNull final byte[] elementAddress, @NonNull final byte[] subscriptionAddress,
-                                       final int modelIdentifier);
+                                final int modelIdentifier);
 
     /**
      * Delete a subscription address for configuration model
@@ -145,7 +154,7 @@ interface MeshMngrApi {
      * @param modelIdentifier     Identifier of the model. This could be 16-bit SIG Model or a 32-bit Vendor model identifier
      */
     void deleteSubscriptionAddress(@NonNull final ProvisionedMeshNode meshNode, @NonNull final byte[] elementAddress, @NonNull final byte[] subscriptionAddress,
-                                          final int modelIdentifier);
+                                   final int modelIdentifier);
 
     /**
      * Resets the specific mesh node
@@ -166,7 +175,7 @@ interface MeshMngrApi {
     /**
      * Send generic on off get to mesh node, this message is an acknowledged message.
      *
-     * @param dstAddress
+     * @param dstAddress address to send to
      * @param genericOnOffGet {@link GenericOnOffGet} containing the generic on off get message opcode and parameters
      */
     void getGenericOnOff(final byte[] dstAddress, @NonNull final GenericOnOffGet genericOnOffGet);
@@ -184,7 +193,7 @@ interface MeshMngrApi {
      * @param state                on off state
      */
     void setGenericOnOff(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state);
+                         @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state);
 
     /**
      * Send generic on off set unacknowledged message to mesh node
@@ -199,7 +208,7 @@ interface MeshMngrApi {
      * @param state                on off state
      */
     void setGenericOnOffUnacknowledged(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                              @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state);
+                                       @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state);
 
     /**
      * Send generic level get to mesh node
@@ -223,7 +232,7 @@ interface MeshMngrApi {
      * @param level                level state
      */
     void setGenericLevel(final ProvisionedMeshNode node, final MeshModel model, final byte[] dstAddress, final int appKeyIndex, @Nullable final Integer transitionSteps,
-                                @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level);
+                         @Nullable final Integer transitionResolution, @Nullable final Integer delay, final int level);
 
     /**
      * Send generic level set unacknowledged message to mesh node
@@ -278,7 +287,8 @@ interface MeshMngrApi {
      * Application messages currently supported in the library are {@link GenericOnOffGet},{@link GenericOnOffSet}, {@link GenericOnOffSetUnacknowledged},
      * {@link GenericLevelGet},  {@link GenericLevelSet},  {@link GenericLevelSetUnacknowledged},
      * {@link VendorModelMessageAcked} and {@link VendorModelMessageUnacked}</p>
-     *  @param dstAddress  Destination to which the message must be sent to, this could be a unicast address or a group address.
+     *
+     * @param dstAddress     Destination to which the message must be sent to, this could be a unicast address or a group address.
      * @param genericMessage Mesh message containing the message opcode and message parameters.
      */
     void sendMeshApplicationMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage genericMessage);

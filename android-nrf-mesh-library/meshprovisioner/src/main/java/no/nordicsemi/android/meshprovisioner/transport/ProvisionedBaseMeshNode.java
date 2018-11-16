@@ -29,6 +29,8 @@ import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
@@ -41,6 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
@@ -96,36 +99,44 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     String nodeIdentifier;
 
     @ColumnInfo(name = "cid")
+    @Nullable
     @Expose
     Integer companyIdentifier = null;
 
     @ColumnInfo(name = "pid")
+    @Nullable
     @Expose
     Integer productIdentifier = null;
 
     @ColumnInfo(name = "vid")
+    @Nullable
     @Expose
     Integer versionIdentifier = null;
 
     @ColumnInfo(name = "crpl")
+    @Nullable
     @Expose
     Integer crpl = null;
 
     @ColumnInfo(name = "relay")
+    @Nullable
     @Expose
-    boolean relayFeatureSupported;
+    Boolean relayFeatureSupported = null;
 
     @ColumnInfo(name = "proxy")
+    @Nullable
     @Expose
-    boolean proxyFeatureSupported;
+    Boolean proxyFeatureSupported = null;
 
     @ColumnInfo(name = "friend")
+    @Nullable
     @Expose
-    boolean friendFeatureSupported;
+    Boolean friendFeatureSupported = null;
 
     @ColumnInfo(name = "low_power")
+    @Nullable
     @Expose
-    boolean lowPowerFeatureSupported;
+    Boolean lowPowerFeatureSupported = null;
 
     @ColumnInfo(name = "timestamp")
     @Expose
@@ -152,6 +163,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Expose(serialize = false)
     byte[] keyIndex;
 
+    @Deprecated
     @Ignore
     @Expose(serialize = false)
     int netKeyIndex;
@@ -197,6 +209,10 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Expose
     byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
 
+    /**
+     * @deprecated IV Index is a network property hence movec to {@link MeshNetwork}
+     */
+    @Deprecated
     @Ignore
     @Expose
     protected byte[] ivIndex;
@@ -213,11 +229,12 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         this.meshUuid = meshUuid;
     }
 
+    @NonNull
     public String getUuid() {
         return uuid;
     }
 
-    public void setUuid(final String uuid) {
+    public void setUuid(@NonNull final String uuid) {
         this.uuid = uuid;
     }
 
@@ -285,14 +302,17 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         this.mFlags = flags;
     }
 
+    @Deprecated
     public final byte[] getIvIndex() {
         return ivIndex;
     }
 
-    public final void setIvIndex(final byte[] ivIndex) {
+    @VisibleForTesting
+    final void setIvIndex(final byte[] ivIndex) {
         this.ivIndex = ivIndex;
     }
 
+    @Deprecated
     public void setBluetoothDeviceAddress(final String bluetoothDeviceAddress) {
         this.bluetoothDeviceAddress = bluetoothDeviceAddress;
     }

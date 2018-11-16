@@ -40,7 +40,6 @@ import javax.inject.Inject;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
@@ -49,8 +48,6 @@ import no.nordicsemi.android.support.v18.scanner.ScanFilter;
 import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 import no.nordicsemi.android.support.v18.scanner.ScanSettings;
-
-import static no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager.MESH_PROXY_UUID;
 
 /**
  * Repository for scanning for bluetooth mesh devices
@@ -72,32 +69,32 @@ public class ScannerRepository {
     private final ScanCallback mScanCallbacks = new ScanCallback() {
         @Override
         public void onScanResult(final int callbackType, final ScanResult result) {
-            if (mFilterUuid.equals(BleMeshManager.MESH_PROVISIONING_UUID)) {
-                // If the packet has been obtained while Location was disabled, mark Location as not required
-                if (Utils.isLocationRequired(mContext) && !Utils.isLocationEnabled(mContext))
-                    Utils.markLocationNotRequired(mContext);
+            try {
+                if (mFilterUuid.equals(BleMeshManager.MESH_PROVISIONING_UUID)) {
+                    // If the packet has been obtained while Location was disabled, mark Location as not required
+                    if (Utils.isLocationRequired(mContext) && !Utils.isLocationEnabled(mContext))
+                        Utils.markLocationNotRequired(mContext);
 
-                if (!mScannerLiveData.isStopScanRequested()) {
-                    mScannerLiveData.deviceDiscovered(result);
-                }
-            } else if (mFilterUuid.equals(BleMeshManager.MESH_PROXY_UUID)) {
-                final ScanRecord scanRecord = result.getScanRecord();
-                if (scanRecord != null) {
-                    final byte[] serviceData = scanRecord.getServiceData(new ParcelUuid((MESH_PROXY_UUID)));
-                    if (serviceData != null) {
-                        if (mMeshManagerApi != null) {
-                            if (mMeshManagerApi.isAdvertisingWithNetworkIdentity(serviceData)) {
-                                if (mMeshManagerApi.networkIdMatches(mNetworkId, serviceData)) {
-                                    mScannerLiveData.deviceDiscovered(result);
-                                }
-                            } else if (mMeshManagerApi.isAdvertisedWithNodeIdentity(serviceData)) {
-                                if (checkIfNodeIdentityMatches(serviceData)) {
-                                    mScannerLiveData.deviceDiscovered(result);
-                                }
+                    if (!mScannerLiveData.isStopScanRequested()) {
+                        final byte[] serviceData = getServiceData(result, BleMeshManager.MESH_PROVISIONING_UUID);
+                        mScannerLiveData.deviceDiscovered(result, mMeshManagerApi.getBeacon(serviceData));
+                    }
+                } else if (mFilterUuid.equals(BleMeshManager.MESH_PROXY_UUID)) {
+                    final byte[] serviceData = getServiceData(result, BleMeshManager.MESH_PROXY_UUID);
+                    if (mMeshManagerApi != null) {
+                        if (mMeshManagerApi.isAdvertisingWithNetworkIdentity(serviceData)) {
+                            if (mMeshManagerApi.networkIdMatches(mNetworkId, serviceData)) {
+                                mScannerLiveData.deviceDiscovered(result, mMeshManagerApi.getBeacon(serviceData));
+                            }
+                        } else if (mMeshManagerApi.isAdvertisedWithNodeIdentity(serviceData)) {
+                            if (checkIfNodeIdentityMatches(serviceData)) {
+                                mScannerLiveData.deviceDiscovered(result, mMeshManagerApi.getBeacon(serviceData));
                             }
                         }
                     }
                 }
+            } catch (Exception ex) {
+                Log.v(TAG, ex.getMessage());
             }
         }
 
@@ -162,6 +159,14 @@ public class ScannerRepository {
         return mScannerLiveData;
     }
 
+    private byte[] getServiceData(final ScanResult result, final UUID serviceUuid) {
+        final ScanRecord scanRecord = result.getScanRecord();
+        if (scanRecord != null)
+            return scanRecord.getServiceData(new ParcelUuid((serviceUuid)));
+
+        return null;
+    }
+
     /**
      * Register for required broadcast receivers.
      */
@@ -202,13 +207,13 @@ public class ScannerRepository {
 
         if (mFilterUuid.equals(BleMeshManager.MESH_PROXY_UUID)) {
             final List<NetworkKey> networkKeys = mMeshManagerApi.getMeshNetwork().getNetKeys();
-            if(!networkKeys.isEmpty()) {
+            if (!networkKeys.isEmpty()) {
                 mNetworkId = mMeshManagerApi.generateNetworkId(networkKeys.get(0).getKey());
             }
         }
 
         mScannerLiveData.scanningStarted();
-        // Scanning settings
+// Scanning settings
         final ScanSettings settings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 // Refresh the devices list every second
@@ -219,7 +224,7 @@ public class ScannerRepository {
                 /*.setUseHardwareBatchingIfSupported(false)*/
                 .build();
 
-        // Let's use the filter to scan only for unprovisioned mesh nodes.
+// Let's use the filter to scan only for unprovisioned mesh nodes.
         final List<ScanFilter> filters = new ArrayList<>();
         filters.add(new ScanFilter.Builder().setServiceUuid(new ParcelUuid((filterUuid))).build());
 

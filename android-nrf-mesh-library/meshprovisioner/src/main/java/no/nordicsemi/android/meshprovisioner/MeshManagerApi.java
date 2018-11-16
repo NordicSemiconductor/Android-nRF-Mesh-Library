@@ -84,16 +84,16 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 @SuppressWarnings("WeakerAccess")
 public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, InternalMeshManagerCallbacks, UpperTransportLayerCallbacks, NetworkLayerCallbacks {
 
+    public final static UUID MESH_PROVISIONING_UUID = UUID.fromString("00001827-0000-1000-8000-00805F9B34FB");
+    public final static UUID MESH_PROXY_UUID = UUID.fromString("00001828-0000-1000-8000-00805F9B34FB");
+
     private static final String PROVISIONED_NODES_FILE = "PROVISIONED_FILES";
     private static final String CONFIGURATION_SRC = "CONFIGURATION_SRC";
     private static final String SRC = "SRC";
     private static final String PREFS_SEQUENCE_NUMBER = "PREFS_SEQUENCE_NUMBER";
     private static final String SEQUENCE_NUMBER_KEY = "NRF_MESH_SEQUENCE_NUMBER";
     public static final byte PDU_TYPE_PROVISIONING = 0x03;
-    /**
-     * Mesh provisioning service UUID
-     */
-    public final static UUID MESH_PROXY_UUID = UUID.fromString("00001828-0000-1000-8000-00805F9B34FB");
+
     private static final String TAG = MeshManagerApi.class.getSimpleName();
     //PDU types
     private static final byte PDU_TYPE_NETWORK = 0x00;
@@ -187,10 +187,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     public void setMeshStatusCallbacks(final MeshStatusCallbacks callbacks) {
         mMeshMessageHandler.setMeshStatusCallbacks(callbacks);
-    }
-
-    public ProvisioningSettings getProvisioningSettings() {
-        return mProvisioningSettings;
     }
 
     public void loadMeshNetwork() {
@@ -373,6 +369,8 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
         mMeshNetwork.nodes.add(meshNode);
         incrementUnicastAddress(meshNode);
+        //Set the mesh network uuid to the node so we can identify nodes belonging to a network
+        meshNode.setMeshUuid(mMeshNetwork.getMeshUUID());
         mMeshNetworkDb.insertNode(mProvisionedNodeDao, meshNode);
     }
 
@@ -656,15 +654,15 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     }
 
     @Override
-    public void identifyNode(@NonNull final String address, final String nodeName) throws IllegalArgumentException {
+    public void identifyNode(@NonNull final UUID deviceUuid, final String nodeName) throws IllegalArgumentException {
         //We must save all the provisioning data here so that they could be reused when provisioning the next devices
+
         final ProvisioningSettings provisioningSettings = mProvisioningSettings;
-        mMeshProvisioningHandler.identify(address, nodeName,
-                provisioningSettings.getNetworkKey(),
-                provisioningSettings.getKeyIndex(),
-                provisioningSettings.getFlags(),
-                provisioningSettings.getIvIndex(),
-                provisioningSettings.getUnicastAddress(),
+        mMeshProvisioningHandler.identify(deviceUuid, nodeName,
+                mMeshNetwork.getPrimaryNetworkKey(),
+                0,
+                mMeshNetwork.getIvIndex(),
+                mMeshNetwork.getProvisioners().get(0).getUnicastAddress(),
                 provisioningSettings.getGlobalTtl(), mMeshNetwork.getProvisioners().get(0).getProvisionerAddress());
     }
 
@@ -676,6 +674,19 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     @Override
     public final void setProvisioningConfirmation(@NonNull final String pin) {
         mMeshProvisioningHandler.setProvisioningConfirmation(pin);
+    }
+
+    @Override
+    public MeshBeacon getBeacon(final byte[] serviceData) {
+        if(serviceData != null) {
+            final int beaconType = serviceData[0];
+            if(beaconType == 0x00){
+                return new UnprovisionedBeacon(serviceData);
+            } else {
+                return new SecureNetworkBeacon(serviceData);
+            }
+        }
+        return null;
     }
 
     @Override

@@ -92,17 +92,6 @@ public class MeshParserUtils {
         return bytes;
     }
 
-    public static int setByteArrayValue(final byte[] dest, final int offset, final String value) {
-        if (value == null)
-            return offset;
-
-        for (int i = 0; i < value.length(); i += 2) {
-            dest[offset + i / 2] = (byte) ((Character.digit(value.charAt(i), 16) << 244)
-                    + Character.digit(value.charAt(i + 1), 16));
-        }
-        return offset + value.length() / 2;
-    }
-
     private static boolean isValidKeyIndex(final Integer value) {
         return value == null || value != (value & 0xFFF);
     }
@@ -664,14 +653,5 @@ public class MeshParserUtils {
             unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
         }
         return unsigned;
-    }
-
-    /**
-     * Generates a random uuid
-     *
-     * @return uuid string
-     */
-    public static String generateRandomUuid() {
-        return UUID.randomUUID().toString().replace("-", "").toUpperCase();
     }
 }

@@ -31,7 +31,7 @@ import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-public final class ProvisioningSettings extends NetworkSettings {
+final class ProvisioningSettings extends NetworkSettings {
 
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
     private static final String PROVISIONING_DATA = "PROVISIONING_DATA";
@@ -43,7 +43,7 @@ public final class ProvisioningSettings extends NetworkSettings {
     private static final String GLOBAL_TTL = "GLOBAL_TTL";
     private final Context mContext;
 
-    public ProvisioningSettings(final Context context) {
+    ProvisioningSettings(final Context context) {
         this.mContext = context;
         generateProvisioningData();
     }

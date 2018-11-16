@@ -28,13 +28,12 @@ import android.support.annotation.NonNull;
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 
 /**
- * LiveData class for storing {@link ProvisioningSettings}
+ * LiveData class for storing {@link MeshNetwork}
  */
 public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
 
@@ -194,8 +193,6 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
 
     /**
      * Set the selected app key to be added during the provisioning process.
-     *
-     * @return app key
      */
     public void setSelectedAppKey(final ApplicationKey appKey) {
         this.selectedAppKey = appKey;
@@ -226,8 +223,8 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
 
     /**
      * Update the application key
-     * @param position
-     * @param applicationKey
+     * @param position update app key in given position
+     * @param applicationKey app key
      */
     public void updateAppKey(final int position, final String applicationKey) {
         if (meshNetwork != null) {

@@ -271,6 +271,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         private final ProvisionedMeshNodeDao nodeDao;
         private final GroupDao groupDao;
         private final SceneDao sceneDao;
+
         LoadNetworkAsyncTask(final MeshNetworkDao meshNetworkDao,
                              final NetworkKeyDao netKeyDao,
                              final ApplicationKeyDao appKeyDao,

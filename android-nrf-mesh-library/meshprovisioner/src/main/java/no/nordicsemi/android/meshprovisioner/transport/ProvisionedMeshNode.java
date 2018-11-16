@@ -68,16 +68,15 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     @Ignore
     public ProvisionedMeshNode(final UnprovisionedMeshNode unprovisionedMeshNode) {
+        uuid = unprovisionedMeshNode.getDeviceUuid().toString();
         isProvisioned = unprovisionedMeshNode.isProvisioned();
         isConfigured = unprovisionedMeshNode.isConfigured();
         nodeName = unprovisionedMeshNode.getNodeName();
         networkKey = unprovisionedMeshNode.getNetworkKey();
-        netKeyIndex = unprovisionedMeshNode.getKeyIndex();
-        final NetworkKey networkKey = new NetworkKey(netKeyIndex, unprovisionedMeshNode.getNetworkKey());
+        final NetworkKey networkKey = new NetworkKey(unprovisionedMeshNode.getKeyIndex(), unprovisionedMeshNode.getNetworkKey());
         networkKeys.add(networkKey);
         identityKey = unprovisionedMeshNode.getIdentityKey();
         mFlags = unprovisionedMeshNode.getFlags();
-        ivIndex = unprovisionedMeshNode.getIvIndex();
         unicastAddress = unprovisionedMeshNode.getUnicastAddress();
         deviceKey = unprovisionedMeshNode.getDeviceKey();
         ttl = unprovisionedMeshNode.getTtl();
@@ -89,29 +88,27 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     @Ignore
     protected ProvisionedMeshNode(Parcel in) {
+        uuid = in.readString();
         isProvisioned = in.readByte() != 0;
         isConfigured = in.readByte() != 0;
         nodeName = in.readString();
         networkKeys = in.readArrayList(NetworkKey.class.getClassLoader());
-        identityKey = in.createByteArray();
         mFlags = in.createByteArray();
-        ivIndex = in.createByteArray();
         unicastAddress = in.createByteArray();
         deviceKey = in.createByteArray();
         ttl = in.readInt();
+        numberOfElements = in.readInt();
         mReceivedSequenceNumber = in.readInt();
-        bluetoothAddress = in.readString();
         k2Output = in.readParcelable(SecureUtils.K2Output.class.getClassLoader());
-        nodeIdentifier = in.readString();
         companyIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         productIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         versionIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         crpl = (Integer) in.readValue(Integer.class.getClassLoader());
         features = (Integer) in.readValue(Integer.class.getClassLoader());
-        relayFeatureSupported = in.readByte() != 0;
-        proxyFeatureSupported = in.readByte() != 0;
-        friendFeatureSupported = in.readByte() != 0;
-        lowPowerFeatureSupported = in.readByte() != 0;
+        relayFeatureSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        proxyFeatureSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        friendFeatureSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        lowPowerFeatureSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
         generatedNetworkId = in.createByteArray();
         sortElements(in.readHashMap(Element.class.getClassLoader()));
         mAddedApplicationKeys = in.readHashMap(ApplicationKey.class.getClassLoader());
@@ -119,34 +116,31 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         mTimeStampInMillis = in.readLong();
         mConfigurationSrc = in.createByteArray();
         mSeqAuth = in.readParcelable(SparseIntArrayParcelable.class.getClassLoader());
-        numberOfElements = in.readInt();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(uuid);
         dest.writeByte((byte) (isProvisioned ? 1 : 0));
         dest.writeByte((byte) (isConfigured ? 1 : 0));
         dest.writeString(nodeName);
         dest.writeList(networkKeys);
-        dest.writeByteArray(identityKey);
         dest.writeByteArray(mFlags);
-        dest.writeByteArray(ivIndex);
         dest.writeByteArray(unicastAddress);
         dest.writeByteArray(deviceKey);
         dest.writeInt(ttl);
+        dest.writeInt(numberOfElements);
         dest.writeInt(mReceivedSequenceNumber);
-        dest.writeString(bluetoothAddress);
         dest.writeParcelable(k2Output, flags);
-        dest.writeString(nodeIdentifier);
         dest.writeValue(companyIdentifier);
         dest.writeValue(productIdentifier);
         dest.writeValue(versionIdentifier);
         dest.writeValue(crpl);
         dest.writeValue(features);
-        dest.writeByte((byte) (relayFeatureSupported ? 1 : 0));
-        dest.writeByte((byte) (proxyFeatureSupported ? 1 : 0));
-        dest.writeByte((byte) (friendFeatureSupported ? 1 : 0));
-        dest.writeByte((byte) (lowPowerFeatureSupported ? 1 : 0));
+        dest.writeValue(relayFeatureSupported);
+        dest.writeValue(proxyFeatureSupported);
+        dest.writeValue(friendFeatureSupported);
+        dest.writeValue(friendFeatureSupported);
         dest.writeByteArray(generatedNetworkId);
         dest.writeMap(mElements);
         dest.writeMap(mAddedApplicationKeys);
@@ -154,7 +148,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeLong(mTimeStampInMillis);
         dest.writeByteArray(mConfigurationSrc);
         dest.writeParcelable(mSeqAuth, flags);
-        dest.writeInt(numberOfElements);
     }
 
 
@@ -219,7 +212,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return companyIdentifier;
     }
 
-    public final void setCompanyIdentifier(final int companyIdentifier) {
+    public final void setCompanyIdentifier(final Integer companyIdentifier) {
         this.companyIdentifier = companyIdentifier;
     }
 
@@ -227,7 +220,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return productIdentifier;
     }
 
-    public final void setProductIdentifier(final int productIdentifier) {
+    public final void setProductIdentifier(final Integer productIdentifier) {
         this.productIdentifier = productIdentifier;
     }
 
@@ -235,7 +228,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return versionIdentifier;
     }
 
-    public final void setVersionIdentifier(final int versionIdentifier) {
+    public final void setVersionIdentifier(final Integer versionIdentifier) {
         this.versionIdentifier = versionIdentifier;
     }
 
@@ -243,7 +236,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return crpl;
     }
 
-    public final void setCrpl(final int crpl) {
+    public final void setCrpl(final Integer crpl) {
         this.crpl = crpl;
     }
 
@@ -251,40 +244,36 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return features;
     }
 
-    public final boolean isRelayFeatureSupported() {
+    public final Boolean isRelayFeatureSupported() {
         return relayFeatureSupported;
     }
 
-    public final void setRelayFeatureSupported(final boolean supported) {
+    public final void setRelayFeatureSupported(final Boolean supported) {
         relayFeatureSupported = supported;
     }
 
-    public final boolean isProxyFeatureSupported() {
+    public final Boolean isProxyFeatureSupported() {
         return proxyFeatureSupported;
     }
 
-    public final void setProxyFeatureSupported(final boolean supported) {
+    public final void setProxyFeatureSupported(final Boolean supported) {
         proxyFeatureSupported = supported;
     }
 
-    public final boolean isFriendFeatureSupported() {
+    public final Boolean isFriendFeatureSupported() {
         return friendFeatureSupported;
     }
 
-    public final void setFriendFeatureSupported(final boolean supported) {
+    public final void setFriendFeatureSupported(final Boolean supported) {
         friendFeatureSupported = supported;
     }
 
-    public final boolean isLowPowerFeatureSupported() {
+    public final Boolean isLowPowerFeatureSupported() {
         return lowPowerFeatureSupported;
     }
 
-    public final void setLowPowerFeatureSupported(final boolean supported) {
+    public final void setLowPowerFeatureSupported(final Boolean supported) {
         lowPowerFeatureSupported = supported;
-    }
-
-    public final void setBluetoothDeviceAddress(final String address) {
-        this.bluetoothAddress = address;
     }
 
     public int getNumberOfElements() {
@@ -306,14 +295,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     protected final void setAddedAppKey(final int index, final ApplicationKey appKey) {
         this.mAddedApplicationKeys.put(index, appKey);
-    }
-
-    public final byte[] getGeneratedNetworkId() {
-        return generatedNetworkId;
-    }
-
-    public final void setGeneratedNetworkId(final byte[] advertisedNetworkId) {
-        this.generatedNetworkId = advertisedNetworkId;
     }
 
     /**

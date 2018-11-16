@@ -29,6 +29,7 @@ import android.support.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import no.nordicsemi.android.meshprovisioner.MeshBeacon;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
@@ -108,12 +109,12 @@ public class ScannerLiveData extends LiveData<ScannerLiveData> {
         postValue(this);
     }
 
-    void deviceDiscovered(final ScanResult result) {
+    void deviceDiscovered(final ScanResult result, final MeshBeacon beacon) {
         ExtendedBluetoothDevice device;
 
         final int index = indexOf(result);
         if (index == -1) {
-            device = new ExtendedBluetoothDevice(result);
+            device = new ExtendedBluetoothDevice(result, beacon);
             mDevices.add(device);
             mUpdatedDeviceIndex = null;
         } else {

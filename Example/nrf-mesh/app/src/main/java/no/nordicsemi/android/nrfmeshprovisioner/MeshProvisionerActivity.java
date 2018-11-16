@@ -50,6 +50,8 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.MeshBeacon;
+import no.nordicsemi.android.meshprovisioner.UnprovisionedBeacon;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningFailedState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
@@ -226,7 +228,8 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         provisioner.setOnClickListener(v -> {
             final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
             if (node == null) {
-                mViewModel.identifyNode(device.getAddress(), mViewModel.getMeshNetworkLiveData().getValue().getNodeName());
+                device.setName(mViewModel.getMeshNetworkLiveData().getValue().getNodeName());
+                mViewModel.identifyNode(device);
                 return;
             }
 
