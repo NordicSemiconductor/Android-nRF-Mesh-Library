@@ -42,7 +42,7 @@ public class ApplicationMessageOpCodes {
     /**
      * Opcode for the "Generic OnOff Status" message.
      */
-    public static final short GENERIC_ON_OFF_STATUS = (short) 0x8204;
+    public static final int GENERIC_ON_OFF_STATUS = 0x8204;
 
     /**
      * Opcode for the "Generic Level Get" message.
@@ -62,66 +62,66 @@ public class ApplicationMessageOpCodes {
     /**
      * Opcode for the "Generic Level Status" message.
      */
-    public static final short GENERIC_LEVEL_STATUS = (short) 0x8208;
+    public static final int GENERIC_LEVEL_STATUS = 0x8208;
 
     /**
      * Opcode for the "Light Lightness Get" message
      */
-    public static final short LIGHT_LIGHTNESS_GET = (short) 0x824B;
+    public static final int LIGHT_LIGHTNESS_GET = 0x824B;
 
     /**
      * Opcode for the "Light Lightness Set" message
      */
-    public static final short LIGHT_LIGHTNESS_SET = (short) 0x824C;
+    public static final int LIGHT_LIGHTNESS_SET = 0x824C;
 
     /**
      * Opcode for the "Light Lightness Set Unacknowledged" message
      */
-    public static final short LIGHT_LIGHTNESS_SET_UNACKNOWLEDGED = (short) 0x824D;
+    public static final int LIGHT_LIGHTNESS_SET_UNACKNOWLEDGED = 0x824D;
 
     /**
      * Opcode for the "Light Lightness Status" message
      */
-    public static final short LIGHT_LIGHTNESS_STATUS = (short) 0x824E;
+    public static final int LIGHT_LIGHTNESS_STATUS = 0x824E;
 
     /**
      * Opcode for the "Light Ctl Get" message
      */
-    public static final short LIGHT_CTL_GET = (short) 0x825D;
+    public static final int LIGHT_CTL_GET = 0x825D;
 
     /**
      * Opcode for the "Light Ctl Set" message
      */
-    public static final short LIGHT_CTL_SET = (short) 0x825E;
+    public static final int LIGHT_CTL_SET = 0x825E;
 
     /**
      * Opcode for the "Light Ctl Set Unacknowledged" message
      */
-    public static final short LIGHT_CTL_SET_UNACKNOWLEDGED = (short) 0x825F;
+    public static final int LIGHT_CTL_SET_UNACKNOWLEDGED = 0x825F;
 
     /**
      * Opcode for the "Light Ctl Status" message
      */
-    public static final short LIGHT_CTL_STATUS = (short) 0x8260;
+    public static final int LIGHT_CTL_STATUS = 0x8260;
 
     /**
      * Opcode for the "Light Hsl Get" message
      */
-    public static final short LIGHT_HSL_GET = (short) 0x826D;
+    public static final int LIGHT_HSL_GET = 0x826D;
 
     /**
      * Opcode for the "Light Hsl Set" message
      */
-    public static final short LIGHT_HSL_SET = (short) 0x8276;
+    public static final int LIGHT_HSL_SET = 0x8276;
 
     /**
      * Opcode for the "Light Hsl Set Unacknowledged" message
      */
-    public static final short LIGHT_HSL_SET_UNACKNOWLEDGED = (short) 0x8277;
+    public static final int LIGHT_HSL_SET_UNACKNOWLEDGED = 0x8277;
 
     /**
      * Opcode for the "Light Hsl Status" message
      */
-    public static final short LIGHT_HSL_STATUS = (short) 0x8278;
+    public static final int LIGHT_HSL_STATUS = 0x8278;
 
 }

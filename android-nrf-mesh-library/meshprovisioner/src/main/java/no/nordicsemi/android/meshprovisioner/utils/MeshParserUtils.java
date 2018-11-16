@@ -459,7 +459,7 @@ public class MeshParserUtils {
             case 1:
                 return accessPayload[0];
             case 2:
-                return ((short) (((accessPayload[0] << 8)) | (byte) ((accessPayload[1]) & 0xFF)));
+                return MeshParserUtils.unsignedBytesToInt(accessPayload[1], accessPayload[0]);
             case 3:
                 return ((byte) (accessPayload[0] & 0xFF) | (byte) ((accessPayload[1] << 8) & 0xFF) | (byte) ((accessPayload[2] << 16) & 0xFF));
         }
