@@ -51,7 +51,7 @@ class LightLightnessSetState extends GenericMessageState implements LowerTranspo
 
     @Override
     public final void executeSend() {
-        Log.v(TAG, "Sending Generic Level set acknowledged ");
+        Log.v(TAG, "Sending light lightness set acknowledged");
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)

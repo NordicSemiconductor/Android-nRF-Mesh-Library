@@ -123,6 +123,18 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(mNode, message);
                     mInternalTransportCallbacks.updateMeshNode(mNode);
                     mMeshStatusCallbacks.onMeshMessageReceived(genericLevelStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LIGHTNESS_STATUS) {
+                    final LightLightnessStatus lightLightnessStatus = new LightLightnessStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mMeshStatusCallbacks.onMeshMessageReceived(lightLightnessStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_CTL_STATUS) {
+                    final LightCtlStatus lightCtlStatus = new LightCtlStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mMeshStatusCallbacks.onMeshMessageReceived(lightCtlStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LIGHTNESS_STATUS) {
+                    final LightHslStatus lightHslStatus = new LightHslStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mMeshStatusCallbacks.onMeshMessageReceived(lightHslStatus);
                 } else {
                     Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
                 }
