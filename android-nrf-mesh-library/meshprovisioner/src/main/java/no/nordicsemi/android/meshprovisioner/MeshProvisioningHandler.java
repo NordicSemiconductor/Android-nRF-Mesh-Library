@@ -47,7 +47,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseProvisioningAlgorithm;
 
-public class MeshProvisioningHandler {
+class MeshProvisioningHandler implements InternalProvisioningCallbacks {
 
     private static final String TAG = MeshProvisioningHandler.class.getSimpleName();
     private final InternalTransportCallbacks mInternalTransportCallbacks;

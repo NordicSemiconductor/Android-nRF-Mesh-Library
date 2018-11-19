@@ -26,9 +26,9 @@ import android.util.Log;
 
 import java.nio.ByteBuffer;
 
+import no.nordicsemi.android.meshprovisioner.InternalProvisioningCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.MeshProvisioningHandler;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -38,12 +38,12 @@ public class ProvisioningDataState extends ProvisioningState {
     private final String TAG = ProvisioningRandomConfirmationState.class.getSimpleName();
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
     private final MeshProvisioningStatusCallbacks mStatusCallbacks;
-    private final MeshProvisioningHandler pduHandler;
+    private final InternalProvisioningCallbacks provisioningCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
-    public ProvisioningDataState(final MeshProvisioningHandler pduHandler, final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    public ProvisioningDataState(final InternalProvisioningCallbacks callbacks, final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
-        this.pduHandler = pduHandler;
+        this.provisioningCallbacks = callbacks;
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
         this.mInternalTransportCallbacks = mInternalTransportCallbacks;
         this.mStatusCallbacks = meshProvisioningStatusCallbacks;
@@ -142,7 +142,7 @@ public class ProvisioningDataState extends ProvisioningState {
      */
     private byte[] generateProvisioningSalt() {
 
-        final byte[] confirmationSalt = SecureUtils.calculateSalt(pduHandler.generateConfirmationInputs(mUnprovisionedMeshNode.getProvisionerPublicKeyXY(), mUnprovisionedMeshNode.getProvisioneePublicKeyXY()));
+        final byte[] confirmationSalt = SecureUtils.calculateSalt(provisioningCallbacks.generateConfirmationInputs(mUnprovisionedMeshNode.getProvisionerPublicKeyXY(), mUnprovisionedMeshNode.getProvisioneePublicKeyXY()));
         final byte[] provisionerRandom = mUnprovisionedMeshNode.getProvisionerRandom();
         final byte[] provisioneeRandom = mUnprovisionedMeshNode.getProvisioneeRandom();
 
