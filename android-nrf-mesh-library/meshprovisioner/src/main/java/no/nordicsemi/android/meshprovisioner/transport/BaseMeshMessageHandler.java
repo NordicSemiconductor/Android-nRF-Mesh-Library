@@ -609,6 +609,42 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             lightLightnessSetUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = lightLightnessSetUnacknowledgedState;
             lightLightnessSetUnacknowledgedState.executeSend();
+        } else if (genericMessage instanceof LightCtlGet) {
+            final LightCtlGetState lightCtlGetState = new LightCtlGetState(mContext, dstAddress, (LightCtlGet) genericMessage, mMeshTransport, this);
+            lightCtlGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightCtlGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightCtlGetState;
+            lightCtlGetState.executeSend();
+        } else if (genericMessage instanceof LightCtlSet) {
+            final LightCtlSetState lightCtlSetState = new LightCtlSetState(mContext, dstAddress, (LightCtlSet) genericMessage, mMeshTransport, this);
+            lightCtlSetState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightCtlSetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightCtlSetState;
+            lightCtlSetState.executeSend();
+        } else if (genericMessage instanceof LightCtlSetUnacknowledged) {
+            final LightCtlSetUnacknowledgedState lightCtlSetUnacknowledgedState = new LightCtlSetUnacknowledgedState(mContext, dstAddress, (LightCtlSetUnacknowledged) genericMessage, mMeshTransport, this);
+            lightCtlSetUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightCtlSetUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightCtlSetUnacknowledgedState;
+            lightCtlSetUnacknowledgedState.executeSend();
+        }  else if (genericMessage instanceof LightHslGet) {
+            final LightHslGetState lightHslGetState = new LightHslGetState(mContext, dstAddress, (LightHslGet) genericMessage, mMeshTransport, this);
+            lightHslGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightHslGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightHslGetState;
+            lightHslGetState.executeSend();
+        } else if (genericMessage instanceof LightHslSet) {
+            final LightHslSetState lightHslSetState = new LightHslSetState(mContext, dstAddress, (LightHslSet) genericMessage, mMeshTransport, this);
+            lightHslSetState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightHslSetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightHslSetState;
+            lightHslSetState.executeSend();
+        } else if (genericMessage instanceof LightHslSetUnacknowledged) {
+            final LightHslSetUnacknowledgedState lightHslSetUnacknowledgedState = new LightHslSetUnacknowledgedState(mContext, dstAddress, (LightHslSetUnacknowledged) genericMessage, mMeshTransport, this);
+            lightHslSetUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightHslSetUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightHslSetUnacknowledgedState;
+            lightHslSetUnacknowledgedState.executeSend();
         } else if (genericMessage instanceof VendorModelMessageAcked) {
             final VendorModelMessageAckedState message = new VendorModelMessageAckedState(mContext, dstAddress, (VendorModelMessageAcked) genericMessage, mMeshTransport, this);
             message.setTransportCallbacks(mInternalTransportCallbacks);
