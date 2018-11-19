@@ -73,9 +73,9 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
     void parseStatusParameters() {
         Log.v(TAG, "Received light hsl status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
-        mPresentHslLightness = buffer.getInt() & 0xFFFF;
-        mPresentHslHue = buffer.getInt() & 0xFFFF;
-        mPresentHslSaturation = buffer.getInt() & 0xFFFF;
+        mPresentHslLightness = buffer.getShort() & 0xFFFF;
+        mPresentHslHue = buffer.getShort() & 0xFFFF;
+        mPresentHslSaturation = buffer.getShort() & 0xFFFF;
         Log.v(TAG, "Present lightness: " + mPresentHslLightness);
         Log.v(TAG, "Present hue: " + mPresentHslHue);
         Log.v(TAG, "Present saturation: " + mPresentHslSaturation);

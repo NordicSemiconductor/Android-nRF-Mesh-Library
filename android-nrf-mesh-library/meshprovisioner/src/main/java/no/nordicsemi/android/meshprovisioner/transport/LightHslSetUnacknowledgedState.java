@@ -22,7 +22,7 @@ class LightHslSetUnacknowledgedState extends GenericMessageState implements Lowe
      */
     LightHslSetUnacknowledgedState(@NonNull final Context context,
                                    @NonNull final byte[] dstAddress,
-                                   @NonNull final LightHslSet lightHslSetUnacknowledged,
+                                   @NonNull final LightHslSetUnacknowledged lightHslSetUnacknowledged,
                                    @NonNull final MeshTransport meshTransport,
                                    @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
         super(context, dstAddress, lightHslSetUnacknowledged, meshTransport, callbacks);

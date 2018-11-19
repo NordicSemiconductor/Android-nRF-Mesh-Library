@@ -131,7 +131,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final LightCtlStatus lightCtlStatus = new LightCtlStatus(mNode, message);
                     mInternalTransportCallbacks.updateMeshNode(mNode);
                     mMeshStatusCallbacks.onMeshMessageReceived(lightCtlStatus);
-                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LIGHTNESS_STATUS) {
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_HSL_STATUS) {
                     final LightHslStatus lightHslStatus = new LightHslStatus(mNode, message);
                     mInternalTransportCallbacks.updateMeshNode(mNode);
                     mMeshStatusCallbacks.onMeshMessageReceived(lightHslStatus);

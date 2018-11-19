@@ -72,10 +72,10 @@ public final class LightLightnessStatus extends GenericStatusMessage implements 
     void parseStatusParameters() {
         Log.v(TAG, "Received light lightness status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
-        mPresentLightness = buffer.getInt() & 0xFFFF;
+        mPresentLightness = buffer.getShort() & 0xFFFF;
         Log.v(TAG, "Present level: " + mPresentLightness);
         if(buffer.limit() > LIGHT_LIGHTNESS_STATUS_MANDATORY_LENGTH) {
-            mTargetLightness = buffer.getInt() & 0xFFFF;
+            mTargetLightness = buffer.getShort() & 0xFFFF;
             final int remainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (remainingTime & 0x3F);
             mTransitionResolution = (remainingTime >> 6);

@@ -74,13 +74,13 @@ public final class LightCtlStatus extends GenericStatusMessage implements Parcel
     void parseStatusParameters() {
         Log.v(TAG, "Received light ctl status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
-        mPresentCtlLightness = buffer.getInt() & 0xFFFF;
-        mPresentCtlTemperature = buffer.getInt() & 0xFFFF;
+        mPresentCtlLightness = buffer.getShort() & 0xFFFF;
+        mPresentCtlTemperature = buffer.getShort() & 0xFFFF;
         Log.v(TAG, "Present lightness: " + mPresentCtlLightness);
         Log.v(TAG, "Present temperature: " + mPresentCtlTemperature);
         if(buffer.limit() > LIGHT_CTL_STATUS_MANDATORY_LENGTH) {
-            mTargetCtlLightness = buffer.getInt() & 0xFFFF;
-            mTargetCtlTemperature = buffer.getInt() & 0xFFFF;
+            mTargetCtlLightness = buffer.getShort() & 0xFFFF;
+            mTargetCtlTemperature = buffer.getShort() & 0xFFFF;
             final int remainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (remainingTime & 0x3F);
             mTransitionResolution = (remainingTime >> 6);
