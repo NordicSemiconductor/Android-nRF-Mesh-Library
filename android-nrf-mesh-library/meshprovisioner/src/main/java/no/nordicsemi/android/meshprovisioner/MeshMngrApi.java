@@ -292,4 +292,16 @@ interface MeshMngrApi {
      * @param genericMessage Mesh message containing the message opcode and message parameters.
      */
     void sendMeshApplicationMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage genericMessage);
+
+    /**
+     * Exports mesh network to a json file
+     */
+    boolean exportMeshNetwork(final String path);
+
+    /**
+     * Importing mesh network
+     *
+     * @param path path to the mesh configuration database json file.
+     */
+    boolean importMeshNetwork(final String path);
 }

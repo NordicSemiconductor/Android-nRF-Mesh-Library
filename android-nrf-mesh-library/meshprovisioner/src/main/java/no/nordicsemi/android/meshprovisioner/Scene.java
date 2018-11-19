@@ -31,9 +31,6 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
                 onUpdate = CASCADE, onDelete = CASCADE),
         indices = @Index("mesh_uuid"))
 public class Scene {
-    @PrimaryKey(autoGenerate = true)
-    private int id;
-
     @ColumnInfo(name = "mesh_uuid")
     @Expose
     private String meshUuid;
@@ -44,34 +41,25 @@ public class Scene {
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<byte[]> addresses = new ArrayList<>();
+    private List<byte[]> addresses;
 
+    @PrimaryKey
     @ColumnInfo(name = "number")
     @Expose
     private int number;
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public Scene(final int id) {
-        this.id = id;
-    }
-
-    @Ignore
-    public Scene(){
-
+    public Scene(final int number, final List<byte[]> addresses, final String meshUuid) {
+        this.number = number;
+        this.addresses = addresses;
+        this.meshUuid = meshUuid;
     }
 
     public String getMeshUuid() {
         return meshUuid;
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setMeshUuid(final String meshUuid) {
         this.meshUuid = meshUuid;
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public int getId() {
-        return id;
     }
 
     /**

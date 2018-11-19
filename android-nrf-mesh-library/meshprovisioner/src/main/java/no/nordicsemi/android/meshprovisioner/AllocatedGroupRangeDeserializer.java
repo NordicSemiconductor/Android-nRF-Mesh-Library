@@ -1,5 +1,8 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import android.util.Log;
+
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -9,22 +12,33 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-final class AllocatedGroupRangeDeserializer implements JsonSerializer<AllocatedGroupRange>, JsonDeserializer<AllocatedGroupRange> {
+final class AllocatedGroupRangeDeserializer implements JsonSerializer<List<AllocatedGroupRange>>, JsonDeserializer<List<AllocatedGroupRange>> {
     private static final String TAG = AllocatedGroupRangeDeserializer.class.getSimpleName();
 
     @Override
-    public JsonElement serialize(final AllocatedGroupRange src, final Type typeOfSrc, final JsonSerializationContext context) {
-        return null;
+    public List<AllocatedGroupRange> deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
+        final List<AllocatedGroupRange> groupRanges = new ArrayList<>();
+        try {
+            final JsonArray jsonObject = json.getAsJsonArray();
+            for (int i = 0; i < jsonObject.size(); i++) {
+                final JsonObject unicastRangeJson = jsonObject.get(i).getAsJsonObject();
+                final byte[] lowAddress = MeshParserUtils.toByteArray(unicastRangeJson.get("lowAddress").getAsString());
+                final byte[] highAddress = MeshParserUtils.toByteArray(unicastRangeJson.get("highAddress").getAsString());
+                groupRanges.add(new AllocatedGroupRange(lowAddress, highAddress));
+            }
+        } catch (Exception ex) {
+            Log.e(TAG, "Error while de-serializing Allocated group range: " + ex.getMessage());
+        }
+        return groupRanges;
     }
 
     @Override
-    public AllocatedGroupRange deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
-        final JsonObject jsonObject = json.getAsJsonObject();
-        final byte[] lowAddress = MeshParserUtils.toByteArray(jsonObject.get("lowAddress").getAsString());
-        final byte[] highAddress = MeshParserUtils.toByteArray(jsonObject.get("highAddress").getAsString());
-        return new AllocatedGroupRange(lowAddress, highAddress);
+    public JsonElement serialize(final List<AllocatedGroupRange> src, final Type typeOfSrc, final JsonSerializationContext context) {
+        return null;
     }
 }

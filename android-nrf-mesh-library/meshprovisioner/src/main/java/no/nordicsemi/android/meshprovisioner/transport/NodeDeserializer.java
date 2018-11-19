@@ -97,19 +97,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             } else {
                 element.elementAddress = AddressUtils.getUnicastAddressBytes(unicastAddress + 1);
             }
-            populateSubscriptions(element);
             elements.put(element.getElementAddressInt(), element);
         }
         return elements;
-    }
-
-    private void populateSubscriptions(final Element element){
-        for(Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
-            final MeshModel model = modelEntry.getValue();
-            for(int i = 0; i < model.getSubscriptionAddresses().size(); i++) {
-                final byte[] address = model.getSubscriptionAddresses().get(i);
-                model.mSubscriptionAddress.add(address);
-            }
-        }
     }
 }

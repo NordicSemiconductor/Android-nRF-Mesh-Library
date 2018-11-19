@@ -14,7 +14,7 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
 /**
  * Class definition for allocating unicast range for provisioners.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 @Entity(tableName = "allocated_unicast_range",
         foreignKeys = @ForeignKey(entity = Provisioner.class,
                 parentColumns = "provisioner_uuid",
@@ -31,13 +31,13 @@ public class AllocatedUnicastRange {
     @ColumnInfo(name = "provisioner_uuid")
     String provisionerUuid;
 
-    @ColumnInfo(name = "high_address")
-    @Expose
-    private byte[] highAddress;
-
     @ColumnInfo(name = "low_address")
     @Expose
     private byte[] lowAddress;
+
+    @ColumnInfo(name = "high_address")
+    @Expose
+    private byte[] highAddress;
 
     @Ignore
     public AllocatedUnicastRange() {

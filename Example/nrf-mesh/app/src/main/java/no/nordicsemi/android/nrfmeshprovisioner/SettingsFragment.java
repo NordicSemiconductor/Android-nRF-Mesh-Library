@@ -253,7 +253,7 @@ public class SettingsFragment extends Fragment implements Injectable,
                         + File.separator
                         + "nRF Mesh"
                         + File.separator;
-                mViewModel.getMeshManagerApi().importNetwork(path);
+                mViewModel.getMeshManagerApi().importMeshNetwork(path);
                 return true;
             case R.id.action_reset_network:
                 final DialogFragmentResetNetwork dialogFragmentResetNetwork = DialogFragmentResetNetwork.

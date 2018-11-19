@@ -14,7 +14,7 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
 /**
  * Class definition for allocating group range for provisioners.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 @Entity(tableName = "allocated_group_range",
         foreignKeys = @ForeignKey(entity = Provisioner.class,
                 parentColumns = "provisioner_uuid",
@@ -43,14 +43,6 @@ public class AllocatedGroupRange {
 
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(final int id) {
-        this.id = id;
-    }
-
     /**
      * Constructs {@link AllocatedGroupRange} for provisioner
      *
@@ -60,6 +52,14 @@ public class AllocatedGroupRange {
     public AllocatedGroupRange(final byte[] lowAddress, final byte[] highAddress) {
         this.lowAddress = lowAddress;
         this.highAddress = highAddress;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(final int id) {
+        this.id = id;
     }
 
     /**

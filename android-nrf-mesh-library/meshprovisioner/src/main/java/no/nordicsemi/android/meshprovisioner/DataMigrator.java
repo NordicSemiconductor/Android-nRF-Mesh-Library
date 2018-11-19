@@ -184,9 +184,9 @@ class DataMigrator {
             final List<AllocatedSceneRange> sceneRanges = new ArrayList<>();
             sceneRanges.add(sceneRange);
 
-            provisioner.setAllocatedGroupRange(groupRanges);
-            provisioner.setAllocatedUnicastRange(unicastRanges);
-            provisioner.setAllocatedSceneRange(sceneRanges);
+            provisioner.setAllocatedGroupRanges(groupRanges);
+            provisioner.setAllocatedUnicastRanges(unicastRanges);
+            provisioner.setAllocatedSceneRanges(sceneRanges);
             provisioner.setMeshUuid(meshNetwork.getMeshUUID());
 
             provisioners.add(provisioner);

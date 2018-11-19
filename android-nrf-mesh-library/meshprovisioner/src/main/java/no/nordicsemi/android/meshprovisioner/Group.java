@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.Arrays;
 
@@ -31,14 +32,21 @@ public class Group {
     @Expose
     private String meshUuid;
 
+    @SerializedName("name")
+    @ColumnInfo(name = "name")
+    @Expose
+    private String name = "Mesh Group";
+
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = "group_address")
     @Expose
+    @SerializedName("address")
     private byte[] groupAddress;
 
     @ColumnInfo(name = "parent_address")
     @Expose
+    @SerializedName("parentAddress")
     private byte[] parentAddress;
 
     /**
@@ -47,12 +55,13 @@ public class Group {
      * @param groupAddress  groupAddress of the group
      * @param parentAddress parent address
      */
-    public Group(@NonNull final byte[] groupAddress, @Nullable final byte[] parentAddress) {
+    public Group(@NonNull final byte[] groupAddress, @Nullable final byte[] parentAddress, @NonNull final String meshUuid) {
         this.groupAddress = groupAddress;
         if (Arrays.equals(groupAddress, parentAddress)) {
             throw new IllegalArgumentException("Address cannot match parent adddress");
         }
         this.parentAddress = parentAddress;
+        this.meshUuid = meshUuid;
     }
 
     /**
@@ -108,5 +117,19 @@ public class Group {
      */
     public void setParentAddress(final byte[] parentAddress) {
         this.parentAddress = parentAddress;
+    }
+
+    /**
+     * Returns the group name of a mesh network
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets a name to a mesh group
+     */
+    public void setName(final String name) {
+        this.name = name;
     }
 }

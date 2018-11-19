@@ -34,8 +34,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
@@ -202,7 +204,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     }
 
     public MeshNetwork getMeshNetwork() throws IllegalArgumentException {
-        if(mMeshNetwork == null)
+        if (mMeshNetwork == null)
             throw new IllegalArgumentException("Have you forgotten to call loadMeshNetwork() ?");
         return mMeshNetwork;
     }
@@ -237,7 +239,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     /**
      * Migrates the old network data and loads a new mesh network object
      *
-     * @param context
+     * @param context context
      */
     private void migrateMeshNetwork(final Context context) {
         final DataMigrator migrator = new DataMigrator();
@@ -685,9 +687,9 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     @Override
     public MeshBeacon getBeacon(final byte[] serviceData) {
-        if(serviceData != null) {
+        if (serviceData != null) {
             final int beaconType = serviceData[0];
-            if(beaconType == 0x00){
+            if (beaconType == 0x00) {
                 return new UnprovisionedBeacon(serviceData);
             } else {
                 return new SecureNetworkBeacon(serviceData);
@@ -997,17 +999,32 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         mMeshMessageHandler.sendMeshMessage(dstAddress, meshMessage);
     }
 
-    public boolean importNetwork(final String path) {
-        return importNet(path);
+    @Override
+    public boolean exportMeshNetwork(final String path) {
+        exportNetwork();
+        return false;
     }
 
-    boolean importNet(final String path) {
+
+    public boolean importMeshNetwork(final String path) {
+        return importNetwork(path);
+    }
+
+    boolean importNetwork(final String path) {
         BufferedReader br = null;
         try {
 
             Type netKeyList = new TypeToken<List<NetworkKey>>() {
             }.getType();
             Type appKeyList = new TypeToken<List<ApplicationKey>>() {
+            }.getType();
+            Type allocatedUnicastRange = new TypeToken<List<AllocatedUnicastRange>>() {
+            }.getType();
+            Type allocatedGroupRange = new TypeToken<List<AllocatedGroupRange>>() {
+            }.getType();
+            Type allocatedSceneRange = new TypeToken<List<AllocatedSceneRange>>() {
+            }.getType();
+            Type provisionerList = new TypeToken<List<Provisioner>>() {
             }.getType();
             Type nodeList = new TypeToken<List<ProvisionedMeshNode>>() {
             }.getType();
@@ -1020,9 +1037,10 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             gsonBuilder.registerTypeAdapter(MeshNetwork.class, new MeshNetworkDeserializer());
             gsonBuilder.registerTypeAdapter(netKeyList, new NetKeyDeserializer());
             gsonBuilder.registerTypeAdapter(appKeyList, new AppKeyDeserializer());
-            gsonBuilder.registerTypeAdapter(AllocatedGroupRange.class, new AllocatedGroupRangeDeserializer());
-            gsonBuilder.registerTypeAdapter(AllocatedUnicastRange.class, new AllocatedUnicastRangeDeserializer());
-            gsonBuilder.registerTypeAdapter(AllocatedSceneRange.class, new AllocatedSceneRangeDeserializer());
+            gsonBuilder.registerTypeAdapter(provisionerList, new ProvisionerDeserializer());
+            gsonBuilder.registerTypeAdapter(allocatedUnicastRange, new AllocatedUnicastRangeDeserializer());
+            gsonBuilder.registerTypeAdapter(allocatedGroupRange, new AllocatedGroupRangeDeserializer());
+            gsonBuilder.registerTypeAdapter(allocatedSceneRange, new AllocatedSceneRangeDeserializer());
             gsonBuilder.registerTypeAdapter(nodeList, new NodeDeserializer());
             gsonBuilder.registerTypeAdapter(elementList, new ElementListDeserializer());
             gsonBuilder.registerTypeAdapter(meshModelList, new MeshModelListDeserializer());
@@ -1035,7 +1053,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
                 insertNetwork(network);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, " " + e.getMessage());
         } finally {
             if (br != null) {
                 try {
@@ -1049,8 +1067,8 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         return false;
     }
 
-    private void saveMeshNetwork() {
-        BufferedReader br = null;
+    private void exportNetwork() {
+        BufferedWriter br = null;
         try {
 
             Type netKeyList = new TypeToken<List<NetworkKey>>() {
@@ -1077,7 +1095,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             final Gson gson = gsonBuilder.create();
 
             final File f = new File(mContext.getFilesDir(), "example_database.json");
-            br = new BufferedReader(new FileReader(f));
+            br = new BufferedWriter(new FileWriter(f));
             final String network = gson.toJson(MeshNetwork.class);
             final OutputStream outputStream = mContext.openFileOutput(f.getName(), Context.MODE_PRIVATE);
             outputStream.write(network.getBytes());

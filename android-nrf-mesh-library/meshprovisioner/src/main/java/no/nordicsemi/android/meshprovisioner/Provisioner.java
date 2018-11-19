@@ -3,15 +3,16 @@ package no.nordicsemi.android.meshprovisioner;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
@@ -47,15 +48,15 @@ public class Provisioner {
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<AllocatedGroupRange> allocatedGroupRange = new ArrayList<>();
+    private List<AllocatedGroupRange> allocatedGroupRanges;
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<AllocatedUnicastRange> allocatedUnicastRange = new ArrayList<>();
+    private List<AllocatedUnicastRange> allocatedUnicastRanges;
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<AllocatedSceneRange> allocatedSceneRange = new ArrayList<>();
+    private List<AllocatedSceneRange> allocatedSceneRanges;
 
     @ColumnInfo(name = "sequence_number")
     @Expose
@@ -80,7 +81,20 @@ public class Provisioner {
     /**
      * Constructs {@link Provisioner}
      */
+    public Provisioner(@NonNull final String provisionerUuid,
+                       @NonNull final List<AllocatedUnicastRange> allocatedUnicastRanges,
+                       @Nullable final List<AllocatedGroupRange> allocatedGroupRanges,
+                       @Nullable final List<AllocatedSceneRange> allocatedSceneRanges,
+                       @NonNull final String meshUuid) {
+        this.provisionerUuid = provisionerUuid;
+        this.allocatedUnicastRanges = allocatedUnicastRanges;
+        this.allocatedGroupRanges = allocatedGroupRanges;
+        this.allocatedSceneRanges = allocatedSceneRanges;
+
+    }
+
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Ignore
     public Provisioner() {
 
     }
@@ -140,17 +154,17 @@ public class Provisioner {
      *
      * @return allocated range of group addresses
      */
-    public List<AllocatedGroupRange> getAllocatedGroupRange() {
-        return allocatedGroupRange;
+    public List<AllocatedGroupRange> getAllocatedGroupRanges() {
+        return allocatedGroupRanges;
     }
 
     /**
      * Sets {@link AllocatedGroupRange} for this provisioner
      *
-     * @param allocatedGroupRange allocated range of group addresses
+     * @param allocatedGroupRanges allocated range of group addresses
      */
-    public void setAllocatedGroupRange(final List<AllocatedGroupRange> allocatedGroupRange) {
-        this.allocatedGroupRange = allocatedGroupRange;
+    public void setAllocatedGroupRanges(final List<AllocatedGroupRange> allocatedGroupRanges) {
+        this.allocatedGroupRanges = allocatedGroupRanges;
     }
 
     /**
@@ -158,17 +172,17 @@ public class Provisioner {
      *
      * @return allocated range of unicast addresses
      */
-    public List<AllocatedUnicastRange> getAllocatedUnicastRange() {
-        return allocatedUnicastRange;
+    public List<AllocatedUnicastRange> getAllocatedUnicastRanges() {
+        return allocatedUnicastRanges;
     }
 
     /**
      * Sets {@link AllocatedGroupRange} for this provisioner
      *
-     * @param allocatedUnicastRange allocated range of unicast addresses
+     * @param allocatedUnicastRanges allocated range of unicast addresses
      */
-    public void setAllocatedUnicastRange(final List<AllocatedUnicastRange> allocatedUnicastRange) {
-        this.allocatedUnicastRange = allocatedUnicastRange;
+    public void setAllocatedUnicastRanges(final List<AllocatedUnicastRange> allocatedUnicastRanges) {
+        this.allocatedUnicastRanges = allocatedUnicastRanges;
     }
 
     /**
@@ -176,17 +190,17 @@ public class Provisioner {
      *
      * @return allocated range of unicast addresses
      */
-    public List<AllocatedSceneRange> getAllocatedSceneRange() {
-        return allocatedSceneRange;
+    public List<AllocatedSceneRange> getAllocatedSceneRanges() {
+        return allocatedSceneRanges;
     }
 
     /**
      * Sets {@link AllocatedSceneRange} for this provisioner
      *
-     * @param allocatedSceneRange allocated range of unicast addresses
+     * @param allocatedSceneRanges allocated range of unicast addresses
      */
-    public void setAllocatedSceneRange(final List<AllocatedSceneRange> allocatedSceneRange) {
-        this.allocatedSceneRange = allocatedSceneRange;
+    public void setAllocatedSceneRanges(final List<AllocatedSceneRange> allocatedSceneRanges) {
+        this.allocatedSceneRanges = allocatedSceneRanges;
     }
 
 
