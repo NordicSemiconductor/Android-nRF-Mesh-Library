@@ -24,6 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
+import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.BaseModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.BindAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MainActivity;
@@ -33,6 +34,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.MeshProvisionerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeDetailsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ProvisionedNodesScannerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.PublicationSettingsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ReconnectActivity;
 
 @Module
@@ -67,4 +69,7 @@ abstract class ActivitiesModule {
 
 	@ContributesAndroidInjector()
 	abstract BindAppKeysActivity contributeBindAppKeysActivity();
+
+	@ContributesAndroidInjector()
+	abstract PublicationSettingsActivity contributePublicationSettingsActivity();
 }

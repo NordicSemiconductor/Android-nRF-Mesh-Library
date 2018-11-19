@@ -20,6 +20,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
@@ -32,7 +33,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentRetransmitCount;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
 
-public class PublicationSettingsActivity extends AppCompatActivity implements Injectable, DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
+public class PublicationSettingsActivity extends AppCompatActivity implements Injectable,
+        DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
         DialogFragmentPublicationSteps.DialogFragmentPublicationStepsListener,
         DialogFragmentPublicationResolution.DialogFragmentPublicationResolutionListener,
         DialogFragmentRetransmitCount.DialogFragmentRetransmitCountListener,
@@ -187,11 +189,10 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ManageAppKeysActivity.SELECT_APP_KEY){
             if(resultCode == RESULT_OK){
-                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
-                final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
+                final ApplicationKey appKey = data.getParcelableExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 if(appKey != null){
-                    mAppKeyIndex = appKeyIndex;
-                    mAppKeyIndexView.setText(getString(R.string.app_key_index, appKeyIndex));
+                    mAppKeyIndex = appKey.getKeyIndex();
+                    mAppKeyIndexView.setText(getString(R.string.app_key_index, appKey.getKeyIndex()));
                 }
             }
         }
