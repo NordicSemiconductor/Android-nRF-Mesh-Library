@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
@@ -33,9 +34,12 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
             final ProvisionedMeshNode node = new ProvisionedMeshNode();
-            node.deviceKey = MeshParserUtils.toByteArray(jsonObject.get("deviceKey").getAsString());
+            node.uuid = jsonObject.get("UUID").getAsString();
             final int unicastAddress = Integer.parseInt(jsonObject.get("unicastAddress").getAsString(), 16);
+            node.deviceKey = MeshParserUtils.toByteArray(jsonObject.get("deviceKey").getAsString());
             final boolean security = jsonObject.get("security").getAsString().equals("high");
+            node.security = security ? 1 : 0;
+            node.mAddedNetworkKeyIndexes = deserializeNetKeyIndexes(jsonObject.get("netKeys").getAsJsonArray());
             final boolean configComplete = jsonObject.get("configComplete").getAsBoolean();
             node.isConfigured = configComplete;
             if (configComplete) {
@@ -44,19 +48,20 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 node.versionIdentifier = Integer.parseInt(jsonObject.get("vid").getAsString(), 16);
                 node.crpl = Integer.parseInt(jsonObject.get("crpl").getAsString(), 16);
 
-                final JsonObject featuresJson = jsonObject.get("features").getAsJsonObject();
-                node.relayFeatureSupported = isSupported(featuresJson.get("relay").getAsInt());
-                node.proxyFeatureSupported = isSupported(featuresJson.get("proxy").getAsInt());
-                node.friendFeatureSupported = isSupported(featuresJson.get("friend").getAsInt());
-                node.lowPowerFeatureSupported = isSupported(featuresJson.get("lowPower").getAsInt());
-
-                final List<Element> elements = deserializeElements(context, jsonObject);
-                final Map<Integer, Element> elementMap = populateElements(unicastAddress, elements);
-                node.mElements.clear();
-                node.mElements.putAll(elementMap);
+                if (jsonObject.has("features")) {
+                    final JsonObject featuresJson = jsonObject.get("features").getAsJsonObject();
+                    node.nodeFeatures = new Features(featuresJson.get("relay").getAsInt(),
+                            featuresJson.get("proxy").getAsInt(),
+                            featuresJson.get("friend").getAsInt(),
+                            featuresJson.get("lowPower").getAsInt());
+                }
 
                 if (jsonObject.has("secureNetworkBeacon")) {
                     node.setSecureNetworkBeaconSupported(jsonObject.get("secureNetworkBeacon").getAsBoolean());
+                }
+
+                if (jsonObject.has("defaultTTL")) {
+                    node.ttl = jsonObject.get("defaultTTL").getAsInt();
                 }
 
                 if (jsonObject.has("networkTransmit")) {
@@ -73,10 +78,19 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                     node.setRelaySettings(relaySettings);
                 }
 
+                node.mAddedAppKeyIndexes = deserializeAppKeyIndexes(jsonObject.get("appKeys").getAsJsonArray());
+
+                final List<Element> elements = deserializeElements(context, jsonObject);
+                final Map<Integer, Element> elementMap = populateElements(unicastAddress, elements);
+                node.mElements.clear();
+                node.mElements.putAll(elementMap);
+
                 if (jsonObject.has("blacklisted")) {
                     node.setBlackListed(jsonObject.get("blacklisted").getAsBoolean());
                 }
             }
+
+            node.nodeName = jsonObject.get("name").getAsString();
 
             nodes.add(node);
         }
@@ -89,22 +103,30 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
         return null;
     }
 
+    private List<Integer> deserializeNetKeyIndexes(final JsonArray jsonNetKeyIndexes) {
+        List<Integer> netKeyIndexes = new ArrayList<>();
+        for (int i = 0; i < jsonNetKeyIndexes.size(); i++) {
+            final JsonObject jsonIndex = jsonNetKeyIndexes.get(i).getAsJsonObject();
+            netKeyIndexes.add(jsonIndex.get("index").getAsInt());
+            //TODO add updated property when key refresh support is added
+        }
+        return netKeyIndexes;
+    }
+
+    private List<Integer> deserializeAppKeyIndexes(final JsonArray jsonAppKeyIndexes) {
+        List<Integer> appKeyIndexes = new ArrayList<>();
+        for (int i = 0; i < jsonAppKeyIndexes.size(); i++) {
+            final JsonObject jsonIndex = jsonAppKeyIndexes.get(i).getAsJsonObject();
+            appKeyIndexes.add(jsonIndex.get("index").getAsInt());
+            //TODO add updated property when key refresh support is added
+        }
+        return appKeyIndexes;
+    }
+
     private List<Element> deserializeElements(final JsonDeserializationContext context, final JsonObject json) {
         Type elementList = new TypeToken<List<Element>>() {
         }.getType();
         return context.deserialize(json.getAsJsonArray("elements"), elementList);
-    }
-
-    private boolean isSupported(final int value) {
-        switch (value) {
-            case 0:
-                return false;
-            case 1:
-                return true;
-            case 2:
-            default:
-                return false;
-        }
     }
 
     /**

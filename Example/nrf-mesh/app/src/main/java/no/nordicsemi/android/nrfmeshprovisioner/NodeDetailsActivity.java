@@ -39,6 +39,7 @@ import android.widget.Toast;
 import java.text.DateFormat;
 
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
@@ -139,8 +140,8 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         final View containerFeatures = findViewById(R.id.container_features);
         containerFeatures.setClickable(false);
         final TextView features = containerFeatures.findViewById(R.id.text);
-        if(node.getFeatures() != null) {
-            features.setText(CompositionDataParser.formatFeatures(node.getFeatures().shortValue(), false));
+        if(node.getNodeFeatures() != null) {
+            features.setText(parseFeatures(node.getNodeFeatures()));
         } else {
             features.setText(R.string.unavailable);
         }
@@ -189,5 +190,29 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
     @Override
     public void onItemClick(final int position) {
         mRecyclerView.scrollToPosition(position);
+    }
+
+
+    /**
+     * Returns a String representation of the features
+     */
+    private String parseFeatures(final Features features){
+        final String builder = "Friend feature " + parseFeature(features.getFriend()) + ", " +
+                "Low power feature " + parseFeature(features.getLowPower()) + ", " +
+                "Proxy feature " + parseFeature(features.getProxy()) + ", " +
+                "Relay feature " + parseFeature(features.getRelay());
+        return builder;
+    }
+
+    public String parseFeature(final int feature){
+        if(feature == 2){
+            return "unsupported";
+        } else {
+            if(feature == 0 ){
+                return "disabled";
+            } else {
+                return "enabled";
+            }
+        }
     }
 }

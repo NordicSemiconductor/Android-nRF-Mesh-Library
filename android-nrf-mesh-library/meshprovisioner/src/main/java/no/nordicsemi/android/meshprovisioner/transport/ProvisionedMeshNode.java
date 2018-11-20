@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
@@ -51,7 +52,7 @@ import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused", "deprecation"})
 @Entity(tableName = "nodes",
         foreignKeys = @ForeignKey(entity = MeshNetwork.class,
                 parentColumns = "mesh_uuid",
@@ -95,6 +96,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         isProvisioned = in.readByte() != 1;
         isConfigured = in.readByte() != 1;
         nodeName = in.readString();
+        mAddedNetworkKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         networkKeys = in.readArrayList(NetworkKey.class.getClassLoader());
         mFlags = in.createByteArray();
         unicastAddress = in.createByteArray();
@@ -107,11 +109,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         productIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         versionIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         crpl = (Integer) in.readValue(Integer.class.getClassLoader());
-        features = (Integer) in.readValue(Integer.class.getClassLoader());
-        relayFeatureSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
-        proxyFeatureSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
-        friendFeatureSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
-        lowPowerFeatureSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        nodeFeatures = (Features) in.readValue(Features.class.getClassLoader());
         generatedNetworkId = in.createByteArray();
         sortElements(in.readHashMap(Element.class.getClassLoader()));
         mAddedApplicationKeys = in.readHashMap(ApplicationKey.class.getClassLoader());
@@ -131,6 +129,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeByte((byte) (isProvisioned ? 1 : 0));
         dest.writeByte((byte) (isConfigured ? 1 : 0));
         dest.writeString(nodeName);
+        dest.writeList(mAddedNetworkKeyIndexes);
         dest.writeList(networkKeys);
         dest.writeByteArray(mFlags);
         dest.writeByteArray(unicastAddress);
@@ -143,11 +142,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeValue(productIdentifier);
         dest.writeValue(versionIdentifier);
         dest.writeValue(crpl);
-        dest.writeValue(features);
-        dest.writeValue(relayFeatureSupported);
-        dest.writeValue(proxyFeatureSupported);
-        dest.writeValue(friendFeatureSupported);
-        dest.writeValue(friendFeatureSupported);
+        dest.writeValue(nodeFeatures);
         dest.writeByteArray(generatedNetworkId);
         dest.writeMap(mElements);
         dest.writeMap(mAddedApplicationKeys);
@@ -243,38 +238,64 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         this.crpl = crpl;
     }
 
+    /**
+     * @deprecated Use {@link #getNodeFeatures()} instead
+     */
+    @Deprecated
     public final Integer getFeatures() {
         return features;
     }
 
+    /**
+     * Returns the {@link Features} of the node
+     */
+    public final Features getNodeFeatures() {
+        return nodeFeatures;
+    }
+
+    /**
+     * Set {@link Features} of the node
+     * @param features
+     */
+    public final void setNodeFeatures(final Features features) {
+        this.nodeFeatures = features;
+    }
+
+    /**
+     * @deprecated use {@link #getNodeFeatures()} instead
+     */
+    @Deprecated
     public final Boolean isRelayFeatureSupported() {
         return relayFeatureSupported;
     }
 
-    public final void setRelayFeatureSupported(final Boolean supported) {
-        relayFeatureSupported = supported;
-    }
-
+    /**
+     * @deprecated use {@link #getNodeFeatures()} instead
+     */
     public final Boolean isProxyFeatureSupported() {
         return proxyFeatureSupported;
     }
 
-    public final void setProxyFeatureSupported(final Boolean supported) {
-        proxyFeatureSupported = supported;
-    }
-
+    /**
+     * @deprecated use {@link #getNodeFeatures()} instead
+     */
     public final Boolean isFriendFeatureSupported() {
         return friendFeatureSupported;
     }
 
-    public final void setFriendFeatureSupported(final Boolean supported) {
-        friendFeatureSupported = supported;
-    }
-
+    /**
+     * @deprecated use {@link #getNodeFeatures()} instead
+     */
     public final Boolean isLowPowerFeatureSupported() {
         return lowPowerFeatureSupported;
     }
 
+    /**
+     * Sets the low power feature supported state
+     *
+     * @deprecated use {@link Features#getLowPower()} to get the enumerated states of the features
+     */
+    @Deprecated
     public final void setLowPowerFeatureSupported(final Boolean supported) {
         lowPowerFeatureSupported = supported;
     }
@@ -283,16 +304,12 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return numberOfElements;
     }
 
-    public final Map<Integer, String> getTempAddedAppKeys() {
-        return Collections.unmodifiableMap(mAddedAppKeys);
-    }
-
     public final Map<Integer, ApplicationKey> getAddedApplicationKeys() {
         return Collections.unmodifiableMap(mAddedApplicationKeys);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setAddedApplicationKeys(final Map<Integer, ApplicationKey> applicationKeys){
+    public final void setAddedApplicationKeys(final Map<Integer, ApplicationKey> applicationKeys) {
         mAddedApplicationKeys = applicationKeys;
     }
 
@@ -311,13 +328,23 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
             productIdentifier = configCompositionDataStatus.getProductIdentifier();
             versionIdentifier = configCompositionDataStatus.getVersionIdentifier();
             crpl = configCompositionDataStatus.getCrpl();
-            features = configCompositionDataStatus.getFeatures();
-            relayFeatureSupported = configCompositionDataStatus.isRelayFeatureSupported();
-            proxyFeatureSupported = configCompositionDataStatus.isProxyFeatureSupported();
-            friendFeatureSupported = configCompositionDataStatus.isFriendFeatureSupported();
-            lowPowerFeatureSupported = configCompositionDataStatus.isLowPowerFeatureSupported();
+            final boolean relayFeatureSupported = configCompositionDataStatus.isRelayFeatureSupported();
+            final boolean proxyFeatureSupported = configCompositionDataStatus.isProxyFeatureSupported();
+            final boolean friendFeatureSupported = configCompositionDataStatus.isFriendFeatureSupported();
+            final boolean lowPowerFeatureSupported = configCompositionDataStatus.isLowPowerFeatureSupported();
+            nodeFeatures = new Features(friendFeatureSupported ? 0 : 2,
+                    lowPowerFeatureSupported ? 0 : 2,
+                    proxyFeatureSupported ? 0 : 2,
+                    relayFeatureSupported ? 0 : 2);
             mElements.putAll(configCompositionDataStatus.getElements());
         }
+    }
+
+    private int getFeatureState(final Boolean feature) {
+        if (feature != null && feature) {
+            return 2;
+        }
+        return 0;
     }
 
     /**

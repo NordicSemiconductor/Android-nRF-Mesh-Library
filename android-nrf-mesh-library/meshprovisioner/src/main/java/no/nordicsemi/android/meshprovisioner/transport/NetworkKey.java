@@ -45,11 +45,13 @@ public final class NetworkKey implements Parcelable {
     public static final int PHASE_1 = 1; //Switching to the new keys
     public static final int PHASE_2 = 2; //Revoking the old keys
 
+    @PrimaryKey(autoGenerate = true)
+    int id;
+
     @ColumnInfo(name = "mesh_uuid")
     @Expose
     String meshUuid;
 
-    @PrimaryKey
     @ColumnInfo(name = "index")
     @Expose
     private int keyIndex;
@@ -136,6 +138,16 @@ public final class NetworkKey implements Parcelable {
 
     public void setMeshUuid(final String meshUuid) {
         this.meshUuid = meshUuid;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public int getId() {
+        return id;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setId(final int id) {
+        this.id = id;
     }
 
     /**

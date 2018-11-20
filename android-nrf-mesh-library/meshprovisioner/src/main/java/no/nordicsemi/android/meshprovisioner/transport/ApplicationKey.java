@@ -3,7 +3,6 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
@@ -22,26 +21,21 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 @Entity(tableName = "application_key",
-        foreignKeys = {
-                @ForeignKey(entity = MeshNetwork.class,
-                        parentColumns = "mesh_uuid",
-                        childColumns = "mesh_uuid",
-                        onUpdate = CASCADE,
-                        onDelete = CASCADE),
-                @ForeignKey(entity = NetworkKey.class,
-                        parentColumns = "index",
-                        childColumns = "bound_key_index",
-                        onUpdate = CASCADE, onDelete = CASCADE)},
-        indices = {
-                @Index("mesh_uuid"),
-                @Index("bound_key_index")})
+        foreignKeys = @ForeignKey(entity = MeshNetwork.class,
+                parentColumns = "mesh_uuid",
+                childColumns = "mesh_uuid",
+                onUpdate = CASCADE,
+                onDelete = CASCADE),
+        indices = @Index("mesh_uuid"))
 public final class ApplicationKey implements Parcelable {
+
+    @PrimaryKey(autoGenerate = true)
+    int id;
 
     @ColumnInfo(name = "mesh_uuid")
     @Expose
     String meshUuid;
 
-    @PrimaryKey
     @ColumnInfo(name = "index")
     @Expose
     private int keyIndex;
@@ -109,8 +103,19 @@ public final class ApplicationKey implements Parcelable {
         }
     };
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public int getId() {
+        return id;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setId(final int id) {
+        this.id = id;
+    }
+
     /**
      * Returns the meshUuid of the Mesh network
+     *
      * @return String meshUuid
      */
     public String getMeshUuid() {
@@ -119,6 +124,7 @@ public final class ApplicationKey implements Parcelable {
 
     /**
      * Sets the meshUuid of the mesh network to this application key
+     *
      * @param meshUuid mesh network meshUuid
      */
     public void setMeshUuid(final String meshUuid) {

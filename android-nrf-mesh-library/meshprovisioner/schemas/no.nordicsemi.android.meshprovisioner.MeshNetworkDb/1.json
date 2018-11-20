@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "0c0e724ff87611c7aff1e769c9b4148b",
+    "identityHash": "bbce658e94070ee3138a0a2865507dd5",
     "entities": [
       {
         "tableName": "mesh_network",
@@ -50,8 +50,14 @@
       },
       {
         "tableName": "network_key",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `key` BLOB, `phase` INTEGER NOT NULL, `security` INTEGER NOT NULL, `old_key` BLOB, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`index`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mesh_uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `key` BLOB, `phase` INTEGER NOT NULL, `security` INTEGER NOT NULL, `old_key` BLOB, `timestamp` INTEGER NOT NULL, FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
           {
             "fieldPath": "meshUuid",
             "columnName": "mesh_uuid",
@@ -103,9 +109,9 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "index"
+            "id"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
         "indices": [
           {
@@ -133,8 +139,14 @@
       },
       {
         "tableName": "application_key",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `bound_key_index` INTEGER NOT NULL, `key` BLOB, `old_key` BLOB, PRIMARY KEY(`index`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`bound_key_index`) REFERENCES `network_key`(`index`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mesh_uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `bound_key_index` INTEGER NOT NULL, `key` BLOB, `old_key` BLOB, FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
           {
             "fieldPath": "meshUuid",
             "columnName": "mesh_uuid",
@@ -174,9 +186,9 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "index"
+            "id"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
         "indices": [
           {
@@ -186,14 +198,6 @@
               "mesh_uuid"
             ],
             "createSql": "CREATE  INDEX `index_application_key_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
-          },
-          {
-            "name": "index_application_key_bound_key_index",
-            "unique": false,
-            "columnNames": [
-              "bound_key_index"
-            ],
-            "createSql": "CREATE  INDEX `index_application_key_bound_key_index` ON `${TABLE_NAME}` (`bound_key_index`)"
           }
         ],
         "foreignKeys": [
@@ -206,17 +210,6 @@
             ],
             "referencedColumns": [
               "mesh_uuid"
-            ]
-          },
-          {
-            "table": "network_key",
-            "onDelete": "CASCADE",
-            "onUpdate": "CASCADE",
-            "columns": [
-              "bound_key_index"
-            ],
-            "referencedColumns": [
-              "index"
             ]
           }
         ]
@@ -324,7 +317,7 @@
       },
       {
         "tableName": "nodes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `uuid` TEXT NOT NULL, `unicast_address` BLOB, `name` TEXT, `configured` INTEGER NOT NULL, `device_key` BLOB, `ttl` INTEGER NOT NULL, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `relay` INTEGER, `proxy` INTEGER, `friend` INTEGER, `low_power` INTEGER, `timestamp` INTEGER NOT NULL, `mElements` TEXT, `mAddedApplicationKeys` TEXT, PRIMARY KEY(`uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `uuid` TEXT NOT NULL, `security` INTEGER NOT NULL, `unicast_address` BLOB, `name` TEXT, `configured` INTEGER NOT NULL, `device_key` BLOB, `ttl` INTEGER, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `timestamp` INTEGER NOT NULL, `mElements` TEXT, `mAddedApplicationKeys` TEXT, `blacklisted` INTEGER NOT NULL, `secureNetworkBeacon` INTEGER, `friend` INTEGER, `lowPower` INTEGER, `proxy` INTEGER, `relay` INTEGER, `networkTransmitCount` INTEGER, `networkIntervalSteps` INTEGER, `relayTransmitCount` INTEGER, `relayIntervalSteps` INTEGER, PRIMARY KEY(`uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "meshUuid",
@@ -336,6 +329,12 @@
             "fieldPath": "uuid",
             "columnName": "uuid",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "security",
+            "columnName": "security",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -366,7 +365,7 @@
             "fieldPath": "ttl",
             "columnName": "ttl",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "mReceivedSequenceNumber",
@@ -399,30 +398,6 @@
             "notNull": false
           },
           {
-            "fieldPath": "relayFeatureSupported",
-            "columnName": "relay",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "proxyFeatureSupported",
-            "columnName": "proxy",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "friendFeatureSupported",
-            "columnName": "friend",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "lowPowerFeatureSupported",
-            "columnName": "low_power",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
             "fieldPath": "mTimeStampInMillis",
             "columnName": "timestamp",
             "affinity": "INTEGER",
@@ -438,6 +413,66 @@
             "fieldPath": "mAddedApplicationKeys",
             "columnName": "mAddedApplicationKeys",
             "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackListed",
+            "columnName": "blacklisted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "secureNetworkBeaconSupported",
+            "columnName": "secureNetworkBeacon",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nodeFeatures.friend",
+            "columnName": "friend",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nodeFeatures.lowPower",
+            "columnName": "lowPower",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nodeFeatures.proxy",
+            "columnName": "proxy",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nodeFeatures.relay",
+            "columnName": "relay",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "networkTransmitSettings.networkTransmitCount",
+            "columnName": "networkTransmitCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "networkTransmitSettings.networkIntervalSteps",
+            "columnName": "networkIntervalSteps",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "relaySettings.relayTransmitCount",
+            "columnName": "relayTransmitCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "relaySettings.relayIntervalSteps",
+            "columnName": "relayIntervalSteps",
+            "affinity": "INTEGER",
             "notNull": false
           }
         ],
@@ -592,7 +627,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"0c0e724ff87611c7aff1e769c9b4148b\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"bbce658e94070ee3138a0a2865507dd5\")"
     ]
   }
 }

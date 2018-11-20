@@ -43,10 +43,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
@@ -54,7 +57,7 @@ import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
 abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     @Retention(RetentionPolicy.SOURCE)
@@ -141,25 +144,29 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Expose
     Integer crpl = null;
 
-    @ColumnInfo(name = "relay")
-    @Nullable
-    @Expose
+    @Deprecated
+    @Ignore
+    @Expose(serialize = false)
     Boolean relayFeatureSupported = null;
 
-    @ColumnInfo(name = "proxy")
-    @Nullable
-    @Expose
+    @Deprecated
+    @Ignore
+    @Expose(serialize = false)
     Boolean proxyFeatureSupported = null;
 
-    @ColumnInfo(name = "friend")
-    @Nullable
-    @Expose
+    @Deprecated
+    @Ignore
+    @Expose(serialize = false)
     Boolean friendFeatureSupported = null;
 
-    @ColumnInfo(name = "low_power")
-    @Nullable
-    @Expose
+    @Deprecated
+    @Ignore
+    @Expose(serialize = false)
     Boolean lowPowerFeatureSupported = null;
+
+    @Embedded
+    @Expose
+    Features nodeFeatures = null;
 
     @ColumnInfo(name = "timestamp")
     @Expose
@@ -170,9 +177,14 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
 
     //Fields ignored by the entity as they have been migrated to the mesh network object
+    @Deprecated
     @Ignore
     @Expose(serialize = false)
     protected byte[] networkKey;
+
+    @Ignore
+    @Expose(serialize = false)
+    List<Integer> mAddedNetworkKeyIndexes = new ArrayList<>();
 
     @Ignore
     @Expose
@@ -182,6 +194,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Expose
     byte[] identityKey;
 
+    @Deprecated
     @Ignore
     @Expose(serialize = false)
     byte[] keyIndex;
@@ -195,8 +208,12 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Expose
     byte[] mFlags;
 
+    /**
+     * @deprecated use {@link Features} instead
+     */
+    @Deprecated
     @Ignore
-    @Expose
+    @Expose(deserialize = false)
     Integer features = null;
 
     @TypeConverters(MeshTypeConverters.class)
@@ -205,9 +222,10 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     @Ignore
     @SerializedName("appKeys")
-    @Expose
+    @Expose(serialize = false)
     List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
 
+    @Deprecated
     @Ignore
     @Expose(serialize = false)
     Map<Integer, String> mAddedAppKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
@@ -335,7 +353,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     }
 
     public List<NetworkKey> getNetworkKeys() {
-        return networkKeys;
+        return Collections.unmodifiableList(networkKeys);
     }
 
     public final byte[] getFlags() {

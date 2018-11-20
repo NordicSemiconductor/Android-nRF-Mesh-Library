@@ -36,6 +36,7 @@ class DataMigrator {
     /**
      * Load serialized provisioned nodes from preferences
      */
+    @SuppressWarnings("deprecation")
     final MeshNetwork migrateData(final Context context, final Gson gson, final ProvisioningSettings provisioningSettings) {
         if (sharedPrefsExists(context)) {
             final MeshNetwork meshNetwork = new MeshNetwork(UUID.randomUUID().toString());
@@ -75,12 +76,15 @@ class DataMigrator {
                                 gsonBuilder.enableComplexMapKeySerialization();
                                 gsonBuilder.setPrettyPrinting();
                             }
-                            final int unicastAddress = AddressUtils.getUnicastAddressInt(node.getUnicastAddress());
                             //Since the current version of the app does not store the unique provisionerUuid of the
                             //device we manually generate one for exporting purposes as a work around
                             node.setUuid(UUID.randomUUID().toString());
                             node.setMeshUuid(meshNetwork.meshUUID);
-
+                            final Features features = new Features(node.isFriendFeatureSupported() ? 0 : 2,
+                                    node.isLowPowerFeatureSupported() ? 0 : 2,
+                                    node.isProxyFeatureSupported() ? 0 : 2,
+                                    node.isRelayFeatureSupported() ? 0 : 2);
+                            node.setNodeFeatures(features);
                             tempNodes.add(node);
 
                         } catch (Exception ex) {
