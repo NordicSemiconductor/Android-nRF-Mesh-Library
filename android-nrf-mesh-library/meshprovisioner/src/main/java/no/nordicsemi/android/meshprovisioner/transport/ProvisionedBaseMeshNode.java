@@ -28,6 +28,7 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 import android.os.Parcelable;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -37,6 +38,8 @@ import android.text.TextUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -45,23 +48,42 @@ import java.util.List;
 import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
+import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
+import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 abstract class ProvisionedBaseMeshNode implements Parcelable {
 
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({LOW, HIGH})
+    public @interface SecurityState {
+    }
+
+    private static final int LOW = 0; //Low security
+    private static final int HIGH = 1; //High security
+
     protected static final String TAG = ProvisionedBaseMeshNode.class.getSimpleName();
-    /**Unique identifier of the mesh network*/
+    /**
+     * Unique identifier of the mesh network
+     */
     @ColumnInfo(name = "mesh_uuid")
     @Expose(serialize = false, deserialize = false)
     String meshUuid;
 
-    /**Device UUID*/
+    /**
+     * Device UUID
+     */
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = "uuid")
     String uuid;
+
+    @ColumnInfo(name = "security")
+    @Expose
+    int security = LOW;
 
     @Ignore
     @Expose
@@ -85,7 +107,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     @ColumnInfo(name = "ttl")
     @Expose
-    protected int ttl = 5;
+    protected Integer ttl = 5;
 
     @ColumnInfo(name = "seq_number")
     @Expose
@@ -218,6 +240,22 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Expose(serialize = false)
     protected byte[] ivIndex;
 
+    @ColumnInfo(name = "blacklisted")
+    @Expose
+    protected boolean blackListed = false;
+
+    @ColumnInfo(name = "secureNetworkBeacon")
+    @Expose
+    protected Boolean secureNetworkBeaconSupported;
+
+    @Embedded
+    @Expose
+    protected NetworkTransmitSettings networkTransmitSettings;
+
+    @Embedded
+    @Expose
+    protected RelaySettings relaySettings;
+
     public ProvisionedBaseMeshNode() {
 
     }
@@ -273,8 +311,12 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         this.unicastAddress = unicastAddress;
     }
 
-    public int getTtl() {
+    public final Integer getTtl() {
         return ttl;
+    }
+
+    public final void setTtl(final Integer ttl) {
+        this.ttl = ttl;
     }
 
     public final byte[] getIdentityKey() {
@@ -322,15 +364,12 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         this.bluetoothDeviceAddress = bluetoothDeviceAddress;
     }
 
-    public void setTtl(final int ttl) {
-        this.ttl = ttl;
-    }
 
     public long getTimeStamp() {
         return mTimeStampInMillis;
     }
 
-    public void setTimeStamp(final long timestamp){
+    public void setTimeStamp(final long timestamp) {
         mTimeStampInMillis = timestamp;
     }
 
@@ -340,5 +379,82 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     public final void setConfigurationSrc(final byte[] src) {
         mConfigurationSrc = src;
+    }
+
+    /**
+     * Returns the {@link SecurityState} of the node
+     */
+    @SecurityState
+    public int getSecurity() {
+        return security;
+    }
+
+    /**
+     * Set security state of the node {@link SecurityState}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setSecurity(@SecurityState final int security) {
+        this.security = security;
+    }
+
+    /**
+     * Returns true if the node is blacklisted or false otherwise
+     */
+    public boolean isBlackListed() {
+        return blackListed;
+    }
+
+    /**
+     * Blacklist a node
+     *
+     * @param blackListed true if blacklisted
+     */
+    public void setBlackListed(final boolean blackListed) {
+        this.blackListed = blackListed;
+    }
+
+    /**
+     * Returns the {@link SecureNetworkBeacon} beacon of this node
+     */
+    public Boolean isSecureNetworkBeaconSupported() {
+        return secureNetworkBeaconSupported;
+    }
+
+    /**
+     * Sets the {@link SecureNetworkBeacon} beacon for this node
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setSecureNetworkBeaconSupported(final Boolean secureNetworkBeacon) {
+        this.secureNetworkBeaconSupported = secureNetworkBeacon;
+    }
+
+    /**
+     * Returns {@link NetworkTransmitSettings} of this node
+     */
+    public NetworkTransmitSettings getNetworkTransmitSettings() {
+        return networkTransmitSettings;
+    }
+
+    /**
+     * Sets {@link NetworkTransmitSettings} of this node
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setNetworkTransmitSettings(final NetworkTransmitSettings networkTransmitSettings) {
+        this.networkTransmitSettings = networkTransmitSettings;
+    }
+
+    /**
+     * Returns {@link RelaySettings} of this node
+     */
+    public RelaySettings getRelaySettings() {
+        return relaySettings;
+    }
+
+    /**
+     * Sets {@link NetworkTransmitSettings} of this node
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setRelaySettings(final RelaySettings relaySettings) {
+        this.relaySettings = relaySettings;
     }
 }

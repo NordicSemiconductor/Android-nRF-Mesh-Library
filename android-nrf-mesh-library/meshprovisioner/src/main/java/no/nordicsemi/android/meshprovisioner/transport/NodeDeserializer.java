@@ -20,6 +20,8 @@ import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
+import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMeshNode>>, JsonDeserializer<List<ProvisionedMeshNode>> {
@@ -52,7 +54,31 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 final Map<Integer, Element> elementMap = populateElements(unicastAddress, elements);
                 node.mElements.clear();
                 node.mElements.putAll(elementMap);
+
+                if (jsonObject.has("secureNetworkBeacon")) {
+                    node.setSecureNetworkBeaconSupported(jsonObject.get("secureNetworkBeacon").getAsBoolean());
+                }
+
+                if (jsonObject.has("networkTransmit")) {
+                    final JsonObject jsonNetTransmit = jsonObject.getAsJsonObject("networkTransmit");
+                    final NetworkTransmitSettings networkTransmitSettings =
+                            new NetworkTransmitSettings(jsonNetTransmit.get("count").getAsInt(), jsonNetTransmit.get("interval").getAsInt());
+                    node.setNetworkTransmitSettings(networkTransmitSettings);
+                }
+
+                if (jsonObject.has("relayRetransmit")) {
+                    final JsonObject jsonRelay = jsonObject.getAsJsonObject("relayRetransmit");
+                    final RelaySettings relaySettings =
+                            new RelaySettings(jsonRelay.get("count").getAsInt(), jsonRelay.get("interval").getAsInt());
+                    node.setRelaySettings(relaySettings);
+                }
+
+                if (jsonObject.has("blacklisted")) {
+                    node.setBlackListed(jsonObject.get("blacklisted").getAsBoolean());
+                }
             }
+
+            nodes.add(node);
         }
 
         return nodes;
@@ -92,7 +118,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
         final Map<Integer, Element> elements = new LinkedHashMap<>();
         for (int i = 0; i < elementsList.size(); i++) {
             final Element element = elementsList.get(i);
-            if(i == 0){
+            if (i == 0) {
                 element.elementAddress = AddressUtils.getUnicastAddressBytes(unicastAddress);
             } else {
                 element.elementAddress = AddressUtils.getUnicastAddressBytes(unicastAddress + 1);

@@ -44,6 +44,8 @@ import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
+import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
@@ -63,6 +65,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     private SecureUtils.K2Output k2Output;
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedMeshNode() {
     }
 
@@ -89,14 +92,14 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     @Ignore
     protected ProvisionedMeshNode(Parcel in) {
         uuid = in.readString();
-        isProvisioned = in.readByte() != 0;
-        isConfigured = in.readByte() != 0;
+        isProvisioned = in.readByte() != 1;
+        isConfigured = in.readByte() != 1;
         nodeName = in.readString();
         networkKeys = in.readArrayList(NetworkKey.class.getClassLoader());
         mFlags = in.createByteArray();
         unicastAddress = in.createByteArray();
         deviceKey = in.createByteArray();
-        ttl = in.readInt();
+        ttl = (Integer) in.readValue(Integer.class.getClassLoader());
         numberOfElements = in.readInt();
         mReceivedSequenceNumber = in.readInt();
         k2Output = in.readParcelable(SecureUtils.K2Output.class.getClassLoader());
@@ -116,6 +119,10 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         mTimeStampInMillis = in.readLong();
         mConfigurationSrc = in.createByteArray();
         mSeqAuth = in.readParcelable(SparseIntArrayParcelable.class.getClassLoader());
+        secureNetworkBeaconSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        networkTransmitSettings = in.readParcelable(NetworkTransmitSettings.class.getClassLoader());
+        relaySettings = in.readParcelable(RelaySettings.class.getClassLoader());
+        blackListed = in.readByte() != 1;
     }
 
     @Override
@@ -128,7 +135,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeByteArray(mFlags);
         dest.writeByteArray(unicastAddress);
         dest.writeByteArray(deviceKey);
-        dest.writeInt(ttl);
+        dest.writeValue(ttl);
         dest.writeInt(numberOfElements);
         dest.writeInt(mReceivedSequenceNumber);
         dest.writeParcelable(k2Output, flags);
@@ -148,6 +155,10 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeLong(mTimeStampInMillis);
         dest.writeByteArray(mConfigurationSrc);
         dest.writeParcelable(mSeqAuth, flags);
+        dest.writeValue(secureNetworkBeaconSupported);
+        dest.writeValue(networkTransmitSettings);
+        dest.writeValue(relaySettings);
+        dest.writeValue((byte) (blackListed ? 1 : 0));
     }
 
 
@@ -166,14 +177,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    public final int getTtl() {
-        return ttl;
-    }
-
-    public final void setTtl(final int ttl) {
-        this.ttl = ttl;
     }
 
     public final Map<Integer, Element> getElements() {
@@ -436,10 +439,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
                 for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
                     if (modelEntry.getValue() != null) {
                         final MeshModel meshModel = modelEntry.getValue();
-                        for (int i = 0; i < meshModel.getSubscriptionAddresses().size(); i++) {
-                            final byte[] address = meshModel.getSubscriptionAddresses().get(i);
-                            meshModel.mSubscriptionAddress.add(address);
-                        }
+                        meshModel.mSubscriptionAddress.addAll(meshModel.getSubscriptionAddresses());
                     }
                 }
             }
