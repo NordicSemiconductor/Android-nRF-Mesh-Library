@@ -34,6 +34,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         network.schema = jsonObject.get("$schema").getAsString();
         network.id = jsonObject.get("$schema").getAsString();
         network.version = jsonObject.get("version").getAsString();
+        network.meshName = jsonObject.get("meshName").getAsString();
         network.timestamp = jsonObject.get("timestamp").getAsString();
         network.netKeys = deserializeNetKeys(context, jsonObject.getAsJsonArray("netKeys"), network.meshUUID);
         network.appKeys = deserializeAppKeys(context, jsonObject.getAsJsonArray("appKeys"), network.meshUUID);

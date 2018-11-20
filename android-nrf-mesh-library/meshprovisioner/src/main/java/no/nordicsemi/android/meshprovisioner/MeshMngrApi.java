@@ -298,10 +298,11 @@ interface MeshMngrApi {
      */
     boolean exportMeshNetwork(final String path);
 
+
     /**
-     * Importing mesh network
-     *
+     * Starts an asynchronous task that imports a network from the mesh configuration db json
+     * <p>Af</p>
      * @param path path to the mesh configuration database json file.
      */
-    boolean importMeshNetwork(final String path);
+    void importMeshNetwork(final String path);
 }

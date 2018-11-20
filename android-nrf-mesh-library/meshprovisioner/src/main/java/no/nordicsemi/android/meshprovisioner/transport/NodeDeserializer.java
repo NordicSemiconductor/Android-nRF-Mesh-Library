@@ -35,8 +35,9 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
             final ProvisionedMeshNode node = new ProvisionedMeshNode();
             node.uuid = jsonObject.get("UUID").getAsString();
-            final int unicastAddress = Integer.parseInt(jsonObject.get("unicastAddress").getAsString(), 16);
             node.deviceKey = MeshParserUtils.toByteArray(jsonObject.get("deviceKey").getAsString());
+            final int unicastAddress = Integer.parseInt(jsonObject.get("unicastAddress").getAsString(), 16);
+            node.unicastAddress = AddressUtils.getUnicastAddressBytes(unicastAddress);
             final boolean security = jsonObject.get("security").getAsString().equals("high");
             node.security = security ? 1 : 0;
             node.mAddedNetworkKeyIndexes = deserializeNetKeyIndexes(jsonObject.get("netKeys").getAsJsonArray());

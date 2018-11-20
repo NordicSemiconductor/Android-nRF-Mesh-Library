@@ -13,7 +13,6 @@ import java.util.List;
 
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
-import no.nordicsemi.android.meshprovisioner.MeshBeacon;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshManagerTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
@@ -156,6 +155,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      * Contains the initial provisioning live data
      **/
     private MeshNetworkLiveData mMeshNetworkLiveData = new MeshNetworkLiveData();
+
+    private SingleLiveEvent<List<Provisioner>> mSelectProvisionerLiveData = new SingleLiveEvent<>();
 
     private MeshMessageLiveData mMeshMessageLiveData = new MeshMessageLiveData();
     /**
@@ -555,9 +556,15 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void onNetworkLoaded(final MeshNetwork meshNetwork) {
         mMeshNetwork = meshNetwork;//mMeshManagerApi.getMeshNetwork();
         if (mMeshNetwork != null) {
+
+            if(!mMeshNetwork.isProvisionerSelected()) {
+                final Provisioner provisioner = meshNetwork.getProvisioners().get(0);
+                provisioner.setLastSelected(true);
+                mMeshNetwork.selectProvisioner(provisioner);
+            }
+
             //Load live data with mesh network
             mMeshNetworkLiveData.refresh(meshNetwork);
-
             //Load live data with provisioned nodes
             mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
         }
@@ -885,5 +892,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mSetupProvisionedNode = true;
         mProvisionedMeshNode = node;
         connectToProxy(device);
+    }
+
+    void importMeshNetwork(final String path) {
+        mMeshManagerApi.importMeshNetwork(path);
     }
 }

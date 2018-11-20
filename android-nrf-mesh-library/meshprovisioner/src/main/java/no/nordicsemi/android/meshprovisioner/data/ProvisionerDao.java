@@ -38,5 +38,4 @@ public interface ProvisionerDao {
 
     @Query("DELETE FROM provisioner")
     void deleteAll();
-
 }

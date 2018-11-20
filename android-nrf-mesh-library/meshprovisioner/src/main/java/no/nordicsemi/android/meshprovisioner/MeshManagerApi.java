@@ -192,20 +192,27 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         mMeshMessageHandler.setMeshStatusCallbacks(callbacks);
     }
 
+    /**
+     * Loads the mesh network from the local database.
+     * <p> This will start an AsyncTask that will load the network from the database.
+     * {@link MeshManagerTransportCallbacks#onNetworkLoaded(MeshNetwork) will return the mesh netword}</>
+     */
     public void loadMeshNetwork() {
-        //loadNetworkFromDb();
         mMeshNetworkDb.loadNetwork(mMeshNetworkDao,
                 mNetworkKeyDao,
                 mApplicationKeyDao,
                 mProvisionerDao,
                 mProvisionedNodeDao,
                 mGroupDao, mSceneDao,
-                listener);
+                networkLoadCallbacks);
     }
 
-    public MeshNetwork getMeshNetwork() throws IllegalArgumentException {
-        if (mMeshNetwork == null)
-            throw new IllegalArgumentException("Have you forgotten to call loadMeshNetwork() ?");
+    /**
+     * Returns an already loaded mesh network, make sure to call {@link #loadMeshNetwork()} before
+     *
+     * @return
+     */
+    public MeshNetwork getMeshNetwork() {
         return mMeshNetwork;
     }
 
@@ -253,7 +260,10 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     private void insertNetwork(final MeshNetwork meshNetwork) {
         meshNetwork.setLastSelected(true);
-        meshNetwork.provisioners.get(0).setLastSelected(true);
+        //If there is only one provisioner we default to the zeroth
+        if(meshNetwork.provisioners.size() == 1) {
+            meshNetwork.provisioners.get(0).setLastSelected(true);
+        }
         mMeshNetworkDb.insertNetwork(mMeshNetworkDao,
                 mNetworkKeyDao,
                 mApplicationKeyDao,
@@ -362,8 +372,8 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         if (unicastAdd == tempSrc) {
             unicastAdd = unicastAdd + 1;
         }
-        mMeshNetwork.provisioners.get(0).setUnicastAddress(AddressUtils.getUnicastAddressBytes(unicastAdd));
-        mMeshNetworkDb.updateProvisioner(mProvisionerDao, mMeshNetwork.getProvisioners().get(0));
+
+        mMeshNetwork.setUnicastAddress(unicastAdd);
     }
 
 
@@ -671,7 +681,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
                 mMeshNetwork.getPrimaryNetworkKey(),
                 0,
                 mMeshNetwork.getIvIndex(),
-                mMeshNetwork.getProvisioners().get(0).getUnicastAddress(),
+                mMeshNetwork.getUnicastAddress(),
                 provisioningSettings.getGlobalTtl(), mMeshNetwork.getProvisioners().get(0).getProvisionerAddress());
     }
 
@@ -1005,10 +1015,14 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         return false;
     }
 
-
-    public boolean importMeshNetwork(final String path) {
-        return importNetwork(path);
+    @Override
+    public void importMeshNetwork(final String path) {
+        mMeshNetworkDb.deleteNetwork(mMeshNetworkDao, mMeshNetwork);
+        final NetworkImportAsyncTask networkImportAsyncTask = new NetworkImportAsyncTask(path, networkLoadCallbacks);
+        networkImportAsyncTask.execute();
     }
+
+
 
     boolean importNetwork(final String path) {
         BufferedReader br = null;
@@ -1133,12 +1147,26 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     /**
      * Callbacks to notify when the database has been loaded
      */
-    private final MeshNetworkDb.LoadNetworkAsyncTaskListener listener = new MeshNetworkDb.LoadNetworkAsyncTaskListener() {
+    private final LoadNetworkCallbacks networkLoadCallbacks = new LoadNetworkCallbacks() {
         @Override
-        public void onNetworkLoaded(final MeshNetwork meshNetwork) {
+        public void onNetworkLoadedFromDb(final MeshNetwork meshNetwork) {
             meshNetwork.setCallbacks(callbacks);
             mMeshNetwork = meshNetwork;
             mTransportCallbacks.onNetworkLoaded(meshNetwork);
+        }
+
+        @Override
+        public void onNetworkLoadedFromJson(final MeshNetwork meshNetwork) {
+            meshNetwork.setCallbacks(callbacks);
+            meshNetwork.setLastSelected(true);
+            mMeshNetwork = meshNetwork;
+            mTransportCallbacks.onNetworkLoaded(meshNetwork);
+            insertNetwork(meshNetwork);
+        }
+
+        @Override
+        public void onNetworkLoadFailed() {
+
         }
     };
 
@@ -1184,6 +1212,11 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         @Override
         public void onProvisionerUpdated(final Provisioner provisioner) {
             mMeshNetworkDb.updateProvisioner(mProvisionerDao, provisioner);
+        }
+
+        @Override
+        public void onProvisionerUpdated(final List<Provisioner> provisioners) {
+            mMeshNetworkDb.updateProvisioner(mProvisionerDao, provisioners);
         }
 
         @Override

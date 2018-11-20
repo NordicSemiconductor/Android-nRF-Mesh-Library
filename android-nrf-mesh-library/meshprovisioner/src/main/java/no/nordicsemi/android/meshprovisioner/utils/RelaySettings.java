@@ -31,6 +31,11 @@ public class RelaySettings implements Parcelable {
         this.relayIntervalSteps = relayIntervalSteps;
     }
 
+    protected RelaySettings(Parcel in) {
+        relayTransmitCount = in.readInt();
+        relayIntervalSteps = in.readInt();
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(relayTransmitCount);
@@ -45,7 +50,7 @@ public class RelaySettings implements Parcelable {
     public static final Creator<RelaySettings> CREATOR = new Creator<RelaySettings>() {
         @Override
         public RelaySettings createFromParcel(Parcel in) {
-            return new RelaySettings(in.readInt(), in.readInt());
+            return new RelaySettings(in);
         }
 
         @Override

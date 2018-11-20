@@ -69,7 +69,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                 final int publicationSteps = jsonPublicationSettings.get("publicationSteps").getAsInt();
 
                 final JsonArray jsonPublishAddress = jsonPublicationSettings.get("publishAddress").getAsJsonArray();
-                final byte[] publishAddress = new byte[2];
+                final byte[] publishAddress = new byte[jsonPublishAddress.size()];
                 for (int i = 0; i < jsonPublishAddress.size(); i++) {
                     publishAddress[i] = jsonPublishAddress.get(i).getAsByte();
                 }
@@ -148,7 +148,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                 final int publicationSteps = jsonPublicationSettings.get("publicationSteps").getAsInt();
 
                 final JsonArray jsonPublishAddress = jsonPublicationSettings.getAsJsonArray("publishAddress");
-                final byte[] publishAddress = new byte[2];
+                final byte[] publishAddress = new byte[jsonPublishAddress.size()];
                 for (int i = 0; i < jsonPublishAddress.size(); i++) {
                     publishAddress[i] = jsonPublishAddress.get(i).getAsByte();
                 }

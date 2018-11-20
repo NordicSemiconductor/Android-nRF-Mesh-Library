@@ -66,10 +66,6 @@ public class Provisioner {
     @Expose
     private byte[] provisionerAddress = {0x07, (byte) 0xFF};
 
-    @ColumnInfo(name = "unicast_address")
-    @Expose
-    private byte[] unicastAddress;
-
     @ColumnInfo(name = "global_ttl")
     @Expose
     private int globalTtl;
@@ -219,25 +215,6 @@ public class Provisioner {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setProvisionerAddress(final byte[] provisionerAddress) {
         this.provisionerAddress = provisionerAddress;
-    }
-
-    /**
-     * Returns the next available unicast address
-     *
-     * @return unicast address
-     */
-    public byte[] getUnicastAddress() {
-        return unicastAddress;
-    }
-
-    /**
-     * Sets the next available unicast address
-     *
-     * @param unicastAddress address
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setUnicastAddress(final byte[] unicastAddress) {
-        this.unicastAddress = unicastAddress;
     }
 
     public int getGlobalTtl() {

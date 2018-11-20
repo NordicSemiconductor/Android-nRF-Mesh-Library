@@ -24,6 +24,11 @@ public class NetworkTransmitSettings implements Parcelable {
         this.networkIntervalSteps = networkIntervalSteps;
     }
 
+    protected NetworkTransmitSettings(Parcel in) {
+        networkTransmitCount = in.readInt();
+        networkIntervalSteps = in.readInt();
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(networkTransmitCount);
@@ -38,7 +43,7 @@ public class NetworkTransmitSettings implements Parcelable {
     public static final Creator<NetworkTransmitSettings> CREATOR = new Creator<NetworkTransmitSettings>() {
         @Override
         public NetworkTransmitSettings createFromParcel(Parcel in) {
-            return new NetworkTransmitSettings(in.readInt(), in.readInt());
+            return new NetworkTransmitSettings(in);
         }
 
         @Override

@@ -1,5 +1,7 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import java.util.List;
+
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 
@@ -20,6 +22,8 @@ interface MeshNetworkCallbacks {
     void onApplicationKeyDeleted(final ApplicationKey applicationKey);
 
     void onProvisionerUpdated(final Provisioner provisioner);
+
+    void onProvisionerUpdated(final List<Provisioner> provisioner);
 
     void onGroupAdded(final Group group);
 

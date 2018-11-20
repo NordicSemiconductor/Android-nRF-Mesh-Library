@@ -47,10 +47,9 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFlags;
@@ -225,6 +224,7 @@ public class SettingsFragment extends Fragment implements Injectable,
                 sourceAddressView.setText(MeshParserUtils.bytesToHex(meshNetworkLiveData.getProvisionerAddress(), true));
             }
         });
+
         return rootView;
 
     }
@@ -253,7 +253,7 @@ public class SettingsFragment extends Fragment implements Injectable,
                         + File.separator
                         + "nRF Mesh"
                         + File.separator;
-                mViewModel.getMeshManagerApi().importMeshNetwork(path);
+                mViewModel.importMeshNetwork(path);
                 return true;
             case R.id.action_reset_network:
                 final DialogFragmentResetNetwork dialogFragmentResetNetwork = DialogFragmentResetNetwork.
@@ -291,6 +291,15 @@ public class SettingsFragment extends Fragment implements Injectable,
             flagsText.append(getString(R.string.iv_update_active));
 
         return flagsText.toString();
+    }
+
+    private boolean isProvisionerSelected(final List<Provisioner> provisioners){
+        for(Provisioner provisioner : provisioners) {
+            if(provisioner.isLastSelected()){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

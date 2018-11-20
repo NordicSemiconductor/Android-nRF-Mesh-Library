@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "bbce658e94070ee3138a0a2865507dd5",
+    "identityHash": "16455b398ce81dd4bca07788b06bb1fa",
     "entities": [
       {
         "tableName": "mesh_network",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` TEXT, `iv_index` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`mesh_uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` TEXT, `iv_index` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, `unicast_address` BLOB, PRIMARY KEY(`mesh_uuid`))",
         "fields": [
           {
             "fieldPath": "meshUUID",
@@ -37,6 +37,12 @@
             "columnName": "last_selected",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "unicastAddress",
+            "columnName": "unicast_address",
+            "affinity": "BLOB",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -216,7 +222,7 @@
       },
       {
         "tableName": "provisioner",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `provisioner_uuid` TEXT NOT NULL, `name` TEXT, `allocatedGroupRanges` TEXT, `allocatedUnicastRanges` TEXT, `allocatedSceneRanges` TEXT, `sequence_number` INTEGER NOT NULL, `provisioner_address` BLOB, `unicast_address` BLOB, `global_ttl` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`provisioner_uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `provisioner_uuid` TEXT NOT NULL, `name` TEXT, `allocatedGroupRanges` TEXT, `allocatedUnicastRanges` TEXT, `allocatedSceneRanges` TEXT, `sequence_number` INTEGER NOT NULL, `provisioner_address` BLOB, `global_ttl` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`provisioner_uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "meshUuid",
@@ -263,12 +269,6 @@
           {
             "fieldPath": "provisionerAddress",
             "columnName": "provisioner_address",
-            "affinity": "BLOB",
-            "notNull": false
-          },
-          {
-            "fieldPath": "unicastAddress",
-            "columnName": "unicast_address",
             "affinity": "BLOB",
             "notNull": false
           },
@@ -627,7 +627,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"bbce658e94070ee3138a0a2865507dd5\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"16455b398ce81dd4bca07788b06bb1fa\")"
     ]
   }
 }

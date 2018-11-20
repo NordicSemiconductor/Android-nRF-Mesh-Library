@@ -2,17 +2,13 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 @Entity(tableName = "mesh_network")
@@ -121,7 +117,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.lastSelected = lastSelected;
     }
 
-    List<Provisioner> getProvisioners() {
+    public List<Provisioner> getProvisioners() {
         return Collections.unmodifiableList(provisioners);
     }
 
@@ -153,11 +149,12 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     /**
      * Deletes a mesh node from the list of provisioned ndoes
+     *
      * @param meshNode node to be deleted
      */
     public void deleteNode(final ProvisionedMeshNode meshNode) {
-        for(ProvisionedMeshNode node : nodes){
-            if(meshNode.getUnicastAddressInt() == node.getUnicastAddressInt()){
+        for (ProvisionedMeshNode node : nodes) {
+            if (meshNode.getUnicastAddressInt() == node.getUnicastAddressInt()) {
                 nodes.remove(node);
                 break;
             }

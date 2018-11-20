@@ -151,8 +151,8 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeByteArray(mConfigurationSrc);
         dest.writeParcelable(mSeqAuth, flags);
         dest.writeValue(secureNetworkBeaconSupported);
-        dest.writeValue(networkTransmitSettings);
-        dest.writeValue(relaySettings);
+        dest.writeParcelable(networkTransmitSettings, flags);
+        dest.writeParcelable(relaySettings, flags);
         dest.writeValue((byte) (blackListed ? 1 : 0));
     }
 

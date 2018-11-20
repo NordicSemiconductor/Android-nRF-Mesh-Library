@@ -48,6 +48,10 @@ public class SharedViewModel extends ViewModel {
         return nRFMeshRepository.getMeshManagerApi();
     }
 
+    public void importMeshNetwork(final String path){
+        nRFMeshRepository.importMeshNetwork(path);
+    }
+
     public NetworkInformationLiveData getNetworkInformation() {
         return nRFMeshRepository.getNetworkInformationLiveData();
     }

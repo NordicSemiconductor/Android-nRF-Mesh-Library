@@ -4,6 +4,7 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -88,6 +89,10 @@ abstract class BaseMeshNetwork {
     List<Scene> scenes = null;
 
     //Library related attributes
+    @ColumnInfo(name = "unicast_address")
+    @Expose
+    byte[] unicastAddress = {0x7F, (byte) 0xFF};
+
     @ColumnInfo(name = "last_selected")
     @Expose
     boolean lastSelected;
@@ -349,29 +354,8 @@ abstract class BaseMeshNetwork {
         }
     }
 
-    public byte[] getUnicastAddress() {
-        return provisioners.get(0).getUnicastAddress();
-    }
-
-    /**
-     * Set a unicast address, to be assigned to a node
-     *
-     * @param address unciast address
-     * @return true if success, false if the address is in use by another device
-     */
-    public boolean setUnicastAddress(final int address) {
-        if (isAddressInUse(address)) {
-            return false;
-        } else {
-            final Provisioner provisioner = provisioners.get(0);
-            provisioner.setUnicastAddress(AddressUtils.getUnicastAddressBytes(address));
-            notifyProvisionerUpdated(provisioner);
-            return true;
-        }
-    }
-
     public byte[] getProvisionerAddress() {
-        return provisioners.get(0).getProvisionerAddress();
+        return getSelectedProvisioner().getProvisionerAddress();
     }
 
     /**
@@ -382,13 +366,42 @@ abstract class BaseMeshNetwork {
      */
     public boolean setProvisionerAddress(final int address) {
         if (!isAddressInUse(address)) {
-            final Provisioner provisioner = provisioners.get(0);
+            final Provisioner provisioner = getSelectedProvisioner();
             provisioner.setProvisionerAddress(AddressUtils.getUnicastAddressBytes(address));
             notifyProvisionerUpdated(provisioner);
             return true;
         } else {
             return false;
         }
+    }
+
+    /**
+     * Returns the next available unicast address
+     *
+     * @return unicast address
+     */
+    public byte[] getUnicastAddress() {
+        return unicastAddress;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setUnicastAddress(final byte[] address) {
+        this.unicastAddress = address;
+    }
+
+    /**
+     * Set a unicast address, to be assigned to a node
+     *
+     * @param unicastAddress unicast address
+     * @return true if success, false if the address is in use by another device
+     */
+    public boolean setUnicastAddress(final int unicastAddress) {
+        if(isAddressInUse(unicastAddress))
+            return false;
+
+        this.unicastAddress = AddressUtils.getUnicastAddressBytes(unicastAddress);
+        notifyNetworkUpdated();
+        return true;
     }
 
     private boolean isAddressInUse(final int address) {
@@ -402,6 +415,52 @@ abstract class BaseMeshNetwork {
 
     public int getGlobalTtl() {
         return provisioners.get(0).getGlobalTtl();
+    }
+
+    /**
+     * Selects a provisioner if there are multiple provisioners.
+     *
+     * @param provisioner {@link Provisioner}
+     */
+    public final void selectProvisioner(final Provisioner provisioner) {
+        for(Provisioner prov : provisioners){
+            prov.setLastSelected(false);
+        }
+        provisioner.setLastSelected(true);
+        notifyProvisionerUpdated(provisioner);
+    }
+
+    /**
+     * Checks if the provisioner is selected
+     * <p> There could be networks that may contain more than one provisioner</p>
+     *
+     * @return true if a provisioner was selected or false otherwise
+     */
+    public final boolean isProvisionerSelected() {
+        if (provisioners.size() == 1) {
+            if(!provisioners.get(0).isLastSelected())
+                selectProvisioner(provisioners.get(0));
+            return true;
+        }
+
+        for (Provisioner provisioner : provisioners) {
+            if (provisioner.isLastSelected()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the selected provisioner in the network
+     */
+    public Provisioner getSelectedProvisioner(){
+        for (Provisioner provisioner : provisioners) {
+            if (provisioner.isLastSelected()) {
+                return provisioner;
+            }
+        }
+        return null;
     }
 
     /**
@@ -458,6 +517,12 @@ abstract class BaseMeshNetwork {
     }
 
     final void notifyProvisionerUpdated(final Provisioner provisioner) {
+        if (mCallbacks != null) {
+            mCallbacks.onProvisionerUpdated(provisioner);
+        }
+    }
+
+    final void notifyProvisionerUpdated(final List<Provisioner> provisioner) {
         if (mCallbacks != null) {
             mCallbacks.onProvisionerUpdated(provisioner);
         }

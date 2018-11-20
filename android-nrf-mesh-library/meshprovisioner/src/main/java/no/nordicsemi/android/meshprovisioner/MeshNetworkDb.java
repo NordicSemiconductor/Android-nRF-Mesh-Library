@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.data.ApplicationKeyDao;
 import no.nordicsemi.android.meshprovisioner.data.GroupDao;
@@ -37,10 +38,6 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
         Scene.class},
         version = 1)
 abstract class MeshNetworkDb extends RoomDatabase {
-
-    interface LoadNetworkAsyncTaskListener {
-        void onNetworkLoaded(final MeshNetwork meshNetwork);
-    }
 
     abstract MeshNetworkDao meshNetworkDao();
 
@@ -124,7 +121,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                        final ProvisionedMeshNodeDao nodeDao,
                        final GroupDao groupDao,
                        final SceneDao sceneDao,
-                       final LoadNetworkAsyncTaskListener listener) {
+                       final LoadNetworkCallbacks listener) {
         new LoadNetworkAsyncTask(dao,
                 netKeyDao,
                 appKeyDao,
@@ -173,6 +170,10 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
     void updateProvisioner(final ProvisionerDao dao, final Provisioner provisioner) {
         new UpdateProvisionerAsyncTask(dao).execute(provisioner);
+    }
+
+    void updateProvisioner(final ProvisionerDao dao, final List<Provisioner> provisioners) {
+        new UpdateProvisionersAsyncTask(dao, provisioners).execute();
     }
 
     void deleteProvisioner(final ProvisionerDao dao, final Provisioner provisioner) {
@@ -263,7 +264,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
     private static class LoadNetworkAsyncTask extends AsyncTask<Void, Void, MeshNetwork> {
 
-        private final LoadNetworkAsyncTaskListener listener;
+        private final LoadNetworkCallbacks listener;
         private final MeshNetworkDao meshNetworkDao;
         private final NetworkKeyDao netKeyDao;
         private final ApplicationKeyDao appKeyDao;
@@ -279,7 +280,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                              final ProvisionedMeshNodeDao nodeDao,
                              final GroupDao groupDao,
                              final SceneDao sceneDao,
-                             final LoadNetworkAsyncTaskListener listener) {
+                             final LoadNetworkCallbacks listener) {
             this.meshNetworkDao = meshNetworkDao;
             this.netKeyDao = netKeyDao;
             this.appKeyDao = appKeyDao;
@@ -305,7 +306,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         @Override
         protected void onPostExecute(final MeshNetwork meshNetwork) {
             super.onPostExecute(meshNetwork);
-            listener.onNetworkLoaded(meshNetwork);
+            listener.onNetworkLoadedFromDb(meshNetwork);
 
         }
     }
@@ -456,6 +457,23 @@ abstract class MeshNetworkDb extends RoomDatabase {
         @Override
         protected Void doInBackground(final Provisioner... params) {
             mAsyncTaskDao.update(params[0]);
+            return null;
+        }
+    }
+
+    private static class UpdateProvisionersAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        private final ProvisionerDao mAsyncTaskDao;
+        private final List<Provisioner> provisioners;
+
+        UpdateProvisionersAsyncTask(final ProvisionerDao dao, final List<Provisioner> provisioners) {
+            mAsyncTaskDao = dao;
+            this.provisioners = provisioners;
+        }
+
+        @Override
+        protected Void doInBackground(final Void... voids) {
+            mAsyncTaskDao.update(provisioners);
             return null;
         }
     }
