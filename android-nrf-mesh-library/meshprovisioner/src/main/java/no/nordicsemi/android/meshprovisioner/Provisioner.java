@@ -86,7 +86,7 @@ public class Provisioner {
         this.allocatedUnicastRanges = allocatedUnicastRanges;
         this.allocatedGroupRanges = allocatedGroupRanges;
         this.allocatedSceneRanges = allocatedSceneRanges;
-
+        this.meshUuid = meshUuid;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)

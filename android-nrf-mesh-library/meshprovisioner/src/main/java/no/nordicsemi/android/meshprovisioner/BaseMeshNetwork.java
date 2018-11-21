@@ -9,6 +9,7 @@ import android.support.annotation.RestrictTo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,37 +62,37 @@ abstract class BaseMeshNetwork {
     @Ignore
     @SerializedName("netKeys")
     @Expose
-    List<NetworkKey> netKeys;
+    List<NetworkKey> netKeys = new ArrayList<>();
 
     @Ignore
     @SerializedName("appKeys")
     @Expose
-    List<ApplicationKey> appKeys;
+    List<ApplicationKey> appKeys = new ArrayList<>();
 
     @Ignore
     @SerializedName("provisioners")
     @Expose
-    List<Provisioner> provisioners;
+    List<Provisioner> provisioners = new ArrayList<>();
 
     @Ignore
     @SerializedName("nodes")
     @Expose
-    List<ProvisionedMeshNode> nodes;
+    List<ProvisionedMeshNode> nodes = new ArrayList<>();
 
     @Ignore
     @SerializedName("groups")
     @Expose
-    List<Group> groups = null;
+    List<Group> groups = new ArrayList<>();
 
     @Ignore
     @SerializedName("scenes")
     @Expose
-    List<Scene> scenes = null;
+    List<Scene> scenes = new ArrayList<>();
 
     //Library related attributes
     @ColumnInfo(name = "unicast_address")
     @Expose
-    byte[] unicastAddress = {0x7F, (byte) 0xFF};
+    byte[] unicastAddress = {0x00, (byte) 0x00};
 
     @ColumnInfo(name = "last_selected")
     @Expose

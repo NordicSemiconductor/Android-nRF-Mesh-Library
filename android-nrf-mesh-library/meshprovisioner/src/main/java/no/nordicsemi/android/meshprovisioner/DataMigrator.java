@@ -53,7 +53,7 @@ class DataMigrator {
     @SuppressWarnings("deprecation")
     static MeshNetwork migrateData(final Context context, final Gson gson, final ProvisioningSettings provisioningSettings) {
         if (sharedPrefsExists(context)) {
-            final MeshNetwork meshNetwork = new MeshNetwork(UUID.randomUUID().toString());
+            final MeshNetwork meshNetwork = new MeshNetwork(UUID.randomUUID().toString().toUpperCase(Locale.US));
             final SharedPreferences preferences = context.getSharedPreferences(PREFS_SEQUENCE_NUMBER, Context.MODE_PRIVATE);
             final int sequenceNumber = preferences.getInt(SEQUENCE_NUMBER_KEY, 0);
             final byte[] srcAddress = initConfigurationSrc(context);
@@ -92,7 +92,7 @@ class DataMigrator {
                             }
                             //Since the current version of the app does not store the unique provisionerUuid of the
                             //device we manually generate one for exporting purposes as a work around
-                            node.setUuid(UUID.randomUUID().toString());
+                            node.setUuid(UUID.randomUUID().toString().toUpperCase(Locale.US));
                             node.setMeshUuid(meshNetwork.meshUUID);
                             final Features features = new Features(node.isFriendFeatureSupported() ? 0 : 2,
                                     node.isLowPowerFeatureSupported() ? 0 : 2,
@@ -183,7 +183,7 @@ class DataMigrator {
             provisioner.setSequenceNumber(sequenceNumber);
             provisioner.setGlobalTtl(settings.getGlobalTtl());
             if (TextUtils.isEmpty(provisioner.getProvisionerUuid())) {
-                provisioner.setProvisionerUuid(UUID.randomUUID().toString());
+                provisioner.setProvisionerUuid(UUID.randomUUID().toString().toUpperCase(Locale.US));
             }
 
             final AllocatedGroupRange groupRange = new AllocatedGroupRange(new byte[]{(byte) 0xC0, 0x00}, new byte[]{(byte) 0xFE, (byte) 0xFF});

@@ -11,6 +11,8 @@ import android.support.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.data.ApplicationKeyDao;
 import no.nordicsemi.android.meshprovisioner.data.GroupDao;
@@ -25,6 +27,7 @@ import no.nordicsemi.android.meshprovisioner.data.ScenesDao;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("unused")
@@ -251,10 +254,14 @@ abstract class MeshNetworkDb extends RoomDatabase {
             netKeyDao.insert(meshNetwork.netKeys);
             appKeyDao.insert(meshNetwork.appKeys);
             provisionerDao.insert(meshNetwork.provisioners);
-            nodeDao.insert(meshNetwork.nodes);
+            if(!meshNetwork.nodes.isEmpty()) {
+                nodeDao.insert(meshNetwork.nodes);
+            }
+
             if(meshNetwork.groups != null) {
                 groupDao.insert(meshNetwork.groups);
             }
+
             if(meshNetwork.scenes != null) {
                 sceneDao.insert(meshNetwork.scenes);
             }
@@ -294,12 +301,14 @@ abstract class MeshNetworkDb extends RoomDatabase {
         @Override
         protected MeshNetwork doInBackground(final Void... params) {
             final MeshNetwork meshNetwork = meshNetworkDao.getMeshNetwork(true);
-            meshNetwork.netKeys = netKeyDao.loadNetworkKeys(meshNetwork.getMeshUUID());
-            meshNetwork.appKeys = appKeyDao.loadApplicationKeys(meshNetwork.getMeshUUID());
-            meshNetwork.nodes = nodeDao.getNodes(meshNetwork.getMeshUUID());
-            final ArrayList<Provisioner> provisioners = new ArrayList<>();
-            provisioners.add(provisionerDao.getProvisioner(meshNetwork.getMeshUUID(), true));
-            meshNetwork.provisioners = provisioners;
+            if(meshNetwork != null) {
+                meshNetwork.netKeys = netKeyDao.loadNetworkKeys(meshNetwork.getMeshUUID());
+                meshNetwork.appKeys = appKeyDao.loadApplicationKeys(meshNetwork.getMeshUUID());
+                meshNetwork.nodes = nodeDao.getNodes(meshNetwork.getMeshUUID());
+                final ArrayList<Provisioner> provisioners = new ArrayList<>();
+                provisioners.add(provisionerDao.getProvisioner(meshNetwork.getMeshUUID(), true));
+                meshNetwork.provisioners = provisioners;
+            }
             return meshNetwork;
         }
 
@@ -307,7 +316,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
         protected void onPostExecute(final MeshNetwork meshNetwork) {
             super.onPostExecute(meshNetwork);
             listener.onNetworkLoadedFromDb(meshNetwork);
-
         }
     }
 
