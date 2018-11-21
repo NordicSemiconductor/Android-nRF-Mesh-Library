@@ -15,10 +15,13 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork>, JsonDeserializer<MeshNetwork> {
@@ -42,6 +45,9 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         network.nodes = deserializeNodes(context, jsonObject.getAsJsonArray("nodes"), network.meshUUID);
         network.groups = deserializeGroups(jsonObject, network.meshUUID);
         network.scenes = deserializeScenes(jsonObject, network.meshUUID);
+
+        network.unicastAddress = getNextAvailableAddress(network.nodes);
+
         return network;
     }
 
@@ -183,5 +189,25 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             Log.e(TAG, "Error while de-serializing scenes: " + ex.getMessage());
         }
         return scenes;
+    }
+
+    /**
+     * Returns the next available address based on the nodes/elements in the network
+     * @param nodes provisioned nodes
+     */
+    private byte[] getNextAvailableAddress(final List<ProvisionedMeshNode> nodes){
+        //We set the next available unicast address here, this is a library attribute
+        int unicast = 0;
+        if(nodes != null && !nodes.isEmpty()){
+            final int index = nodes.size() - 1;
+            final ProvisionedMeshNode node = nodes.get(index);
+            Map<Integer, Element> elements = node.getElements();
+            if(elements != null & !elements.isEmpty()){
+                unicast = node.getUnicastAddressInt() + elements.size();
+            } else {
+                unicast = node.getUnicastAddressInt() + 1;
+            }
+        }
+        return AddressUtils.getUnicastAddressBytes(unicast);
     }
 }

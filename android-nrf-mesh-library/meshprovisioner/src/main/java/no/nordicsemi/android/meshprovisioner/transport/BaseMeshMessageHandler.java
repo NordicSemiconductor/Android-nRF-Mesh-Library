@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
@@ -163,7 +164,6 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * </p>
      *
      * @param newState new state that is to be switched to
-     * @return true if the state was switched successfully
      */
     private void switchToNoOperationState(final MeshMessageState newState) {
         //Switching to unknown message state here for messages that are not
@@ -318,8 +318,8 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     @Override
     public final void setGenericOnOffUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
                                                     @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex,
-                                                    @NonNull final Integer transitionSteps, @NonNull final Integer transitionResolution,
-                                                    @NonNull final Integer delay, final boolean state) throws IllegalArgumentException {
+                                                    @Nullable final Integer transitionSteps, @Nullable final Integer transitionResolution,
+                                                    @Nullable final Integer delay, final boolean state) throws IllegalArgumentException {
         if (model.getBoundAppKeyIndexes().isEmpty())
             throw new IllegalArgumentException("There are no app keys bound to this model");
 

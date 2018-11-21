@@ -300,8 +300,15 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         lowPowerFeatureSupported = supported;
     }
 
+    /**
+     * Returns the number of elements in the node
+     */
     public int getNumberOfElements() {
-        return numberOfElements;
+        if(numberOfElements > mElements.size()){
+            return numberOfElements;
+        }
+
+        return mElements.size();
     }
 
     public final Map<Integer, ApplicationKey> getAddedApplicationKeys() {

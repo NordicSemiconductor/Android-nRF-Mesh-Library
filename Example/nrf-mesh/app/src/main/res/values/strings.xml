@@ -404,4 +404,9 @@
     <string name="use_default_ttl">Use default ttl value (0xFF)</string>
     <string name="uses_default_ttl">Uses default ttl (0xFF)</string>
     <string name="action_import_network">Import</string>
+    <string name="title_network_import_failed">Network Import Failed</string>
+    <string name="title_network_import">Import Network</string>
+    <string name="network_import_rationale">Importing new mesh network information will delete the existing network information from the application.
+        Would you like to proceed? \n\n Note: You can also export the existing network information before importing!</string>
+    <string name="export_existing_network">Export Network</string>
 </resources>

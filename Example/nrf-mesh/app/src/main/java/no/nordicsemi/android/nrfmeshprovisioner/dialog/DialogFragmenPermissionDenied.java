@@ -20,54 +20,43 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.meshprovisioner;
+package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import android.app.Dialog;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 
-/**
- * Implement this class in order to get the transport callbacks from the {@link MeshManagerApi}
- */
-public interface MeshManagerTransportCallbacks {
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-    /**
-     * Returns the network that was loaded
-     *
-     * @param meshNetwork{@link MeshNetwork that was loaded}
-     */
-    void onNetworkLoaded(final MeshNetwork meshNetwork);
+public class DialogFragmenPermissionDenied extends DialogFragmentMessage {
 
-    /**
-     * Callback that notifies in case the mesh network was unable to load
-     *
-     * @param error error
-     */
-    void onNetworkLoadFailed(final String error);
+    public interface DialogFragmentNetworkImportListener {
+        void onNetworkImportFailed();
+    }
 
-    /**
-     * Send mesh pdu
-     *
-     * @param meshNode {@link UnprovisionedMeshNode}
-     * @param pdu      mesh pdu to be sent
-     */
-    void sendProvisioningPdu(final UnprovisionedMeshNode meshNode, final byte[] pdu);
+    public static DialogFragmenPermissionDenied newInstance(final String title, final String message) {
+        final Bundle args = new Bundle();
+        DialogFragmenPermissionDenied fragment = new DialogFragmenPermissionDenied();
+        args.putString(TITLE, title);
+        args.putString(MESSAGE, message);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
-    /**
-     * Send mesh pdu
-     *
-     * @param meshNode mesh node to send to
-     * @param pdu      mesh pdu to be sent
-     */
-    void sendMeshPdu(final ProvisionedMeshNode meshNode, final byte[] pdu);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
-    /**
-     * Get mtu size supported by the peripheral node
-     * <p>
-     * This is used to get the supported mtu size from the ble module, so that the messages
-     * that are larger than the supported mtu size could be segmented
-     * </p>
-     *
-     * @return mtu size
-     */
-    int getMtu();
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
+        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> (
+                (DialogFragmentNetworkImportListener)getParentFragment()).onNetworkImportFailed());
+
+        return super.onCreateDialog(savedInstanceState);
+    }
 }

@@ -24,6 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
+import android.net.Uri;
 
 import java.util.List;
 
@@ -48,20 +49,12 @@ public class SharedViewModel extends ViewModel {
         return nRFMeshRepository.getMeshManagerApi();
     }
 
-    public void importMeshNetwork(final String path){
-        nRFMeshRepository.importMeshNetwork(path);
-    }
-
-    public NetworkInformationLiveData getNetworkInformation() {
-        return nRFMeshRepository.getNetworkInformationLiveData();
+    public void importMeshNetwork(final Uri uri){
+        nRFMeshRepository.importMeshNetwork(uri);
     }
 
     public MeshNetworkLiveData getMeshNetworkLiveData() {
         return nRFMeshRepository.getMeshNetworkLiveData();
-    }
-
-    public LiveData<byte[]> getConfigurationSrc() {
-        return nRFMeshRepository.getConfigurationSrcLiveData();
     }
 
     @Override
@@ -127,13 +120,7 @@ public class SharedViewModel extends ViewModel {
         nRFMeshRepository.resetMeshNetwork();
     }
 
-    /**
-     * Set the source address to be used for configuration
-     *
-     * @param srcAddress source address
-     * @return true if success
-     */
-    public boolean setConfiguratorSource(final byte[] srcAddress) {
-        return nRFMeshRepository.setConfiguratorSrc(srcAddress);
+    public LiveData<String> getNetworkLoadState(){
+        return nRFMeshRepository.getNetworkLoadState();
     }
 }

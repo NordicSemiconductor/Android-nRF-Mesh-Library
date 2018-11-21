@@ -2,13 +2,22 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +27,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.transport.ElementListDeserializer;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModelListDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.transport.NodeDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -37,7 +51,7 @@ class DataMigrator {
      * Load serialized provisioned nodes from preferences
      */
     @SuppressWarnings("deprecation")
-    final MeshNetwork migrateData(final Context context, final Gson gson, final ProvisioningSettings provisioningSettings) {
+    static MeshNetwork migrateData(final Context context, final Gson gson, final ProvisioningSettings provisioningSettings) {
         if (sharedPrefsExists(context)) {
             final MeshNetwork meshNetwork = new MeshNetwork(UUID.randomUUID().toString());
             final SharedPreferences preferences = context.getSharedPreferences(PREFS_SEQUENCE_NUMBER, Context.MODE_PRIVATE);
@@ -107,7 +121,7 @@ class DataMigrator {
         return null;
     }
 
-    private boolean sharedPrefsExists(final Context context) {
+    private static boolean sharedPrefsExists(final Context context) {
         final File directory = new File(context.getCacheDir().getParent() + "/shared_prefs");
         if (directory.exists()) {
             final File[] files = directory.listFiles();
@@ -125,7 +139,7 @@ class DataMigrator {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void removeSharedPrefs(final Context context) {
+    private static void removeSharedPrefs(final Context context) {
         final File directory = new File(context.getCacheDir().getParent() + "/shared_prefs");
         if (directory.exists()) {
             final File[] files = directory.listFiles();
@@ -141,7 +155,7 @@ class DataMigrator {
         }
     }
 
-    private List<NetworkKey> migrateNetKeys(final MeshNetwork meshNetwork, final ProvisioningSettings settings) {
+    private static List<NetworkKey> migrateNetKeys(final MeshNetwork meshNetwork, final ProvisioningSettings settings) {
         final NetworkKey networkKey = new NetworkKey(settings.keyIndex, MeshParserUtils.toByteArray(settings.getNetworkKey()));
         networkKey.setMeshUuid(meshNetwork.getMeshUUID());
         final List<NetworkKey> netKeys = new ArrayList<>();
@@ -149,7 +163,7 @@ class DataMigrator {
         return netKeys;
     }
 
-    private List<ApplicationKey> migrateAppKeys(final MeshNetwork meshNetwork, final ProvisioningSettings settings) {
+    private static List<ApplicationKey> migrateAppKeys(final MeshNetwork meshNetwork, final ProvisioningSettings settings) {
         final List<ApplicationKey> appKeys = new ArrayList<>();
         for (int i = 0; i < settings.getAppKeys().size(); i++) {
             final ApplicationKey applicationKey = new ApplicationKey(i, MeshParserUtils.toByteArray(settings.getAppKeys().get(i)));
@@ -159,7 +173,7 @@ class DataMigrator {
         return appKeys;
     }
 
-    private List<Provisioner> migrateProvisioner(final MeshNetwork meshNetwork, final byte[] srcAddress, final int sequenceNumber, final ProvisioningSettings settings) {
+    private static List<Provisioner> migrateProvisioner(final MeshNetwork meshNetwork, final byte[] srcAddress, final int sequenceNumber, final ProvisioningSettings settings) {
 
         final List<Provisioner> provisioners = new ArrayList<>();
         if (meshNetwork.provisioners == null || meshNetwork.provisioners.isEmpty()) {
@@ -198,7 +212,7 @@ class DataMigrator {
         return provisioners;
     }
 
-    private byte[] initConfigurationSrc(final Context context) {
+    private static byte[] initConfigurationSrc(final Context context) {
         final SharedPreferences preferences = context.getSharedPreferences(CONFIGURATION_SRC, Context.MODE_PRIVATE);
         final int tempSrc = preferences.getInt(SRC, 0);
         if (tempSrc != 0)
@@ -211,7 +225,7 @@ class DataMigrator {
      *
      * @param nodes list containing unordered nodes
      */
-    private List<Integer> reOrderProvisionedNodes(final Map<String, ?> nodes) {
+    private static List<Integer> reOrderProvisionedNodes(final Map<String, ?> nodes) {
         final Set<String> unorderedKeys = nodes.keySet();
         final List<Integer> orderedKeys = new ArrayList<>();
         for (String k : unorderedKeys) {

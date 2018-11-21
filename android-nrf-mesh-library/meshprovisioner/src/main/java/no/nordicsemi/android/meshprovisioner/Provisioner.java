@@ -68,7 +68,7 @@ public class Provisioner {
 
     @ColumnInfo(name = "global_ttl")
     @Expose
-    private int globalTtl;
+    private int globalTtl = 5;
 
     @ColumnInfo(name = "last_selected")
     @Expose

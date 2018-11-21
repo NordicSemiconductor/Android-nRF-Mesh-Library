@@ -26,12 +26,14 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,11 +49,12 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkImport;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkImportFailed;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFlags;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalNetworkName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalTtl;
@@ -75,9 +78,15 @@ public class SettingsFragment extends Fragment implements Injectable,
         DialogFragmentIvIndex.DialogFragmentIvIndexListener,
         DialogFragmentUnicastAddress.DialogFragmentUnicastAddressListener,
         DialogFragmentSourceAddress.DialogFragmentSourceAddressListener,
-        DialogFragmentResetNetwork.DialogFragmentResetNetworkListener {
+        DialogFragmentResetNetwork.DialogFragmentResetNetworkListener,
+        DialogFragmentNetworkImportFailed.DialogFragmentNetworkImportListener,
+        DialogFragmentNetworkImport.DialogFragmentNetworkImportListener {
 
-    SharedViewModel mViewModel;
+    private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 2023; // random number
+    private static final int READ_FILE_REQUEST_CODE = 42;
+    private static final String TAG = SettingsFragment.class.getSimpleName();
+
+    private SharedViewModel mViewModel;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -89,6 +98,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         setHasOptionsMenu(true);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
@@ -225,6 +235,13 @@ public class SettingsFragment extends Fragment implements Injectable,
             }
         });
 
+        mViewModel.getNetworkLoadState().observe(this, networkImportState -> {
+            final String title = getString(R.string.title_network_import_failed);
+            final DialogFragmentNetworkImportFailed fragment =
+                    DialogFragmentNetworkImportFailed.newInstance(title, networkImportState);
+            fragment.show(getChildFragmentManager(), null);
+        });
+
         return rootView;
 
     }
@@ -236,9 +253,6 @@ public class SettingsFragment extends Fragment implements Injectable,
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        /*if (!mViewModel.getProvisionedNodes().getValue().isEmpty()) {
-            inflater.inflate(R.menu.network_settings_more, menu);
-        }*/
         inflater.inflate(R.menu.network_settings, menu);
     }
 
@@ -247,13 +261,10 @@ public class SettingsFragment extends Fragment implements Injectable,
         final int id = item.getItemId();
         switch (id) {
             case R.id.action_import_network:
-                final String path = Environment.getExternalStorageDirectory()
-                        + File.separator
-                        + "Nordic Semiconductor"
-                        + File.separator
-                        + "nRF Mesh"
-                        + File.separator;
-                mViewModel.importMeshNetwork(path);
+                final String title = getString(R.string.title_network_import);
+                final String message = getString(R.string.network_import_rationale);
+                final DialogFragmentNetworkImport fragment = DialogFragmentNetworkImport.newInstance(title, message);
+                fragment.show(getChildFragmentManager(), null);
                 return true;
             case R.id.action_reset_network:
                 final DialogFragmentResetNetwork dialogFragmentResetNetwork = DialogFragmentResetNetwork.
@@ -267,11 +278,23 @@ public class SettingsFragment extends Fragment implements Injectable,
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ManageAppKeysActivity.MANAGE_APP_KEYS) {
-            if (resultCode == RESULT_OK) {
-                final int size = data.getExtras().getInt(RESULT_APP_KEY_LIST_SIZE);
-                manageAppKeysView.setText(getString(R.string.app_key_count, size));
-            }
+        switch (requestCode) {
+            case ManageAppKeysActivity.MANAGE_APP_KEYS:
+                if (resultCode == RESULT_OK) {
+                    final int size = data.getExtras().getInt(RESULT_APP_KEY_LIST_SIZE);
+                    manageAppKeysView.setText(getString(R.string.app_key_count, size));
+                }
+                break;
+            case READ_FILE_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    if (data != null) {
+                        final Uri uri = data.getData();
+                        mViewModel.importMeshNetwork(uri);
+                    }
+                } else {
+                    Log.e(TAG, "Error while opening file browser");
+                }
+                break;
         }
     }
 
@@ -291,15 +314,6 @@ public class SettingsFragment extends Fragment implements Injectable,
             flagsText.append(getString(R.string.iv_update_active));
 
         return flagsText.toString();
-    }
-
-    private boolean isProvisionerSelected(final List<Provisioner> provisioners){
-        for(Provisioner provisioner : provisioners) {
-            if(provisioner.isLastSelected()){
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
@@ -345,5 +359,25 @@ public class SettingsFragment extends Fragment implements Injectable,
     @Override
     public void onNetworkReset() {
         mViewModel.resetMeshNetwork();
+    }
+
+    /**
+     * Fires an intent to spin up the "file chooser" UI to select a file
+     */
+    public void performFileSearch() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        startActivityForResult(intent, READ_FILE_REQUEST_CODE);
+    }
+
+    @Override
+    public void onNetworkImportFailed() {
+
+    }
+
+    @Override
+    public void onNetworkImportConfirmed() {
+        performFileSearch();
     }
 }

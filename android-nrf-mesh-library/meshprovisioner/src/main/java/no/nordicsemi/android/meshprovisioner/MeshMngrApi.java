@@ -1,5 +1,6 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -302,7 +303,7 @@ interface MeshMngrApi {
     /**
      * Starts an asynchronous task that imports a network from the mesh configuration db json
      * <p>Af</p>
-     * @param path path to the mesh configuration database json file.
+     * @param uri path to the mesh configuration database json file.
      */
-    void importMeshNetwork(final String path);
+    void importMeshNetwork(final Uri uri);
 }

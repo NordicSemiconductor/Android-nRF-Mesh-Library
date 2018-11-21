@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
@@ -156,7 +157,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      **/
     private MeshNetworkLiveData mMeshNetworkLiveData = new MeshNetworkLiveData();
 
-    private SingleLiveEvent<List<Provisioner>> mSelectProvisionerLiveData = new SingleLiveEvent<>();
+    private SingleLiveEvent<String> mNetworkLoadState = new SingleLiveEvent<>();
 
     private MeshMessageLiveData mMeshMessageLiveData = new MeshMessageLiveData();
     /**
@@ -166,7 +167,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     private final TransactionStatusLiveData mTransactionFailedLiveData = new TransactionStatusLiveData();
 
-    //private static NrfMeshRepository mNrfMeshRepository;
     private MeshManagerApi mMeshManagerApi;
     private BleMeshManager mBleMeshManager;
     private Handler mHandler;
@@ -235,34 +235,23 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mIsProvisioningComplete;
     }
 
-    LiveData<List<ProvisionedMeshNode>> getProvisionedNodes() {
-        return mProvisionedNodes;
-    }
-
     final MeshNetworkLiveData getMeshNetworkLiveData() {
         return mMeshNetworkLiveData;
     }
 
+    LiveData<List<ProvisionedMeshNode>> getProvisionedNodes() {
+        return mProvisionedNodes;
+    }
+
+    LiveData<String> getNetworkLoadState(){
+        return mNetworkLoadState;
+    }
     NetworkInformationLiveData getNetworkInformationLiveData() {
         return mNetworkInformationLiveData;
     }
 
-    LiveData<byte[]> getConfigurationSrcLiveData() {
-        return mConfigurationSrc;
-    }
-
     public LiveData<ProvisioningCapabilities> getCapabilitiesMutableLiveData() {
         return capabilitiesMutableLiveData;
-    }
-
-    boolean setConfiguratorSrc(final byte[] configuratorSrc) {
-        final Provisioner provisioner = mMeshManagerApi.getProvisioner(configuratorSrc);
-        if (provisioner != null) {
-            provisioner.setProvisionerAddress(configuratorSrc);
-            mConfigurationSrc.postValue(configuratorSrc);
-            return true;
-        }
-        return false;
     }
 
     ProvisioningStatusLiveData getProvisioningState() {
@@ -568,6 +557,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             //Load live data with provisioned nodes
             mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
         }
+    }
+
+    @Override
+    public void onNetworkLoadFailed(final String error) {
+        mNetworkLoadState.postValue(error);
     }
 
     @Override
@@ -894,7 +888,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         connectToProxy(device);
     }
 
-    void importMeshNetwork(final String path) {
-        mMeshManagerApi.importMeshNetwork(path);
+    void importMeshNetwork(final Uri uri) {
+        mMeshManagerApi.deleteMeshNetworkFromDb();
+        mMeshManagerApi.importMeshNetwork(uri);
     }
 }
