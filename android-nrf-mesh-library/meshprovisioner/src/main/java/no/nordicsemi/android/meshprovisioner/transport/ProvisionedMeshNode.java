@@ -78,7 +78,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         nodeName = unprovisionedMeshNode.getNodeName();
         networkKey = unprovisionedMeshNode.getNetworkKey();
         final NetworkKey networkKey = new NetworkKey(unprovisionedMeshNode.getKeyIndex(), unprovisionedMeshNode.getNetworkKey());
-        networkKeys.add(networkKey);
+        mAddedNetworkKeys.add(networkKey);
         identityKey = unprovisionedMeshNode.getIdentityKey();
         mFlags = unprovisionedMeshNode.getFlags();
         unicastAddress = unprovisionedMeshNode.getUnicastAddress();
@@ -97,7 +97,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         isConfigured = in.readByte() != 1;
         nodeName = in.readString();
         mAddedNetworkKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
-        networkKeys = in.readArrayList(NetworkKey.class.getClassLoader());
+        mAddedNetworkKeys = in.readArrayList(NetworkKey.class.getClassLoader());
         mFlags = in.createByteArray();
         unicastAddress = in.createByteArray();
         deviceKey = in.createByteArray();
@@ -130,7 +130,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeByte((byte) (isConfigured ? 1 : 0));
         dest.writeString(nodeName);
         dest.writeList(mAddedNetworkKeyIndexes);
-        dest.writeList(networkKeys);
+        dest.writeList(mAddedNetworkKeys);
         dest.writeByteArray(mFlags);
         dest.writeByteArray(unicastAddress);
         dest.writeByteArray(deviceKey);
@@ -311,8 +311,15 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return mElements.size();
     }
 
+    /**
+     * Returns the list of Network keys added to this node
+     */
+    public List<NetworkKey> getAddedNetworkKeys() {
+        return mAddedNetworkKeys;
+    }
+
     public final Map<Integer, ApplicationKey> getAddedApplicationKeys() {
-        return Collections.unmodifiableMap(mAddedApplicationKeys);
+        return (mAddedApplicationKeys);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -422,7 +429,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         if (networkKey != null) {
             netKeyIndex = MeshParserUtils.removeKeyIndexPadding(keyIndex);
             NetworkKey netKey = new NetworkKey(netKeyIndex, networkKey);
-            networkKeys.add(netKey);
+            mAddedNetworkKeys.add(netKey);
         }
     }
 

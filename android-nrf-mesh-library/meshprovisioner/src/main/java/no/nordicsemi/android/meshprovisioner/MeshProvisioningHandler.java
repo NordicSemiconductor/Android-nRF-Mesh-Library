@@ -69,6 +69,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     private boolean isProvisioningPublicKeySent;
     private boolean isProvisioneePublicKeyReceived;
     private InternalMeshManagerCallbacks mInternalMeshManagerCallbacks;
+    private byte[] confirmationInputs;
 
     MeshProvisioningHandler(final Context context, final InternalTransportCallbacks mInternalTransportCallbacks, final InternalMeshManagerCallbacks internalMeshManagerCallbacks) {
         this.mContext = context;
@@ -265,6 +266,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     void identify(@NonNull final UUID uuid, final String nodeName, @NonNull final NetworkKey networkKey,
                   final int flags, final int ivIndex, final byte[] unicastAddress,
                   final int globalTtl, final byte[] configuratorSrc) throws IllegalArgumentException {
+        confirmationInputs = null;
         final UnprovisionedMeshNode unprovisionedMeshNode = initializeMeshNode(uuid, nodeName, networkKey, flags, ivIndex, unicastAddress, globalTtl, configuratorSrc);
         sendProvisioningInvite(unprovisionedMeshNode);
     }
@@ -391,6 +393,10 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     public final byte[] generateConfirmationInputs(final byte[] provisionerKeyXY, final byte[] provisioneeKeyXY) {
         //invite: 1 bytes, capabilities: 11 bytes, start: 5 bytes, provisionerKey: 64 bytes, deviceKey: 64 bytes
         //Append all the raw data together
+        if(confirmationInputs != null){
+            return confirmationInputs;
+        }
+
         final byte[] invite = new byte[]{(byte) attentionTimer};
         final byte[] capabilities = generateCapabilities();
         final byte[] startData = generateStartData();
@@ -407,26 +413,25 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
         buffer.put(startData);
         buffer.put(provisionerKeyXY);
         buffer.put(provisioneeKeyXY);
-
-        return buffer.array();
+        confirmationInputs = buffer.array();
+        return confirmationInputs;
     }
 
     private byte[] generateCapabilities() {
-        final byte[] capabilities = new byte[11];
+            final byte[] capabilities = new byte[11];
 
-        capabilities[0] = (byte) numberOfElements;
-        capabilities[1] = (byte) ((algorithm >> 8) & 0xFF);
-        capabilities[2] = (byte) (algorithm & 0xFF);
-        capabilities[3] = (byte) publicKeyType;
-        capabilities[4] = (byte) staticOOBType;
-        capabilities[5] = (byte) outputOOBSize;
-        capabilities[6] = (byte) ((outputOOBAction >> 8) & 0xFF);
-        capabilities[7] = (byte) (outputOOBAction & 0xFF);
-        capabilities[8] = (byte) inputOOBSize;
-        capabilities[9] = (byte) ((inputOOBAction >> 8) & 0xFF);
-        capabilities[10] = (byte) (inputOOBAction & 0xFF);
-
-        return capabilities;
+            capabilities[0] = (byte) numberOfElements;
+            capabilities[1] = (byte) ((algorithm >> 8) & 0xFF);
+            capabilities[2] = (byte) (algorithm & 0xFF);
+            capabilities[3] = (byte) publicKeyType;
+            capabilities[4] = (byte) staticOOBType;
+            capabilities[5] = (byte) outputOOBSize;
+            capabilities[6] = (byte) ((outputOOBAction >> 8) & 0xFF);
+            capabilities[7] = (byte) (outputOOBAction & 0xFF);
+            capabilities[8] = (byte) inputOOBSize;
+            capabilities[9] = (byte) ((inputOOBAction >> 8) & 0xFF);
+            capabilities[10] = (byte) (inputOOBAction & 0xFF);
+            return capabilities;
     }
 
 

@@ -71,7 +71,7 @@ class DataMigrator {
                         try {
                             final ProvisionedMeshNode node = gson.fromJson(json, ProvisionedMeshNode.class);
                             //TODO Temporary check to handle data migration this is to be removed in the version after next
-                            if (node.getNetworkKeys().isEmpty()) {
+                            if (node.getAddedNetworkKeys().isEmpty()) {
                                 final Method tempMigrateNetworkKey = node.getClass().getDeclaredMethod("tempMigrateNetworkKey");
                                 tempMigrateNetworkKey.setAccessible(true);
                                 tempMigrateNetworkKey.invoke(node);

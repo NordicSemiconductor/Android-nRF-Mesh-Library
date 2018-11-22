@@ -14,14 +14,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 final class AppKeyDeserializer implements JsonSerializer<List<ApplicationKey>>, JsonDeserializer<List<ApplicationKey>> {
     private static final String TAG = AppKeyDeserializer.class.getSimpleName();
 
     @Override
-    public JsonElement serialize(final List<ApplicationKey> src, final Type typeOfSrc, final JsonSerializationContext context) {
-        return null;
+    public JsonElement serialize(final List<ApplicationKey> applicationKeys, final Type typeOfSrc, final JsonSerializationContext context) {
+        final JsonArray jsonArray = new JsonArray();
+        for(ApplicationKey applicationKey :  applicationKeys){
+            final JsonObject appKeyObject = new JsonObject();
+            appKeyObject.addProperty("name", applicationKey.getName());
+            appKeyObject.addProperty("index", applicationKey.getKeyIndex());
+            appKeyObject.addProperty("boundNetKey", applicationKey.getBoundNetKeyIndex());
+            appKeyObject.addProperty("key", MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
+            if(applicationKey.getKey() != null) {
+                appKeyObject.addProperty("oldKey", MeshParserUtils.bytesToHex(applicationKey.getOldKey(), false));
+            }
+            jsonArray.add(appKeyObject);
+        }
+        return jsonArray;
     }
 
     @Override

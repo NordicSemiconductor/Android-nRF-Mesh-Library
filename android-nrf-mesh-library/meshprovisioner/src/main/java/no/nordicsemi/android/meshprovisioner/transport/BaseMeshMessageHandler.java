@@ -192,7 +192,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     @Deprecated
     @Override
     public final void sendAppKeyAdd(@NonNull final ProvisionedMeshNode meshNode, final int appKeyIndex, @NonNull final String appKey, final int aszmic) {
-        final NetworkKey networkKey = meshNode.getNetworkKeys().get(0);
+        final NetworkKey networkKey = meshNode.getAddedNetworkKeys().get(0);
         final ApplicationKey applicationKey = new ApplicationKey(appKeyIndex, MeshParserUtils.toByteArray(appKey));
         final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(meshNode, networkKey, applicationKey, aszmic);
         sendMeshMessage(configAppKeyAdd);
@@ -462,7 +462,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         sendGenericMessage(dstAddress, genericMessage);
     }
 
-    private final void sendConfigMessage(@NonNull final MeshMessage configMessage) {
+    private void sendConfigMessage(@NonNull final MeshMessage configMessage) {
         if (configMessage instanceof ConfigCompositionDataGet) {
             final ConfigCompositionDataGetState compositionDataGetState = new ConfigCompositionDataGetState(mContext, (ConfigCompositionDataGet) configMessage, mMeshTransport, this);
             compositionDataGetState.setTransportCallbacks(mInternalTransportCallbacks);
@@ -517,7 +517,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         }
     }
 
-    private final void sendGenericMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage genericMessage) {
+    private void sendGenericMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage genericMessage) {
         if (genericMessage instanceof GenericOnOffGet) {
             final GenericOnOffGetState genericOnOffGetState = new GenericOnOffGetState(mContext, dstAddress, (GenericOnOffGet) genericMessage, mMeshTransport, this);
             genericOnOffGetState.setTransportCallbacks(mInternalTransportCallbacks);
@@ -569,7 +569,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             mMeshMessageState = vendorModelMessageUnackedState;
             vendorModelMessageUnackedState.executeSend();
         } else {
-
+            //TODO
         }
     }
 }

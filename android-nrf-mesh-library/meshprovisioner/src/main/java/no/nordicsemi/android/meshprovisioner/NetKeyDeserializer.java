@@ -1,5 +1,7 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import android.net.Network;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -20,8 +22,22 @@ final class NetKeyDeserializer implements JsonSerializer<List<NetworkKey>>, Json
     private static final String TAG = NetKeyDeserializer.class.getSimpleName();
 
     @Override
-    public JsonElement serialize(final List<NetworkKey> src, final Type typeOfSrc, final JsonSerializationContext context) {
-        return null;
+    public JsonElement serialize(final List<NetworkKey> networkKeys, final Type typeOfSrc, final JsonSerializationContext context) {
+        final JsonArray jsonArray = new JsonArray();
+        for(NetworkKey networkKey :  networkKeys){
+            final JsonObject networkKeyObject = new JsonObject();
+            networkKeyObject.addProperty("name", networkKey.getName());
+            networkKeyObject.addProperty("index", networkKey.getKeyIndex());
+            networkKeyObject.addProperty("key", MeshParserUtils.bytesToHex(networkKey.getKey(), false));
+            if(networkKey.getOldKey() != null) {
+                networkKeyObject.addProperty("oldKey", MeshParserUtils.bytesToHex(networkKey.getOldKey(), false));
+            }
+            networkKeyObject.addProperty("phase", networkKey.getPhase());
+            networkKeyObject.addProperty("minSecurity", networkKey.isMinSecurity() ? 0 : 1);
+            networkKeyObject.addProperty("timestamp", Long.toString(networkKey.getTimestamp(),16));
+            jsonArray.add(networkKeyObject);
+        }
+        return jsonArray;
     }
 
     @Override

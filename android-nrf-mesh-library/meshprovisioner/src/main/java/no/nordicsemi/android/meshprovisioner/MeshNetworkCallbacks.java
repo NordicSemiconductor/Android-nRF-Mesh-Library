@@ -25,6 +25,8 @@ interface MeshNetworkCallbacks {
 
     void onProvisionerUpdated(final List<Provisioner> provisioner);
 
+    void onNodesUpdated();
+
     void onGroupAdded(final Group group);
 
     void onGroupUpdated(final Group group);

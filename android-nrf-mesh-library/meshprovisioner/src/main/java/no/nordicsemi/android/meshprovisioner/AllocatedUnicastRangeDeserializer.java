@@ -15,6 +15,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 final class AllocatedUnicastRangeDeserializer implements JsonSerializer<List<AllocatedUnicastRange>>, JsonDeserializer<List<AllocatedUnicastRange>> {
@@ -38,7 +39,14 @@ final class AllocatedUnicastRangeDeserializer implements JsonSerializer<List<All
     }
 
     @Override
-    public JsonElement serialize(final List<AllocatedUnicastRange> src, final Type typeOfSrc, final JsonSerializationContext context) {
-        return null;
+    public JsonElement serialize(final List<AllocatedUnicastRange> ranges, final Type typeOfSrc, final JsonSerializationContext context) {
+        final JsonArray jsonArray = new JsonArray();
+        for(AllocatedUnicastRange range :  ranges){
+            final JsonObject rangeJson = new JsonObject();
+            rangeJson.addProperty("lowAddress", MeshParserUtils.bytesToHex(range.getLowAddress(), false));
+            rangeJson.addProperty("highAddress", MeshParserUtils.bytesToHex(range.getHighAddress(), false));
+            jsonArray.add(rangeJson);
+        }
+        return jsonArray;
     }
 }

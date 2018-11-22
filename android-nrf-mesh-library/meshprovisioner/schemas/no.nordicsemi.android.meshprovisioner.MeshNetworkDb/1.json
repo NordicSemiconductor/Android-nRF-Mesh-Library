@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "16455b398ce81dd4bca07788b06bb1fa",
+    "identityHash": "943d20eaeaf0ca81a79f200e5808f4a9",
     "entities": [
       {
         "tableName": "mesh_network",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` TEXT, `iv_index` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, `unicast_address` BLOB, PRIMARY KEY(`mesh_uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` INTEGER NOT NULL, `iv_index` INTEGER NOT NULL, `unicast_address` BLOB, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`mesh_uuid`))",
         "fields": [
           {
             "fieldPath": "meshUUID",
@@ -23,8 +23,8 @@
           {
             "fieldPath": "timestamp",
             "columnName": "timestamp",
-            "affinity": "TEXT",
-            "notNull": false
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "ivIndex",
@@ -33,16 +33,16 @@
             "notNull": true
           },
           {
-            "fieldPath": "lastSelected",
-            "columnName": "last_selected",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
             "fieldPath": "unicastAddress",
             "columnName": "unicast_address",
             "affinity": "BLOB",
             "notNull": false
+          },
+          {
+            "fieldPath": "lastSelected",
+            "columnName": "last_selected",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -317,7 +317,7 @@
       },
       {
         "tableName": "nodes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `uuid` TEXT NOT NULL, `security` INTEGER NOT NULL, `unicast_address` BLOB, `name` TEXT, `configured` INTEGER NOT NULL, `device_key` BLOB, `ttl` INTEGER, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `timestamp` INTEGER NOT NULL, `mElements` TEXT, `mAddedApplicationKeys` TEXT, `blacklisted` INTEGER NOT NULL, `secureNetworkBeacon` INTEGER, `friend` INTEGER, `lowPower` INTEGER, `proxy` INTEGER, `relay` INTEGER, `networkTransmitCount` INTEGER, `networkIntervalSteps` INTEGER, `relayTransmitCount` INTEGER, `relayIntervalSteps` INTEGER, PRIMARY KEY(`uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `uuid` TEXT NOT NULL, `security` INTEGER NOT NULL, `unicast_address` BLOB, `name` TEXT, `configured` INTEGER NOT NULL, `device_key` BLOB, `ttl` INTEGER, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `timestamp` INTEGER NOT NULL, `mAddedNetworkKeys` TEXT, `mElements` TEXT, `mAddedApplicationKeys` TEXT, `blacklisted` INTEGER NOT NULL, `secureNetworkBeacon` INTEGER, `friend` INTEGER, `lowPower` INTEGER, `proxy` INTEGER, `relay` INTEGER, `networkTransmitCount` INTEGER, `networkIntervalSteps` INTEGER, `relayTransmitCount` INTEGER, `relayIntervalSteps` INTEGER, PRIMARY KEY(`uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "meshUuid",
@@ -402,6 +402,12 @@
             "columnName": "timestamp",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "mAddedNetworkKeys",
+            "columnName": "mAddedNetworkKeys",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "mElements",
@@ -627,7 +633,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"16455b398ce81dd4bca07788b06bb1fa\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"943d20eaeaf0ca81a79f200e5808f4a9\")"
     ]
   }
 }

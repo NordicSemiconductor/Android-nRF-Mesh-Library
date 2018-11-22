@@ -78,7 +78,7 @@ public final class NetworkKey implements Parcelable {
 
     @ColumnInfo(name = "timestamp")
     @Expose
-    private long timestamp;
+    private long timestamp = 0x0;
 
     /**
      * Constructs a NetworkKey object with a given key index and network key

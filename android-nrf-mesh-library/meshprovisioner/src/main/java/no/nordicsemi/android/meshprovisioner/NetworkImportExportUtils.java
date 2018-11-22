@@ -3,6 +3,7 @@ package no.nordicsemi.android.meshprovisioner;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -10,9 +11,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -31,15 +36,17 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
  */
 class NetworkImportExportUtils {
 
+    private static final String EXPORT_PATH = File.separator + "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
+
     /**
      * Creates an AsyncTask to import the a m
      *
-     * @param context context
-     * @param uri file uri
+     * @param context   context
+     * @param uri       file uri
      * @param callbacks internal callbacks to notify network import
      */
     static void importMeshNetwork(final Context context, final Uri uri, final LoadNetworkCallbacks callbacks) {
-        new NetworkImportAsyncTask(context,uri, callbacks).execute();
+        new NetworkImportAsyncTask(context, uri, callbacks).execute();
     }
 
     /**
@@ -57,8 +64,8 @@ class NetworkImportExportUtils {
         /**
          * Creates an AsyncTask to import the a m
          *
-         * @param context context
-         * @param uri file uri
+         * @param context   context
+         * @param uri       file uri
          * @param callbacks internal callbacks to notify network import
          */
         NetworkImportAsyncTask(final Context context, final Uri uri, final LoadNetworkCallbacks callbacks) {
@@ -162,4 +169,113 @@ class NetworkImportExportUtils {
             return stringBuilder.toString();
         }
     }
+
+
+    /**
+     * AsyncTask that reads and import a mesh network from the MeshCDB Json file
+     */
+    private static class NetworkExportAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        private static final String TAG = NetworkImportAsyncTask.class.getSimpleName();
+        private WeakReference<Context> context;
+        private final Uri uri;
+        private final LoadNetworkCallbacks callbacks;
+        private MeshNetwork network;
+        private String error;
+
+        /**
+         * Creates an AsyncTask to import the a m
+         *
+         * @param context   context
+         * @param uri       file uri
+         * @param callbacks internal callbacks to notify network import
+         */
+        NetworkExportAsyncTask(final Context context, final Uri uri, final LoadNetworkCallbacks callbacks) {
+            this.context = new WeakReference<>(context);
+            this.uri = uri;
+            this.callbacks = callbacks;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(final Void... voids) {
+            exportNetwork();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(final Void aVoid) {
+            super.onPostExecute(aVoid);
+            if (network != null) {
+                callbacks.onNetworkLoadedFromJson(network);
+            } else {
+                callbacks.onNetworkLoadFailed(error);
+            }
+        }
+
+        /**
+         * Imports the network from the MeshCDB json file
+         */
+        private void exportNetwork() {
+            final String path = Environment.getExternalStorageDirectory() + EXPORT_PATH;
+
+            BufferedWriter br = null;
+            try {
+
+                Type netKeyList = new TypeToken<List<NetworkKey>>() {
+                }.getType();
+                Type appKeyList = new TypeToken<List<ApplicationKey>>() {
+                }.getType();
+                Type nodeList = new TypeToken<List<ProvisionedMeshNode>>() {
+                }.getType();
+                Type meshModelList = new TypeToken<List<MeshModel>>() {
+                }.getType();
+                Type elementList = new TypeToken<List<Element>>() {
+                }.getType();
+
+                final GsonBuilder gsonBuilder = new GsonBuilder();
+                gsonBuilder.registerTypeAdapter(MeshNetwork.class, new MeshNetworkDeserializer());
+                gsonBuilder.registerTypeAdapter(netKeyList, new NetKeyDeserializer());
+                gsonBuilder.registerTypeAdapter(appKeyList, new AppKeyDeserializer());
+                gsonBuilder.registerTypeAdapter(AllocatedGroupRange.class, new AllocatedGroupRangeDeserializer());
+                gsonBuilder.registerTypeAdapter(AllocatedUnicastRange.class, new AllocatedUnicastRangeDeserializer());
+                gsonBuilder.registerTypeAdapter(AllocatedSceneRange.class, new AllocatedSceneRangeDeserializer());
+                gsonBuilder.registerTypeAdapter(nodeList, new NodeDeserializer());
+                gsonBuilder.registerTypeAdapter(elementList, new ElementListDeserializer());
+                gsonBuilder.registerTypeAdapter(meshModelList, new MeshModelListDeserializer());
+                final Gson gson = gsonBuilder.create();
+
+                final File directory = new File(path);
+                if (!directory.exists()) {
+                    if (!directory.mkdir()) {
+                        return;
+                    }
+                }
+
+                final File f = new File(path, "example_database.json");
+                br = new BufferedWriter(new FileWriter(f));
+                final String network = gson.toJson(MeshNetwork.class);
+                final OutputStream outputStream = context.get().openFileOutput(f.getName(), Context.MODE_PRIVATE);
+                outputStream.write(network.getBytes());
+                outputStream.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (br != null) {
+                    try {
+                        br.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
 }

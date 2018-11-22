@@ -18,6 +18,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.InternalMeshModelDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeshTypeConverters {
@@ -32,6 +33,18 @@ public class MeshTypeConverters {
         Type addedAppKeys = new TypeToken<Map<Integer, ApplicationKey>>() {
         }.getType();
         return new Gson().fromJson(appKeyJson, addedAppKeys);
+    }
+
+    @TypeConverter
+    public String addedNetKeysToJson(final List<NetworkKey> networkKeys){
+        return new Gson().toJson(networkKeys);
+    }
+
+    @TypeConverter
+    public List<NetworkKey> fromJsonToAddedNetKeys(final String networkKeyJson){
+        Type addedNetKeys = new TypeToken<List<NetworkKey>>() {
+        }.getType();
+        return new Gson().fromJson(networkKeyJson, addedNetKeys);
     }
 
     @TypeConverter

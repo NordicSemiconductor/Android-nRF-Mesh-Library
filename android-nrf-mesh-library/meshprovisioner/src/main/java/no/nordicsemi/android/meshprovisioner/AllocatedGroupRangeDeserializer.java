@@ -38,7 +38,14 @@ final class AllocatedGroupRangeDeserializer implements JsonSerializer<List<Alloc
     }
 
     @Override
-    public JsonElement serialize(final List<AllocatedGroupRange> src, final Type typeOfSrc, final JsonSerializationContext context) {
-        return null;
+    public JsonElement serialize(final List<AllocatedGroupRange> ranges, final Type typeOfSrc, final JsonSerializationContext context) {
+        final JsonArray jsonArray = new JsonArray();
+        for(AllocatedGroupRange range :  ranges){
+            final JsonObject rangeJson = new JsonObject();
+            rangeJson.addProperty("lowAddress", MeshParserUtils.bytesToHex(range.getLowAddress(), false));
+            rangeJson.addProperty("highAddress", MeshParserUtils.bytesToHex(range.getHighAddress(), false));
+            jsonArray.add(rangeJson);
+        }
+        return jsonArray;
     }
 }

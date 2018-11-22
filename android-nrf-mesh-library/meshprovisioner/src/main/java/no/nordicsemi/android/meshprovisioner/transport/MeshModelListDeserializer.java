@@ -12,6 +12,7 @@ import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
@@ -33,11 +34,12 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
 
             final PublicationSettings publicationSettings = getPublicationSettings(jsonObject);
             final List<byte[]> subscriptionAddresses = getSubscriptionAddresses(jsonObject);
-
+            final List<Integer> boundKeyIndexes = getBoundAppKeyIndexes(jsonObject);
             final MeshModel meshModel = getMeshModel(modelId);
-            if(meshModel != null) {
+            if (meshModel != null) {
                 meshModel.mPublicationSettings = publicationSettings;
                 meshModel.mSubscriptionAddress.addAll(subscriptionAddresses);
+                meshModel.mBoundAppKeyIndexes.addAll(boundKeyIndexes);
                 meshModels.add(meshModel);
             }
         }
@@ -45,8 +47,26 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
     }
 
     @Override
-    public JsonElement serialize(final List<MeshModel> src, final Type typeOfSrc, final JsonSerializationContext context) {
-        return null;
+    public JsonElement serialize(final List<MeshModel> models, final Type typeOfSrc, final JsonSerializationContext context) {
+        final JsonArray jsonArray = new JsonArray();
+        int i = 0;
+        for (MeshModel model : models) {
+            final JsonObject meshModelJson = new JsonObject();
+            meshModelJson.addProperty("modelId", String.format(Locale.US, "%04X", model.getModelId()));
+            if (!model.getSubscriptionAddresses().isEmpty()) {
+                meshModelJson.add("subscribe", serializeSubscriptionAddresses(model.getSubscriptionAddresses()));
+            }
+            if (model.getPublicationSettings() != null) {
+                meshModelJson.add("publish", serializePublicationSettings(model.getPublicationSettings()));
+            }
+
+            if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                meshModelJson.add("bind", serializeBoundAppKeys(model.getBoundAppKeyIndexes()));
+            }
+            jsonArray.add(meshModelJson);
+            i++;
+        }
+        return jsonArray;
     }
 
     /**
@@ -99,7 +119,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         final List<byte[]> subscriptions = new ArrayList<>();
         if (!(jsonObject.has("subscribe")))
             return subscriptions;
-        
+
         final JsonArray jsonArray = jsonObject.get("subscribe").getAsJsonArray();
         for (int i = 0; i < jsonArray.size(); i++) {
             //final int address = Integer.parseInt(jsonArray.get(i).getAsString(), 16);
@@ -107,6 +127,65 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             subscriptions.add(publishAddress);
         }
         return subscriptions;
+    }
+
+    private List<Integer> getBoundAppKeyIndexes(final JsonObject jsonObject) {
+        final List<Integer> boundKeyIndexes = new ArrayList<>();
+        if (!(jsonObject.has("bind")))
+            return boundKeyIndexes;
+
+        final JsonArray jsonArray = jsonObject.get("bind").getAsJsonArray();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            final int index = Integer.parseInt(jsonArray.get(i).getAsString(), 16);
+            boundKeyIndexes.add(index);
+        }
+        return boundKeyIndexes;
+    }
+
+    /**
+     * Returns JsonElement containing the subscription addresses addresses from json
+     *
+     * @param subscriptions subscriptions list
+     */
+    private JsonArray serializeSubscriptionAddresses(final List<byte[]> subscriptions) {
+        final JsonArray subscriptionsJson = new JsonArray();
+        for (byte[] address : subscriptions) {
+            subscriptionsJson.add(MeshParserUtils.bytesToHex(address, false));
+        }
+        return subscriptionsJson;
+    }
+
+    /**
+     * Returns JsonElement containing the subscription addresses addresses from json
+     *
+     * @param publicationSettings publication settings for this node
+     */
+    private JsonObject serializePublicationSettings(final PublicationSettings publicationSettings) {
+        final JsonObject publicationJson = new JsonObject();
+        publicationJson.addProperty("address", MeshParserUtils.bytesToHex(publicationSettings.getPublishAddress(), false));
+        publicationJson.addProperty("index", String.format(Locale.US, "%04X", publicationSettings.getAppKeyIndex()));
+        publicationJson.addProperty("ttl", publicationSettings.getPublishTtl());
+        publicationJson.addProperty("period", publicationSettings.calculatePublicationPeriod());
+
+        final JsonObject retransmitJson = new JsonObject();
+        retransmitJson.addProperty("count", publicationSettings.getPublishRetransmitCount());
+        retransmitJson.addProperty("interval", publicationSettings.getPublishRetransmitIntervalSteps());
+        publicationJson.add("retransmit", retransmitJson);
+        publicationJson.addProperty("credentials", publicationSettings.getCredentialFlag() ? 1 : 0);
+        return publicationJson;
+    }
+
+    /**
+     * Returns JsonElement containing the subscription addresses addresses from json
+     *
+     * @param boundAppKeys List of bound app key indexes
+     */
+    private JsonArray serializeBoundAppKeys(final List<Integer> boundAppKeys) {
+        final JsonArray boundAppKeyIndexes = new JsonArray();
+        for (Integer index : boundAppKeys) {
+            boundAppKeyIndexes.add(String.format(Locale.US, "%04X", index));
+        }
+        return boundAppKeyIndexes;
     }
 
     /**

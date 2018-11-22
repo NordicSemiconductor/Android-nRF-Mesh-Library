@@ -53,7 +53,7 @@ abstract class BaseMeshNetwork {
     @ColumnInfo(name = "timestamp")
     @SerializedName("timestamp")
     @Expose
-    String timestamp;
+    long timestamp = 0x0;
 
     @ColumnInfo(name = "iv_index")
     @Expose(deserialize = false)
@@ -92,7 +92,7 @@ abstract class BaseMeshNetwork {
     //Library related attributes
     @ColumnInfo(name = "unicast_address")
     @Expose
-    byte[] unicastAddress = {0x00, (byte) 0x00};
+    byte[] unicastAddress = {0x00, (byte) 0x01};
 
     @ColumnInfo(name = "last_selected")
     @Expose
@@ -370,10 +370,18 @@ abstract class BaseMeshNetwork {
             final Provisioner provisioner = getSelectedProvisioner();
             provisioner.setProvisionerAddress(AddressUtils.getUnicastAddressBytes(address));
             notifyProvisionerUpdated(provisioner);
+            updateNodeProvisionerAddress(AddressUtils.getUnicastAddressBytes(address));
             return true;
         } else {
             return false;
         }
+    }
+
+    private void updateNodeProvisionerAddress(final byte[] address){
+        for(ProvisionedMeshNode node : nodes) {
+            node.setConfigurationSrc(address);
+        }
+        notifyNodesUpdated();
     }
 
     /**
@@ -526,6 +534,12 @@ abstract class BaseMeshNetwork {
     final void notifyProvisionerUpdated(final List<Provisioner> provisioner) {
         if (mCallbacks != null) {
             mCallbacks.onProvisionerUpdated(provisioner);
+        }
+    }
+
+    final void notifyNodesUpdated() {
+        if (mCallbacks != null) {
+            mCallbacks.onNodesUpdated();
         }
     }
 

@@ -64,7 +64,7 @@ public class Provisioner {
 
     @ColumnInfo(name = "provisioner_address")
     @Expose
-    private byte[] provisionerAddress = {0x07, (byte) 0xFF};
+    private byte[] provisionerAddress = {0x7F, (byte) 0xFF};
 
     @ColumnInfo(name = "global_ttl")
     @Expose

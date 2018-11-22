@@ -5,10 +5,10 @@ import android.support.annotation.NonNull;
 
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
+@SuppressWarnings("unused")
 public class ConfigModelPublicationSetParams {
 
     private final ProvisionedMeshNode meshNode;
-    private final byte[] src;
     private final byte[] elementAddress;
     private final byte[] publishAddress;
     private final int appKeyIndex;
@@ -23,11 +23,10 @@ public class ConfigModelPublicationSetParams {
 
     public ConfigModelPublicationSetParams(@NonNull final ProvisionedMeshNode mProvisionedMeshNode,
                                         @NonNull final byte[] elementAddress,
-                                        @NonNull final int modelIdentifier,
+                                        final int modelIdentifier,
                                         @NonNull final byte[] publishAddress,
-                                        @NonNull final int appKeyIndex) throws IllegalArgumentException {
+                                        final int appKeyIndex) throws IllegalArgumentException {
         this.meshNode = mProvisionedMeshNode;
-        this.src = mProvisionedMeshNode.getConfigurationSrc();
         if(elementAddress.length != 2 )
             throw new IllegalArgumentException("Element address must be 2 bytes");
         this.elementAddress = elementAddress;

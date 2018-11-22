@@ -34,7 +34,8 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     protected AccessMessage message;
     private boolean isIncompleteTimerExpired;
 
-    MeshMessageState(final Context context, final MeshMessage meshMessage, final MeshTransport meshTransport, final InternalMeshMsgHandlerCallbacks callbacks) {
+    MeshMessageState(final Context context, final MeshMessage meshMessage,
+                     final MeshTransport meshTransport, final InternalMeshMsgHandlerCallbacks callbacks) {
         this.mContext = context;
         this.mMeshMessage = meshMessage;
         this.message = meshMessage.getMessage();

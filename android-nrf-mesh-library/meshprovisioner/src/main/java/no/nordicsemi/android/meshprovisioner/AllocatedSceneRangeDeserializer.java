@@ -15,6 +15,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 final class AllocatedSceneRangeDeserializer implements JsonSerializer<List<AllocatedSceneRange>>, JsonDeserializer<List<AllocatedSceneRange>> {
     private static final String TAG = AllocatedSceneRangeDeserializer.class.getSimpleName();
 
@@ -36,7 +38,14 @@ final class AllocatedSceneRangeDeserializer implements JsonSerializer<List<Alloc
     }
 
     @Override
-    public JsonElement serialize(final List<AllocatedSceneRange> src, final Type typeOfSrc, final JsonSerializationContext context) {
-        return null;
+    public JsonElement serialize(final List<AllocatedSceneRange> ranges, final Type typeOfSrc, final JsonSerializationContext context) {
+        final JsonArray jsonArray = new JsonArray();
+        for(AllocatedSceneRange range :  ranges){
+            final JsonObject rangeJson = new JsonObject();
+            rangeJson.addProperty("firstScene", range.getFirstScene());
+            rangeJson.addProperty("lastScene", range.getLastScene());
+            jsonArray.add(rangeJson);
+        }
+        return jsonArray;
     }
 }

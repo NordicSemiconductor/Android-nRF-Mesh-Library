@@ -213,8 +213,6 @@ public class PublicationSettings implements Parcelable {
 
     /**
      * Sets the ttl used for publication.
-     *
-     * @return publication ttl
      */
     public void setPublishTtl(final int publishTtl) {
         this.publishTtl = publishTtl;
@@ -231,8 +229,6 @@ public class PublicationSettings implements Parcelable {
 
     /**
      * Sets the retransmit count used in publication
-     *
-     * @return publication retransmit count
      */
     public void setPublishRetransmitCount(final int publishRetransmitCount) {
         this.publishRetransmitCount = publishRetransmitCount;
@@ -249,8 +245,6 @@ public class PublicationSettings implements Parcelable {
 
     /**
      * Sets the retransmit interval steps used in publication
-     *
-     * @return publication retransmit interval steps
      */
     public void setPublishRetransmitIntervalSteps(final int publishRetransmitIntervalSteps) {
         this.publishRetransmitIntervalSteps = publishRetransmitIntervalSteps;
@@ -267,8 +261,6 @@ public class PublicationSettings implements Parcelable {
 
     /**
      * Sets the publication steps used for publication
-     *
-     * @return publication steps
      */
     public void setPublicationSteps(final int publicationSteps) {
         this.publicationSteps = publicationSteps;
@@ -285,6 +277,13 @@ public class PublicationSettings implements Parcelable {
 
     public void setPublicationResolution(final int publicationResolution) {
         this.publicationResolution = publicationResolution;
+    }
+
+    /**
+     * Returns the publication period
+     */
+    public int calculatePublicationPeriod(){
+        return ((publicationSteps << 6) | publicationResolution);
     }
 
     @Override

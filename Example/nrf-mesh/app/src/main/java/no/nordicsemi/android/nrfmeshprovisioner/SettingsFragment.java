@@ -53,13 +53,13 @@ import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkImport;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkImportFailed;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFlags;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalNetworkName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentIvIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentKeyIndex;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkImport;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkImportFailed;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNetwork;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSourceAddress;
@@ -266,6 +266,11 @@ public class SettingsFragment extends Fragment implements Injectable,
                 final DialogFragmentNetworkImport fragment = DialogFragmentNetworkImport.newInstance(title, message);
                 fragment.show(getChildFragmentManager(), null);
                 return true;
+            case R.id.action_export_network:
+                final String path = Environment.getExternalStorageDirectory() + File.separator +
+                        "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
+                mViewModel.getMeshManagerApi().exportMeshNetwork(path);
+                break;
             case R.id.action_reset_network:
                 final DialogFragmentResetNetwork dialogFragmentResetNetwork = DialogFragmentResetNetwork.
                         newInstance(getString(R.string.title_reset_network), getString(R.string.message_reset_network));

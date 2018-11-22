@@ -65,8 +65,8 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     public @interface SecurityState {
     }
 
-    private static final int LOW = 0; //Low security
-    private static final int HIGH = 1; //High security
+    public static final int LOW = 0; //Low security
+    public static final int HIGH = 1; //High security
 
     protected static final String TAG = ProvisionedBaseMeshNode.class.getSimpleName();
     /**
@@ -186,9 +186,9 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Expose(serialize = false)
     List<Integer> mAddedNetworkKeyIndexes = new ArrayList<>();
 
-    @Ignore
+    @TypeConverters(MeshTypeConverters.class)
     @Expose
-    List<NetworkKey> networkKeys = new ArrayList<>();
+    public List<NetworkKey> mAddedNetworkKeys = new ArrayList<>();
 
     @Ignore
     @Expose
@@ -345,15 +345,11 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
      * Returns the key index
      *
      * @return network key index
-     * @deprecated Use {@link #getNetworkKeys()} instead
+     * @deprecated Use {@link ProvisionedMeshNode#getAddedNetworkKeys()} instead
      */
     @Deprecated
     public final byte[] getKeyIndex() {
         return keyIndex;
-    }
-
-    public List<NetworkKey> getNetworkKeys() {
-        return Collections.unmodifiableList(networkKeys);
     }
 
     public final byte[] getFlags() {
@@ -381,7 +377,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     public void setBluetoothDeviceAddress(final String bluetoothDeviceAddress) {
         this.bluetoothDeviceAddress = bluetoothDeviceAddress;
     }
-
 
     public long getTimeStamp() {
         return mTimeStampInMillis;
@@ -474,5 +469,10 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setRelaySettings(final RelaySettings relaySettings) {
         this.relaySettings = relaySettings;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public List<Integer> getAddedAppKeyIndexes(){
+        return mAddedAppKeyIndexes;
     }
 }

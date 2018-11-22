@@ -191,6 +191,10 @@ abstract class MeshNetworkDb extends RoomDatabase {
         new UpdateNodeAsyncTask(dao).execute(node);
     }
 
+    void updateNodes(final ProvisionedMeshNodeDao dao, final List<ProvisionedMeshNode> nodes) {
+        new UpdateNodesAsyncTask(dao, nodes).execute();
+    }
+
     void deleteNode(final ProvisionedMeshNodeDao dao, final ProvisionedMeshNode node) {
         new DeleteNodeAsyncTask(dao).execute(node);
     }
@@ -527,6 +531,23 @@ abstract class MeshNetworkDb extends RoomDatabase {
         @Override
         protected Void doInBackground(final ProvisionedMeshNode... params) {
             mAsyncTaskDao.update(params[0]);
+            return null;
+        }
+    }
+
+    private static class UpdateNodesAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        private ProvisionedMeshNodeDao mAsyncTaskDao;
+        private List<ProvisionedMeshNode> nodes;
+
+        UpdateNodesAsyncTask(ProvisionedMeshNodeDao dao, final List<ProvisionedMeshNode> nodes) {
+            mAsyncTaskDao = dao;
+            this.nodes = nodes;
+        }
+
+        @Override
+        protected Void doInBackground(final Void... params) {
+            mAsyncTaskDao.update(nodes);
             return null;
         }
     }

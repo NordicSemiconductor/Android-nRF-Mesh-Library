@@ -164,7 +164,7 @@ public abstract class MeshModel implements Parcelable {
      * @return LinkedHashMap containing the bound app keys for this model
      */
     public Map<Integer, ApplicationKey> getBoundApplicationKeys() {
-        return Collections.unmodifiableMap(mBoundApplicationKeys);
+        return (mBoundApplicationKeys);
     }
 
     public ApplicationKey getBoundAppKey(final int appKeyIndex) {
@@ -183,7 +183,7 @@ public abstract class MeshModel implements Parcelable {
     /**
      * Checks if a model contains group addresses
      *
-     * @return
+     * @return true if has group addresses and false otherwise
      */
     public boolean hasGroupAddresses() {
         for (byte[] address : mSubscriptionAddress) {

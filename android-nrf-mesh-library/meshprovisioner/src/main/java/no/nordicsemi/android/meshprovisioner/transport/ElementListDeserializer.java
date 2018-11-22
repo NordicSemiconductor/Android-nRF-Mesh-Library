@@ -14,6 +14,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -37,8 +38,31 @@ public final class ElementListDeserializer implements JsonSerializer<List<Elemen
     }
 
     @Override
-    public JsonElement serialize(final List<Element> src, final Type typeOfSrc, final JsonSerializationContext context) {
-        return null;
+    public JsonElement serialize(final List<Element> elements, final Type typeOfSrc, final JsonSerializationContext context) {
+        final JsonArray jsonArray = new JsonArray();
+        int i = 0;
+        for (Element element : elements) {
+            final JsonObject elementJson = new JsonObject();
+            elementJson.addProperty("index", i);
+            elementJson.addProperty("location", String.format(Locale.US, "%04X", element.getLocationDescriptor()));
+            elementJson.add("models", serializeModels(context, element.getMeshModels()));
+            jsonArray.add(elementJson);
+            i++;
+        }
+        return jsonArray;
+    }
+
+    /**
+     * Returns serialized json element containing the mesh models
+     *
+     * @param context    Serializer context
+     * @param meshModels models map
+     * @return JsonElement
+     */
+    private JsonElement serializeModels(final JsonSerializationContext context, final Map<Integer, MeshModel> meshModels) {
+        final Type meshModelList = new TypeToken<List<MeshModel>>() {
+        }.getType();
+        return context.serialize(populateModels(meshModels), meshModelList);
     }
 
     /**
@@ -49,7 +73,8 @@ public final class ElementListDeserializer implements JsonSerializer<List<Elemen
      * @return list of {@link MeshModel}
      */
     private List<MeshModel> deserializeModels(final JsonDeserializationContext context, final JsonObject json) {
-        Type modelsList = new TypeToken<List<MeshModel>>() {}.getType();
+        Type modelsList = new TypeToken<List<MeshModel>>() {
+        }.getType();
         return context.deserialize(json.getAsJsonArray("models"), modelsList);
     }
 
@@ -63,6 +88,14 @@ public final class ElementListDeserializer implements JsonSerializer<List<Elemen
         final LinkedHashMap<Integer, MeshModel> meshModels = new LinkedHashMap<>();
         for (MeshModel model : models) {
             meshModels.put(model.getModelId(), model);
+        }
+        return meshModels;
+    }
+
+    private List<MeshModel> populateModels(final Map<Integer, MeshModel> meshModelMap) {
+        final List<MeshModel> meshModels = new ArrayList<>();
+        for (Map.Entry<Integer, MeshModel> modelEntry : meshModelMap.entrySet()) {
+            meshModels.add(modelEntry.getValue());
         }
         return meshModels;
     }
