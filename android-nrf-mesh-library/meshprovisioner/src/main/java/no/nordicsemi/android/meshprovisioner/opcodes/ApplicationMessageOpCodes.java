@@ -124,4 +124,54 @@ public class ApplicationMessageOpCodes {
      */
     public static final int LIGHT_HSL_STATUS = 0x8278;
 
+    /**
+     * Opcode for the "Scene Status" message
+     */
+    public static final int SCENE_STATUS = 0x5E;
+
+    /**
+     * Opcode for the "Scene Register Status" message
+     */
+    public static final int SCENE_REGISTER_STATUS = 0x8245;
+
+    /**
+     * Opcode for the "Scene Get" message
+     */
+    public static final int SCENE_GET = 0x8241;
+
+    /**
+     * Opcode for the "Scene Register Get" message
+     */
+    public static final int SCENE_REGISTER_GET = 0x8244;
+
+    /**
+     * Opcode for the "Scene Recall" message
+     */
+    public static final int SCENE_RECALL = 0x8242;
+
+    /**
+     * Opcode for the "Scene Recall Unacknowledged" message
+     */
+    public static final int SCENE_RECALL_UNACKNOWLEDGED = 0x8243;
+
+    /**
+     * Opcode for the "Scene Store" message
+     */
+    public static final int SCENE_STORE = 0x8246;
+
+    /**
+     * Opcode for the "Scene Store Unacknowledged" message
+     */
+    public static final int SCENE_STORE_UNACKNOWLEDGED = 0x8247;
+
+    /**
+     * Opcode for the "Scene Delete" message
+     */
+    public static final int SCENE_DELETE = 0x829E;
+
+    /**
+     * Opcode for the "Scene Delete Unacknowledged" message
+     */
+    public static final int SCENE_DELETE_UNACKNOWLEDGED = 0x829F;
+
 }

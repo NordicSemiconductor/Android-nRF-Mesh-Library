@@ -1,0 +1,60 @@
+package no.nordicsemi.android.meshprovisioner.transport;
+
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.util.Log;
+
+/**
+ * State class for handling SceneRegisterGetState messages.
+ */
+class SceneRegisterGetState extends GenericMessageState implements LowerTransportLayerCallbacks {
+
+    private static final String TAG = SceneRegisterGetState.class.getSimpleName();
+
+    /**
+     * Constructs {@link SceneRegisterGetState}
+     *
+     * @param context         Context of the application
+     * @param dstAddress      Destination address to which the message must be sent to
+     * @param sceneRegisterGet Wrapper class {@link SceneRegisterGet} containing the opcode and parameters for {@link SceneRegisterGet} message
+     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException for any illegal arguments provided.
+     */
+    SceneRegisterGetState(@NonNull final Context context,
+                          @NonNull final byte[] dstAddress,
+                          @NonNull final SceneRegisterGet sceneRegisterGet,
+                          @NonNull final MeshTransport meshTransport,
+                          @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, dstAddress, sceneRegisterGet, meshTransport, callbacks);
+        createAccessMessage();
+    }
+
+    @Override
+    public MessageState getState() {
+        return MessageState.SCENE_REGISTER_GET_STATE;
+    }
+
+    /**
+     * Creates the access message to be sent to the node
+     */
+    private void createAccessMessage() {
+        final SceneRegisterGet sceneRegisterGet = (SceneRegisterGet) mMeshMessage;
+        final byte[] key = sceneRegisterGet.getAppKey();
+        final int akf = sceneRegisterGet.getAkf();
+        final int aid = sceneRegisterGet.getAid();
+        final int aszmic = sceneRegisterGet.getAszmic();
+        final int opCode = sceneRegisterGet.getOpCode();
+        final byte[] parameters = sceneRegisterGet.getParameters();
+        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+    }
+
+    @Override
+    public final void executeSend() {
+        Log.v(TAG, "Sending Scene Get acknowledged");
+        super.executeSend();
+        if (message.getNetworkPdu().size() > 0) {
+            if (mMeshStatusCallbacks != null)
+                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+        }
+    }
+}

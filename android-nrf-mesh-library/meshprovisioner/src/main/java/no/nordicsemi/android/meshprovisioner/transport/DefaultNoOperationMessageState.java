@@ -63,6 +63,13 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mMeshStatusCallbacks.onMeshMessageReceived(compositionDataStatus);
                 }
                 break;
+            case 1:
+                if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_STATUS) {
+                    final SceneStatus sceneStatus = new SceneStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mMeshStatusCallbacks.onMeshMessageReceived(sceneStatus);
+                }
+                break;
             case 2:
                 if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_APPKEY_STATUS) {
                     final ConfigAppKeyStatus status = new ConfigAppKeyStatus(mNode, message);
@@ -135,6 +142,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final LightHslStatus lightHslStatus = new LightHslStatus(mNode, message);
                     mInternalTransportCallbacks.updateMeshNode(mNode);
                     mMeshStatusCallbacks.onMeshMessageReceived(lightHslStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_REGISTER_STATUS) {
+                    final SceneRegisterStatus registerStatus= new SceneRegisterStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mMeshStatusCallbacks.onMeshMessageReceived(registerStatus);
                 } else {
                     Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
                 }

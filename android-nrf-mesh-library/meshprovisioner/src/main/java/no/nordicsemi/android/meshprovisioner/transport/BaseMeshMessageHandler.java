@@ -167,6 +167,38 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     final VendorModelMessageUnackedState vendorModelMessageUnackedState = (VendorModelMessageUnackedState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, vendorModelMessageUnackedState.getMeshMessage(), mMeshTransport, this));
                     break;
+                case SCENE_GET_STATE:
+                    final  SceneGetState sceneGetState = (SceneGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneGetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_REGISTER_GET_STATE:
+                    final  SceneRegisterGetState sceneRegisterGetState = (SceneRegisterGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneRegisterGetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_STORE_STATE:
+                    final  SceneStoreState sceneStoreState = (SceneStoreState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneStoreState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_STORE_UNACKNOWLEDGED_STATE:
+                    final  SceneStoreUnacknowledgedState sceneStoreUnacknowledgedState = (SceneStoreUnacknowledgedState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneStoreUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_RECALL_STATE:
+                    final  SceneRecallState sceneRecallState = (SceneRecallState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneRecallState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_RECALL_UNACKNOWLEDGED_STATE:
+                    final  SceneRecallUnacknowledgedState sceneRecallUnacknowledgedState = (SceneRecallUnacknowledgedState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneRecallUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_DELETE_STATE:
+                    final  SceneDeleteState sceneDeleteState = (SceneDeleteState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneDeleteState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_DELETE_UNACKNOWLEDGED_STATE:
+                    final  SceneDeleteUnacknowledgedState sceneDeleteUnacknowledgedState = (SceneDeleteUnacknowledgedState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneDeleteUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
+                    break;
             }
         }
     }
@@ -652,12 +684,59 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             mMeshMessageState = message;
             message.executeSend();
         } else if (genericMessage instanceof VendorModelMessageUnacked) {
-            final VendorModelMessageUnackedState vendorModelMessageUnackedState = new VendorModelMessageUnackedState(mContext,
-                    dstAddress, (VendorModelMessageUnacked) genericMessage, mMeshTransport, this);
+            final VendorModelMessageUnackedState vendorModelMessageUnackedState = new VendorModelMessageUnackedState(mContext, dstAddress, (VendorModelMessageUnacked) genericMessage, mMeshTransport, this);
             vendorModelMessageUnackedState.setTransportCallbacks(mInternalTransportCallbacks);
             vendorModelMessageUnackedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = vendorModelMessageUnackedState;
             vendorModelMessageUnackedState.executeSend();
+        } else if (genericMessage instanceof SceneGet) {
+            final SceneGetState sceneGetState = new SceneGetState(mContext, dstAddress, (SceneGet) genericMessage, mMeshTransport, this);
+            sceneGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneGetState;
+            sceneGetState.executeSend();
+        } else if (genericMessage instanceof SceneRegisterGet) {
+            final SceneRegisterGetState sceneGetState = new SceneRegisterGetState(mContext, dstAddress, (SceneRegisterGet) genericMessage, mMeshTransport, this);
+            sceneGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneGetState;
+            sceneGetState.executeSend();
+        } else if (genericMessage instanceof SceneStore) {
+            final SceneStoreState sceneStoreState = new SceneStoreState(mContext, dstAddress, (SceneStore) genericMessage, mMeshTransport, this);
+            sceneStoreState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneStoreState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneStoreState;
+            sceneStoreState.executeSend();
+        } else if (genericMessage instanceof SceneStoreUnacknowledged) {
+            final SceneStoreUnacknowledgedState sceneStoreUnacknowledgedState = new SceneStoreUnacknowledgedState(mContext, dstAddress, (SceneStoreUnacknowledged) genericMessage, mMeshTransport, this);
+            sceneStoreUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneStoreUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneStoreUnacknowledgedState;
+            sceneStoreUnacknowledgedState.executeSend();
+        } else if (genericMessage instanceof SceneDelete) {
+            final SceneDeleteState sceneDeleteState = new SceneDeleteState(mContext, dstAddress, (SceneDelete) genericMessage, mMeshTransport, this);
+            sceneDeleteState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneDeleteState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneDeleteState;
+            sceneDeleteState.executeSend();
+        } else if (genericMessage instanceof SceneDeleteUnacknowledged) {
+            final SceneDeleteUnacknowledgedState sceneDeleteUnacknowledgedState = new SceneDeleteUnacknowledgedState(mContext, dstAddress, (SceneDeleteUnacknowledged) genericMessage, mMeshTransport, this);
+            sceneDeleteUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneDeleteUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneDeleteUnacknowledgedState;
+            sceneDeleteUnacknowledgedState.executeSend();
+        } else if (genericMessage instanceof SceneRecall) {
+            final SceneRecallState sceneRecallState = new SceneRecallState(mContext, dstAddress, (SceneRecall) genericMessage, mMeshTransport, this);
+            sceneRecallState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneRecallState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneRecallState;
+            sceneRecallState.executeSend();
+        } else if (genericMessage instanceof SceneRecallUnacknowledged) {
+            final SceneRecallUnacknowledgedState sceneRecallUnacknowledgedState = new SceneRecallUnacknowledgedState(mContext, dstAddress, (SceneRecallUnacknowledged) genericMessage, mMeshTransport, this);
+            sceneRecallUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneRecallUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneRecallUnacknowledgedState;
+            sceneRecallUnacknowledgedState.executeSend();
         } else {
 
         }

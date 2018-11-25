@@ -654,6 +654,16 @@ public class MeshParserUtils {
         return (unsignedByteToInt(b0) + (unsignedByteToInt(b1) << 8));
     }
 
+    public static int bytesToInt(byte[] b) {
+        return b.length == 4 ? ByteBuffer.wrap(b).getInt() : ByteBuffer.wrap(b).getShort();
+    }
+
+    public static byte[] intToBytes(int i) {
+        ByteBuffer b = ByteBuffer.allocate(4);
+        b.putInt(i);
+        return b.array();
+    }
+
     /**
      * Convert an unsigned integer value to a two's-complement encoded signed value.
      */
