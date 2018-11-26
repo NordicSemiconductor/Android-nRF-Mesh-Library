@@ -182,7 +182,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     private final Runnable mScannerTimeout = this::stopScan;
 
-    public NrfMeshRepository(final MeshManagerApi meshManagerApi, final NetworkInformation networkInformation, final BleMeshManager bleMeshManager) {
+    public NrfMeshRepository(final MeshManagerApi meshManagerApi,
+                             final NetworkInformation networkInformation,
+                             final BleMeshManager bleMeshManager) {
         //Initialize the mesh api
         mMeshManagerApi = meshManagerApi;
         mMeshManagerApi.setProvisionerManagerTransportCallbacks(this);
@@ -243,9 +245,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mProvisionedNodes;
     }
 
-    LiveData<String> getNetworkLoadState(){
+    LiveData<String> getNetworkLoadState() {
         return mNetworkLoadState;
     }
+
     NetworkInformationLiveData getNetworkInformationLiveData() {
         return mNetworkInformationLiveData;
     }
@@ -468,8 +471,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         if (mIsReconnectingFlag) {
             mIsConnected.postValue(false);
         }
-        /*mSetupProvisionedNode = false;
-        mIsConnectedToProxy.postValue(false);*/
     }
 
     @Override
@@ -543,24 +544,25 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onNetworkLoaded(final MeshNetwork meshNetwork) {
-        mMeshNetwork = meshNetwork;//mMeshManagerApi.getMeshNetwork();
-        if (mMeshNetwork != null) {
-
-            if(!mMeshNetwork.isProvisionerSelected()) {
-                final Provisioner provisioner = meshNetwork.getProvisioners().get(0);
-                provisioner.setLastSelected(true);
-                mMeshNetwork.selectProvisioner(provisioner);
-            }
-
-            //Load live data with mesh network
-            mMeshNetworkLiveData.refresh(meshNetwork);
-            //Load live data with provisioned nodes
-            mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
-        }
+        loadNetwork(meshNetwork);
     }
 
     @Override
     public void onNetworkLoadFailed(final String error) {
+        mNetworkLoadState.postValue(error);
+    }
+
+    @Override
+    public void onNetworkImported(final MeshNetwork meshNetwork) {
+        //We can delete the old network after the import has been successful!
+        final MeshNetwork oldNet = mMeshNetwork;
+        mMeshManagerApi.deleteMeshNetworkFromDb(oldNet);
+        loadNetwork(meshNetwork);
+        mNetworkLoadState.postValue(meshNetwork.getMeshName() + " has been successfully imported");
+    }
+
+    @Override
+    public void onNetworkImportFailed(final String error) {
         mNetworkLoadState.postValue(error);
     }
 
@@ -612,7 +614,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void onProvisioningCompleted(final ProvisionedMeshNode meshNode, final ProvisioningState.States state, final byte[] data) {
         mMeshNetwork = mMeshManagerApi.getMeshNetwork();
         mMeshNetworkLiveData.refresh(mMeshNetwork);
-
         mProvisionedMeshNode = meshNode;
         mUnprovisionedMeshNodeLiveData.postValue(null);
         mProvisionedMeshNodeLiveData.postValue(meshNode);
@@ -799,6 +800,28 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     /**
+     * Loads the network that was loaded from the db or imported from the mesh cdb
+     *
+     * @param meshNetwork mesh network that was loaded
+     */
+    private void loadNetwork(final MeshNetwork meshNetwork) {
+        mMeshNetwork = meshNetwork;
+        if (mMeshNetwork != null) {
+
+            if (!mMeshNetwork.isProvisionerSelected()) {
+                final Provisioner provisioner = meshNetwork.getProvisioners().get(0);
+                provisioner.setLastSelected(true);
+                mMeshNetwork.selectProvisioner(provisioner);
+            }
+
+            //Load live data with mesh network
+            mMeshNetworkLiveData.refresh(meshNetwork);
+            //Load live data with provisioned nodes
+            mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
+        }
+    }
+
+    /**
      * We should only update the selected node, since sending messages to group address will notify with nodes that is not on the UI
      */
     private boolean updateNode(final ProvisionedMeshNode node) {
@@ -889,7 +912,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     void importMeshNetwork(final Uri uri) {
-        mMeshManagerApi.deleteMeshNetworkFromDb();
         mMeshManagerApi.importMeshNetwork(uri);
     }
 }

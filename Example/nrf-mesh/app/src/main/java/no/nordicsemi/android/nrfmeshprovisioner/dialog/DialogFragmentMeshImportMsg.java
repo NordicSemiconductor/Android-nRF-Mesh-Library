@@ -29,24 +29,26 @@ import android.support.v7.app.AlertDialog;
 
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public class DialogFragmentNetworkImportFailed extends DialogFragmentMessage {
+public class DialogFragmentMeshImportMsg extends DialogFragmentMessage {
+    private int resId = R.drawable.ic_info_outline_black_alpha;
 
-    public interface DialogFragmentNetworkImportListener {
-        void onNetworkImportFailed();
-    }
-
-    public static DialogFragmentNetworkImportFailed newInstance(final String title, final String message) {
+    public static DialogFragmentMeshImportMsg newInstance(final int resId, final String title, final String message) {
         final Bundle args = new Bundle();
-        DialogFragmentNetworkImportFailed fragment = new DialogFragmentNetworkImportFailed();
+        final DialogFragmentMeshImportMsg fragment = new DialogFragmentMeshImportMsg();
+        args.putInt(ICON_RES_ID, resId);
         args.putString(TITLE, title);
         args.putString(MESSAGE, message);
         fragment.setArguments(args);
         return fragment;
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getArguments() != null){
+            resId = getArguments().getInt(ICON_RES_ID, resId);
+        }
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -55,8 +57,7 @@ public class DialogFragmentNetworkImportFailed extends DialogFragmentMessage {
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
-        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> (
-                (DialogFragmentNetworkImportListener)getParentFragment()).onNetworkImportFailed());
+        alertDialogBuilder.setPositiveButton(getString(R.string.ok), null);
 
         return super.onCreateDialog(savedInstanceState);
     }

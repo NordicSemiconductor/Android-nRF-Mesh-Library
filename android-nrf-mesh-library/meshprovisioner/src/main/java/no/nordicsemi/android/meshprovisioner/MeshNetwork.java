@@ -2,6 +2,7 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.arch.persistence.room.Entity;
+import android.support.annotation.RestrictTo;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +15,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 @Entity(tableName = "mesh_network")
 public final class MeshNetwork extends BaseMeshNetwork {
 
-
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public MeshNetwork(final String meshUUID) {
         super(meshUUID);
     }

@@ -45,6 +45,20 @@ public interface MeshManagerTransportCallbacks {
     void onNetworkLoadFailed(final String error);
 
     /**
+     * Callbacks notifying the network was imported
+     *
+     * @param meshNetwork{@link MeshNetwork that was loaded}
+     */
+    void onNetworkImported(final MeshNetwork meshNetwork);
+
+    /**
+     * Callback that notifies in case the mesh network was unable to imported
+     *
+     * @param error error
+     */
+    void onNetworkImportFailed(final String error);
+
+    /**
      * Send mesh pdu
      *
      * @param meshNode {@link UnprovisionedMeshNode}

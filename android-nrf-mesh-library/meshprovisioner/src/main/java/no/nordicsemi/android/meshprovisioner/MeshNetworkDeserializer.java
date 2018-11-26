@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -32,6 +33,9 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
     @Override
     public MeshNetwork deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
         final JsonObject jsonObject = json.getAsJsonObject();
+        if (!isValidMeshObject(jsonObject))
+            throw new JsonSyntaxException("Invalid MeshCDB JSON file, mesh network object must follow the Mesh Provisioning/Configuration Database format");
+
         final String meshUuid = jsonObject.get("meshUUID").getAsString();
 
         final MeshNetwork network = new MeshNetwork(meshUuid);
@@ -85,6 +89,20 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             jsonObject.add("scenes", serializeScenes(context, network.getScenes()));
 
         return jsonObject;
+    }
+
+    /**
+     * Validates the mesh object by checking if the document contains the mandatory fields
+     *
+     * @param mesh json
+     * @return true if valid and false otherwise
+     */
+    private boolean isValidMeshObject(final JsonObject mesh) {
+        return mesh.has("meshUUID") &&
+                mesh.has("meshName") &&
+                mesh.has("timestamp") &&
+                mesh.has("provisioners") &&
+                mesh.has("netKeys");
     }
 
     /**
@@ -312,7 +330,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             final int index = nodes.size() - 1;
             final ProvisionedMeshNode node = nodes.get(index);
             Map<Integer, Element> elements = node.getElements();
-            if (elements != null & !elements.isEmpty()) {
+            if (elements != null && !elements.isEmpty()) {
                 unicast = node.getUnicastAddressInt() + elements.size();
             } else {
                 unicast = node.getUnicastAddressInt() + 1;
@@ -321,6 +339,12 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         return AddressUtils.getUnicastAddressBytes(unicast);
     }
 
+    /**
+     * Populates the added app keys for nodes
+     *
+     * @param nodes           list of nodes
+     * @param applicationKeys list of keys
+     */
     private void populateAddedAppKeysInNodes(final List<ProvisionedMeshNode> nodes, final List<ApplicationKey> applicationKeys) {
         for (ProvisionedMeshNode node : nodes) {
             final Map<Integer, ApplicationKey> applicationKeyMap = new LinkedHashMap<>();
@@ -334,6 +358,12 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         }
     }
 
+    /**
+     * Populates the bound app keys in the nodes
+     *
+     * @param nodes           list of nodes
+     * @param applicationKeys list of keys
+     */
     private void populateBoundAppKeysInNodes(final List<ProvisionedMeshNode> nodes, final List<ApplicationKey> applicationKeys) {
         for (ProvisionedMeshNode node : nodes) {
             for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {

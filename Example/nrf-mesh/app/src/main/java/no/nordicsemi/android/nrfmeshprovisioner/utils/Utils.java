@@ -187,6 +187,10 @@ public class Utils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 
+    public static boolean isKitkatOrAbove() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+    }
+
     public static void showToast(final Context context, final String message) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }

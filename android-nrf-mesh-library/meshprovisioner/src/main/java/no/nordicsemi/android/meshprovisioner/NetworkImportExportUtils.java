@@ -89,7 +89,7 @@ class NetworkImportExportUtils {
         protected void onPostExecute(final Void aVoid) {
             super.onPostExecute(aVoid);
             if (network != null) {
-                callbacks.onNetworkLoadedFromJson(network);
+                callbacks.onNetworkImportedFromJson(network);
             } else {
                 callbacks.onNetworkLoadFailed(error);
             }
@@ -138,10 +138,10 @@ class NetworkImportExportUtils {
                 if (network != null) {
                     this.network = network;
                 }
-            } catch (com.google.gson.JsonSyntaxException ex) {
+            } catch (final com.google.gson.JsonSyntaxException ex) {
                 error = ex.getMessage();
                 Log.e(TAG, " " + error);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 error = e.getMessage();
                 Log.e(TAG, " " + error);
             }
@@ -211,7 +211,7 @@ class NetworkImportExportUtils {
         protected void onPostExecute(final Void aVoid) {
             super.onPostExecute(aVoid);
             if (network != null) {
-                callbacks.onNetworkLoadedFromJson(network);
+                callbacks.onNetworkImportedFromJson(network);
             } else {
                 callbacks.onNetworkLoadFailed(error);
             }

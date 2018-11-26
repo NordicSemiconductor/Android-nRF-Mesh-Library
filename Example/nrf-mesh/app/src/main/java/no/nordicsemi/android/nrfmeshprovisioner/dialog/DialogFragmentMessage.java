@@ -31,6 +31,7 @@ import android.support.v7.app.AlertDialog;
 
 public class DialogFragmentMessage extends DialogFragment {
 
+    protected static final String ICON_RES_ID = "ICON_RES_ID";
     protected static final String TITLE = "TITLE";
     protected static final String MESSAGE = "MESSAGE";
 

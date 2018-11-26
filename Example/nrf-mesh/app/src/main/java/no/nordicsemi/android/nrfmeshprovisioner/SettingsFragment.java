@@ -58,12 +58,13 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalNetwo
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentIvIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentKeyIndex;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkImport;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkImportFailed;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshImport;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshImportMsg;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNetwork;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSourceAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
 import static android.app.Activity.RESULT_OK;
@@ -79,8 +80,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         DialogFragmentUnicastAddress.DialogFragmentUnicastAddressListener,
         DialogFragmentSourceAddress.DialogFragmentSourceAddressListener,
         DialogFragmentResetNetwork.DialogFragmentResetNetworkListener,
-        DialogFragmentNetworkImportFailed.DialogFragmentNetworkImportListener,
-        DialogFragmentNetworkImport.DialogFragmentNetworkImportListener {
+        DialogFragmentMeshImport.DialogFragmentNetworkImportListener {
 
     private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 2023; // random number
     private static final int READ_FILE_REQUEST_CODE = 42;
@@ -236,9 +236,10 @@ public class SettingsFragment extends Fragment implements Injectable,
         });
 
         mViewModel.getNetworkLoadState().observe(this, networkImportState -> {
-            final String title = getString(R.string.title_network_import_failed);
-            final DialogFragmentNetworkImportFailed fragment =
-                    DialogFragmentNetworkImportFailed.newInstance(title, networkImportState);
+            final String title = getString(R.string.title_network_import);
+            final DialogFragmentMeshImportMsg fragment =
+                    DialogFragmentMeshImportMsg.newInstance(R.drawable.ic_info_outline_black_alpha,
+                            title, networkImportState);
             fragment.show(getChildFragmentManager(), null);
         });
 
@@ -263,7 +264,7 @@ public class SettingsFragment extends Fragment implements Injectable,
             case R.id.action_import_network:
                 final String title = getString(R.string.title_network_import);
                 final String message = getString(R.string.network_import_rationale);
-                final DialogFragmentNetworkImport fragment = DialogFragmentNetworkImport.newInstance(title, message);
+                final DialogFragmentMeshImport fragment = DialogFragmentMeshImport.newInstance(title, message);
                 fragment.show(getChildFragmentManager(), null);
                 return true;
             case R.id.action_export_network:
@@ -370,15 +371,15 @@ public class SettingsFragment extends Fragment implements Injectable,
      * Fires an intent to spin up the "file chooser" UI to select a file
      */
     public void performFileSearch() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        final Intent intent;
+        if(Utils.isKitkatOrAbove()) {
+            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        } else {
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+        }
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         startActivityForResult(intent, READ_FILE_REQUEST_CODE);
-    }
-
-    @Override
-    public void onNetworkImportFailed() {
-
     }
 
     @Override

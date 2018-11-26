@@ -271,6 +271,10 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
                 meshNetwork);
     }
 
+    private void deleteNetwork(final MeshNetwork meshNetwork) {
+
+    }
+
     private void updateNetwork(final MeshNetwork meshNetwork) {
         new Thread(() -> {
             mMeshNetworkDao.update(meshNetwork);
@@ -748,7 +752,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     public final void resetMeshNetwork() {
         //We delete the existing network as the user has already given the
         final MeshNetwork meshNet = mMeshNetwork;
-        mMeshNetworkDb.deleteNetwork(mMeshNetworkDao, meshNet);
+        deleteMeshNetworkFromDb(meshNet);
         final MeshNetwork newMeshNetwork = generateMeshNetwork();
         newMeshNetwork.setCallbacks(callbacks);
         insertNetwork(newMeshNetwork);
@@ -800,10 +804,10 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     /**
      * Deletes an existing mesh network from the local database
+     * @param meshNetwork mesh network to be deleted
      */
-    public final void deleteMeshNetworkFromDb() {
-        final MeshNetwork network = mMeshNetwork;
-        mMeshNetworkDb.deleteNetwork(mMeshNetworkDao, network);
+    public final void deleteMeshNetworkFromDb(final MeshNetwork meshNetwork) {
+        mMeshNetworkDb.deleteNetwork(mMeshNetworkDao, meshNetwork);
     }
 
     /**
@@ -1019,7 +1023,11 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     @Override
     public void importMeshNetwork(final Uri uri) {
-        NetworkImportExportUtils.importMeshNetwork(mContext, uri, networkLoadCallbacks);
+        if(uri != null && uri.getPath().endsWith(".json")) {
+            NetworkImportExportUtils.importMeshNetwork(mContext, uri, networkLoadCallbacks);
+        } else {
+            mTransportCallbacks.onNetworkImportFailed("Invalid file type detected! Network information can be imported only from a valid JSON file that follows the Mesh Provisioning/Configuration Database format!");
+        }
     }
 
     @Override
@@ -1058,16 +1066,21 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         }
 
         @Override
-        public void onNetworkLoadedFromJson(final MeshNetwork meshNetwork) {
-            meshNetwork.setCallbacks(callbacks);
-            insertNetwork(meshNetwork);
-            mMeshNetwork = meshNetwork;
-            mTransportCallbacks.onNetworkLoaded(meshNetwork);
+        public void onNetworkLoadFailed(final String error) {
+            mTransportCallbacks.onNetworkLoadFailed(error);
         }
 
         @Override
-        public void onNetworkLoadFailed(final String error) {
-            mTransportCallbacks.onNetworkLoadFailed(error);
+        public void onNetworkImportedFromJson(final MeshNetwork meshNetwork) {
+            meshNetwork.setCallbacks(callbacks);
+            insertNetwork(meshNetwork);
+            mMeshNetwork = meshNetwork;
+            mTransportCallbacks.onNetworkImported(meshNetwork);
+        }
+
+        @Override
+        public void onNetworkImportFailed(final String error) {
+
         }
     };
 

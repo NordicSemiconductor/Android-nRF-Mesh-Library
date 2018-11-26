@@ -71,6 +71,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     }
 
     @Ignore
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedMeshNode(final UnprovisionedMeshNode unprovisionedMeshNode) {
         uuid = unprovisionedMeshNode.getDeviceUuid().toString();
         isProvisioned = unprovisionedMeshNode.isProvisioned();
@@ -156,7 +157,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeValue((byte) (blackListed ? 1 : 0));
     }
 
-
     public static final Creator<ProvisionedMeshNode> CREATOR = new Creator<ProvisionedMeshNode>() {
         @Override
         public ProvisionedMeshNode createFromParcel(Parcel in) {
@@ -178,6 +178,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return mElements;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setElements(final Map<Integer, Element> elements) {
         mElements = elements;
     }
@@ -186,6 +187,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return deviceKey;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setDeviceKey(final byte[] deviceKey) {
         this.deviceKey = deviceKey;
     }
@@ -194,6 +196,12 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return mReceivedSequenceNumber;
     }
 
+    /**
+     * Sets the received sequence number
+     * <p>This is only meant to be used internally within the library, hence the Restricted annotation</p>
+     * @param receivedSequenceNumber
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setReceivedSequenceNumber(final int receivedSequenceNumber) {
         mReceivedSequenceNumber = receivedSequenceNumber;
     }
@@ -210,6 +218,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return companyIdentifier;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setCompanyIdentifier(final Integer companyIdentifier) {
         this.companyIdentifier = companyIdentifier;
     }
@@ -218,6 +227,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return productIdentifier;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setProductIdentifier(final Integer productIdentifier) {
         this.productIdentifier = productIdentifier;
     }
@@ -226,6 +236,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return versionIdentifier;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setVersionIdentifier(final Integer versionIdentifier) {
         this.versionIdentifier = versionIdentifier;
     }
@@ -257,6 +268,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * Set {@link Features} of the node
      * @param features
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setNodeFeatures(final Features features) {
         this.nodeFeatures = features;
     }
@@ -407,7 +419,8 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         }
     }
 
-    public void setSeqAuth(final byte[] src, final int seqAuth) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    void setSeqAuth(final byte[] src, final int seqAuth) {
         final int srcAddress = AddressUtils.getUnicastAddressInt(src);
         mSeqAuth.put(srcAddress, seqAuth);
     }

@@ -12,14 +12,20 @@ interface LoadNetworkCallbacks {
     void onNetworkLoadedFromDb(final MeshNetwork meshNetwork);
 
     /**
-     * Notifies when the mesh network is loaded from the Json
-     * @param meshNetwork {@link MeshNetwork}
-     */
-    void onNetworkLoadedFromJson(final MeshNetwork meshNetwork);
-
-    /**
      * Notifies when the mesh network fails to load
      * @param error error
      */
     void onNetworkLoadFailed(final String error);
+
+    /**
+     * Notifies when the mesh network is imported from the Json
+     * @param meshNetwork {@link MeshNetwork}
+     */
+    void onNetworkImportedFromJson(final MeshNetwork meshNetwork);
+
+    /**
+     * Notifies when the mesh network fails to get imported
+     * @param error error
+     */
+    void onNetworkImportFailed(final String error);
 }
