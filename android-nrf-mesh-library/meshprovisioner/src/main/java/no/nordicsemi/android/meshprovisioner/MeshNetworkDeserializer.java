@@ -34,7 +34,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
     public MeshNetwork deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
         final JsonObject jsonObject = json.getAsJsonObject();
         if (!isValidMeshObject(jsonObject))
-            throw new JsonSyntaxException("Invalid MeshCDB JSON file, mesh network object must follow the Mesh Provisioning/Configuration Database format");
+            throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, mesh network object must follow the Mesh Provisioning/Configuration Database format.");
 
         final String meshUuid = jsonObject.get("meshUUID").getAsString();
 

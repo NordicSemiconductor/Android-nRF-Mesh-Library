@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Class for deserializing a list of elements stored in the Mesh Configuration Database
+ * Class for de-serializing a list of elements stored in the Mesh Configuration Database
  */
 public final class ElementListDeserializer implements JsonSerializer<List<Element>>, JsonDeserializer<List<Element>>, Type {
     @Override

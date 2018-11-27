@@ -1,7 +1,7 @@
 package no.nordicsemi.android.meshprovisioner;
 
 /**
- * Callbacks to notify importing from the Mesh Configuration Database JSON and loading a network from the local database
+ * Callbacks to notify importing from the Mesh Database JSON and loading a network from the local database
  */
 interface LoadNetworkCallbacks {
 
@@ -35,7 +35,7 @@ interface LoadNetworkCallbacks {
 
     /**
      * Notifies when the mesh network is exported
-     * @param meshNetwork
+     * @param meshNetwork network that was exported
      */
     void onNetworkExported(final MeshNetwork meshNetwork);
 

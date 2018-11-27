@@ -59,7 +59,7 @@ class NetworkImportExportUtils {
     }
 
     /**
-     * AsyncTask that reads and import a mesh network from the MeshCDB Json file
+     * AsyncTask that reads and import a mesh network from the Mesh Provisioning/Configuration Database Json file
      */
     private static class NetworkImportAsyncTask extends AsyncTask<Void, Void, Void> {
 
@@ -105,7 +105,7 @@ class NetworkImportExportUtils {
         }
 
         /**
-         * Imports the network from the MeshCDB json file
+         * Imports the network from the Mesh Provisioning/Configuration Database json file
          */
         private void importNetwork() {
             try {
@@ -181,7 +181,7 @@ class NetworkImportExportUtils {
 
 
     /**
-     * AsyncTask that reads and import a mesh network from the MeshCDB Json file
+     * AsyncTask that reads and import a mesh network from the Mesh Provisioning/Configuration Database Json file
      */
     private static class NetworkExportAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
@@ -225,7 +225,7 @@ class NetworkImportExportUtils {
         }
 
         /**
-         * Exports the network from the MeshCDB json file
+         * Exports the network from the Mesh Provisioning/Configuration Database json file
          */
         private boolean exportNetwork() {
             BufferedWriter br = null;
