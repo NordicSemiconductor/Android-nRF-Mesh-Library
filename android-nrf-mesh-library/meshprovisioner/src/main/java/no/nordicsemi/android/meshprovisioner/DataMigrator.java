@@ -51,7 +51,8 @@ class DataMigrator {
      * Load serialized provisioned nodes from preferences
      */
     @SuppressWarnings("deprecation")
-    static MeshNetwork migrateData(final Context context, final Gson gson, final ProvisioningSettings provisioningSettings) {
+    static MeshNetwork migrateData(final Context context, final Gson gson) {
+        final ProvisioningSettings provisioningSettings = new ProvisioningSettings(context);
         if (sharedPrefsExists(context)) {
             final MeshNetwork meshNetwork = new MeshNetwork(UUID.randomUUID().toString().toUpperCase(Locale.US));
             final SharedPreferences preferences = context.getSharedPreferences(PREFS_SEQUENCE_NUMBER, Context.MODE_PRIVATE);

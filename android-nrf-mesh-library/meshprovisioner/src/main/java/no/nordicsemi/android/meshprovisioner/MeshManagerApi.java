@@ -130,9 +130,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     private MeshNetwork mMeshNetwork;
     private Gson mGson;
 
-    private ProvisioningSettings mProvisioningSettings;
-    private Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new LinkedHashMap<>();
-
     private MeshNetworkDb mMeshNetworkDb;
     private MeshNetworkDao mMeshNetworkDao;
     private NetworkKeyDao mNetworkKeyDao;
@@ -148,7 +145,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         mMeshMessageHandler = new MeshMessageHandler(context, this);
         mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(this);
         mMeshMessageHandler.getMeshTransport().setUpperTransportLayerCallbacks(this);
-        mProvisioningSettings = new ProvisioningSettings(context);
 
         //Init database
         initDb(context);
@@ -221,7 +217,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
      * @param context context
      */
     private void migrateMeshNetwork(final Context context) {
-        final MeshNetwork meshNetwork = DataMigrator.migrateData(context, mGson, mProvisioningSettings);
+        final MeshNetwork meshNetwork = DataMigrator.migrateData(context, mGson);
         if (meshNetwork != null) {
             this.mMeshNetwork = meshNetwork;
             meshNetwork.setCallbacks(callbacks);
@@ -563,14 +559,12 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     @Override
     public void identifyNode(@NonNull final UUID deviceUuid, final String nodeName) throws IllegalArgumentException {
         //We must save all the provisioning data here so that they could be reused when provisioning the next devices
-
-        final ProvisioningSettings provisioningSettings = mProvisioningSettings;
         mMeshProvisioningHandler.identify(deviceUuid, nodeName,
                 mMeshNetwork.getPrimaryNetworkKey(),
                 mMeshNetwork.getProvisioningFlags(),
                 mMeshNetwork.getIvIndex(),
                 mMeshNetwork.getUnicastAddress(),
-                provisioningSettings.getGlobalTtl(), mMeshNetwork.getProvisioners().get(0).getProvisionerAddress());
+                mMeshNetwork.getGlobalTtl(), mMeshNetwork.getProvisionerAddress());
     }
 
     @Override
