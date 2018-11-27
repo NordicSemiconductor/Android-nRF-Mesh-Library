@@ -17,7 +17,7 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 public class LightLightnessSetUnacknowledged extends GenericMessage {
 
     private static final String TAG = LightLightnessSetUnacknowledged.class.getSimpleName();
-    private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_LEVEL_SET;
+    private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LIGHTNESS_SET_UNACKNOWLEDGED;
     private static final int GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH = 5;
     private static final int GENERIC_LEVEL_SET_PARAMS_LENGTH = 3;
 
