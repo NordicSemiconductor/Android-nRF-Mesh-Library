@@ -23,45 +23,58 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-@SuppressWarnings("ConstantConditions")
-public class DialogFragmentMeshImport extends DialogFragmentMessage {
-    private int resId = R.drawable.ic_info_outline_black_alpha;
+public class DialogFragmentPermissionRationale extends DialogFragmentMessage {
+    private static final String PERMISSION_DENIED_FOREVER = "PERMISSION_DENIED_FOREVER";
+    private boolean isDeniedForever;
 
-    public interface DialogFragmentNetworkImportListener {
-        void onNetworkImportConfirmed();
+    public interface StoragePermissionListener {
+        void requestPermission();
     }
 
-    public static DialogFragmentMeshImport newInstance(final String title, final String message) {
+    public static DialogFragmentPermissionRationale newInstance(final boolean permissionDeniedForever, final String title, final String message) {
         final Bundle args = new Bundle();
-        final DialogFragmentMeshImport fragment = new DialogFragmentMeshImport();
+        final DialogFragmentPermissionRationale fragment = new DialogFragmentPermissionRationale();
+        args.putBoolean(PERMISSION_DENIED_FOREVER, permissionDeniedForever);
         args.putString(TITLE, title);
         args.putString(MESSAGE, message);
         fragment.setArguments(args);
         return fragment;
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments() != null){
-            resId = getArguments().getInt(ICON_RES_ID, resId);
+        if(getArguments() != null) {
+            isDeniedForever = getArguments().getBoolean(PERMISSION_DENIED_FOREVER);
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialogBuilder.setIcon(resId);
-        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> (
-                (DialogFragmentNetworkImportListener)getParentFragment()).onNetworkImportConfirmed());
-
+        alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setIcon(R.drawable.ic_info_outline_black_alpha);
+        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> ((StoragePermissionListener)getParentFragment()).requestPermission());
+        if(isDeniedForever){
+            message = message + getString(R.string.permission_rationale_settings);
+            alertDialogBuilder.setNeutralButton(getString(R.string.settings), (dialog, which) -> {
+                final Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.fromParts("package", getContext().getPackageName(), null));
+                startActivity(intent);
+            });
+        }
         return super.onCreateDialog(savedInstanceState);
     }
 }

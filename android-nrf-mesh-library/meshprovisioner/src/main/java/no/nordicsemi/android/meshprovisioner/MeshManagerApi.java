@@ -38,7 +38,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -804,6 +803,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     /**
      * Deletes an existing mesh network from the local database
+     *
      * @param meshNetwork mesh network to be deleted
      */
     public final void deleteMeshNetworkFromDb(final MeshNetwork meshNetwork) {
@@ -1016,14 +1016,16 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     }
 
     @Override
-    public boolean exportMeshNetwork(final String path) {
-        exportNetwork(path);
-        return false;
+    public void exportMeshNetwork(final String path) {
+        final MeshNetwork meshNetwork = mMeshNetwork;
+        if(meshNetwork != null) {
+            NetworkImportExportUtils.exportMeshNetwork(meshNetwork, path, networkLoadCallbacks);
+        }
     }
 
     @Override
     public void importMeshNetwork(final Uri uri) {
-        if(uri != null && uri.getPath().endsWith(".json")) {
+        if (uri != null && uri.getPath().endsWith(".json")) {
             NetworkImportExportUtils.importMeshNetwork(mContext, uri, networkLoadCallbacks);
         } else {
             mTransportCallbacks.onNetworkImportFailed("Invalid file type detected! Network information can be imported only from a valid JSON file that follows the Mesh Provisioning/Configuration Database format!");
@@ -1080,7 +1082,17 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
         @Override
         public void onNetworkImportFailed(final String error) {
+            mTransportCallbacks.onNetworkImportFailed(error);
+        }
 
+        @Override
+        public void onNetworkExported(final MeshNetwork meshNetwork) {
+            mTransportCallbacks.onNetworkExported(meshNetwork);
+        }
+
+        @Override
+        public void onNetworkExportFailed(final String error) {
+            mTransportCallbacks.onNetworkExportFailed(error);
         }
     };
 

@@ -50,8 +50,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.MeshBeacon;
-import no.nordicsemi.android.meshprovisioner.UnprovisionedBeacon;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningFailedState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
@@ -72,12 +70,11 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentIvIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentKeyIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNodeName;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisioningFailedErrorMessage;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisioningFailedError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetworkInformation;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionerProgress;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningStatusLiveData;
 
@@ -89,7 +86,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         DialogFragmentFlags.DialogFragmentFlagsListener,
         DialogFragmentIvIndex.DialogFragmentIvIndexListener,
         DialogFragmentUnicastAddress.DialogFragmentUnicastAddressListener,
-        DialogFragmentProvisioningFailedErrorMessage.DialogFragmentProvisioningFailedErrorListener,
+        DialogFragmentProvisioningFailedError.DialogFragmentProvisioningFailedErrorListener,
         DialogFragmentAppKeyAddStatus.DialogFragmentAppKeyAddStatusListener {
 
     private static final String DIALOG_FRAGMENT_PROVISIONING_FAILED = "DIALOG_FRAGMENT_PROVISIONING_FAILED";
@@ -356,7 +353,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                     case PROVISIONING_FAILED:
                         if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_PROVISIONING_FAILED) == null) {
                             final String statusMessage = ProvisioningFailedState.parseProvisioningFailure(getApplicationContext(), provisionerProgress.getStatusReceived());
-                            DialogFragmentProvisioningFailedErrorMessage message = DialogFragmentProvisioningFailedErrorMessage.newInstance(getString(R.string.title_error_provisioning_failed), statusMessage);
+                            DialogFragmentProvisioningFailedError message = DialogFragmentProvisioningFailedError.newInstance(getString(R.string.title_error_provisioning_failed), statusMessage);
                             message.show(getSupportFragmentManager(), DIALOG_FRAGMENT_PROVISIONING_FAILED);
                         }
                         break;

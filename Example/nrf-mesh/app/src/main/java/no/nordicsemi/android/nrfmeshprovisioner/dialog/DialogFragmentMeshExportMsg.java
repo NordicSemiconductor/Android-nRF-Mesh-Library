@@ -23,36 +23,44 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshRepository;
 
-public class DialogFragmentProvisioningFailedErrorMessage extends DialogFragmentMessage {
+public class DialogFragmentMeshExportMsg extends DialogFragmentMessage {
+    private int resId = R.drawable.ic_info_outline_black_alpha;
 
-    public interface DialogFragmentProvisioningFailedErrorListener {
-        void onProvisioningFailed();
-    }
-
-    public static DialogFragmentProvisioningFailedErrorMessage newInstance(final String title, final String message) {
-        Bundle args = new Bundle();
-        DialogFragmentProvisioningFailedErrorMessage fragment = new DialogFragmentProvisioningFailedErrorMessage();
+    public static DialogFragmentMeshExportMsg newInstance(final int resId, final String title, final String message) {
+        final Bundle args = new Bundle();
+        final DialogFragmentMeshExportMsg fragment = new DialogFragmentMeshExportMsg();
+        args.putInt(ICON_RES_ID, resId);
         args.putString(TITLE, title);
         args.putString(MESSAGE, message);
         fragment.setArguments(args);
         return fragment;
     }
 
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            resId = getArguments().getInt(ICON_RES_ID, resId);
+        }
+    }
+
+    @SuppressWarnings("ConstantConditions")
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
-        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> {
-            ((DialogFragmentProvisioningFailedErrorListener)getActivity()).onProvisioningFailed();
-        });
-
+        alertDialogBuilder.setIcon(R.drawable.ic_info_outline_black_alpha);
+        alertDialogBuilder.setPositiveButton(getString(R.string.ok), null);
         return super.onCreateDialog(savedInstanceState);
     }
 }

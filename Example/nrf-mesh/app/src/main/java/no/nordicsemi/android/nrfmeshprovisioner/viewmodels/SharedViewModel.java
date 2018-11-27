@@ -123,4 +123,7 @@ public class SharedViewModel extends ViewModel {
     public LiveData<String> getNetworkLoadState(){
         return nRFMeshRepository.getNetworkLoadState();
     }
+    public LiveData<String> getNetworkExportState(){
+        return nRFMeshRepository.getNetworkExportState();
+    }
 }

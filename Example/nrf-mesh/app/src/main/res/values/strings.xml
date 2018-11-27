@@ -406,7 +406,15 @@
     <string name="action_import_network">Import</string>
     <string name="action_export_network">Export</string>
     <string name="title_network_import">Import Network</string>
+    <string name="title_network_export">Export Network</string>
     <string name="network_import_rationale">Importing new mesh network information will delete the existing network information from the application.
-        Would you like to proceed? \n\n Note: You can also export the existing network information before importing!</string>
+        Would you like to proceed? \n\nNote: You can also export the existing network information before importing.</string>
     <string name="export_existing_network">Export Network</string>
+    <string name="view_files">View files</string>
+    <string name="title_permission_required">Permission Required</string>
+    <string name="external_storage_permission_required">Exporting mesh network information to a file in the external storage directory requires permission
+        to access the external storage.</string>
+    <string name="permission_rationale_settings"> You may grant this permission by navigating to the app settings.</string>
+    <string name="settings">Settings</string>
+    <string name="ext_storage_permission_denied">Unable to export network, external storage permission denied!</string>
 </resources>

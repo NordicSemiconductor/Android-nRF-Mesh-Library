@@ -5,10 +5,12 @@ import android.arch.lifecycle.MutableLiveData;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +58,9 @@ import static no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager.MESH_P
 public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshStatusCallbacks, MeshManagerTransportCallbacks, BleMeshManagerCallbacks {
 
     private static final String TAG = NrfMeshRepository.class.getSimpleName();
+    public static final String EXPORT_PATH = Environment.getExternalStorageDirectory() + File.separator +
+            "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
+    public static final String EXPORTED_PATH = "sdcard" + File.separator +  "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
 
     /**
      * Connection States Connecting, Connected, Disconnecting, Disconnected etc.
@@ -157,7 +162,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      **/
     private MeshNetworkLiveData mMeshNetworkLiveData = new MeshNetworkLiveData();
 
-    private SingleLiveEvent<String> mNetworkLoadState = new SingleLiveEvent<>();
+    private SingleLiveEvent<String> mNetworkImportState = new SingleLiveEvent<>();
+    private SingleLiveEvent<String> mNetworkExportState = new SingleLiveEvent<>();
 
     private MeshMessageLiveData mMeshMessageLiveData = new MeshMessageLiveData();
     /**
@@ -246,7 +252,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     LiveData<String> getNetworkLoadState() {
-        return mNetworkLoadState;
+        return mNetworkImportState;
+    }
+
+    LiveData<String> getNetworkExportState() {
+        return mNetworkExportState;
     }
 
     NetworkInformationLiveData getNetworkInformationLiveData() {
@@ -549,7 +559,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onNetworkLoadFailed(final String error) {
-        mNetworkLoadState.postValue(error);
+        mNetworkImportState.postValue(error);
     }
 
     @Override
@@ -558,12 +568,24 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         final MeshNetwork oldNet = mMeshNetwork;
         mMeshManagerApi.deleteMeshNetworkFromDb(oldNet);
         loadNetwork(meshNetwork);
-        mNetworkLoadState.postValue(meshNetwork.getMeshName() + " has been successfully imported");
+        mNetworkImportState.postValue(meshNetwork.getMeshName() + " has been successfully imported.");
+    }
+
+    @Override
+    public void onNetworkExported(final MeshNetwork meshNetwork) {
+        mNetworkExportState.postValue(meshNetwork.getMeshName() + " has been successfully exported. " +
+                "You can find the exported network information in the following path. " + EXPORTED_PATH);
+    }
+
+    @Override
+    public void onNetworkExportFailed(final String error) {
+        mNetworkExportState.postValue(error);
+
     }
 
     @Override
     public void onNetworkImportFailed(final String error) {
-        mNetworkLoadState.postValue(error);
+        mNetworkImportState.postValue(error);
     }
 
     @Override

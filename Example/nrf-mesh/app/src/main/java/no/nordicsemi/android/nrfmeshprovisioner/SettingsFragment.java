@@ -22,13 +22,14 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -41,8 +42,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -58,9 +59,11 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalNetwo
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentIvIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentKeyIndex;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshExportMsg;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshImport;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshImportMsg;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPermissionRationale;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNetwork;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSourceAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
@@ -69,6 +72,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
 import static android.app.Activity.RESULT_OK;
 import static no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity.RESULT_APP_KEY_LIST_SIZE;
+import static no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshRepository.EXPORT_PATH;
 
 public class SettingsFragment extends Fragment implements Injectable,
         DialogFragmentGlobalNetworkName.DialogFragmentNetworkNameListener,
@@ -80,9 +84,10 @@ public class SettingsFragment extends Fragment implements Injectable,
         DialogFragmentUnicastAddress.DialogFragmentUnicastAddressListener,
         DialogFragmentSourceAddress.DialogFragmentSourceAddressListener,
         DialogFragmentResetNetwork.DialogFragmentResetNetworkListener,
-        DialogFragmentMeshImport.DialogFragmentNetworkImportListener {
+        DialogFragmentMeshImport.DialogFragmentNetworkImportListener,
+DialogFragmentPermissionRationale.StoragePermissionListener {
 
-    private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 2023; // random number
+    private static final int REQUEST_STORAGE_PERMISSION = 2023; // random number
     private static final int READ_FILE_REQUEST_CODE = 42;
     private static final String TAG = SettingsFragment.class.getSimpleName();
 
@@ -102,7 +107,7 @@ public class SettingsFragment extends Fragment implements Injectable,
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_settings, null);
+        @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_settings, null);
 
         mViewModel = ViewModelProviders.of(getActivity(), mViewModelFactory).get(SharedViewModel.class);
 
@@ -219,7 +224,6 @@ public class SettingsFragment extends Fragment implements Injectable,
             e.printStackTrace();
         }
 
-
         mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
                 networkNameView.setText(meshNetworkLiveData.getNetworkName());
@@ -240,6 +244,14 @@ public class SettingsFragment extends Fragment implements Injectable,
             final DialogFragmentMeshImportMsg fragment =
                     DialogFragmentMeshImportMsg.newInstance(R.drawable.ic_info_outline_black_alpha,
                             title, networkImportState);
+            fragment.show(getChildFragmentManager(), null);
+        });
+
+        mViewModel.getNetworkExportState().observe(this, networkExportState -> {
+            final String title = getString(R.string.title_network_export);
+            final DialogFragmentMeshExportMsg fragment =
+                    DialogFragmentMeshExportMsg.newInstance(R.drawable.ic_info_outline_black_alpha,
+                            title, networkExportState);
             fragment.show(getChildFragmentManager(), null);
         });
 
@@ -268,9 +280,7 @@ public class SettingsFragment extends Fragment implements Injectable,
                 fragment.show(getChildFragmentManager(), null);
                 return true;
             case R.id.action_export_network:
-                final String path = Environment.getExternalStorageDirectory() + File.separator +
-                        "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
-                mViewModel.getMeshManagerApi().exportMeshNetwork(path);
+                handleNetworkExport();
                 break;
             case R.id.action_reset_network:
                 final DialogFragmentResetNetwork dialogFragmentResetNetwork = DialogFragmentResetNetwork.
@@ -299,6 +309,18 @@ public class SettingsFragment extends Fragment implements Injectable,
                     }
                 } else {
                     Log.e(TAG, "Error while opening file browser");
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case REQUEST_STORAGE_PERMISSION:
+                if(PackageManager.PERMISSION_GRANTED != grantResults[0]){
+                    Toast.makeText(getContext(), getString(R.string.ext_storage_permission_denied), Toast.LENGTH_LONG).show();
                 }
                 break;
         }
@@ -367,12 +389,23 @@ public class SettingsFragment extends Fragment implements Injectable,
         mViewModel.resetMeshNetwork();
     }
 
+    @Override
+    public void onNetworkImportConfirmed() {
+        performFileSearch();
+    }
+
+    @Override
+    public void requestPermission() {
+        Utils.markWriteStoragePermissionRequested(getContext());
+        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+    }
+
     /**
      * Fires an intent to spin up the "file chooser" UI to select a file
      */
     public void performFileSearch() {
         final Intent intent;
-        if(Utils.isKitkatOrAbove()) {
+        if (Utils.isKitkatOrAbove()) {
             intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         } else {
             intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -382,8 +415,16 @@ public class SettingsFragment extends Fragment implements Injectable,
         startActivityForResult(intent, READ_FILE_REQUEST_CODE);
     }
 
-    @Override
-    public void onNetworkImportConfirmed() {
-        performFileSearch();
+    private void handleNetworkExport() {
+        if (!Utils.isWriteExternalStoragePermissionsGranted(getContext())
+                || Utils.isWriteExternalStoragePermissionDeniedForever(getActivity())) {
+            final DialogFragmentPermissionRationale fragmentPermissionRationale = DialogFragmentPermissionRationale.
+                    newInstance(Utils.isWriteExternalStoragePermissionDeniedForever(getActivity()),
+                            getString(R.string.title_permission_required),
+                            getString(R.string.external_storage_permission_required));
+            fragmentPermissionRationale.show(getChildFragmentManager(), null);
+        } else {
+            mViewModel.getMeshManagerApi().exportMeshNetwork(EXPORT_PATH);
+        }
     }
 }

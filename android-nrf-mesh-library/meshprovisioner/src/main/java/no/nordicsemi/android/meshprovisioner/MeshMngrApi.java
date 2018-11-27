@@ -297,7 +297,7 @@ interface MeshMngrApi {
     /**
      * Exports mesh network to a json file
      */
-    boolean exportMeshNetwork(final String path);
+    void exportMeshNetwork(final String path);
 
 
     /**

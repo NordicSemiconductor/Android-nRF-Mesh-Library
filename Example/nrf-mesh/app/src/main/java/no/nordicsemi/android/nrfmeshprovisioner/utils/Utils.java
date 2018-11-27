@@ -174,7 +174,7 @@ public class Utils {
     public static boolean isWriteExternalStoragePermissionDeniedForever(final Activity activity) {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
 
-        return !isLocationPermissionsGranted(activity) // Location permission must be denied
+        return !isWriteExternalStoragePermissionsGranted(activity) // Location permission must be denied
                 && preferences.getBoolean(PREFS_WRITE_STORAGE_PERMISSION_REQUESTED, false) // Permission must have been requested before
                 && !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE); // This method should return false
     }

@@ -22,40 +22,37 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 
-public class DialogFragmentMessage extends DialogFragment {
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-    protected static final String ICON_RES_ID = "ICON_RES_ID";
-    protected static final String TITLE = "TITLE";
-    protected static final String MESSAGE = "MESSAGE";
-    protected AlertDialog.Builder alertDialogBuilder;
-    protected String title;
-    protected String message;
+public class DialogFragmentProvisioningFailedError extends DialogFragmentMessage {
 
-    @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if(getArguments() != null) {
-            title = getArguments().getString(TITLE);
-            message = getArguments().getString(MESSAGE);
-        }
+    public interface DialogFragmentProvisioningFailedErrorListener {
+        void onProvisioningFailed();
+    }
+
+    public static DialogFragmentProvisioningFailedError newInstance(final String title, final String message) {
+        Bundle args = new Bundle();
+        DialogFragmentProvisioningFailedError fragment = new DialogFragmentProvisioningFailedError();
+        args.putString(TITLE, title);
+        args.putString(MESSAGE, message);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
+        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+            ((DialogFragmentProvisioningFailedErrorListener)getActivity()).onProvisioningFailed();
+        });
 
-        alertDialogBuilder.setTitle(title);
-        alertDialogBuilder.setMessage(message);
-        final AlertDialog alertDialog = alertDialogBuilder.show();
-        alertDialog.setCancelable(false);
-        alertDialog.setCanceledOnTouchOutside(false);
-        return alertDialog;
+        return super.onCreateDialog(savedInstanceState);
     }
 }
