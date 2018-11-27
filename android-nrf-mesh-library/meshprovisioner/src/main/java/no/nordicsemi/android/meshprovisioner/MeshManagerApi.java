@@ -23,7 +23,6 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -86,12 +85,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     public final static UUID MESH_PROVISIONING_UUID = UUID.fromString("00001827-0000-1000-8000-00805F9B34FB");
     public final static UUID MESH_PROXY_UUID = UUID.fromString("00001828-0000-1000-8000-00805F9B34FB");
-
-    private static final String PROVISIONED_NODES_FILE = "PROVISIONED_FILES";
-    private static final String CONFIGURATION_SRC = "CONFIGURATION_SRC";
-    private static final String SRC = "SRC";
-    private static final String PREFS_SEQUENCE_NUMBER = "PREFS_SEQUENCE_NUMBER";
-    private static final String SEQUENCE_NUMBER_KEY = "NRF_MESH_SEQUENCE_NUMBER";
     public static final byte PDU_TYPE_PROVISIONING = 0x03;
 
     private static final String TAG = MeshManagerApi.class.getSimpleName();
@@ -173,7 +166,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         //Init database
         initDb(context);
         initGson();
-        initConfigurationSrc();
         migrateMeshNetwork(context);
 
     }
@@ -192,8 +184,10 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
 
     /**
      * Loads the mesh network from the local database.
-     * <p> This will start an AsyncTask that will load the network from the database.
-     * {@link MeshManagerTransportCallbacks#onNetworkLoaded(MeshNetwork) will return the mesh netword}</>
+     * <p>
+     * This will start an AsyncTask that will load the network from the database.
+     * {@link MeshManagerTransportCallbacks#onNetworkLoaded(MeshNetwork) will return the mesh network
+     * </p>
      */
     public void loadMeshNetwork() {
         mMeshNetworkDb.loadNetwork(mMeshNetworkDao,
@@ -232,13 +226,6 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         gsonBuilder.registerTypeAdapter(MeshModel.class, new InternalMeshModelDeserializer());
         gsonBuilder.setPrettyPrinting();
         mGson = gsonBuilder.create();
-    }
-
-    private void initConfigurationSrc() {
-        final SharedPreferences preferences = mContext.getSharedPreferences(CONFIGURATION_SRC, Context.MODE_PRIVATE);
-        final int tempSrc = preferences.getInt(SRC, 0);
-        if (tempSrc != 0)
-            mConfigurationSrc = new byte[]{(byte) ((tempSrc >> 8) & 0xFF), (byte) (tempSrc & 0xFF)};
     }
 
     /**
@@ -745,8 +732,11 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     }
 
     /**
-     * Resets the provisioned mesh network and loads a new one
-     * <p>This method will clear the provisioned nodes, reset the sequence number and generate new network with new provisioning data</p>
+     * Resets the provisioned mesh network and will generate a new one
+     * <p>
+     * This method will clear the provisioned nodes, reset the sequence number and generate new network with new provisioning data.
+     * {@link MeshManagerTransportCallbacks#onNetworkLoaded(MeshNetwork)} will return the newly generated network
+     * </p>
      */
     public final void resetMeshNetwork() {
         //We delete the existing network as the user has already given the
@@ -1018,7 +1008,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     @Override
     public void exportMeshNetwork(final String path) {
         final MeshNetwork meshNetwork = mMeshNetwork;
-        if(meshNetwork != null) {
+        if (meshNetwork != null) {
             NetworkImportExportUtils.exportMeshNetwork(meshNetwork, path, networkLoadCallbacks);
         }
     }

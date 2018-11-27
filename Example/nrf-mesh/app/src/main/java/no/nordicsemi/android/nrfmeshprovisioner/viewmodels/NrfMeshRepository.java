@@ -306,8 +306,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     void resetMeshNetwork() {
         disconnect();
         mMeshManagerApi.resetMeshNetwork();
-        mMeshNetworkLiveData.refresh(mMeshManagerApi.getMeshNetwork());
-        mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
     }
 
     /**
