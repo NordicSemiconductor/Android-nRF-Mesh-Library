@@ -76,12 +76,12 @@ public class LightHslSetUnacknowledged extends GenericMessage {
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;
-        if (lightLightness < 0 || lightLightness > 65535)
-            throw new IllegalArgumentException("Light lightness value must be between 0 to 65535");
-        if (lightHue < 0 || lightHue > 65535)
-            throw new IllegalArgumentException("Light hue value must be between 0 to 65535");
-        if (lightSaturation < 0 || lightSaturation > 65535)
-            throw new IllegalArgumentException("Light hue value must be between 0 to 65535");
+        if (lightLightness < 0 || lightLightness > 0xFFFF)
+            throw new IllegalArgumentException("Light lightness value must be between 0 to 0xFFFF");
+        if (lightHue < 0 || lightHue > 0xFFFF)
+            throw new IllegalArgumentException("Light hue value must be between 0 to 0xFFFF");
+        if (lightSaturation < 0 || lightSaturation > 0xFFFF)
+            throw new IllegalArgumentException("Light hue value must be between 0 to 0xFFFF");
         this.mLightness = lightLightness;
         this.mHue = lightHue;
         this.mSaturation = lightSaturation;

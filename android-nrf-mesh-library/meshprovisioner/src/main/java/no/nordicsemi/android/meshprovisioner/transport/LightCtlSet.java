@@ -76,12 +76,12 @@ public class LightCtlSet extends GenericMessage {
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;
-        if (lightLightness < 0 || lightLightness > 65535)
-            throw new IllegalArgumentException("Light lightness value must be between 0 to 65535");
+        if (lightLightness < 0 || lightLightness > 0xFFFF)
+            throw new IllegalArgumentException("Light lightness value must be between 0 to 0xFFFF");
         if (lightTemperature < 0x0320 || lightTemperature > 0x4E20)
             throw new IllegalArgumentException("Light temperature value must be between 0x0320 to 0x4E20");
         if (lightDeltaUv != 0 && lightDeltaUv < 0x8000 ||lightDeltaUv > 0x7fff)
-            throw new IllegalArgumentException("Light delta uv value must be between 0x8000 to 0x7fff or 0");
+            throw new IllegalArgumentException("Light delta uv value must be between 0x8000 to 0x7FFF or 0");
         this.mLightness = lightLightness;
         this.mTemperature = lightTemperature;
         this.mDeltaUv = lightDeltaUv;

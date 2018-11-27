@@ -66,8 +66,8 @@ public class LightLightnessSet extends GenericMessage {
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;
-        if (lightLightness < 0 || lightLightness > 65535)
-            throw new IllegalArgumentException("Light lightLightness value must be between 0 to 65535");
+        if (lightLightness < 0 || lightLightness > 0xFFFF)
+            throw new IllegalArgumentException("Light lightLightness value must be between 0x0000 to 0xFFFF");
         this.mLightness = lightLightness;
         assembleMessageParameters();
     }

@@ -61,13 +61,15 @@ public class LightLightnessSetUnacknowledged extends GenericMessage {
 										   @NonNull final Integer transitionResolution,
 										   @NonNull final Integer delay,
 										   final int level,
+										   final byte tId,
 										   final int aszmic) throws IllegalArgumentException {
         super(node, appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;
-        if (level < Short.MIN_VALUE || level > Short.MAX_VALUE)
-            throw new IllegalArgumentException("Generic level value must be between -32768 to 32767");
+        this.tId = tId;
+        if (level < 0 || level > 0xFFFF)
+            throw new IllegalArgumentException("Light lightness value must be between 0x0000 and 0xFFFF");
         this.mLevel = level;
         assembleMessageParameters();
     }
