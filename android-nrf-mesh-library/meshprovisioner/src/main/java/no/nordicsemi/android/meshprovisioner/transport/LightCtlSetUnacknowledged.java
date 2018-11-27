@@ -27,6 +27,7 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
     private final int mLightness;
     private final int mTemperature;
     private final int mDeltaUv;
+    private final byte tId;
 
     /**
      * Constructs LightCtlSetUnacknowledged message.
@@ -44,8 +45,9 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
                                      final int lightLightness,
                                      final int lightTemperature,
                                      final int lightDeltaUv,
+                                     final byte tId,
                                      final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, lightTemperature, lightDeltaUv, aszmic);
+        this(node, appKey, null, null, null, lightLightness, lightTemperature, lightDeltaUv, tId, aszmic);
     }
 
     /**
@@ -71,6 +73,7 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
                                      final int lightLightness,
                                      final int lightTemperature,
                                      final int lightDeltaUv,
+                                     final byte tId,
                                      final int aszmic) throws IllegalArgumentException {
         super(node, appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
@@ -85,6 +88,7 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
         this.mLightness = lightLightness;
         this.mTemperature = lightTemperature;
         this.mDeltaUv = lightDeltaUv;
+        this.tId = tId;
         assembleMessageParameters();
     }
 
@@ -100,12 +104,13 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
         Log.v(TAG, "Lightness: " + mLightness);
         Log.v(TAG, "Temperature: " + mTemperature);
         Log.v(TAG, "Delta UV: " + mDeltaUv);
+        Log.v(TAG, "TID: " + tId);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(LIGHT_LIGHTNESS_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mLightness);
             paramsBuffer.putShort((short) mTemperature);
             paramsBuffer.putShort((short) mDeltaUv);
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put(tId);
         } else {
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
@@ -113,7 +118,7 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
             paramsBuffer.putShort((short) mLightness);
             paramsBuffer.putShort((short) mTemperature);
             paramsBuffer.putShort((short) mDeltaUv);
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put(tId);
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
             paramsBuffer.put((byte) delay);

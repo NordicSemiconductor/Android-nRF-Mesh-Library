@@ -24,6 +24,7 @@ public class LightLightnessSetUnacknowledged extends GenericMessage {
     private final Integer mTransitionSteps;
     private final Integer mTransitionResolution;
     private final Integer mDelay;
+    private final byte tId;
     private final int mLevel;
 
     /**
@@ -38,8 +39,9 @@ public class LightLightnessSetUnacknowledged extends GenericMessage {
     public LightLightnessSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
 										   @NonNull final byte[] appKey,
 										   final int level,
+										   final byte tId,
 										   final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, level, aszmic);
+        this(node, appKey, null, null, null, level, tId, aszmic);
     }
 
     /**
@@ -51,6 +53,7 @@ public class LightLightnessSetUnacknowledged extends GenericMessage {
      * @param transitionResolution transition resolution for the level
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
      * @param level                level of the GenericLevelModel
+     * @param tId                   transaction Id
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
@@ -84,16 +87,17 @@ public class LightLightnessSetUnacknowledged extends GenericMessage {
         mAid = SecureUtils.calculateK4(mAppKey);
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "Level: " + mLevel);
+        Log.v(TAG, "TID: " + tId);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mLevel);
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put(tId);
         } else {
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) (mLevel));
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put(tId);
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
             paramsBuffer.put((byte) delay);

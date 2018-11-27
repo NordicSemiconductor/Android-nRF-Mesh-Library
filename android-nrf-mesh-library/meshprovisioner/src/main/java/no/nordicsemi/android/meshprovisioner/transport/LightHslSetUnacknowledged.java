@@ -27,6 +27,7 @@ public class LightHslSetUnacknowledged extends GenericMessage {
     private final int mLightness;
     private final int mHue;
     private final int mSaturation;
+    private final byte tId;
 
     /**
      * Constructs GenericLevelSet message.
@@ -44,8 +45,9 @@ public class LightHslSetUnacknowledged extends GenericMessage {
                                      final int lightLightness,
                                      final int lightHue,
                                      final int lightSaturation,
+                                     final byte tId,
                                      final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, lightHue, lightSaturation, aszmic);
+        this(node, appKey, null, null, null, lightLightness, lightHue, lightSaturation, tId, aszmic);
     }
 
     /**
@@ -71,6 +73,7 @@ public class LightHslSetUnacknowledged extends GenericMessage {
                                      final int lightLightness,
                                      final int lightHue,
                                      final int lightSaturation,
+                                     final byte tId,
                                      final int aszmic) throws IllegalArgumentException {
         super(node, appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
@@ -85,6 +88,7 @@ public class LightHslSetUnacknowledged extends GenericMessage {
         this.mLightness = lightLightness;
         this.mHue = lightHue;
         this.mSaturation = lightSaturation;
+        this.tId = tId;
         assembleMessageParameters();
     }
 
@@ -100,12 +104,13 @@ public class LightHslSetUnacknowledged extends GenericMessage {
         Log.v(TAG, "Lightness: " + mLightness);
         Log.v(TAG, "Hue: " + mHue);
         Log.v(TAG, "Saturation: " + mSaturation);
+        Log.v(TAG, "TID: " + tId);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(LIGHT_LIGHTNESS_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mLightness);
             paramsBuffer.putShort((short) mHue);
             paramsBuffer.putShort((short) mSaturation);
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put(tId);
         } else {
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
@@ -113,7 +118,7 @@ public class LightHslSetUnacknowledged extends GenericMessage {
             paramsBuffer.putShort((short) mLightness);
             paramsBuffer.putShort((short) mHue);
             paramsBuffer.putShort((short) mSaturation);
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put(tId);
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
             paramsBuffer.put((byte) delay);
