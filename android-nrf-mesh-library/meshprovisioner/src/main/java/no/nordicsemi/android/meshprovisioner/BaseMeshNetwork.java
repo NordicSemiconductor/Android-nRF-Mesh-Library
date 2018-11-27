@@ -3,12 +3,15 @@ package no.nordicsemi.android.meshprovisioner;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,6 +25,14 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 abstract class BaseMeshNetwork {
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({NORMAL_OPERATION, IV_UPDATE_ACTIVE})
+    public @interface IvUpdateStates {
+    }
+
+    // Key refresh phases
+    public static final int NORMAL_OPERATION = 0; //Distribution of new keys
+    public static final int IV_UPDATE_ACTIVE = 1; //Switching to the new keys
 
     @Ignore
     @SerializedName("$schema")
@@ -56,8 +67,12 @@ abstract class BaseMeshNetwork {
     long timestamp = 0x0;
 
     @ColumnInfo(name = "iv_index")
-    @Expose(deserialize = false)
+    @Expose
     int ivIndex = 0;
+
+    @ColumnInfo(name = "iv_update_state")
+    @Expose
+    int ivUpdateState = NORMAL_OPERATION;
 
     @Ignore
     @SerializedName("netKeys")

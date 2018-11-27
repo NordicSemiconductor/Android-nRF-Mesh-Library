@@ -151,7 +151,7 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      * Provisioning flags
      */
     public int getFlags() {
-        return 0;
+        return meshNetwork.getProvisioningFlags();
     }
 
     /**

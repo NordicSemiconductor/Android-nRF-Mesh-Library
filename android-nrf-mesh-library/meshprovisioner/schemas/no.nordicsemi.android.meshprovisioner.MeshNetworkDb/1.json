@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "943d20eaeaf0ca81a79f200e5808f4a9",
+    "identityHash": "e2f56097d48464aa3337a047fc0ca43d",
     "entities": [
       {
         "tableName": "mesh_network",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` INTEGER NOT NULL, `iv_index` INTEGER NOT NULL, `unicast_address` BLOB, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`mesh_uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` INTEGER NOT NULL, `iv_index` INTEGER NOT NULL, `iv_update_state` INTEGER NOT NULL, `unicast_address` BLOB, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`mesh_uuid`))",
         "fields": [
           {
             "fieldPath": "meshUUID",
@@ -29,6 +29,12 @@
           {
             "fieldPath": "ivIndex",
             "columnName": "iv_index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ivUpdateState",
+            "columnName": "iv_update_state",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -633,7 +639,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"943d20eaeaf0ca81a79f200e5808f4a9\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"e2f56097d48464aa3337a047fc0ca43d\")"
     ]
   }
 }
