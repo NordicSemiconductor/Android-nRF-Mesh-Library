@@ -40,7 +40,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
  */
 @SuppressWarnings("unused")
 public final class SceneRegisterStatus extends GenericStatusMessage implements Parcelable {
-
+    private static final int SCENE_REGISTER_STATUS_MANDATORY_LENGTH = 3;
     private static final String TAG = SceneRegisterStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_REGISTER_STATUS;
     private int mStatus;
@@ -85,7 +85,7 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
         mCurrentScene = buffer.getShort() & 0xFFFF;
         Log.v(TAG, "Status: " + mStatus);
         Log.v(TAG, "Current Scene: " + mCurrentScene);
-        if (buffer.limit() > 1) {
+        if (buffer.limit() > SCENE_REGISTER_STATUS_MANDATORY_LENGTH) {
             short[] scenes = buffer.asShortBuffer().array();
             mSceneList = new int[scenes.length];
             for (int i = 0; i < scenes.length; i++) {
