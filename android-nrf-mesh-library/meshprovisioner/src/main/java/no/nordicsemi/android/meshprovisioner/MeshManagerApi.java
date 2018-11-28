@@ -411,6 +411,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
             for (int i = 0; i < mMeshNetwork.nodes.size(); i++) {
                 if (meshNode.getUnicastAddressInt() == mMeshNetwork.nodes.get(i).getUnicastAddressInt()) {
                     mMeshNetwork.nodes.set(i, meshNode);
+                    mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
                     mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
                     break;
                 }
@@ -1036,6 +1037,7 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
     private final MeshNetworkCallbacks callbacks = new MeshNetworkCallbacks() {
         @Override
         public void onMeshNetworkUpdated() {
+            mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
             mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
         }
 

@@ -64,7 +64,7 @@ abstract class BaseMeshNetwork {
     @ColumnInfo(name = "timestamp")
     @SerializedName("timestamp")
     @Expose
-    long timestamp = 0x0;
+    long timestamp = 0x00;
 
     @ColumnInfo(name = "iv_index")
     @Expose
@@ -451,7 +451,7 @@ abstract class BaseMeshNetwork {
             prov.setLastSelected(false);
         }
         provisioner.setLastSelected(true);
-        notifyProvisionerUpdated(provisioner);
+        notifyProvisionerUpdated(provisioners);
     }
 
     /**

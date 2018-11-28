@@ -80,7 +80,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-        notifyNetworkUpdated();
     }
 
     void setProvisioners(List<Provisioner> provisioners) {
