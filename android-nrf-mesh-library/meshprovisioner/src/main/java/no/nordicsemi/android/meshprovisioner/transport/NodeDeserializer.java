@@ -21,6 +21,7 @@ import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
@@ -122,13 +123,13 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             nodeJson.addProperty("name", node.getNodeName());
 
             if (node.getCompanyIdentifier() != null)
-                nodeJson.addProperty("cid", Integer.toString(node.getCompanyIdentifier(), 16));
+                nodeJson.addProperty("cid", CompositionDataParser.formatCompanyIdentifier(node.getCompanyIdentifier(), false));
             if (node.getProductIdentifier() != null)
-                nodeJson.addProperty("pid", Integer.toString(node.getProductIdentifier(), 16));
+                nodeJson.addProperty("pid", CompositionDataParser.formatProductIdentifier(node.getProductIdentifier(), false));
             if (node.getVersionIdentifier() != null)
-                nodeJson.addProperty("vid", Integer.toString(node.getVersionIdentifier(), 16));
+                nodeJson.addProperty("vid", CompositionDataParser.formatVersionIdentifier(node.getVersionIdentifier(), false));
             if (node.getCrpl() != null)
-                nodeJson.addProperty("crpl", Integer.toString(node.getCrpl(), 16));
+                nodeJson.addProperty("crpl", CompositionDataParser.formatReplayProtectionCount(node.getCrpl(), false));
 
             if (node.getNodeFeatures() != null) {
                 final JsonObject json = new JsonObject();
