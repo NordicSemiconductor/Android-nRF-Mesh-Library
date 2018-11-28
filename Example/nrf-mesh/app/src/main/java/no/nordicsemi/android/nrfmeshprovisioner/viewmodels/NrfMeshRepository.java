@@ -569,7 +569,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mMeshManagerApi.deleteMeshNetworkFromDb(oldNet);
         }
         loadNetwork(meshNetwork);
-        mNetworkImportState.postValue(meshNetwork.getMeshName() + " has been successfully imported.");
+        mNetworkImportState.postValue(meshNetwork.getMeshName() + " has been successfully imported.\n" +
+                "In order to start sending messages to this network, please change the provisioner address." +
+                "Using the same provisioner address will cause messages  tobe dropped due to the usage of incorrect sequence numbers " +
+                "for this address. However if this network does not contain any nodes you do not need to change the address");
     }
 
     @Override
