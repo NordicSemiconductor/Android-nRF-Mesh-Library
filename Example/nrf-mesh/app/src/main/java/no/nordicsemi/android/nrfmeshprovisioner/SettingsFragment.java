@@ -44,6 +44,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -424,7 +425,12 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
                             getString(R.string.external_storage_permission_required));
             fragmentPermissionRationale.show(getChildFragmentManager(), null);
         } else {
-            mViewModel.getMeshManagerApi().exportMeshNetwork(EXPORT_PATH);
+            final File f = new File(EXPORT_PATH);
+            if(!f.exists()){
+                if(f.mkdirs()) {
+                    mViewModel.getMeshManagerApi().exportMeshNetwork(EXPORT_PATH);
+                }
+            }
         }
     }
 }
