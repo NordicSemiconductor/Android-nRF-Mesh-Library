@@ -29,7 +29,7 @@ final class AppKeyDeserializer implements JsonSerializer<List<ApplicationKey>>, 
             appKeyObject.addProperty("index", applicationKey.getKeyIndex());
             appKeyObject.addProperty("boundNetKey", applicationKey.getBoundNetKeyIndex());
             appKeyObject.addProperty("key", MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
-            if(applicationKey.getKey() != null) {
+            if(applicationKey.getOldKey() != null) {
                 appKeyObject.addProperty("oldKey", MeshParserUtils.bytesToHex(applicationKey.getOldKey(), false));
             }
             jsonArray.add(appKeyObject);
