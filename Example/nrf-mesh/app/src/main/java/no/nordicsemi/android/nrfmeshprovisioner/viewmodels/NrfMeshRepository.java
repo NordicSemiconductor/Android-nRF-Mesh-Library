@@ -60,7 +60,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private static final String TAG = NrfMeshRepository.class.getSimpleName();
     public static final String EXPORT_PATH = Environment.getExternalStorageDirectory() + File.separator +
             "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
-    public static final String EXPORTED_PATH = "sdcard" + File.separator +  "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
+    private static final String EXPORTED_PATH = "sdcard" + File.separator +  "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
 
     /**
      * Connection States Connecting, Connected, Disconnecting, Disconnected etc.
@@ -563,8 +563,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onNetworkImported(final MeshNetwork meshNetwork) {
         //We can delete the old network after the import has been successful!
+        //But let's make sure we don't delete the same network in case someone imports the same network ;)
         final MeshNetwork oldNet = mMeshNetwork;
-        mMeshManagerApi.deleteMeshNetworkFromDb(oldNet);
+        if(!oldNet.getMeshUUID().equals(meshNetwork.getMeshUUID())) {
+            mMeshManagerApi.deleteMeshNetworkFromDb(oldNet);
+        }
         loadNetwork(meshNetwork);
         mNetworkImportState.postValue(meshNetwork.getMeshName() + " has been successfully imported.");
     }
