@@ -331,7 +331,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     }
 
     public final Map<Integer, ApplicationKey> getAddedApplicationKeys() {
-        return (mAddedApplicationKeys);
+        return mAddedApplicationKeys;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)

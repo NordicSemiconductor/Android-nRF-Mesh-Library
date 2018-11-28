@@ -57,6 +57,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             network.scenes = deserializeScenes(jsonObject, network.meshUUID);
 
         network.unicastAddress = getNextAvailableAddress(network.nodes);
+        populateNetworkKeys(network.getNodes(), network.getNetKeys());
         populateAddedAppKeysInNodes(network.getNodes(), network.getAppKeys());
         populateBoundAppKeysInNodes(network.getNodes(), network.getAppKeys());
         return network;
@@ -337,6 +338,21 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             }
         }
         return AddressUtils.getUnicastAddressBytes(unicast);
+    }
+
+    /**
+     * Populates the added net keys for nodes
+     *
+     * @param nodes       list of nodes
+     * @param networkKeys list of keys
+     */
+    private void populateNetworkKeys(final List<ProvisionedMeshNode> nodes, final List<NetworkKey> networkKeys) {
+        for (ProvisionedMeshNode node : nodes) {
+            for (Integer index : node.getAddedAppKeyIndexes()) {
+                final NetworkKey networkKey = networkKeys.get(index);
+                node.getAddedNetworkKeys().add(networkKey);
+            }
+        }
     }
 
     /**
