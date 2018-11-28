@@ -416,6 +416,7 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
         startActivityForResult(intent, READ_FILE_REQUEST_CODE);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void handleNetworkExport() {
         if (!Utils.isWriteExternalStoragePermissionsGranted(getContext())
                 || Utils.isWriteExternalStoragePermissionDeniedForever(getActivity())) {
@@ -426,11 +427,10 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
             fragmentPermissionRationale.show(getChildFragmentManager(), null);
         } else {
             final File f = new File(EXPORT_PATH);
-            if(!f.exists()){
-                if(f.mkdirs()) {
-                    mViewModel.getMeshManagerApi().exportMeshNetwork(EXPORT_PATH);
-                }
+            if(!f.exists()) {
+                f.mkdirs();
             }
+            mViewModel.getMeshManagerApi().exportMeshNetwork(EXPORT_PATH);
         }
     }
 }
