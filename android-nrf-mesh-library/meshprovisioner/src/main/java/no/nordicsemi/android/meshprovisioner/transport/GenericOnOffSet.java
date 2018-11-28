@@ -25,6 +25,7 @@ public class GenericOnOffSet extends GenericMessage {
     private final Integer mTransitionResolution;
     private final Integer mDelay;
     private final boolean mState;
+    private final int tId;
 
     /**
      * Constructs GenericOnOffSet message.
@@ -39,7 +40,7 @@ public class GenericOnOffSet extends GenericMessage {
                            @NonNull final byte[] appKey,
                            final boolean state,
                            final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, state, null, null, null, aszmic);
+        this(node, appKey, state, node.getSequenceNumber(), null, null, null, aszmic);
     }
 
     /**
@@ -62,11 +63,55 @@ public class GenericOnOffSet extends GenericMessage {
                            @Nullable final Integer transitionResolution,
                            @Nullable final Integer delay,
                            final int aszmic) {
+        this(node, appKey, state, node.getSequenceNumber(), transitionSteps, transitionResolution, delay, aszmic);
+    }
+
+    /**
+     * Constructs GenericOnOffSet message.
+     *
+     * @param node        Mesh node this message is to be sent to
+     * @param appKey      application key for this message
+     * @param state       boolean state of the GenericOnOffModel
+     * @param tId                  transaction id
+     * @param aszmic      size of message integrity check
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    public GenericOnOffSet(@NonNull final ProvisionedMeshNode node,
+                           @NonNull final byte[] appKey,
+                           final boolean state,
+                           final int tId,
+                           final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, state, tId, null, null, null, aszmic);
+    }
+
+    /**
+     * Constructs GenericOnOffSet message.
+     *
+     * @param node                 Mesh node this message is to be sent to
+     * @param appKey               application key for this message
+     * @param state                boolean state of the GenericOnOffModel
+     * @param transitionSteps      transition steps for the level
+     * @param transitionResolution transition resolution for the level
+     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
+     * @param tId                  transaction id
+     * @param aszmic               size of message integrity check
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    @SuppressWarnings("WeakerAccess")
+    public GenericOnOffSet(@NonNull final ProvisionedMeshNode node,
+                           @NonNull final byte[] appKey,
+                           final boolean state,
+                           final int tId,
+                           @Nullable final Integer transitionSteps,
+                           @Nullable final Integer transitionResolution,
+                           @Nullable final Integer delay,
+                           final int aszmic) {
         super(node, appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;
         this.mState = state;
+        this.tId = tId;
         assembleMessageParameters();
     }
 
@@ -83,13 +128,13 @@ public class GenericOnOffSet extends GenericMessage {
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(GENERIC_ON_OFF_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put((byte) tId);
         } else {
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(GENERIC_ON_OFF_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put((byte) tId);
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
             paramsBuffer.put((byte) delay);

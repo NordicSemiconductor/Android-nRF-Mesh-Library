@@ -2,7 +2,6 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -26,47 +25,92 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
     private final Integer mTransitionResolution;
     private final Integer mDelay;
     private final int mLevel;
+    private final int tId;
 
     /**
-     * Constructs GenericLevelSetUnacknowledged message
+     * Constructs GenericLevelSetUnacknowledged message.
      *
-     * @param node                 Mesh node this message is to be sent to
-     * @param appKey               application key for this message
-     * @param level                level to be set on the GenericLevelModel
-     * @param aszmic               size of message integrity check
+     * @param node        Mesh node this message is to be sent to
+     * @param appKey      application key for this message
+     * @param level       level of the GenericLevelModel
+     * @param aszmic      size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public GenericLevelSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                                         @NonNull final byte[] appKey,
-                                         final int level,
-                                         final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, level, null, null, null, aszmic);
+                           @NonNull final byte[] appKey,
+                           final int level,
+                           final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, null, null, null, level, node.getSequenceNumber(), aszmic);
     }
 
     /**
-     * Constructs GenericLevelSetUnacknowledged message
+     * Constructs GenericLevelSetUnacknowledged message.
      *
      * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
-     * @param level                level to be set on the GenericLevelModel
      * @param transitionSteps      transition steps for the level
      * @param transitionResolution transition resolution for the level
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
+     * @param level                level of the GenericLevelModel
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
     public GenericLevelSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                                         @NonNull final byte[] appKey,
-                                         final int level,
-                                         @Nullable final Integer transitionSteps,
-                                         @Nullable final Integer transitionResolution,
-                                         @Nullable final Integer delay,
-                                         final int aszmic) throws IllegalArgumentException {
+                           @NonNull final byte[] appKey,
+                           @NonNull final Integer transitionSteps,
+                           @NonNull final Integer transitionResolution,
+                           @NonNull final Integer delay,
+                           final int level,
+                           final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, transitionSteps, transitionResolution, delay, level, node.getSequenceNumber(), aszmic);
+    }
+
+    /**
+     * Constructs GenericLevelSetUnacknowledged message.
+     *
+     * @param node        Mesh node this message is to be sent to
+     * @param appKey      application key for this message
+     * @param level       level of the GenericLevelModel
+     * @param tId                  transaction id
+     * @param aszmic      size of message integrity check
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    public GenericLevelSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
+                           @NonNull final byte[] appKey,
+                           final int level,
+                           final int tId,
+                           final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, null, null, null, level, tId, aszmic);
+    }
+
+    /**
+     * Constructs GenericLevelSetUnacknowledged message.
+     *
+     * @param node                 Mesh node this message is to be sent to
+     * @param appKey               application key for this message
+     * @param transitionSteps      transition steps for the level
+     * @param transitionResolution transition resolution for the level
+     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
+     * @param level                level of the GenericLevelModel
+     * @param tId                  transaction id
+     * @param aszmic               size of message integrity check
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    @SuppressWarnings("WeakerAccess")
+    public GenericLevelSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
+                           @NonNull final byte[] appKey,
+                           @NonNull final Integer transitionSteps,
+                           @NonNull final Integer transitionResolution,
+                           @NonNull final Integer delay,
+                           final int level,
+                           final int tId,
+                           final int aszmic) throws IllegalArgumentException {
         super(node, appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;
+        this.tId = tId;
         if (level < Short.MIN_VALUE || level > Short.MAX_VALUE)
             throw new IllegalArgumentException("Generic level value must be between -32768 to 32767");
         this.mLevel = level;
@@ -86,13 +130,13 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mLevel);
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put((byte) tId);
         } else {
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) (mLevel));
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put((byte) tId);
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
             paramsBuffer.put((byte) delay);

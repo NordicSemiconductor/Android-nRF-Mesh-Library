@@ -18,8 +18,8 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
 
     private static final String TAG = LightCtlSetUnacknowledged.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_CTL_SET_UNACKNOWLEDGED;
-    private static final int LIGHT_LIGHTNESS_SET_TRANSITION_PARAMS_LENGTH = 9;
-    private static final int LIGHT_LIGHTNESS_SET_PARAMS_LENGTH = 7;
+    private static final int LIGHT_CTL_SET_TRANSITION_PARAMS_LENGTH = 9;
+    private static final int LIGHT_CTL_SET_PARAMS_LENGTH = 7;
 
     private final Integer mTransitionSteps;
     private final Integer mTransitionResolution;
@@ -27,9 +27,9 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
     private final int mLightness;
     private final int mTemperature;
     private final int mDeltaUv;
-    private final byte tId;
+    private final int tId;
 
-    /**
+     /**
      * Constructs LightCtlSetUnacknowledged message.
      *
      * @param node             Mesh node this message is to be sent to
@@ -45,9 +45,8 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
                                      final int lightLightness,
                                      final int lightTemperature,
                                      final int lightDeltaUv,
-                                     final byte tId,
                                      final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, lightTemperature, lightDeltaUv, tId, aszmic);
+        this(node, appKey, null, null, null, lightLightness, lightTemperature, lightDeltaUv, node.getSequenceNumber(), aszmic);
     }
 
     /**
@@ -73,7 +72,57 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
                                      final int lightLightness,
                                      final int lightTemperature,
                                      final int lightDeltaUv,
-                                     final byte tId,
+                                     final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, transitionSteps, transitionResolution, delay, lightLightness, lightTemperature, lightDeltaUv, node.getSequenceNumber(), aszmic);
+    }
+
+    /**
+     * Constructs LightCtlSetUnacknowledged message.
+     *
+     * @param node             Mesh node this message is to be sent to
+     * @param appKey           application key for this message
+     * @param lightLightness   lightLightness of the LightCtlModel
+     * @param lightTemperature temperature of the LightCtlModel
+     * @param lightDeltaUv     delta uv of the LightCtlModel
+     * @param tId                  transaction id
+     * @param aszmic           size of message integrity check
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    public LightCtlSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
+                                     @NonNull final byte[] appKey,
+                                     final int lightLightness,
+                                     final int lightTemperature,
+                                     final int lightDeltaUv,
+                                     final int tId,
+                                     final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, null, null, null, lightLightness, lightTemperature, lightDeltaUv, tId, aszmic);
+    }
+
+    /**
+     * Constructs LightCtlSetUnacknowledged message.
+     *
+     * @param node                 Mesh node this message is to be sent to
+     * @param appKey               application key for this message
+     * @param transitionSteps      transition steps for the lightLightness
+     * @param transitionResolution transition resolution for the lightLightness
+     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
+     * @param lightLightness       lightLightness of the LightCtlModel
+     * @param lightTemperature     temperature of the LightCtlModel
+     * @param lightDeltaUv         delta uv of the LightCtlModel
+     * @param tId                  transaction id
+     * @param aszmic               size of message integrity check
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    @SuppressWarnings("WeakerAccess")
+    public LightCtlSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
+                                     @NonNull final byte[] appKey,
+                                     @NonNull final Integer transitionSteps,
+                                     @NonNull final Integer transitionResolution,
+                                     @NonNull final Integer delay,
+                                     final int lightLightness,
+                                     final int lightTemperature,
+                                     final int lightDeltaUv,
+                                     final int tId,
                                      final int aszmic) throws IllegalArgumentException {
         super(node, appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
@@ -106,25 +155,23 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
         Log.v(TAG, "Delta UV: " + mDeltaUv);
         Log.v(TAG, "TID: " + tId);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
-            paramsBuffer = ByteBuffer.allocate(LIGHT_LIGHTNESS_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer = ByteBuffer.allocate(LIGHT_CTL_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mLightness);
             paramsBuffer.putShort((short) mTemperature);
             paramsBuffer.putShort((short) mDeltaUv);
-            paramsBuffer.put(tId);
+            paramsBuffer.put((byte) tId);
         } else {
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
-            paramsBuffer = ByteBuffer.allocate(LIGHT_LIGHTNESS_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer = ByteBuffer.allocate(LIGHT_CTL_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mLightness);
             paramsBuffer.putShort((short) mTemperature);
             paramsBuffer.putShort((short) mDeltaUv);
-            paramsBuffer.put(tId);
+            paramsBuffer.put((byte) tId);
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
             paramsBuffer.put((byte) delay);
         }
         mParameters = paramsBuffer.array();
     }
-
-
 }
