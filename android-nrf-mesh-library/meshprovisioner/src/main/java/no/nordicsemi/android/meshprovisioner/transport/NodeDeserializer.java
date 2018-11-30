@@ -262,12 +262,15 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
      */
     private Map<Integer, Element> populateElements(final int unicastAddress, final List<Element> elementsList) {
         final Map<Integer, Element> elements = new LinkedHashMap<>();
+        int address = 0;
         for (int i = 0; i < elementsList.size(); i++) {
             final Element element = elementsList.get(i);
             if (i == 0) {
-                element.elementAddress = AddressUtils.getUnicastAddressBytes(unicastAddress);
+                address = unicastAddress;
+                element.elementAddress = AddressUtils.getUnicastAddressBytes(address);
             } else {
-                element.elementAddress = AddressUtils.getUnicastAddressBytes(unicastAddress + 1);
+                address = address + 1;
+                element.elementAddress = AddressUtils.getUnicastAddressBytes(address);
             }
             elements.put(element.getElementAddressInt(), element);
         }
