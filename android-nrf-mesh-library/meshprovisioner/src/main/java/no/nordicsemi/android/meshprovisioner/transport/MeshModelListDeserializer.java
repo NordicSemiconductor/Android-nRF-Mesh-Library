@@ -49,10 +49,13 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
     @Override
     public JsonElement serialize(final List<MeshModel> models, final Type typeOfSrc, final JsonSerializationContext context) {
         final JsonArray jsonArray = new JsonArray();
-        int i = 0;
         for (MeshModel model : models) {
             final JsonObject meshModelJson = new JsonObject();
-            meshModelJson.addProperty("modelId", String.format(Locale.US, "%04X", model.getModelId()));
+            if(model instanceof VendorModel){
+                meshModelJson.addProperty("modelId", String.format(Locale.US, "%08X", model.getModelId()));
+            } else {
+                meshModelJson.addProperty("modelId", String.format(Locale.US, "%04X", model.getModelId()));
+            }
             if (!model.getSubscriptionAddresses().isEmpty()) {
                 meshModelJson.add("subscribe", serializeSubscriptionAddresses(model.getSubscriptionAddresses()));
             }
@@ -64,7 +67,6 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
                 meshModelJson.add("bind", serializeBoundAppKeys(model.getBoundAppKeyIndexes()));
             }
             jsonArray.add(meshModelJson);
-            i++;
         }
         return jsonArray;
     }
