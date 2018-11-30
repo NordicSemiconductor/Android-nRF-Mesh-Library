@@ -29,13 +29,20 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import java.util.Map;
+import java.util.UUID;
+
+import no.nordicsemi.android.support.v18.scanner.ScanRecord;
+import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
 public class Utils {
 
@@ -201,5 +208,14 @@ public class Utils {
 
     public static boolean checkIfVersionIsOreoOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+    }
+
+    @Nullable
+    public static byte[] getServiceData(@NonNull  final ScanResult result, @NonNull final UUID serviceUuid) {
+        final ScanRecord scanRecord = result.getScanRecord();
+        if (scanRecord != null) {
+            return scanRecord.getServiceData(new ParcelUuid((serviceUuid)));
+        }
+        return null;
     }
 }

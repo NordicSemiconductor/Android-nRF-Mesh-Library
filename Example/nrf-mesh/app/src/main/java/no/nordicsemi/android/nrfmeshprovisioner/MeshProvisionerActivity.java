@@ -226,7 +226,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
             if (node == null) {
                 device.setName(mViewModel.getMeshNetworkLiveData().getValue().getNodeName());
-                mViewModel.identifyNode(device);
+                mViewModel.getNrfMeshRepository().identifyNode(device);
                 return;
             }
 

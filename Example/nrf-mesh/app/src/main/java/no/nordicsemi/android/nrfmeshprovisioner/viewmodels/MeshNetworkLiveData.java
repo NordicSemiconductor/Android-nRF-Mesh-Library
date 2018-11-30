@@ -46,7 +46,18 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
     }
 
     /**
-     * Refresh provisioning settings
+     * Loads the mesh network information in to live data
+     *
+     * @param meshNetwork provisioning settings
+     */
+    void loadNetworkInformation(@NonNull final MeshNetwork meshNetwork) {
+        this.meshNetwork = meshNetwork;
+        this.selectedAppKey = null;
+        postValue(this);
+    }
+
+    /**
+     * Refreshes the mesh network information
      *
      * @param meshNetwork provisioning settings
      */
@@ -198,7 +209,6 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
         this.selectedAppKey = appKey;
         postValue(this);
     }
-
 
     /**
      * Adds an application key to the next available index in the global app key list

@@ -13,6 +13,7 @@ import android.util.Log;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
@@ -22,6 +23,7 @@ import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
+import no.nordicsemi.android.meshprovisioner.UnprovisionedBeacon;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
@@ -42,9 +44,11 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManagerCallbacks;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
 import no.nordicsemi.android.support.v18.scanner.ScanCallback;
 import no.nordicsemi.android.support.v18.scanner.ScanFilter;
@@ -354,6 +358,19 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     void removeCallbacks() {
         mHandler.removeCallbacksAndMessages(null);
+    }
+
+    public void identifyNode(final ExtendedBluetoothDevice device) {
+        final UnprovisionedBeacon beacon = (UnprovisionedBeacon) device.getBeacon();
+        if(beacon != null) {
+            mMeshManagerApi.identifyNode(beacon.getUuid(), device.getName());
+        } else {
+            final byte[] serviceData = Utils.getServiceData(device.getScanResult(), BleMeshManager.MESH_PROVISIONING_UUID);
+            if(serviceData != null) {
+                final UUID uuid = mMeshManagerApi.getDeviceUuid(serviceData);
+                mMeshManagerApi.identifyNode(uuid, device.getName());
+            }
+        }
     }
 
     void clearMeshNodeLiveData() {
@@ -841,7 +858,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             }
 
             //Load live data with mesh network
-            mMeshNetworkLiveData.refresh(meshNetwork);
+            mMeshNetworkLiveData.loadNetworkInformation(meshNetwork);
             //Load live data with provisioned nodes
             mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
         }
@@ -906,7 +923,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             //This is to make sure we connectToProxy to the same device as device addresses could change after provisioning.
             final ScanRecord scanRecord = result.getScanRecord();
             if (scanRecord != null) {
-                final byte[] serviceData = scanRecord.getServiceData(new ParcelUuid((MESH_PROXY_UUID)));
+                final byte[] serviceData = Utils.getServiceData(result, MESH_PROXY_UUID);
                 if (serviceData != null) {
                     if (mMeshManagerApi.isAdvertisedWithNodeIdentity(serviceData)) {
                         final ProvisionedMeshNode node = mProvisionedMeshNode;

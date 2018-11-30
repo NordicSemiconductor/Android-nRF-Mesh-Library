@@ -23,18 +23,9 @@ package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.bluetooth.BluetoothDevice;
 import android.os.Parcel;
-import android.os.ParcelUuid;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
-
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.MeshBeacon;
-import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
@@ -126,6 +117,10 @@ public class ExtendedBluetoothDevice implements Parcelable {
 
     public void setRssi(final int rssi) {
         this.rssi = rssi;
+    }
+
+    public ScanResult getScanResult() {
+        return scanResult;
     }
 
     // Parcelable implementation

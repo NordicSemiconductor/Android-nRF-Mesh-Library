@@ -38,6 +38,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.MeshBeacon;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
@@ -68,6 +69,7 @@ public class ScannerRepository {
     private UUID mFilterUuid;
 
     private final ScanCallback mScanCallbacks = new ScanCallback() {
+
         @Override
         public void onScanResult(final int callbackType, final ScanResult result) {
             try {
@@ -77,19 +79,18 @@ public class ScannerRepository {
                         Utils.markLocationNotRequired(mContext);
 
                     if (!mScannerLiveData.isStopScanRequested()) {
-                        final byte[] serviceData = getServiceData(result, BleMeshManager.MESH_PROVISIONING_UUID);
-                        mScannerLiveData.deviceDiscovered(result, mMeshManagerApi.getBeacon(serviceData));
+                        updateScannerLiveData(result);
                     }
                 } else if (mFilterUuid.equals(BleMeshManager.MESH_PROXY_UUID)) {
-                    final byte[] serviceData = getServiceData(result, BleMeshManager.MESH_PROXY_UUID);
+                    final byte[] serviceData = Utils.getServiceData(result, BleMeshManager.MESH_PROXY_UUID);
                     if (mMeshManagerApi != null) {
                         if (mMeshManagerApi.isAdvertisingWithNetworkIdentity(serviceData)) {
                             if (mMeshManagerApi.networkIdMatches(mNetworkId, serviceData)) {
-                                mScannerLiveData.deviceDiscovered(result);//, mMeshManagerApi.getBeacon(serviceData));
+                                updateScannerLiveData(result);
                             }
                         } else if (mMeshManagerApi.isAdvertisedWithNodeIdentity(serviceData)) {
                             if (checkIfNodeIdentityMatches(serviceData)) {
-                                mScannerLiveData.deviceDiscovered(result, mMeshManagerApi.getBeacon(serviceData));
+                                updateScannerLiveData(result);
                             }
                         }
                     }
@@ -160,15 +161,16 @@ public class ScannerRepository {
         return mScannerLiveData;
     }
 
-    @Nullable
-    private byte[] getServiceData(final ScanResult result, final UUID serviceUuid) {
-        final ScanRecord scanRecord = result.getScanRecord();
-        if (scanRecord != null)
-            return scanRecord.getServiceData(new ParcelUuid((serviceUuid)));
-
-        return null;
+    private void updateScannerLiveData(final ScanResult result){
+        if (result.getScanRecord() != null) {
+            final byte[] beaconData = mMeshManagerApi.getMeshBeaconData(result.getScanRecord().getBytes());
+            if (beaconData != null) {
+                mScannerLiveData.deviceDiscovered(result, mMeshManagerApi.getMeshBeacon(beaconData));
+            } else {
+                mScannerLiveData.deviceDiscovered(result);
+            }
+        }
     }
-
     /**
      * Register for required broadcast receivers.
      */
@@ -215,7 +217,7 @@ public class ScannerRepository {
         }
 
         mScannerLiveData.scanningStarted();
-// Scanning settings
+        //Scanning settings
         final ScanSettings settings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 // Refresh the devices list every second
@@ -226,7 +228,7 @@ public class ScannerRepository {
                 /*.setUseHardwareBatchingIfSupported(false)*/
                 .build();
 
-// Let's use the filter to scan only for unprovisioned mesh nodes.
+        //Let's use the filter to scan only for unprovisioned mesh nodes.
         final List<ScanFilter> filters = new ArrayList<>();
         filters.add(new ScanFilter.Builder().setServiceUuid(new ParcelUuid((filterUuid))).build());
 
