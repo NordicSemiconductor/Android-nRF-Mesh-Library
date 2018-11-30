@@ -38,6 +38,16 @@ public interface MeshManagerTransportCallbacks {
     void onNetworkLoaded(final MeshNetwork meshNetwork);
 
     /**
+     * Returns the network that was updated
+     * <p>
+     * This callback is invoked for every message that was sent or received as it changes the contents of the network
+     * </p>
+     *
+     * @param meshNetwork{@link MeshNetwork that was loaded}
+     */
+    void onNetworkUpdated(final MeshNetwork meshNetwork);
+
+    /**
      * Callback that notifies in case the mesh network was unable to load
      *
      * @param error error
@@ -60,6 +70,7 @@ public interface MeshManagerTransportCallbacks {
 
     /**
      * Notifies when the mesh network is exported
+     *
      * @param meshNetwork exported mesh network
      */
     void onNetworkExported(final MeshNetwork meshNetwork);

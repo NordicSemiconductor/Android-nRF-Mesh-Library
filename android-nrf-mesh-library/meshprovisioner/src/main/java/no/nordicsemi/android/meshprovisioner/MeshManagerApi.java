@@ -995,6 +995,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
                 }
                 mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
                 mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
+                mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
             }
         }
 
@@ -1003,6 +1004,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
             if (meshNode != null) {
                 mMeshNetwork.deleteNode(meshNode);
                 mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
+                mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
             }
         }
     };
@@ -1016,6 +1018,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
             //Set the mesh network uuid to the node so we can identify nodes belonging to a network
             meshNode.setMeshUuid(mMeshNetwork.getMeshUUID());
             mMeshNetworkDb.insertNode(mProvisionedNodeDao, meshNode);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
     };
 
@@ -1102,81 +1105,97 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
         public void onMeshNetworkUpdated() {
             mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
             mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onNetworkKeyAdded(final NetworkKey networkKey) {
             mMeshNetworkDb.insertNetKey(mNetworkKeyDao, networkKey);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onNetworkKeyUpdated(final NetworkKey networkKey) {
             mMeshNetworkDb.updateNetKey(mNetworkKeyDao, networkKey);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onNetworkKeyDeleted(final NetworkKey networkKey) {
             mMeshNetworkDb.deleteNetKey(mNetworkKeyDao, networkKey);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onApplicationKeyAdded(final ApplicationKey applicationKey) {
             mMeshNetworkDb.insertAppKey(mApplicationKeyDao, applicationKey);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onApplicationKeyUpdated(final ApplicationKey applicationKey) {
             mMeshNetworkDb.updateAppKey(mApplicationKeyDao, applicationKey);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onApplicationKeyDeleted(final ApplicationKey applicationKey) {
             mMeshNetworkDb.deleteAppKey(mApplicationKeyDao, applicationKey);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onProvisionerUpdated(final Provisioner provisioner) {
             mMeshNetworkDb.updateProvisioner(mProvisionerDao, provisioner);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onProvisionerUpdated(final List<Provisioner> provisioners) {
             mMeshNetworkDb.updateProvisioner(mProvisionerDao, provisioners);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onNodesUpdated() {
             mMeshNetworkDb.updateNodes(mProvisionedNodeDao, mMeshNetwork.nodes);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onGroupAdded(final Group group) {
             mMeshNetworkDb.insertGroup(mGroupDao, group);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onGroupUpdated(final Group group) {
             mMeshNetworkDb.updateGroup(mGroupDao, group);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onGroupDeleted(final Group group) {
             mMeshNetworkDb.deleteGroup(mGroupDao, group);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onSceneAdded(final Scene scene) {
             mMeshNetworkDb.insertScene(mSceneDao, scene);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onSceneUpdated(final Scene scene) {
             mMeshNetworkDb.updateScene(mSceneDao, scene);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onSceneDeleted(final Scene scene) {
             mMeshNetworkDb.deleteScene(mSceneDao, scene);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
     };
 }
