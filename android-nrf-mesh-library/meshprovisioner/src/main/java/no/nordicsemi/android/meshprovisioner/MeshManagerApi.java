@@ -993,6 +993,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
                         break;
                     }
                 }
+                mMeshNetworkDb.updateProvisioner(mProvisionerDao, mMeshNetwork.getSelectedProvisioner());
                 mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
                 mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
                 mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
@@ -1013,12 +1014,27 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     private final InternalMeshManagerCallbacks internalMeshMgrCallbacks = new InternalMeshManagerCallbacks() {
         @Override
         public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
-            mMeshNetwork.nodes.add(meshNode);
+            updateProvisionedNodeList(meshNode);
             incrementUnicastAddress(meshNode.getUnicastAddressInt(), meshNode.getNumberOfElements());
             //Set the mesh network uuid to the node so we can identify nodes belonging to a network
             meshNode.setMeshUuid(mMeshNetwork.getMeshUUID());
             mMeshNetworkDb.insertNode(mProvisionedNodeDao, meshNode);
+            mMeshNetworkDb.updateProvisioner(mProvisionerDao,
+                    mMeshNetwork.getSelectedProvisioner());
             mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
+        }
+
+        private void updateProvisionedNodeList(final ProvisionedMeshNode meshNode){
+            for(int i = 0; i < mMeshNetwork.nodes.size(); i++) {
+                final ProvisionedMeshNode node = mMeshNetwork.nodes.get(i);
+                if(meshNode.getUuid().equals(node.getUuid())){
+                    mMeshNetwork.nodes.remove(i);
+                    mMeshNetwork.nodes.add(node);
+                    return;
+                }
+            }
+
+            mMeshNetwork.nodes.add(meshNode);
         }
     };
 
