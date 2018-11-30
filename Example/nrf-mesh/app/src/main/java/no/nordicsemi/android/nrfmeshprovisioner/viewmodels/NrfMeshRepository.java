@@ -955,6 +955,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     void importMeshNetwork(final Uri uri) {
+        //We disconnect from the current mesh network before importing one
+        mBleMeshManager.disconnect();
         mMeshManagerApi.importMeshNetwork(uri);
     }
 }
