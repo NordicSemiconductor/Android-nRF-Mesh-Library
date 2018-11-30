@@ -89,7 +89,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Flag to determine if a reconnection is in the progress when provisioning has completed
      **/
-    private final MutableLiveData<Boolean> mIsReconnecting = new MutableLiveData<>();
+    private final SingleLiveEvent<Boolean> mIsReconnecting = new SingleLiveEvent<>();
 
     private final MutableLiveData<ProvisioningCapabilities> capabilitiesMutableLiveData = new MutableLiveData<>();
 
@@ -190,7 +190,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     private final Runnable mReconnectRunnable = this::startScan;
 
-    private final Runnable mScannerTimeout = this::stopScan;
+    private final Runnable mScannerTimeout = () -> {
+        stopScan();
+        mIsReconnecting.postValue(false);
+    };
 
     public NrfMeshRepository(final MeshManagerApi meshManagerApi,
                              final NetworkInformation networkInformation,
@@ -494,7 +497,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         Log.v(TAG, "Disconnecting...");
         mConnectionState.postValue("Disconnecting...");
         if (mIsReconnectingFlag) {
-            mIsConnected.postValue(false);
+            //mIsConnected.postValue(false);
         }
     }
 
@@ -505,6 +508,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         if (mIsReconnectingFlag) {
             mIsReconnectingFlag = false;
             mIsReconnecting.postValue(false);
+            mIsConnected.postValue(false);
         } else {
             mIsConnected.postValue(false);
             mIsConnectedToProxy.postValue(false);
@@ -569,6 +573,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onNetworkLoaded(final MeshNetwork meshNetwork) {
+        loadNetwork(meshNetwork);
+    }
+
+    @Override
+    public void onNetworkUpdated(final MeshNetwork meshNetwork) {
         loadNetwork(meshNetwork);
     }
 
@@ -655,8 +664,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onProvisioningCompleted(final ProvisionedMeshNode meshNode, final ProvisioningState.States state, final byte[] data) {
-        mMeshNetwork = mMeshManagerApi.getMeshNetwork();
-        mMeshNetworkLiveData.refresh(mMeshNetwork);
+        /*mMeshNetwork = mMeshManagerApi.getMeshNetwork();
+        mMeshNetworkLiveData.refresh(mMeshNetwork);*/
         mProvisionedMeshNode = meshNode;
         mUnprovisionedMeshNodeLiveData.postValue(null);
         mProvisionedMeshNodeLiveData.postValue(meshNode);
@@ -672,7 +681,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private void onProvisioningCompleted(final ProvisionedMeshNode node) {
         mIsProvisioningComplete = true;
         mProvisionedMeshNode = node;
-        mIsReconnectingFlag = true;
         mIsReconnecting.postValue(true);
         mBleMeshManager.disconnect();
         mBleMeshManager.refreshDeviceCache();
@@ -951,7 +959,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private void onProvisionedDeviceFound(final ProvisionedMeshNode node, final ExtendedBluetoothDevice device) {
         mSetupProvisionedNode = true;
         mProvisionedMeshNode = node;
-        connectToProxy(device);
+        mIsReconnectingFlag = true;
+        //Added an extra delay to ensure reconnection
+        mHandler.postDelayed(() -> connectToProxy(device), 2000);
     }
 
     void importMeshNetwork(final Uri uri) {

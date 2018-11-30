@@ -65,6 +65,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.ProvisioningProgressAdap
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAppKeyAddStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAuthenticationInput;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFlags;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentIvIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentKeyIndex;
@@ -200,6 +201,8 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 container.setVisibility(View.GONE);
                 mProvisioningProgressBar.setVisibility(View.GONE);
                 connectivityProgressContainer.setVisibility(View.VISIBLE);
+            } else {
+                finish();
             }
         });
 
