@@ -989,12 +989,12 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
                 for (int i = 0; i < mMeshNetwork.nodes.size(); i++) {
                     if (meshNode.getUnicastAddressInt() == mMeshNetwork.nodes.get(i).getUnicastAddressInt()) {
                         mMeshNetwork.nodes.set(i, meshNode);
-                        mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
                         mMeshNetworkDb.updateNode(mProvisionedNodeDao, meshNode);
-                        mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
                         break;
                     }
                 }
+                mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
+                mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
             }
         }
 
