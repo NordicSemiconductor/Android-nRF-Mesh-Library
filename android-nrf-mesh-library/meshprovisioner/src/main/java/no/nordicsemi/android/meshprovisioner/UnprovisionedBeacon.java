@@ -12,7 +12,7 @@ import java.util.UUID;
  */
 @SuppressWarnings("unused")
 public class UnprovisionedBeacon extends MeshBeacon {
-    private static final int SERVICE_DATA_LENGTH = 18;
+    private static final int BEACON_DATA_LENGTH = 19;
     private static final int OOB_INDEX = 17;
     private static final int URI_HASH_INDEX = 19;
     private final UUID uuid;
@@ -22,16 +22,29 @@ public class UnprovisionedBeacon extends MeshBeacon {
     /**
      * Constructs a {@link UnprovisionedBeacon} object
      *
-     * @param serviceData service data advertised by aa unprovisioned node
-     * @throws IllegalArgumentException if service data provide is invalid
+     * @param beaconData beacon data advertised by the mesh beacon
+     * @throws IllegalArgumentException if advertisement data provide is empty or null
      */
-    UnprovisionedBeacon(@NonNull final byte[] serviceData) {
-        super(serviceData);
-        if (serviceData.length != SERVICE_DATA_LENGTH) {
-            throw new IllegalArgumentException("Invalid service data");
+    UnprovisionedBeacon(@NonNull final byte[] beaconData) {
+        super(beaconData);
+        if(beaconData.length < UnprovisionedBeacon.BEACON_DATA_LENGTH)
+            throw new IllegalArgumentException("Invalid unprovisioned beacon data");
+
+        final ByteBuffer buffer = ByteBuffer.wrap(beaconData);
+        buffer.position(1);
+        final long msb = buffer.getLong();
+        final long lsb = buffer.getLong();
+        uuid = new UUID(msb, lsb);
+        buffer.get(oobInformation, 0, 2);
+        if(buffer.remaining() == 4) {
+            buffer.get(uriHash, 0, 4);
         }
-        final ByteBuffer buffer = ByteBuffer.wrap(serviceData);
-        uuid = new UUID(buffer.getLong(1), buffer.getLong(9));
+
+    }
+
+    @Override
+    public int getBeaconType() {
+        return beaconType;
     }
 
     /**
@@ -62,7 +75,7 @@ public class UnprovisionedBeacon extends MeshBeacon {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeByteArray(serviceData);
+        dest.writeByteArray(beaconData);
     }
 
     public static final Parcelable.Creator<UnprovisionedBeacon> CREATOR = new Parcelable.Creator<UnprovisionedBeacon>() {

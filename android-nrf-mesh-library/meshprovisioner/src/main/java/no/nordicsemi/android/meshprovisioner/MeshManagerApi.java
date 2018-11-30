@@ -578,14 +578,72 @@ public class MeshManagerApi implements MeshMngrApi, InternalTransportCallbacks, 
         mMeshProvisioningHandler.setProvisioningConfirmation(pin);
     }
 
+    @SuppressWarnings("ConstantConditions")
+    @NonNull
     @Override
-    public MeshBeacon getBeacon(final byte[] serviceData) {
-        if (serviceData != null) {
-            final int beaconType = serviceData[0];
+    public UUID getDeviceUuid(@NonNull final byte[] serviceData) throws IllegalArgumentException {
+        if(serviceData == null || serviceData.length < 18)
+            throw new IllegalArgumentException("Service data cannot be null");
+
+        final ByteBuffer buffer = ByteBuffer.wrap(serviceData);
+        final long msb = buffer.getLong();
+        final long lsb = buffer.getLong();
+
+        return new UUID(msb, lsb);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Override
+    public boolean isMeshBeacon(@NonNull final byte[] advertisementData) throws IllegalArgumentException {
+        if(advertisementData == null)
+            throw new IllegalArgumentException("Advertisement data cannot be null");
+
+        for (int i = 0; i < advertisementData.length; i++) {
+            final int length = MeshParserUtils.unsignedByteToInt(advertisementData[i]);
+            if(length == 0)
+                break;
+            final int type = MeshParserUtils.unsignedByteToInt(advertisementData[i + 1]);
+            if (type == MeshBeacon.MESH_BEACON) {
+                return true;
+            }
+            i = i + length;
+        }
+        return false;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Nullable
+    @Override
+    public byte[] getMeshBeaconData(@NonNull final byte[] advertisementData) throws IllegalArgumentException {
+        if(advertisementData == null)
+            throw new IllegalArgumentException("Advertisement data cannot be null");
+
+        if(isMeshBeacon(advertisementData)) {
+            for (int i = 0; i < advertisementData.length; i++) {
+                final int length = MeshParserUtils.unsignedByteToInt(advertisementData[i]);
+                final int type = MeshParserUtils.unsignedByteToInt(advertisementData[i + 1]);
+                if (type == MeshBeacon.MESH_BEACON) {
+                    final byte[] beaconData = new byte[length];
+                    final ByteBuffer buffer = ByteBuffer.wrap(advertisementData);
+                    buffer.position(i + 2);
+                    buffer.get(beaconData, 0, length);
+                    return beaconData;
+                }
+                i = i + length;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public MeshBeacon getMeshBeacon(final byte[] beaconData) {
+        if (beaconData != null) {
+            final int beaconType = beaconData[0];
             if (beaconType == 0x00) {
-                return new UnprovisionedBeacon(serviceData);
-            } else {
-                return new SecureNetworkBeacon(serviceData);
+                return new UnprovisionedBeacon(beaconData);
+            } else if(beaconType == 0x01){
+                return new SecureNetworkBeacon(beaconData);
             }
         }
         return null;

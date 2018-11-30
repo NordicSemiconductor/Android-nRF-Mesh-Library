@@ -9,30 +9,36 @@ import java.nio.ByteBuffer;
 /**
  * Contains the information related to a secure network beacon.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class SecureNetworkBeacon extends MeshBeacon {
-    private static final int SERVICE_DATA_LENGTH = 22;
+    public static final int BEACON_DATA_LENGTH = 23;
     private final int flags;
     private final byte[] networkId = new byte[8];
     private final int ivIndex;
-    private final long authenticationValue;
+    private final byte[] authenticationValue = new byte[8];
 
     /**
      * Constructs a {@link SecureNetworkBeacon} object
-     * @param serviceData service data advertised by a provisioned node
+     *
+     * @param beaconData beacon data advertised by the mesh beacon
      * @throws IllegalArgumentException if service data provide is invalid
      */
-    SecureNetworkBeacon(@NonNull final byte[] serviceData) {
-        super(serviceData);
-        if(serviceData.length != SERVICE_DATA_LENGTH){
-            throw new IllegalArgumentException("Invalid service data");
-        }
-        final ByteBuffer byteBuffer = ByteBuffer.wrap(serviceData);
+    SecureNetworkBeacon(@NonNull final byte[] beaconData) {
+        super(beaconData);
+        if(beaconData.length != SecureNetworkBeacon.BEACON_DATA_LENGTH)
+            throw new IllegalArgumentException("Invalid secure network beacon data");
+
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(beaconData);
         byteBuffer.position(1);
         flags = byteBuffer.get();
-        byteBuffer.get(networkId, byteBuffer.position(), 8);
+        byteBuffer.get(networkId, 0, 8);
         ivIndex = byteBuffer.getInt();
-        authenticationValue = byteBuffer.getLong();
+        byteBuffer.get(authenticationValue, 0, 8);
+    }
+
+    @Override
+    public int getBeaconType() {
+        return beaconType;
     }
 
     /**
@@ -59,7 +65,7 @@ public class SecureNetworkBeacon extends MeshBeacon {
     /**
      * Returns the authentication value of the beacon
      */
-    public long getAuthenticationValue() {
+    public byte[] getAuthenticationValue() {
         return authenticationValue;
     }
 
@@ -70,7 +76,7 @@ public class SecureNetworkBeacon extends MeshBeacon {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeByteArray(serviceData);
+        dest.writeByteArray(beaconData);
     }
 
     public static final Parcelable.Creator<SecureNetworkBeacon> CREATOR = new Parcelable.Creator<SecureNetworkBeacon>() {

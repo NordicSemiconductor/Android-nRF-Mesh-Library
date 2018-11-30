@@ -9,27 +9,29 @@ import android.support.annotation.NonNull;
 @SuppressWarnings("unused")
 public abstract class MeshBeacon implements Parcelable {
 
-    final byte[] serviceData;
-    private final int beaconType; //0x00 Unprovisioned beacon, 0x01 Secure beacon
+    private static final String TAG = MeshBeacon.class.getSimpleName();
+    static final int MESH_BEACON = 0x2B;
+    final byte[] beaconData;
+    final int beaconType;
+
 
     /**
      * Constructs a {@link MeshBeacon} object
      *
-     * @param serviceData service data advertised by aa unprovisioned node
-     * @throws IllegalArgumentException if service data provide is invalid
+     * @param beaconData beacon data advertised by the mesh beacon
+     * @throws IllegalArgumentException if beacon data provided is empty or null
      */
     @SuppressWarnings("ConstantConditions")
-    MeshBeacon(@NonNull final byte[] serviceData){
-        if(serviceData == null)
-            throw new IllegalArgumentException("Invalid service data");
-        this.serviceData = serviceData;
-        this.beaconType = serviceData[0];
+    MeshBeacon(@NonNull final byte[] beaconData) {
+        if (beaconData == null)
+            throw new IllegalArgumentException("Invalid beacon data");
+        this.beaconData = beaconData;
+        beaconType = beaconData[0];
     }
 
     /**
      * Returns the beacon type value
      */
-    public final int getBeaconType() {
-        return beaconType;
-    }
+    public abstract int getBeaconType();
+
 }

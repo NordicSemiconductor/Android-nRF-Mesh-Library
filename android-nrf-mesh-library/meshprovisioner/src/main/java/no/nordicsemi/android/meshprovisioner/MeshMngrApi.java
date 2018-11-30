@@ -29,7 +29,7 @@ interface MeshMngrApi {
      * This method must be invoked before calling {@link #startProvisioning(UnprovisionedMeshNode)}
      * </p
      *
-     * @param deviceUUID Device uuid of the unprovisioned mesh node. This could be obtain by calling {{@link #getBeacon(byte[])}}
+     * @param deviceUUID Device uuid of the unprovisioned mesh node. This could be obtain by calling {{@link #getMeshBeacon(byte[])}}
      * @param nodeName   Friendly node name
      */
     void identifyNode(@NonNull final UUID deviceUUID, @Nullable final String nodeName) throws IllegalArgumentException;
@@ -52,11 +52,34 @@ interface MeshMngrApi {
     void setProvisioningConfirmation(@NonNull final String pin);
 
     /**
+     * Returns the device uuid of an unprovisioned node
+     * @param serviceData service data in the adv packet
+     */
+    @NonNull
+    UUID getDeviceUuid(@NonNull final byte[] serviceData) throws IllegalArgumentException;
+
+    /**
+     * Checks if the advertisement packet is a mesh beacon packet
+     * @param advertisementData data advertised by the mesh beacon
+     * @return true if its a mesh beacon packet or false otherwise
+     */
+    boolean isMeshBeacon(@NonNull final byte[] advertisementData) throws IllegalArgumentException;
+
+    /**
+     * Returns the beacon information advertised by a mesh beaco packet
+     * @param advertisementData data advertised by the mesh beacon
+     * @return the data advertised by a beacon packet or null otherwise
+     */
+    @Nullable
+    byte[] getMeshBeaconData(final byte[] advertisementData) throws IllegalArgumentException;
+
+    /**
      * Returns a {@link UnprovisionedBeacon}, {@link SecureNetworkBeacon} based on the advertised service data
      *
-     * @param serviceData advertised service data
+     * @param beaconData beacon data advertised by the mesh beacon
      */
-    MeshBeacon getBeacon(final byte[] serviceData);
+    @Nullable
+    MeshBeacon getMeshBeacon(final byte[] beaconData);
 
     /**
      * Generate network id
