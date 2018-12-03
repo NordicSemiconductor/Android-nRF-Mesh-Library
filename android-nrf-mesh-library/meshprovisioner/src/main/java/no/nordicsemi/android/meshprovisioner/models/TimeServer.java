@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class TimeServer extends SigModel {
 
     public static final Creator<TimeServer> CREATOR = new Creator<TimeServer>() {

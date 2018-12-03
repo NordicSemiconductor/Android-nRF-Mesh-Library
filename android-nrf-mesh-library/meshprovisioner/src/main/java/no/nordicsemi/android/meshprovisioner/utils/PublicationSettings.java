@@ -19,20 +19,28 @@ public class PublicationSettings implements Parcelable {
     private static final int DEFAULT_PUBLICATION_RESOLUTION = 0b00;
     private static final int DEFAULT_PUBLICATION_RETRANSMIT_COUNT = 0b000;
     private static final int DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS = 0;
+
     @Expose
     private byte[] publishAddress;
+
     @Expose
     private int appKeyIndex;
+
     @Expose
     private boolean credentialFlag;
+
     @Expose
     private int publishTtl = DEFAULT_PUBLISH_TTL;
+
     @Expose
     private int publicationSteps = DEFAULT_PUBLICATION_STEPS;
+
     @Expose
     private int publicationResolution = DEFAULT_PUBLICATION_RESOLUTION;
+
     @Expose
     private int publishRetransmitCount = DEFAULT_PUBLICATION_RETRANSMIT_COUNT;
+
     @Expose
     private int publishRetransmitIntervalSteps = DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS;
 
@@ -205,8 +213,6 @@ public class PublicationSettings implements Parcelable {
 
     /**
      * Sets the ttl used for publication.
-     *
-     * @return publication ttl
      */
     public void setPublishTtl(final int publishTtl) {
         this.publishTtl = publishTtl;
@@ -223,8 +229,6 @@ public class PublicationSettings implements Parcelable {
 
     /**
      * Sets the retransmit count used in publication
-     *
-     * @return publication retransmit count
      */
     public void setPublishRetransmitCount(final int publishRetransmitCount) {
         this.publishRetransmitCount = publishRetransmitCount;
@@ -241,8 +245,6 @@ public class PublicationSettings implements Parcelable {
 
     /**
      * Sets the retransmit interval steps used in publication
-     *
-     * @return publication retransmit interval steps
      */
     public void setPublishRetransmitIntervalSteps(final int publishRetransmitIntervalSteps) {
         this.publishRetransmitIntervalSteps = publishRetransmitIntervalSteps;
@@ -259,8 +261,6 @@ public class PublicationSettings implements Parcelable {
 
     /**
      * Sets the publication steps used for publication
-     *
-     * @return publication steps
      */
     public void setPublicationSteps(final int publicationSteps) {
         this.publicationSteps = publicationSteps;
@@ -277,6 +277,13 @@ public class PublicationSettings implements Parcelable {
 
     public void setPublicationResolution(final int publicationResolution) {
         this.publicationResolution = publicationResolution;
+    }
+
+    /**
+     * Returns the publication period
+     */
+    public int calculatePublicationPeriod(){
+        return ((publicationSteps << 6) | publicationResolution);
     }
 
     @Override

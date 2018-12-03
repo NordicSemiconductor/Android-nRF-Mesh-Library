@@ -23,12 +23,14 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,11 +41,11 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class BindAppKeyAdapter extends RecyclerView.Adapter<BindAppKeyAdapter.ViewHolder> {
 
-    private final SparseArray<ApplicationKey> appKeys;
+    private final List<ApplicationKey> appKeys;
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public BindAppKeyAdapter(final Context context, final SparseArray<ApplicationKey> appKeys) {
+    public BindAppKeyAdapter(final Context context, final List<ApplicationKey> appKeys) {
         this.mContext = context;
         this.appKeys = appKeys;
     }
@@ -52,17 +54,18 @@ public class BindAppKeyAdapter extends RecyclerView.Adapter<BindAppKeyAdapter.Vi
         mOnItemClickListener = listener;
     }
 
+    @NonNull
     @Override
-    public BindAppKeyAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public BindAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.app_key_item, parent, false);
         return new BindAppKeyAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final BindAppKeyAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final BindAppKeyAdapter.ViewHolder holder, final int position) {
         if(appKeys.size() > 0) {
-            holder.appKeyId.setText(mContext.getString(R.string.app_key_item , position + 1));
-            final ApplicationKey applicationKey = appKeys.get(appKeys.keyAt(position));
+            final ApplicationKey applicationKey = appKeys.get(position);
+            holder.appKeyId.setText(mContext.getString(R.string.app_key_item , applicationKey.getKeyIndex()));
             final String appKey = MeshParserUtils.bytesToHex(applicationKey.getKey(), false);
             holder.appKey.setText(appKey.toUpperCase());
         }
@@ -99,7 +102,7 @@ public class BindAppKeyAdapter extends RecyclerView.Adapter<BindAppKeyAdapter.Vi
             ButterKnife.bind(this, view);
             view.findViewById(R.id.removable).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    final int key = appKeys.keyAt(getAdapterPosition());
+                    final int key = getAdapterPosition();
                     mOnItemClickListener.onItemClick(key, appKeys.get(key));
                 }
             });

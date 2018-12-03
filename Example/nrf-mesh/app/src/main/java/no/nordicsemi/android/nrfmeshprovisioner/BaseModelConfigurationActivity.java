@@ -61,13 +61,13 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDisconnected;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSubscriptionAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
@@ -80,7 +80,6 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA_MO
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
 
 public abstract class BaseModelConfigurationActivity extends AppCompatActivity implements Injectable,
-        DialogFragmentConfigurationStatus.DialogFragmentAppKeyBindStatusListener,
         DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener,
         AddressAdapter.OnItemClickListener,
         BoundAppKeysAdapter.OnItemClickListener,
@@ -178,16 +177,15 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mActionBindAppKey.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, BindAppKeysActivity.class);
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) node.getAddedAppKeys());
+            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) node.getAddedApplicationKeys());
             startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
         mPublishAddressView.setText(R.string.none);
         mActionSetPublication.setOnClickListener(v -> {
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-            if (model != null && !model.getBoundApplicationKeys().isEmpty()) {
+            if (model != null && !model.getBoundAppKeyIndexes().isEmpty()) {
                 final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
-                publicationSettings.putExtra(EXTRA_DEVICE, model);
                 startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
             } else {
                 Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
@@ -287,11 +285,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public void onAppKeyBindStatusConfirmed() {
-
-    }
-
-    @Override
     public void setSubscriptionAddress(final byte[] subscriptionAddress) {
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         final byte[] elementAddress = mViewModel.getSelectedElement().getElement().getElementAddress();
@@ -382,7 +375,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel meshModel = mViewModel.getSelectedModel().getMeshModel();
-        if (meshModel != null && !meshModel.getBoundApplicationKeys().isEmpty()) {
+        if (meshModel != null && !meshModel.getBoundAppKeyIndexes().isEmpty()) {
             final byte[] address = MeshParserUtils.DISABLED_PUBLICATION_ADDRESS;
             final int appKeyIndex = meshModel.getPublicationSettings().getAppKeyIndex();
             final boolean credentialFlag = meshModel.getPublicationSettings().getCredentialFlag();
@@ -448,16 +441,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     }
 
-    private Integer getAppKeyIndex(final String appKey) {
-        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-        for (Integer key : model.getBoundApplicationKeys().keySet()) {
-            if (model.getBoundApplicationKeys().get(key).equals(appKey)) {
-                return key;
-            }
-        }
-        return null;
-    }
-
     /**
      * Update the mesh message
      *
@@ -467,21 +450,21 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         if (meshMessage instanceof ConfigModelAppStatus) {
             final ConfigModelAppStatus status = (ConfigModelAppStatus) meshMessage;
             if (!status.isSuccessful()) {
-                DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.
+                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
                         newInstance(getString(R.string.title_appkey_status), status.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
         } else if (meshMessage instanceof ConfigModelPublicationStatus) {
             final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
             if (!status.isSuccessful()) {
-                DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.
+                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
                         newInstance(getString(R.string.title_publlish_address_status), status.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
         } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
             final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
             if (!status.isSuccessful()) {
-                DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.
+                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
                         newInstance(getString(R.string.title_publlish_address_status), status.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }

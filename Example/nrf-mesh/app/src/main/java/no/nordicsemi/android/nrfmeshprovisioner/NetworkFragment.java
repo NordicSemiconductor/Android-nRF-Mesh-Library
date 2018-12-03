@@ -114,7 +114,7 @@ public class NetworkFragment extends Fragment implements Injectable,
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        if(!mViewModel.getProvisionedNodes().getValue().isEmpty()){
+        if(mViewModel.getProvisionedNodes().getValue() != null && !mViewModel.getProvisionedNodes().getValue().isEmpty()){
             final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
             if(isConnectedToNetwork != null && isConnectedToNetwork){
                 inflater.inflate(R.menu.disconnect, menu);

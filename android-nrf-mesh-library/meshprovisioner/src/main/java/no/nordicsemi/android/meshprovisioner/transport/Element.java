@@ -20,10 +20,11 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.meshprovisioner.utils;
+package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
 
@@ -37,34 +38,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.models.SigModel;
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 
-public class Element implements Parcelable {
+@SuppressWarnings({"WeakerAccess", "unused"})
+public final class Element implements Parcelable {
 
     @Expose
-    private final byte[] elementAddress;
-    @Expose
-    private final int locationDescriptor;
-    @Expose
-    private final int sigModelCount;
-    @Expose
-    private final int vendorModelCount;
-    @Expose
-    private final Map<Integer, MeshModel> meshModels;
+    byte[] elementAddress;
 
-    public Element(final byte[] elementAddress, final int locationDescriptor, final int sigModelCount, final int vendorModelCount, final Map<Integer, MeshModel> models) {
+    @Expose
+    final int locationDescriptor;
+
+    @Expose
+    final Map<Integer, MeshModel> meshModels;
+
+    Element(@NonNull final byte[] elementAddress, final int locationDescriptor, final Map<Integer, MeshModel> models) {
         this.elementAddress = elementAddress;
         this.locationDescriptor = locationDescriptor;
-        this.sigModelCount = sigModelCount;
-        this.vendorModelCount = vendorModelCount;
         this.meshModels = models;
     }
+
+    Element(final int locationDescriptor, final Map<Integer, MeshModel> models) {
+        this.locationDescriptor = locationDescriptor;
+        this.meshModels = models;
+    }
+
+
 
     protected Element(Parcel in) {
         elementAddress = in.createByteArray();
         locationDescriptor = in.readInt();
-        sigModelCount = in.readInt();
-        vendorModelCount = in.readInt();
         meshModels = new LinkedHashMap<>();
         sortModels(in.readHashMap(MeshModel.class.getClassLoader()));
     }
@@ -73,18 +77,16 @@ public class Element implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByteArray(elementAddress);
         dest.writeInt(locationDescriptor);
-        dest.writeInt(sigModelCount);
-        dest.writeInt(vendorModelCount);
         dest.writeMap(meshModels);
     }
 
 
-    private void sortModels(final HashMap<Integer, MeshModel> unorderedElements){
-        final Set<Integer> unorderedKeys =  unorderedElements.keySet();
+    private void sortModels(final HashMap<Integer, MeshModel> unorderedElements) {
+        final Set<Integer> unorderedKeys = unorderedElements.keySet();
 
-        final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
+        final ArrayList<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
         Collections.sort(orderedKeys);
-        for(int key : orderedKeys) {
+        for (int key : orderedKeys) {
             meshModels.put(key, unorderedElements.get(key));
         }
     }
@@ -115,15 +117,28 @@ public class Element implements Parcelable {
     }
 
     public int getSigModelCount() {
-        return sigModelCount;
+        int count = 0;
+        for (Map.Entry<Integer, MeshModel> modelEntry : meshModels.entrySet()) {
+            if (modelEntry.getValue() instanceof SigModel) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public int getVendorModelCount() {
-        return vendorModelCount;
+        int count = 0;
+        for (Map.Entry<Integer, MeshModel> modelEntry : meshModels.entrySet()) {
+            if (modelEntry.getValue() instanceof VendorModel) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
      * Returns a list of sig models avaialable in this element
+     *
      * @return List containing sig models
      */
     public Map<Integer, MeshModel> getMeshModels() {

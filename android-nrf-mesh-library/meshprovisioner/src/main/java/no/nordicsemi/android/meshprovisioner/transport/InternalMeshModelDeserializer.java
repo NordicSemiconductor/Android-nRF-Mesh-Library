@@ -37,12 +37,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
      */
     private MeshModel parsePreMigrationMeshModel(final JsonObject jsonObject) {
         final int modelId = jsonObject.getAsJsonObject().get("mModelId").getAsInt();
-        final MeshModel meshModel;
-        if (modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
-            meshModel = new VendorModel(modelId);
-        } else {
-            meshModel = SigModelParser.getSigModel(modelId);
-        }
+        final MeshModel meshModel = getMeshModel(modelId);
 
         final JsonArray jsonArrayBoundKeyIndexes = jsonObject.getAsJsonObject().getAsJsonArray("mBoundAppKeyIndexes");
         final JsonObject jsonBoundKeys = jsonObject.getAsJsonObject().get("mBoundAppKeys").getAsJsonObject();
@@ -74,7 +69,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                 final int publicationSteps = jsonPublicationSettings.get("publicationSteps").getAsInt();
 
                 final JsonArray jsonPublishAddress = jsonPublicationSettings.get("publishAddress").getAsJsonArray();
-                final byte[] publishAddress = new byte[2];
+                final byte[] publishAddress = new byte[jsonPublishAddress.size()];
                 for (int i = 0; i < jsonPublishAddress.size(); i++) {
                     publishAddress[i] = jsonPublishAddress.get(i).getAsByte();
                 }
@@ -121,12 +116,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
      */
     private MeshModel parseMigratedMeshModel(final JsonObject jsonObject) {
         final int modelId = jsonObject.get("mModelId").getAsInt();
-        final MeshModel meshModel;
-        if (modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
-            meshModel = new VendorModel(modelId);
-        } else {
-            meshModel = SigModelParser.getSigModel(modelId);
-        }
+        final MeshModel meshModel = getMeshModel(modelId);
 
         final JsonArray jsonArrayBoundKeyIndexes = jsonObject.getAsJsonArray("mBoundAppKeyIndexes");
         final JsonObject jsonBoundKeys = jsonObject.getAsJsonObject("mBoundApplicationKeys");
@@ -158,7 +148,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                 final int publicationSteps = jsonPublicationSettings.get("publicationSteps").getAsInt();
 
                 final JsonArray jsonPublishAddress = jsonPublicationSettings.getAsJsonArray("publishAddress");
-                final byte[] publishAddress = new byte[2];
+                final byte[] publishAddress = new byte[jsonPublishAddress.size()];
                 for (int i = 0; i < jsonPublishAddress.size(); i++) {
                     publishAddress[i] = jsonPublishAddress.get(i).getAsByte();
                 }
@@ -181,6 +171,20 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
             key[i] = array.get(i).getAsByte();
         }
         return key;
+    }
+
+    /**
+     * Returns a {@link MeshModel}
+     *
+     * @param modelId model Id
+     * @return {@link MeshModel}
+     */
+    private MeshModel getMeshModel(final int modelId) {
+        if (modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
+            return new VendorModel(modelId);
+        } else {
+            return SigModelParser.getSigModel(modelId);
+        }
     }
 
 }

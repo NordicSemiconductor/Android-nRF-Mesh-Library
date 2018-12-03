@@ -68,7 +68,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
      * @param publishRetransmitIntervalSteps Publish retransmit interval steps
      * @param modelIdentifier                identifier for this model that will do publication
      * @param aszmic                         size of message integrity check
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException for invalid arguments
      */
     public ConfigModelPublicationSet(@NonNull final ProvisionedMeshNode node,
                                      @NonNull final byte[] elementAddress,
@@ -125,7 +125,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);
-            paramsBuffer.put((byte) (publicationSteps | publicationResolution));
+            paramsBuffer.put((byte) ((publicationSteps << 6) | publicationResolution));
             paramsBuffer.put((byte) octet8);
             paramsBuffer.putShort((short) modelIdentifier);
             mParameters = paramsBuffer.array();
@@ -138,7 +138,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);
-            paramsBuffer.put((byte) (publicationSteps | publicationResolution));
+            paramsBuffer.put((byte) ((publicationSteps << 6) | publicationResolution));
             paramsBuffer.put((byte) octet8);
             final byte[] modelIdentifier = new byte[]{(byte) ((this.modelIdentifier >> 24) & 0xFF), (byte) ((this.modelIdentifier >> 16) & 0xFF), (byte) ((this.modelIdentifier >> 8) & 0xFF), (byte) (this.modelIdentifier & 0xFF)};
             paramsBuffer.put(modelIdentifier[1]);
@@ -160,8 +160,6 @@ public class ConfigModelPublicationSet extends ConfigMessage {
 
     /**
      * Returns the publish address to which the model must publish to
-     *
-     * @return
      */
     public byte[] getPublishAddress() {
         return publishAddress;

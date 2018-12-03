@@ -22,9 +22,13 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
+import android.support.annotation.RestrictTo;
+
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface InternalTransportCallbacks {
 
     /**
@@ -46,9 +50,9 @@ public interface InternalTransportCallbacks {
     /**
      * Update mesh node
      *
-     * @param meshNode mesh to be updated
+     * @param message
      */
-    void updateMeshNode(final ProvisionedMeshNode meshNode);
+    void updateMeshNetwork(final MeshMessage message);
 
     /**
      * This callback is invoked when the mesh node is successfully reset

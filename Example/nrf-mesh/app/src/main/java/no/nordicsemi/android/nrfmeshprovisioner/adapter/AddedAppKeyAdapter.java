@@ -53,7 +53,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         extendedMeshNode.observe(activity, extendedNode -> {
             if(extendedNode != null) {
                 appKeys.clear();
-                appKeys.addAll(extendedNode.getAddedAppKeys().values());
+                appKeys.addAll(extendedNode.getAddedApplicationKeys().values());
                 notifyDataSetChanged();
             }
         });

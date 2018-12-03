@@ -276,7 +276,7 @@
     <string name="invalid_hex_value">Invalid hex value</string>
     <string name="invalid_address_value">Invalid address</string>
     <string name="mesh_provioner_service_running">Mesh provisioner service is running in background.</string>
-    <string name="action_reset_network">Reset Network</string>
+    <string name="action_reset_network">Reset</string>
     <string name="title_reset_network">Reset Mesh Network</string>
     <string name="message_reset_network">This will clear all the data stored related to this network and will not be recoverable. Would you like to continue?</string>
     <string name="not_subscribed_to_groups">Not subscribed to any group addresses.</string>
@@ -403,4 +403,30 @@
     <string name="invalid_value">Invalid value!</string>
     <string name="use_default_ttl">Use default ttl value (0xFF)</string>
     <string name="uses_default_ttl">Uses default ttl (0xFF)</string>
+    <string name="action_import_network">Import</string>
+    <string name="action_export_network">Export</string>
+    <string name="title_network_import">Import Network</string>
+    <string name="title_network_export">Export Network</string>
+    <string name="network_import_rationale">Importing new mesh network information will delete the existing network information from the application.
+        Would you like to proceed? \n\nNote: You can also export the existing network information before importing.</string>
+    <string name="export_existing_network">Export Network</string>
+    <string name="view_files">View files</string>
+    <string name="title_permission_required">Permission Required</string>
+    <string name="external_storage_permission_required">Exporting mesh network information to a file in the external storage directory requires permission
+        to access the external storage.</string>
+    <string name="permission_rationale_settings"> You may grant this permission by navigating to the app settings.</string>
+    <string name="settings">Settings</string>
+    <string name="ext_storage_permission_denied">Unable to export network, external storage permission denied!</string>
+    <string name="title_init_config_error">Initial Configuration Failed</string>
+    <string name="init_config_error_app_key_msg">Initial configuration of the node has failed.
+        Continue with the following steps to configure the node\n\n
+        Step 1. Connect to the network.\n\n
+        Step 2. Select the configure option of the node.\n\n
+        Step 3. Add app key</string>
+    <string name="init_config_error_all">Initial configuration of the node has failed.
+        Continue with the following steps to configure the node\n\n
+        Step 1. Connect to the network.\n\n
+        Step 2. Select the configure option of the node.\n\n
+        Step 3. Click get composition data\n\n
+        Step 4. Add app key</string>
 </resources>

@@ -31,9 +31,61 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 public interface MeshManagerTransportCallbacks {
 
     /**
+     * Returns the network that was loaded
+     *
+     * @param meshNetwork{@link MeshNetwork that was loaded}
+     */
+    void onNetworkLoaded(final MeshNetwork meshNetwork);
+
+    /**
+     * Returns the network that was updated
+     * <p>
+     * This callback is invoked for every message that was sent or received as it changes the contents of the network
+     * </p>
+     *
+     * @param meshNetwork{@link MeshNetwork that was loaded}
+     */
+    void onNetworkUpdated(final MeshNetwork meshNetwork);
+
+    /**
+     * Callback that notifies in case the mesh network was unable to load
+     *
+     * @param error error
+     */
+    void onNetworkLoadFailed(final String error);
+
+    /**
+     * Callbacks notifying the network was imported
+     *
+     * @param meshNetwork{@link MeshNetwork that was loaded}
+     */
+    void onNetworkImported(final MeshNetwork meshNetwork);
+
+    /**
+     * Callback that notifies in case the mesh network was unable to imported
+     *
+     * @param error error
+     */
+    void onNetworkImportFailed(final String error);
+
+    /**
+     * Notifies when the mesh network is exported
+     *
+     * @param meshNetwork exported mesh network
+     */
+    void onNetworkExported(final MeshNetwork meshNetwork);
+
+    /**
+     * Notifies when the mesh network import fails
+     *
+     * @param error error
+     */
+    void onNetworkExportFailed(final String error);
+
+    /**
      * Send mesh pdu
      *
-     * @param meshNode mesh node to send to
+     * @param meshNode {@link UnprovisionedMeshNode}
      * @param pdu      mesh pdu to be sent
      */
     void sendProvisioningPdu(final UnprovisionedMeshNode meshNode, final byte[] pdu);

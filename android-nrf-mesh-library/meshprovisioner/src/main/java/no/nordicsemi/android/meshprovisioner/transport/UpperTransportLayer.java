@@ -60,6 +60,8 @@ abstract class UpperTransportLayer extends AccessLayer {
     private static final int MINIMUM_TRANSMIC_LENGTH = 4; // bytes
     private static final int MAXIMUM_TRANSMIC_LENGTH = 8; // bytes
 
+    UpperTransportLayerCallbacks mUpperTransportLayerCallbacks;
+
     /**
      * Creates a mesh message containing an upper transport access pdu
      * @param message The access message required to create the encrypted upper transport pdu
@@ -205,8 +207,7 @@ abstract class UpperTransportLayer extends AccessLayer {
             //If its a device key that was used to encrypt the message we need to create a device nonce to decrypt it
             nonce = createDeviceNonce(accessMessage.getAszmic(), accessMessage.getSequenceNumber(), accessMessage.getSrc(), accessMessage.getDst(), accessMessage.getIvIndex());
         } else {
-            //mMeshNode.getAddedAppKeys()
-            key = getApplicationKey(accessMessage.getAid());//mUpperTransportLayerCallbacks.getApplicationKey();
+            key = mUpperTransportLayerCallbacks.getApplicationKey(accessMessage.getAid());
             if(key == null)
                 throw new IllegalArgumentException("Unable to find the app key to decrypt the message");
 
@@ -230,18 +231,6 @@ abstract class UpperTransportLayer extends AccessLayer {
         decryptedBuffer.put(decryptedUpperTansportPDU);
         decryptedUpperTansportPDU = decryptedBuffer.array();
         return decryptedUpperTansportPDU;
-    }
-
-    private byte[] getApplicationKey(final int receivedAid){
-        final List<ApplicationKey> keys = new ArrayList<>(mMeshNode.getAddedAppKeys().values());
-        for(ApplicationKey key : keys){
-            final byte[] k = key.getKey();
-            final int aid = SecureUtils.calculateK4(k);
-            if(receivedAid == aid){
-                return k;
-            }
-        }
-        return null;
     }
 
     /**

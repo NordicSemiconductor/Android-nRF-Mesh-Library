@@ -45,10 +45,11 @@ import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
-public class MainActivity extends AppCompatActivity implements Injectable, HasSupportFragmentInjector,  BottomNavigationView.OnNavigationItemSelectedListener,
+public class MainActivity extends AppCompatActivity implements Injectable, HasSupportFragmentInjector, BottomNavigationView.OnNavigationItemSelectedListener,
         BottomNavigationView.OnNavigationItemReselectedListener,
         ScannerFragment.ScannerFragmentListener, FragmentManager.OnBackStackChangedListener {
 
@@ -79,8 +80,6 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
 
-        final SharedViewModel mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(SharedViewModel.class);
-
         mNetworkFragment = (NetworkFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_network);
         mScannerFragment = (ScannerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_scanner);
         mSettingsFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_settings);
@@ -89,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
         mBottomNavigationView.setOnNavigationItemSelectedListener(this);
         mBottomNavigationView.setOnNavigationItemReselectedListener(this);
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             onNavigationItemSelected(mBottomNavigationView.getMenu().findItem(R.id.action_network));
         } else {
             mBottomNavigationView.setSelectedItemId(savedInstanceState.getInt(CURRENT_FRAGMENT));
@@ -104,11 +103,27 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == Utils.PROVISIONING_SUCCESS){
-            if(resultCode == RESULT_OK){
-                final boolean result = data.getBooleanExtra("result", false);
-                if(result){
+        if (requestCode == Utils.PROVISIONING_SUCCESS) {
+            if (resultCode == RESULT_OK) {
+                final boolean provisioningSuccess = data.getBooleanExtra(Utils.PROVISIONING_COMPLETED, false);
+                if (provisioningSuccess) {
                     mBottomNavigationView.setSelectedItemId(R.id.action_network);
+                    final boolean compositionDataReceived = data.getBooleanExtra(Utils.COMPOSITION_DATA_COMPLETED, false);
+                    final boolean appKeyAddCompleted = data.getBooleanExtra(Utils.APP_KEY_ADD_COMPLETED, false);
+                    final DialogFragmentConfigError fragmentConfigError;
+                    if(compositionDataReceived){
+                        if(!appKeyAddCompleted){
+                            fragmentConfigError =
+                                    DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                            , getString(R.string.init_config_error_app_key_msg));
+                            fragmentConfigError.show(getSupportFragmentManager(), null);
+                        }
+                    } else {
+                        fragmentConfigError =
+                                DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                        , getString(R.string.init_config_error_all));
+                        fragmentConfigError.show(getSupportFragmentManager(), null);
+                    }
                 }
             }
         }

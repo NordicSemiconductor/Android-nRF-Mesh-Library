@@ -12,7 +12,6 @@ import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 @SuppressWarnings("WeakerAccess")
@@ -57,10 +56,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
         switch (opCodeLength) {
             case 0:
                 if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS) {
-                    final ConfigCompositionDataStatus compositionDataStatus = new ConfigCompositionDataStatus(mNode, message);
-                    mNode.setCompositionData(compositionDataStatus);
-                    mInternalTransportCallbacks.updateMeshNode(mNode);
-                    mMeshStatusCallbacks.onMeshMessageReceived(compositionDataStatus);
+                    final ConfigCompositionDataStatus status = new ConfigCompositionDataStatus(mNode, message);
+                    mNode.setCompositionData(status);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(status);
                 }
                 break;
             case 2:
@@ -72,7 +71,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                             mNode.setAddedAppKey(status.getAppKeyIndex(), configAppKeyAdd.getAppKey());//MeshParserUtils.bytesToHex(configAppKeyAdd.getAppKey(), false));
                         }
                     }
-                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS) {
                     final ConfigModelAppStatus status = new ConfigModelAppStatus(mNode, message);
@@ -83,7 +82,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                             mNode.setAppKeyUnbindStatus(status);
                         }
                     }
-                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
 
                 }  else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS) {
@@ -93,7 +92,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
                         model.setPublicationStatus(status);
                     }
-                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
 
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_STATUS) {
@@ -109,20 +108,20 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                             model.removeSubscriptionAddress(status.getSubscriptionAddress());
                         }
                     }
-                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS) {
                     final ConfigNodeResetStatus status = new ConfigNodeResetStatus(mNode, message);
                     mInternalTransportCallbacks.onMeshNodeReset(mNode);
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS) {
-                    final GenericOnOffStatus genericOnOffStatus = new GenericOnOffStatus(mNode, message);
-                    mInternalTransportCallbacks.updateMeshNode(mNode);
-                    mMeshStatusCallbacks.onMeshMessageReceived(genericOnOffStatus);
+                    final GenericOnOffStatus status = new GenericOnOffStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(status);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS) {
-                    final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(mNode, message);
-                    mInternalTransportCallbacks.updateMeshNode(mNode);
-                    mMeshStatusCallbacks.onMeshMessageReceived(genericLevelStatus);
+                    final GenericLevelStatus status = new GenericLevelStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(status);
                 } else {
                     Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
                 }

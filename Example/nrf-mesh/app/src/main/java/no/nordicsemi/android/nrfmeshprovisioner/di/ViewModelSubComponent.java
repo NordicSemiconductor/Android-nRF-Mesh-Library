@@ -28,6 +28,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewMo
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionedNodesScannerViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ReconnectViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ViewModelFactory;
@@ -48,6 +49,7 @@ public interface ViewModelSubComponent {
 	MeshProvisionerViewModel meshProvisionerViewModel();
 	NodeConfigurationViewModel meshConfigurationViewModel();
 	ModelConfigurationViewModel modelConfigurationViewModel();
+	PublicationViewModel publicationViewModel();
 	ProvisionedNodesScannerViewModel scannerViewModel();
 	ReconnectViewModel reconnectViewModule();
 }

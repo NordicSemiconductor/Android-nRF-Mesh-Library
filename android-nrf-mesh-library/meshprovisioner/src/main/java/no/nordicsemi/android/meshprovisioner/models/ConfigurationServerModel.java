@@ -23,11 +23,11 @@
 package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
+@SuppressWarnings("WeakerAccess")
 public class ConfigurationServerModel extends SigModel {
 
-    public static final Parcelable.Creator<ConfigurationServerModel> CREATOR = new Parcelable.Creator<ConfigurationServerModel>() {
+    public static final Creator<ConfigurationServerModel> CREATOR = new Creator<ConfigurationServerModel>() {
         @Override
         public ConfigurationServerModel createFromParcel(final Parcel source) {
             return new ConfigurationServerModel(source);

@@ -28,10 +28,8 @@ import android.arch.lifecycle.ViewModel;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 
 /**
@@ -81,12 +79,10 @@ public class NodeConfigurationViewModel extends ViewModel {
     }
 
     /**
-     * Returns an observable live data object containing the {@link ProvisioningSettings}
-     *
-     * @return {@link ProvisioningSettings}
+     * Returns an observable live data object
      */
-    public ProvisioningSettingsLiveData getProvisioningSettingLiveData() {
-        return mNrfMeshRepository.getProvisioningSettingsLiveData();
+    public MeshNetworkLiveData getProvisioningSettingLiveData() {
+        return mNrfMeshRepository.getMeshNetworkLiveData();
     }
 
     /**
@@ -105,10 +101,4 @@ public class NodeConfigurationViewModel extends ViewModel {
         return mNrfMeshRepository.getMeshManagerApi();
     }
 
-    /**
-     * Returns the {@link MeshManagerApi}
-     */
-    public MeshNetwork getMeshNetwork() {
-        return mNrfMeshRepository.getMeshManagerApi().getMeshNetwork();
-    }
 }

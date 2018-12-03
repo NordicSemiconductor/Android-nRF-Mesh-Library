@@ -128,7 +128,9 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.ViewHold
 
             view.findViewById(R.id.device_container).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(mDevices.get(getAdapterPosition()));
+                    if(getAdapterPosition() > -1) {
+                        mOnItemClickListener.onItemClick(mDevices.get(getAdapterPosition()));
+                    }
                 }
             });
         }

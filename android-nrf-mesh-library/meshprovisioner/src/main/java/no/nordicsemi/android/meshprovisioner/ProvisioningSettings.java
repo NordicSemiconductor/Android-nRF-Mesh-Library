@@ -31,7 +31,7 @@ import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-public final class ProvisioningSettings extends NetworkSettings {
+final class ProvisioningSettings extends NetworkSettings {
 
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
     private static final String PROVISIONING_DATA = "PROVISIONING_DATA";
@@ -60,7 +60,6 @@ public final class ProvisioningSettings extends NetworkSettings {
         flags = preferences.getInt(FLAGS, 0);
         globalTtl = preferences.getInt(GLOBAL_TTL, 5);
         addAppKeys();
-        saveProvisioningData();
     }
 
     /**
@@ -120,8 +119,8 @@ public final class ProvisioningSettings extends NetworkSettings {
      * @param applicationKey application key to be added in the specified position
      */
     public final void addAppKey(final String applicationKey) throws IllegalArgumentException {
-        if (this.appKeys.contains(applicationKey))
-            throw new IllegalArgumentException("App key already exists");
+        /*if (this.appKeys.contains(applicationKey))
+            throw new IllegalArgumentException("App key already exists");*/
 
         this.appKeys.add(applicationKey);
         saveApplicationKeys();
@@ -134,8 +133,8 @@ public final class ProvisioningSettings extends NetworkSettings {
      * @param applicationKey application key to be added in the specified position
      */
     public final void addAppKey(final int position, final String applicationKey) {
-        if (this.appKeys.contains(applicationKey))
-            throw new IllegalArgumentException("App key already exists");
+        /*if (this.appKeys.contains(applicationKey))
+            throw new IllegalArgumentException("App key already exists");*/
 
         this.appKeys.add(position, applicationKey);
         saveApplicationKeys();
@@ -280,25 +279,5 @@ public final class ProvisioningSettings extends NetworkSettings {
     }
 
     private void saveApplicationKeys() {
-        final SharedPreferences preferences = mContext.getSharedPreferences(APPLICATION_KEYS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        if (appKeys.isEmpty()) {
-            editor.clear();
-        } else {
-            for (int i = 0; i < appKeys.size(); i++) {
-                editor.putString(String.valueOf(i), appKeys.get(i));
-            }
-        }
-        editor.apply();
-    }
-
-    private void saveProvisioningData() {
-        saveNetworkKey();
-        saveUnicastAddress();
-        saveKeyIndex();
-        saveIvIndex();
-        saveFlags();
-        saveGlobalTtl();
-        saveApplicationKeys();
     }
 }

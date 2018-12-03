@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
@@ -163,7 +164,6 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * </p>
      *
      * @param newState new state that is to be switched to
-     * @return true if the state was switched successfully
      */
     private void switchToNoOperationState(final MeshMessageState newState) {
         //Switching to unknown message state here for messages that are not
@@ -192,7 +192,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     @Deprecated
     @Override
     public final void sendAppKeyAdd(@NonNull final ProvisionedMeshNode meshNode, final int appKeyIndex, @NonNull final String appKey, final int aszmic) {
-        final NetworkKey networkKey = meshNode.getNetworkKeys().get(0);
+        final NetworkKey networkKey = meshNode.getAddedNetworkKeys().get(0);
         final ApplicationKey applicationKey = new ApplicationKey(appKeyIndex, MeshParserUtils.toByteArray(appKey));
         final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(meshNode, networkKey, applicationKey, aszmic);
         sendMeshMessage(configAppKeyAdd);
@@ -266,7 +266,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     @Deprecated
     @Override
     public final void getGenericOnOff(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex) throws IllegalArgumentException {
-        if (model.getBoundApplicationKeys().isEmpty())
+        if (model.getBoundAppKeyIndexes().isEmpty())
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
         final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
@@ -292,7 +292,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     public final void setGenericOnOff(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
                                       @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex,
                                       final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) throws IllegalArgumentException {
-        if (model.getBoundApplicationKeys().isEmpty())
+        if (model.getBoundAppKeyIndexes().isEmpty())
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
         final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
@@ -318,9 +318,9 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     @Override
     public final void setGenericOnOffUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
                                                     @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex,
-                                                    @NonNull final Integer transitionSteps, @NonNull final Integer transitionResolution,
-                                                    @NonNull final Integer delay, final boolean state) throws IllegalArgumentException {
-        if (model.getBoundApplicationKeys().isEmpty())
+                                                    @Nullable final Integer transitionSteps, @Nullable final Integer transitionResolution,
+                                                    @Nullable final Integer delay, final boolean state) throws IllegalArgumentException {
+        if (model.getBoundAppKeyIndexes().isEmpty())
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
         final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
@@ -341,7 +341,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     @Deprecated
     @Override
     public final void getGenericLevel(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex) {
-        if (model.getBoundApplicationKeys().isEmpty())
+        if (model.getBoundAppKeyIndexes().isEmpty())
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
         final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
@@ -365,7 +365,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     public final void setGenericLevel(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress,
                                       final boolean aszmic, final int appKeyIndex, final Integer transitionSteps,
                                       final Integer transitionResolution, final Integer delay, final int level) throws IllegalArgumentException {
-        if (model.getBoundApplicationKeys().isEmpty())
+        if (model.getBoundAppKeyIndexes().isEmpty())
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
         final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
@@ -388,7 +388,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     public final void setGenericLevelUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress,
                                                     final boolean aszmic, final int appKeyIndex, final Integer transitionSteps,
                                                     final Integer transitionResolution, final Integer delay, final int level) throws IllegalArgumentException {
-        if (model.getBoundApplicationKeys().isEmpty())
+        if (model.getBoundAppKeyIndexes().isEmpty())
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
         final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
@@ -409,7 +409,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     @Deprecated
     @Override
     public void sendVendorModelUnacknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
-        if (model.getBoundApplicationKeys().isEmpty())
+        if (model.getBoundAppKeyIndexes().isEmpty())
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
         final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
@@ -432,7 +432,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     @Deprecated
     @Override
     public final void sendVendorModelAcknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
-        if (model.getBoundApplicationKeys().isEmpty())
+        if (model.getBoundAppKeyIndexes().isEmpty())
             throw new IllegalArgumentException("There are no app keys bound to this model");
 
         final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
@@ -462,7 +462,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         sendGenericMessage(dstAddress, genericMessage);
     }
 
-    private final void sendConfigMessage(@NonNull final MeshMessage configMessage) {
+    private void sendConfigMessage(@NonNull final MeshMessage configMessage) {
         if (configMessage instanceof ConfigCompositionDataGet) {
             final ConfigCompositionDataGetState compositionDataGetState = new ConfigCompositionDataGetState(mContext, (ConfigCompositionDataGet) configMessage, mMeshTransport, this);
             compositionDataGetState.setTransportCallbacks(mInternalTransportCallbacks);
@@ -517,7 +517,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         }
     }
 
-    private final void sendGenericMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage genericMessage) {
+    private void sendGenericMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage genericMessage) {
         if (genericMessage instanceof GenericOnOffGet) {
             final GenericOnOffGetState genericOnOffGetState = new GenericOnOffGetState(mContext, dstAddress, (GenericOnOffGet) genericMessage, mMeshTransport, this);
             genericOnOffGetState.setTransportCallbacks(mInternalTransportCallbacks);
@@ -569,7 +569,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             mMeshMessageState = vendorModelMessageUnackedState;
             vendorModelMessageUnackedState.executeSend();
         } else {
-
+            //TODO
         }
     }
 }

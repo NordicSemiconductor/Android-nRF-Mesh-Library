@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class SceneClient extends SigModel {
 
     public static final Creator<SceneClient> CREATOR = new Creator<SceneClient>() {

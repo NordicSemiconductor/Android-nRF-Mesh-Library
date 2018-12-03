@@ -27,9 +27,9 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import no.nordicsemi.android.meshprovisioner.InternalProvisioningCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.MeshProvisioningHandler;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -39,12 +39,12 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
     private final String TAG = ProvisioningRandomConfirmationState.class.getSimpleName();
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
     private final MeshProvisioningStatusCallbacks mStatusCallbacks;
-    private final MeshProvisioningHandler pduHandler;
+    private final InternalProvisioningCallbacks provisioningCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
-    public ProvisioningRandomConfirmationState(final MeshProvisioningHandler pduHandler, final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    public ProvisioningRandomConfirmationState(final InternalProvisioningCallbacks callbacks, final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
-        this.pduHandler = pduHandler;
+        this.provisioningCallbacks = callbacks;
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
         this.mInternalTransportCallbacks = mInternalTransportCallbacks;
         this.mStatusCallbacks = meshProvisioningStatusCallbacks;
@@ -82,7 +82,7 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
     private boolean provisioneeMatches() {
         final byte[] provisioneeRandom = mUnprovisionedMeshNode.getProvisioneeRandom();
 
-        final byte[] confirmationInputs = pduHandler.generateConfirmationInputs(mUnprovisionedMeshNode.getProvisionerPublicKeyXY(), mUnprovisionedMeshNode.getProvisioneePublicKeyXY());
+        final byte[] confirmationInputs = provisioningCallbacks.generateConfirmationInputs(mUnprovisionedMeshNode.getProvisionerPublicKeyXY(), mUnprovisionedMeshNode.getProvisioneePublicKeyXY());
         Log.v(TAG, "Confirmation inputs: " + MeshParserUtils.bytesToHex(confirmationInputs, false));
 
         //Generate a confirmation salt of the confirmation inputs

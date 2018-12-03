@@ -22,14 +22,12 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
 import java.nio.ByteBuffer;
+import java.util.UUID;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilitiesState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCompleteState;
@@ -42,11 +40,14 @@ import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningRando
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningStartState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseProvisioningAlgorithm;
 
-public class MeshProvisioningHandler {
+class MeshProvisioningHandler implements InternalProvisioningCallbacks {
 
     private static final String TAG = MeshProvisioningHandler.class.getSimpleName();
     private final InternalTransportCallbacks mInternalTransportCallbacks;
@@ -68,6 +69,7 @@ public class MeshProvisioningHandler {
     private boolean isProvisioningPublicKeySent;
     private boolean isProvisioneePublicKeyReceived;
     private InternalMeshManagerCallbacks mInternalMeshManagerCallbacks;
+    private byte[] confirmationInputs;
 
     MeshProvisioningHandler(final Context context, final InternalTransportCallbacks mInternalTransportCallbacks, final InternalMeshManagerCallbacks internalMeshManagerCallbacks) {
         this.mContext = context;
@@ -174,33 +176,23 @@ public class MeshProvisioningHandler {
     /**
      * Initializes a mesh node object to be provisioned
      *
-     * @param address         bluetooth address of hte node to be provisioned
-     * @param nodeName        a friendly node name
-     * @param networkKeyValue 16 byte network key
-     * @param keyIndex        12-bit key index
-     * @param flags           2 byte flags
-     * @param ivIndex         1 byte ivIndex - starts at 1
-     * @param unicastAddress  2 byte unicast address
-     * @param srcAddress      source address for the configurator
+     * @param uuid           Device UUID of unprovisioned node
+     * @param nodeName       Friendly node name
+     * @param networkKey     Network key
+     * @param flags          Flag containing the key refresh or the iv update operations
+     * @param ivIndex        32-bit value shared across the network
+     * @param unicastAddress Unicast address to be assigned to the node
+     * @param globalTtl      Global ttl which is also the number of hops to be used for a message
+     * @param srcAddress     Address of the provisioner
      * @return {@link MeshModel} to be provisioned
      */
-    private UnprovisionedMeshNode initializeMeshNode(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue, final int keyIndex, final int flags, final int ivIndex, final int unicastAddress, final int globalTtl, final byte[] srcAddress) throws IllegalArgumentException {
+    private UnprovisionedMeshNode initializeMeshNode(@NonNull final UUID uuid,
+                                                     final String nodeName, @NonNull final NetworkKey networkKey,
+                                                     final int flags, final int ivIndex,
+                                                     final byte[] unicastAddress, final int globalTtl, final byte[] srcAddress) throws IllegalArgumentException {
         UnprovisionedMeshNode unprovisionedMeshNode = null;
-        if (!BluetoothAdapter.checkBluetoothAddress(address)) {
-            throw new IllegalArgumentException(mContext.getString(R.string.invalid_bluetooth_address));
-        }
 
-        if (validateProvisioningDataInput(networkKeyValue, keyIndex, flags, ivIndex, unicastAddress)) {
-            byte[] networkKey = null;
-            if (MeshParserUtils.validateNetworkKeyInput(mContext, networkKeyValue)) {
-                networkKey = MeshParserUtils.toByteArray(networkKeyValue);
-            }
-
-            byte[] keyIndexBytes = null;
-            if (MeshParserUtils.validateKeyIndexInput(mContext, keyIndex)) {
-                keyIndexBytes = MeshParserUtils.addKeyIndexPadding(keyIndex);
-            }
-
+        if (validateProvisioningDataInput(networkKey, flags, ivIndex)) {
             final byte[] flagBytes = ByteBuffer.allocate(1).put((byte) flags).array();
 
             byte[] ivIndexBytes = null;
@@ -208,19 +200,13 @@ public class MeshProvisioningHandler {
                 ivIndexBytes = ByteBuffer.allocate(4).putInt(ivIndex).array();
             }
 
-            byte[] unicastBytes = null;
-            if (MeshParserUtils.validateUnicastAddressInput(mContext, unicastAddress)) {
-                unicastBytes = new byte[]{(byte) ((unicastAddress >> 8) & 0xFF), (byte) (unicastAddress & 0xFF)};
-            }
-
-            unprovisionedMeshNode = new UnprovisionedMeshNode();
-            unprovisionedMeshNode.setBluetoothDeviceAddress(address);
+            unprovisionedMeshNode = new UnprovisionedMeshNode(uuid);
             unprovisionedMeshNode.setNodeName(nodeName);
-            unprovisionedMeshNode.setNetworkKey(networkKey);
-            unprovisionedMeshNode.setKeyIndex(keyIndex);
+            unprovisionedMeshNode.setNetworkKey(networkKey.getKey());
+            unprovisionedMeshNode.setKeyIndex(networkKey.getKeyIndex());
             unprovisionedMeshNode.setFlags(flagBytes);
             unprovisionedMeshNode.setIvIndex(ivIndexBytes);
-            unprovisionedMeshNode.setUnicastAddress(unicastBytes);
+            unprovisionedMeshNode.setUnicastAddress(unicastAddress);
             unprovisionedMeshNode.setTtl(globalTtl);
             unprovisionedMeshNode.setConfigurationSrc(srcAddress);
             mUnprovisionedMeshNode = unprovisionedMeshNode;
@@ -228,16 +214,23 @@ public class MeshProvisioningHandler {
         return unprovisionedMeshNode;
     }
 
-    private boolean validateProvisioningDataInput(final String networkKeyValue, final Integer keyIndex, final Integer flags, final Integer ivIndex, final Integer unicastAddress) {
+    private UUID getDeviceUuid(final byte[] serviceData) {
+        if (serviceData != null && serviceData.length == 23) {
+
+        }
+        return null;
+    }
+
+    private boolean validateProvisioningDataInput(final NetworkKey networkKey, final Integer flags, final Integer ivIndex) {
         String error;
 
-        if (networkKeyValue == null || networkKeyValue.isEmpty()) {
+        if (networkKey == null) {
             error = "Network key cannot be null or empty!";
             throw new IllegalArgumentException(error);
         }
 
-        if (keyIndex == null) {
-            error = "Key index cannot be null!";
+        if (networkKey.getKey() == null && networkKey.getKey().length != 16) {
+            error = "Network key length must be 16 octets!";
             throw new IllegalArgumentException(error);
         }
 
@@ -251,11 +244,6 @@ public class MeshProvisioningHandler {
             throw new IllegalArgumentException(error);
         }
 
-        if (unicastAddress == null) {
-            error = "Unicast Address cannot be null!";
-            throw new IllegalArgumentException(error);
-        }
-
         return true;
     }
 
@@ -266,31 +254,30 @@ public class MeshProvisioningHandler {
      * This method must be invoked before calling {@link #startProvisioning(UnprovisionedMeshNode)}
      * </p
      *
-     * @param address         Bluetooth address of the node
+     * @param uuid            Device UUID of unprovisioned node
      * @param nodeName        Friendly node name
-     * @param networkKeyValue Network key
-     * @param keyIndex        Index of the network key
+     * @param networkKey      Network key
      * @param flags           Flag containing the key refresh or the iv update operations
      * @param ivIndex         32-bit value shared across the network
      * @param unicastAddress  Unicast address to be assigned to the node
      * @param globalTtl       Global ttl which is also the number of hops to be used for a message
      * @param configuratorSrc Source address of the configurator
-     *
      */
-    void identify(@NonNull final String address, final String nodeName, @NonNull final String networkKeyValue,
-                  final int keyIndex, final int flags, final int ivIndex, final int unicastAddress,
+    void identify(@NonNull final UUID uuid, final String nodeName, @NonNull final NetworkKey networkKey,
+                  final int flags, final int ivIndex, final byte[] unicastAddress,
                   final int globalTtl, final byte[] configuratorSrc) throws IllegalArgumentException {
-        final UnprovisionedMeshNode unprovisionedMeshNode = initializeMeshNode(address, nodeName, networkKeyValue, keyIndex, flags, ivIndex, unicastAddress, globalTtl, configuratorSrc);
+        confirmationInputs = null;
+        final UnprovisionedMeshNode unprovisionedMeshNode = initializeMeshNode(uuid, nodeName, networkKey, flags, ivIndex, unicastAddress, globalTtl, configuratorSrc);
         sendProvisioningInvite(unprovisionedMeshNode);
     }
 
     /**
      * Starts provisioning an unprovisioned mesh node
      * <p>
-     * This method will continue the provisioning process that was started by invoking {@link #identify(String, String, String, int, int, int, int, int, byte[])} .
+     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, byte[], int, byte[])}.
      * </p>
      *
-     * @param unprovisionedMeshNode         Bluetooth address of the node
+     * @param unprovisionedMeshNode Bluetooth address of the node
      */
     void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
         this.attentionTimer = 0x05;
@@ -406,6 +393,10 @@ public class MeshProvisioningHandler {
     public final byte[] generateConfirmationInputs(final byte[] provisionerKeyXY, final byte[] provisioneeKeyXY) {
         //invite: 1 bytes, capabilities: 11 bytes, start: 5 bytes, provisionerKey: 64 bytes, deviceKey: 64 bytes
         //Append all the raw data together
+        if(confirmationInputs != null){
+            return confirmationInputs;
+        }
+
         final byte[] invite = new byte[]{(byte) attentionTimer};
         final byte[] capabilities = generateCapabilities();
         final byte[] startData = generateStartData();
@@ -422,26 +413,25 @@ public class MeshProvisioningHandler {
         buffer.put(startData);
         buffer.put(provisionerKeyXY);
         buffer.put(provisioneeKeyXY);
-
-        return buffer.array();
+        confirmationInputs = buffer.array();
+        return confirmationInputs;
     }
 
     private byte[] generateCapabilities() {
-        final byte[] capabilities = new byte[11];
+            final byte[] capabilities = new byte[11];
 
-        capabilities[0] = (byte) numberOfElements;
-        capabilities[1] = (byte) ((algorithm >> 8) & 0xFF);
-        capabilities[2] = (byte) (algorithm & 0xFF);
-        capabilities[3] = (byte) publicKeyType;
-        capabilities[4] = (byte) staticOOBType;
-        capabilities[5] = (byte) outputOOBSize;
-        capabilities[6] = (byte) ((outputOOBAction >> 8) & 0xFF);
-        capabilities[7] = (byte) (outputOOBAction & 0xFF);
-        capabilities[8] = (byte) inputOOBSize;
-        capabilities[9] = (byte) ((inputOOBAction >> 8) & 0xFF);
-        capabilities[10] = (byte) (inputOOBAction & 0xFF);
-
-        return capabilities;
+            capabilities[0] = (byte) numberOfElements;
+            capabilities[1] = (byte) ((algorithm >> 8) & 0xFF);
+            capabilities[2] = (byte) (algorithm & 0xFF);
+            capabilities[3] = (byte) publicKeyType;
+            capabilities[4] = (byte) staticOOBType;
+            capabilities[5] = (byte) outputOOBSize;
+            capabilities[6] = (byte) ((outputOOBAction >> 8) & 0xFF);
+            capabilities[7] = (byte) (outputOOBAction & 0xFF);
+            capabilities[8] = (byte) inputOOBSize;
+            capabilities[9] = (byte) ((inputOOBAction >> 8) & 0xFF);
+            capabilities[10] = (byte) (inputOOBAction & 0xFF);
+            return capabilities;
     }
 
 

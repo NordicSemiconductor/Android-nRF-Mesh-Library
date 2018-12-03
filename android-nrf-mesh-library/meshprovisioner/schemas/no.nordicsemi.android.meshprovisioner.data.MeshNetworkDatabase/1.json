@@ -1,0 +1,598 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "2411597d7c0c1ef00a9dad01d8828cbb",
+    "entities": [
+      {
+        "tableName": "mesh_network",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` TEXT, `iv_index` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`mesh_uuid`))",
+        "fields": [
+          {
+            "fieldPath": "meshUUID",
+            "columnName": "mesh_uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "meshName",
+            "columnName": "mesh_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ivIndex",
+            "columnName": "iv_index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSelected",
+            "columnName": "last_selected",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "mesh_uuid"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "network_key",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `key` BLOB, `phase` INTEGER NOT NULL, `security` INTEGER NOT NULL, `old_key` BLOB, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`index`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "meshUuid",
+            "columnName": "mesh_uuid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "keyIndex",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "phase",
+            "columnName": "phase",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minSecurity",
+            "columnName": "security",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "oldKey",
+            "columnName": "old_key",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "index"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_network_key_mesh_uuid",
+            "unique": false,
+            "columnNames": [
+              "mesh_uuid"
+            ],
+            "createSql": "CREATE  INDEX `index_network_key_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "mesh_network",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "mesh_uuid"
+            ],
+            "referencedColumns": [
+              "mesh_uuid"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "application_key",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `bound_key_index` INTEGER NOT NULL, `key` BLOB NOT NULL, `old_key` BLOB, PRIMARY KEY(`index`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`bound_key_index`) REFERENCES `network_key`(`index`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "meshUuid",
+            "columnName": "mesh_uuid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "keyIndex",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "boundNetKeyIndex",
+            "columnName": "bound_key_index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "oldKey",
+            "columnName": "old_key",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "index"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_application_key_mesh_uuid",
+            "unique": false,
+            "columnNames": [
+              "mesh_uuid"
+            ],
+            "createSql": "CREATE  INDEX `index_application_key_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
+          },
+          {
+            "name": "index_application_key_bound_key_index",
+            "unique": false,
+            "columnNames": [
+              "bound_key_index"
+            ],
+            "createSql": "CREATE  INDEX `index_application_key_bound_key_index` ON `${TABLE_NAME}` (`bound_key_index`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "mesh_network",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "mesh_uuid"
+            ],
+            "referencedColumns": [
+              "mesh_uuid"
+            ]
+          },
+          {
+            "table": "network_key",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "bound_key_index"
+            ],
+            "referencedColumns": [
+              "index"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "provisioner",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `provisioner_uuid` TEXT NOT NULL, `name` TEXT, `allocatedGroupRange` TEXT, `allocatedUnicastRange` TEXT, `allocatedSceneRange` TEXT, `sequence_number` INTEGER NOT NULL, `provisioner_address` BLOB, `unicast_address` BLOB, `global_ttl` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`provisioner_uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "meshUuid",
+            "columnName": "mesh_uuid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "provisionerUuid",
+            "columnName": "provisioner_uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "provisionerName",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "allocatedGroupRange",
+            "columnName": "allocatedGroupRange",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "allocatedUnicastRange",
+            "columnName": "allocatedUnicastRange",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "allocatedSceneRange",
+            "columnName": "allocatedSceneRange",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "sequenceNumber",
+            "columnName": "sequence_number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "provisionerAddress",
+            "columnName": "provisioner_address",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "unicastAddress",
+            "columnName": "unicast_address",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "globalTtl",
+            "columnName": "global_ttl",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSelected",
+            "columnName": "last_selected",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "provisioner_uuid"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_provisioner_mesh_uuid",
+            "unique": false,
+            "columnNames": [
+              "mesh_uuid"
+            ],
+            "createSql": "CREATE  INDEX `index_provisioner_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "mesh_network",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "mesh_uuid"
+            ],
+            "referencedColumns": [
+              "mesh_uuid"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "nodes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `uuid` TEXT NOT NULL, `unicast_address` BLOB, `name` TEXT, `configured` INTEGER NOT NULL, `device_key` BLOB, `ttl` INTEGER NOT NULL, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `relay` INTEGER NOT NULL, `proxy` INTEGER NOT NULL, `friend` INTEGER NOT NULL, `low_power` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `mElements` TEXT, `mAddedApplicationKeys` TEXT, PRIMARY KEY(`uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "meshUuid",
+            "columnName": "mesh_uuid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unicastAddress",
+            "columnName": "unicast_address",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nodeName",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isConfigured",
+            "columnName": "configured",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deviceKey",
+            "columnName": "device_key",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ttl",
+            "columnName": "ttl",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mReceivedSequenceNumber",
+            "columnName": "seq_number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "companyIdentifier",
+            "columnName": "cid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "productIdentifier",
+            "columnName": "pid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "versionIdentifier",
+            "columnName": "vid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "crpl",
+            "columnName": "crpl",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "relayFeatureSupported",
+            "columnName": "relay",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "proxyFeatureSupported",
+            "columnName": "proxy",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "friendFeatureSupported",
+            "columnName": "friend",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lowPowerFeatureSupported",
+            "columnName": "low_power",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mTimeStampInMillis",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mElements",
+            "columnName": "mElements",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mAddedApplicationKeys",
+            "columnName": "mAddedApplicationKeys",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uuid"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_nodes_mesh_uuid",
+            "unique": false,
+            "columnNames": [
+              "mesh_uuid"
+            ],
+            "createSql": "CREATE  INDEX `index_nodes_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "mesh_network",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "mesh_uuid"
+            ],
+            "referencedColumns": [
+              "mesh_uuid"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "groups",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `group_address` BLOB NOT NULL, `parent_address` BLOB, PRIMARY KEY(`group_address`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "meshUuid",
+            "columnName": "mesh_uuid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "groupAddress",
+            "columnName": "group_address",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "parentAddress",
+            "columnName": "parent_address",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "group_address"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_groups_mesh_uuid",
+            "unique": false,
+            "columnNames": [
+              "mesh_uuid"
+            ],
+            "createSql": "CREATE  INDEX `index_groups_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "mesh_network",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "mesh_uuid"
+            ],
+            "referencedColumns": [
+              "mesh_uuid"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "scene",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mesh_uuid` TEXT, `name` TEXT, `addresses` TEXT, `number` INTEGER NOT NULL, FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "meshUuid",
+            "columnName": "mesh_uuid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "addresses",
+            "columnName": "addresses",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "number",
+            "columnName": "number",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_scene_mesh_uuid",
+            "unique": false,
+            "columnNames": [
+              "mesh_uuid"
+            ],
+            "createSql": "CREATE  INDEX `index_scene_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "mesh_network",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "mesh_uuid"
+            ],
+            "referencedColumns": [
+              "mesh_uuid"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"2411597d7c0c1ef00a9dad01d8828cbb\")"
+    ]
+  }
+}

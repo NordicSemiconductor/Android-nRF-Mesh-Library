@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class GenericLocationClient extends SigModel {
 
     public static final Creator<GenericLocationClient> CREATOR = new Creator<GenericLocationClient>() {

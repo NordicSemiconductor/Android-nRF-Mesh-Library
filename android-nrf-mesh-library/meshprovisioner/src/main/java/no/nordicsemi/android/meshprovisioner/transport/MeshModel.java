@@ -39,7 +39,8 @@ import java.util.Set;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
-@SuppressWarnings("WeakerAccess")
+
+@SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class MeshModel implements Parcelable {
 
     @Expose
@@ -71,7 +72,7 @@ public abstract class MeshModel implements Parcelable {
         in.readList(mBoundAppKeyIndexes, Integer.class.getClassLoader());
         sortAppKeys(in.readHashMap(ApplicationKey.class.getClassLoader()));
         try {
-            mPublicationSettings = in.readParcelable(PublicationSettings.class.getClassLoader());
+            mPublicationSettings = (PublicationSettings) in.readValue(PublicationSettings.class.getClassLoader());
             in.readList(mSubscriptionAddress, byte[].class.getClassLoader());
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -90,7 +91,7 @@ public abstract class MeshModel implements Parcelable {
         dest.writeInt(mModelId);
         dest.writeList(mBoundAppKeyIndexes);
         dest.writeMap(mBoundApplicationKeys);
-        dest.writeParcelable(mPublicationSettings, flags);
+        dest.writeValue(mPublicationSettings);
         dest.writeList(mSubscriptionAddress);
     }
 
@@ -163,7 +164,7 @@ public abstract class MeshModel implements Parcelable {
      * @return LinkedHashMap containing the bound app keys for this model
      */
     public Map<Integer, ApplicationKey> getBoundApplicationKeys() {
-        return Collections.unmodifiableMap(mBoundApplicationKeys);
+        return (mBoundApplicationKeys);
     }
 
     public ApplicationKey getBoundAppKey(final int appKeyIndex) {
@@ -182,7 +183,7 @@ public abstract class MeshModel implements Parcelable {
     /**
      * Checks if a model contains group addresses
      *
-     * @return
+     * @return true if has group addresses and false otherwise
      */
     public boolean hasGroupAddresses() {
         for (byte[] address : mSubscriptionAddress) {

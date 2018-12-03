@@ -24,16 +24,19 @@ package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
 import android.os.Parcel;
 
+import java.util.UUID;
+
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 @SuppressWarnings("WeakerAccess")
 public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
 
-    public UnprovisionedMeshNode() {
-
+    public UnprovisionedMeshNode(final UUID uuid) {
+        super(uuid);
     }
 
     protected UnprovisionedMeshNode(Parcel in) {
+        super((UUID) in.readSerializable());
         isProvisioned = in.readByte() != 0;
         isConfigured = in.readByte() != 0;
         nodeName = in.readString();
@@ -58,6 +61,7 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeSerializable(deviceUuid);
         dest.writeByte((byte) (isProvisioned ? 1 : 0));
         dest.writeByte((byte) (isConfigured ? 1 : 0));
         dest.writeString(nodeName);

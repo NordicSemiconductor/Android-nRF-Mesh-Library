@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import no.nordicsemi.android.meshprovisioner.Provisioner;
+
 public interface NetworkLayerCallbacks {
 
     /**
@@ -30,4 +32,8 @@ public interface NetworkLayerCallbacks {
      * @param unicastAddress unicast address of the mesh node
      */
     ProvisionedMeshNode getMeshNode(final int unicastAddress);
+
+    Provisioner getProvisioner(final byte[] unicastAddress);
+
+    NetworkKey getPrimaryNetworkKey();
 }

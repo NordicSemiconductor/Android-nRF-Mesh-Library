@@ -53,7 +53,7 @@ public class NetworkLayerTests {
     public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
-    Context context;
+    private Context context;
 
     @Test
     public void create_network_pdu_isCorrect() {
@@ -76,7 +76,7 @@ public class NetworkLayerTests {
         final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(netkey, SecureUtils.K2_MASTER_INPUT);
 
         final ProvisionedMeshNode meshNode = new ProvisionedMeshNode();
-        meshNode.setK2Ouput(k2Output);
+        meshNode.setK2Output(k2Output);
 
         final MeshTransport meshLayerTestBase = new MeshTransport(context, meshNode);
         final AccessMessage accessMessage = new AccessMessage();
@@ -126,7 +126,7 @@ public class NetworkLayerTests {
 
         final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(netkey, SecureUtils.K2_MASTER_INPUT);
         final ProvisionedMeshNode meshNode = new ProvisionedMeshNode();
-        meshNode.setK2Ouput(k2Output);
+        meshNode.setK2Output(k2Output);
 
         final MeshTransport meshLayerTestBase = new MeshTransport(context, meshNode);
         final AccessMessage accessMessage = new AccessMessage();
@@ -163,7 +163,7 @@ public class NetworkLayerTests {
 
         final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(netkey, SecureUtils.K2_MASTER_INPUT);
         final ProvisionedMeshNode meshNode = new ProvisionedMeshNode();
-        meshNode.setK2Ouput(k2Output);
+        meshNode.setK2Output(k2Output);
         meshNode.setIvIndex(MeshParserUtils.toByteArray("12345678"));
         meshNode.setDeviceKey(MeshParserUtils.toByteArray("9d6dd0e96eb25dc19a40ed9914f8f03f"));
         final byte[] pdu = MeshParserUtils.toByteArray("0068e80e5da5af0e6b9be7f5a642f2f98680e61c3a8b47f228");
@@ -184,7 +184,7 @@ public class NetworkLayerTests {
 
         final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(netkey, SecureUtils.K2_MASTER_INPUT);
         final ProvisionedMeshNode meshNode = new ProvisionedMeshNode();
-        meshNode.setK2Ouput(k2Output);
+        meshNode.setK2Output(k2Output);
         meshNode.setIvIndex(MeshParserUtils.toByteArray("12345678"));
         meshNode.setDeviceKey(MeshParserUtils.toByteArray("9d6dd0e96eb25dc19a40ed9914f8f03f"));
         //final byte [] pdu = MeshParserUtils.toByteArray("0068cab5c5348a230afba8c63d4e686364979deaf4fd40961145939cda0e");

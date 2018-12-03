@@ -25,6 +25,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+@SuppressWarnings("WeakerAccess")
 public class HealthServerModel extends SigModel {
 
     public static final Parcelable.Creator<HealthServerModel> CREATOR = new Parcelable.Creator<HealthServerModel>() {

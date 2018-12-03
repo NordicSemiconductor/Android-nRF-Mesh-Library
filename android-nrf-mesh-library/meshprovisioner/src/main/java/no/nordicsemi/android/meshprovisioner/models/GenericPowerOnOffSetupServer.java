@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class GenericPowerOnOffSetupServer extends SigModel {
 
     public static final Creator<GenericPowerOnOffSetupServer> CREATOR = new Creator<GenericPowerOnOffSetupServer>() {

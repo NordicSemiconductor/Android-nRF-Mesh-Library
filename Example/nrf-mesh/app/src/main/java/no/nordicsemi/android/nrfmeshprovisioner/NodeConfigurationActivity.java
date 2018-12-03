@@ -58,13 +58,13 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddedAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -173,8 +173,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 mRecyclerViewElements.setVisibility(View.INVISIBLE);
             }
 
-            if (!meshNode.getAddedAppKeys().isEmpty()) {
-                final Map<Integer, ApplicationKey> appKeys = meshNode.getAddedAppKeys();
+            if (!meshNode.getAddedApplicationKeys().isEmpty()) {
+                final Map<Integer, ApplicationKey> appKeys = meshNode.getAddedApplicationKeys();
                 if (!appKeys.isEmpty()) {
                     noAppKeysFound.setVisibility(View.GONE);
                     recyclerViewAppKeys.setVisibility(View.VISIBLE);
@@ -194,7 +194,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
         actionAddAppkey.setOnClickListener(v -> {
             showProgressbar();
-            final List<String> appKeys = mViewModel.getProvisioningSettingLiveData().getAppKeys();
+            final List<ApplicationKey> appKeys = mViewModel.getMeshManagerApi().getMeshNetwork().getAppKeys();
             final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageNodeAppKeysActivity.class);
             addAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
             startActivityForResult(addAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
@@ -242,13 +242,11 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ManageAppKeysActivity.SELECT_APP_KEY){
             if(resultCode == RESULT_OK){
-                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
+                final ApplicationKey appKey = data.getParcelableExtra(ManageNodeAppKeysActivity.RESULT);
                 if(appKey != null){
-                    final byte[] key = MeshParserUtils.toByteArray(appKey);
-                    final int appKeyIndex = mViewModel.getMeshNetwork().getProvisioningSettings().getAppKeys().indexOf(appKey);
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-                    final ApplicationKey applicationKey = new ApplicationKey(appKeyIndex, key);
-                    final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node, node.getNetworkKeys().get(0), applicationKey, 0);
+                    final NetworkKey networkKey = mViewModel.getMeshManagerApi().getMeshNetwork().getPrimaryNetworkKey();
+                    final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node, networkKey, appKey, 0);
                     mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configAppKeyAdd);
                 }
             }

@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class LightCtlClient extends SigModel {
 
     public static final Creator<LightCtlClient> CREATOR = new Creator<LightCtlClient>() {

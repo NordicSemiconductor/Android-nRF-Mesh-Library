@@ -83,13 +83,13 @@ public class GenericOnOffSetUnacknowledged extends GenericMessage {
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(GENERIC_ON_OFF_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put((byte) mNode.getReceivedSequenceNumber());
         } else {
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(GENERIC_ON_OFF_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
-            paramsBuffer.put((byte) mNode.getSequenceNumber());
+            paramsBuffer.put((byte) mNode.getReceivedSequenceNumber());
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
             paramsBuffer.put((byte) delay);

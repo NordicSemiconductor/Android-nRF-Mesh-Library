@@ -57,7 +57,6 @@ public class ConfigurationClientModel extends SigModel {
     public int describeContents() {
         return 0;
     }
-
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         super.parcelMeshModel(dest, flags);

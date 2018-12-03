@@ -27,6 +27,7 @@ import android.text.TextUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.UUID;
 
 
 abstract class UnprovisionedBaseMeshNode implements Parcelable {
@@ -56,6 +57,11 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
     long mTimeStampInMillis;
     ProvisioningCapabilities provisioningCapabilities;
     int numberOfElements;
+    UUID deviceUuid;
+
+    UnprovisionedBaseMeshNode(final UUID uuid) {
+        deviceUuid = uuid;
+    }
 
     @Override
     public int describeContents() {
@@ -131,10 +137,6 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
         this.ivIndex = ivIndex;
     }
 
-    public void setBluetoothDeviceAddress(final String bluetoothDeviceAddress) {
-        this.bluetoothDeviceAddress = bluetoothDeviceAddress;
-    }
-
     public void setTtl(final int ttl) {
         this.ttl = ttl;
     }
@@ -157,5 +159,9 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
 
     public int getNumberOfElements() {
         return numberOfElements;
+    }
+
+    public UUID getDeviceUuid(){
+        return deviceUuid;
     }
 }

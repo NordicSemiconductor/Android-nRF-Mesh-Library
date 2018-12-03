@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import android.view.View;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AppKeyAdapter;
@@ -55,13 +57,13 @@ public class DialogFragmentEditAppKey extends DialogFragment implements AppKeyAd
     TextInputEditText appKeyInput;
 
     private int mPosition;
-    private String mAppKey;
+    private ApplicationKey mAppKey;
 
-    public static DialogFragmentEditAppKey newInstance(final int position, final String appKey) {
+    public static DialogFragmentEditAppKey newInstance(final int position, final ApplicationKey appKey) {
         DialogFragmentEditAppKey fragmentNetworkKey = new DialogFragmentEditAppKey();
         final Bundle args = new Bundle();
         args.putInt(POSITION, position);
-        args.putString(APP_KEY, appKey);
+        args.putParcelable(APP_KEY, appKey);
         fragmentNetworkKey.setArguments(args);
         return fragmentNetworkKey;
     }
@@ -71,7 +73,7 @@ public class DialogFragmentEditAppKey extends DialogFragment implements AppKeyAd
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mPosition = getArguments().getInt(POSITION);
-            mAppKey = getArguments().getString(APP_KEY);
+            mAppKey = getArguments().getParcelable(APP_KEY);
         }
     }
 
@@ -83,7 +85,7 @@ public class DialogFragmentEditAppKey extends DialogFragment implements AppKeyAd
 
         //Bind ui
         appKeysInputLayout.setHint(getString(R.string.hint_app_key));
-        appKeyInput.setText(mAppKey);
+        appKeyInput.setText(MeshParserUtils.bytesToHex(mAppKey.getKey(), false));
         appKeyInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
@@ -141,7 +143,7 @@ public class DialogFragmentEditAppKey extends DialogFragment implements AppKeyAd
     }
 
     @Override
-    public void onItemClick(final int position, final String appKey) {
+    public void onItemClick(final int position, final ApplicationKey appKey) {
 
     }
 

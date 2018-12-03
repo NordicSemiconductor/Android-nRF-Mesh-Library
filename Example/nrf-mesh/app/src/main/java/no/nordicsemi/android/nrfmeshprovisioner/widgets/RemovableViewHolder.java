@@ -50,4 +50,5 @@ public class RemovableViewHolder extends RecyclerView.ViewHolder {
     public ImageView getDeleteView() {
         return mDeleteView;
     }
+
 }

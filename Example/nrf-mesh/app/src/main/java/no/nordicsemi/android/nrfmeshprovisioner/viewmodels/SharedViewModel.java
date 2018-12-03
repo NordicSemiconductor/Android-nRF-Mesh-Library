@@ -24,11 +24,13 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
+import android.net.Uri;
 
-import java.util.Map;
+import java.util.List;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 public class SharedViewModel extends ViewModel {
@@ -43,16 +45,16 @@ public class SharedViewModel extends ViewModel {
         scannerRepository.registerBroadcastReceivers();
     }
 
-    public NetworkInformationLiveData getNetworkInformation() {
-        return nRFMeshRepository.getNetworkInformationLiveData();
+    public MeshManagerApi getMeshManagerApi(){
+        return nRFMeshRepository.getMeshManagerApi();
     }
 
-    public ProvisioningSettingsLiveData getProvisioningSettingsLiveData() {
-        return nRFMeshRepository.getProvisioningSettingsLiveData();
+    public void importMeshNetwork(final Uri uri){
+        nRFMeshRepository.importMeshNetwork(uri);
     }
 
-    public LiveData<byte[]> getConfigurationSrc() {
-        return nRFMeshRepository.getConfigurationSrcLiveData();
+    public MeshNetworkLiveData getMeshNetworkLiveData() {
+        return nRFMeshRepository.getMeshNetworkLiveData();
     }
 
     @Override
@@ -73,7 +75,7 @@ public class SharedViewModel extends ViewModel {
     /**
      * Returns the provisioned nodes as a live data object.
      */
-    public LiveData<Map<Integer, ProvisionedMeshNode>> getProvisionedNodes() {
+    public LiveData<List<ProvisionedMeshNode>> getProvisionedNodes() {
         return nRFMeshRepository.getProvisionedNodes();
     }
 
@@ -118,13 +120,10 @@ public class SharedViewModel extends ViewModel {
         nRFMeshRepository.resetMeshNetwork();
     }
 
-    /**
-     * Set the source address to be used for configuration
-     *
-     * @param srcAddress source address
-     * @return true if success
-     */
-    public boolean setConfiguratorSource(final byte[] srcAddress) {
-        return nRFMeshRepository.setConfiguratorSrc(srcAddress);
+    public LiveData<String> getNetworkLoadState(){
+        return nRFMeshRepository.getNetworkLoadState();
+    }
+    public LiveData<String> getNetworkExportState(){
+        return nRFMeshRepository.getNetworkExportState();
     }
 }

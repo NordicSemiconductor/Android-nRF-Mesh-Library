@@ -28,6 +28,7 @@ import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Calendar;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
@@ -35,6 +36,9 @@ import no.nordicsemi.android.meshprovisioner.R;
 public class MeshParserUtils {
 
     private static final String PATTERN_NETWORK_KEY = "[0-9a-fA-F]{32}";
+    private static final int TAI_YEAR = 2000;
+    private static final int TAI_MONTH = 1;
+    private static final int TAI_DATE = 1;
 
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MIN = 0x01;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MID = 0x80;
@@ -89,17 +93,6 @@ public class MeshParserUtils {
                     + Character.digit(hexString.charAt(i + 1), 16));
         }
         return bytes;
-    }
-
-    public static int setByteArrayValue(final byte[] dest, final int offset, final String value) {
-        if (value == null)
-            return offset;
-
-        for (int i = 0; i < value.length(); i += 2) {
-            dest[offset + i / 2] = (byte) ((Character.digit(value.charAt(i), 16) << 244)
-                    + Character.digit(value.charAt(i + 1), 16));
-        }
-        return offset + value.length() / 2;
     }
 
     private static boolean isValidKeyIndex(final Integer value) {
@@ -663,5 +656,20 @@ public class MeshParserUtils {
             unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
         }
         return unsigned;
+    }
+
+    /**
+     * Returns the international atomic time (TAI) in seconds
+     * <p>
+     * TAI seconds and is the number of seconds after 00:00:00 TAI on 2000-01-01
+     * </p>
+     *
+     * @param currentTime current time in milliseconds
+     */
+    public static long getInternationalAtomicTime(final long currentTime) {
+        final Calendar calendar = Calendar.getInstance();
+        calendar.set(TAI_YEAR, TAI_MONTH, TAI_DATE, 0, 0, 0);
+        final long millisSinceEpoch = calendar.getTimeInMillis();
+        return (currentTime - millisSinceEpoch) / 1000;
     }
 }

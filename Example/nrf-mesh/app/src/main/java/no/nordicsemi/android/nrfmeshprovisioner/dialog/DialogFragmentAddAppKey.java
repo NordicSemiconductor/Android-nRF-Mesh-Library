@@ -39,6 +39,7 @@ import android.view.View;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -138,7 +139,7 @@ public class DialogFragmentAddAppKey extends DialogFragment implements AppKeyAda
     }
 
     @Override
-    public void onItemClick(final int position, final String appKey) {
+    public void onItemClick(final int position, final ApplicationKey appKey) {
 
     }
 

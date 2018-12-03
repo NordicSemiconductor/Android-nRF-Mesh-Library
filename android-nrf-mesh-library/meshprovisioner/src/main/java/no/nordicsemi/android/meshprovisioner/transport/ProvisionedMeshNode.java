@@ -22,8 +22,13 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.Index;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
 import com.google.gson.annotations.Expose;
@@ -35,35 +40,48 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import no.nordicsemi.android.meshprovisioner.Features;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
+import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
-@SuppressWarnings("WeakerAccess")
+import static android.arch.persistence.room.ForeignKey.CASCADE;
+
+@SuppressWarnings({"WeakerAccess", "unused", "deprecation"})
+@Entity(tableName = "nodes",
+        foreignKeys = @ForeignKey(entity = MeshNetwork.class,
+                parentColumns = "mesh_uuid",
+                childColumns = "mesh_uuid",
+                onUpdate = CASCADE, onDelete = CASCADE),
+        indices = @Index("mesh_uuid"))
 public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
+    @Ignore
     @Expose
     private SecureUtils.K2Output k2Output;
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedMeshNode() {
-
     }
 
+    @Ignore
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedMeshNode(final UnprovisionedMeshNode unprovisionedMeshNode) {
+        uuid = unprovisionedMeshNode.getDeviceUuid().toString();
         isProvisioned = unprovisionedMeshNode.isProvisioned();
         isConfigured = unprovisionedMeshNode.isConfigured();
         nodeName = unprovisionedMeshNode.getNodeName();
         networkKey = unprovisionedMeshNode.getNetworkKey();
-        netKeyIndex = unprovisionedMeshNode.getKeyIndex();
-        final NetworkKey networkKey = new NetworkKey(netKeyIndex, unprovisionedMeshNode.getNetworkKey());
-        networkKeys.add(networkKey);
+        final NetworkKey networkKey = new NetworkKey(unprovisionedMeshNode.getKeyIndex(), unprovisionedMeshNode.getNetworkKey());
+        mAddedNetworkKeys.add(networkKey);
         identityKey = unprovisionedMeshNode.getIdentityKey();
         mFlags = unprovisionedMeshNode.getFlags();
-        ivIndex = unprovisionedMeshNode.getIvIndex();
         unicastAddress = unprovisionedMeshNode.getUnicastAddress();
         deviceKey = unprovisionedMeshNode.getDeviceKey();
         ttl = unprovisionedMeshNode.getTtl();
@@ -73,75 +91,71 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         numberOfElements = unprovisionedMeshNode.getNumberOfElements();
     }
 
+    @Ignore
     protected ProvisionedMeshNode(Parcel in) {
-        isProvisioned = in.readByte() != 0;
-        isConfigured = in.readByte() != 0;
+        uuid = in.readString();
+        isProvisioned = in.readByte() != 1;
+        isConfigured = in.readByte() != 1;
         nodeName = in.readString();
-        networkKeys = in.readArrayList(NetworkKey.class.getClassLoader());
-        identityKey = in.createByteArray();
+        mAddedNetworkKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
+        mAddedNetworkKeys = in.readArrayList(NetworkKey.class.getClassLoader());
         mFlags = in.createByteArray();
-        ivIndex = in.createByteArray();
         unicastAddress = in.createByteArray();
         deviceKey = in.createByteArray();
-        ttl = in.readInt();
+        ttl = (Integer) in.readValue(Integer.class.getClassLoader());
+        numberOfElements = in.readInt();
         mReceivedSequenceNumber = in.readInt();
-        bluetoothAddress = in.readString();
         k2Output = in.readParcelable(SecureUtils.K2Output.class.getClassLoader());
-        nodeIdentifier = in.readString();
         companyIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         productIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         versionIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         crpl = (Integer) in.readValue(Integer.class.getClassLoader());
-        features = (Integer) in.readValue(Integer.class.getClassLoader());
-        relayFeatureSupported = in.readByte() != 0;
-        proxyFeatureSupported = in.readByte() != 0;
-        friendFeatureSupported = in.readByte() != 0;
-        lowPowerFeatureSupported = in.readByte() != 0;
+        nodeFeatures = (Features) in.readValue(Features.class.getClassLoader());
         generatedNetworkId = in.createByteArray();
         sortElements(in.readHashMap(Element.class.getClassLoader()));
-        mAddedAppKeys = in.readHashMap(String.class.getClassLoader());
+        mAddedApplicationKeys = in.readHashMap(ApplicationKey.class.getClassLoader());
         mAddedAppKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mTimeStampInMillis = in.readLong();
         mConfigurationSrc = in.createByteArray();
         mSeqAuth = in.readParcelable(SparseIntArrayParcelable.class.getClassLoader());
-        numberOfElements = in.readInt();
+        secureNetworkBeaconSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        networkTransmitSettings = in.readParcelable(NetworkTransmitSettings.class.getClassLoader());
+        relaySettings = in.readParcelable(RelaySettings.class.getClassLoader());
+        blackListed = in.readByte() != 1;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(uuid);
         dest.writeByte((byte) (isProvisioned ? 1 : 0));
         dest.writeByte((byte) (isConfigured ? 1 : 0));
         dest.writeString(nodeName);
-        dest.writeList(networkKeys);
-        dest.writeByteArray(identityKey);
+        dest.writeList(mAddedNetworkKeyIndexes);
+        dest.writeList(mAddedNetworkKeys);
         dest.writeByteArray(mFlags);
-        dest.writeByteArray(ivIndex);
         dest.writeByteArray(unicastAddress);
         dest.writeByteArray(deviceKey);
-        dest.writeInt(ttl);
+        dest.writeValue(ttl);
+        dest.writeInt(numberOfElements);
         dest.writeInt(mReceivedSequenceNumber);
-        dest.writeString(bluetoothAddress);
         dest.writeParcelable(k2Output, flags);
-        dest.writeString(nodeIdentifier);
         dest.writeValue(companyIdentifier);
         dest.writeValue(productIdentifier);
         dest.writeValue(versionIdentifier);
         dest.writeValue(crpl);
-        dest.writeValue(features);
-        dest.writeByte((byte) (relayFeatureSupported ? 1 : 0));
-        dest.writeByte((byte) (proxyFeatureSupported ? 1 : 0));
-        dest.writeByte((byte) (friendFeatureSupported ? 1 : 0));
-        dest.writeByte((byte) (lowPowerFeatureSupported ? 1 : 0));
+        dest.writeValue(nodeFeatures);
         dest.writeByteArray(generatedNetworkId);
         dest.writeMap(mElements);
-        dest.writeMap(mAddedAppKeys);
+        dest.writeMap(mAddedApplicationKeys);
         dest.writeList(mAddedAppKeyIndexes);
         dest.writeLong(mTimeStampInMillis);
         dest.writeByteArray(mConfigurationSrc);
         dest.writeParcelable(mSeqAuth, flags);
-        dest.writeInt(numberOfElements);
+        dest.writeValue(secureNetworkBeaconSupported);
+        dest.writeParcelable(networkTransmitSettings, flags);
+        dest.writeParcelable(relaySettings, flags);
+        dest.writeValue((byte) (blackListed ? 1 : 0));
     }
-
 
     public static final Creator<ProvisionedMeshNode> CREATOR = new Creator<ProvisionedMeshNode>() {
         @Override
@@ -160,31 +174,35 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return 0;
     }
 
-    public final int getTtl() {
-        return ttl;
-    }
-
-    public final void setTtl(final int ttl) {
-        this.ttl = ttl;
-    }
-
     public final Map<Integer, Element> getElements() {
-        return Collections.unmodifiableMap(mElements);
+        return mElements;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public final void setElements(final Map<Integer, Element> elements) {
+        mElements = elements;
     }
 
     public final byte[] getDeviceKey() {
         return deviceKey;
     }
 
-    void setDeviceKey(final byte[] deviceKey) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setDeviceKey(final byte[] deviceKey) {
         this.deviceKey = deviceKey;
     }
 
-    public final int getSequenceNumber() {
+    public final int getReceivedSequenceNumber() {
         return mReceivedSequenceNumber;
     }
 
-    public final void setSequenceNumber(final int receivedSequenceNumber) {
+    /**
+     * Sets the received sequence number
+     * <p>This is only meant to be used internally within the library, hence the Restricted annotation</p>
+     * @param receivedSequenceNumber
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public final void setReceivedSequenceNumber(final int receivedSequenceNumber) {
         mReceivedSequenceNumber = receivedSequenceNumber;
     }
 
@@ -192,7 +210,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return k2Output;
     }
 
-    final void setK2Ouput(final SecureUtils.K2Output k2Output) {
+    final void setK2Output(final SecureUtils.K2Output k2Output) {
         this.k2Output = k2Output;
     }
 
@@ -200,68 +218,129 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return companyIdentifier;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public final void setCompanyIdentifier(final Integer companyIdentifier) {
+        this.companyIdentifier = companyIdentifier;
+    }
+
     public final Integer getProductIdentifier() {
         return productIdentifier;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public final void setProductIdentifier(final Integer productIdentifier) {
+        this.productIdentifier = productIdentifier;
     }
 
     public final Integer getVersionIdentifier() {
         return versionIdentifier;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public final void setVersionIdentifier(final Integer versionIdentifier) {
+        this.versionIdentifier = versionIdentifier;
+    }
+
     public final Integer getCrpl() {
         return crpl;
     }
 
+    public final void setCrpl(final Integer crpl) {
+        this.crpl = crpl;
+    }
+
+    /**
+     * @deprecated Use {@link #getNodeFeatures()} instead
+     */
+    @Deprecated
     public final Integer getFeatures() {
         return features;
     }
 
-    public final boolean isRelayFeatureSupported() {
+    /**
+     * Returns the {@link Features} of the node
+     */
+    public final Features getNodeFeatures() {
+        return nodeFeatures;
+    }
+
+    /**
+     * Set {@link Features} of the node
+     * @param features
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public final void setNodeFeatures(final Features features) {
+        this.nodeFeatures = features;
+    }
+
+    /**
+     * @deprecated use {@link #getNodeFeatures()} instead
+     */
+    @Deprecated
+    public final Boolean isRelayFeatureSupported() {
         return relayFeatureSupported;
     }
 
-    public final boolean isProxyFeatureSupported() {
+    /**
+     * @deprecated use {@link #getNodeFeatures()} instead
+     */
+    public final Boolean isProxyFeatureSupported() {
         return proxyFeatureSupported;
     }
 
-    public final boolean isFriendFeatureSupported() {
+    /**
+     * @deprecated use {@link #getNodeFeatures()} instead
+     */
+    public final Boolean isFriendFeatureSupported() {
         return friendFeatureSupported;
     }
 
-    public final boolean isLowPowerFeatureSupported() {
+    /**
+     * @deprecated use {@link #getNodeFeatures()} instead
+     */
+    public final Boolean isLowPowerFeatureSupported() {
         return lowPowerFeatureSupported;
     }
 
-    public final void setBluetoothDeviceAddress(final String address) {
-        this.bluetoothAddress = address;
+    /**
+     * Sets the low power feature supported state
+     *
+     * @deprecated use {@link Features#getLowPower()} to get the enumerated states of the features
+     */
+    @Deprecated
+    public final void setLowPowerFeatureSupported(final Boolean supported) {
+        lowPowerFeatureSupported = supported;
     }
 
-    public final String getNodeIdentifier() {
-        return nodeIdentifier;
+    /**
+     * Returns the number of elements in the node
+     */
+    public int getNumberOfElements() {
+        if(numberOfElements > mElements.size()){
+            return numberOfElements;
+        }
+
+        return mElements.size();
     }
 
-    public final void setNodeIdentifier(final String nodeIdentifier) {
-        this.nodeIdentifier = nodeIdentifier;
+    /**
+     * Returns the list of Network keys added to this node
+     */
+    public List<NetworkKey> getAddedNetworkKeys() {
+        return mAddedNetworkKeys;
     }
 
-    public final Map<Integer, String> getTempAddedAppKeys() {
-        return Collections.unmodifiableMap(mAddedAppKeys);
+    public final Map<Integer, ApplicationKey> getAddedApplicationKeys() {
+        return mAddedApplicationKeys;
     }
 
-    public final Map<Integer, ApplicationKey> getAddedAppKeys() {
-        return Collections.unmodifiableMap(mAddedApplicationKeys);
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public final void setAddedApplicationKeys(final Map<Integer, ApplicationKey> applicationKeys) {
+        mAddedApplicationKeys = applicationKeys;
     }
 
     protected final void setAddedAppKey(final int index, final ApplicationKey appKey) {
         this.mAddedApplicationKeys.put(index, appKey);
-    }
-
-    public final byte[] getGeneratedNetworkId() {
-        return generatedNetworkId;
-    }
-
-    public final void setGeneratedNetworkId(final byte[] advertisedNetworkId) {
-        this.generatedNetworkId = advertisedNetworkId;
     }
 
     /**
@@ -275,13 +354,23 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
             productIdentifier = configCompositionDataStatus.getProductIdentifier();
             versionIdentifier = configCompositionDataStatus.getVersionIdentifier();
             crpl = configCompositionDataStatus.getCrpl();
-            features = configCompositionDataStatus.getFeatures();
-            relayFeatureSupported = configCompositionDataStatus.isRelayFeatureSupported();
-            proxyFeatureSupported = configCompositionDataStatus.isProxyFeatureSupported();
-            friendFeatureSupported = configCompositionDataStatus.isFriendFeatureSupported();
-            lowPowerFeatureSupported = configCompositionDataStatus.isLowPowerFeatureSupported();
+            final boolean relayFeatureSupported = configCompositionDataStatus.isRelayFeatureSupported();
+            final boolean proxyFeatureSupported = configCompositionDataStatus.isProxyFeatureSupported();
+            final boolean friendFeatureSupported = configCompositionDataStatus.isFriendFeatureSupported();
+            final boolean lowPowerFeatureSupported = configCompositionDataStatus.isLowPowerFeatureSupported();
+            nodeFeatures = new Features(friendFeatureSupported ? 0 : 2,
+                    lowPowerFeatureSupported ? 0 : 2,
+                    proxyFeatureSupported ? 0 : 2,
+                    relayFeatureSupported ? 0 : 2);
             mElements.putAll(configCompositionDataStatus.getElements());
         }
+    }
+
+    private int getFeatureState(final Boolean feature) {
+        if (feature != null && feature) {
+            return 2;
+        }
+        return 0;
     }
 
     /**
@@ -330,7 +419,8 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         }
     }
 
-    public void setSeqAuth(final byte[] src, final int seqAuth) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    void setSeqAuth(final byte[] src, final int seqAuth) {
         final int srcAddress = AddressUtils.getUnicastAddressInt(src);
         mSeqAuth.put(srcAddress, seqAuth);
     }
@@ -352,7 +442,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         if (networkKey != null) {
             netKeyIndex = MeshParserUtils.removeKeyIndexPadding(keyIndex);
             NetworkKey netKey = new NetworkKey(netKeyIndex, networkKey);
-            networkKeys.add(netKey);
+            mAddedNetworkKeys.add(netKey);
         }
     }
 
@@ -380,12 +470,30 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
                 for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
                     if (modelEntry.getValue() != null) {
                         final MeshModel meshModel = modelEntry.getValue();
-                        for (Map.Entry<Integer, String> appKeyEntry :meshModel.getBoundAppkeys().entrySet()){
+                        for (Map.Entry<Integer, String> appKeyEntry : meshModel.getBoundAppkeys().entrySet()) {
                             final int keyIndex = appKeyEntry.getKey();
                             final byte[] key = MeshParserUtils.toByteArray(appKeyEntry.getValue());
                             final ApplicationKey applicationKey = new ApplicationKey(keyIndex, key);
-                            meshModel.mBoundApplicationKeys.put(keyIndex, applicationKey);
+                            //meshModel.mBoundApplicationKeys.put(keyIndex, applicationKey);
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Method for migrating old Application key data
+     */
+    @SuppressWarnings("unused")
+    private void tempMigrateSubscriptions() {
+        for (Map.Entry<Integer, Element> elementEntry : mElements.entrySet()) {
+            if (elementEntry.getValue() != null) {
+                final Element element = elementEntry.getValue();
+                for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                    if (modelEntry.getValue() != null) {
+                        final MeshModel meshModel = modelEntry.getValue();
+                        meshModel.mSubscriptionAddress.addAll(meshModel.getSubscriptionAddresses());
                     }
                 }
             }

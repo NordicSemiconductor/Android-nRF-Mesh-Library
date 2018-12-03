@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class SensorClient extends SigModel {
 
     public static final Creator<SensorClient> CREATOR = new Creator<SensorClient>() {

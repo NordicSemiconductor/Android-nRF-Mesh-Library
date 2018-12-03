@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class SchedulerServer extends SigModel {
 
     public static final Creator<SchedulerServer> CREATOR = new Creator<SchedulerServer>() {

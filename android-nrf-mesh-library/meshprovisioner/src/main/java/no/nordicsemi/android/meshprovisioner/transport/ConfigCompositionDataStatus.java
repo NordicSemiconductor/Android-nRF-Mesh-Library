@@ -38,7 +38,6 @@ import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.DeviceFeatureUtils;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -195,7 +194,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
                 elementAddress = AddressUtils.incrementUnicastAddress(elementAddress);
             }
             counter++;
-            final Element element = new Element(elementAddress, locationDescriptor, numSigModelIds, numVendorModelIds, models);
+            final Element element = new Element(elementAddress, locationDescriptor, models);
             final int unicastAddress = AddressUtils.getUnicastAddressInt(elementAddress);
             mElements.put(unicastAddress, element);
         }

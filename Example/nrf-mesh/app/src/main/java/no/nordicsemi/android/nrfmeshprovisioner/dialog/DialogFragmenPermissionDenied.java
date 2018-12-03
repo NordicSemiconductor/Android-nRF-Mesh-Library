@@ -29,19 +29,24 @@ import android.support.v7.app.AlertDialog;
 
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public class DialogFragmentProvisioningFailedErrorMessage extends DialogFragmentMessage {
+public class DialogFragmenPermissionDenied extends DialogFragmentMessage {
 
-    public interface DialogFragmentProvisioningFailedErrorListener {
-        void onProvisioningFailed();
+    public interface DialogFragmentNetworkImportListener {
+        void onNetworkImportFailed();
     }
 
-    public static DialogFragmentProvisioningFailedErrorMessage newInstance(final String title, final String message) {
-        Bundle args = new Bundle();
-        DialogFragmentProvisioningFailedErrorMessage fragment = new DialogFragmentProvisioningFailedErrorMessage();
+    public static DialogFragmenPermissionDenied newInstance(final String title, final String message) {
+        final Bundle args = new Bundle();
+        DialogFragmenPermissionDenied fragment = new DialogFragmenPermissionDenied();
         args.putString(TITLE, title);
         args.putString(MESSAGE, message);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @NonNull
@@ -49,9 +54,8 @@ public class DialogFragmentProvisioningFailedErrorMessage extends DialogFragment
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
-        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> {
-            ((DialogFragmentProvisioningFailedErrorListener)getActivity()).onProvisioningFailed();
-        });
+        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> (
+                (DialogFragmentNetworkImportListener)getParentFragment()).onNetworkImportFailed());
 
         return super.onCreateDialog(savedInstanceState);
     }

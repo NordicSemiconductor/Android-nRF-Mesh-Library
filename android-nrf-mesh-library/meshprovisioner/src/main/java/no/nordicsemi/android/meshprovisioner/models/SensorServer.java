@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class SensorServer extends SigModel {
 
     public static final Creator<SensorServer> CREATOR = new Creator<SensorServer>() {
