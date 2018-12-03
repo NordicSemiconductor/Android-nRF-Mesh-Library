@@ -30,6 +30,7 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 
@@ -68,6 +69,14 @@ public class MeshProvisionerViewModel extends ViewModel {
         return mNrfMeshRepository.isProvisioningComplete();
     }
 
+    public boolean isCompositionDataStatusReceived() {
+        return mNrfMeshRepository.isCompositionDataStatusReceived();
+    }
+
+    public boolean isAppKeyAddCompleted() {
+        return mNrfMeshRepository.isAppKeyAddCompleted();
+    }
+
     public ProvisioningStatusLiveData getProvisioningStatus() {
         return mNrfMeshRepository.getProvisioningState();
     }
@@ -93,6 +102,10 @@ public class MeshProvisionerViewModel extends ViewModel {
 
     public LiveData<UnprovisionedMeshNode> getUnProvisionedMeshNode() {
         return mNrfMeshRepository.getUnprovisionedMeshNode();
+    }
+
+    public LiveData<ProvisionedMeshNode> getProvisionedMeshNode() {
+        return mNrfMeshRepository.getProvisionedMeshNode();
     }
 
     public void startProvisioning(final UnprovisionedMeshNode node) {

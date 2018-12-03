@@ -67,7 +67,7 @@ import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDisconnected;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSubscriptionAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
@@ -80,7 +80,6 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA_MO
 import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
 
 public abstract class BaseModelConfigurationActivity extends AppCompatActivity implements Injectable,
-        DialogFragmentConfigurationStatus.DialogFragmentAppKeyBindStatusListener,
         DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener,
         AddressAdapter.OnItemClickListener,
         BoundAppKeysAdapter.OnItemClickListener,
@@ -286,11 +285,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public void onAppKeyBindStatusConfirmed() {
-
-    }
-
-    @Override
     public void setSubscriptionAddress(final byte[] subscriptionAddress) {
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         final byte[] elementAddress = mViewModel.getSelectedElement().getElement().getElementAddress();
@@ -456,21 +450,21 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         if (meshMessage instanceof ConfigModelAppStatus) {
             final ConfigModelAppStatus status = (ConfigModelAppStatus) meshMessage;
             if (!status.isSuccessful()) {
-                DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.
+                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
                         newInstance(getString(R.string.title_appkey_status), status.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
         } else if (meshMessage instanceof ConfigModelPublicationStatus) {
             final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
             if (!status.isSuccessful()) {
-                DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.
+                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
                         newInstance(getString(R.string.title_publlish_address_status), status.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
         } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
             final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
             if (!status.isSuccessful()) {
-                DialogFragmentConfigurationStatus fragmentAppKeyBindStatus = DialogFragmentConfigurationStatus.
+                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
                         newInstance(getString(R.string.title_publlish_address_status), status.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }

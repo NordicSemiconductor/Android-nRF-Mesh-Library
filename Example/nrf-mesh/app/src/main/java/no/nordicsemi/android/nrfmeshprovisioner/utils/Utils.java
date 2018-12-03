@@ -38,7 +38,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
-import java.util.Map;
 import java.util.UUID;
 
 import no.nordicsemi.android.support.v18.scanner.ScanRecord;
@@ -53,6 +52,9 @@ public class Utils {
 
     public static final String EXTRA_DEVICE = "EXTRA_DEVICE";
     public static final String ACTIVITY_RESULT = "RESULT_APP_KEY";
+    public static final String PROVISIONING_COMPLETED = "PROVISIONING_COMPLETED";
+    public static final String COMPOSITION_DATA_COMPLETED = "COMPOSITION_DATA_COMPLETED";
+    public static final String APP_KEY_ADD_COMPLETED = "APP_KEY_ADD_COMPLETED";
     private static final String PREFS_LOCATION_NOT_REQUIRED = "location_not_required";
     private static final String PREFS_PERMISSION_REQUESTED = "permission_requested";
     private static final String PREFS_READ_STORAGE_PERMISSION_REQUESTED = "read_storage_permission_requested";
@@ -211,7 +213,7 @@ public class Utils {
     }
 
     @Nullable
-    public static byte[] getServiceData(@NonNull  final ScanResult result, @NonNull final UUID serviceUuid) {
+    public static byte[] getServiceData(@NonNull final ScanResult result, @NonNull final UUID serviceUuid) {
         final ScanRecord scanRecord = result.getScanRecord();
         if (scanRecord != null) {
             return scanRecord.getServiceData(new ParcelUuid((serviceUuid)));

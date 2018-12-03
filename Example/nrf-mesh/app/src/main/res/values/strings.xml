@@ -417,4 +417,16 @@
     <string name="permission_rationale_settings"> You may grant this permission by navigating to the app settings.</string>
     <string name="settings">Settings</string>
     <string name="ext_storage_permission_denied">Unable to export network, external storage permission denied!</string>
+    <string name="title_init_config_error">Initial Configuration Failed</string>
+    <string name="init_config_error_app_key_msg">Initial configuration of the node has failed.
+        Continue with the following steps to configure the node\n\n
+        Step 1. Connect to the network.\n\n
+        Step 2. Select the configure option of the node.\n\n
+        Step 3. Add app key</string>
+    <string name="init_config_error_all">Initial configuration of the node has failed.
+        Continue with the following steps to configure the node\n\n
+        Step 1. Connect to the network.\n\n
+        Step 2. Select the configure option of the node.\n\n
+        Step 3. Click get composition data\n\n
+        Step 4. Add app key</string>
 </resources>

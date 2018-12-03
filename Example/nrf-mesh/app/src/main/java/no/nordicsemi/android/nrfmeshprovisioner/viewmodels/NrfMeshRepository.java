@@ -44,7 +44,6 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManagerCallbacks;
@@ -64,7 +63,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private static final String TAG = NrfMeshRepository.class.getSimpleName();
     public static final String EXPORT_PATH = Environment.getExternalStorageDirectory() + File.separator +
             "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
-    private static final String EXPORTED_PATH = "sdcard" + File.separator +  "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
+    private static final String EXPORTED_PATH = "sdcard" + File.separator + "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
 
     /**
      * Connection States Connecting, Connected, Disconnecting, Disconnected etc.
@@ -92,11 +91,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private final SingleLiveEvent<Boolean> mIsReconnecting = new SingleLiveEvent<>();
 
     private final MutableLiveData<ProvisioningCapabilities> capabilitiesMutableLiveData = new MutableLiveData<>();
-
-    /**
-     * Flag to determine if a reconnection is in the progress when provisioning has completed
-     **/
-    private final MutableLiveData<byte[]> mConfigurationSrc = new MutableLiveData<>();
 
     private final MutableLiveData<UnprovisionedMeshNode> mUnprovisionedMeshNodeLiveData = new MutableLiveData<>();
     private final MutableLiveData<ProvisionedMeshNode> mProvisionedMeshNodeLiveData = new MutableLiveData<>();
@@ -137,7 +131,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     final MutableLiveData<Element> mElement = new MutableLiveData<>();
 
     /**
-     * App key add status
+     * Composition data status
      **/
     final SingleLiveEvent<ConfigCompositionDataStatus> mCompositionDataStatus = new SingleLiveEvent<>();
 
@@ -145,21 +139,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      * App key add status
      **/
     final SingleLiveEvent<ConfigAppKeyStatus> mAppKeyStatus = new SingleLiveEvent<>();
-
-    /**
-     * App key bind status
-     **/
-    final SingleLiveEvent<ConfigModelAppStatus> mAppKeyBindStatus = new SingleLiveEvent<>();
-
-    /**
-     * publication status
-     **/
-    final SingleLiveEvent<ConfigModelPublicationStatus> mConfigModelPublicationStatus = new SingleLiveEvent<>();
-
-    /**
-     * Subscription bind status
-     **/
-    final SingleLiveEvent<ConfigModelSubscriptionStatus> mConfigModelSubscriptionStatus = new SingleLiveEvent<>();
 
     /**
      * Contains the initial provisioning live data
@@ -187,6 +166,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private boolean mSetupProvisionedNode;
     private ProvisioningStatusLiveData mProvisioningStateLiveData;
     private MeshNetwork mMeshNetwork;
+    private boolean mIsCompositionDataReceived;
+    private boolean mIsAppKeyAddCompleted;
 
     private final Runnable mReconnectRunnable = this::startScan;
 
@@ -248,6 +229,14 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     boolean isProvisioningComplete() {
         return mIsProvisioningComplete;
+    }
+
+    boolean isCompositionDataStatusReceived() {
+        return mIsCompositionDataReceived;
+    }
+
+    boolean isAppKeyAddCompleted() {
+        return mIsAppKeyAddCompleted;
     }
 
     final MeshNetworkLiveData getMeshNetworkLiveData() {
@@ -323,6 +312,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
         mMeshNetworkLiveData.getValue().setNodeName(device.getName());
         mIsProvisioningComplete = false;
+        mIsCompositionDataReceived = false;
+        mIsAppKeyAddCompleted = false;
         clearExtendedMeshNode();
         final LogSession logSession = Logger.newSession(context, null, device.getAddress(), device.getName());
         mBleMeshManager.setLogger(logSession);
@@ -365,11 +356,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     public void identifyNode(final ExtendedBluetoothDevice device) {
         final UnprovisionedBeacon beacon = (UnprovisionedBeacon) device.getBeacon();
-        if(beacon != null) {
+        if (beacon != null) {
             mMeshManagerApi.identifyNode(beacon.getUuid(), device.getName());
         } else {
             final byte[] serviceData = Utils.getServiceData(device.getScanResult(), BleMeshManager.MESH_PROVISIONING_UUID);
-            if(serviceData != null) {
+            if (serviceData != null) {
                 final UUID uuid = mMeshManagerApi.getDeviceUuid(serviceData);
                 mMeshManagerApi.identifyNode(uuid, device.getName());
             }
@@ -389,6 +380,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     LiveData<UnprovisionedMeshNode> getUnprovisionedMeshNode() {
         return mUnprovisionedMeshNodeLiveData;
+    }
+
+    LiveData<ProvisionedMeshNode> getProvisionedMeshNode() {
+        return mProvisionedMeshNodeLiveData;
     }
 
     /**
@@ -463,16 +458,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onDataReceived(final BluetoothDevice bluetoothDevice, final int mtu, final byte[] pdu) {
-        try {
-            if (mExtendedMeshNode != null && mExtendedMeshNode.getMeshNode() != null) {
-                //node = mProvisionedMeshNode = mExtendedMeshNode.getMeshNode();
-            } else {
-                //node = mProvisionedMeshNode = mUnprovisionedMeshNodeLiveData.getValue();
-            }
-            mMeshManagerApi.handleNotifications(mtu, pdu);
-        } catch (Exception ex) {
-            Log.e(TAG, ex.getMessage());
-        }
+        mMeshManagerApi.handleNotifications(mtu, pdu);
     }
 
     @Override
@@ -591,7 +577,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         //We can delete the old network after the import has been successful!
         //But let's make sure we don't delete the same network in case someone imports the same network ;)
         final MeshNetwork oldNet = mMeshNetwork;
-        if(!oldNet.getMeshUUID().equals(meshNetwork.getMeshUUID())) {
+        if (!oldNet.getMeshUUID().equals(meshNetwork.getMeshUUID())) {
             mMeshManagerApi.deleteMeshNetworkFromDb(oldNet);
         }
         loadNetwork(meshNetwork);
@@ -742,6 +728,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         if (meshMessage instanceof ConfigCompositionDataStatus) {
             final ConfigCompositionDataStatus status = (ConfigCompositionDataStatus) meshMessage;
             if (mSetupProvisionedNode) {
+                mIsCompositionDataReceived = true;
                 mProvisionedMeshNodeLiveData.postValue(node);
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.COMPOSITION_DATA_STATUS_RECEIVED);
                 //We send app key add after composition is complete. Adding a delay so that we don't send anything before the acknowledgement is sent out.
@@ -758,6 +745,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         } else if (meshMessage instanceof ConfigAppKeyStatus) {
             final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
             if (mSetupProvisionedNode) {
+                mIsAppKeyAddCompleted = true;
                 mSetupProvisionedNode = false;
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.APP_KEY_STATUS_RECEIVED);
             } else {

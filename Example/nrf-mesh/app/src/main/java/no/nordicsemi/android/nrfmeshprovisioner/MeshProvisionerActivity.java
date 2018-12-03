@@ -65,7 +65,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.ProvisioningProgressAdap
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAppKeyAddStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAuthenticationInput;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFlags;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentIvIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentKeyIndex;
@@ -202,7 +202,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 mProvisioningProgressBar.setVisibility(View.GONE);
                 connectivityProgressContainer.setVisibility(View.VISIBLE);
             } else {
-                finish();
+                setResultIntent();
             }
         });
 
@@ -271,7 +271,6 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 final ApplicationKey appKey = data.getParcelableExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 if (appKey != null) {
                     final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
-                    //final int appKeyIndex = provisioningSettings.getAppKeys().indexOf(appKey);
                     provisioningSettings.setSelectedAppKey(appKey);
                 }
             }
@@ -331,7 +330,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     public void onProvisioningFailed() {
         //Provisioning failed so now we go back to the scanner page.
         disconnect();
-        finish();
+        setResultIntent();
     }
 
     private void disconnect() {
@@ -382,9 +381,21 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
     @Override
     public void onAppKeyAddStatusReceived() {
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra("result", true);
-        setResult(Activity.RESULT_OK, returnIntent);
+        setResultIntent();
+    }
+
+    private void setResultIntent() {
+        final Intent returnIntent = new Intent();
+        if (mViewModel.isProvisioningComplete()) {
+            returnIntent.putExtra(Utils.PROVISIONING_COMPLETED, true);
+            setResult(Activity.RESULT_OK, returnIntent);
+            if (mViewModel.isCompositionDataStatusReceived()) {
+                returnIntent.putExtra(Utils.COMPOSITION_DATA_COMPLETED, true);
+                if (mViewModel.isAppKeyAddCompleted()) {
+                    returnIntent.putExtra(Utils.APP_KEY_ADD_COMPLETED, true);
+                }
+            }
+        }
         finish();
     }
 

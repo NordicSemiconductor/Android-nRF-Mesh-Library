@@ -29,15 +29,11 @@ import android.support.v7.app.AlertDialog;
 
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public class DialogFragmentConfigurationStatus extends DialogFragmentMessage {
+public class DialogFragmentConfigError extends DialogFragmentMessage {
 
-    public interface DialogFragmentAppKeyBindStatusListener {
-        void onAppKeyBindStatusConfirmed();
-    }
-
-    public static DialogFragmentConfigurationStatus newInstance(final String title, final String message) {
+    public static DialogFragmentConfigError newInstance(final String title, final String message) {
         Bundle args = new Bundle();
-        DialogFragmentConfigurationStatus fragment = new DialogFragmentConfigurationStatus();
+        DialogFragmentConfigError fragment = new DialogFragmentConfigError();
         args.putString(TITLE, title);
         args.putString(MESSAGE, message);
         fragment.setArguments(args);
@@ -52,10 +48,9 @@ public class DialogFragmentConfigurationStatus extends DialogFragmentMessage {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
-        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> (
-                (DialogFragmentAppKeyBindStatusListener)getActivity()).onAppKeyBindStatusConfirmed());
+        alertDialogBuilder = new AlertDialog.Builder(requireContext());
+        alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
+        alertDialogBuilder.setPositiveButton(getString(R.string.ok), null);
 
         return super.onCreateDialog(savedInstanceState);
     }
