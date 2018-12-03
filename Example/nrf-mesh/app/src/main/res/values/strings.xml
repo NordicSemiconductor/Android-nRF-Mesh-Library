@@ -298,7 +298,7 @@
     <string name="title_network_transmit">Network Transmit Settings</string>
     <string name="title_network_transmit_count">Transmit Count</string>
     <string name="title_network_transmit_interval">Transmit Interval</string>
-    <string name="title_network_transmit_interval_steps">Transmit Interval (10ms steps)</string>
+    <string name="title_network_transmit_interval_steps">Transmit Interval</string>
     <string name="action_network_transmit_get">READ STATE</string>
     <string name="action_network_transmit_set">SET NETWORK TRANSMIT</string>
     <string name="text_network_transmit_count">%d time(s)</string>
@@ -440,4 +440,5 @@
         Step 2. Select the configure option of the node.\n\n
         Step 3. Click get composition data\n\n
         Step 4. Add app key</string>
+    <string name="network_transmit_interval_steps_summary">10 ms step(s)</string>
 </resources>

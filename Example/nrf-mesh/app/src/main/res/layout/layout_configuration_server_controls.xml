@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -49,6 +50,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
                         android:text="@string/title_network_transmit_count"
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
@@ -61,11 +63,13 @@
                         android:layout_width="0dp"
                         android:layout_height="19dp"
                         android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
                         android:text="1 time(s)"
                         android:textSize="12sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/image_network_transmit_count"
-                        app:layout_constraintTop_toBottomOf="@id/network_transmit_count_title" />
+                        app:layout_constraintTop_toBottomOf="@id/network_transmit_count_title"
+                        tools:ignore="HardcodedText"/>
 
                     <ImageView
                         android:id="@+id/image_network_transmit_count"
@@ -74,7 +78,8 @@
                         app:layout_constraintBottom_toBottomOf="@+id/network_transmit_count"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/network_transmit_count_title"
-                        app:srcCompat="@drawable/ic_numeric" />
+                        app:srcCompat="@drawable/ic_numeric"
+                        tools:ignore="ContentDescription"/>
 
                 </android.support.constraint.ConstraintLayout>
 
@@ -99,13 +104,15 @@
                         app:layout_constraintBottom_toBottomOf="@+id/network_transmit_interval_steps"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/network_transmit_interval_steps_title"
-                        app:srcCompat="@drawable/ic_index" />
+                        app:srcCompat="@drawable/ic_index"
+                        tools:ignore="ContentDescription"/>
 
                     <TextView
                         android:id="@+id/network_transmit_interval_steps_title"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
                         android:text="@string/title_network_transmit_interval"
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
@@ -118,11 +125,13 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
                         android:text="1 step(s)"
                         android:textSize="12sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/image_network_transmit_interval_steps"
-                        app:layout_constraintTop_toBottomOf="@id/network_transmit_interval_steps_title" />
+                        app:layout_constraintTop_toBottomOf="@id/network_transmit_interval_steps_title"
+                        tools:ignore="HardcodedText"/>
 
                 </android.support.constraint.ConstraintLayout>
             </android.support.constraint.ConstraintLayout>

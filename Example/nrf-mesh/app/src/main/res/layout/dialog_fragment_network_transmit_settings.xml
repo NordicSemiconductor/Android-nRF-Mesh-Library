@@ -24,13 +24,15 @@
             app:layout_constraintBottom_toBottomOf="@+id/dialog_network_transmit_count"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/dialog_network_transmit_count_title"
-            app:srcCompat="@drawable/ic_numeric" />
+            app:srcCompat="@drawable/ic_numeric"
+            tools:ignore="ContentDescription"/>
 
         <TextView
             android:id="@+id/dialog_network_transmit_count_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
             android:text="@string/title_network_transmit_count"
             android:textColor="@android:color/black"
             android:textSize="16sp"
@@ -42,12 +44,12 @@
             android:id="@+id/dialog_network_transmit_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/activity_horizontal_margin"
             android:text="1 time(s)"
             android:textSize="16sp"
             app:layout_constraintBaseline_toBaselineOf="@id/dialog_network_transmit_count_title"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/dialog_network_transmit_count_title" />
+            app:layout_constraintStart_toEndOf="@id/dialog_network_transmit_count_title"
+            tools:ignore="HardcodedText"/>
 
         <SeekBar
             android:id="@+id/dialog_network_transmit_count_seekbar"
@@ -77,43 +79,55 @@
             android:id="@+id/dialog_image_network_transmit_interval_steps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@+id/dialog_network_transmit_interval_steps"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/dialog_network_transmit_interval_steps_title"
-            app:srcCompat="@drawable/ic_index" />
+            app:layout_constraintTop_toTopOf="@id/dialog_network_transmit_interval_steps_title"
+            app:layout_constraintBottom_toBottomOf="@id/steps_summary"
+            app:srcCompat="@drawable/ic_index"
+            tools:ignore="ContentDescription"/>
 
         <TextView
             android:id="@+id/dialog_network_transmit_interval_steps_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
             android:text="@string/title_network_transmit_interval_steps"
             android:textColor="@android:color/black"
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@id/dialog_network_transmit_interval_steps"
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_interval_steps"
             app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/steps_summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/network_transmit_interval_steps_summary"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@id/dialog_network_transmit_interval_steps_title"
+            app:layout_constraintStart_toStartOf="@id/dialog_network_transmit_interval_steps_title" />
 
         <TextView
             android:id="@+id/dialog_network_transmit_interval_steps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/activity_horizontal_margin"
-            android:text="1 step(s)"
+            android:text="10 ms"
             android:textSize="16sp"
-            app:layout_constraintBaseline_toBaselineOf="@id/dialog_network_transmit_interval_steps_title"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/dialog_network_transmit_interval_steps_title" />
+            app:layout_constraintTop_toTopOf="@id/dialog_network_transmit_interval_steps_title"
+            app:layout_constraintStart_toEndOf="@id/dialog_network_transmit_interval_steps_title"
+            tools:ignore="HardcodedText"/>
 
         <SeekBar
             android:id="@+id/dialog_network_transmit_interval_steps_seekbar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/item_padding_bottom"
             android:paddingTop="@dimen/item_padding_top"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:paddingBottom="@dimen/item_padding_bottom"
+            app:layout_constraintEnd_toEndOf="@+id/dialog_network_transmit_interval_steps"
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_interval_steps"
-            app:layout_constraintTop_toBottomOf="@id/dialog_network_transmit_interval_steps_title" />
+            app:layout_constraintTop_toBottomOf="@id/steps_summary"/>
 
     </android.support.constraint.ConstraintLayout>
 
