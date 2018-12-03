@@ -482,9 +482,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void onDeviceDisconnecting(final BluetoothDevice device) {
         Log.v(TAG, "Disconnecting...");
         mConnectionState.postValue("Disconnecting...");
-        if (mIsReconnectingFlag) {
-            //mIsConnected.postValue(false);
-        }
     }
 
     @Override
