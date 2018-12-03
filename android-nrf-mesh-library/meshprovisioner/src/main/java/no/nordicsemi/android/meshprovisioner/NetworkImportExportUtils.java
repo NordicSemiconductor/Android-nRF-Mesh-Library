@@ -34,8 +34,6 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
  */
 class NetworkImportExportUtils {
 
-    private static final String EXPORT_PATH = File.separator + "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
-
     /**
      * Creates an AsyncTask to import the a mesh network
      *
