@@ -351,7 +351,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         } else if (model instanceof VendorModel) {
             intent = new Intent(this, VendorModelActivity.class);
         } else {
-            intent = new Intent(this, ModelConfigurationActivity.class);
+            intent = new Intent(this, ConfigurationServerActivity.class);
         }
 
         intent.putExtra(EXTRA_DEVICE, meshNode);

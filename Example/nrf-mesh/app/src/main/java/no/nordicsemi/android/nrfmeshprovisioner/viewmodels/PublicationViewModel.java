@@ -27,10 +27,10 @@ import android.arch.lifecycle.ViewModel;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
 
 /**
- * View Model class for {@link ModelConfigurationActivity}
+ * View Model class for {@link ConfigurationServerActivity}
  */
 public class PublicationViewModel extends ViewModel {
 

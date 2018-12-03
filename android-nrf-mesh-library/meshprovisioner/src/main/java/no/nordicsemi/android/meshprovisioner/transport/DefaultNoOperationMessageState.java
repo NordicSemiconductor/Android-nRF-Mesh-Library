@@ -13,6 +13,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 
 @SuppressWarnings("WeakerAccess")
 class DefaultNoOperationMessageState extends MeshMessageState {
@@ -117,7 +118,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                 } else if ((message.getOpCode() & 0xffff) == ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS) {
                     // FIXME: The message.getOpcode() returns an opcode with FFFF in the MSB, so the MSB are masked out before the comparison
                     final ConfigNetworkTransmitStatus status = new ConfigNetworkTransmitStatus(mNode, message);
-                    mInternalTransportCallbacks.updateMeshNode(mNode);
+                    final NetworkTransmitSettings networkTransmitSettings =
+                            new NetworkTransmitSettings(status.getNetworkTransmitCount(), status.getNetworkTransmitIntervalSteps());
+                    mNode.setNetworkTransmitSettings(networkTransmitSettings);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS) {
                     final GenericOnOffStatus status = new GenericOnOffStatus(mNode, message);

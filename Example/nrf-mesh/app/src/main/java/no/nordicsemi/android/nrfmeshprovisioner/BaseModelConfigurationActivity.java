@@ -126,13 +126,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected Button mActionRead;
     private RecyclerView recyclerViewBoundKeys, recyclerViewAddresses;
 
-    /**
-     * Adds the control ui for the mesh model
-     *
-     * @param model mesh model to be controlled
-     */
-    protected abstract void addControlsUi(final MeshModel model);
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -223,8 +216,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         });
 
         mViewModel.getMeshMessageLiveData().observe(this, this::updateMeshMessage);
-
-        addControlsUi(mViewModel.getSelectedModel().getMeshModel());
     }
 
     @Override

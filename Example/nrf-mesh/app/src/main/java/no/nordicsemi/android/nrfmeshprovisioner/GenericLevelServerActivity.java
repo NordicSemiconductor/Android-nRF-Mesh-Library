@@ -41,7 +41,9 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
     private int mTransitionSteps;
 
     @Override
-    protected final void addControlsUi(final MeshModel model) {
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
         if (model instanceof GenericLevelServerModel) {
             final CardView cardView = findViewById(R.id.node_controls_card);
             final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_level, cardView);
@@ -161,11 +163,6 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 }
             });
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override

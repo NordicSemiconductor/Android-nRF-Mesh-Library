@@ -300,7 +300,7 @@
     <string name="title_network_transmit_interval">Transmit Interval</string>
     <string name="title_network_transmit_interval_steps">Transmit Interval (10ms steps)</string>
     <string name="action_network_transmit_get">READ STATE</string>
-    <string name="action_network_transmit_set">CONFIGURE NETWORK TRANSMIT</string>
+    <string name="action_network_transmit_set">SET NETWORK TRANSMIT</string>
     <string name="text_network_transmit_count">%d time(s)</string>
     <string name="text_network_transmit_interval_steps">%d ms</string>
     <string name="text_network_transmit_unknown">Unknown</string>

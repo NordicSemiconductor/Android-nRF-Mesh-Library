@@ -794,9 +794,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mMeshMessageLiveData.postValue(status);
 
         } else if (meshMessage instanceof ConfigNetworkTransmitStatus) {
-
-            final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
-            mMeshMessageLiveData.postValue(status);
+            if(updateNode(node)) {
+                final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
+                mMeshMessageLiveData.postValue(status);
+            }
 
         } else if (meshMessage instanceof GenericOnOffStatus) {
             if (updateNode(node)) {

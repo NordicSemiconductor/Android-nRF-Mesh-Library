@@ -24,16 +24,16 @@ package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
+import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.GenericLevelServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.GenericOnOffServerActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.VendorModelActivity;
 
 @Module
 abstract class AppControlActivitiesModule {
 
 	@ContributesAndroidInjector()
-	abstract ModelConfigurationActivity contributeModelConfigurationActivity();
+	abstract ConfigurationServerActivity contributeModelConfigurationActivity();
 
 	@ContributesAndroidInjector()
 	abstract GenericOnOffServerActivity contributeGenericOnOffServerActivity();
