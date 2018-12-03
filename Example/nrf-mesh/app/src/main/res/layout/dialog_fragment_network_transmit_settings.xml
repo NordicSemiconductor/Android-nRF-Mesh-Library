@@ -21,6 +21,7 @@
             android:id="@+id/dialog_image_network_transmit_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             app:layout_constraintBottom_toBottomOf="@+id/dialog_network_transmit_count"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/dialog_network_transmit_count_title"
@@ -44,6 +45,7 @@
             android:id="@+id/dialog_network_transmit_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
             android:text="1 time(s)"
             android:textSize="16sp"
             app:layout_constraintBaseline_toBaselineOf="@id/dialog_network_transmit_count_title"
@@ -79,9 +81,10 @@
             android:id="@+id/dialog_image_network_transmit_interval_steps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/steps_summary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/dialog_network_transmit_interval_steps_title"
-            app:layout_constraintBottom_toBottomOf="@id/steps_summary"
             app:srcCompat="@drawable/ic_index"
             tools:ignore="ContentDescription"/>
 
@@ -112,11 +115,12 @@
             android:id="@+id/dialog_network_transmit_interval_steps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
             android:text="10 ms"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/dialog_network_transmit_interval_steps_title"
             app:layout_constraintStart_toEndOf="@id/dialog_network_transmit_interval_steps_title"
+            app:layout_constraintTop_toTopOf="@id/dialog_network_transmit_interval_steps_title"
             tools:ignore="HardcodedText"/>
 
         <SeekBar
