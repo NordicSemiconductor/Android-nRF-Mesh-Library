@@ -100,9 +100,8 @@
             android:name=".VendorModelActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".ModelConfigurationActivity"
+            android:name=".ConfigurationServerActivity"
             android:launchMode="singleTop"/>
-
     </application>
 
 </manifest>

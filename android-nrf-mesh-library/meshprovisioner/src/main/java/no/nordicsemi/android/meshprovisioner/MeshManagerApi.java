@@ -1029,8 +1029,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
                 final ProvisionedMeshNode node = mMeshNetwork.nodes.get(i);
                 if(meshNode.getUuid().equals(node.getUuid())){
                     mMeshNetwork.nodes.remove(i);
-                    mMeshNetwork.nodes.add(node);
-                    return;
+                    break;
                 }
             }
 

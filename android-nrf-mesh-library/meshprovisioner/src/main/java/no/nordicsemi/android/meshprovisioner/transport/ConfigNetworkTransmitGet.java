@@ -20,27 +20,40 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.di;
 
-import dagger.Module;
-import dagger.android.ContributesAndroidInjector;
-import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.GenericLevelServerActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.GenericOnOffServerActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.VendorModelActivity;
+package no.nordicsemi.android.meshprovisioner.transport;
 
-@Module
-abstract class AppControlActivitiesModule {
+import android.support.annotation.NonNull;
 
-	@ContributesAndroidInjector()
-	abstract ConfigurationServerActivity contributeModelConfigurationActivity();
+import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 
-	@ContributesAndroidInjector()
-	abstract GenericOnOffServerActivity contributeGenericOnOffServerActivity();
+/**
+ * To be used as a wrapper class for when creating the ConfigNetworkTransmitGet message.
+ */
+@SuppressWarnings({"unused"})
+public final class ConfigNetworkTransmitGet extends ConfigMessage {
 
-	@ContributesAndroidInjector()
-	abstract GenericLevelServerActivity contributeGenericLevelServerActivity();
+    private static final String TAG = ConfigNetworkTransmitGet.class.getSimpleName();
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_GET;
 
-	@ContributesAndroidInjector()
-	abstract VendorModelActivity contributeVendorModelActivity();
+    /**
+     * Constructs a ConfigNetworkTransmitGet message
+     *
+     * @param node      Mesh node this message is to be sent to
+     * @param aszmic    Size of message integrity check
+     */
+    public ConfigNetworkTransmitGet(@NonNull final ProvisionedMeshNode node, final int aszmic) {
+        super(node, aszmic);
+        assembleMessageParameters();
+    }
+
+    @Override
+    public int getOpCode() {
+        return OP_CODE;
+    }
+
+    @Override
+    final void assembleMessageParameters() {
+        // Do nothing as this message has no parameters
+    }
 }

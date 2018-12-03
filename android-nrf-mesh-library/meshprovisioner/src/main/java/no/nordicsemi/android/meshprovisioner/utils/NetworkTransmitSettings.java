@@ -60,9 +60,23 @@ public class NetworkTransmitSettings implements Parcelable {
     }
 
     /**
+     * Returns the number of transmissions.
+     */
+    public int getTransmissionCount(){
+        return networkTransmitCount + 1;
+    }
+
+    /**
      * Returns the network interval steps
      */
     public int getNetworkIntervalSteps() {
         return networkIntervalSteps;
+    }
+
+    /**
+     * Returns the Network transmission interval.
+     */
+    public int getNetworkTransmissionInterval(){
+        return (networkIntervalSteps + 1) * 10;
     }
 }

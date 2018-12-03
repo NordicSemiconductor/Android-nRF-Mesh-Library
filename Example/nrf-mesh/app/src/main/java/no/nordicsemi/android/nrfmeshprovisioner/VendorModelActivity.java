@@ -41,7 +41,9 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
     private TextView receivedMessage;
 
     @Override
-    protected final void addControlsUi(final MeshModel model) {
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
         if (model instanceof VendorModel) {
             final CardView cardView = findViewById(R.id.node_controls_card);
             final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_vendor_model_controls, cardView);
@@ -120,11 +122,6 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
                 sendVendorModelMessage(Integer.parseInt(opCode, 16), params, chkAcknowledged.isChecked());
             });
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
