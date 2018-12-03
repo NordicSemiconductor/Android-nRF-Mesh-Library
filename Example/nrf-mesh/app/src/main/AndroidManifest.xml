@@ -102,7 +102,6 @@
         <activity
             android:name=".ModelConfigurationActivity"
             android:launchMode="singleTop"/>
-
     </application>
 
 </manifest>
