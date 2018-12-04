@@ -11,24 +11,24 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 /**
- * To be used as a wrapper class when creating a GenericLevelSetUnacknowledged message.
+ * To be used as a wrapper class when creating a GenericLevelSet message.
  */
 @SuppressWarnings("unused")
-public class GenericLevelSetUnacknowledged extends GenericMessage {
+public class LightLightnessSetUnacknowledged extends GenericMessage {
 
-    private static final String TAG = GenericLevelSetUnacknowledged.class.getSimpleName();
-    private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_LEVEL_SET_UNACKNOWLEDGED;
+    private static final String TAG = LightLightnessSetUnacknowledged.class.getSimpleName();
+    private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LIGHTNESS_SET_UNACKNOWLEDGED;
     private static final int GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH = 5;
     private static final int GENERIC_LEVEL_SET_PARAMS_LENGTH = 3;
 
     private final Integer mTransitionSteps;
     private final Integer mTransitionResolution;
     private final Integer mDelay;
-    private final int mLevel;
     private final int tId;
+    private final int mLevel;
 
-    /**
-     * Constructs GenericLevelSetUnacknowledged message.
+/**
+     * Constructs GenericLevelSet message.
      *
      * @param node        Mesh node this message is to be sent to
      * @param appKey      application key for this message
@@ -36,15 +36,15 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
      * @param aszmic      size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericLevelSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           final int level,
-                           final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, level, node.getReceivedSequenceNumber(), aszmic);
+    public LightLightnessSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
+										   @NonNull final byte[] appKey,
+										   final int level,
+										   final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, null, null, null, level, node.getSequenceNumber(), aszmic);
     }
 
     /**
-     * Constructs GenericLevelSetUnacknowledged message.
+     * Constructs GenericLevelSet message.
      *
      * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
@@ -56,36 +56,36 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public GenericLevelSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           @NonNull final Integer transitionSteps,
-                           @NonNull final Integer transitionResolution,
-                           @NonNull final Integer delay,
-                           final int level,
-                           final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, transitionSteps, transitionResolution, delay, level, node.getReceivedSequenceNumber(), aszmic);
+    public LightLightnessSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
+										   @NonNull final byte[] appKey,
+										   @NonNull final Integer transitionSteps,
+										   @NonNull final Integer transitionResolution,
+										   @NonNull final Integer delay,
+										   final int level,
+										   final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, transitionSteps, transitionResolution, delay, level, node.getSequenceNumber(), aszmic);
     }
 
     /**
-     * Constructs GenericLevelSetUnacknowledged message.
+     * Constructs GenericLevelSet message.
      *
      * @param node        Mesh node this message is to be sent to
      * @param appKey      application key for this message
      * @param level       level of the GenericLevelModel
-     * @param tId                  transaction id
+     * @param tId                   transaction Id
      * @param aszmic      size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericLevelSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           final int level,
-                           final int tId,
-                           final int aszmic) throws IllegalArgumentException {
+    public LightLightnessSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
+										   @NonNull final byte[] appKey,
+										   final int level,
+										   final int tId,
+										   final int aszmic) throws IllegalArgumentException {
         this(node, appKey, null, null, null, level, tId, aszmic);
     }
 
     /**
-     * Constructs GenericLevelSetUnacknowledged message.
+     * Constructs GenericLevelSet message.
      *
      * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
@@ -93,26 +93,26 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
      * @param transitionResolution transition resolution for the level
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
      * @param level                level of the GenericLevelModel
-     * @param tId                  transaction id
+     * @param tId                   transaction Id
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public GenericLevelSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           @NonNull final Integer transitionSteps,
-                           @NonNull final Integer transitionResolution,
-                           @NonNull final Integer delay,
-                           final int level,
-                           final int tId,
-                           final int aszmic) throws IllegalArgumentException {
+    public LightLightnessSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
+										   @NonNull final byte[] appKey,
+										   @NonNull final Integer transitionSteps,
+										   @NonNull final Integer transitionResolution,
+										   @NonNull final Integer delay,
+										   final int level,
+										   final int tId,
+										   final int aszmic) throws IllegalArgumentException {
         super(node, appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;
         this.tId = tId;
-        if (level < Short.MIN_VALUE || level > Short.MAX_VALUE)
-            throw new IllegalArgumentException("Generic level value must be between -32768 to 32767");
+        if (level < 0 || level > 0xFFFF)
+            throw new IllegalArgumentException("Light lightness value must be between 0x0000 and 0xFFFF");
         this.mLevel = level;
         assembleMessageParameters();
     }
@@ -127,6 +127,7 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
         mAid = SecureUtils.calculateK4(mAppKey);
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "Level: " + mLevel);
+        Log.v(TAG, "TID: " + tId);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mLevel);
@@ -143,4 +144,6 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
         }
         mParameters = paramsBuffer.array();
     }
+
+
 }

@@ -63,6 +63,13 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
                 }
                 break;
+            case 1:
+                if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_STATUS) {
+                    final SceneStatus sceneStatus = new SceneStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNetwork(sceneStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(sceneStatus);
+                }
+                break;
             case 2:
                 if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_APPKEY_STATUS) {
                     final ConfigAppKeyStatus status = new ConfigAppKeyStatus(mNode, message);
@@ -115,8 +122,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigNodeResetStatus status = new ConfigNodeResetStatus(mNode, message);
                     mInternalTransportCallbacks.onMeshNodeReset(mNode);
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
-                } else if ((message.getOpCode() & 0xffff) == ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS) {
-                    // FIXME: The message.getOpcode() returns an opcode with FFFF in the MSB, so the MSB are masked out before the comparison
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS) {
                     final ConfigNetworkTransmitStatus status = new ConfigNetworkTransmitStatus(mNode, message);
                     final NetworkTransmitSettings networkTransmitSettings =
                             new NetworkTransmitSettings(status.getNetworkTransmitCount(), status.getNetworkTransmitIntervalSteps());
@@ -128,9 +134,25 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS) {
-                    final GenericLevelStatus status = new GenericLevelStatus(mNode, message);
-                    mInternalTransportCallbacks.updateMeshNetwork(status);
-                    mMeshStatusCallbacks.onMeshMessageReceived(status);
+                    final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNetwork(genericLevelStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(genericLevelStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LIGHTNESS_STATUS) {
+                    final LightLightnessStatus lightLightnessStatus = new LightLightnessStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNetwork(lightLightnessStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(lightLightnessStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_CTL_STATUS) {
+                    final LightCtlStatus lightCtlStatus = new LightCtlStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNetwork(lightCtlStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(lightCtlStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_HSL_STATUS) {
+                    final LightHslStatus lightHslStatus = new LightHslStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNetwork(lightHslStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(lightHslStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_REGISTER_STATUS) {
+                    final SceneRegisterStatus registerStatus = new SceneRegisterStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNetwork(registerStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(registerStatus);
                 } else {
                     Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
                 }
@@ -141,7 +163,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final VendorModelMessageStatus status = new VendorModelMessageStatus(mNode, message, vendorModelMessageAcked.getModelIdentifier());
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
                     Log.v(TAG, "Vendor model Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-                } else {
+                } else if(mMeshMessage instanceof  VendorModelMessageUnacked) {
                     final VendorModelMessageUnacked vendorModelMessageUnacked = (VendorModelMessageUnacked) mMeshMessage;
                     final VendorModelMessageStatus status = new VendorModelMessageStatus(mNode, message, vendorModelMessageUnacked.getModelIdentifier());
                     mMeshStatusCallbacks.onMeshMessageReceived(status);

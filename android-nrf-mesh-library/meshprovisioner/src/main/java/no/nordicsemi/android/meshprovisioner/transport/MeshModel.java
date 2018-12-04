@@ -59,7 +59,9 @@ public abstract class MeshModel implements Parcelable {
     public MeshModel(final int modelId) {
         this.mModelId = modelId;
     }
+    MeshModel() {
 
+    }
     @SuppressWarnings("unchecked")
     protected MeshModel(final Parcel in) {
 

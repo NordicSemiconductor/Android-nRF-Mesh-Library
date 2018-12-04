@@ -132,6 +132,42 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     final GenericLevelSetUnacknowledgedState levelSetUnacknowledgedState = (GenericLevelSetUnacknowledgedState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, levelSetUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
                     break;
+                case LIGHT_LIGHTNESS_GET_STATE:
+                    final LightLightnessGetState lightnessGetState = (LightLightnessGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, lightnessGetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_LIGHTNESS_SET_STATE:
+                    final LightLightnessSetState lightnessSetState = (LightLightnessSetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, lightnessSetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_LIGHTNESS_SET_UNACKNOWLEDGED_STATE:
+                    final LightLightnessSetUnacknowledgedState lightnessSetUnacknowledgedState = (LightLightnessSetUnacknowledgedState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, lightnessSetUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_CTL_GET_STATE:
+                    final LightCtlGetState ctlGetState = (LightCtlGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, ctlGetState .getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_CTL_SET_STATE:
+                    final LightCtlSetState ctlSetState = (LightCtlSetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, ctlSetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_CTL_SET_UNACKNOWLEDGED_STATE:
+                    final LightCtlSetUnacknowledgedState ctlSetUnacknowledgedState = (LightCtlSetUnacknowledgedState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, ctlSetUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_HSL_GET_STATE:
+                    final LightHslGetState hslGetState = (LightHslGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, hslGetState .getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_HSL_SET_STATE:
+                    final LightHslSetState hslSetState = (LightHslSetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, hslSetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case LIGHT_HSL_SET_UNACKNOWLEDGED_STATE:
+                    final LightHslSetUnacknowledgedState hslSetUnacknowledgedState = (LightHslSetUnacknowledgedState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, hslSetUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
+                    break;
                 case VENDOR_MODEL_ACKNOWLEDGED_STATE:
                     final VendorModelMessageAckedState vendorModelMessageAckedState = (VendorModelMessageAckedState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, vendorModelMessageAckedState.getMeshMessage(), mMeshTransport, this));
@@ -139,6 +175,38 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                 case VENDOR_MODEL_UNACKNOWLEDGED_STATE:
                     final VendorModelMessageUnackedState vendorModelMessageUnackedState = (VendorModelMessageUnackedState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, vendorModelMessageUnackedState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_GET_STATE:
+                    final  SceneGetState sceneGetState = (SceneGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneGetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_REGISTER_GET_STATE:
+                    final  SceneRegisterGetState sceneRegisterGetState = (SceneRegisterGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneRegisterGetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_STORE_STATE:
+                    final  SceneStoreState sceneStoreState = (SceneStoreState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneStoreState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_STORE_UNACKNOWLEDGED_STATE:
+                    final  SceneStoreUnacknowledgedState sceneStoreUnacknowledgedState = (SceneStoreUnacknowledgedState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneStoreUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_RECALL_STATE:
+                    final  SceneRecallState sceneRecallState = (SceneRecallState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneRecallState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_RECALL_UNACKNOWLEDGED_STATE:
+                    final  SceneRecallUnacknowledgedState sceneRecallUnacknowledgedState = (SceneRecallUnacknowledgedState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneRecallUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_DELETE_STATE:
+                    final  SceneDeleteState sceneDeleteState = (SceneDeleteState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneDeleteState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case SCENE_DELETE_UNACKNOWLEDGED_STATE:
+                    final  SceneDeleteUnacknowledgedState sceneDeleteUnacknowledgedState = (SceneDeleteUnacknowledgedState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneDeleteUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
                     break;
             }
         }
@@ -575,6 +643,60 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             genericLevelSetUnAckedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = genericLevelSetUnAckedState;
             genericLevelSetUnAckedState.executeSend();
+        } else if (genericMessage instanceof LightLightnessGet) {
+            final LightLightnessGetState lightLightnessGetState = new LightLightnessGetState(mContext, dstAddress, (LightLightnessGet) genericMessage, mMeshTransport, this);
+            lightLightnessGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightLightnessGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightLightnessGetState;
+            lightLightnessGetState.executeSend();
+        } else if (genericMessage instanceof LightLightnessSet) {
+            final LightLightnessSetState lightLightnessSetState = new LightLightnessSetState(mContext, dstAddress, (LightLightnessSet) genericMessage, mMeshTransport, this);
+            lightLightnessSetState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightLightnessSetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightLightnessSetState;
+            lightLightnessSetState.executeSend();
+        } else if (genericMessage instanceof LightLightnessSetUnacknowledged) {
+            final LightLightnessSetUnacknowledgedState lightLightnessSetUnacknowledgedState = new LightLightnessSetUnacknowledgedState(mContext, dstAddress, (LightLightnessSetUnacknowledged) genericMessage, mMeshTransport, this);
+            lightLightnessSetUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightLightnessSetUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightLightnessSetUnacknowledgedState;
+            lightLightnessSetUnacknowledgedState.executeSend();
+        } else if (genericMessage instanceof LightCtlGet) {
+            final LightCtlGetState lightCtlGetState = new LightCtlGetState(mContext, dstAddress, (LightCtlGet) genericMessage, mMeshTransport, this);
+            lightCtlGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightCtlGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightCtlGetState;
+            lightCtlGetState.executeSend();
+        } else if (genericMessage instanceof LightCtlSet) {
+            final LightCtlSetState lightCtlSetState = new LightCtlSetState(mContext, dstAddress, (LightCtlSet) genericMessage, mMeshTransport, this);
+            lightCtlSetState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightCtlSetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightCtlSetState;
+            lightCtlSetState.executeSend();
+        } else if (genericMessage instanceof LightCtlSetUnacknowledged) {
+            final LightCtlSetUnacknowledgedState lightCtlSetUnacknowledgedState = new LightCtlSetUnacknowledgedState(mContext, dstAddress, (LightCtlSetUnacknowledged) genericMessage, mMeshTransport, this);
+            lightCtlSetUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightCtlSetUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightCtlSetUnacknowledgedState;
+            lightCtlSetUnacknowledgedState.executeSend();
+        }  else if (genericMessage instanceof LightHslGet) {
+            final LightHslGetState lightHslGetState = new LightHslGetState(mContext, dstAddress, (LightHslGet) genericMessage, mMeshTransport, this);
+            lightHslGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightHslGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightHslGetState;
+            lightHslGetState.executeSend();
+        } else if (genericMessage instanceof LightHslSet) {
+            final LightHslSetState lightHslSetState = new LightHslSetState(mContext, dstAddress, (LightHslSet) genericMessage, mMeshTransport, this);
+            lightHslSetState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightHslSetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightHslSetState;
+            lightHslSetState.executeSend();
+        } else if (genericMessage instanceof LightHslSetUnacknowledged) {
+            final LightHslSetUnacknowledgedState lightHslSetUnacknowledgedState = new LightHslSetUnacknowledgedState(mContext, dstAddress, (LightHslSetUnacknowledged) genericMessage, mMeshTransport, this);
+            lightHslSetUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
+            lightHslSetUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = lightHslSetUnacknowledgedState;
+            lightHslSetUnacknowledgedState.executeSend();
         } else if (genericMessage instanceof VendorModelMessageAcked) {
             final VendorModelMessageAckedState message = new VendorModelMessageAckedState(mContext, dstAddress, (VendorModelMessageAcked) genericMessage, mMeshTransport, this);
             message.setTransportCallbacks(mInternalTransportCallbacks);
@@ -582,12 +704,59 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             mMeshMessageState = message;
             message.executeSend();
         } else if (genericMessage instanceof VendorModelMessageUnacked) {
-            final VendorModelMessageUnackedState vendorModelMessageUnackedState = new VendorModelMessageUnackedState(mContext,
-                    dstAddress, (VendorModelMessageUnacked) genericMessage, mMeshTransport, this);
+            final VendorModelMessageUnackedState vendorModelMessageUnackedState = new VendorModelMessageUnackedState(mContext, dstAddress, (VendorModelMessageUnacked) genericMessage, mMeshTransport, this);
             vendorModelMessageUnackedState.setTransportCallbacks(mInternalTransportCallbacks);
             vendorModelMessageUnackedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = vendorModelMessageUnackedState;
             vendorModelMessageUnackedState.executeSend();
+        } else if (genericMessage instanceof SceneGet) {
+            final SceneGetState sceneGetState = new SceneGetState(mContext, dstAddress, (SceneGet) genericMessage, mMeshTransport, this);
+            sceneGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneGetState;
+            sceneGetState.executeSend();
+        } else if (genericMessage instanceof SceneRegisterGet) {
+            final SceneRegisterGetState sceneGetState = new SceneRegisterGetState(mContext, dstAddress, (SceneRegisterGet) genericMessage, mMeshTransport, this);
+            sceneGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneGetState;
+            sceneGetState.executeSend();
+        } else if (genericMessage instanceof SceneStore) {
+            final SceneStoreState sceneStoreState = new SceneStoreState(mContext, dstAddress, (SceneStore) genericMessage, mMeshTransport, this);
+            sceneStoreState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneStoreState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneStoreState;
+            sceneStoreState.executeSend();
+        } else if (genericMessage instanceof SceneStoreUnacknowledged) {
+            final SceneStoreUnacknowledgedState sceneStoreUnacknowledgedState = new SceneStoreUnacknowledgedState(mContext, dstAddress, (SceneStoreUnacknowledged) genericMessage, mMeshTransport, this);
+            sceneStoreUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneStoreUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneStoreUnacknowledgedState;
+            sceneStoreUnacknowledgedState.executeSend();
+        } else if (genericMessage instanceof SceneDelete) {
+            final SceneDeleteState sceneDeleteState = new SceneDeleteState(mContext, dstAddress, (SceneDelete) genericMessage, mMeshTransport, this);
+            sceneDeleteState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneDeleteState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneDeleteState;
+            sceneDeleteState.executeSend();
+        } else if (genericMessage instanceof SceneDeleteUnacknowledged) {
+            final SceneDeleteUnacknowledgedState sceneDeleteUnacknowledgedState = new SceneDeleteUnacknowledgedState(mContext, dstAddress, (SceneDeleteUnacknowledged) genericMessage, mMeshTransport, this);
+            sceneDeleteUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneDeleteUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneDeleteUnacknowledgedState;
+            sceneDeleteUnacknowledgedState.executeSend();
+        } else if (genericMessage instanceof SceneRecall) {
+            final SceneRecallState sceneRecallState = new SceneRecallState(mContext, dstAddress, (SceneRecall) genericMessage, mMeshTransport, this);
+            sceneRecallState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneRecallState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneRecallState;
+            sceneRecallState.executeSend();
+        } else if (genericMessage instanceof SceneRecallUnacknowledged) {
+            final SceneRecallUnacknowledgedState sceneRecallUnacknowledgedState = new SceneRecallUnacknowledgedState(mContext, dstAddress, (SceneRecallUnacknowledged) genericMessage, mMeshTransport, this);
+            sceneRecallUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
+            sceneRecallUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = sceneRecallUnacknowledgedState;
+            sceneRecallUnacknowledgedState.executeSend();
         } else {
             //TODO
         }

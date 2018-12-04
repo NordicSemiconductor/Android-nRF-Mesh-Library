@@ -37,49 +37,52 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
  * To be used as a wrapper class to create generic level status message.
  */
 @SuppressWarnings("unused")
-public final class GenericLevelStatus extends GenericStatusMessage implements Parcelable {
+public final class LightHslStatus extends GenericStatusMessage implements Parcelable {
 
-    private static final String TAG = GenericLevelStatus.class.getSimpleName();
-    private static final int GENERIC_LEVEL_STATUS_MANDATORY_LENGTH = 2;
-    private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS;
-    private int mPresentLevel;
-    private Integer mTargetLevel;
+    private static final String TAG = LightHslStatus.class.getSimpleName();
+    private static final int LIGHT_CTL_STATUS_MANDATORY_LENGTH = 6;
+    private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_HSL_STATUS;
+    private int mPresentHslLightness;
+    private int mPresentHslHue;
+    private int mPresentHslSaturation;
     private int mTransitionSteps;
     private int mTransitionResolution;
 
-    public GenericLevelStatus(@NonNull final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
+    public LightHslStatus(@NonNull final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
         super(node, message);
         this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
 
-    private static final Creator<GenericLevelStatus> CREATOR = new Creator<GenericLevelStatus>() {
+    private static final Creator<LightHslStatus> CREATOR = new Creator<LightHslStatus>() {
         @Override
-        public GenericLevelStatus createFromParcel(Parcel in) {
+        public LightHslStatus createFromParcel(Parcel in) {
             final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new GenericLevelStatus(meshNode, message);
+            return new LightHslStatus(meshNode, message);
         }
 
         @Override
-        public GenericLevelStatus[] newArray(int size) {
-            return new GenericLevelStatus[size];
+        public LightHslStatus[] newArray(int size) {
+            return new LightHslStatus[size];
         }
     };
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received generic level status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
+        Log.v(TAG, "Received light hsl status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
-        mPresentLevel = (int) (buffer.getShort());
-        Log.v(TAG, "Present level: " + mPresentLevel);
-        if(buffer.limit() > GENERIC_LEVEL_STATUS_MANDATORY_LENGTH) {
-            mTargetLevel = (int) (buffer.getShort());
+        mPresentHslLightness = buffer.getShort() & 0xFFFF;
+        mPresentHslHue = buffer.getShort() & 0xFFFF;
+        mPresentHslSaturation = buffer.getShort() & 0xFFFF;
+        Log.v(TAG, "Present lightness: " + mPresentHslLightness);
+        Log.v(TAG, "Present hue: " + mPresentHslHue);
+        Log.v(TAG, "Present saturation: " + mPresentHslSaturation);
+        if(buffer.limit() > LIGHT_CTL_STATUS_MANDATORY_LENGTH) {
             final int remainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (remainingTime & 0x3F);
             mTransitionResolution = (remainingTime >> 6);
-            Log.v(TAG, "Target level: " + mTargetLevel);
             Log.v(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
             Log.v(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
             Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(remainingTime));
@@ -96,18 +99,27 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
      *
      * @return present level
      */
-    public final int getPresentLevel() {
-        return mPresentLevel;
+    public final int getPresentLightness() {
+        return mPresentHslLightness;
     }
 
     /**
-     * Returns the target level of the GenericOnOffModel
+     * Returns the present level of the GenericOnOffModel
      *
-     * @return target level
+     * @return present level
      */
-    public final Integer getTargetLevel() {
-        return mTargetLevel;
+    public final int getPresentSaturation() {
+        return mPresentHslSaturation;
     }
+    /**
+     * Returns the present level of the GenericOnOffModel
+     *
+     * @return present level
+     */
+    public final int getPresentHue() {
+        return mPresentHslHue;
+    }
+
 
     /**
      * Returns the transition steps.

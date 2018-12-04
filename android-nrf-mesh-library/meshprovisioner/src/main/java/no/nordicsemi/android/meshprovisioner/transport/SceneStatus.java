@@ -34,55 +34,66 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * To be used as a wrapper class to create generic level status message.
+ * To be used as a wrapper class for when creating the GenericOnOffStatus Message.
  */
 @SuppressWarnings("unused")
-public final class GenericLevelStatus extends GenericStatusMessage implements Parcelable {
-
-    private static final String TAG = GenericLevelStatus.class.getSimpleName();
-    private static final int GENERIC_LEVEL_STATUS_MANDATORY_LENGTH = 2;
-    private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS;
-    private int mPresentLevel;
-    private Integer mTargetLevel;
+public final class SceneStatus extends GenericStatusMessage implements Parcelable {
+    private static final int SCENE_STATUS_MANDATORY_LENGTH = 3;
+    private static final String TAG = SceneStatus.class.getSimpleName();
+    private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_STATUS;
+    private int mStatusCode;
+    private int mCurrentScene;
+    private Integer mTargetScene;
+    private int mRemainingTime;
     private int mTransitionSteps;
     private int mTransitionResolution;
 
-    public GenericLevelStatus(@NonNull final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
+    /**
+     * Constructs the GenericOnOffStatus mMessage.
+     *
+     * @param node    Node from which the mMessage originated from
+     * @param message Access Message
+     */
+    public SceneStatus(@NonNull final ProvisionedMeshNode node,
+                       @NonNull final AccessMessage message) {
         super(node, message);
         this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
 
-    private static final Creator<GenericLevelStatus> CREATOR = new Creator<GenericLevelStatus>() {
+    private static final Creator<SceneStatus> CREATOR = new Creator<SceneStatus>() {
         @Override
-        public GenericLevelStatus createFromParcel(Parcel in) {
+        public SceneStatus createFromParcel(Parcel in) {
             final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new GenericLevelStatus(meshNode, message);
+            return new SceneStatus(meshNode, message);
         }
 
         @Override
-        public GenericLevelStatus[] newArray(int size) {
-            return new GenericLevelStatus[size];
+        public SceneStatus[] newArray(int size) {
+            return new SceneStatus[size];
         }
     };
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received generic level status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
+        Log.v(TAG, "Received scene status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
-        mPresentLevel = (int) (buffer.getShort());
-        Log.v(TAG, "Present level: " + mPresentLevel);
-        if(buffer.limit() > GENERIC_LEVEL_STATUS_MANDATORY_LENGTH) {
-            mTargetLevel = (int) (buffer.getShort());
-            final int remainingTime = buffer.get() & 0xFF;
-            mTransitionSteps = (remainingTime & 0x3F);
-            mTransitionResolution = (remainingTime >> 6);
-            Log.v(TAG, "Target level: " + mTargetLevel);
+        buffer.position(0);
+        mStatusCode = buffer.get() & 0xFF;
+        mCurrentScene = buffer.getShort() & 0xFFFF;
+        Log.v(TAG, "Status: " + mStatusCode);
+        Log.v(TAG, "Current Scene : " + mCurrentScene);
+        if (buffer.limit() > SCENE_STATUS_MANDATORY_LENGTH) {
+            mTargetScene = buffer.getShort() & 0xFFFF;
+            mRemainingTime = buffer.get() & 0xFF;
+            mTransitionSteps = (mRemainingTime & 0x3F);
+            mTransitionResolution = (mRemainingTime >> 6);
+            Log.v(TAG, "Target on: " + mTargetScene);
             Log.v(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
             Log.v(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
-            Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(remainingTime));
+            Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(mRemainingTime));
         }
     }
 
@@ -92,21 +103,30 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
     }
 
     /**
-     * Returns the present level of the GenericOnOffModel
+     * Returns the present state of the GenericOnOffModel
      *
-     * @return present level
+     * @return true if on and false other wise
      */
-    public final int getPresentLevel() {
-        return mPresentLevel;
+    public final int getStatus() {
+        return mStatusCode;
     }
 
     /**
-     * Returns the target level of the GenericOnOffModel
+     * Returns the target state of the GenericOnOffModel
      *
-     * @return target level
+     * @return true if on and false other wise
      */
-    public final Integer getTargetLevel() {
-        return mTargetLevel;
+    public final int getCurrentScene() {
+        return mCurrentScene;
+    }
+
+    /**
+     * Returns the target state of the GenericOnOffModel
+     *
+     * @return true if on and false other wise
+     */
+    public final Integer getTargetScene() {
+        return mTargetScene;
     }
 
     /**

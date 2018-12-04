@@ -11,106 +11,106 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 /**
- * To be used as a wrapper class when creating a GenericOnOffSet message.
+ * To be used as a wrapper class when creating a SceneStore message.
  */
 @SuppressWarnings("unused")
-public class GenericOnOffSet extends GenericMessage {
+public class SceneRecall extends GenericMessage {
 
-    private static final String TAG = GenericOnOffSet.class.getSimpleName();
-    private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_ON_OFF_SET;
-    private static final int GENERIC_ON_OFF_SET_TRANSITION_PARAMS_LENGTH = 4;
-    private static final int GENERIC_ON_OFF_SET_PARAMS_LENGTH = 2;
+    private static final String TAG = SceneRecall.class.getSimpleName();
+    private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_RECALL;
+    private static final int SCENE_RECALL_TRANSITION_PARAMS_LENGTH = 5;
+    private static final int SCENE_RECALL_PARAMS_LENGTH = 3;
 
     private final Integer mTransitionSteps;
     private final Integer mTransitionResolution;
     private final Integer mDelay;
-    private final boolean mState;
+    private final int mSceneNumber;
     private final int tId;
 
     /**
-     * Constructs GenericOnOffSet message.
+     * Constructs SceneStore message.
      *
      * @param node        Mesh node this message is to be sent to
      * @param appKey      application key for this message
-     * @param state       boolean state of the GenericOnOffModel
+     * @param sceneNumber       scene number
      * @param aszmic      size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericOnOffSet(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           final boolean state,
-                           final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, state, node.getReceivedSequenceNumber(), null, null, null, aszmic);
+    public SceneRecall(@NonNull final ProvisionedMeshNode node,
+                       @NonNull final byte[] appKey,
+                       final int sceneNumber,
+                       final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, null, null, null, sceneNumber, node.getSequenceNumber(), aszmic);
     }
 
     /**
-     * Constructs GenericOnOffSet message.
+     * Constructs SceneStore message.
      *
      * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
-     * @param state                boolean state of the GenericOnOffModel
      * @param transitionSteps      transition steps for the level
      * @param transitionResolution transition resolution for the level
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
+     * @param sceneNumber                scene number
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public GenericOnOffSet(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           final boolean state,
-                           @Nullable final Integer transitionSteps,
-                           @Nullable final Integer transitionResolution,
-                           @Nullable final Integer delay,
-                           final int aszmic) {
-        this(node, appKey, state, node.getReceivedSequenceNumber(), transitionSteps, transitionResolution, delay, aszmic);
+    public SceneRecall(@NonNull final ProvisionedMeshNode node,
+                       @NonNull final byte[] appKey,
+                       @Nullable final Integer transitionSteps,
+                       @Nullable final Integer transitionResolution,
+                       @Nullable final Integer delay,
+                       final int sceneNumber,
+                       final int aszmic) {
+        this(node, appKey, null, null, null, sceneNumber, node.getSequenceNumber(), aszmic);
     }
 
     /**
-     * Constructs GenericOnOffSet message.
+     * Constructs SceneStore message.
      *
      * @param node        Mesh node this message is to be sent to
      * @param appKey      application key for this message
-     * @param state       boolean state of the GenericOnOffModel
-     * @param tId                  transaction id
+     * @param sceneNumber       sceneNumber
+     * @param tId                   transaction Id
      * @param aszmic      size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericOnOffSet(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           final boolean state,
-                           final int tId,
-                           final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, state, tId, null, null, null, aszmic);
+    public SceneRecall(@NonNull final ProvisionedMeshNode node,
+                       @NonNull final byte[] appKey,
+                       final int sceneNumber,
+                       final int tId,
+                       final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, null, null, null, sceneNumber, tId, aszmic);
     }
 
     /**
-     * Constructs GenericOnOffSet message.
+     * Constructs SceneStore message.
      *
      * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
-     * @param state                boolean state of the GenericOnOffModel
+     * @param sceneNumber                sceneNumber
      * @param transitionSteps      transition steps for the level
      * @param transitionResolution transition resolution for the level
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param tId                  transaction id
+     * @param tId                   transaction Id
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public GenericOnOffSet(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           final boolean state,
-                           final int tId,
-                           @Nullable final Integer transitionSteps,
-                           @Nullable final Integer transitionResolution,
-                           @Nullable final Integer delay,
-                           final int aszmic) {
+    public SceneRecall(@NonNull final ProvisionedMeshNode node,
+                       @NonNull final byte[] appKey,
+                       @Nullable final Integer transitionSteps,
+                       @Nullable final Integer transitionResolution,
+                       @Nullable final Integer delay,
+                       final int sceneNumber,
+                       final int tId,
+                       final int aszmic) {
         super(node, appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;
-        this.mState = state;
+        this.mSceneNumber = sceneNumber;
         this.tId = tId;
         assembleMessageParameters();
     }
@@ -124,22 +124,21 @@ public class GenericOnOffSet extends GenericMessage {
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey);
         final ByteBuffer paramsBuffer;
-        Log.v(TAG, "State: " + (mState ? "ON" : "OFF"));
+        Log.v(TAG, "Scene number: " + mSceneNumber);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
-            paramsBuffer = ByteBuffer.allocate(GENERIC_ON_OFF_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
+            paramsBuffer = ByteBuffer.allocate(SCENE_RECALL_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer.putShort((short) mSceneNumber);
             paramsBuffer.put((byte) tId);
         } else {
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
-            paramsBuffer = ByteBuffer.allocate(GENERIC_ON_OFF_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
+            paramsBuffer = ByteBuffer.allocate(SCENE_RECALL_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer.putShort((short) mSceneNumber);
             paramsBuffer.put((byte) tId);
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
             paramsBuffer.put((byte) delay);
         }
         mParameters = paramsBuffer.array();
-
     }
 }

@@ -1,7 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -11,109 +11,107 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 /**
- * To be used as a wrapper class when creating a GenericLevelSetUnacknowledged message.
+ * To be used as a wrapper class when creating a SceneStore message.
  */
 @SuppressWarnings("unused")
-public class GenericLevelSetUnacknowledged extends GenericMessage {
+public class SceneRecallUnacknowledged extends GenericMessage {
 
-    private static final String TAG = GenericLevelSetUnacknowledged.class.getSimpleName();
-    private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_LEVEL_SET_UNACKNOWLEDGED;
-    private static final int GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH = 5;
-    private static final int GENERIC_LEVEL_SET_PARAMS_LENGTH = 3;
+    private static final String TAG = SceneRecallUnacknowledged.class.getSimpleName();
+    private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_RECALL_UNACKNOWLEDGED;
+    private static final int SCENE_RECALL_TRANSITION_PARAMS_LENGTH = 5;
+    private static final int SCENE_RECALL_PARAMS_LENGTH = 3;
 
     private final Integer mTransitionSteps;
     private final Integer mTransitionResolution;
     private final Integer mDelay;
-    private final int mLevel;
+    private final int mSceneNumber;
     private final int tId;
 
     /**
-     * Constructs GenericLevelSetUnacknowledged message.
+     * Constructs SceneStore message.
      *
      * @param node        Mesh node this message is to be sent to
      * @param appKey      application key for this message
-     * @param level       level of the GenericLevelModel
+     * @param sceneNumber       scene number
      * @param aszmic      size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericLevelSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           final int level,
-                           final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, level, node.getReceivedSequenceNumber(), aszmic);
+    public SceneRecallUnacknowledged(@NonNull final ProvisionedMeshNode node,
+                       @NonNull final byte[] appKey,
+                       final int sceneNumber,
+                       final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, null, null, null, sceneNumber, node.getSequenceNumber(), aszmic);
     }
 
     /**
-     * Constructs GenericLevelSetUnacknowledged message.
+     * Constructs SceneStore message.
      *
      * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param transitionSteps      transition steps for the level
      * @param transitionResolution transition resolution for the level
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param level                level of the GenericLevelModel
+     * @param sceneNumber                scene number
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public GenericLevelSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           @NonNull final Integer transitionSteps,
-                           @NonNull final Integer transitionResolution,
-                           @NonNull final Integer delay,
-                           final int level,
-                           final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, transitionSteps, transitionResolution, delay, level, node.getReceivedSequenceNumber(), aszmic);
+    public SceneRecallUnacknowledged(@NonNull final ProvisionedMeshNode node,
+                       @NonNull final byte[] appKey,
+                       @Nullable final Integer transitionSteps,
+                       @Nullable final Integer transitionResolution,
+                       @Nullable final Integer delay,
+                       final int sceneNumber,
+                       final int aszmic) {
+        this(node, appKey, null, null, null, sceneNumber, node.getSequenceNumber(), aszmic);
     }
 
     /**
-     * Constructs GenericLevelSetUnacknowledged message.
+     * Constructs SceneStore message.
      *
      * @param node        Mesh node this message is to be sent to
      * @param appKey      application key for this message
-     * @param level       level of the GenericLevelModel
+     * @param sceneNumber       sceneNumber
      * @param tId                  transaction id
      * @param aszmic      size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericLevelSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           final int level,
-                           final int tId,
-                           final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, level, tId, aszmic);
+    public SceneRecallUnacknowledged(@NonNull final ProvisionedMeshNode node,
+                       @NonNull final byte[] appKey,
+                       final int sceneNumber,
+                       final int tId,
+                       final int aszmic) throws IllegalArgumentException {
+        this(node, appKey, null, null, null, sceneNumber, tId, aszmic);
     }
 
     /**
-     * Constructs GenericLevelSetUnacknowledged message.
+     * Constructs SceneStore message.
      *
      * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param transitionSteps      transition steps for the level
      * @param transitionResolution transition resolution for the level
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param level                level of the GenericLevelModel
+     * @param sceneNumber                sceneNumber
      * @param tId                  transaction id
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public GenericLevelSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           @NonNull final Integer transitionSteps,
-                           @NonNull final Integer transitionResolution,
-                           @NonNull final Integer delay,
-                           final int level,
-                           final int tId,
-                           final int aszmic) throws IllegalArgumentException {
+    public SceneRecallUnacknowledged(@NonNull final ProvisionedMeshNode node,
+                       @NonNull final byte[] appKey,
+                       @Nullable final Integer transitionSteps,
+                       @Nullable final Integer transitionResolution,
+                       @Nullable final Integer delay,
+                       final int sceneNumber,
+                       final int tId,
+                       final int aszmic) {
         super(node, appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;
+        this.mSceneNumber = sceneNumber;
         this.tId = tId;
-        if (level < Short.MIN_VALUE || level > Short.MAX_VALUE)
-            throw new IllegalArgumentException("Generic level value must be between -32768 to 32767");
-        this.mLevel = level;
         assembleMessageParameters();
     }
 
@@ -126,16 +124,16 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey);
         final ByteBuffer paramsBuffer;
-        Log.v(TAG, "Level: " + mLevel);
+        Log.v(TAG, "Scene number: " + mSceneNumber);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
-            paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.putShort((short) mLevel);
+            paramsBuffer = ByteBuffer.allocate(SCENE_RECALL_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer.putShort((short) mSceneNumber);
             paramsBuffer.put((byte) tId);
         } else {
             Log.v(TAG, "Transition steps: " + mTransitionSteps);
             Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
-            paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.putShort((short) (mLevel));
+            paramsBuffer = ByteBuffer.allocate(SCENE_RECALL_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer.putShort((short) mSceneNumber);
             paramsBuffer.put((byte) tId);
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
             final int delay = mDelay;
