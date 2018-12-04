@@ -2,6 +2,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -40,7 +41,7 @@ public class LightLightnessSet extends GenericMessage {
                              @NonNull final byte[] appKey,
                              final int lightLightness,
                              final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, node.getSequenceNumber(), aszmic);
+        this(node, appKey, null, null, null, lightLightness, node.getReceivedSequenceNumber(), aszmic);
     }
 
     /**
@@ -58,12 +59,12 @@ public class LightLightnessSet extends GenericMessage {
     @SuppressWarnings("WeakerAccess")
     public LightLightnessSet(@NonNull final ProvisionedMeshNode node,
                              @NonNull final byte[] appKey,
-                             @NonNull final Integer transitionSteps,
-                             @NonNull final Integer transitionResolution,
-                             @NonNull final Integer delay,
+                             @Nullable final Integer transitionSteps,
+                             @Nullable final Integer transitionResolution,
+                             @Nullable final Integer delay,
                              final int lightLightness,
                              final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, transitionSteps, transitionResolution, delay, lightLightness, node.getSequenceNumber(), aszmic);
+        this(node, appKey, transitionSteps, transitionResolution, delay, lightLightness, node.getReceivedSequenceNumber(), aszmic);
     }
 
      /**
@@ -100,9 +101,9 @@ public class LightLightnessSet extends GenericMessage {
     @SuppressWarnings("WeakerAccess")
     public LightLightnessSet(@NonNull final ProvisionedMeshNode node,
 										   @NonNull final byte[] appKey,
-										   @NonNull final Integer transitionSteps,
-										   @NonNull final Integer transitionResolution,
-										   @NonNull final Integer delay,
+										   @Nullable final Integer transitionSteps,
+										   @Nullable final Integer transitionResolution,
+										   @Nullable final Integer delay,
 										   final int lightLightness,
 										   final int tId,
 										   final int aszmic) throws IllegalArgumentException {

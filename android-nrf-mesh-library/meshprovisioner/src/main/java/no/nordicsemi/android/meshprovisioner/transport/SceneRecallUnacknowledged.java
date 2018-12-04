@@ -40,7 +40,7 @@ public class SceneRecallUnacknowledged extends GenericMessage {
                        @NonNull final byte[] appKey,
                        final int sceneNumber,
                        final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, sceneNumber, node.getSequenceNumber(), aszmic);
+        this(node, appKey, null, null, null, sceneNumber, node.getReceivedSequenceNumber(), aszmic);
     }
 
     /**
@@ -63,7 +63,7 @@ public class SceneRecallUnacknowledged extends GenericMessage {
                        @Nullable final Integer delay,
                        final int sceneNumber,
                        final int aszmic) {
-        this(node, appKey, null, null, null, sceneNumber, node.getSequenceNumber(), aszmic);
+        this(node, appKey, null, null, null, sceneNumber, node.getReceivedSequenceNumber(), aszmic);
     }
 
     /**

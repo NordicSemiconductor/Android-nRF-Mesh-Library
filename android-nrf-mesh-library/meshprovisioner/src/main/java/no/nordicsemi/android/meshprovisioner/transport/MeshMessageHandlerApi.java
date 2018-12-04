@@ -143,7 +143,7 @@ interface MeshMessageHandlerApi {
      */
     void setGenericOnOffUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
                                        @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex,
-                                       @NonNull final Integer transitionSteps, @NonNull final Integer transitionResolution, @NonNull final Integer delay, final boolean state);
+                                       @Nullable final Integer transitionSteps, @Nullable final Integer transitionResolution, @Nullable final Integer delay, final boolean state);
 
     /**
      * Send generic on off set to mesh node, this message is an unacknowledged message.

@@ -2,6 +2,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -46,7 +47,7 @@ public class LightHslSet extends GenericMessage {
                                      final int lightHue,
                                      final int lightSaturation,
                                      final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, lightHue, lightSaturation, node.getSequenceNumber(), aszmic);
+        this(node, appKey, null, null, null, lightLightness, lightHue, lightSaturation, node.getReceivedSequenceNumber(), aszmic);
     }
 
     /**
@@ -66,14 +67,14 @@ public class LightHslSet extends GenericMessage {
     @SuppressWarnings("WeakerAccess")
     public LightHslSet(@NonNull final ProvisionedMeshNode node,
                        @NonNull final byte[] appKey,
-                       @NonNull final Integer transitionSteps,
-                       @NonNull final Integer transitionResolution,
-                       @NonNull final Integer delay,
+                       @Nullable final Integer transitionSteps,
+                       @Nullable final Integer transitionResolution,
+                       @Nullable final Integer delay,
                        final int lightLightness,
                        final int lightHue,
                        final int lightSaturation,
                        final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, transitionSteps, transitionResolution, delay, lightLightness, lightHue, lightSaturation, node.getSequenceNumber(), aszmic);
+        this(node, appKey, transitionSteps, transitionResolution, delay, lightLightness, lightHue, lightSaturation, node.getReceivedSequenceNumber(), aszmic);
     }
 
     /**
@@ -116,9 +117,9 @@ public class LightHslSet extends GenericMessage {
     @SuppressWarnings("WeakerAccess")
     public LightHslSet(@NonNull final ProvisionedMeshNode node,
                        @NonNull final byte[] appKey,
-                       @NonNull final Integer transitionSteps,
-                       @NonNull final Integer transitionResolution,
-                       @NonNull final Integer delay,
+                       @Nullable final Integer transitionSteps,
+                       @Nullable final Integer transitionResolution,
+                       @Nullable final Integer delay,
                        final int lightLightness,
                        final int lightHue,
                        final int lightSaturation,

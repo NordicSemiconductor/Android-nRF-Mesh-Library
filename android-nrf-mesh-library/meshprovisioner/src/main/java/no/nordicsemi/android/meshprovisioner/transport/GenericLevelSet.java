@@ -2,6 +2,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -58,9 +59,9 @@ public class GenericLevelSet extends GenericMessage {
     @SuppressWarnings("WeakerAccess")
     public GenericLevelSet(@NonNull final ProvisionedMeshNode node,
                            @NonNull final byte[] appKey,
-                           @NonNull final Integer transitionSteps,
-                           @NonNull final Integer transitionResolution,
-                           @NonNull final Integer delay,
+                           @Nullable final Integer transitionSteps,
+                           @Nullable final Integer transitionResolution,
+                           @Nullable final Integer delay,
                            final int level,
                            final int aszmic) throws IllegalArgumentException {
         this(node, appKey, transitionSteps, transitionResolution, delay, level, node.getReceivedSequenceNumber(), aszmic);
@@ -100,9 +101,9 @@ public class GenericLevelSet extends GenericMessage {
     @SuppressWarnings("WeakerAccess")
     public GenericLevelSet(@NonNull final ProvisionedMeshNode node,
                            @NonNull final byte[] appKey,
-                           @NonNull final Integer transitionSteps,
-                           @NonNull final Integer transitionResolution,
-                           @NonNull final Integer delay,
+                           @Nullable final Integer transitionSteps,
+                           @Nullable final Integer transitionResolution,
+                           @Nullable final Integer delay,
                            final int level,
                            final int tId,
                            final int aszmic) throws IllegalArgumentException {
