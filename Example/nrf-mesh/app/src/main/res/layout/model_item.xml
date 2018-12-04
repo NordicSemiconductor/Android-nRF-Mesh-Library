@@ -28,9 +28,11 @@
     android:id="@+id/mesh_model_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/white"
+    android:background="?android:selectableItemBackground"
     android:paddingTop="@dimen/item_padding_top"
     android:paddingBottom="@dimen/item_padding_bottom"
+    android:paddingStart="56dp"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
     tools:ignore="ContentDescription">
 
     <TextView
