@@ -552,6 +552,12 @@ abstract class BaseMeshNetwork {
         }
     }
 
+    final void notifyNodeDeleted(final ProvisionedMeshNode meshNode) {
+        if (mCallbacks != null) {
+            mCallbacks.onNodeDeleted(meshNode);
+        }
+    }
+
     final void notifyNodesUpdated() {
         if (mCallbacks != null) {
             mCallbacks.onNodesUpdated();
