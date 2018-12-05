@@ -111,6 +111,31 @@ public class EncryptionTests {
     }
 
     @Test
+    public void beacon_key_isCorrect() {
+        //8.2.6
+        final String expectedBeaconKey = "5423d967da639a99cb02231a83f7d254".toUpperCase();
+        final byte[] networkKey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6".toUpperCase());
+
+        assertEquals(expectedBeaconKey, MeshParserUtils.bytesToHex(SecureUtils.calculateBeaconKey(networkKey), false));
+    }
+
+    @Test
+    public void secure_network_beacon_isCorrect() {
+        //8.2.6
+        final byte[] ivIndex = MeshParserUtils.toByteArray("12345678");
+        final byte[] flags = new byte[]{0x00};
+        final byte[] networkId = MeshParserUtils.toByteArray("3ecaff672f673370");
+        final byte[] authenticationValue = MeshParserUtils.toByteArray("8ea261582f364f6f3c74ef80336ca17e");
+
+        final String expectedSecureNetworkBeacon = "01003ecaff672f673370123456788ea261582f364f6f".toUpperCase();
+        final byte[] networkKey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6".toUpperCase());
+
+        assertEquals(expectedSecureNetworkBeacon,
+                MeshParserUtils.bytesToHex(SecureUtils.calculateSecureNetworkBeacon(networkKey, 1,
+                        flags, networkId, ivIndex), false));
+    }
+
+    @Test
     public void parse_node_id_isCorrect() {
         //8.2.5
         final byte[] advertisingData = MeshParserUtils.toByteArray("141628180100861765aefcc57b34ae608fbbc1f2c6".toUpperCase());
