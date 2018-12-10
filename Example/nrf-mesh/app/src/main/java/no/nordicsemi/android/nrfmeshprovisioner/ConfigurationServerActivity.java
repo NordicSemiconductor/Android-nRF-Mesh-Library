@@ -73,20 +73,6 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(final Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(NETWORK_TRANSMIT_COUNT, mNetworkTransmitCount);
-        outState.putInt(NETWORK_TRANSMIT_INTERVAL_STEPS, mNetworkTransmitIntervalSteps);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(final Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        mNetworkTransmitCount = savedInstanceState.getInt(NETWORK_TRANSMIT_COUNT);
-        mNetworkTransmitIntervalSteps = savedInstanceState.getInt(NETWORK_TRANSMIT_INTERVAL_STEPS);
-    }
-
     private void getNetworkTransmit() {
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         try {
