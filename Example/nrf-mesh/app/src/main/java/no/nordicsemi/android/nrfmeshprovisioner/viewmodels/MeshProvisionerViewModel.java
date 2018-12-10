@@ -46,7 +46,7 @@ public class MeshProvisionerViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        mNrfMeshRepository.clearMeshNodeLiveData();
+        mNrfMeshRepository.clearProvisioningLiveData();
     }
 
     public LiveData<Void> isDeviceReady() {
