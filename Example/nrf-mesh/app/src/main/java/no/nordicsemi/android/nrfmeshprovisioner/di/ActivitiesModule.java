@@ -24,18 +24,22 @@ package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
-import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.BaseModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.BindAppKeysActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.GenericLevelServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.GenericOnOffServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MainActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ManageNodeAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MeshProvisionerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeDetailsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ProvisionedNodesScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.PublicationSettingsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ReconnectActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.VendorModelActivity;
 
 @Module
 abstract class ActivitiesModule {
@@ -72,4 +76,19 @@ abstract class ActivitiesModule {
 
 	@ContributesAndroidInjector()
 	abstract PublicationSettingsActivity contributePublicationSettingsActivity();
+
+	@ContributesAndroidInjector()
+	abstract ConfigurationServerActivity contribyteConfigurationServerActivity();
+
+	@ContributesAndroidInjector()
+	abstract GenericOnOffServerActivity contributeGenericOnOffServerActivity();
+
+	@ContributesAndroidInjector()
+	abstract GenericLevelServerActivity contributeGenericLevelServerActivity();
+
+	@ContributesAndroidInjector()
+	abstract VendorModelActivity contributeVendorModelActivity();
+
+	@ContributesAndroidInjector()
+	abstract ModelConfigurationActivity contributeModelConfigurationActivity();
 }

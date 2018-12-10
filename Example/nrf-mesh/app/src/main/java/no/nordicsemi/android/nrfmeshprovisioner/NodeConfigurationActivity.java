@@ -49,6 +49,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.models.ConfigurationServerModel;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyStatus;
@@ -344,14 +345,16 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
      */
     private void startActivity(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model) {
         final Intent intent;
-        if(model instanceof GenericOnOffServerModel) {
+        if (model instanceof ConfigurationServerModel) {
+            intent = new Intent(this, ConfigurationServerActivity.class);
+        } else if(model instanceof GenericOnOffServerModel) {
             intent = new Intent(this, GenericOnOffServerActivity.class);
         } else if (model instanceof GenericLevelServerModel) {
             intent = new Intent(this, GenericLevelServerActivity.class);
         } else if (model instanceof VendorModel) {
             intent = new Intent(this, VendorModelActivity.class);
         } else {
-            intent = new Intent(this, ConfigurationServerActivity.class);
+            intent = new Intent(this, ModelConfigurationActivity.class);
         }
 
         intent.putExtra(EXTRA_DEVICE, meshNode);

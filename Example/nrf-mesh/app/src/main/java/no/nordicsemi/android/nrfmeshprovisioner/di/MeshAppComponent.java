@@ -33,8 +33,7 @@ import dagger.android.support.AndroidSupportInjectionModule;
         ContextModule.class,
         ViewModelModule.class,
         BleMeshManagerModule.class,
-        ActivitiesModule.class,
-        AppControlActivitiesModule.class})
+        ActivitiesModule.class})
 public interface MeshAppComponent {
 
     @Component.Builder
