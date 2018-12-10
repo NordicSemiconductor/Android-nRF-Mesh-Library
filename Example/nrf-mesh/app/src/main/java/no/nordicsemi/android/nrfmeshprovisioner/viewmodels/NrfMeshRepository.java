@@ -345,7 +345,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      * Disconnects from peripheral
      */
     public void disconnect() {
-        clearMeshNodeLiveData();
+        clearProvisioningLiveData();
         removeCallbacks();
         mIsProvisioningComplete = false;
         mBleMeshManager.disconnect();
@@ -368,7 +368,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         }
     }
 
-    void clearMeshNodeLiveData() {
+    void clearProvisioningLiveData() {
+        mIsReconnectingFlag = false;
         mUnprovisionedMeshNodeLiveData.setValue(null);
         mProvisionedMeshNodeLiveData.setValue(null);
     }
@@ -794,7 +795,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mMeshMessageLiveData.postValue(status);
 
         } else if (meshMessage instanceof ConfigNetworkTransmitStatus) {
-            if(updateNode(node)) {
+            if (updateNode(node)) {
                 final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
                 mMeshMessageLiveData.postValue(status);
             }
