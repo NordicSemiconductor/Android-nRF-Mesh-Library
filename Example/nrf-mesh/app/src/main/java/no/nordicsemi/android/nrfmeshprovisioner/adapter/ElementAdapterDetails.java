@@ -89,7 +89,7 @@ public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDe
         //Remove all child views to avoid duplicating
         holder.mModelContainer.removeAllViews();
         for(MeshModel model : models) {
-            final View modelView = LayoutInflater.from(mContext).inflate(R.layout.model_item, holder.mElementContainer, false);
+            final View modelView = LayoutInflater.from(mContext).inflate(R.layout.model_item_details, holder.mElementContainer, false);
             modelView.setTag(model.getModelId());
             final TextView modelNameView = modelView.findViewById(R.id.model_name);
             final TextView modelIdView = modelView.findViewById(R.id.model_id);

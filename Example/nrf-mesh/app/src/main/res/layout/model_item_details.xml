@@ -39,7 +39,8 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:singleLine="true"
-        android:textSize="16sp"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
         tools:text="Configuration Server"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
