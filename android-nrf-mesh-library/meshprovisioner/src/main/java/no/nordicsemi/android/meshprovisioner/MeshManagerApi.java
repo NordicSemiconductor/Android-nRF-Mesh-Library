@@ -297,6 +297,12 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
                 break;
             case PDU_TYPE_MESH_BEACON:
                 //Mesh beacon
+                final byte[] n = mMeshNetwork.getPrimaryNetworkKey().getKey();
+                final byte[] flags = {(byte) mMeshNetwork.getProvisioningFlags()};
+                final byte[] networkId = SecureUtils.calculateK3(n);
+                final byte[] ivIndex = ByteBuffer.allocate(4).putInt(mMeshNetwork.getIvIndex()).array();
+                Log.v(TAG, "Generated mesh beacon: " +
+                        MeshParserUtils.bytesToHex(SecureUtils.calculateSecureNetworkBeacon(n, 1, flags, networkId, ivIndex), true));
                 Log.v(TAG, "Received mesh beacon: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
                 break;
             case PDU_TYPE_PROXY_CONFIGURATION:
