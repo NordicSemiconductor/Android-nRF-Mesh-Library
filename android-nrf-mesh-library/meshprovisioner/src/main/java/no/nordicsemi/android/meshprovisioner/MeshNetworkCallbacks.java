@@ -4,6 +4,7 @@ import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 interface MeshNetworkCallbacks {
 
@@ -24,6 +25,8 @@ interface MeshNetworkCallbacks {
     void onProvisionerUpdated(final Provisioner provisioner);
 
     void onProvisionerUpdated(final List<Provisioner> provisioner);
+
+    void onNodeDeleted(final ProvisionedMeshNode meshNode);
 
     void onNodesUpdated();
 

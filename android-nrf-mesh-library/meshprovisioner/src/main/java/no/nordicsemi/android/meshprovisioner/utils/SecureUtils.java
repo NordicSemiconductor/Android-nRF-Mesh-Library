@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
 
@@ -104,6 +105,10 @@ public class SecureUtils {
      */
     private static final byte[] NKIK = "nkik".getBytes(Charset.forName("US-ASCII"));
 
+    /**
+     * Salt input for beacon key
+     */
+    private static final byte[] NKBK = "nkbk".getBytes(Charset.forName("US-ASCII"));
     /**
      * Salt input for identity key
      */
@@ -344,6 +349,61 @@ public class SecureUtils {
         buffer.put((byte) 0x01);
         final byte[] p = buffer.array();
         return calculateK1(n, salt, p);
+    }
+
+    /**
+     * Calculates the beacon key
+     *
+     * @param n network key
+     * @return hash value
+     */
+    public static byte[] calculateBeaconKey(final byte[] n) {
+        final byte[] salt = calculateSalt(NKBK);
+        ByteBuffer buffer = ByteBuffer.allocate(ID128.length + 1);
+        buffer.put(ID128);
+        buffer.put((byte) 0x01);
+        final byte[] p = buffer.array();
+        return calculateK1(n, salt, p);
+    }
+
+    public static byte[] calculateAuthValueSecureNetBeacon(@NonNull final byte[] n,
+                                                           @NonNull final byte[] flags,
+                                                           @NonNull final byte[] networkId,
+                                                           @NonNull final byte[] ivIndex) {
+        final int inputLength = flags.length + networkId.length + ivIndex.length;
+        final ByteBuffer pBuffer = ByteBuffer.allocate(inputLength);
+        pBuffer.put(flags);
+        pBuffer.put(networkId);
+        pBuffer.put(ivIndex);
+        final byte[] beaconKey = calculateBeaconKey(n);
+        return calculateCMAC(pBuffer.array(), beaconKey);
+    }
+
+    /**
+     * Calculates the secure network beacon
+     *
+     * @param n         network key
+     * @param flags     network flags, this represents the ccurrent state of hte network if key refresh/iv update is ongoing or complete
+     * @param networkId unique id of the network
+     * @param ivIndex   iv index of the network
+     */
+    public static byte[] calculateSecureNetworkBeacon(@NonNull final byte[] n,
+                                                      final int beaconType,
+                                                      @NonNull final byte[] flags,
+                                                      @NonNull final byte[] networkId,
+                                                      @NonNull final byte[] ivIndex) {
+        final byte[] authentication = calculateAuthValueSecureNetBeacon(n, flags, networkId, ivIndex);
+
+        final int inputLength = flags.length + networkId.length + ivIndex.length;
+        final ByteBuffer pBuffer = ByteBuffer.allocate(inputLength);
+        pBuffer.put(flags);
+        pBuffer.put(networkId);
+        pBuffer.put(ivIndex);
+        final ByteBuffer secNetBeaconBuffer = ByteBuffer.allocate(1 + inputLength + 8);
+        secNetBeaconBuffer.put((byte) beaconType);
+        secNetBeaconBuffer.put(pBuffer.array());
+        secNetBeaconBuffer.put(authentication, 0, 8);
+        return secNetBeaconBuffer.array();
     }
 
     /**

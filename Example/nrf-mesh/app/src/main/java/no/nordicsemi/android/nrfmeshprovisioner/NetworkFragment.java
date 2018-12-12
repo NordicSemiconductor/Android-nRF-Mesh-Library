@@ -72,7 +72,7 @@ public class NetworkFragment extends Fragment implements Injectable,
         final RecyclerView recyclerView = rootView.findViewById(R.id.recycler_view_provisioned_nodes);
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
 
-        mViewModel = ViewModelProviders.of(getActivity(), mViewModelFactory).get(SharedViewModel.class);
+        mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
 
         boolean isTablet = getResources().getBoolean(R.bool.isTablet);
         if(isTablet){
@@ -96,11 +96,11 @@ public class NetworkFragment extends Fragment implements Injectable,
             mAdapter.notifyDataSetChanged();
         });
 
-        mViewModel.getProvisionedNodes().observe(this, provisionedNodes -> getActivity().invalidateOptionsMenu());
+        mViewModel.getProvisionedNodes().observe(this, provisionedNodes -> requireActivity().invalidateOptionsMenu());
 
         mViewModel.isConnectedToProxy().observe(this, isConnected -> {
             if(isConnected != null) {
-                getActivity().invalidateOptionsMenu();
+                requireActivity().invalidateOptionsMenu();
             }
         });
         return rootView;
@@ -146,7 +146,7 @@ public class NetworkFragment extends Fragment implements Injectable,
         if(isConnectedToProxy != null && isConnectedToProxy) {
             mViewModel.setSelectedMeshNode(node);
             final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
-            getActivity().startActivity(meshConfigurationIntent);
+            requireActivity().startActivity(meshConfigurationIntent);
         } else {
             Toast.makeText(getActivity(), R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();
         }
@@ -156,7 +156,7 @@ public class NetworkFragment extends Fragment implements Injectable,
     public void onDetailsClicked(final ProvisionedMeshNode node) {
         final Intent meshConfigurationIntent = new Intent(getActivity(), NodeDetailsActivity.class);
         meshConfigurationIntent.putExtra(Utils.EXTRA_DEVICE, node);
-        getActivity().startActivity(meshConfigurationIntent);
+        requireActivity().startActivity(meshConfigurationIntent);
     }
 
 }
