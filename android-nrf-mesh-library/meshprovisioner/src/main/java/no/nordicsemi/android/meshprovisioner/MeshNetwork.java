@@ -153,7 +153,8 @@ public final class MeshNetwork extends BaseMeshNetwork {
      *
      * <p>
      * Note that deleting a node manually will not reset the node, but only be deleted from the stored list of provisioned nodes.
-     * However you may still be able to connect to the same node, if it was not reset since the network may still exist.
+     * However you may still be able to connect to the same node, if it was not reset since the network may still exist. This
+     * would be useful to in case if a node was manually reset and needs to be removed from the mesh network/db
      * </p>
      *
      * @param meshNode node to be deleted
