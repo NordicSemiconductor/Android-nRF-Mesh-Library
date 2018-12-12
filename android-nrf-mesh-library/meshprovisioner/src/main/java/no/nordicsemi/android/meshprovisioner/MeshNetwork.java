@@ -157,24 +157,27 @@ public final class MeshNetwork extends BaseMeshNetwork {
      * </p>
      *
      * @param meshNode node to be deleted
+     * @return true if deleted and false otherwise
      */
-    public void deleteNode(final ProvisionedMeshNode meshNode) {
+    public boolean deleteNode(final ProvisionedMeshNode meshNode) {
         for (ProvisionedMeshNode node : nodes) {
             if (meshNode.getUnicastAddressInt() == node.getUnicastAddressInt()) {
                 nodes.remove(node);
                 notifyNodeDeleted(meshNode);
-                break;
+                return true;
             }
         }
+        return false;
     }
 
-    void deleteResetNode(final ProvisionedMeshNode meshNode) {
+    boolean deleteResetNode(final ProvisionedMeshNode meshNode) {
         for (ProvisionedMeshNode node : nodes) {
             if (meshNode.getUnicastAddressInt() == node.getUnicastAddressInt()) {
                 nodes.remove(node);
-                break;
+                return true;
             }
         }
+        return false;
     }
 
     /**

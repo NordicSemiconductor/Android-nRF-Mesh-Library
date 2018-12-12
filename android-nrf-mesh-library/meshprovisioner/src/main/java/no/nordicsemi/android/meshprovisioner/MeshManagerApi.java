@@ -1009,9 +1009,10 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
         @Override
         public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
             if (meshNode != null) {
-                mMeshNetwork.deleteResetNode(meshNode);
-                mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
-                mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
+                if(mMeshNetwork.deleteResetNode(meshNode)) {
+                    mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
+                    mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
+                }
             }
         }
     };
