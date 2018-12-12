@@ -151,6 +151,11 @@ public final class MeshNetwork extends BaseMeshNetwork {
     /**
      * Deletes a mesh node from the list of provisioned nodes
      *
+     * <p>
+     * Note that deleting a node manually will not reset the node, but only be deleted from the stored list of provisioned nodes.
+     * However you may still be able to connect to the same node, if it was not reset since the network may still exist.
+     * </p>
+     *
      * @param meshNode node to be deleted
      */
     public void deleteNode(final ProvisionedMeshNode meshNode) {
@@ -163,7 +168,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         }
     }
 
-    void deleteResetNode(final ProvisionedMeshNode meshNode){
+    void deleteResetNode(final ProvisionedMeshNode meshNode) {
         for (ProvisionedMeshNode node : nodes) {
             if (meshNode.getUnicastAddressInt() == node.getUnicastAddressInt()) {
                 nodes.remove(node);
