@@ -14,6 +14,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
+import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 
 @SuppressWarnings("WeakerAccess")
 class DefaultNoOperationMessageState extends MeshMessageState {
@@ -127,6 +128,13 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final NetworkTransmitSettings networkTransmitSettings =
                             new NetworkTransmitSettings(status.getNetworkTransmitCount(), status.getNetworkTransmitIntervalSteps());
                     mNode.setNetworkTransmitSettings(networkTransmitSettings);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(status);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_RELAY_STATUS) {
+                    final ConfigRelayStatus status = new ConfigRelayStatus(mNode, message);
+                    final RelaySettings relaySettings =
+                            new RelaySettings(status.getRelayRetransmitCount(), status.getRelayRetransmitIntervalSteps());
+                    mNode.setRelaySettings(relaySettings);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS) {
