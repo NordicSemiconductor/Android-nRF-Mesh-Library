@@ -36,4 +36,6 @@ public interface NetworkLayerCallbacks {
     Provisioner getProvisioner(final byte[] unicastAddress);
 
     NetworkKey getPrimaryNetworkKey();
+
+    void notifyProvisionerUpdated(final byte[] unicastAddress);
 }

@@ -70,7 +70,9 @@ public final class MeshTransport extends NetworkLayer {
     @Override
     protected final int incrementSequenceNumber(final byte[] src) {
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
-        return provisioner.incrementSequenceNumber();
+        int seqNum = provisioner.incrementSequenceNumber();
+        mNetworkLayerCallbacks.notifyProvisionerUpdated(src);
+        return seqNum;
     }
 
     @Override
@@ -78,7 +80,9 @@ public final class MeshTransport extends NetworkLayer {
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
         final int seqNumber = MeshParserUtils.getSequenceNumber(sequenceNumber);
         provisioner.setSequenceNumber(seqNumber);
-        return provisioner.incrementSequenceNumber();
+        int seqNum = provisioner.incrementSequenceNumber();
+        mNetworkLayerCallbacks.notifyProvisionerUpdated(src);
+        return seqNum;
     }
 
     /**

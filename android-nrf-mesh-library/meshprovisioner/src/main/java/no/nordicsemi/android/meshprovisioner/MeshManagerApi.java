@@ -1066,6 +1066,11 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
         }
 
         @Override
+        public void notifyProvisionerUpdated(final byte[] unicastAddress) {
+            mMeshNetwork.notifyProvisionerUpdated(this.getProvisioner(unicastAddress));
+        }
+
+        @Override
         public NetworkKey getPrimaryNetworkKey() {
             return mMeshNetwork.getPrimaryNetworkKey();
         }
