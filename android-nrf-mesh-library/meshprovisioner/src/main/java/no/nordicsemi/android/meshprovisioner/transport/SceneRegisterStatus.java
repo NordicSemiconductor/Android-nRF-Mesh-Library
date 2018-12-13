@@ -86,12 +86,12 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
         Log.v(TAG, "Status: " + mStatus);
         Log.v(TAG, "Current Scene: " + mCurrentScene);
         if (buffer.limit() > SCENE_REGISTER_STATUS_MANDATORY_LENGTH) {
-            short[] scenes = buffer.asShortBuffer().array();
-            mSceneList = new int[scenes.length];
-            for (int i = 0; i < scenes.length; i++) {
-                mSceneList[i] = (int) scenes[i] & 0xFFFF;
+            int sceneCount = (buffer.limit() - SCENE_REGISTER_STATUS_MANDATORY_LENGTH) / 2;
+            mSceneList = new int[sceneCount];
+            for (int i = 0; i < sceneCount; i++) {
+                mSceneList[i] = buffer.getShort() & 0xFFFF;
             }
-            Log.v(TAG, "Scenees stored: " + scenes.length);
+            Log.v(TAG, "Scenes stored: " + sceneCount);
         }
     }
 
