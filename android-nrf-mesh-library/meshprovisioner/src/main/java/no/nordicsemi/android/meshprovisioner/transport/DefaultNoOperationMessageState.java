@@ -137,6 +137,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mNode.setRelaySettings(relaySettings);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(status);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_GATT_PROXY_STATUS) {
+                    final ConfigProxyStatus status = new ConfigProxyStatus(mNode, message);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(status);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS) {
                     final GenericOnOffStatus status = new GenericOnOffStatus(mNode, message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);

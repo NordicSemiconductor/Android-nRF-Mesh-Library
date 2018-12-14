@@ -38,6 +38,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigModelPublicationSta
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNetworkTransmitStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeResetStatus;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigProxyStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigRelayStatus;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelStatus;
@@ -802,9 +803,15 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 mMeshMessageLiveData.postValue(status);
             }
 
-        }  else if (meshMessage instanceof ConfigRelayStatus) {
+        } else if (meshMessage instanceof ConfigRelayStatus) {
             if (updateNode(node)) {
                 final ConfigRelayStatus status = (ConfigRelayStatus) meshMessage;
+                mMeshMessageLiveData.postValue(status);
+            }
+
+        } else if (meshMessage instanceof ConfigProxyStatus) {
+            if (updateNode(node)) {
+                final ConfigProxyStatus status = (ConfigProxyStatus) meshMessage;
                 mMeshMessageLiveData.postValue(status);
             }
 
