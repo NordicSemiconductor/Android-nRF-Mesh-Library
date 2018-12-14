@@ -2,6 +2,7 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.CardView;
@@ -45,8 +46,8 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
         super.onCreate(savedInstanceState);
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
         if (model instanceof VendorModel) {
-            final CardView cardView = findViewById(R.id.node_controls_card);
-            final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_vendor_model_controls, cardView);
+            final ConstraintLayout container = findViewById(R.id.node_controls_container);
+            final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_vendor_model_controls, container);
 
             final CheckBox chkAcknowledged = nodeControlsContainer.findViewById(R.id.chk_acknowledged);
             final TextInputLayout opCodeLayout = nodeControlsContainer.findViewById(R.id.op_code_layout);

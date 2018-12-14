@@ -197,22 +197,17 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
      * Returns a String representation of the features
      */
     private String parseFeatures(final Features features){
-        final String builder = "Friend feature " + parseFeature(features.getFriend()) + ", " +
-                "Low power feature " + parseFeature(features.getLowPower()) + ", " +
-                "Proxy feature " + parseFeature(features.getProxy()) + ", " +
-                "Relay feature " + parseFeature(features.getRelay());
-        return builder;
+        return "Friend feature " + parseFeature(features.isFriendFeatureSupported()) + ", " +
+                "Low power feature " + parseFeature(features.isLowPowerFeatureSupported()) + ", " +
+                "Proxy feature " + parseFeature(features.isProxyFeatureSupported()) + ", " +
+                "Relay feature " + parseFeature(features.isRelayFeatureSupported());
     }
 
-    public String parseFeature(final int feature){
-        if(feature == 2){
-            return "unsupported";
+    public String parseFeature(final boolean isSupported){
+        if(isSupported){
+            return "supported";
         } else {
-            if(feature == 0 ){
-                return "disabled";
-            } else {
-                return "enabled";
-            }
+            return "unsupported";
         }
     }
 }

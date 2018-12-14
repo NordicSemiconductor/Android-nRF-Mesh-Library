@@ -23,13 +23,10 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 
 
 /**
@@ -37,12 +34,6 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class ConfigRelaySet extends ConfigMessage {
-
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({RELAY_FEATURE_DISABLED, RELAY_FEATURE_ENABLED, RELAY_FEATURE_SUPPORTED})
-    public @interface RelayState {
-    }
-
     // Key refresh phases
     public static final int RELAY_FEATURE_DISABLED = 0x00; //Distribution of new keys
     public static final int RELAY_FEATURE_ENABLED = 0x01; //Switching to the new keys
@@ -59,14 +50,14 @@ public final class ConfigRelaySet extends ConfigMessage {
      * Constructs a ConfigNetworkTransmitSet message.
      *
      * @param node                         Mesh node this message is to be sent to
-     * @param relay                        {@link RelayState} to be set if the relay feature is supported by the node.
+     * @param relay                        {@link RelaySettings.RelayState} to be set if the relay feature is supported by the node.
      * @param relayRetransmitCount         Relay retransmit count to be set
      * @param relayRetransmitIntervalSteps Relay Retransmit Interval Steps to be set
      * @param aszmic                       Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public ConfigRelaySet(@NonNull final ProvisionedMeshNode node,
-                          @RelayState final int relay,
+                          @RelaySettings.RelayState final int relay,
                           final int relayRetransmitCount,
                           final int relayRetransmitIntervalSteps,
                           final int aszmic) throws IllegalArgumentException {

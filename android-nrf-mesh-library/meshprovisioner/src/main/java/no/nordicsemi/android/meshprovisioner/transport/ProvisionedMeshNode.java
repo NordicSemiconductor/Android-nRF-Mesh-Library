@@ -199,7 +199,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     /**
      * Sets the received sequence number
      * <p>This is only meant to be used internally within the library, hence the Restricted annotation</p>
-     * @param receivedSequenceNumber
+     * @param receivedSequenceNumber sequence number of the message received from a node
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setReceivedSequenceNumber(final int receivedSequenceNumber) {
@@ -266,7 +266,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     /**
      * Set {@link Features} of the node
-     * @param features
+     * @param features feature set supported by the node
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setNodeFeatures(final Features features) {
@@ -358,10 +358,10 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
             final boolean proxyFeatureSupported = configCompositionDataStatus.isProxyFeatureSupported();
             final boolean friendFeatureSupported = configCompositionDataStatus.isFriendFeatureSupported();
             final boolean lowPowerFeatureSupported = configCompositionDataStatus.isLowPowerFeatureSupported();
-            nodeFeatures = new Features(friendFeatureSupported ? 0 : 2,
-                    lowPowerFeatureSupported ? 0 : 2,
-                    proxyFeatureSupported ? 0 : 2,
-                    relayFeatureSupported ? 0 : 2);
+            nodeFeatures = new Features(friendFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
+                    lowPowerFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
+                    proxyFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
+                    relayFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED);
             mElements.putAll(configCompositionDataStatus.getElements());
         }
     }
@@ -379,15 +379,13 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param configModelAppStatus ConfigModelAppStatus containing the bound app key information
      */
     protected final void setAppKeyBindStatus(@NonNull final ConfigModelAppStatus configModelAppStatus) {
-        if (configModelAppStatus != null) {
-            if (configModelAppStatus.isSuccessful()) {
-                final Element element = mElements.get(configModelAppStatus.getElementAddress());
-                final int modelIdentifier = configModelAppStatus.getModelIdentifier();
-                final MeshModel model = element.getMeshModels().get(modelIdentifier);
-                final int appKeyIndex = configModelAppStatus.getAppKeyIndex();
-                final ApplicationKey appKey = mAddedApplicationKeys.get(appKeyIndex);
-                model.setBoundAppKey(appKeyIndex, appKey);
-            }
+        if (configModelAppStatus.isSuccessful()) {
+            final Element element = mElements.get(configModelAppStatus.getElementAddress());
+            final int modelIdentifier = configModelAppStatus.getModelIdentifier();
+            final MeshModel model = element.getMeshModels().get(modelIdentifier);
+            final int appKeyIndex = configModelAppStatus.getAppKeyIndex();
+            final ApplicationKey appKey = mAddedApplicationKeys.get(appKeyIndex);
+            model.setBoundAppKey(appKeyIndex, appKey);
         }
     }
 
@@ -397,16 +395,14 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param configModelAppStatus ConfigModelAppStatus containing the unbound app key information
      */
     protected final void setAppKeyUnbindStatus(@NonNull final ConfigModelAppStatus configModelAppStatus) {
-        if (configModelAppStatus != null) {
-            if (configModelAppStatus.isSuccessful()) {
-                final Element element = mElements.get(configModelAppStatus.getElementAddress());
-                final int modelIdentifier = configModelAppStatus.getModelIdentifier();
-                final MeshModel model = element.getMeshModels().get(modelIdentifier);
-                final int appKeyIndex = configModelAppStatus.getAppKeyIndex();
-                model.removeBoundAppKey(appKeyIndex);
-            }
-
+        if (configModelAppStatus.isSuccessful()) {
+            final Element element = mElements.get(configModelAppStatus.getElementAddress());
+            final int modelIdentifier = configModelAppStatus.getModelIdentifier();
+            final MeshModel model = element.getMeshModels().get(modelIdentifier);
+            final int appKeyIndex = configModelAppStatus.getAppKeyIndex();
+            model.removeBoundAppKey(appKeyIndex);
         }
+
     }
 
     private void sortElements(final HashMap<Integer, Element> unorderedElements) {

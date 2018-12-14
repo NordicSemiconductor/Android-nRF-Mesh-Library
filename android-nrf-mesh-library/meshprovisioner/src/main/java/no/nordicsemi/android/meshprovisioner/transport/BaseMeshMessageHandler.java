@@ -105,6 +105,14 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     final ConfigNetworkTransmitSetState networkTransmitSet = (ConfigNetworkTransmitSetState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, networkTransmitSet.getMeshMessage(), mMeshTransport, this));
                     break;
+                case CONFIG_RELAY_GET_STATE:
+                    final ConfigRelayGetState configRelayGetState = (ConfigRelayGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configRelayGetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case CONFIG_RELAY_SET_STATE:
+                    final ConfigRelaySetState configRelaySetState = (ConfigRelaySetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configRelaySetState.getMeshMessage(), mMeshTransport, this));
+                    break;
             }
         } else if (mMeshMessageState instanceof GenericMessageState) {
             switch (mMeshMessageState.getState()) {
@@ -602,6 +610,18 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             configNetworkTransmitSetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configNetworkTransmitSetState;
             configNetworkTransmitSetState.executeSend();
+        } else if (configMessage instanceof ConfigRelayGet) {
+            final ConfigRelayGetState configRelayGetState = new ConfigRelayGetState(mContext, (ConfigRelayGet) configMessage, mMeshTransport, this);
+            configRelayGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            configRelayGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = configRelayGetState;
+            configRelayGetState.executeSend();
+        } else if (configMessage instanceof ConfigRelaySet) {
+            final ConfigRelaySetState configRelaySetState = new ConfigRelaySetState(mContext, (ConfigRelaySet) configMessage, mMeshTransport, this);
+            configRelaySetState.setTransportCallbacks(mInternalTransportCallbacks);
+            configRelaySetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = configRelaySetState;
+            configRelaySetState.executeSend();
         }
     }
 

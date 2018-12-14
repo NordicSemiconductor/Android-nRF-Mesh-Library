@@ -159,6 +159,8 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         CONFIG_NODE_RESET_STATE(7),
         CONFIG_NETWORK_TRANSMIT_SET_STATE(8),
         CONFIG_NETWORK_TRANSMIT_GET_STATE(9),
+        CONFIG_RELAY_GET_STATE(10),
+        CONFIG_RELAY_SET_STATE(11),
 
         //Application message States
         GENERIC_ON_OFF_GET_STATE(200),

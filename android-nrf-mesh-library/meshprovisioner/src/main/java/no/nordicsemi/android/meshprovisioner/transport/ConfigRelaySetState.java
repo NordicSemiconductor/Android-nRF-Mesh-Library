@@ -30,7 +30,7 @@ public final class ConfigRelaySetState extends ConfigMessageState {
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_NETWORK_TRANSMIT_GET_STATE;
+        return MessageState.CONFIG_RELAY_SET_STATE;
     }
 
     private void createAccessMessage() {

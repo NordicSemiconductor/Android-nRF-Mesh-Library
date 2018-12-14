@@ -28,6 +28,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 
 /**
  * To be used as a wrapper class for when creating the ConfigRelayStatus message.
@@ -85,9 +86,9 @@ public final class ConfigRelayStatus extends ConfigStatusMessage implements Parc
 
 
     /**
-     * Returns the {@link ConfigRelaySet.RelayState} of the node
+     * Returns the {@link RelaySettings.RelayState} of the node
      */
-    @ConfigRelaySet.RelayState
+    @RelaySettings.RelayState
     public int getRelay() {
         return mRelay;
     }

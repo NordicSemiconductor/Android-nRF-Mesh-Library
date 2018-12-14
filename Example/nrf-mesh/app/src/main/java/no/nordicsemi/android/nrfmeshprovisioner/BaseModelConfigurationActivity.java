@@ -93,12 +93,12 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
-    @BindView(R.id.unbind_hint)
-    TextView mUnbindHint;
     @BindView(R.id.action_bind_app_key)
     Button mActionBindAppKey;
     @BindView(R.id.bound_keys)
     TextView mAppKeyView;
+    @BindView(R.id.unbind_hint)
+    TextView mUnbindHint;
 
     @BindView(R.id.action_set_publication)
     Button mActionSetPublication;
@@ -107,6 +107,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @BindView(R.id.publish_address)
     TextView mPublishAddressView;
 
+    @BindView(R.id.subscription_address_card)
+    View mContainerSubscribe;
     @BindView(R.id.action_subscribe_address)
     Button mActionSubscribe;
     @BindView(R.id.subscribe_addresses)
@@ -177,12 +179,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mPublishAddressView.setText(R.string.none);
         mActionSetPublication.setOnClickListener(v -> {
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-            if (model != null && !model.getBoundAppKeyIndexes().isEmpty()) {
-                final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
-                startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
-            } else {
-                Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
-            }
+            handleAppKeyBind(model);
         });
 
         mActionClearPublication.setOnClickListener(v -> clearPublication());
@@ -308,6 +305,15 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @Override
     public void onDisconnected() {
         finish();
+    }
+
+    protected void handleAppKeyBind(final MeshModel model){
+        if (model != null && !model.getBoundAppKeyIndexes().isEmpty()) {
+            final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
+            startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
+        } else {
+            Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void bindAppKey(final int appKeyIndex) {
