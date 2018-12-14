@@ -30,7 +30,7 @@ class ConfigProxySetState extends ConfigMessageState {
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_NODE_RESET_STATE;
+        return MessageState.CONFIG_PROXY_SET_STATE;
     }
 
     /**
@@ -39,19 +39,19 @@ class ConfigProxySetState extends ConfigMessageState {
     private void createAccessMessage() {
         final byte[] key = mNode.getDeviceKey();
 
-        final ConfigProxyGet configProxyGet = (ConfigProxyGet) mMeshMessage;
-        final int akf = configProxyGet.getAkf();
-        final int aid = configProxyGet.getAid();
-        final int aszmic = configProxyGet.getAszmic();
-        final int opCode = configProxyGet.getOpCode();
-        final byte[] parameters = configProxyGet.getParameters();
+        final ConfigProxySet configProxySet = (ConfigProxySet) mMeshMessage;
+        final int akf = configProxySet.getAkf();
+        final int aid = configProxySet.getAid();
+        final int aszmic = configProxySet.getAszmic();
+        final int opCode = configProxySet.getOpCode();
+        final byte[] parameters = configProxySet.getParameters();
         message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
-        configProxyGet.setMessage(message);
+        configProxySet.setMessage(message);
     }
 
     @Override
     public final void executeSend() {
-        Log.v(TAG, "Sending config node reset");
+        Log.v(TAG, "Sending config proxy set");
         super.executeSend();
 
         if (message.getNetworkPdu().size() > 0) {

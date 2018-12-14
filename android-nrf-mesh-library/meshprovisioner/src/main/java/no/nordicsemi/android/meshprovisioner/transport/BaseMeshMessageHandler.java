@@ -113,6 +113,14 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     final ConfigRelaySetState configRelaySetState = (ConfigRelaySetState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configRelaySetState.getMeshMessage(), mMeshTransport, this));
                     break;
+                case CONFIG_PROXY_GET_STATE:
+                    final ConfigProxyGetState configProxyGetState = (ConfigProxyGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configProxyGetState.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case CONFIG_PROXY_SET_STATE:
+                    final ConfigProxySetState configProxySetState = (ConfigProxySetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configProxySetState.getMeshMessage(), mMeshTransport, this));
+                    break;
             }
         } else if (mMeshMessageState instanceof GenericMessageState) {
             switch (mMeshMessageState.getState()) {
@@ -622,6 +630,18 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             configRelaySetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configRelaySetState;
             configRelaySetState.executeSend();
+        } else if (configMessage instanceof ConfigProxyGet) {
+            final ConfigProxyGetState configProxyGetState = new ConfigProxyGetState(mContext, (ConfigProxyGet) configMessage, mMeshTransport, this);
+            configProxyGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            configProxyGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = configProxyGetState;
+            configProxyGetState.executeSend();
+        } else if (configMessage instanceof ConfigProxySet) {
+            final ConfigProxySetState configProxySetState = new ConfigProxySetState(mContext, (ConfigProxySet) configMessage, mMeshTransport, this);
+            configProxySetState.setTransportCallbacks(mInternalTransportCallbacks);
+            configProxySetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = configProxySetState;
+            configProxySetState.executeSend();
         }
     }
 

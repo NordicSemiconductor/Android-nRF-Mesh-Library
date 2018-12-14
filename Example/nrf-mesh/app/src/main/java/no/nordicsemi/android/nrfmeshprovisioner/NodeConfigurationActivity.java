@@ -57,6 +57,8 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeResetStatus;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigProxyGet;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigProxySet;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
@@ -70,6 +72,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddedAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAppKeyAddStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProxySet;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
@@ -84,6 +87,7 @@ import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_I
 public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
         ElementAdapter.OnItemClickListener,
         DialogFragmentAppKeyAddStatus.DialogFragmentAppKeyAddStatusListener,
+        DialogFragmentProxySet.DialogFragmentProxySetListener,
         DialogFragmentResetNode.DialogFragmentNodeResetListener,
         AddedAppKeyAdapter.OnItemClickListener, ItemTouchHelperAdapter {
 
@@ -100,6 +104,10 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     Button actionGetCompositionData;
     @BindView(R.id.action_add_app_keys)
     Button actionAddAppkey;
+    @BindView(R.id.action_get_proxy_state)
+    Button actionGetProxyState;
+    @BindView(R.id.action_set_proxy_state)
+    Button actionSetProxyState;
     @BindView(R.id.action_reset_node)
     Button actionResetNode;
     @BindView(R.id.recycler_view_elements)
@@ -111,6 +119,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     private NodeConfigurationViewModel mViewModel;
     private Handler mHandler;
+    private boolean mProxyState = true;
 
 
     private final Runnable mOperationTimeout = this::hideProgressBar;
@@ -199,6 +208,18 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageNodeAppKeysActivity.class);
             addAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
             startActivityForResult(addAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
+        });
+
+        actionGetProxyState.setOnClickListener(v -> {
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+            final ConfigProxyGet configProxyGet = new ConfigProxyGet(node, 0);
+            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configProxyGet);
+        });
+
+        actionSetProxyState.setOnClickListener(v -> {
+            final DialogFragmentProxySet resetNodeFragment = DialogFragmentProxySet.
+                    newInstance(getString(R.string.title_proxy_state_settings), getString(R.string.reset_node_rationale_summary), mProxyState);
+            resetNodeFragment.show(getSupportFragmentManager(), null);
         });
 
         actionResetNode.setOnClickListener(v -> {
@@ -306,6 +327,17 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
             final ConfigNodeReset configNodeReset = new ConfigNodeReset(node, 0);
             mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configNodeReset);
+        } catch(Exception ex) {
+            Log.e(TAG, ex.getMessage());
+        }
+    }
+
+    @Override
+    public void onProxySet(@ConfigProxySet.ProxyState final int state) {
+        try {
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+            final ConfigProxySet configProxySet = new ConfigProxySet(node, state, 0);
+            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configProxySet);
         } catch(Exception ex) {
             Log.e(TAG, ex.getMessage());
         }

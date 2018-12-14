@@ -30,7 +30,7 @@ class ConfigProxyGetState extends ConfigMessageState {
 
     @Override
     public MessageState getState() {
-        return MessageState.CONFIG_NODE_RESET_STATE;
+        return MessageState.CONFIG_PROXY_GET_STATE;
     }
 
     /**
@@ -51,7 +51,7 @@ class ConfigProxyGetState extends ConfigMessageState {
 
     @Override
     public final void executeSend() {
-        Log.v(TAG, "Sending config node reset");
+        Log.v(TAG, "Sending config proxy get");
         super.executeSend();
 
         if (message.getNetworkPdu().size() > 0) {
