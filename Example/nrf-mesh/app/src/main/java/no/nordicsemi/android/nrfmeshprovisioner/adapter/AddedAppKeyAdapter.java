@@ -51,7 +51,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     public AddedAppKeyAdapter(final NodeConfigurationActivity activity, final ExtendedMeshNode extendedMeshNode) {
         this.mContext = activity.getApplicationContext();
         extendedMeshNode.observe(activity, extendedNode -> {
-            if(extendedNode != null) {
+            if (extendedNode != null) {
                 appKeys.clear();
                 appKeys.addAll(extendedNode.getAddedApplicationKeys().values());
                 notifyDataSetChanged();
@@ -72,8 +72,8 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull final AddedAppKeyAdapter.ViewHolder holder, final int position) {
-        if(appKeys.size() > 0) {
-            holder.appKeyId.setText(mContext.getString(R.string.app_key_item , position + 1));
+        if (appKeys.size() > 0) {
+            holder.appKeyId.setText(mContext.getString(R.string.app_key_item, position + 1));
             final String appKey = MeshParserUtils.bytesToHex(appKeys.get(position).getKey(), false);
             holder.appKey.setText(appKey.toUpperCase());
         }

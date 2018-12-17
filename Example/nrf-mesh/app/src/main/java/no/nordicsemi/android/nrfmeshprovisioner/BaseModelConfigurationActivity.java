@@ -57,11 +57,11 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigModelPublicationSta
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionDelete;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
@@ -75,9 +75,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationVie
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
-
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA_MODEL_NAME;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
 
 public abstract class BaseModelConfigurationActivity extends AppCompatActivity implements Injectable,
         DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener,
@@ -135,13 +132,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         ButterKnife.bind(this);
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ModelConfigurationViewModel.class);
         mHandler = new Handler();
-        final Intent intent = getIntent();
-        final ProvisionedMeshNode meshNode = intent.getParcelableExtra(EXTRA_DEVICE);
 
-        if (meshNode == null)
-            finish();
-
-        final String modelName = intent.getStringExtra(EXTRA_DATA_MODEL_NAME);
+        final String modelName = mViewModel.getSelectedModel().getMeshModel().getModelName();//intent.getStringExtra(EXTRA_DATA_MODEL_NAME);
 
         // Set up views
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -307,7 +299,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         finish();
     }
 
-    protected void handleAppKeyBind(final MeshModel model){
+    protected void handleAppKeyBind(final MeshModel model) {
         if (model != null && !model.getBoundAppKeyIndexes().isEmpty()) {
             final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
             startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);

@@ -68,7 +68,6 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddedAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -80,11 +79,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationView
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA_MODEL_NAME;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_ELEMENT_ADDRESS;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_MODEL_ID;
-
 public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
         ElementAdapter.OnItemClickListener,
         DialogFragmentAppKeyAddStatus.DialogFragmentAppKeyAddStatusListener,
@@ -95,6 +89,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     private final static String TAG = NodeConfigurationActivity.class.getSimpleName();
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
     private static final String PROXY_STATE = "PROXY_STATE";
+    private static final String REQUESTED_PROXY_STATE = "REQUESTED_PROXY_STATE";
     private static final String DIALOG_FRAGMENT_APP_KEY_STATUS = "DIALOG_FRAGMENT_APP_KEY_STATUS";
 
     @Inject
@@ -108,6 +103,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     Button actionAddAppkey;
     @BindView(R.id.node_proxy_state_card)
     View mProxyStateCard;
+    @BindView(R.id.proxy_state_summary)
+    TextView mProxyStateRationaleSummary;
     @BindView(R.id.action_get_proxy_state)
     Button actionGetProxyState;
     @BindView(R.id.action_set_proxy_state)
@@ -124,6 +121,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     private NodeConfigurationViewModel mViewModel;
     private Handler mHandler;
     private boolean mProxyState;
+    private boolean mRequestedState = true;
 
 
     private final Runnable mOperationTimeout = this::hideProgressBar;
@@ -143,7 +141,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 mProgressbar.setVisibility(View.INVISIBLE);
                 enableClickableViews();
             }
-
+            mRequestedState = savedInstanceState.getBoolean(PROXY_STATE, true);
             mProxyState = savedInstanceState.getBoolean(PROXY_STATE, true);
         }
 
@@ -163,7 +161,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         adapter.setHasStableIds(true);
         adapter.setOnItemClickListener(this);
         mRecyclerViewElements.setAdapter(adapter);
-
         final RecyclerView recyclerViewAppKeys = findViewById(R.id.recycler_view_app_keys);
         recyclerViewAppKeys.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewAppKeys.setItemAnimator(new DefaultItemAnimator());
@@ -227,7 +224,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 message = getString(R.string.proxy_set_on_rationale_summary);
             }
             final DialogFragmentProxySet resetNodeFragment = DialogFragmentProxySet.
-                    newInstance(getString(R.string.title_proxy_state_settings), message, mProxyState);
+                    newInstance(getString(R.string.title_proxy_state_settings), message, !mProxyState);
             resetNodeFragment.show(getSupportFragmentManager(), null);
         });
 
@@ -286,11 +283,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
     protected void onStop() {
         super.onStop();
         if (isFinishing()) {
@@ -308,13 +300,14 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         super.onSaveInstanceState(outState);
         outState.putBoolean(PROGRESS_BAR_STATE, mProgressbar.getVisibility() == View.VISIBLE);
         outState.putBoolean(PROXY_STATE, mProxyState);
+        outState.putBoolean(REQUESTED_PROXY_STATE, mRequestedState);
     }
 
     @Override
     public void onElementItemClick(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model) {
         mViewModel.setSelectedElement(element);
         mViewModel.setSelectedModel(model);
-        startActivity(meshNode, element, model);
+        startActivity(model);
     }
 
     @Override
@@ -349,6 +342,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
             final ConfigProxySet configProxySet = new ConfigProxySet(node, state, 0);
             mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configProxySet);
+            mRequestedState = state == 1;
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
         }
@@ -364,8 +358,10 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     private void updateProxySettingsButtonUi() {
         if (mProxyState) {
+            mProxyStateRationaleSummary.setText(R.string.proxy_set_off_rationale);
             actionSetProxyState.setText(R.string.action_proxy_state_set_off);
         } else {
+            mProxyStateRationaleSummary.setText(R.string.proxy_set_on_rationale);
             actionSetProxyState.setText(R.string.action_proxy_state_set_on);
         }
     }
@@ -402,11 +398,9 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
      *
      * <p> This way we can seperate the ui logic for different activities</p>
      *
-     * @param meshNode mesh node
-     * @param element  element
-     * @param model    model
+     * @param model model
      */
-    private void startActivity(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model) {
+    private void startActivity(final MeshModel model) {
         final Intent intent;
         if (model instanceof ConfigurationServerModel) {
             intent = new Intent(this, ConfigurationServerActivity.class);
@@ -419,11 +413,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         } else {
             intent = new Intent(this, ModelConfigurationActivity.class);
         }
-
-        intent.putExtra(EXTRA_DEVICE, meshNode);
-        intent.putExtra(EXTRA_ELEMENT_ADDRESS, AddressUtils.getUnicastAddressInt(element.getElementAddress()));
-        intent.putExtra(EXTRA_MODEL_ID, model.getModelId());
-        intent.putExtra(EXTRA_DATA_MODEL_NAME, model.getModelName());
         startActivity(intent);
     }
 
@@ -447,7 +436,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             mProxyState = status.isProxyFeatureEnabled();
             updateProxySettingsCardUi();
             hideProgressBar();
-            if(!mProxyState){
+            if (!mProxyState && !mRequestedState) {
                 mViewModel.getNrfMeshRepository().disconnect();
             }
         }
