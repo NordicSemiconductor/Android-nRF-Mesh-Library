@@ -79,13 +79,6 @@ public class NodeConfigurationViewModel extends ViewModel {
     }
 
     /**
-     * Returns an observable live data object
-     */
-    public MeshNetworkLiveData getProvisioningSettingLiveData() {
-        return mNrfMeshRepository.getMeshNetworkLiveData();
-    }
-
-    /**
      * Returns an observable live data object containing the transaction status.
      *
      * @return {@link TransactionStatusLiveData}
@@ -99,6 +92,10 @@ public class NodeConfigurationViewModel extends ViewModel {
      */
     public MeshManagerApi getMeshManagerApi() {
         return mNrfMeshRepository.getMeshManagerApi();
+    }
+
+    public NrfMeshRepository getNrfMeshRepository(){
+        return mNrfMeshRepository;
     }
 
 }

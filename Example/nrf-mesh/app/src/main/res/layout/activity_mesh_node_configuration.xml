@@ -275,7 +275,9 @@
                 app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/app_key_card">
+                app:layout_constraintTop_toBottomOf="@id/app_key_card"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
@@ -288,7 +290,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:logo="@drawable/ic_reset_black_24dp_alpha"
+                        app:logo="@drawable/ic_proxy_24dp_black_alpha"
                         app:title="@string/title_proxy_state_settings"
                         app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
@@ -297,7 +299,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:padding="@dimen/activity_vertical_margin"
-                        android:text="@string/proxy_set_rationale"
+                        android:text="@string/proxy_set_off_rationale"
                         android:textSize="16sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -328,7 +330,7 @@
 
                     <Button
                         android:id="@+id/action_set_proxy_state"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/RedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -336,10 +338,10 @@
                         android:layout_marginEnd="@dimen/item_padding_start"
                         android:padding="@dimen/activity_horizontal_margin"
                         android:text="@string/action_proxy_state_set_on"
-                        android:textColor="@android:color/holo_red_dark"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/div2"/>
+                        app:layout_constraintTop_toBottomOf="@id/div2"
+                        android:enabled="false"/>
 
                 </android.support.constraint.ConstraintLayout>
 
@@ -394,7 +396,7 @@
 
                     <Button
                         android:id="@+id/action_reset_node"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/RedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -402,7 +404,6 @@
                         android:layout_marginEnd="@dimen/item_padding_start"
                         android:padding="@dimen/activity_horizontal_margin"
                         android:text="@string/action_reset_node"
-                        android:textColor="@android:color/holo_red_dark"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/div2"/>

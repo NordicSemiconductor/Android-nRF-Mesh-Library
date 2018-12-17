@@ -323,8 +323,11 @@
     <string name="action_proxy_state_set_on">ON</string>
     <string name="action_proxy_state_set_off">OFF</string>
     <string name="action_proxy_state_get">READ STATE</string>
-    <string name="proxy_set_rationale">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.</string>
-    <string name="proxy_set_rationale_summary">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.
+    <string name="proxy_set_on_rationale">Turning on the proxy feature will set this node to a connectable state and enable the proxy server.</string>
+    <string name="proxy_set_on_rationale_summary">Turning on the proxy feature will set this node to a connectable state and enable the proxy server.
+        You will also be able to connect to this node and send mesh messages over GATT. Do you wish to continue?</string>
+    <string name="proxy_set_off_rationale">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.</string>
+    <string name="proxy_set_off_rationale_summary">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.
         However, you will still be able to continue sending messages via the other proxy nodes in the network. Do you wish to continue?</string>
 
     <string name="no_app_keys_added">No app keys are added to this node!</string>
