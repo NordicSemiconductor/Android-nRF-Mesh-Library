@@ -51,17 +51,15 @@ public final class ConfigModelAppBind extends ConfigMessage {
     /**
      * Constructs ConfigModelAppBind message.
      *
-     * @param node        Mesh node this message is to be sent to
      * @param appKeyIndex Application key index of this message
      * @param aszmic      Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigModelAppBind(@NonNull final ProvisionedMeshNode node,
-                              @NonNull final byte[] elementAddress,
+    public ConfigModelAppBind(@NonNull final byte[] elementAddress,
                               final int modelIdentifier,
                               final int appKeyIndex,
                               final int aszmic) throws IllegalArgumentException {
-        super(node, aszmic);
+        super(aszmic);
         if (elementAddress.length != 2)
             throw new IllegalArgumentException("Element address cannot be cannot be greater than 2 octets");
         this.mElementAddress = elementAddress;

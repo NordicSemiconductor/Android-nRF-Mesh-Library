@@ -23,8 +23,6 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 
 /**
@@ -39,11 +37,10 @@ public final class ConfigProxyGet extends ConfigMessage {
     /**
      * Constructs a ConfigRelayGet message
      *
-     * @param node      Mesh node this message is to be sent to
      * @param aszmic    Size of message integrity check
      */
-    public ConfigProxyGet(@NonNull final ProvisionedMeshNode node, final int aszmic) {
-        super(node, aszmic);
+    public ConfigProxyGet(final int aszmic) {
+        super(aszmic);
         assembleMessageParameters();
     }
 

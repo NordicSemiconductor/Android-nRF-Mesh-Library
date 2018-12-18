@@ -24,14 +24,10 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
-import no.nordicsemi.android.meshprovisioner.models.VendorModel;
-import no.nordicsemi.android.meshprovisioner.utils.ConfigModelPublicationSetParams;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandlerCallbacks {
 
@@ -162,7 +158,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     break;
                 case LIGHT_CTL_GET_STATE:
                     final LightCtlGetState ctlGetState = (LightCtlGetState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, ctlGetState .getMeshMessage(), mMeshTransport, this));
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, ctlGetState.getMeshMessage(), mMeshTransport, this));
                     break;
                 case LIGHT_CTL_SET_STATE:
                     final LightCtlSetState ctlSetState = (LightCtlSetState) mMeshMessageState;
@@ -174,7 +170,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     break;
                 case LIGHT_HSL_GET_STATE:
                     final LightHslGetState hslGetState = (LightHslGetState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, hslGetState .getMeshMessage(), mMeshTransport, this));
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, hslGetState.getMeshMessage(), mMeshTransport, this));
                     break;
                 case LIGHT_HSL_SET_STATE:
                     final LightHslSetState hslSetState = (LightHslSetState) mMeshMessageState;
@@ -193,35 +189,35 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, vendorModelMessageUnackedState.getMeshMessage(), mMeshTransport, this));
                     break;
                 case SCENE_GET_STATE:
-                    final  SceneGetState sceneGetState = (SceneGetState) mMeshMessageState;
+                    final SceneGetState sceneGetState = (SceneGetState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneGetState.getMeshMessage(), mMeshTransport, this));
                     break;
                 case SCENE_REGISTER_GET_STATE:
-                    final  SceneRegisterGetState sceneRegisterGetState = (SceneRegisterGetState) mMeshMessageState;
+                    final SceneRegisterGetState sceneRegisterGetState = (SceneRegisterGetState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneRegisterGetState.getMeshMessage(), mMeshTransport, this));
                     break;
                 case SCENE_STORE_STATE:
-                    final  SceneStoreState sceneStoreState = (SceneStoreState) mMeshMessageState;
+                    final SceneStoreState sceneStoreState = (SceneStoreState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneStoreState.getMeshMessage(), mMeshTransport, this));
                     break;
                 case SCENE_STORE_UNACKNOWLEDGED_STATE:
-                    final  SceneStoreUnacknowledgedState sceneStoreUnacknowledgedState = (SceneStoreUnacknowledgedState) mMeshMessageState;
+                    final SceneStoreUnacknowledgedState sceneStoreUnacknowledgedState = (SceneStoreUnacknowledgedState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneStoreUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
                     break;
                 case SCENE_RECALL_STATE:
-                    final  SceneRecallState sceneRecallState = (SceneRecallState) mMeshMessageState;
+                    final SceneRecallState sceneRecallState = (SceneRecallState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneRecallState.getMeshMessage(), mMeshTransport, this));
                     break;
                 case SCENE_RECALL_UNACKNOWLEDGED_STATE:
-                    final  SceneRecallUnacknowledgedState sceneRecallUnacknowledgedState = (SceneRecallUnacknowledgedState) mMeshMessageState;
+                    final SceneRecallUnacknowledgedState sceneRecallUnacknowledgedState = (SceneRecallUnacknowledgedState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneRecallUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
                     break;
                 case SCENE_DELETE_STATE:
-                    final  SceneDeleteState sceneDeleteState = (SceneDeleteState) mMeshMessageState;
+                    final SceneDeleteState sceneDeleteState = (SceneDeleteState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneDeleteState.getMeshMessage(), mMeshTransport, this));
                     break;
                 case SCENE_DELETE_UNACKNOWLEDGED_STATE:
-                    final  SceneDeleteUnacknowledgedState sceneDeleteUnacknowledgedState = (SceneDeleteUnacknowledgedState) mMeshMessageState;
+                    final SceneDeleteUnacknowledgedState sceneDeleteUnacknowledgedState = (SceneDeleteUnacknowledgedState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, sceneDeleteUnacknowledgedState.getMeshMessage(), mMeshTransport, this));
                     break;
             }
@@ -268,376 +264,110 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         newState.setStatusCallbacks(mStatusCallbacks);
         mMeshMessageState = newState;
     }
-    /**
-     * @deprecated Use {@link MeshMessageHandlerApi#sendMeshMessage(MeshMessage)} instead.
-     */
-    @Deprecated
-    @Override
-    public final void sendCompositionDataGet(@NonNull final ProvisionedMeshNode meshNode, final int aszmic) {
-        final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet(meshNode, aszmic);
-        sendMeshMessage(compositionDataGet);
-    }
-
-    /**
-     * @deprecated Use {@link MeshMessageHandlerApi#sendMeshMessage(MeshMessage)} instead.
-     */
-    @Deprecated
-    @Override
-    public final void sendAppKeyAdd(@NonNull final ProvisionedMeshNode meshNode, final int appKeyIndex, @NonNull final String appKey, final int aszmic) {
-        final NetworkKey networkKey = meshNode.getAddedNetworkKeys().get(0);
-        final ApplicationKey applicationKey = new ApplicationKey(appKeyIndex, MeshParserUtils.toByteArray(appKey));
-        final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(meshNode, networkKey, applicationKey, aszmic);
-        sendMeshMessage(configAppKeyAdd);
-    }
-
-    /**
-     * @deprecated Use {@link MeshMessageHandlerApi#sendMeshMessage(MeshMessage)} instead.
-     */
-    @Deprecated
-    @Override
-    public final void bindAppKey(@NonNull final ProvisionedMeshNode meshNode, final int aszmic,
-                                 @NonNull final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
-        final ConfigModelAppBind configModelAppBind = new ConfigModelAppBind(meshNode, elementAddress, modelIdentifier, appKeyIndex, aszmic);
-        sendMeshMessage(configModelAppBind);
-    }
-
-    /**
-     * @deprecated Use {@link MeshMessageHandlerApi#sendMeshMessage(MeshMessage)} instead.
-     */
-    @Deprecated
-    @Override
-    public void unbindAppKey(@NonNull final ProvisionedMeshNode meshNode, final int aszmic,
-                             @NonNull final byte[] elementAddress, final int modelIdentifier, final int appKeyIndex) {
-        final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(meshNode, elementAddress, modelIdentifier, appKeyIndex, aszmic);
-        sendMeshMessage(configModelAppUnbind);
-    }
-
-    /**
-     * @deprecated Use {@link MeshMessageHandlerApi#sendMeshMessage(MeshMessage)} instead.
-     */
-    @Deprecated
-    @Override
-    public final void sendConfigModelPublicationSet(@NonNull final ConfigModelPublicationSetParams params) {
-        final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(params.getMeshNode(),
-                params.getElementAddress(), params.getPublishAddress(), params.getAppKeyIndex(), params.getCredentialFlag(),
-                params.getPublishTtl(), params.getPublicationSteps(), params.getPublicationResolution(),
-                params.getPublishRetransmitCount(), params.getPublishRetransmitIntervalSteps(), params.getModelIdentifier(), params.getAszmic());
-
-        sendMeshMessage(configModelPublicationSet);
-    }
-
-    /**
-     * @deprecated Use {@link MeshMessageHandlerApi#sendMeshMessage(MeshMessage)} instead.
-     */
-    @Deprecated
-    @Override
-    public final void addSubscriptionAddress(@NonNull final ProvisionedMeshNode meshNode, final int aszmic, @NonNull final byte[] elementAddress, @NonNull final byte[] subscriptionAddress,
-                                             final int modelIdentifier) {
-        final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(meshNode, elementAddress, subscriptionAddress, modelIdentifier, aszmic);
-        sendMeshMessage(configModelSubscriptionAdd);
-    }
-
-    /**
-     * @deprecated Use {@link MeshMessageHandlerApi#sendMeshMessage(MeshMessage)} instead.
-     */
-    @Deprecated
-    @Override
-    public final void deleteSubscriptionAddress(@NonNull final ProvisionedMeshNode meshNode, final int aszmic, @NonNull final byte[] elementAddress, @NonNull final byte[] subscriptionAddress,
-                                                final int modelIdentifier) {
-        final ConfigModelSubscriptionDelete configModelSubscriptionDelete = new ConfigModelSubscriptionDelete(meshNode, elementAddress, subscriptionAddress, modelIdentifier, aszmic);
-        sendMeshMessage(configModelSubscriptionDelete);
-    }
-
-    @Deprecated
-    @Override
-    public final void resetMeshNode(@NonNull final ProvisionedMeshNode provisionedMeshNode) {
-        final ConfigNodeReset configNodeReset = new ConfigNodeReset(provisionedMeshNode, 0);
-        sendMeshMessage(configNodeReset);
-    }
-
-    @Deprecated
-    @Override
-    public final void getGenericOnOff(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex) throws IllegalArgumentException {
-        if (model.getBoundAppKeyIndexes().isEmpty())
-            throw new IllegalArgumentException("There are no app keys bound to this model");
-
-        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-        final GenericOnOffGet genericOnOffGet = new GenericOnOffGet(node, appKey, aszmic ? 1 : 0);
-        final GenericOnOffGetState genericOnOffGetState = new GenericOnOffGetState(mContext, dstAddress, genericOnOffGet, mMeshTransport, this);
-        genericOnOffGetState.setTransportCallbacks(mInternalTransportCallbacks);
-        genericOnOffGetState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericOnOffGetState;
-        genericOnOffGetState.executeSend();
-    }
-
-    @Deprecated
-    public final void getGenericOnOff(@NonNull final byte[] dstAddress, @NonNull final GenericOnOffGet genericOnOffGet) {
-        final GenericOnOffGetState genericOnOffGetState = new GenericOnOffGetState(mContext, dstAddress, genericOnOffGet, mMeshTransport, this);
-        genericOnOffGetState.setTransportCallbacks(mInternalTransportCallbacks);
-        genericOnOffGetState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericOnOffGetState;
-        genericOnOffGetState.executeSend();
-    }
-
-    @Deprecated
-    @Override
-    public final void setGenericOnOff(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
-                                      @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex,
-                                      final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) throws IllegalArgumentException {
-        if (model.getBoundAppKeyIndexes().isEmpty())
-            throw new IllegalArgumentException("There are no app keys bound to this model");
-
-        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-        final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(node, appKey, state, transitionSteps, transitionResolution, delay, aszmic ? 1 : 0);
-        final GenericOnOffSetState genericOnOffSetState = new GenericOnOffSetState(mContext, dstAddress, genericOnOffSet, mMeshTransport, this);
-        genericOnOffSetState.setTransportCallbacks(mInternalTransportCallbacks);
-        genericOnOffSetState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericOnOffSetState;
-        genericOnOffSetState.executeSend();
-    }
-
-    @Deprecated
-    @Override
-    public final void setGenericOnOff(final byte[] dstAddress, final GenericOnOffSet genericOnOffSet) throws IllegalArgumentException {
-        final GenericOnOffSetState genericOnOffSetState = new GenericOnOffSetState(mContext, dstAddress, genericOnOffSet, mMeshTransport, this);
-        genericOnOffSetState.setTransportCallbacks(mInternalTransportCallbacks);
-        genericOnOffSetState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericOnOffSetState;
-        genericOnOffSetState.executeSend();
-    }
-
-    @Deprecated
-    @Override
-    public final void setGenericOnOffUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model,
-                                                    @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex,
-                                                    @Nullable final Integer transitionSteps, @Nullable final Integer transitionResolution,
-                                                    @Nullable final Integer delay, final boolean state) throws IllegalArgumentException {
-        if (model.getBoundAppKeyIndexes().isEmpty())
-            throw new IllegalArgumentException("There are no app keys bound to this model");
-
-        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-        final GenericOnOffSetUnacknowledged genericOnOffSetUnacked = new GenericOnOffSetUnacknowledged(node, appKey, state, transitionSteps, transitionResolution, delay, aszmic ? 1 : 0);
-        setGenericOnOffUnacknowledged(dstAddress, genericOnOffSetUnacked);
-    }
-
-    @Deprecated
-    @Override
-    public final void setGenericOnOffUnacknowledged(@NonNull final byte[] dstAddress, @NonNull final GenericOnOffSetUnacknowledged genericOnOffSetUnacked) {
-        final GenericOnOffSetUnacknowledgedState genericOnOffSetUnAckedState = new GenericOnOffSetUnacknowledgedState(mContext, dstAddress, genericOnOffSetUnacked, mMeshTransport, this);
-        genericOnOffSetUnAckedState.setTransportCallbacks(mInternalTransportCallbacks);
-        genericOnOffSetUnAckedState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericOnOffSetUnAckedState;
-        genericOnOffSetUnAckedState.executeSend();
-    }
-
-    @Deprecated
-    @Override
-    public final void getGenericLevel(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex) {
-        if (model.getBoundAppKeyIndexes().isEmpty())
-            throw new IllegalArgumentException("There are no app keys bound to this model");
-
-        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-
-        final GenericLevelGet genericLevelGet = new GenericLevelGet(node, appKey, aszmic ? 1 : 0);
-        getGenericLevel(dstAddress, genericLevelGet);
-    }
-
-    @Deprecated
-    @Override
-    public final void getGenericLevel(@NonNull final byte[] dstAddress, @NonNull final GenericLevelGet genericLevelGet) {
-        final GenericLevelGetState genericLevelGetState = new GenericLevelGetState(mContext, dstAddress, genericLevelGet, mMeshTransport, this);
-        genericLevelGetState.setTransportCallbacks(mInternalTransportCallbacks);
-        genericLevelGetState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericLevelGetState;
-        genericLevelGetState.executeSend();
-    }
-
-    @Deprecated
-    @Override
-    public final void setGenericLevel(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress,
-                                      final boolean aszmic, final int appKeyIndex, final Integer transitionSteps,
-                                      final Integer transitionResolution, final Integer delay, final int level) throws IllegalArgumentException {
-        if (model.getBoundAppKeyIndexes().isEmpty())
-            throw new IllegalArgumentException("There are no app keys bound to this model");
-
-        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-        final GenericLevelSet genericLevelSet = new GenericLevelSet(node, appKey, transitionSteps, transitionResolution, delay, level, aszmic ? 1 : 0);
-        setGenericLevel(dstAddress, genericLevelSet);
-    }
-
-    @Deprecated
-    @Override
-    public final void setGenericLevel(@NonNull final byte[] dstAddress, @NonNull final GenericLevelSet genericLevelSet) {
-        final GenericLevelSetState genericLevelSetState = new GenericLevelSetState(mContext, dstAddress, genericLevelSet, mMeshTransport, this);
-        genericLevelSetState.setTransportCallbacks(mInternalTransportCallbacks);
-        genericLevelSetState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericLevelSetState;
-        genericLevelSetState.executeSend();
-    }
-
-    @Deprecated
-    @Override
-    public final void setGenericLevelUnacknowledged(@NonNull final ProvisionedMeshNode node, @NonNull final MeshModel model, @NonNull final byte[] dstAddress,
-                                                    final boolean aszmic, final int appKeyIndex, final Integer transitionSteps,
-                                                    final Integer transitionResolution, final Integer delay, final int level) throws IllegalArgumentException {
-        if (model.getBoundAppKeyIndexes().isEmpty())
-            throw new IllegalArgumentException("There are no app keys bound to this model");
-
-        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-        final GenericLevelSetUnacknowledged genericLevelSetUnacked = new GenericLevelSetUnacknowledged(node, appKey, transitionSteps, transitionResolution, delay, level, aszmic ? 1 : 0);
-        setGenericLevelUnacknowledged(dstAddress, genericLevelSetUnacked);
-    }
-
-    @Deprecated
-    @Override
-    public final void setGenericLevelUnacknowledged(@NonNull final byte[] dstAddress, @NonNull final GenericLevelSetUnacknowledged genericLevelSetUnacked) {
-        final GenericLevelSetUnacknowledgedState genericLevelSetUnAckedState = new GenericLevelSetUnacknowledgedState(mContext, dstAddress, genericLevelSetUnacked, mMeshTransport, this);
-        genericLevelSetUnAckedState.setTransportCallbacks(mInternalTransportCallbacks);
-        genericLevelSetUnAckedState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericLevelSetUnAckedState;
-        genericLevelSetUnAckedState.executeSend();
-    }
-
-    @Deprecated
-    @Override
-    public void sendVendorModelUnacknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
-        if (model.getBoundAppKeyIndexes().isEmpty())
-            throw new IllegalArgumentException("There are no app keys bound to this model");
-
-        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-        final int modelId = model.getModelId();
-        final int companyIdentifier = model.getCompanyIdentifier();
-        final VendorModelMessageUnacked vendorModelMessageUnacked = new VendorModelMessageUnacked(node, appKey, modelId, companyIdentifier, opcode, parameters, aszmic ? 1 : 0);
-        sendVendorModelUnacknowledgedMessage(dstAddress, vendorModelMessageUnacked);
-    }
-
-    @Deprecated
-    @Override
-    public void sendVendorModelUnacknowledgedMessage(@NonNull final byte[] dstAddress, @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked) {
-        final VendorModelMessageUnackedState vendorModelMessageUnackedState = new VendorModelMessageUnackedState(mContext, dstAddress, vendorModelMessageUnacked, mMeshTransport, this);
-        vendorModelMessageUnackedState.setTransportCallbacks(mInternalTransportCallbacks);
-        vendorModelMessageUnackedState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = vendorModelMessageUnackedState;
-        vendorModelMessageUnackedState.executeSend();
-    }
-
-    @Deprecated
-    @Override
-    public final void sendVendorModelAcknowledgedMessage(@NonNull final ProvisionedMeshNode node, @NonNull final VendorModel model, @NonNull final byte[] dstAddress, final boolean aszmic, final int appKeyIndex, final int opcode, final byte[] parameters) {
-        if (model.getBoundAppKeyIndexes().isEmpty())
-            throw new IllegalArgumentException("There are no app keys bound to this model");
-
-        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-        final int modelId = model.getModelId();
-        final int companyIdentifier = model.getCompanyIdentifier();
-        final VendorModelMessageAcked vendorModelMessageAcked = new VendorModelMessageAcked(node, appKey, modelId, companyIdentifier, opcode, parameters, aszmic ? 1 : 0);
-        sendVendorModelAcknowledgedMessage(dstAddress, vendorModelMessageAcked);
-    }
-
-    @Deprecated
-    @Override
-    public final void sendVendorModelAcknowledgedMessage(@NonNull final byte[] dstAddress, @NonNull final VendorModelMessageAcked vendorModelMessageAcked) {
-        final VendorModelMessageAckedState message = new VendorModelMessageAckedState(mContext, dstAddress, vendorModelMessageAcked, mMeshTransport, this);
-        message.setTransportCallbacks(mInternalTransportCallbacks);
-        message.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = message;
-        message.executeSend();
-    }
 
     @Override
-    public final void sendMeshMessage(@NonNull final MeshMessage configurationMessage) {
-        sendConfigMessage(configurationMessage);
-    }
+    public final void sendConfigMeshMessage(@NonNull final byte[] src, @NonNull final byte[] dst, @NonNull final MeshMessage configurationMessage) {
 
-    @Override
-    public final void sendMeshMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage genericMessage) {
-        sendGenericMessage(dstAddress, genericMessage);
-    }
+        final ProvisionedMeshNode node = mInternalTransportCallbacks.getProvisionedNode(dst);
+        if (node == null) {
+            return;
+        }
 
-    private void sendConfigMessage(@NonNull final MeshMessage configMessage) {
-        if (configMessage instanceof ConfigCompositionDataGet) {
-            final ConfigCompositionDataGetState compositionDataGetState = new ConfigCompositionDataGetState(mContext, (ConfigCompositionDataGet) configMessage, mMeshTransport, this);
+        if (configurationMessage instanceof ConfigCompositionDataGet) {
+            final ConfigCompositionDataGetState compositionDataGetState = new
+                    ConfigCompositionDataGetState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigCompositionDataGet) configurationMessage, mMeshTransport, this);
             compositionDataGetState.setTransportCallbacks(mInternalTransportCallbacks);
             compositionDataGetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = compositionDataGetState;
             compositionDataGetState.executeSend();
-        } else if (configMessage instanceof ConfigAppKeyAdd) {
-            final ConfigAppKeyAddState configAppKeyAddState = new ConfigAppKeyAddState(mContext, (ConfigAppKeyAdd) configMessage, mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigAppKeyAdd) {
+            final ConfigAppKeyAddState configAppKeyAddState = new ConfigAppKeyAddState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigAppKeyAdd) configurationMessage, mMeshTransport, this);
             configAppKeyAddState.setTransportCallbacks(mInternalTransportCallbacks);
             configAppKeyAddState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configAppKeyAddState;
             configAppKeyAddState.executeSend();
-        } else if (configMessage instanceof ConfigModelAppBind) {
-            final ConfigModelAppBindState configModelAppBindState = new ConfigModelAppBindState(mContext, (ConfigModelAppBind) configMessage, mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigModelAppBind) {
+            final ConfigModelAppBindState configModelAppBindState = new ConfigModelAppBindState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigModelAppBind) configurationMessage, mMeshTransport, this);
             configModelAppBindState.setTransportCallbacks(mInternalTransportCallbacks);
             configModelAppBindState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configModelAppBindState;
             configModelAppBindState.executeSend();
-        } else if (configMessage instanceof ConfigModelAppUnbind) {
-            final ConfigModelAppUnbindState modelAppUnbindState = new ConfigModelAppUnbindState(mContext, (ConfigModelAppUnbind) configMessage, mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigModelAppUnbind) {
+            final ConfigModelAppUnbindState modelAppUnbindState = new ConfigModelAppUnbindState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigModelAppUnbind) configurationMessage, mMeshTransport, this);
             modelAppUnbindState.setTransportCallbacks(mInternalTransportCallbacks);
             modelAppUnbindState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = modelAppUnbindState;
             modelAppUnbindState.executeSend();
-        } else if (configMessage instanceof ConfigModelPublicationSet) {
-            final ConfigModelPublicationSetState configModelPublicationSetState = new ConfigModelPublicationSetState(mContext, (ConfigModelPublicationSet) configMessage,
-                    mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigModelPublicationSet) {
+            final ConfigModelPublicationSetState configModelPublicationSetState = new ConfigModelPublicationSetState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigModelPublicationSet) configurationMessage, mMeshTransport, this);
             configModelPublicationSetState.setTransportCallbacks(mInternalTransportCallbacks);
             configModelPublicationSetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configModelPublicationSetState;
             configModelPublicationSetState.executeSend();
-        } else if (configMessage instanceof ConfigModelSubscriptionAdd) {
-            final ConfigModelSubscriptionAddState configModelSubscriptionAddState = new ConfigModelSubscriptionAddState(mContext, (ConfigModelSubscriptionAdd) configMessage,
-                    mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigModelSubscriptionAdd) {
+            final ConfigModelSubscriptionAddState configModelSubscriptionAddState = new ConfigModelSubscriptionAddState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigModelSubscriptionAdd) configurationMessage, mMeshTransport, this);
             configModelSubscriptionAddState.setTransportCallbacks(mInternalTransportCallbacks);
             configModelSubscriptionAddState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configModelSubscriptionAddState;
             configModelSubscriptionAddState.executeSend();
-        } else if (configMessage instanceof ConfigModelSubscriptionDelete) {
-            final ConfigModelSubscriptionDeleteState configModelSubscriptionDeleteState = new ConfigModelSubscriptionDeleteState(mContext, (ConfigModelSubscriptionDelete) configMessage,
-                    mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigModelSubscriptionDelete) {
+            final ConfigModelSubscriptionDeleteState configModelSubscriptionDeleteState = new ConfigModelSubscriptionDeleteState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigModelSubscriptionDelete) configurationMessage, mMeshTransport, this);
             configModelSubscriptionDeleteState.setTransportCallbacks(mInternalTransportCallbacks);
             configModelSubscriptionDeleteState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configModelSubscriptionDeleteState;
             configModelSubscriptionDeleteState.executeSend();
-        } else if (configMessage instanceof ConfigNodeReset) {
-            final ConfigNodeResetState configNodeResetState = new ConfigNodeResetState(mContext, (ConfigNodeReset) configMessage, mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigNodeReset) {
+            final ConfigNodeResetState configNodeResetState = new ConfigNodeResetState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigNodeReset) configurationMessage, mMeshTransport, this);
             configNodeResetState.setTransportCallbacks(mInternalTransportCallbacks);
             configNodeResetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configNodeResetState;
             configNodeResetState.executeSend();
-        } else if (configMessage instanceof ConfigNetworkTransmitGet) {
-            final ConfigNetworkTransmitGetState configNetworkTransmitGetState = new ConfigNetworkTransmitGetState(mContext, (ConfigNetworkTransmitGet) configMessage, mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigNetworkTransmitGet) {
+            final ConfigNetworkTransmitGetState configNetworkTransmitGetState = new ConfigNetworkTransmitGetState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigNetworkTransmitGet) configurationMessage, mMeshTransport, this);
             configNetworkTransmitGetState.setTransportCallbacks(mInternalTransportCallbacks);
             configNetworkTransmitGetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configNetworkTransmitGetState;
             configNetworkTransmitGetState.executeSend();
-        } else if (configMessage instanceof ConfigNetworkTransmitSet) {
-            final ConfigNetworkTransmitSetState configNetworkTransmitSetState = new ConfigNetworkTransmitSetState(mContext, (ConfigNetworkTransmitSet) configMessage, mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigNetworkTransmitSet) {
+            final ConfigNetworkTransmitSetState configNetworkTransmitSetState = new ConfigNetworkTransmitSetState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigNetworkTransmitSet) configurationMessage, mMeshTransport, this);
             configNetworkTransmitSetState.setTransportCallbacks(mInternalTransportCallbacks);
             configNetworkTransmitSetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configNetworkTransmitSetState;
             configNetworkTransmitSetState.executeSend();
-        } else if (configMessage instanceof ConfigRelayGet) {
-            final ConfigRelayGetState configRelayGetState = new ConfigRelayGetState(mContext, (ConfigRelayGet) configMessage, mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigRelayGet) {
+            final ConfigRelayGetState configRelayGetState = new ConfigRelayGetState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigRelayGet) configurationMessage, mMeshTransport, this);
             configRelayGetState.setTransportCallbacks(mInternalTransportCallbacks);
             configRelayGetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configRelayGetState;
             configRelayGetState.executeSend();
-        } else if (configMessage instanceof ConfigRelaySet) {
-            final ConfigRelaySetState configRelaySetState = new ConfigRelaySetState(mContext, (ConfigRelaySet) configMessage, mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigRelaySet) {
+            final ConfigRelaySetState configRelaySetState = new ConfigRelaySetState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigRelaySet) configurationMessage, mMeshTransport, this);
             configRelaySetState.setTransportCallbacks(mInternalTransportCallbacks);
             configRelaySetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configRelaySetState;
             configRelaySetState.executeSend();
-        } else if (configMessage instanceof ConfigProxyGet) {
-            final ConfigProxyGetState configProxyGetState = new ConfigProxyGetState(mContext, (ConfigProxyGet) configMessage, mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigProxyGet) {
+            final ConfigProxyGetState configProxyGetState = new ConfigProxyGetState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigProxyGet) configurationMessage, mMeshTransport, this);
             configProxyGetState.setTransportCallbacks(mInternalTransportCallbacks);
             configProxyGetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configProxyGetState;
             configProxyGetState.executeSend();
-        } else if (configMessage instanceof ConfigProxySet) {
-            final ConfigProxySetState configProxySetState = new ConfigProxySetState(mContext, (ConfigProxySet) configMessage, mMeshTransport, this);
+        } else if (configurationMessage instanceof ConfigProxySet) {
+            final ConfigProxySetState configProxySetState = new ConfigProxySetState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigProxySet) configurationMessage, mMeshTransport, this);
             configProxySetState.setTransportCallbacks(mInternalTransportCallbacks);
             configProxySetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = configProxySetState;
@@ -645,154 +375,163 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         }
     }
 
-    private void sendGenericMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage genericMessage) {
+    @Override
+    public void sendAppMeshMessage(@NonNull final byte[] src, @NonNull final byte[] dst, @NonNull final MeshMessage genericMessage) {
         if (genericMessage instanceof GenericOnOffGet) {
-            final GenericOnOffGetState genericOnOffGetState = new GenericOnOffGetState(mContext, dstAddress, (GenericOnOffGet) genericMessage, mMeshTransport, this);
+            final GenericOnOffGetState genericOnOffGetState = new GenericOnOffGetState(mContext, src, dst, (GenericOnOffGet) genericMessage, mMeshTransport, this);
             genericOnOffGetState.setTransportCallbacks(mInternalTransportCallbacks);
             genericOnOffGetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = genericOnOffGetState;
             genericOnOffGetState.executeSend();
         } else if (genericMessage instanceof GenericOnOffSet) {
-            final GenericOnOffSetState genericOnOffSetState = new GenericOnOffSetState(mContext, dstAddress, (GenericOnOffSet) genericMessage, mMeshTransport, this);
+            final GenericOnOffSetState genericOnOffSetState = new GenericOnOffSetState(mContext, src, dst, (GenericOnOffSet) genericMessage, mMeshTransport, this);
             genericOnOffSetState.setTransportCallbacks(mInternalTransportCallbacks);
             genericOnOffSetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = genericOnOffSetState;
             genericOnOffSetState.executeSend();
         } else if (genericMessage instanceof GenericOnOffSetUnacknowledged) {
-            final GenericOnOffSetUnacknowledgedState genericOnOffSetUnAckedState = new GenericOnOffSetUnacknowledgedState(mContext, dstAddress, (GenericOnOffSetUnacknowledged) genericMessage, mMeshTransport, this);
+            final GenericOnOffSetUnacknowledgedState genericOnOffSetUnAckedState = new GenericOnOffSetUnacknowledgedState(mContext,
+                    src, dst, (GenericOnOffSetUnacknowledged) genericMessage, mMeshTransport, this);
             genericOnOffSetUnAckedState.setTransportCallbacks(mInternalTransportCallbacks);
             genericOnOffSetUnAckedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = genericOnOffSetUnAckedState;
             genericOnOffSetUnAckedState.executeSend();
         } else if (genericMessage instanceof GenericLevelGet) {
-            final GenericLevelGetState genericLevelGetState = new GenericLevelGetState(mContext, dstAddress, (GenericLevelGet) genericMessage, mMeshTransport, this);
+            final GenericLevelGetState genericLevelGetState = new GenericLevelGetState(mContext, src, dst, (GenericLevelGet) genericMessage, mMeshTransport, this);
             genericLevelGetState.setTransportCallbacks(mInternalTransportCallbacks);
             genericLevelGetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = genericLevelGetState;
             genericLevelGetState.executeSend();
         } else if (genericMessage instanceof GenericLevelSet) {
-            final GenericLevelSetState genericLevelSetState = new GenericLevelSetState(mContext, dstAddress, (GenericLevelSet) genericMessage, mMeshTransport, this);
+            final GenericLevelSetState genericLevelSetState = new GenericLevelSetState(mContext, src, dst, (GenericLevelSet) genericMessage, mMeshTransport, this);
             genericLevelSetState.setTransportCallbacks(mInternalTransportCallbacks);
             genericLevelSetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = genericLevelSetState;
             genericLevelSetState.executeSend();
         } else if (genericMessage instanceof GenericLevelSetUnacknowledged) {
-            final GenericLevelSetUnacknowledgedState genericLevelSetUnAckedState = new GenericLevelSetUnacknowledgedState(mContext, dstAddress,
-                    (GenericLevelSetUnacknowledged) genericMessage, mMeshTransport, this);
-            genericLevelSetUnAckedState.setTransportCallbacks(mInternalTransportCallbacks);
-            genericLevelSetUnAckedState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = genericLevelSetUnAckedState;
-            genericLevelSetUnAckedState.executeSend();
+            final GenericLevelSetUnacknowledgedState genericLevelSetUnackedState = new GenericLevelSetUnacknowledgedState(mContext, src,
+                    dst, (GenericLevelSetUnacknowledged) genericMessage, mMeshTransport, this);
+            genericLevelSetUnackedState.setTransportCallbacks(mInternalTransportCallbacks);
+            genericLevelSetUnackedState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = genericLevelSetUnackedState;
+            genericLevelSetUnackedState.executeSend();
         } else if (genericMessage instanceof LightLightnessGet) {
-            final LightLightnessGetState lightLightnessGetState = new LightLightnessGetState(mContext, dstAddress, (LightLightnessGet) genericMessage, mMeshTransport, this);
+            final LightLightnessGetState lightLightnessGetState = new LightLightnessGetState(mContext, src, dst, (LightLightnessGet) genericMessage, mMeshTransport, this);
             lightLightnessGetState.setTransportCallbacks(mInternalTransportCallbacks);
             lightLightnessGetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = lightLightnessGetState;
             lightLightnessGetState.executeSend();
         } else if (genericMessage instanceof LightLightnessSet) {
-            final LightLightnessSetState lightLightnessSetState = new LightLightnessSetState(mContext, dstAddress, (LightLightnessSet) genericMessage, mMeshTransport, this);
+            final LightLightnessSetState lightLightnessSetState = new LightLightnessSetState(mContext, src, dst, (LightLightnessSet) genericMessage, mMeshTransport, this);
             lightLightnessSetState.setTransportCallbacks(mInternalTransportCallbacks);
             lightLightnessSetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = lightLightnessSetState;
             lightLightnessSetState.executeSend();
         } else if (genericMessage instanceof LightLightnessSetUnacknowledged) {
-            final LightLightnessSetUnacknowledgedState lightLightnessSetUnacknowledgedState = new LightLightnessSetUnacknowledgedState(mContext, dstAddress, (LightLightnessSetUnacknowledged) genericMessage, mMeshTransport, this);
+            final LightLightnessSetUnacknowledgedState lightLightnessSetUnacknowledgedState = new LightLightnessSetUnacknowledgedState(mContext, dst, src,
+                    (LightLightnessSetUnacknowledged) genericMessage, mMeshTransport, this);
             lightLightnessSetUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
             lightLightnessSetUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = lightLightnessSetUnacknowledgedState;
             lightLightnessSetUnacknowledgedState.executeSend();
         } else if (genericMessage instanceof LightCtlGet) {
-            final LightCtlGetState lightCtlGetState = new LightCtlGetState(mContext, dstAddress, (LightCtlGet) genericMessage, mMeshTransport, this);
+            final LightCtlGetState lightCtlGetState = new LightCtlGetState(mContext, src, dst, (LightCtlGet) genericMessage, mMeshTransport, this);
             lightCtlGetState.setTransportCallbacks(mInternalTransportCallbacks);
             lightCtlGetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = lightCtlGetState;
             lightCtlGetState.executeSend();
         } else if (genericMessage instanceof LightCtlSet) {
-            final LightCtlSetState lightCtlSetState = new LightCtlSetState(mContext, dstAddress, (LightCtlSet) genericMessage, mMeshTransport, this);
+            final LightCtlSetState lightCtlSetState = new LightCtlSetState(mContext, src, dst, (LightCtlSet) genericMessage, mMeshTransport, this);
             lightCtlSetState.setTransportCallbacks(mInternalTransportCallbacks);
             lightCtlSetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = lightCtlSetState;
             lightCtlSetState.executeSend();
         } else if (genericMessage instanceof LightCtlSetUnacknowledged) {
-            final LightCtlSetUnacknowledgedState lightCtlSetUnacknowledgedState = new LightCtlSetUnacknowledgedState(mContext, dstAddress, (LightCtlSetUnacknowledged) genericMessage, mMeshTransport, this);
+            final LightCtlSetUnacknowledgedState lightCtlSetUnacknowledgedState = new LightCtlSetUnacknowledgedState(mContext, src,
+                    dst, (LightCtlSetUnacknowledged) genericMessage, mMeshTransport, this);
             lightCtlSetUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
             lightCtlSetUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = lightCtlSetUnacknowledgedState;
             lightCtlSetUnacknowledgedState.executeSend();
-        }  else if (genericMessage instanceof LightHslGet) {
-            final LightHslGetState lightHslGetState = new LightHslGetState(mContext, dstAddress, (LightHslGet) genericMessage, mMeshTransport, this);
+        } else if (genericMessage instanceof LightHslGet) {
+            final LightHslGetState lightHslGetState = new LightHslGetState(mContext, src, dst, (LightHslGet) genericMessage, mMeshTransport, this);
             lightHslGetState.setTransportCallbacks(mInternalTransportCallbacks);
             lightHslGetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = lightHslGetState;
             lightHslGetState.executeSend();
         } else if (genericMessage instanceof LightHslSet) {
-            final LightHslSetState lightHslSetState = new LightHslSetState(mContext, dstAddress, (LightHslSet) genericMessage, mMeshTransport, this);
+            final LightHslSetState lightHslSetState = new LightHslSetState(mContext, src, dst, (LightHslSet) genericMessage, mMeshTransport, this);
             lightHslSetState.setTransportCallbacks(mInternalTransportCallbacks);
             lightHslSetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = lightHslSetState;
             lightHslSetState.executeSend();
         } else if (genericMessage instanceof LightHslSetUnacknowledged) {
-            final LightHslSetUnacknowledgedState lightHslSetUnacknowledgedState = new LightHslSetUnacknowledgedState(mContext, dstAddress, (LightHslSetUnacknowledged) genericMessage, mMeshTransport, this);
+            final LightHslSetUnacknowledgedState lightHslSetUnacknowledgedState = new LightHslSetUnacknowledgedState(mContext, src,
+                    dst, (LightHslSetUnacknowledged) genericMessage, mMeshTransport, this);
             lightHslSetUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
             lightHslSetUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = lightHslSetUnacknowledgedState;
             lightHslSetUnacknowledgedState.executeSend();
         } else if (genericMessage instanceof VendorModelMessageAcked) {
-            final VendorModelMessageAckedState message = new VendorModelMessageAckedState(mContext, dstAddress, (VendorModelMessageAcked) genericMessage, mMeshTransport, this);
+            final VendorModelMessageAckedState message = new VendorModelMessageAckedState(mContext, src, dst, (VendorModelMessageAcked) genericMessage, mMeshTransport, this);
             message.setTransportCallbacks(mInternalTransportCallbacks);
             message.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = message;
             message.executeSend();
         } else if (genericMessage instanceof VendorModelMessageUnacked) {
-            final VendorModelMessageUnackedState vendorModelMessageUnackedState = new VendorModelMessageUnackedState(mContext, dstAddress, (VendorModelMessageUnacked) genericMessage, mMeshTransport, this);
+            final VendorModelMessageUnackedState vendorModelMessageUnackedState = new VendorModelMessageUnackedState(mContext, src,
+                    dst, (VendorModelMessageUnacked) genericMessage, mMeshTransport, this);
             vendorModelMessageUnackedState.setTransportCallbacks(mInternalTransportCallbacks);
             vendorModelMessageUnackedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = vendorModelMessageUnackedState;
             vendorModelMessageUnackedState.executeSend();
         } else if (genericMessage instanceof SceneGet) {
-            final SceneGetState sceneGetState = new SceneGetState(mContext, dstAddress, (SceneGet) genericMessage, mMeshTransport, this);
+            final SceneGetState sceneGetState = new SceneGetState(mContext, src, dst, (SceneGet) genericMessage, mMeshTransport, this);
             sceneGetState.setTransportCallbacks(mInternalTransportCallbacks);
             sceneGetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = sceneGetState;
             sceneGetState.executeSend();
         } else if (genericMessage instanceof SceneRegisterGet) {
-            final SceneRegisterGetState sceneGetState = new SceneRegisterGetState(mContext, dstAddress, (SceneRegisterGet) genericMessage, mMeshTransport, this);
+            final SceneRegisterGetState sceneGetState = new SceneRegisterGetState(mContext, src, dst, (SceneRegisterGet) genericMessage, mMeshTransport, this);
             sceneGetState.setTransportCallbacks(mInternalTransportCallbacks);
             sceneGetState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = sceneGetState;
             sceneGetState.executeSend();
         } else if (genericMessage instanceof SceneStore) {
-            final SceneStoreState sceneStoreState = new SceneStoreState(mContext, dstAddress, (SceneStore) genericMessage, mMeshTransport, this);
+            final SceneStoreState sceneStoreState = new SceneStoreState(mContext, src, dst, (SceneStore) genericMessage, mMeshTransport, this);
             sceneStoreState.setTransportCallbacks(mInternalTransportCallbacks);
             sceneStoreState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = sceneStoreState;
             sceneStoreState.executeSend();
         } else if (genericMessage instanceof SceneStoreUnacknowledged) {
-            final SceneStoreUnacknowledgedState sceneStoreUnacknowledgedState = new SceneStoreUnacknowledgedState(mContext, dstAddress, (SceneStoreUnacknowledged) genericMessage, mMeshTransport, this);
+            final SceneStoreUnacknowledgedState sceneStoreUnacknowledgedState = new SceneStoreUnacknowledgedState(mContext, src,
+                    dst, (SceneStoreUnacknowledged) genericMessage, mMeshTransport, this);
             sceneStoreUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
             sceneStoreUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = sceneStoreUnacknowledgedState;
             sceneStoreUnacknowledgedState.executeSend();
         } else if (genericMessage instanceof SceneDelete) {
-            final SceneDeleteState sceneDeleteState = new SceneDeleteState(mContext, dstAddress, (SceneDelete) genericMessage, mMeshTransport, this);
+            final SceneDeleteState sceneDeleteState = new SceneDeleteState(mContext, src, dst, (SceneDelete) genericMessage, mMeshTransport, this);
             sceneDeleteState.setTransportCallbacks(mInternalTransportCallbacks);
             sceneDeleteState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = sceneDeleteState;
             sceneDeleteState.executeSend();
         } else if (genericMessage instanceof SceneDeleteUnacknowledged) {
-            final SceneDeleteUnacknowledgedState sceneDeleteUnacknowledgedState = new SceneDeleteUnacknowledgedState(mContext, dstAddress, (SceneDeleteUnacknowledged) genericMessage, mMeshTransport, this);
+            final SceneDeleteUnacknowledgedState sceneDeleteUnacknowledgedState = new SceneDeleteUnacknowledgedState(mContext, src,
+                    dst, (SceneDeleteUnacknowledged) genericMessage, mMeshTransport, this);
             sceneDeleteUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
             sceneDeleteUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = sceneDeleteUnacknowledgedState;
             sceneDeleteUnacknowledgedState.executeSend();
         } else if (genericMessage instanceof SceneRecall) {
-            final SceneRecallState sceneRecallState = new SceneRecallState(mContext, dstAddress, (SceneRecall) genericMessage, mMeshTransport, this);
+            final SceneRecallState sceneRecallState = new SceneRecallState(mContext, src, dst, (SceneRecall) genericMessage, mMeshTransport, this);
             sceneRecallState.setTransportCallbacks(mInternalTransportCallbacks);
             sceneRecallState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = sceneRecallState;
             sceneRecallState.executeSend();
         } else if (genericMessage instanceof SceneRecallUnacknowledged) {
-            final SceneRecallUnacknowledgedState sceneRecallUnacknowledgedState = new SceneRecallUnacknowledgedState(mContext, dstAddress, (SceneRecallUnacknowledged) genericMessage, mMeshTransport, this);
+            final SceneRecallUnacknowledgedState sceneRecallUnacknowledgedState = new SceneRecallUnacknowledgedState(mContext, src, dst,
+                    (SceneRecallUnacknowledged) genericMessage, mMeshTransport, this);
             sceneRecallUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
             sceneRecallUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = sceneRecallUnacknowledgedState;

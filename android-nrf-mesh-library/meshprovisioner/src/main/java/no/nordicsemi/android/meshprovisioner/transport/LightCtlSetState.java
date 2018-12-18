@@ -15,17 +15,18 @@ class LightCtlSetState extends GenericMessageState implements LowerTransportLaye
      * Constructs {@link LightCtlSetState}
      *
      * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param dst      Destination address to which the message must be sent to
      * @param lightCtlSet     Wrapper class {@link LightCtlSetState} containing the opcode and parameters for {@link LightCtlSetState} message
      * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     LightCtlSetState(@NonNull final Context context,
-                     @NonNull final byte[] dstAddress,
+                     @NonNull final byte[] src,
+                     @NonNull final byte[] dst,
                      @NonNull final LightCtlSet lightCtlSet,
                      @NonNull final MeshTransport meshTransport,
                      @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, lightCtlSet, meshTransport, callbacks);
+        super(context, src, dst, lightCtlSet, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -45,7 +46,7 @@ class LightCtlSetState extends GenericMessageState implements LowerTransportLaye
         final int aszmic = lightCtlSet.getAszmic();
         final int opCode = lightCtlSet.getOpCode();
         final byte[] parameters = lightCtlSet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
         lightCtlSet.setMessage(message);
     }
 
@@ -55,7 +56,7 @@ class LightCtlSetState extends GenericMessageState implements LowerTransportLaye
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

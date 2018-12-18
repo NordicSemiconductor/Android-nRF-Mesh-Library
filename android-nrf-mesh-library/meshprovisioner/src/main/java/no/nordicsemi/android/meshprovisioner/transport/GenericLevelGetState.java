@@ -16,17 +16,19 @@ class GenericLevelGetState extends GenericMessageState {
      * Constructs GenericLevelGetState
      *
      * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param src             Source address
+     * @param dst             Destination address to which the message must be sent to
      * @param genericLevelGet Wrapper class {@link GenericLevelGet} containing the opcode and parameters for {@link GenericLevelGet} message
      * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     GenericLevelGetState(@NonNull final Context context,
-                                @NonNull final byte[] dstAddress,
-                                @NonNull final GenericLevelGet genericLevelGet,
-                                @NonNull final MeshTransport meshTransport,
-                                @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, genericLevelGet, meshTransport, callbacks);
+                         @NonNull final byte[] src,
+                         @NonNull final byte[] dst,
+                         @NonNull final GenericLevelGet genericLevelGet,
+                         @NonNull final MeshTransport meshTransport,
+                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, src, dst, genericLevelGet, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -46,7 +48,7 @@ class GenericLevelGetState extends GenericMessageState {
         final int aszmic = genericLevelGet.getAszmic();
         final int opCode = genericLevelGet.getOpCode();
         final byte[] parameters = genericLevelGet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
         genericLevelGet.setMessage(message);
     }
 
@@ -56,7 +58,7 @@ class GenericLevelGetState extends GenericMessageState {
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

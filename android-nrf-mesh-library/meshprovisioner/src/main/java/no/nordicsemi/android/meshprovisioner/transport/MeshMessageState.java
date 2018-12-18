@@ -8,7 +8,6 @@ import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -25,9 +24,9 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
     protected final Context mContext;
     protected final MeshMessage mMeshMessage;
-    protected final ProvisionedMeshNode mNode;
     final MeshTransport mMeshTransport;
-    final byte[] mSrc;
+    protected byte[] mSrc;
+    protected byte[] mDst;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     protected MeshStatusCallbacks mMeshStatusCallbacks;
     private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
@@ -39,8 +38,6 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         this.mContext = context;
         this.mMeshMessage = meshMessage;
         this.message = meshMessage.getMessage();
-        this.mNode = meshMessage.getMeshNode();
-        this.mSrc = mNode.getConfigurationSrc();
         this.meshMessageHandlerCallbacks = callbacks;
         this.mMeshTransport = meshTransport;
         this.mMeshTransport.setLowerTransportLayerCallbacks(this);
@@ -89,7 +86,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     public void executeSend() {
         if (message.getNetworkPdu().size() > 0) {
             for (int i = 0; i < message.getNetworkPdu().size(); i++) {
-                mInternalTransportCallbacks.sendMeshPdu(mNode, message.getNetworkPdu().get(i));
+                mInternalTransportCallbacks.sendMeshPdu(mDst, message.getNetworkPdu().get(i));
             }
         }
     }
@@ -105,14 +102,10 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
                     final byte[] pdu = message.getNetworkPdu().get(segO);
                     Log.v(TAG, "Resending segment " + segO + " : " + MeshParserUtils.bytesToHex(pdu, false));
                     final Message retransmitMeshMessage = mMeshTransport.createRetransmitMeshMessage(message, segO);
-                    mInternalTransportCallbacks.sendMeshPdu(mNode, retransmitMeshMessage.getNetworkPdu().get(segO));
+                    mInternalTransportCallbacks.sendMeshPdu(mDst, retransmitMeshMessage.getNetworkPdu().get(segO));
                 }
             }
         }
-    }
-
-    public ProvisionedMeshNode getMeshNode() {
-        return mNode;
     }
 
     boolean isSegmented() {
@@ -128,8 +121,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
             meshMessageHandlerCallbacks.onIncompleteTimerExpired(true);
 
             if (mMeshStatusCallbacks != null) {
-                final int srcAddress = AddressUtils.getUnicastAddressInt(mSrc);
-                mMeshStatusCallbacks.onTransactionFailed(mNode, srcAddress, true);
+                mMeshStatusCallbacks.onTransactionFailed(mDst, true);
             }
         }
     }
@@ -139,8 +131,8 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         //We don't send acks here
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendMeshPdu(mNode, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mNode);
+        mInternalTransportCallbacks.sendMeshPdu(mDst, message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(mDst);
     }
 
     public boolean isIncompleteTimerExpired() {

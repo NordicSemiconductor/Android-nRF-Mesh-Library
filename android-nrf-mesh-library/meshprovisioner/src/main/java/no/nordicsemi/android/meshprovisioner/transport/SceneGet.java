@@ -1,10 +1,6 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -21,16 +17,14 @@ public class SceneGet extends GenericMessage {
     /**
      * Constructs SceneGet message.
      *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public SceneGet(@NonNull final ProvisionedMeshNode node,
-                      @NonNull final byte[] appKey,
-                      final int aszmic) {
-        super(node, appKey, aszmic);
+    public SceneGet(@NonNull final byte[] appKey,
+                    final int aszmic) {
+        super(appKey, aszmic);
         assembleMessageParameters();
     }
 

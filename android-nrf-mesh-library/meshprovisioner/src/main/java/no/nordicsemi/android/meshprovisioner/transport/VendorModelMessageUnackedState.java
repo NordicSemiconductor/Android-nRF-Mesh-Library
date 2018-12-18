@@ -11,18 +11,20 @@ class VendorModelMessageUnackedState extends GenericMessageState {
     /**
      * Constructs {@link VendorModelMessageAckedState}
      *
-     * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param context                   Context of the application
+     * @param src                       Source address
+     * @param dst                       Destination address to which the message must be sent to
      * @param vendorModelMessageUnacked Wrapper class {@link VendorModelMessageStatus} containing the opcode and parameters for {@link VendorModelMessageStatus} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException exception for invalid arguments
      */
     VendorModelMessageUnackedState(@NonNull final Context context,
-                                          @NonNull final byte[] dstAddress,
-                                          @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked,
-                                          @NonNull final MeshTransport meshTransport,
-                                          @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, vendorModelMessageUnacked, meshTransport, callbacks);
+                                   @NonNull final byte[] src,
+                                   @NonNull final byte[] dst,
+                                   @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked,
+                                   @NonNull final MeshTransport meshTransport,
+                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, src, dst, vendorModelMessageUnacked, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -44,7 +46,7 @@ class VendorModelMessageUnackedState extends GenericMessageState {
         final int opCode = vendorModelMessageUnacked.getOpCode();
         final byte[] parameters = vendorModelMessageUnacked.getParameters();
         final int companyIdentifier = vendorModelMessageUnacked.getCompanyIdentifier();
-        message = mMeshTransport.createVendorMeshMessage(mNode, companyIdentifier, src, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createVendorMeshMessage(companyIdentifier, src, mDst, key, akf, aid, aszmic, opCode, parameters);
         vendorModelMessageUnacked.setMessage(message);
     }
 
@@ -54,7 +56,7 @@ class VendorModelMessageUnackedState extends GenericMessageState {
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null) {
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
             }
         }
     }

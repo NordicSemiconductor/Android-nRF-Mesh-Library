@@ -16,17 +16,19 @@ class GenericLevelSetUnacknowledgedState extends GenericMessageState {
      * Constructs {@link GenericLevelSetUnacknowledgedState}
      *
      * @param context                Context of the application
-     * @param dstAddress             Destination address to which the message must be sent to
+     * @param src                    Source address
+     * @param dst                    Destination address to which the message must be sent to
      * @param genericLevelSetUnacked Wrapper class {@link GenericLevelSetUnacknowledged} containing the opcode and parameters for {@link GenericLevelSetUnacknowledged} message
      * @param callbacks              {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     GenericLevelSetUnacknowledgedState(@NonNull final Context context,
-                                              @NonNull final byte[] dstAddress,
-                                              @NonNull final GenericLevelSetUnacknowledged genericLevelSetUnacked,
-                                              @NonNull final MeshTransport meshTransport,
-                                              @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, genericLevelSetUnacked, meshTransport, callbacks);
+                                       @NonNull final byte[] src,
+                                       @NonNull final byte[] dst,
+                                       @NonNull final GenericLevelSetUnacknowledged genericLevelSetUnacked,
+                                       @NonNull final MeshTransport meshTransport,
+                                       @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, src, dst, genericLevelSetUnacked, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -46,7 +48,7 @@ class GenericLevelSetUnacknowledgedState extends GenericMessageState {
         final int aszmic = genericLevelSet.getAszmic();
         final int opCode = genericLevelSet.getOpCode();
         final byte[] parameters = genericLevelSet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
         genericLevelSet.setMessage(message);
     }
 
@@ -56,7 +58,7 @@ class GenericLevelSetUnacknowledgedState extends GenericMessageState {
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null) {
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
             }
         }
     }

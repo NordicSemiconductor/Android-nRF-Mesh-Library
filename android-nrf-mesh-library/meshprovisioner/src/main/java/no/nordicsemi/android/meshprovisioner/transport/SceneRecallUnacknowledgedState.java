@@ -14,18 +14,20 @@ class SceneRecallUnacknowledgedState extends GenericMessageState implements Lowe
     /**
      * Constructs {@link SceneRecallUnacknowledgedState}
      *
-     * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param context                   Context of the application
+     * @param src                       Source address
+     * @param dst                       Destination address to which the message must be sent to
      * @param sceneRecallUnacknowledged Wrapper class {@link SceneStore} containing the opcode and parameters for {@link SceneStore} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     SceneRecallUnacknowledgedState(@NonNull final Context context,
-                     @NonNull final byte[] dstAddress,
-                     @NonNull final SceneRecallUnacknowledged sceneRecallUnacknowledged,
-                     @NonNull final MeshTransport meshTransport,
-                     @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, sceneRecallUnacknowledged, meshTransport, callbacks);
+                                   @NonNull final byte[] src,
+                                   @NonNull final byte[] dst,
+                                   @NonNull final SceneRecallUnacknowledged sceneRecallUnacknowledged,
+                                   @NonNull final MeshTransport meshTransport,
+                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, src, dst, sceneRecallUnacknowledged, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -45,7 +47,7 @@ class SceneRecallUnacknowledgedState extends GenericMessageState implements Lowe
         final int aszmic = sceneRecallUnacknowledged.getAszmic();
         final int opCode = sceneRecallUnacknowledged.getOpCode();
         final byte[] parameters = sceneRecallUnacknowledged.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
     }
 
     @Override
@@ -54,7 +56,7 @@ class SceneRecallUnacknowledgedState extends GenericMessageState implements Lowe
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null) {
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
             }
         }
     }

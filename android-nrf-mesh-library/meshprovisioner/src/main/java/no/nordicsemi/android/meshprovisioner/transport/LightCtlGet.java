@@ -19,15 +19,13 @@ public class LightCtlGet extends GenericMessage {
     /**
      * Constructs LightCtlGet message.
      *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightCtlGet(@NonNull final ProvisionedMeshNode node,
-                       @NonNull final byte[] appKey,
+    public LightCtlGet(@NonNull final byte[] appKey,
                        final int aszmic) throws IllegalArgumentException {
-        super(node, appKey, aszmic);
+        super(appKey, aszmic);
         assembleMessageParameters();
     }
 

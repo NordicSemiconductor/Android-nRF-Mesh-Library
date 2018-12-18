@@ -44,13 +44,11 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
     /**
      * Constructs a ConfigNetworkTransmitStatus message.
      *
-     * @param node      Mesh node the message originated from
      * @param message   Access message received
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigNetworkTransmitStatus(final ProvisionedMeshNode node,
-                                       @NonNull final AccessMessage message) {
-        super(node, message);
+    public ConfigNetworkTransmitStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
@@ -58,9 +56,8 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
     private static final Creator<ConfigNetworkTransmitStatus> CREATOR = new Creator<ConfigNetworkTransmitStatus>() {
         @Override
         public ConfigNetworkTransmitStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigNetworkTransmitStatus(meshNode, message);
+            return new ConfigNetworkTransmitStatus(message);
         }
 
         @Override
@@ -106,7 +103,6 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }

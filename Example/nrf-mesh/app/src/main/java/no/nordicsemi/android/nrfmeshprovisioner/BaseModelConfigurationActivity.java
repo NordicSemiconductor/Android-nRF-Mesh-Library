@@ -269,8 +269,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         final byte[] elementAddress = mViewModel.getSelectedElement().getElement().getElementAddress();
         final int modelIdentifier = mViewModel.getSelectedModel().getMeshModel().getModelId();
-        final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(meshNode, elementAddress, subscriptionAddress, modelIdentifier, 0);
-        mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configModelSubscriptionAdd);
+        final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, subscriptionAddress, modelIdentifier, 0);
+        mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
         showProgressbar();
     }
 
@@ -312,8 +312,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-        final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(meshNode, element.getElementAddress(), model.getModelId(), appKeyIndex, 0);
-        mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configModelAppUnbind);
+        final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(element.getElementAddress(), model.getModelId(), appKeyIndex, 0);
+        mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
         showProgressbar();
     }
 
@@ -324,8 +324,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
             final Element element = mViewModel.getSelectedElement().getElement();
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-            final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(meshNode, element.getElementAddress(), model.getModelId(), keyIndex, 0);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configModelAppUnbind);
+            final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(element.getElementAddress(), model.getModelId(), keyIndex, 0);
+            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
             showProgressbar();
         }
     }
@@ -346,10 +346,10 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         if (publishAddress != null && appKeyIndex > -1) {
             try {
 
-                final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(node, element.getElementAddress(), publishAddress,
+                final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), publishAddress,
                         appKeyIndex, credentialFlag, publishTtl, publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId(), 0);
                 if (!model.getBoundAppKeyIndexes().isEmpty()) {
-                    mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configModelPublicationSet);
+                    mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), configModelPublicationSet);
                     showProgressbar();
                 } else {
                     Toast.makeText(this, getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
@@ -368,9 +368,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final byte[] address = MeshParserUtils.DISABLED_PUBLICATION_ADDRESS;
             final int appKeyIndex = meshModel.getPublicationSettings().getAppKeyIndex();
             final boolean credentialFlag = meshModel.getPublicationSettings().getCredentialFlag();
-            final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(meshNode, element.getElementAddress(), address, appKeyIndex,
+            final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), address, appKeyIndex,
                     credentialFlag, 0, 0, 0, 0, 0, meshModel.getModelId(), 0);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configModelPublicationSet);
+            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
             showProgressbar();
         } else {
             Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
@@ -383,9 +383,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
             final Element element = mViewModel.getSelectedElement().getElement();
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-            final ConfigModelSubscriptionDelete configModelAppUnbind = new ConfigModelSubscriptionDelete(meshNode, element.getElementAddress(),
+            final ConfigModelSubscriptionDelete configModelAppUnbind = new ConfigModelSubscriptionDelete(element.getElementAddress(),
                     address, model.getModelId(), 0);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configModelAppUnbind);
+            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
             showProgressbar();
         }
     }

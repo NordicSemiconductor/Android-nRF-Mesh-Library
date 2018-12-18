@@ -33,13 +33,30 @@ import android.util.Log;
 final class ConfigModelAppUnbindState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppUnbindState.class.getSimpleName();
+    private final byte[] mDeviceKey;
 
-
+    /**
+     * Constructs the state for creating ConfigModelAppBind message
+     *
+     * @param context              context
+     * @param src                  source address
+     * @param dst                  destination address
+     * @param deviceKey            device key
+     * @param configModelAppUnbind {@link ConfigModelAppUnbind}
+     * @param meshTransport        {@link MeshTransport}
+     * @param callbacks            {@link InternalMeshMsgHandlerCallbacks}
+     */
     ConfigModelAppUnbindState(@NonNull final Context context,
-                                     @NonNull final ConfigModelAppUnbind configModelAppUnbind,
-                                     @NonNull final MeshTransport meshTransport,
-                                     @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+                              @NonNull final byte[] src,
+                              @NonNull final byte[] dst,
+                              @NonNull final byte[] deviceKey,
+                              @NonNull final ConfigModelAppUnbind configModelAppUnbind,
+                              @NonNull final MeshTransport meshTransport,
+                              @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, configModelAppUnbind, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
+        this.mDeviceKey = deviceKey;
         createAccessMessage();
     }
 
@@ -53,13 +70,12 @@ final class ConfigModelAppUnbindState extends ConfigMessageState {
      */
     private void createAccessMessage() {
         final ConfigModelAppUnbind configModelAppUnbind = (ConfigModelAppUnbind) mMeshMessage;
-        final byte[] key = mNode.getDeviceKey();
         final int akf = configModelAppUnbind.getAkf();
         final int aid = configModelAppUnbind.getAid();
         final int aszmic = configModelAppUnbind.getAszmic();
         final int opCode = configModelAppUnbind.getOpCode();
         final byte[] parameters = configModelAppUnbind.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mDeviceKey, akf, aid, aszmic, opCode, parameters);
         configModelAppUnbind.setMessage(message);
     }
 
@@ -70,7 +86,7 @@ final class ConfigModelAppUnbindState extends ConfigMessageState {
 
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

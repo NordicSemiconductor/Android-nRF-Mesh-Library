@@ -24,18 +24,16 @@ public class SceneDelete extends GenericMessage {
     /**
      * Constructs SceneDelete message.
      *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param sceneNumber          scene number of SceneDelete message
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public SceneDelete(@NonNull final ProvisionedMeshNode node,
-                      @NonNull final byte[] appKey,
-                      final int sceneNumber,
-                      final int aszmic) {
-        super(node, appKey, aszmic);
+    public SceneDelete(@NonNull final byte[] appKey,
+                       final int sceneNumber,
+                       final int aszmic) {
+        super(appKey, aszmic);
         this.mSceneNumber = sceneNumber;
         assembleMessageParameters();
     }

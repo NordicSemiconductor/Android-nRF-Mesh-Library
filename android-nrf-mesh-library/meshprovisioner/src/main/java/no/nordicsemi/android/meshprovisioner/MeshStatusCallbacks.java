@@ -23,7 +23,6 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 /**
  * Callbacks to notify the status of the mesh messgaes
@@ -38,46 +37,46 @@ public interface MeshStatusCallbacks {
      * If all segments are not received during this period, that transaction shall be considered as failed.
      * </p>
      *
-     * @param node                      mesh node that failed to handle the transaction
-     * @param src                       unique src address of the device
+     * @param dst                       unique src address of the device
      * @param hasIncompleteTimerExpired flag that notifies if the incomplete timer had expired
      */
-    void onTransactionFailed(final ProvisionedMeshNode node, final int src, final boolean hasIncompleteTimerExpired);
+    void onTransactionFailed(final byte[] dst, final boolean hasIncompleteTimerExpired);
 
     /**
      * Notifies if an unknown pdu was received
      *
-     * @param node mesh node that the message was received from
-     * @param src address where the message originated from
+     * @param src           address where the message originated from
      * @param accessPayload access payload of the message
      */
-    void onUnknownPduReceived(final ProvisionedMeshNode node, final int src, final byte[] accessPayload);
+    void onUnknownPduReceived(final byte[] src, final byte[] accessPayload);
 
     /**
      * Notifies if a block acknowledgement was sent
      *
-     * @param node mesh node that the message was sent to
+     * @param dst dst address to which the block ack was sent
      */
-    void onBlockAcknowledgementSent(final ProvisionedMeshNode node);
+    void onBlockAcknowledgementSent(final byte[] dst);
 
     /**
      * Notifies if a block acknowledgement was received
      *
-     * @param node mesh node that the message was received from
+     * @param src source address from which the block ack was received
      */
-    void onBlockAcknowledgementReceived(final ProvisionedMeshNode node);
+    void onBlockAcknowledgementReceived(final byte[] src);
 
     /**
      * Callback to notify the mesh message has been sent
      *
+     * @param dst
      * @param meshMessage {@link MeshMessage} containing the message that was sent
      */
-    void onMeshMessageSent(final MeshMessage meshMessage);
+    void onMeshMessageSent(final byte[] dst, final MeshMessage meshMessage);
 
     /**
      * Callback to notify that a mesh status message was received
      *
+     * @param src         source address where the message originated from
      * @param meshMessage {@link MeshMessage} containing the message that was received
      */
-    void onMeshMessageReceived(final MeshMessage meshMessage);
+    void onMeshMessageReceived(final byte[] src, final MeshMessage meshMessage);
 }

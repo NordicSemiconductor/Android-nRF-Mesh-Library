@@ -17,16 +17,14 @@ public class SceneRegisterGet extends GenericMessage {
     /**
      * Constructs SceneRegisterGet message.
      *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public SceneRegisterGet(@NonNull final ProvisionedMeshNode node,
-                            @NonNull final byte[] appKey,
+    public SceneRegisterGet(@NonNull final byte[] appKey,
                             final int aszmic) {
-        super(node, appKey, aszmic);
+        super(appKey, aszmic);
         assembleMessageParameters();
     }
 

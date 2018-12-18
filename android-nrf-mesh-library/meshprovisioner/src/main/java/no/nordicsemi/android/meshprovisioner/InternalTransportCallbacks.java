@@ -32,6 +32,13 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 public interface InternalTransportCallbacks {
 
     /**
+     * Returns the node with the corresponding unicast address
+     *
+     * @param unicast unicast address
+     */
+    ProvisionedMeshNode getProvisionedNode(final byte[] unicast);
+
+    /**
      * Send mesh pdu
      *
      * @param meshNode mesh node to send to
@@ -41,11 +48,12 @@ public interface InternalTransportCallbacks {
 
     /**
      * Send mesh pdu
-     * @param meshNode mesh node to send to
-     * @param pdu      mesh pdu to be sent
+     *
+     * @param dst Destination address to be sent
+     * @param pdu mesh pdu to be sent
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    void sendMeshPdu(final ProvisionedMeshNode meshNode, final byte[] pdu);
+    void sendMeshPdu(final byte[] dst, final byte[] pdu);
 
     /**
      * Update mesh network
@@ -60,4 +68,6 @@ public interface InternalTransportCallbacks {
      * @param meshNode mesh to be updated
      */
     void onMeshNodeReset(final ProvisionedMeshNode meshNode);
+
+
 }

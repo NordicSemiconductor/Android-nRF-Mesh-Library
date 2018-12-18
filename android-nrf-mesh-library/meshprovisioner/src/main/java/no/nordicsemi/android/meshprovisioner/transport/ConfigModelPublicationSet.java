@@ -56,7 +56,6 @@ public class ConfigModelPublicationSet extends ConfigMessage {
     /**
      * Constructs a ConfigModelPublicationSet message
      *
-     * @param node                           Mesh node to be sent
      * @param elementAddress                 Element address that should publish
      * @param publishAddress                 Address to which the element must publish
      * @param appKeyIndex                    Index of the application key
@@ -70,8 +69,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
      * @param aszmic                         size of message integrity check
      * @throws IllegalArgumentException for invalid arguments
      */
-    public ConfigModelPublicationSet(@NonNull final ProvisionedMeshNode node,
-                                     @NonNull final byte[] elementAddress,
+    public ConfigModelPublicationSet(@NonNull final byte[] elementAddress,
                                      @NonNull final byte[] publishAddress,
                                      final int appKeyIndex,
                                      final boolean credentialFlag,
@@ -82,7 +80,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
                                      final int publishRetransmitIntervalSteps,
                                      final int modelIdentifier,
                                      final int aszmic) throws IllegalArgumentException {
-        super(node, aszmic);
+        super(aszmic);
         if (elementAddress.length != 2)
             throw new IllegalArgumentException("Element address must be 2 bytes");
         this.elementAddress = elementAddress;

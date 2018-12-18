@@ -30,27 +30,25 @@ public class GenericOnOffSetUnacknowledged extends GenericMessage {
     /**
      * Constructs GenericOnOffSet message.
      *
-     * @param node        Mesh node this message is to be sent to
      * @param appKey      Application key for this message
      * @param state       Boolean state of the GenericOnOffModel
+     * @param tId                  transaction id
      * @param aszmic      Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericOnOffSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                                         @NonNull final byte[] appKey,
+    public GenericOnOffSetUnacknowledged(@NonNull final byte[] appKey,
                                          final boolean state,
+                                         final int tId,
                                          final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, state, node.getReceivedSequenceNumber(), null, null, null, aszmic);
+        this(appKey, state, tId, null, null, null, aszmic);
     }
-
-
 
     /**
      * Constructs GenericOnOffSet message.
      *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               Application key for this message
      * @param state                Boolean state of the GenericOnOffModel
+     * @param tId                  transaction id
      * @param transitionSteps      Transition steps for the level
      * @param transitionResolution Transition resolution for the level
      * @param delay                Delay for this message to be executed 0 - 1275 milliseconds
@@ -58,57 +56,14 @@ public class GenericOnOffSetUnacknowledged extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public GenericOnOffSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                                         @NonNull final byte[] appKey,
-                                         final boolean state,
-                                         @Nullable final Integer transitionSteps,
-                                         @Nullable final Integer transitionResolution,
-                                         @Nullable final Integer delay,
-                                         final int aszmic) {
-        this(node, appKey, state, node.getReceivedSequenceNumber(), transitionSteps, transitionResolution, delay, aszmic);
-    }
-
-    /**
-     * Constructs GenericOnOffSet message.
-     *
-     * @param node        Mesh node this message is to be sent to
-     * @param appKey      Application key for this message
-     * @param state       Boolean state of the GenericOnOffModel
-     * @param tId                  transaction id
-     * @param aszmic      Size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    public GenericOnOffSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                                         @NonNull final byte[] appKey,
-                                         final boolean state,
-                                         final int tId,
-                                         final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, state, tId, null, null, null, aszmic);
-    }
-
-    /**
-     * Constructs GenericOnOffSet message.
-     *
-     * @param node                 Mesh node this message is to be sent to
-     * @param appKey               Application key for this message
-     * @param state                Boolean state of the GenericOnOffModel
-     * @param transitionSteps      Transition steps for the level
-     * @param transitionResolution Transition resolution for the level
-     * @param delay                Delay for this message to be executed 0 - 1275 milliseconds
-     * @param tId                  transaction id
-     * @param aszmic               Size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    @SuppressWarnings("WeakerAccess")
-    public GenericOnOffSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                                         @NonNull final byte[] appKey,
+    public GenericOnOffSetUnacknowledged(@NonNull final byte[] appKey,
                                          final boolean state,
                                          final int tId,
                                          @Nullable final Integer transitionSteps,
                                          @Nullable final Integer transitionResolution,
                                          @Nullable final Integer delay,
                                          final int aszmic) {
-        super(node, appKey, aszmic);
+        super(appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

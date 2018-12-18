@@ -36,7 +36,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * To be used as a wrapper class for when creating the ConfigModelSubscriptionStatus Message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigModelSubscriptionStatus.class.getSimpleName();
@@ -51,11 +51,10 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implement
     /**
      * Constructs the ConfigModelSubscriptionStatus mMessage.
      *
-     * @param node    Node from which the mMessage originated from
      * @param message Access Message
      */
-    public ConfigModelSubscriptionStatus(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
-        super(node, message);
+    public ConfigModelSubscriptionStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
@@ -63,9 +62,8 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implement
     private static final Creator<ConfigModelSubscriptionStatus> CREATOR = new Creator<ConfigModelSubscriptionStatus>() {
         @Override
         public ConfigModelSubscriptionStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigModelSubscriptionStatus(meshNode, message);
+            return new ConfigModelSubscriptionStatus(message);
         }
 
         @Override
@@ -148,7 +146,6 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implement
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }

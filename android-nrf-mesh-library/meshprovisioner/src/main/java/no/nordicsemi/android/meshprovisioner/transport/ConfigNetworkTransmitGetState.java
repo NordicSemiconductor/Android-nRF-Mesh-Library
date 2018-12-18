@@ -4,17 +4,33 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-
 public final class ConfigNetworkTransmitGetState extends ConfigMessageState {
 
     private static final String TAG = ConfigNetworkTransmitGetState.class.getSimpleName();
+    private final byte[] mDeviceKey;
 
-
-    public ConfigNetworkTransmitGetState(@NonNull final Context context,
-                                         @NonNull final ConfigNetworkTransmitGet configNetworkTransmitGet,
-                                         @NonNull final MeshTransport meshTransport,
-                                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+    /**
+     * Constructs the state for creating ConfigNetworkTransmitGet message
+     *
+     * @param context                  context
+     * @param src                      source address
+     * @param dst                      destination address
+     * @param deviceKey                device key
+     * @param configNetworkTransmitGet {@link ConfigNetworkTransmitGet}
+     * @param meshTransport            {@link MeshTransport}
+     * @param callbacks                {@link InternalMeshMsgHandlerCallbacks}
+     */
+    ConfigNetworkTransmitGetState(@NonNull final Context context,
+                                  @NonNull final byte[] src,
+                                  @NonNull final byte[] dst,
+                                  @NonNull final byte[] deviceKey,
+                                  @NonNull final ConfigNetworkTransmitGet configNetworkTransmitGet,
+                                  @NonNull final MeshTransport meshTransport,
+                                  @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, configNetworkTransmitGet, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
+        this.mDeviceKey = deviceKey;
         createAccessMessage();
     }
 
@@ -24,14 +40,13 @@ public final class ConfigNetworkTransmitGetState extends ConfigMessageState {
     }
 
     private void createAccessMessage() {
-        final byte[] key = mNode.getDeviceKey();
         final ConfigNetworkTransmitGet configNetworkTransmitGet = (ConfigNetworkTransmitGet) mMeshMessage;
         final int akf = configNetworkTransmitGet.getAkf();
         final int aid = configNetworkTransmitGet.getAid();
         final int aszmic = configNetworkTransmitGet.getAszmic();
         final int opCode = configNetworkTransmitGet.getOpCode();
         final byte[] parameters = configNetworkTransmitGet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mDeviceKey, akf, aid, aszmic, opCode, parameters);
         configNetworkTransmitGet.setMessage(message);
     }
 
@@ -42,7 +57,7 @@ public final class ConfigNetworkTransmitGetState extends ConfigMessageState {
 
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

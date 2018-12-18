@@ -31,7 +31,9 @@ public interface NetworkLayerCallbacks {
      *
      * @param unicastAddress unicast address of the mesh node
      */
-    ProvisionedMeshNode getMeshNode(final int unicastAddress);
+    ProvisionedMeshNode getProvisionedNode(final int unicastAddress);
+
+    Provisioner getProvisioner();
 
     Provisioner getProvisioner(final byte[] unicastAddress);
 

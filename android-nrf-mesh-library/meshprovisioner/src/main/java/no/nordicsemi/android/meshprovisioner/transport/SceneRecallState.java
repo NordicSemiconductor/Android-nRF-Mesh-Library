@@ -14,18 +14,20 @@ class SceneRecallState extends GenericMessageState implements LowerTransportLaye
     /**
      * Constructs {@link SceneRecallState}
      *
-     * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param context     Context of the application
+     * @param src         Source address
+     * @param dst         Destination address to which the message must be sent to
      * @param sceneRecall Wrapper class {@link SceneStore} containing the opcode and parameters for {@link SceneStore} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param callbacks   {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     SceneRecallState(@NonNull final Context context,
-                     @NonNull final byte[] dstAddress,
+                     @NonNull final byte[] src,
+                     @NonNull final byte[] dst,
                      @NonNull final SceneRecall sceneRecall,
                      @NonNull final MeshTransport meshTransport,
                      @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, sceneRecall, meshTransport, callbacks);
+        super(context, src, dst, sceneRecall, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -45,7 +47,7 @@ class SceneRecallState extends GenericMessageState implements LowerTransportLaye
         final int aszmic = sceneRecall.getAszmic();
         final int opCode = sceneRecall.getOpCode();
         final byte[] parameters = sceneRecall.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
     }
 
     @Override
@@ -54,7 +56,7 @@ class SceneRecallState extends GenericMessageState implements LowerTransportLaye
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

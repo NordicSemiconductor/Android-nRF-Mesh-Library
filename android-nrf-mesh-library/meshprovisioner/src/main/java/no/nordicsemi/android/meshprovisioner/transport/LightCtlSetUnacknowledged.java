@@ -30,57 +30,9 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
     private final int mDeltaUv;
     private final int tId;
 
-     /**
-     * Constructs LightCtlSetUnacknowledged message.
-     *
-     * @param node             Mesh node this message is to be sent to
-     * @param appKey           application key for this message
-     * @param lightLightness   lightLightness of the LightCtlModel
-     * @param lightTemperature temperature of the LightCtlModel
-     * @param lightDeltaUv     delta uv of the LightCtlModel
-     * @param aszmic           size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    public LightCtlSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                                     @NonNull final byte[] appKey,
-                                     final int lightLightness,
-                                     final int lightTemperature,
-                                     final int lightDeltaUv,
-                                     final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, lightTemperature, lightDeltaUv, node.getReceivedSequenceNumber(), aszmic);
-    }
-
     /**
      * Constructs LightCtlSetUnacknowledged message.
      *
-     * @param node                 Mesh node this message is to be sent to
-     * @param appKey               application key for this message
-     * @param transitionSteps      transition steps for the lightLightness
-     * @param transitionResolution transition resolution for the lightLightness
-     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param lightLightness       lightLightness of the LightCtlModel
-     * @param lightTemperature     temperature of the LightCtlModel
-     * @param lightDeltaUv         delta uv of the LightCtlModel
-     * @param aszmic               size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    @SuppressWarnings("WeakerAccess")
-    public LightCtlSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                                     @NonNull final byte[] appKey,
-                                     @Nullable final Integer transitionSteps,
-                                     @Nullable final Integer transitionResolution,
-                                     @Nullable final Integer delay,
-                                     final int lightLightness,
-                                     final int lightTemperature,
-                                     final int lightDeltaUv,
-                                     final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, transitionSteps, transitionResolution, delay, lightLightness, lightTemperature, lightDeltaUv, node.getReceivedSequenceNumber(), aszmic);
-    }
-
-    /**
-     * Constructs LightCtlSetUnacknowledged message.
-     *
-     * @param node             Mesh node this message is to be sent to
      * @param appKey           application key for this message
      * @param lightLightness   lightLightness of the LightCtlModel
      * @param lightTemperature temperature of the LightCtlModel
@@ -89,20 +41,18 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
      * @param aszmic           size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightCtlSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                                     @NonNull final byte[] appKey,
+    public LightCtlSetUnacknowledged(@NonNull final byte[] appKey,
                                      final int lightLightness,
                                      final int lightTemperature,
                                      final int lightDeltaUv,
                                      final int tId,
                                      final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, lightTemperature, lightDeltaUv, tId, aszmic);
+        this(appKey, null, null, null, lightLightness, lightTemperature, lightDeltaUv, tId, aszmic);
     }
 
     /**
      * Constructs LightCtlSetUnacknowledged message.
      *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param transitionSteps      transition steps for the lightLightness
      * @param transitionResolution transition resolution for the lightLightness
@@ -115,8 +65,7 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public LightCtlSetUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                                     @NonNull final byte[] appKey,
+    public LightCtlSetUnacknowledged(@NonNull final byte[] appKey,
                                      @Nullable final Integer transitionSteps,
                                      @Nullable final Integer transitionResolution,
                                      @Nullable final Integer delay,
@@ -125,7 +74,7 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
                                      final int lightDeltaUv,
                                      final int tId,
                                      final int aszmic) throws IllegalArgumentException {
-        super(node, appKey, aszmic);
+        super(appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

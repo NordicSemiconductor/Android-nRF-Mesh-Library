@@ -198,8 +198,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         actionGetCompositionData.setOnClickListener(v -> {
             showProgressbar();
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-            final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet(node, 0);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configCompositionDataGet);
+            final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet(0);
+            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), configCompositionDataGet);
         });
 
         actionAddAppkey.setOnClickListener(v -> {
@@ -212,8 +212,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
         actionGetProxyState.setOnClickListener(v -> {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-            final ConfigProxyGet configProxyGet = new ConfigProxyGet(node, 0);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configProxyGet);
+            final ConfigProxyGet configProxyGet = new ConfigProxyGet(0);
+            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), configProxyGet);
         });
 
         actionSetProxyState.setOnClickListener(v -> {
@@ -275,8 +275,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 if (appKey != null) {
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
                     final NetworkKey networkKey = mViewModel.getMeshManagerApi().getMeshNetwork().getPrimaryNetworkKey();
-                    final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node, networkKey, appKey, 0);
-                    mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configAppKeyAdd);
+                    final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey, 0);
+                    mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), configAppKeyAdd);
                 }
             }
         }
@@ -329,8 +329,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     public void onNodeReset() {
         try {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-            final ConfigNodeReset configNodeReset = new ConfigNodeReset(node, 0);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configNodeReset);
+            final ConfigNodeReset configNodeReset = new ConfigNodeReset(0);
+            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), configNodeReset);
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
         }
@@ -340,8 +340,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     public void onProxySet(@ConfigProxySet.ProxyState final int state) {
         try {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-            final ConfigProxySet configProxySet = new ConfigProxySet(node, state, 0);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(configProxySet);
+            final ConfigProxySet configProxySet = new ConfigProxySet(state, 0);
+            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(),configProxySet);
             mRequestedState = state == 1;
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());

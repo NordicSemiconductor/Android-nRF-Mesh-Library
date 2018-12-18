@@ -32,12 +32,19 @@ import android.util.Log;
 class ConfigAppKeyAddState extends ConfigMessageState {
 
     private final String TAG = ConfigAppKeyAddState.class.getSimpleName();
+    private final byte[] mDeviceKey;
 
     ConfigAppKeyAddState(@NonNull final Context context,
+                         @NonNull final byte[] src,
+                         @NonNull final byte[] dst,
+                         @NonNull final byte[] deviceKey,
                          @NonNull ConfigAppKeyAdd appKeyAdd,
                          @NonNull final MeshTransport meshTransport,
                          @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, appKeyAdd, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
+        this.mDeviceKey = deviceKey;
         createAccessMessage();
     }
 
@@ -50,13 +57,12 @@ class ConfigAppKeyAddState extends ConfigMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        final byte[] key = mNode.getDeviceKey();
         final ConfigAppKeyAdd configAppKeyAdd = (ConfigAppKeyAdd) mMeshMessage;
         final int akf = configAppKeyAdd.getAkf();
         final int aid = configAppKeyAdd.getAid();
         final int opCode = configAppKeyAdd.getOpCode();
         final byte[] parameters = configAppKeyAdd.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, configAppKeyAdd.getAszmic(), opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mDeviceKey, akf, aid, configAppKeyAdd.getAszmic(), opCode, parameters);
         configAppKeyAdd.setMessage(message);
     }
 
@@ -66,16 +72,7 @@ class ConfigAppKeyAddState extends ConfigMessageState {
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
-    }
-
-    /**
-     * Returns the source address of the message i.e. where it originated from
-     *
-     * @return source address
-     */
-    public byte[] getSrc() {
-        return mSrc;
     }
 }
