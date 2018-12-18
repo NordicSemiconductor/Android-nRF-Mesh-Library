@@ -30,64 +30,22 @@ public class SceneRecallUnacknowledged extends GenericMessage {
     /**
      * Constructs SceneStore message.
      *
-     * @param node        Mesh node this message is to be sent to
-     * @param appKey      application key for this message
-     * @param sceneNumber       scene number
-     * @param aszmic      size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    public SceneRecallUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                       @NonNull final byte[] appKey,
-                       final int sceneNumber,
-                       final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, sceneNumber, node.getReceivedSequenceNumber(), aszmic);
-    }
-
-    /**
-     * Constructs SceneStore message.
-     *
-     * @param node                 Mesh node this message is to be sent to
-     * @param appKey               application key for this message
-     * @param transitionSteps      transition steps for the level
-     * @param transitionResolution transition resolution for the level
-     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param sceneNumber                scene number
-     * @param aszmic               size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    @SuppressWarnings("WeakerAccess")
-    public SceneRecallUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                       @NonNull final byte[] appKey,
-                       @Nullable final Integer transitionSteps,
-                       @Nullable final Integer transitionResolution,
-                       @Nullable final Integer delay,
-                       final int sceneNumber,
-                       final int aszmic) {
-        this(node, appKey, null, null, null, sceneNumber, node.getReceivedSequenceNumber(), aszmic);
-    }
-
-    /**
-     * Constructs SceneStore message.
-     *
-     * @param node        Mesh node this message is to be sent to
      * @param appKey      application key for this message
      * @param sceneNumber       sceneNumber
      * @param tId                  transaction id
      * @param aszmic      size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public SceneRecallUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                       @NonNull final byte[] appKey,
-                       final int sceneNumber,
-                       final int tId,
-                       final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, sceneNumber, tId, aszmic);
+    public SceneRecallUnacknowledged(@NonNull final byte[] appKey,
+                                     final int sceneNumber,
+                                     final int tId,
+                                     final int aszmic) throws IllegalArgumentException {
+        this(appKey, null, null, null, sceneNumber, tId, aszmic);
     }
 
     /**
      * Constructs SceneStore message.
      *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param transitionSteps      transition steps for the level
      * @param transitionResolution transition resolution for the level
@@ -98,15 +56,14 @@ public class SceneRecallUnacknowledged extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public SceneRecallUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                       @NonNull final byte[] appKey,
-                       @Nullable final Integer transitionSteps,
-                       @Nullable final Integer transitionResolution,
-                       @Nullable final Integer delay,
-                       final int sceneNumber,
-                       final int tId,
-                       final int aszmic) {
-        super(node, appKey, aszmic);
+    public SceneRecallUnacknowledged(@NonNull final byte[] appKey,
+                                     @Nullable final Integer transitionSteps,
+                                     @Nullable final Integer transitionResolution,
+                                     @Nullable final Integer delay,
+                                     final int sceneNumber,
+                                     final int tId,
+                                     final int aszmic) {
+        super(appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

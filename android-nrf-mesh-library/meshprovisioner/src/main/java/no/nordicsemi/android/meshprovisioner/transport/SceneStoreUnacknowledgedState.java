@@ -14,18 +14,20 @@ class SceneStoreUnacknowledgedState extends GenericMessageState implements Lower
     /**
      * Constructs {@link SceneStoreUnacknowledgedState}
      *
-     * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
-     * @param sceneStoreUnacknowledged      Wrapper class {@link SceneStoreUnacknowledged} containing the opcode and parameters for {@link SceneStoreUnacknowledged} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param context                  Context of the application
+     * @param src                      Source address
+     * @param dst                      Destination address to which the message must be sent to
+     * @param sceneStoreUnacknowledged Wrapper class {@link SceneStoreUnacknowledged} containing the opcode and parameters for {@link SceneStoreUnacknowledged} message
+     * @param callbacks                {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     SceneStoreUnacknowledgedState(@NonNull final Context context,
-                    @NonNull final byte[] dstAddress,
-                    @NonNull final SceneStoreUnacknowledged sceneStoreUnacknowledged,
-                    @NonNull final MeshTransport meshTransport,
-                    @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, sceneStoreUnacknowledged, meshTransport, callbacks);
+                                  @NonNull final byte[] src,
+                                  @NonNull final byte[] dst,
+                                  @NonNull final SceneStoreUnacknowledged sceneStoreUnacknowledged,
+                                  @NonNull final MeshTransport meshTransport,
+                                  @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, src, dst, sceneStoreUnacknowledged, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -45,7 +47,7 @@ class SceneStoreUnacknowledgedState extends GenericMessageState implements Lower
         final int aszmic = sceneStoreUnacknowledged.getAszmic();
         final int opCode = sceneStoreUnacknowledged.getOpCode();
         final byte[] parameters = sceneStoreUnacknowledged.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
     }
 
     @Override
@@ -54,7 +56,7 @@ class SceneStoreUnacknowledgedState extends GenericMessageState implements Lower
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null) {
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
             }
         }
     }

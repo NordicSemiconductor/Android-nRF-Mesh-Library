@@ -2,8 +2,8 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 abstract class ConfigMessage extends MeshMessage {
 
-    ConfigMessage(final ProvisionedMeshNode node, final int aszmic) {
-        super(node, aszmic);
+    ConfigMessage(final int aszmic) {
+        super(aszmic);
     }
 
     /**

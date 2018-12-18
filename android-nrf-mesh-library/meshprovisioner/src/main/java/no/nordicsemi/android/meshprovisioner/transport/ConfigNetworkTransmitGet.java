@@ -23,8 +23,6 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 
 /**
@@ -39,11 +37,10 @@ public final class ConfigNetworkTransmitGet extends ConfigMessage {
     /**
      * Constructs a ConfigNetworkTransmitGet message
      *
-     * @param node      Mesh node this message is to be sent to
-     * @param aszmic    Size of message integrity check
+     * @param aszmic Size of message integrity check
      */
-    public ConfigNetworkTransmitGet(@NonNull final ProvisionedMeshNode node, final int aszmic) {
-        super(node, aszmic);
+    public ConfigNetworkTransmitGet(final int aszmic) {
+        super(aszmic);
         assembleMessageParameters();
     }
 

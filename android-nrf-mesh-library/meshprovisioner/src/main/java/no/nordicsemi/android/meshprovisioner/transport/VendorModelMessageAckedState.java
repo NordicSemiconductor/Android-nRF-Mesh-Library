@@ -14,18 +14,22 @@ class VendorModelMessageAckedState extends GenericMessageState {
     /**
      * Constructs {@link VendorModelMessageAckedState}
      *
-     * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param context                 Context of the application
+     * @param src                     Source address
+     * @param dst                     Destination address to which the message must be sent to
      * @param vendorModelMessageAcked Wrapper class {@link VendorModelMessageStatus} containing the opcode and parameters for {@link VendorModelMessageStatus} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param callbacks               {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException exception for invalid arguments
      */
     VendorModelMessageAckedState(@NonNull final Context context,
-                                 @NonNull final byte[] dstAddress,
+                                 @NonNull final byte[] src,
+                                 @NonNull final byte[] dst,
                                  @NonNull final VendorModelMessageAcked vendorModelMessageAcked,
                                  @NonNull final MeshTransport meshTransport,
                                  @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, vendorModelMessageAcked, meshTransport, callbacks);
+        super(context, src, dst, vendorModelMessageAcked, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
         createAccessMessage();
     }
 
@@ -39,7 +43,6 @@ class VendorModelMessageAckedState extends GenericMessageState {
      */
     private void createAccessMessage() {
         final VendorModelMessageAcked vendorModelMessageAcked = (VendorModelMessageAcked) mMeshMessage;
-        final byte[] src = vendorModelMessageAcked.getMeshNode().getConfigurationSrc();
         final byte[] key = vendorModelMessageAcked.getAppKey();
         final int akf = vendorModelMessageAcked.getAkf();
         final int aid = vendorModelMessageAcked.getAid();
@@ -47,7 +50,7 @@ class VendorModelMessageAckedState extends GenericMessageState {
         final int opCode = vendorModelMessageAcked.getOpCode();
         final byte[] parameters = vendorModelMessageAcked.getParameters();
         final int companyIdentifier = vendorModelMessageAcked.getCompanyIdentifier();
-        message = mMeshTransport.createVendorMeshMessage(mNode, companyIdentifier, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createVendorMeshMessage(companyIdentifier, mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
         vendorModelMessageAcked.setMessage(message);
     }
 
@@ -57,7 +60,7 @@ class VendorModelMessageAckedState extends GenericMessageState {
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

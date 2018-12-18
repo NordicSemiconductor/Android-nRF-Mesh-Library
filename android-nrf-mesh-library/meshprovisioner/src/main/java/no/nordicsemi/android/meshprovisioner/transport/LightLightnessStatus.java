@@ -36,7 +36,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * To be used as a wrapper class to create generic level status message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class LightLightnessStatus extends GenericStatusMessage implements Parcelable {
 
     private static final String TAG = LightLightnessStatus.class.getSimpleName();
@@ -47,8 +47,8 @@ public final class LightLightnessStatus extends GenericStatusMessage implements 
     private int mTransitionSteps;
     private int mTransitionResolution;
 
-    public LightLightnessStatus(@NonNull final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
-        super(node, message);
+    public LightLightnessStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
@@ -57,9 +57,8 @@ public final class LightLightnessStatus extends GenericStatusMessage implements 
     private static final Creator<LightLightnessStatus> CREATOR = new Creator<LightLightnessStatus>() {
         @Override
         public LightLightnessStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new LightLightnessStatus(meshNode, message);
+            return new LightLightnessStatus(message);
         }
 
         @Override
@@ -74,7 +73,7 @@ public final class LightLightnessStatus extends GenericStatusMessage implements 
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         mPresentLightness = buffer.getShort() & 0xFFFF;
         Log.v(TAG, "Present level: " + mPresentLightness);
-        if(buffer.limit() > LIGHT_LIGHTNESS_STATUS_MANDATORY_LENGTH) {
+        if (buffer.limit() > LIGHT_LIGHTNESS_STATUS_MANDATORY_LENGTH) {
             mTargetLightness = buffer.getShort() & 0xFFFF;
             final int remainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (remainingTime & 0x3F);
@@ -134,7 +133,6 @@ public final class LightLightnessStatus extends GenericStatusMessage implements 
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }

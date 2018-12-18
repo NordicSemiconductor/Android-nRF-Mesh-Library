@@ -43,13 +43,11 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
     /**
      * Constructs a ConfigRelayStatus message.
      *
-     * @param node      Mesh node the message originated from
      * @param message   Access message received
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigProxyStatus(final ProvisionedMeshNode node,
-                             @NonNull final AccessMessage message) {
-        super(node, message);
+    public ConfigProxyStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
@@ -57,9 +55,8 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
     private static final Creator<ConfigProxyStatus> CREATOR = new Creator<ConfigProxyStatus>() {
         @Override
         public ConfigProxyStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigProxyStatus(meshNode, message);
+            return new ConfigProxyStatus(message);
         }
 
         @Override
@@ -102,7 +99,6 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }

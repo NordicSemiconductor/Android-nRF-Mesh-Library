@@ -10,21 +10,30 @@ import android.util.Log;
 class ConfigProxySetState extends ConfigMessageState {
 
     private static final String TAG = ConfigProxySetState.class.getSimpleName();
-
+    private final byte[] mDeviceKey;
 
     /**
      * Constructs {@link ConfigProxySetState}
      *
-     * @param context         Context of the application
+     * @param context        Context of the application
+     * @param src            source address
+     * @param dst            destination address
+     * @param deviceKey      device key
      * @param configProxySet Wrapper class {@link ConfigProxySet} containing the opcode and parameters for {@link ConfigProxySet} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param callbacks      {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     ConfigProxySetState(@NonNull final Context context,
+                        @NonNull final byte[] src,
+                        @NonNull final byte[] dst,
+                        @NonNull final byte[] deviceKey,
                         @NonNull final ConfigProxySet configProxySet,
                         @NonNull final MeshTransport meshTransport,
-                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks)  {
+                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, configProxySet, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
+        this.mDeviceKey = deviceKey;
         createAccessMessage();
     }
 
@@ -37,15 +46,13 @@ class ConfigProxySetState extends ConfigMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        final byte[] key = mNode.getDeviceKey();
-
         final ConfigProxySet configProxySet = (ConfigProxySet) mMeshMessage;
         final int akf = configProxySet.getAkf();
         final int aid = configProxySet.getAid();
         final int aszmic = configProxySet.getAszmic();
         final int opCode = configProxySet.getOpCode();
         final byte[] parameters = configProxySet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mDeviceKey, akf, aid, aszmic, opCode, parameters);
         configProxySet.setMessage(message);
     }
 
@@ -56,7 +63,7 @@ class ConfigProxySetState extends ConfigMessageState {
 
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

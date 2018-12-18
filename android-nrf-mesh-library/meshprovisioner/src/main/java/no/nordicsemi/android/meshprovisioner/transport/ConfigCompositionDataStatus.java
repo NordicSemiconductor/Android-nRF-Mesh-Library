@@ -65,11 +65,10 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
     /**
      * Constructs the ConfigCompositionDataStatus mMessage.
      *
-     * @param node    Node from which the mMessage originated from
      * @param message Access Message
      */
-    public ConfigCompositionDataStatus(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
-        super(node, message);
+    public ConfigCompositionDataStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
@@ -77,9 +76,8 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
     private static final Creator<ConfigCompositionDataStatus> CREATOR = new Creator<ConfigCompositionDataStatus>() {
         @Override
         public ConfigCompositionDataStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigCompositionDataStatus(meshNode, message);
+            return new ConfigCompositionDataStatus(message);
         }
 
         @Override
@@ -322,7 +320,6 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }

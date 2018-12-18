@@ -8,24 +8,26 @@ import android.util.Log;
  * State class for handling GenericLevelSet messages.
  */
 class GenericLevelSetState extends GenericMessageState implements LowerTransportLayerCallbacks {
-    
+
     private static final String TAG = GenericLevelSetState.class.getSimpleName();
 
     /**
      * Constructs {@link GenericLevelSetState}
      *
      * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param src             Source address
+     * @param dst             Destination address to which the message must be sent to
      * @param genericLevelSet Wrapper class {@link GenericLevelSet} containing the opcode and parameters for {@link GenericLevelSet} message
      * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     GenericLevelSetState(@NonNull final Context context,
-                                @NonNull final byte[] dstAddress,
-                                @NonNull final GenericLevelSet genericLevelSet,
-                                @NonNull final MeshTransport meshTransport,
-                                @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, genericLevelSet, meshTransport, callbacks);
+                         @NonNull final byte[] src,
+                         @NonNull final byte[] dst,
+                         @NonNull final GenericLevelSet genericLevelSet,
+                         @NonNull final MeshTransport meshTransport,
+                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, src, dst, genericLevelSet, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -45,7 +47,7 @@ class GenericLevelSetState extends GenericMessageState implements LowerTransport
         final int aszmic = genericLevelSet.getAszmic();
         final int opCode = genericLevelSet.getOpCode();
         final byte[] parameters = genericLevelSet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
         genericLevelSet.setMessage(message);
     }
 
@@ -55,7 +57,7 @@ class GenericLevelSetState extends GenericMessageState implements LowerTransport
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

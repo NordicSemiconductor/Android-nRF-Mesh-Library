@@ -14,18 +14,20 @@ class LightHslSetUnacknowledgedState extends GenericMessageState implements Lowe
     /**
      * Constructs {@link LightHslSetUnacknowledgedState}
      *
-     * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param context                   Context of the application
+     * @param src                       Source address
+     * @param dst                Destination address to which the message must be sent to
      * @param lightHslSetUnacknowledged Wrapper class {@link LightLightnessSet} containing the opcode and parameters for {@link GenericLevelSet} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     LightHslSetUnacknowledgedState(@NonNull final Context context,
-                                   @NonNull final byte[] dstAddress,
+                                   @NonNull final byte[] src,
+                                   @NonNull final byte[] dst,
                                    @NonNull final LightHslSetUnacknowledged lightHslSetUnacknowledged,
                                    @NonNull final MeshTransport meshTransport,
                                    @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, lightHslSetUnacknowledged, meshTransport, callbacks);
+        super(context, src, dst, lightHslSetUnacknowledged, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -45,7 +47,7 @@ class LightHslSetUnacknowledgedState extends GenericMessageState implements Lowe
         final int aszmic = lightHslSetUnacknowledged.getAszmic();
         final int opCode = lightHslSetUnacknowledged.getOpCode();
         final byte[] parameters = lightHslSetUnacknowledged.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
         lightHslSetUnacknowledged.setMessage(message);
     }
 
@@ -55,7 +57,7 @@ class LightHslSetUnacknowledgedState extends GenericMessageState implements Lowe
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null) {
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
             }
         }
     }

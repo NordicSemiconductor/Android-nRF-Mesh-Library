@@ -40,14 +40,11 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
 
     /**
      * Constructs the VendorModelMessageStatus mMessage.
-     *
-     * @param node            Node from which the mMessage originated from
-     * @param message         Access Message
+     *  @param message         Access Message
      * @param modelIdentifier model identifier
      */
-    public VendorModelMessageStatus(@NonNull final ProvisionedMeshNode node,
-                                    @NonNull final AccessMessage message, final int modelIdentifier) {
-        super(node, message);
+    public VendorModelMessageStatus(@NonNull final AccessMessage message, final int modelIdentifier) {
+        super(message);
         this.mMessage = message;
         this.mParameters = message.getParameters();
         this.mModelIdentifier = modelIdentifier;
@@ -57,10 +54,9 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
     public static final Creator<VendorModelMessageStatus> CREATOR = new Creator<VendorModelMessageStatus>() {
         @Override
         public VendorModelMessageStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
             final int modelIdentifier = in.readInt();
-            return new VendorModelMessageStatus(meshNode, message, modelIdentifier);
+            return new VendorModelMessageStatus(message, modelIdentifier);
         }
 
         @Override
@@ -86,7 +82,6 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
         dest.writeInt(mModelIdentifier);
     }

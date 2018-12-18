@@ -3,7 +3,6 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -211,7 +210,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             final byte[] address = element.getElementAddress();
             Log.v(TAG, "Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
 
-            final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(node, appKey, 0);
+            final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey, 0);
             mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, genericOnOffSet);
             showProgressbar();
         } else {
@@ -238,7 +237,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                     final MeshMessage message;
                     Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
                             + ". Sending acknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
-                    message = new GenericOnOffSet(node, appKey, state, mTransitionSteps, mTransitionStepResolution, delay, 0);
+                    message = new GenericOnOffSet(appKey, state, delay,node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, 0);
                     mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, message);
                     showProgressbar();
                 }
@@ -246,7 +245,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                 final byte[] address = element.getElementAddress();
                 Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
                         + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
-                final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(node, appKey, state, mTransitionSteps, mTransitionStepResolution, delay, 0);
+                final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state, node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay, 0);
                 mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, genericOnOffSet);
             }
         } else {

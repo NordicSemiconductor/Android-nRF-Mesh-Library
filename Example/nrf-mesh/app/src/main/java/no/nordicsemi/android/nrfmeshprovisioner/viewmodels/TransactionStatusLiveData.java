@@ -3,19 +3,19 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 @SuppressWarnings("unchecked")
 public class TransactionStatusLiveData extends SingleLiveEvent<TransactionStatusLiveData> {
 
-    private int mElementAddress;
+    private byte[] mElementAddress;
     private boolean incompleteTimerExpired;
 
     TransactionStatusLiveData() {
     }
 
-    void onTransactionFailed(final int elementAddress, final boolean hasIncompleteTimerExpired) {
+    void onTransactionFailed(final byte[] elementAddress, final boolean hasIncompleteTimerExpired) {
         this.mElementAddress = elementAddress;
         this.incompleteTimerExpired = hasIncompleteTimerExpired;
         postValue(this);
     }
 
-    public int getElementAddress() {
+    public byte[] getElementAddress() {
         return mElementAddress;
     }
 

@@ -31,64 +31,22 @@ public class LightLightnessSet extends GenericMessage {
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param node   Mesh node this message is to be sent to
-     * @param appKey application key for this message
-     * @param lightLightness  lightness of the LightLightnessModel
-     * @param aszmic size of message integrity check
+     * @param appKey         application key for this message
+     * @param lightLightness lightLightness of the LightLightnessModel
+     * @param tId            transaction id
+     * @param aszmic         size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightLightnessSet(@NonNull final ProvisionedMeshNode node,
-                             @NonNull final byte[] appKey,
+    public LightLightnessSet(@NonNull final byte[] appKey,
                              final int lightLightness,
+                             final int tId,
                              final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, node.getReceivedSequenceNumber(), aszmic);
+        this(appKey, null, null, null, lightLightness, tId, aszmic);
     }
 
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param node                 Mesh node this message is to be sent to
-     * @param appKey               application key for this message
-     * @param transitionSteps      transition steps for the lightLightness
-     * @param transitionResolution transition resolution for the lightLightness
-     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param lightLightness                lightLightness of the GenericLevelModel
-     * @param aszmic               size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    @SuppressWarnings("WeakerAccess")
-    public LightLightnessSet(@NonNull final ProvisionedMeshNode node,
-                             @NonNull final byte[] appKey,
-                             @Nullable final Integer transitionSteps,
-                             @Nullable final Integer transitionResolution,
-                             @Nullable final Integer delay,
-                             final int lightLightness,
-                             final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, transitionSteps, transitionResolution, delay, lightLightness, node.getReceivedSequenceNumber(), aszmic);
-    }
-
-     /**
-     * Constructs GenericLevelSet message.
-     *
-     * @param node        Mesh node this message is to be sent to
-     * @param appKey      application key for this message
-     * @param lightLightness       lightLightness of the LightLightnessModel
-     * @param tId         transaction id
-     * @param aszmic      size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    public LightLightnessSet(@NonNull final ProvisionedMeshNode node,
-										   @NonNull final byte[] appKey,
-										   final int lightLightness,
-										   final int tId,
-										   final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, tId, aszmic);
-    }
-
-    /**
-     * Constructs GenericLevelSet message.
-     *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param transitionSteps      transition steps for the level
      * @param transitionResolution transition resolution for the level
@@ -99,15 +57,14 @@ public class LightLightnessSet extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public LightLightnessSet(@NonNull final ProvisionedMeshNode node,
-										   @NonNull final byte[] appKey,
-										   @Nullable final Integer transitionSteps,
-										   @Nullable final Integer transitionResolution,
-										   @Nullable final Integer delay,
-										   final int lightLightness,
-										   final int tId,
-										   final int aszmic) throws IllegalArgumentException {
-        super(node, appKey, aszmic);
+    public LightLightnessSet(@NonNull final byte[] appKey,
+                             @Nullable final Integer transitionSteps,
+                             @Nullable final Integer transitionResolution,
+                             @Nullable final Integer delay,
+                             final int lightLightness,
+                             final int tId,
+                             final int aszmic) throws IllegalArgumentException {
+        super(appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

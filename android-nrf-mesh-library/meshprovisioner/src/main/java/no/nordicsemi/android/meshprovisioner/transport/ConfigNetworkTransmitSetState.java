@@ -10,13 +10,30 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public final class ConfigNetworkTransmitSetState extends ConfigMessageState {
 
     private static final String TAG = ConfigNetworkTransmitSetState.class.getSimpleName();
+    private final byte[] mDeviceKey;
 
-
-    public ConfigNetworkTransmitSetState(@NonNull final Context context,
-                                         @NonNull final ConfigNetworkTransmitSet configNetworkTransmitSet,
-                                         @NonNull final MeshTransport meshTransport,
-                                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+    /**
+     * Constructs the state for creating ConfigNetworkTransmitSet message
+     *
+     * @param context                       context
+     * @param src                           source address
+     * @param dst                           destination address
+     * @param deviceKey                     device key
+     * @param configNetworkTransmitSet {@link ConfigNetworkTransmitSet}
+     * @param meshTransport                 {@link MeshTransport}
+     * @param callbacks                     {@link InternalMeshMsgHandlerCallbacks}
+     */
+    ConfigNetworkTransmitSetState(@NonNull final Context context,
+                                  @NonNull final byte[] src,
+                                  @NonNull final byte[] dst,
+                                  @NonNull final byte[] deviceKey,
+                                  @NonNull final ConfigNetworkTransmitSet configNetworkTransmitSet,
+                                  @NonNull final MeshTransport meshTransport,
+                                  @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, configNetworkTransmitSet, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
+        this.mDeviceKey = deviceKey;
         createAccessMessage();
     }
 
@@ -26,7 +43,6 @@ public final class ConfigNetworkTransmitSetState extends ConfigMessageState {
     }
 
     private void createAccessMessage() {
-        final byte[] key = mNode.getDeviceKey();
         final ConfigNetworkTransmitSet configNetworkTransmitSet = (ConfigNetworkTransmitSet) mMeshMessage;
         final int akf = configNetworkTransmitSet.getAkf();
         final int aid = configNetworkTransmitSet.getAid();
@@ -34,7 +50,7 @@ public final class ConfigNetworkTransmitSetState extends ConfigMessageState {
         final int opCode = configNetworkTransmitSet.getOpCode();
         final byte[] parameters = configNetworkTransmitSet.getParameters();
         Log.v(TAG, "State, parameters: " + MeshParserUtils.bytesToHex(parameters, false));
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mDeviceKey, akf, aid, aszmic, opCode, parameters);
         configNetworkTransmitSet.setMessage(message);
     }
 
@@ -45,7 +61,7 @@ public final class ConfigNetworkTransmitSetState extends ConfigMessageState {
 
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

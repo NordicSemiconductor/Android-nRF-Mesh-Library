@@ -419,7 +419,7 @@ public class MeshParserUtils {
     }
 
     public static byte[] getDstAddress(final byte[] pdu) {
-        return ByteBuffer.allocate(2).put(pdu, 8, 2).array(); // get dst address from pdu
+        return ByteBuffer.allocate(2).put(pdu, 8, 2).array(); // get mDst address from pdu
     }
 
     private static int getSegmentedMessageLength(final SparseArray<byte[]> segmentedMessageMap) {

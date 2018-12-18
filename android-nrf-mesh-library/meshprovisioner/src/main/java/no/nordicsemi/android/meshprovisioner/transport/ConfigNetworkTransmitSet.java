@@ -23,11 +23,7 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-import android.util.Log;
-
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 
 /**
@@ -45,17 +41,15 @@ public final class ConfigNetworkTransmitSet extends ConfigMessage {
     /**
      * Constructs a ConfigNetworkTransmitSet message.
      *
-     * @param node                          Mesh node this message is to be sent to
      * @param networkTransmitCount          The Network Transmit Count to be set
      * @param networkTransmitIntervalSteps  The Network Transmit Interval Steps to be set
      * @param aszmic                        Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigNetworkTransmitSet(@NonNull final ProvisionedMeshNode node,
-                                    final int networkTransmitCount,
+    public ConfigNetworkTransmitSet(final int networkTransmitCount,
                                     final int networkTransmitIntervalSteps,
                                     final int aszmic) throws IllegalArgumentException {
-        super(node, aszmic);
+        super(aszmic);
         if (networkTransmitCount < 0 || 0b111 < networkTransmitCount) {
             throw new IllegalArgumentException("Network Transmit Count must be between 0 and 7 (inclusive)");
         }

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -398,11 +399,11 @@ public abstract class NetworkLayer extends LowerTransportLayer {
      * This method will drop messages with an invalid sequence number as all mesh messages are supposed to have a sequence
      * </p>
      *
-     * @param configurationSrc source address of the configurator
      * @param data             pdu received from the mesh node
      * @return complete {@link Message} that was successfully parsed or null otherwise
      */
-    final Message parseMeshMessage(final byte[] configurationSrc, final byte[] data) {
+    final Message parseMeshMessage(final byte[] data) {
+        final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner();
 
         //D-eobfuscate network header
         final byte[] networkHeader = deobfuscateNetworkHeader(data);
@@ -417,7 +418,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         final byte[] networkNonce = createNetworkNonce((byte) ctlTtl, sequenceNumber, src);
 
         if (mMeshNode == null || mMeshNode.getUnicastAddressInt() != AddressUtils.getUnicastAddressInt(src)) {
-            mMeshNode = mNetworkLayerCallbacks.getMeshNode(AddressUtils.getUnicastAddressInt(src));
+            mMeshNode = mNetworkLayerCallbacks.getProvisionedNode(AddressUtils.getUnicastAddressInt(src));
             if (mMeshNode == null)
                 return null;
         }
@@ -433,14 +434,14 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         }
 
         if (ctl == 1) {
-            return parseControlMessage(configurationSrc, data, networkHeader, networkNonce, src, sequenceNumber, micLength);
+            return parseControlMessage(provisioner.getProvisionerAddress(), data, networkHeader, networkNonce, src, sequenceNumber, micLength);
         } else {
-            return parseAccessMessage(configurationSrc, data, networkHeader, networkNonce, src, sequenceNumber, micLength);
+            return parseAccessMessage(provisioner.getProvisionerAddress(), data, networkHeader, networkNonce, src, sequenceNumber, micLength);
         }
     }
 
     @VisibleForTesting
-    final Message parseMeshMessage(final byte[] data) {
+    final Message parseMeshMessageTest(final byte[] data) {
 
         //D-eobfuscate network header
         final byte[] networkHeader = deobfuscateNetworkHeader(data);
@@ -509,7 +510,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
                 final int k = segmentedAccessMessagesMessages.size();
                 segmentedAccessMessagesMessages.put(k, data);
             }
-            //Removing the dst here
+            //Removing the mDst here
             final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
             final AccessMessage message = parseSegmentedAccessLowerTransportPDU(pdu);
             if (message != null) {
@@ -537,7 +538,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             message.setDst(dst);
             message.setSequenceNumber(sequenceNumber);
 
-            //Removing the dst here
+            //Removing the mDst here
             final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
             parseUnsegmentedAccessLowerTransportPDU(message, pdu);
             parseUpperTransportPDU(message);
@@ -578,7 +579,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
                 final int k = segmentedAccessMessagesMessages.size();
                 segmentedAccessMessagesMessages.put(k, data);
             }
-            //Removing the dst here
+            //Removing the mDst here
             final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
             final AccessMessage message = parseSegmentedAccessLowerTransportPDU(pdu);
             if (message != null) {
@@ -606,7 +607,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             message.setDst(dst);
             message.setSequenceNumber(sequenceNumber);
 
-            //Removing the dst here
+            //Removing the mDst here
             final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
             parseUnsegmentedAccessLowerTransportPDU(message, pdu);
             parseUpperTransportPDU(message);
@@ -652,7 +653,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
                 final int k = segmentedControlMessagesMessages.size();
                 segmentedAccessMessagesMessages.put(k, data);
             }
-            //Removing the dst here
+            //Removing the mDst here
             final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
             final ControlMessage message = parseSegmentedControlLowerTransportPDU(pdu);
             if (message != null) {
@@ -677,7 +678,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             message.setDst(dst);
             message.setSequenceNumber(sequenceNumber);
 
-            //Removing the dst here
+            //Removing the mDst here
             final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
             parseUnsegmentedControlLowerTransportPDU(message, pdu);
 
@@ -716,7 +717,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
                 final int k = segmentedControlMessagesMessages.size();
                 segmentedAccessMessagesMessages.put(k, data);
             }
-            //Removing the dst here
+            //Removing the mDst here
             final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
             final ControlMessage message = parseSegmentedControlLowerTransportPDU(pdu);
             if (message != null) {
@@ -742,7 +743,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             message.setDst(dst);
             message.setSequenceNumber(sequenceNumber);
 
-            //Removing the dst here
+            //Removing the mDst here
             final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
             parseUnsegmentedControlLowerTransportPDU(message, pdu);
 

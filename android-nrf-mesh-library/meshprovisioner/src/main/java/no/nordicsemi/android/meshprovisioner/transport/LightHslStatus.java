@@ -36,7 +36,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * To be used as a wrapper class to create generic level status message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class LightHslStatus extends GenericStatusMessage implements Parcelable {
 
     private static final String TAG = LightHslStatus.class.getSimpleName();
@@ -48,8 +48,8 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
     private int mTransitionSteps;
     private int mTransitionResolution;
 
-    public LightHslStatus(@NonNull final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
-        super(node, message);
+    public LightHslStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
@@ -58,9 +58,8 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
     private static final Creator<LightHslStatus> CREATOR = new Creator<LightHslStatus>() {
         @Override
         public LightHslStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new LightHslStatus(meshNode, message);
+            return new LightHslStatus(message);
         }
 
         @Override
@@ -146,7 +145,6 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }

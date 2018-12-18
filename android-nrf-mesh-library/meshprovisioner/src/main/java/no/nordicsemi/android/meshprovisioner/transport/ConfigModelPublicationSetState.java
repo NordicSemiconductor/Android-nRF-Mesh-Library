@@ -32,12 +32,30 @@ import android.util.Log;
 class ConfigModelPublicationSetState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelPublicationSetState.class.getSimpleName();
+    private final byte[] mDeviceKey;
 
+    /**
+     * Constructs the state for creating ConfigModelPublicationSet message
+     *
+     * @param context                   context
+     * @param src                       source address
+     * @param dst                       destination address
+     * @param deviceKey                 device key
+     * @param configModelPublicationSet {@link ConfigModelPublicationSet}
+     * @param meshTransport             {@link MeshTransport}
+     * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks}
+     */
     ConfigModelPublicationSetState(@NonNull final Context context,
-                                          @NonNull final ConfigModelPublicationSet configModelPublicationSet,
-                                          @NonNull final MeshTransport meshTransport,
-                                          @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+                                   @NonNull final byte[] src,
+                                   @NonNull final byte[] dst,
+                                   @NonNull final byte[] deviceKey,
+                                   @NonNull final ConfigModelPublicationSet configModelPublicationSet,
+                                   @NonNull final MeshTransport meshTransport,
+                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, configModelPublicationSet, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
+        this.mDeviceKey = deviceKey;
         createAccessMessage();
     }
 
@@ -50,14 +68,13 @@ class ConfigModelPublicationSetState extends ConfigMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() throws IllegalArgumentException {
-        final byte[] key = mNode.getDeviceKey();
         final ConfigModelPublicationSet configModelPublicationSet = (ConfigModelPublicationSet) mMeshMessage;
         final int akf = configModelPublicationSet.getAkf();
         final int aid = configModelPublicationSet.getAid();
         final int aszmic = configModelPublicationSet.getAszmic();
         final int opCode = configModelPublicationSet.getOpCode();
         final byte[] parameters = configModelPublicationSet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mDeviceKey, akf, aid, aszmic, opCode, parameters);
         configModelPublicationSet.setMessage(message);
     }
 
@@ -68,7 +85,7 @@ class ConfigModelPublicationSetState extends ConfigMessageState {
 
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }
