@@ -756,11 +756,5 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     private SecureUtils.K2Output getK2Output() {
         final NetworkKey networkKey = mNetworkLayerCallbacks.getPrimaryNetworkKey();
         return SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
-        /*SecureUtils.K2Output k2Output = mMeshNode.getK2Output();
-        if (k2Output == null) {
-            final NetworkKey networkKey = mNetworkLayerCallbacks.getPrimaryNetworkKey();
-            return SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
-        }
-        return k2Output;*/
     }
 }
