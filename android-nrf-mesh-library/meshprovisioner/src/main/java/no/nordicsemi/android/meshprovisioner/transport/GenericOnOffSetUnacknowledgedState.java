@@ -56,10 +56,6 @@ class GenericOnOffSetUnacknowledgedState extends GenericMessageState {
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null) {
                 mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
-                //We must update update the mesh network state here for unacknowledged messages
-                //If not the sequence numbers would be invalid for unacknowledged messages and will be dropped by the node.
-                //Mesh network state for acknowledged messages are updated in the DefaultNoOperationState once the status is received.
-                mInternalTransportCallbacks.updateMeshNetwork(mMeshMessage);
             }
         }
     }

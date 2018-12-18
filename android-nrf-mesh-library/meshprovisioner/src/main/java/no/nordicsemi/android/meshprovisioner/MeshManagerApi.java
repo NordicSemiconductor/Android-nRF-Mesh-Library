@@ -26,7 +26,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -974,6 +973,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
         return null;
     }
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final InternalTransportCallbacks internalTransportCallbacks = new InternalTransportCallbacks() {
         @Override
         public void sendProvisioningPdu(final UnprovisionedMeshNode meshNode, final byte[] pdu) {
@@ -983,14 +983,30 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
 
         @Override
         public void sendMeshPdu(final ProvisionedMeshNode meshNode, final byte[] pdu) {
+            //We must save the mesh network state for every message that is being sent out.
+            //This will specifically save the sequence number for every message sent.
+            updateNetwork(meshNode);
             final int mtu = mTransportCallbacks.getMtu();
             mTransportCallbacks.sendMeshPdu(meshNode, applySegmentation(mtu, pdu));
         }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Override
         public void updateMeshNetwork(final MeshMessage message) {
             final ProvisionedMeshNode meshNode = message.getMeshNode();
+            updateNetwork(meshNode);
+        }
+
+        @Override
+        public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
+            if (meshNode != null) {
+                if (mMeshNetwork.deleteResetNode(meshNode)) {
+                    mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
+                    mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
+                }
+            }
+        }
+
+        private void updateNetwork(final ProvisionedMeshNode meshNode) {
             if (meshNode != null) {
                 for (int i = 0; i < mMeshNetwork.nodes.size(); i++) {
                     if (meshNode.getUnicastAddressInt() == mMeshNetwork.nodes.get(i).getUnicastAddressInt()) {
@@ -1003,16 +1019,6 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
                 mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
                 mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
                 mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
-            }
-        }
-
-        @Override
-        public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
-            if (meshNode != null) {
-                if(mMeshNetwork.deleteResetNode(meshNode)) {
-                    mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
-                    mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
-                }
             }
         }
     };
@@ -1031,10 +1037,10 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
             mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
-        private void updateProvisionedNodeList(final ProvisionedMeshNode meshNode){
-            for(int i = 0; i < mMeshNetwork.nodes.size(); i++) {
+        private void updateProvisionedNodeList(final ProvisionedMeshNode meshNode) {
+            for (int i = 0; i < mMeshNetwork.nodes.size(); i++) {
                 final ProvisionedMeshNode node = mMeshNetwork.nodes.get(i);
-                if(meshNode.getUuid().equals(node.getUuid())){
+                if (meshNode.getUuid().equals(node.getUuid())) {
                     mMeshNetwork.nodes.remove(i);
                     break;
                 }
