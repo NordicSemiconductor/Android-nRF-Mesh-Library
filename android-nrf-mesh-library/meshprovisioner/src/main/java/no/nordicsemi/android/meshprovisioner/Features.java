@@ -16,7 +16,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 /**
  * Defines the features supported by a {@link ProvisionedMeshNode}
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class Features implements Parcelable {
 
     @Retention(RetentionPolicy.SOURCE)
@@ -25,9 +25,9 @@ public class Features implements Parcelable {
     }
 
     // Key refresh phases
-    static final int DISABLED = 0; //Feature is disabled
-    static final int ENABLED = 1; //Feature is enabled
-    static final int UNSUPPORTED = 2; //Feature is not supported
+    public static final int DISABLED = 0; //Feature is disabled
+    public static final int ENABLED = 1; //Feature is enabled
+    public static final int UNSUPPORTED = 2; //Feature is not supported
 
     @SerializedName("friend")
     @Expose
@@ -44,12 +44,13 @@ public class Features implements Parcelable {
 
     /**
      * Constructs the features of a provisioned node
-     * @param friend Specifies if the friend feature is supported based on {@link FeatureState}
+     *
+     * @param friend   Specifies if the friend feature is supported based on {@link FeatureState}
      * @param lowPower Specifies if the low power feature is supported based on {@link FeatureState}
-     * @param proxy Specifies if the proxy feature is supported based on {@link FeatureState}
-     * @param relay Specifies if the relay feature is supported based on {@link FeatureState}
+     * @param proxy    Specifies if the proxy feature is supported based on {@link FeatureState}
+     * @param relay    Specifies if the relay feature is supported based on {@link FeatureState}
      */
-    public Features(final int friend, final int lowPower, final int proxy, final int relay) {
+    public Features(@FeatureState final int friend, @FeatureState final int lowPower, @FeatureState final int proxy, @FeatureState final int relay) {
         this.friend = friend;
         this.lowPower = lowPower;
         this.proxy = proxy;
@@ -98,6 +99,7 @@ public class Features implements Parcelable {
 
     /**
      * Sets the friend feature of the node
+     *
      * @param friend {@link FeatureState}
      */
     public void setFriend(@FeatureState final int friend) {
@@ -114,6 +116,7 @@ public class Features implements Parcelable {
 
     /**
      * Sets the low power feature of the node
+     *
      * @param lowPower {@link FeatureState}
      */
     public void setLowPower(@FeatureState final int lowPower) {
@@ -130,6 +133,7 @@ public class Features implements Parcelable {
 
     /**
      * Sets the proxy feature of the node
+     *
      * @param proxy {@link FeatureState}
      */
     public void setProxy(@FeatureState final int proxy) {
@@ -146,9 +150,67 @@ public class Features implements Parcelable {
 
     /**
      * Sets the relay feature of the node
+     *
      * @param relay {@link FeatureState}
      */
     public void setRelay(@FeatureState final int relay) {
         this.relay = relay;
     }
+
+    /**
+     * Returns true if friend feature is supported and false otherwise
+     */
+    public boolean isFriendFeatureSupported() {
+        switch (friend) {
+            case UNSUPPORTED:
+                return false;
+            case ENABLED:
+            case DISABLED:
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Returns true if relay feature is supported and false otherwise
+     */
+    public boolean isRelayFeatureSupported() {
+        switch (relay) {
+            case UNSUPPORTED:
+                return false;
+            case ENABLED:
+            case DISABLED:
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Returns true if proxy feature is supported and false otherwise
+     */
+    public boolean isProxyFeatureSupported() {
+        switch (proxy) {
+            case UNSUPPORTED:
+                return false;
+            case ENABLED:
+            case DISABLED:
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Returns true if low power feature is supported and false otherwise
+     */
+    public boolean isLowPowerFeatureSupported() {
+        switch (lowPower) {
+            case UNSUPPORTED:
+                return false;
+            case ENABLED:
+            case DISABLED:
+            default:
+                return true;
+        }
+    }
+
 }

@@ -7,6 +7,7 @@ import android.support.annotation.IntDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import no.nordicsemi.android.meshprovisioner.transport.ConfigRelaySet;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 /**
@@ -14,19 +15,26 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class RelaySettings implements Parcelable {
-    private static final int RELAY_DISABLED = 0x00; //The node support Relay feature that is disabled
-    private static final int RELAY_ENABLED = 0x01; //The node supports Relay feature that is enabled
-    private static final int RELAY_NOT_SUPPORTED = 0x02; //Relay feature is not supported
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({RELAY_FEATURE_DISABLED, RELAY_FEATURE_ENABLED, RELAY_FEATURE_NOT_SUPPORTED})
+    public @interface RelayState {
+    }
+
+    public static final int RELAY_FEATURE_DISABLED = 0x00;   //The node support Relay feature that is disabled
+    public static final int RELAY_FEATURE_ENABLED = 0x01;    //The node supports Relay feature that is enabled
+    public static final int RELAY_FEATURE_NOT_SUPPORTED = 0x02;  //Relay feature is not supported
 
     private final int relayTransmitCount;
     private final int relayIntervalSteps;
 
     /**
      * Constructs {@link RelaySettings}
+     *
      * @param relayTransmitCount Number of retransmissions on advertising bearer for each Network PDU relayed by the node
      * @param relayIntervalSteps Number of 10-millisecond steps between retransmissions
      */
-    public RelaySettings(final int relayTransmitCount, final int relayIntervalSteps){
+    public RelaySettings(final int relayTransmitCount, final int relayIntervalSteps) {
         this.relayTransmitCount = relayTransmitCount;
         this.relayIntervalSteps = relayIntervalSteps;
     }
@@ -34,6 +42,22 @@ public class RelaySettings implements Parcelable {
     protected RelaySettings(Parcel in) {
         relayTransmitCount = in.readInt();
         relayIntervalSteps = in.readInt();
+    }
+
+    /**
+     * Returns if relaying is supported by the node
+     * @param relay {@link RelayState}
+     * @return true if supported and false otherwise
+     */
+    public static boolean isRelaySupported(@RelayState final int relay) {
+        switch (relay) {
+            case RELAY_FEATURE_DISABLED:
+            case RELAY_FEATURE_ENABLED:
+                return true;
+            case RELAY_FEATURE_NOT_SUPPORTED:
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -67,6 +91,13 @@ public class RelaySettings implements Parcelable {
     }
 
     /**
+     * Returns the number of total retransmissions.
+     */
+    public int getTotalTransmissionsCount() {
+        return relayTransmitCount + 1;
+    }
+
+    /**
      * Returns the number of 10-millisecond steps between retransmissions
      */
     public int getRelayIntervalSteps() {
@@ -76,7 +107,7 @@ public class RelaySettings implements Parcelable {
     /**
      * Returns the interval interval set by the relayState settings
      */
-    public int getRetransmissionIntervals(){
+    public int getRetransmissionIntervals() {
         return (relayIntervalSteps + 1) * 10;
     }
 

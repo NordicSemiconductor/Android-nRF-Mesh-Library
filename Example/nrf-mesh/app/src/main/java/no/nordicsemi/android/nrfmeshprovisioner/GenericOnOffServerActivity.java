@@ -2,6 +2,7 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,8 +43,8 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
         super.onCreate(savedInstanceState);
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
         if (model instanceof GenericOnOffServerModel) {
-            final CardView cardView = findViewById(R.id.node_controls_card);
-            final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, cardView);
+            final ConstraintLayout container = findViewById(R.id.node_controls_container);
+            final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, container);
             final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
             onOffState = nodeControlsContainer.findViewById(R.id.on_off_state);
             remainingTime = nodeControlsContainer.findViewById(R.id.transition_state);

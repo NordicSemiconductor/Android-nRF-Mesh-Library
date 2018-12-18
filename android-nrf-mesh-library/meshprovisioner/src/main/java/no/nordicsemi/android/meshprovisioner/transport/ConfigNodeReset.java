@@ -21,11 +21,9 @@ public class ConfigNodeReset extends ConfigMessage {
      */
     public ConfigNodeReset(final ProvisionedMeshNode node, final int aszmic)  {
         super(node, aszmic);
-        createAccessMessage();
+        assembleMessageParameters();
     }
 
-    private void createAccessMessage() {
-    }
     @Override
     public int getOpCode() {
         return OP_CODE;

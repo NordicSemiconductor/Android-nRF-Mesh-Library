@@ -282,7 +282,7 @@
     <string name="not_subscribed_to_groups">Not subscribed to any group addresses.</string>
     <string name="title_group_address">Group Address</string>
     <string name="dialog_summary_group_address">Group address this model should subscribe.</string>
-    <string name="title_configuration_compete">Confguration Complete</string>
+    <string name="title_configuration_compete">Configuration Complete</string>
     <string name="configuration_complete_summary">Mesh node has been successfully configured.</string>
     <string name="action_composition_data">GET COMPOSITION DATA</string>
 
@@ -301,9 +301,34 @@
     <string name="title_network_transmit_interval_steps">Transmit Interval</string>
     <string name="action_network_transmit_get">READ STATE</string>
     <string name="action_network_transmit_set">SET NETWORK TRANSMIT</string>
-    <string name="text_network_transmit_count">%d time(s)</string>
+    <string name="text_network_transmit_count">%d retransmit(s)</string>
+    <string name="summary_network_transmit_count">%d time(s) and total transmissions: %d</string>
     <string name="text_network_transmit_interval_steps">%d ms</string>
-    <string name="text_network_transmit_unknown">Unknown</string>
+
+    <string name="title_relay_retransmit_info">Relay</string>
+    <string name="title_relay_retransmit">Relay Settings</string>
+    <string name="title_relay_state">Relay</string>
+    <string name="title_relay_retransmit_count">Retransmit Count</string>
+    <string name="title_relay_retransmit_interval">Retransmit Interval</string>
+    <string name="title_relay_retransmit_interval_steps">Retransmit Interval</string>
+    <string name="action_relay_retransmit_get">READ STATE</string>
+    <string name="action_relay_retransmit_set">SET RELAY</string>
+    <string name="text_action_relay_retransmit_count">%d time(s)</string>
+    <string name="text_action_relay_retransmit_interval_steps">%d ms</string>
+
+    <string name="title_proxy_state_info">Proxy</string>
+    <string name="title_proxy_state_settings">Proxy Settings</string>
+    <string name="title_proxy_state">Proxy</string>
+    <string name="proxy_state">STATE</string>
+    <string name="action_proxy_state_set_on">ON</string>
+    <string name="action_proxy_state_set_off">OFF</string>
+    <string name="action_proxy_state_get">READ STATE</string>
+    <string name="proxy_set_on_rationale">Turning on the proxy feature will set this node to a connectable state and enable the proxy server.</string>
+    <string name="proxy_set_on_rationale_summary">Turning on the proxy feature will set this node to a connectable state and enable the proxy server.
+        You will also be able to connect to this node and send mesh messages over GATT. Do you wish to continue?</string>
+    <string name="proxy_set_off_rationale">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.</string>
+    <string name="proxy_set_off_rationale_summary">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.
+        However, you will still be able to continue sending messages via the other proxy nodes in the network. Do you wish to continue?</string>
 
     <string name="no_app_keys_added">No app keys are added to this node!</string>
     <string name="app_keys_added">%d app keys added</string>
@@ -328,6 +353,8 @@
     <string name="reset_node_rationale">Resetting this node will change its provisioned state back to un-provisioned state.</string>
     <string name="reset_node_rationale_summary">Resetting this node will change its provisioned state back to un-provisioned
         state. Any stored data related to the node will be deleted from the app. Do you wish to continue?</string>
+
+
     <string name="node_device_key">Device Key</string>
     <string name="device_key_clipboard_copied">Device key copied to clipboard</string>
     <string name="unavailable">Unavailable</string>

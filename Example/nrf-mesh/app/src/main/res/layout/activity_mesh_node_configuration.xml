@@ -266,6 +266,88 @@
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
+                android:id="@+id/node_proxy_state_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:background="@android:color/white"
+                app:cardElevation="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/app_key_card"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/node_proxy_tool_bar"
+                        android:layout_width="0dp"
+                        android:layout_height="?actionBarSize"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:logo="@drawable/ic_proxy_24dp_black_alpha"
+                        app:title="@string/title_proxy_state_settings"
+                        app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+                    <TextView
+                        android:id="@+id/proxy_state_summary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/activity_vertical_margin"
+                        android:text="@string/proxy_set_off_rationale"
+                        android:textSize="16sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/node_proxy_tool_bar"/>
+
+                    <include
+                        android:id="@+id/div2"
+                        layout="@layout/layout_divider"
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/icon"
+                        app:layout_constraintTop_toBottomOf="@id/proxy_state_summary"/>
+
+                    <Button
+                        android:id="@+id/action_get_proxy_state"
+                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginStart="@dimen/item_padding_end"
+                        android:layout_marginEnd="@dimen/item_padding_start"
+                        android:padding="@dimen/activity_horizontal_margin"
+                        android:text="@string/action_proxy_state_get"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/action_set_proxy_state"
+                        app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                    <Button
+                        android:id="@+id/action_set_proxy_state"
+                        style="@style/RedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginStart="@dimen/item_padding_end"
+                        android:layout_marginEnd="@dimen/item_padding_start"
+                        android:padding="@dimen/activity_horizontal_margin"
+                        android:text="@string/action_proxy_state_set_on"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/div2"
+                        android:enabled="false"/>
+
+                </android.support.constraint.ConstraintLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
                 android:id="@+id/node_reset_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -275,7 +357,7 @@
                 app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/app_key_card">
+                app:layout_constraintTop_toBottomOf="@id/node_proxy_state_card">
 
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
@@ -314,7 +396,7 @@
 
                     <Button
                         android:id="@+id/action_reset_node"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/RedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -322,7 +404,6 @@
                         android:layout_marginEnd="@dimen/item_padding_start"
                         android:padding="@dimen/activity_horizontal_margin"
                         android:text="@string/action_reset_node"
-                        android:textColor="@android:color/holo_red_dark"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/div2"/>

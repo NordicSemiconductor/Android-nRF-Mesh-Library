@@ -2,6 +2,7 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,8 +46,8 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
         super.onCreate(savedInstanceState);
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
         if (model instanceof GenericLevelServerModel) {
-            final CardView cardView = findViewById(R.id.node_controls_card);
-            final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_level, cardView);
+            final ConstraintLayout container = findViewById(R.id.node_controls_container);
+            final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_level, container);
             time = nodeControlsContainer.findViewById(R.id.transition_time);
             remainingTime = nodeControlsContainer.findViewById(R.id.transition_state);
             mTransitionTimeSeekBar = nodeControlsContainer.findViewById(R.id.transition_seekbar);

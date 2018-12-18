@@ -57,11 +57,11 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigModelPublicationSta
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionDelete;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
@@ -75,9 +75,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationVie
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
-
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DATA_MODEL_NAME;
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
 
 public abstract class BaseModelConfigurationActivity extends AppCompatActivity implements Injectable,
         DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener,
@@ -93,12 +90,12 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
-    @BindView(R.id.unbind_hint)
-    TextView mUnbindHint;
     @BindView(R.id.action_bind_app_key)
     Button mActionBindAppKey;
     @BindView(R.id.bound_keys)
     TextView mAppKeyView;
+    @BindView(R.id.unbind_hint)
+    TextView mUnbindHint;
 
     @BindView(R.id.action_set_publication)
     Button mActionSetPublication;
@@ -107,6 +104,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @BindView(R.id.publish_address)
     TextView mPublishAddressView;
 
+    @BindView(R.id.subscription_address_card)
+    View mContainerSubscribe;
     @BindView(R.id.action_subscribe_address)
     Button mActionSubscribe;
     @BindView(R.id.subscribe_addresses)
@@ -133,13 +132,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         ButterKnife.bind(this);
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ModelConfigurationViewModel.class);
         mHandler = new Handler();
-        final Intent intent = getIntent();
-        final ProvisionedMeshNode meshNode = intent.getParcelableExtra(EXTRA_DEVICE);
 
-        if (meshNode == null)
-            finish();
-
-        final String modelName = intent.getStringExtra(EXTRA_DATA_MODEL_NAME);
+        final String modelName = mViewModel.getSelectedModel().getMeshModel().getModelName();//intent.getStringExtra(EXTRA_DATA_MODEL_NAME);
 
         // Set up views
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -177,12 +171,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mPublishAddressView.setText(R.string.none);
         mActionSetPublication.setOnClickListener(v -> {
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-            if (model != null && !model.getBoundAppKeyIndexes().isEmpty()) {
-                final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
-                startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
-            } else {
-                Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
-            }
+            handleAppKeyBind(model);
         });
 
         mActionClearPublication.setOnClickListener(v -> clearPublication());
@@ -308,6 +297,15 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @Override
     public void onDisconnected() {
         finish();
+    }
+
+    protected void handleAppKeyBind(final MeshModel model) {
+        if (model != null && !model.getBoundAppKeyIndexes().isEmpty()) {
+            final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
+            startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
+        } else {
+            Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void bindAppKey(final int appKeyIndex) {
