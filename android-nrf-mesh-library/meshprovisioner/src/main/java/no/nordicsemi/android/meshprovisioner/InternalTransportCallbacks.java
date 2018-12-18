@@ -41,16 +41,16 @@ public interface InternalTransportCallbacks {
 
     /**
      * Send mesh pdu
-     *
      * @param meshNode mesh node to send to
      * @param pdu      mesh pdu to be sent
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     void sendMeshPdu(final ProvisionedMeshNode meshNode, final byte[] pdu);
 
     /**
-     * Update mesh node
+     * Update mesh network
      *
-     * @param message
+     * @param message mesh message
      */
     void updateMeshNetwork(final MeshMessage message);
 
