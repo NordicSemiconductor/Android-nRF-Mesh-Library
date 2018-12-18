@@ -151,8 +151,8 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     /**
      * Returns the mesh node with the corresponding unicast address
-     * @param unicastAddress
-     * @return
+     *
+     * @param unicastAddress unicast address of the node
      */
     public ProvisionedMeshNode getProvisionedNode(final byte[] unicastAddress) {
         for (ProvisionedMeshNode node : nodes) {
