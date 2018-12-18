@@ -14,18 +14,20 @@ class LightLightnessSetUnacknowledgedState extends GenericMessageState implement
     /**
      * Constructs {@link LightLightnessSetUnacknowledgedState}
      *
-     * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param context                         Context of the application
+     * @param src                             Source address
+     * @param dst                             Destination address to which the message must be sent to
      * @param lightLightnessSetUnacknowledged Wrapper class {@link LightLightnessSetUnacknowledged} containing the opcode and parameters for {@link GenericLevelSet} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param callbacks                       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     LightLightnessSetUnacknowledgedState(@NonNull final Context context,
-										 @NonNull final byte[] dstAddress,
-										 @NonNull final LightLightnessSetUnacknowledged lightLightnessSetUnacknowledged,
-										 @NonNull final MeshTransport meshTransport,
-										 @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, lightLightnessSetUnacknowledged, meshTransport, callbacks);
+                                         @NonNull final byte[] src,
+                                         @NonNull final byte[] dst,
+                                         @NonNull final LightLightnessSetUnacknowledged lightLightnessSetUnacknowledged,
+                                         @NonNull final MeshTransport meshTransport,
+                                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, src, dst, lightLightnessSetUnacknowledged, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -45,7 +47,7 @@ class LightLightnessSetUnacknowledgedState extends GenericMessageState implement
         final int aszmic = lightLightnessSetUnacknowledged.getAszmic();
         final int opCode = lightLightnessSetUnacknowledged.getOpCode();
         final byte[] parameters = lightLightnessSetUnacknowledged.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
         lightLightnessSetUnacknowledged.setMessage(message);
     }
 
@@ -55,7 +57,7 @@ class LightLightnessSetUnacknowledgedState extends GenericMessageState implement
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null) {
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
             }
         }
     }

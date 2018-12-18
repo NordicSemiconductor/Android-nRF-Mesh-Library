@@ -14,18 +14,20 @@ class SceneRegisterGetState extends GenericMessageState implements LowerTranspor
     /**
      * Constructs {@link SceneRegisterGetState}
      *
-     * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param context          Context of the application
+     * @param src              Source address
+     * @param dst              Destination address to which the message must be sent to
      * @param sceneRegisterGet Wrapper class {@link SceneRegisterGet} containing the opcode and parameters for {@link SceneRegisterGet} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param callbacks        {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     SceneRegisterGetState(@NonNull final Context context,
-                          @NonNull final byte[] dstAddress,
+                          @NonNull final byte[] src,
+                          @NonNull final byte[] dst,
                           @NonNull final SceneRegisterGet sceneRegisterGet,
                           @NonNull final MeshTransport meshTransport,
                           @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, sceneRegisterGet, meshTransport, callbacks);
+        super(context, src, dst, sceneRegisterGet, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -45,7 +47,7 @@ class SceneRegisterGetState extends GenericMessageState implements LowerTranspor
         final int aszmic = sceneRegisterGet.getAszmic();
         final int opCode = sceneRegisterGet.getOpCode();
         final byte[] parameters = sceneRegisterGet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
     }
 
     @Override
@@ -54,7 +56,7 @@ class SceneRegisterGetState extends GenericMessageState implements LowerTranspor
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

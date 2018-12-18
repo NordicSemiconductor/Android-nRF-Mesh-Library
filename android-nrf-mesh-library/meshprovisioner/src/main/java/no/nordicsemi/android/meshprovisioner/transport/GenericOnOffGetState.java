@@ -16,17 +16,19 @@ class GenericOnOffGetState extends GenericMessageState {
      * Constructs GenericLevelGetState
      *
      * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param src             Source address
+     * @param dst             Destination address to which the message must be sent to
      * @param genericOnOffGet Wrapper class {@link GenericOnOffGet} containing the opcode and parameters for {@link GenericOnOffGet} message
      * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     GenericOnOffGetState(@NonNull final Context context,
-                                @NonNull final byte[] dstAddress,
-                                @NonNull final GenericOnOffGet genericOnOffGet,
-                                @NonNull final MeshTransport meshTransport,
-                                @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, genericOnOffGet, meshTransport, callbacks);
+                         @NonNull final byte[] src,
+                         @NonNull final byte[] dst,
+                         @NonNull final GenericOnOffGet genericOnOffGet,
+                         @NonNull final MeshTransport meshTransport,
+                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, src, dst, genericOnOffGet, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -46,7 +48,7 @@ class GenericOnOffGetState extends GenericMessageState {
         final int aszmic = genericOnOffGet.getAszmic();
         final int opCode = genericOnOffGet.getOpCode();
         final byte[] parameters = genericOnOffGet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
     }
 
     @Override
@@ -56,7 +58,7 @@ class GenericOnOffGetState extends GenericMessageState {
 
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

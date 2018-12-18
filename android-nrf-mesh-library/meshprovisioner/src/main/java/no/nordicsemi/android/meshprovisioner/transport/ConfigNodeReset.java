@@ -15,12 +15,11 @@ public class ConfigNodeReset extends ConfigMessage {
     /**
      * Constructs ConfigNodeReset message.
      *
-     * @param node                Mesh node this message is to be sent to.
      * @param aszmic              Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigNodeReset(final ProvisionedMeshNode node, final int aszmic)  {
-        super(node, aszmic);
+    public ConfigNodeReset(final int aszmic)  {
+        super(aszmic);
         assembleMessageParameters();
     }
 

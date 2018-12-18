@@ -7,13 +7,13 @@ import java.nio.ByteBuffer;
 public abstract class GenericStatusMessage extends MeshMessage {
 
 
-    GenericStatusMessage(@NonNull final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
-        this(node, message.getAszmic());
+    GenericStatusMessage(@NonNull final AccessMessage message) {
+        this(message.getAszmic());
         mMessage = message;
     }
 
-    private GenericStatusMessage(final ProvisionedMeshNode node, final int aszmic) {
-        super(node, aszmic);
+    private GenericStatusMessage(final int aszmic) {
+        super(aszmic);
     }
 
     /**

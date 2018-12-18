@@ -36,7 +36,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * To be used as a wrapper class for when creating the ConfigModelAppStatus Message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ConfigModelPublicationStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigModelPublicationStatus.class.getSimpleName();
@@ -58,11 +58,10 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
     /**
      * Constructs the ConfigModelAppStatus mMessage.
      *
-     * @param node    Node from which the mMessage originated from
      * @param message Access Message
      */
-    public ConfigModelPublicationStatus(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
-        super(node, message);
+    public ConfigModelPublicationStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
@@ -70,9 +69,8 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
     private static final Creator<ConfigModelPublicationStatus> CREATOR = new Creator<ConfigModelPublicationStatus>() {
         @Override
         public ConfigModelPublicationStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigModelPublicationStatus(meshNode, message);
+            return new ConfigModelPublicationStatus(message);
         }
 
         @Override
@@ -153,10 +151,9 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
     public boolean isSuccessful() {
         return mStatusCode == 0x00;
     }
+
     /**
      * Returns the publish address to which the model must publish to
-     *
-     * @return
      */
     public byte[] getPublishAddress() {
         return publishAddress;
@@ -232,7 +229,6 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }

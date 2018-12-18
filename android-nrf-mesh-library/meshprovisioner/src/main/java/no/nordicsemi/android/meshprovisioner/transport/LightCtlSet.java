@@ -30,54 +30,6 @@ public class LightCtlSet extends GenericMessage {
     private final int mDeltaUv;
     private final int tId;
 
-     /**
-     * Constructs LightCtlSet message.
-     *
-     * @param node             Mesh node this message is to be sent to
-     * @param appKey           application key for this message
-     * @param lightLightness   lightLightness of the LightCtlModel
-     * @param lightTemperature temperature of the LightCtlModel
-     * @param lightDeltaUv     delta uv of the LightCtlModel
-     * @param aszmic           size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    public LightCtlSet(@NonNull final ProvisionedMeshNode node,
-                                     @NonNull final byte[] appKey,
-                                     final int lightLightness,
-                                     final int lightTemperature,
-                                     final int lightDeltaUv,
-                                     final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, lightTemperature, lightDeltaUv, node.getReceivedSequenceNumber(), aszmic);
-    }
-
-
-    /**
-     * Constructs LightCtlSet message.
-     *
-     * @param node                 Mesh node this message is to be sent to
-     * @param appKey               application key for this message
-     * @param transitionSteps      transition steps for the lightLightness
-     * @param transitionResolution transition resolution for the lightLightness
-     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param lightLightness       lightLightness of the LightCtlModel
-     * @param lightTemperature     temperature of the LightCtlModel
-     * @param lightDeltaUv         delta uv of the LightCtlModel
-     * @param aszmic               size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    @SuppressWarnings("WeakerAccess")
-    public LightCtlSet(@NonNull final ProvisionedMeshNode node,
-                                     @NonNull final byte[] appKey,
-                                     @Nullable final Integer transitionSteps,
-                                     @Nullable final Integer transitionResolution,
-                                     @Nullable final Integer delay,
-                                     final int lightLightness,
-                                     final int lightTemperature,
-                                     final int lightDeltaUv,
-                                     final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, transitionSteps, transitionResolution, delay, lightLightness, lightTemperature, lightDeltaUv, node.getReceivedSequenceNumber(), aszmic);
-    }
-
     /**
      * Constructs LightCtlSet message.
      *
@@ -126,7 +78,7 @@ public class LightCtlSet extends GenericMessage {
                                      final int lightDeltaUv,
                                      final int tId,
                                      final int aszmic) throws IllegalArgumentException {
-        super(node, appKey, aszmic);
+        super(appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

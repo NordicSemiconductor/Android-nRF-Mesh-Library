@@ -29,12 +29,30 @@ import android.util.Log;
 class ConfigCompositionDataGetState extends ConfigMessageState {
 
     private static final String TAG = ConfigCompositionDataGetState.class.getSimpleName();
+    private final byte[] mDeviceKey;
 
+    /**
+     * Constructs the state for creating ConfigCompositionDataGet message
+     *
+     * @param context            context
+     * @param src                source address
+     * @param dst                destination address
+     * @param deviceKey          device key
+     * @param compositionDataGet {@link ConfigCompositionDataGet}
+     * @param meshTransport      {@link MeshTransport}
+     * @param callbacks          {@link InternalMeshMsgHandlerCallbacks}
+     */
     ConfigCompositionDataGetState(@NonNull final Context context,
+                                  @NonNull final byte[] src,
+                                  @NonNull final byte[] dst,
+                                  @NonNull final byte[] deviceKey,
                                   @NonNull final ConfigCompositionDataGet compositionDataGet,
                                   @NonNull final MeshTransport meshTransport,
                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, compositionDataGet, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
+        this.mDeviceKey = deviceKey;
         createAccessMessage();
     }
 
@@ -52,7 +70,7 @@ class ConfigCompositionDataGetState extends ConfigMessageState {
         final int aid = compositionDataGet.getAid();
         final int aszmic = compositionDataGet.getAszmic();
         final int opCode = compositionDataGet.getOpCode();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mNode.getDeviceKey(), akf, aid, aszmic, opCode, compositionDataGet.getParameters());
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mDeviceKey, akf, aid, aszmic, opCode, compositionDataGet.getParameters());
         compositionDataGet.setMessage(message);
     }
 
@@ -61,7 +79,7 @@ class ConfigCompositionDataGetState extends ConfigMessageState {
         Log.v(TAG, "Sending composition data get");
         super.executeSend();
         if (message.getNetworkPdu().size() > 0 && mMeshStatusCallbacks != null) {
-            mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+            mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

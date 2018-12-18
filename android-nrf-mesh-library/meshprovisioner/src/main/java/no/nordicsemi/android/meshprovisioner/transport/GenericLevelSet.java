@@ -31,64 +31,22 @@ public class GenericLevelSet extends GenericMessage {
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param node        Mesh node this message is to be sent to
-     * @param appKey      application key for this message
-     * @param level       level of the GenericLevelModel
-     * @param aszmic      size of message integrity check
+     * @param appKey application key for this message
+     * @param level  level of the GenericLevelModel
+     * @param tId    transaction id which must be incremented for every message
+     * @param aszmic size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericLevelSet(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           final int level,
-                           final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, level, node.getReceivedSequenceNumber(), aszmic);
-    }
-
-    /**
-     * Constructs GenericLevelSet message.
-     *
-     * @param node                 Mesh node this message is to be sent to
-     * @param appKey               application key for this message
-     * @param transitionSteps      transition steps for the level
-     * @param transitionResolution transition resolution for the level
-     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param level                level of the GenericLevelModel
-     * @param aszmic               size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    @SuppressWarnings("WeakerAccess")
-    public GenericLevelSet(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
-                           @Nullable final Integer transitionSteps,
-                           @Nullable final Integer transitionResolution,
-                           @Nullable final Integer delay,
-                           final int level,
-                           final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, transitionSteps, transitionResolution, delay, level, node.getReceivedSequenceNumber(), aszmic);
-    }
-
-    /**
-     * Constructs GenericLevelSet message.
-     *
-     * @param node        Mesh node this message is to be sent to
-     * @param appKey      application key for this message
-     * @param level       level of the GenericLevelModel
-     * @param tId                  transaction id
-     * @param aszmic      size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    public GenericLevelSet(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
+    public GenericLevelSet(@NonNull final byte[] appKey,
                            final int level,
                            final int tId,
                            final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, level, tId, aszmic);
+        this(appKey, null, null, null, level, tId, aszmic);
     }
 
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param transitionSteps      transition steps for the level
      * @param transitionResolution transition resolution for the level
@@ -99,15 +57,14 @@ public class GenericLevelSet extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public GenericLevelSet(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
+    public GenericLevelSet(@NonNull final byte[] appKey,
                            @Nullable final Integer transitionSteps,
                            @Nullable final Integer transitionResolution,
                            @Nullable final Integer delay,
                            final int level,
                            final int tId,
                            final int aszmic) throws IllegalArgumentException {
-        super(node, appKey, aszmic);
+        super(appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

@@ -30,93 +30,42 @@ public class LightHslSet extends GenericMessage {
     private final int mSaturation;
     private final int tId;
 
-     /**
-     * Constructs GenericLevelSet message.
-     *
-     * @param node   Mesh node this message is to be sent to
-     * @param appKey application key for this message
-     * @param lightLightness  lightness of the LightHslModel
-     * @param lightHue        hue of the LightHslModel
-     * @param lightSaturation saturation of the LightHslModel
-     * @param aszmic size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    public LightHslSet(@NonNull final ProvisionedMeshNode node,
-                                     @NonNull final byte[] appKey,
-                                     final int lightLightness,
-                                     final int lightHue,
-                                     final int lightSaturation,
-                                     final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, lightHue, lightSaturation, node.getReceivedSequenceNumber(), aszmic);
-    }
-
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param node                 Mesh node this message is to be sent to
-     * @param appKey               application key for this message
-     * @param transitionSteps      transition steps for the lightLightness
-     * @param transitionResolution transition resolution for the lightLightness
-     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
+     * @param appKey          application key for this message
      * @param lightLightness  lightness of the LightHslModel
      * @param lightHue        hue of the LightHslModel
      * @param lightSaturation saturation of the LightHslModel
-     * @param aszmic               size of message integrity check
+     * @param tId             transaction id
+     * @param aszmic          size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    @SuppressWarnings("WeakerAccess")
-    public LightHslSet(@NonNull final ProvisionedMeshNode node,
-                       @NonNull final byte[] appKey,
-                       @Nullable final Integer transitionSteps,
-                       @Nullable final Integer transitionResolution,
-                       @Nullable final Integer delay,
+    public LightHslSet(@NonNull final byte[] appKey,
                        final int lightLightness,
                        final int lightHue,
                        final int lightSaturation,
+                       final int tId,
                        final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, transitionSteps, transitionResolution, delay, lightLightness, lightHue, lightSaturation, node.getReceivedSequenceNumber(), aszmic);
+        this(appKey, null, null, null, lightLightness, lightHue, lightSaturation, tId, aszmic);
     }
 
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param node   Mesh node this message is to be sent to
-     * @param appKey application key for this message
-     * @param lightLightness  lightness of the LightHslModel
-     * @param lightHue        hue of the LightHslModel
-     * @param lightSaturation saturation of the LightHslModel
-     * @param tId                  transaction id
-     * @param aszmic size of message integrity check
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    public LightHslSet(@NonNull final ProvisionedMeshNode node,
-                                     @NonNull final byte[] appKey,
-                                     final int lightLightness,
-                                     final int lightHue,
-                                     final int lightSaturation,
-                                     final int tId,
-                                     final int aszmic) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, lightHue, lightSaturation, tId, aszmic);
-    }
-
-    /**
-     * Constructs GenericLevelSet message.
-     *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param transitionSteps      transition steps for the lightLightness
      * @param transitionResolution transition resolution for the lightLightness
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param lightLightness  lightness of the LightHslModel
-     * @param lightHue        hue of the LightHslModel
-     * @param lightSaturation saturation of the LightHslModel
+     * @param lightLightness       lightness of the LightHslModel
+     * @param lightHue             hue of the LightHslModel
+     * @param lightSaturation      saturation of the LightHslModel
      * @param tId                  transaction id
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public LightHslSet(@NonNull final ProvisionedMeshNode node,
-                       @NonNull final byte[] appKey,
+    public LightHslSet(@NonNull final byte[] appKey,
                        @Nullable final Integer transitionSteps,
                        @Nullable final Integer transitionResolution,
                        @Nullable final Integer delay,
@@ -125,7 +74,7 @@ public class LightHslSet extends GenericMessage {
                        final int lightSaturation,
                        final int tId,
                        final int aszmic) throws IllegalArgumentException {
-        super(node, appKey, aszmic);
+        super(appKey, aszmic);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

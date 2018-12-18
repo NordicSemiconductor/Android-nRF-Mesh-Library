@@ -22,8 +22,6 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -49,19 +47,17 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
     /**
      * Constructs ConfigModelAppUnbind message.
      *
-     * @param node            Mesh node this message is to be sent to
      * @param elementAddress  Address of the element to which the model belongs to
      * @param modelIdentifier Model from which the key must be unbound from
      * @param appKeyIndex     Global app key index of the key to be unbound
      * @param aszmic          Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigModelAppUnbind(@NonNull final ProvisionedMeshNode node,
-                                final byte[] elementAddress,
+    public ConfigModelAppUnbind(final byte[] elementAddress,
                                 final int modelIdentifier,
                                 final int appKeyIndex,
                                 final int aszmic) throws IllegalArgumentException {
-        super(node, aszmic);
+        super(aszmic);
         if (elementAddress.length != 2)
             throw new IllegalArgumentException("Element address cannot be cannot be greater than 2 octets");
         this.mElementAddress = elementAddress;

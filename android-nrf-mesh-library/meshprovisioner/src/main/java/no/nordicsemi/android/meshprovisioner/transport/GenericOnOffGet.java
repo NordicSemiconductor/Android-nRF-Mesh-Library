@@ -18,15 +18,13 @@ public class GenericOnOffGet extends GenericMessage {
     /**
      * Constructs GenericOnOffGet message.
      *
-     * @param node   Mesh node this message is to be sent to
      * @param appKey application key for this message
      * @param aszmic size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericOnOffGet(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] appKey,
+    public GenericOnOffGet(@NonNull final byte[] appKey,
                            final int aszmic) throws IllegalArgumentException {
-        super(node, appKey, aszmic);
+        super(appKey, aszmic);
         assembleMessageParameters();
     }
 

@@ -22,8 +22,6 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 
 /**
@@ -39,12 +37,11 @@ public class ConfigCompositionDataGet extends ConfigMessage {
     /**
      * Constructs ConfigCompositionDataGet message.
      *
-     * @param node   Mesh node this message is to be sent to
      * @param aszmic size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigCompositionDataGet(@NonNull final ProvisionedMeshNode node, final int aszmic) {
-        super(node, aszmic);
+    public ConfigCompositionDataGet(final int aszmic) {
+        super(aszmic);
         assembleMessageParameters();
     }
 

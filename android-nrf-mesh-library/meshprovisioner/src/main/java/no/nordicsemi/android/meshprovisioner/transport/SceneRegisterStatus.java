@@ -29,8 +29,6 @@ import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Collection;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -38,7 +36,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * To be used as a wrapper class for when creating the GenericOnOffStatus Message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class SceneRegisterStatus extends GenericStatusMessage implements Parcelable {
     private static final int SCENE_REGISTER_STATUS_MANDATORY_LENGTH = 3;
     private static final String TAG = SceneRegisterStatus.class.getSimpleName();
@@ -51,12 +49,10 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
     /**
      * Constructs the GenericOnOffStatus mMessage.
      *
-     * @param node    Node from which the mMessage originated from
      * @param message Access Message
      */
-    public SceneRegisterStatus(@NonNull final ProvisionedMeshNode node,
-                               @NonNull final AccessMessage message) {
-        super(node, message);
+    public SceneRegisterStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
@@ -65,9 +61,8 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
     private static final Creator<SceneRegisterStatus> CREATOR = new Creator<SceneRegisterStatus>() {
         @Override
         public SceneRegisterStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new SceneRegisterStatus(meshNode, message);
+            return new SceneRegisterStatus(message);
         }
 
         @Override
@@ -134,7 +129,6 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }

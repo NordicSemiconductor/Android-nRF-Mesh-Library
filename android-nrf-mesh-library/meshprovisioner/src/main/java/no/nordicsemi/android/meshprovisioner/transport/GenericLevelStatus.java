@@ -36,7 +36,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * To be used as a wrapper class to create generic level status message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class GenericLevelStatus extends GenericStatusMessage implements Parcelable {
 
     private static final String TAG = GenericLevelStatus.class.getSimpleName();
@@ -47,8 +47,8 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
     private int mTransitionSteps;
     private int mTransitionResolution;
 
-    public GenericLevelStatus(@NonNull final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
-        super(node, message);
+    public GenericLevelStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
@@ -57,9 +57,8 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
     private static final Creator<GenericLevelStatus> CREATOR = new Creator<GenericLevelStatus>() {
         @Override
         public GenericLevelStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new GenericLevelStatus(meshNode, message);
+            return new GenericLevelStatus(message);
         }
 
         @Override
@@ -134,7 +133,6 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }

@@ -20,21 +20,19 @@ public class VendorModelMessageUnacked extends GenericMessage {
     /**
      * Constructs VendorModelMessageAcked message.
      *
-     * @param node                 Mesh node this message is to be sent to
-     * @param appKey               Application key for this message
-     * @param modelId              model identifier
-     * @param companyIdentifier    Company identifier of the vendor model
-     * @param aszmic               Size of message integrity check
+     * @param appKey            Application key for this message
+     * @param modelId           model identifier
+     * @param companyIdentifier Company identifier of the vendor model
+     * @param aszmic            Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public VendorModelMessageUnacked(@NonNull final ProvisionedMeshNode node,
-                                     @NonNull final byte[] appKey,
+    public VendorModelMessageUnacked(@NonNull final byte[] appKey,
                                      final int modelId,
                                      final int companyIdentifier,
                                      final int opCode,
                                      @Nullable final byte[] parameters,
                                      final int aszmic) {
-        super(node, appKey, aszmic);
+        super(appKey, aszmic);
         this.mModelIdentifier = modelId;
         this.mCompanyIdentifier = companyIdentifier;
         this.opCode = opCode;

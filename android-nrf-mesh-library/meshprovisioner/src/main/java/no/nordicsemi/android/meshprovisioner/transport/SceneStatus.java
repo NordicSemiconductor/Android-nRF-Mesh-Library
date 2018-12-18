@@ -36,7 +36,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * To be used as a wrapper class for when creating the GenericOnOffStatus Message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class SceneStatus extends GenericStatusMessage implements Parcelable {
     private static final int SCENE_STATUS_MANDATORY_LENGTH = 3;
     private static final String TAG = SceneStatus.class.getSimpleName();
@@ -51,12 +51,10 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
     /**
      * Constructs the GenericOnOffStatus mMessage.
      *
-     * @param node    Node from which the mMessage originated from
      * @param message Access Message
      */
-    public SceneStatus(@NonNull final ProvisionedMeshNode node,
-                       @NonNull final AccessMessage message) {
-        super(node, message);
+    public SceneStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mMessage = message;
         this.mParameters = message.getParameters();
         parseStatusParameters();
@@ -65,9 +63,8 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
     private static final Creator<SceneStatus> CREATOR = new Creator<SceneStatus>() {
         @Override
         public SceneStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new SceneStatus(meshNode, message);
+            return new SceneStatus(message);
         }
 
         @Override
@@ -154,7 +151,6 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }

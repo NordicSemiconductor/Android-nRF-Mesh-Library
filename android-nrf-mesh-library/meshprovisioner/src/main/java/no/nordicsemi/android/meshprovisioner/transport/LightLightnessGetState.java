@@ -16,17 +16,19 @@ class LightLightnessGetState extends GenericMessageState {
      * Constructs LightLightnessGetState
      *
      * @param context           Context of the application
-     * @param dstAddress        Destination address to which the message must be sent to
+     * @param src               Source address
+     * @param dst               Destination address to which the message must be sent to
      * @param lightLightnessGet Wrapper class {@link LightLightnessGet} containing the opcode and parameters for {@link LightLightnessGet} message
      * @param callbacks         {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     LightLightnessGetState(@NonNull final Context context,
-                           @NonNull final byte[] dstAddress,
+                           @NonNull final byte[] src,
+                           @NonNull final byte[] dst,
                            @NonNull final LightLightnessGet lightLightnessGet,
                            @NonNull final MeshTransport meshTransport,
                            @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, lightLightnessGet, meshTransport, callbacks);
+        super(context, src, dst, lightLightnessGet, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -46,7 +48,7 @@ class LightLightnessGetState extends GenericMessageState {
         final int aszmic = lightLightnessGet.getAszmic();
         final int opCode = lightLightnessGet.getOpCode();
         final byte[] parameters = lightLightnessGet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
         lightLightnessGet.setMessage(message);
     }
 
@@ -56,7 +58,7 @@ class LightLightnessGetState extends GenericMessageState {
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }
