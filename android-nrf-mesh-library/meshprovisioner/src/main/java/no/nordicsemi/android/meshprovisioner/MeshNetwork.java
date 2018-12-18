@@ -4,6 +4,7 @@ package no.nordicsemi.android.meshprovisioner;
 import android.arch.persistence.room.Entity;
 import android.support.annotation.RestrictTo;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -146,6 +147,20 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     void setAppKeys(List<ApplicationKey> appKeys) {
         this.appKeys = appKeys;
+    }
+
+    /**
+     * Returns the mesh node with the corresponding unicast address
+     * @param unicastAddress
+     * @return
+     */
+    public ProvisionedMeshNode getProvisionedNode(final byte[] unicastAddress) {
+        for (ProvisionedMeshNode node : nodes) {
+            if (Arrays.equals(unicastAddress, node.getUnicastAddress())) {
+                return node;
+            }
+        }
+        return null;
     }
 
     /**
