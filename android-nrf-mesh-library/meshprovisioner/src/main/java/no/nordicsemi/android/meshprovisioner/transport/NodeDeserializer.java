@@ -58,10 +58,10 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
 
             if (jsonObject.has("features")) {
                 final JsonObject featuresJson = jsonObject.get("features").getAsJsonObject();
-                node.nodeFeatures = new Features(featuresJson.get("relay").getAsInt(),
-                        featuresJson.get("proxy").getAsInt(),
-                        featuresJson.get("friend").getAsInt(),
-                        featuresJson.get("lowPower").getAsInt());
+                node.nodeFeatures = new Features(featuresJson.get("friend").getAsInt(),
+                        featuresJson.get("lowPower").getAsInt(),
+                        featuresJson.get("relay").getAsInt(),
+                        featuresJson.get("proxy").getAsInt());
             }
 
             if (jsonObject.has("secureNetworkBeacon")) {
@@ -89,7 +89,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             if (jsonObject.has("appKeys"))
                 node.mAddedAppKeyIndexes = deserializeAppKeyIndexes(jsonObject.get("appKeys").getAsJsonArray());
 
-            if(jsonObject.has("elements")) {
+            if (jsonObject.has("elements")) {
                 final List<Element> elements = deserializeElements(context, jsonObject);
                 final Map<Integer, Element> elementMap = populateElements(unicastAddress, elements);
                 node.mElements.clear();
