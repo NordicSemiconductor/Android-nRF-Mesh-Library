@@ -350,7 +350,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     private void updateProxySettingsCardUi() {
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-        if (meshNode.getNodeFeatures().isProxyFeatureSupported()) {
+        if (meshNode.getNodeFeatures() != null && meshNode.getNodeFeatures().isProxyFeatureSupported()) {
             mProxyStateCard.setVisibility(View.VISIBLE);
             updateProxySettingsButtonUi();
         }
