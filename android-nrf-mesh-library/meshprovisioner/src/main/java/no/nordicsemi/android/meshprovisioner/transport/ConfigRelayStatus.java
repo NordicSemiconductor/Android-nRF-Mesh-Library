@@ -26,6 +26,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
@@ -82,6 +83,9 @@ public final class ConfigRelayStatus extends ConfigStatusMessage implements Parc
         mRelay = payload[2];
         mRelayRetransmitCount = payload[3] & 0b111;
         mRelayRetransmitIntervalSteps = (payload[3] >> 3) & 0b11111;
+        Log.d(TAG, "Relay: " + mRelay);
+        Log.d(TAG, "Retransmit count: " + mRelayRetransmitCount);
+        Log.d(TAG, "Retransmit Interval steps: " + mRelayRetransmitIntervalSteps);
     }
 
 
