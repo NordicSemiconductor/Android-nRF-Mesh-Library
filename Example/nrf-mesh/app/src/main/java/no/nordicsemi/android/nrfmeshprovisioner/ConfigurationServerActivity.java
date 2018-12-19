@@ -195,7 +195,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                     relaySettings.getRelayTransmitCount(),
                     relaySettings.getTotalTransmissionsCount()));
             mRelayRetransmitIntervalStepsText.setText(getString(R.string.text_network_transmit_interval_steps,
-                    relaySettings.getRelayIntervalSteps()));
+                    relaySettings.getRetransmissionIntervals()));
         } else {
             mActionSetRelayState.setEnabled(false);
             mRelayRetransmitCountText.setText(getResources().getString(R.string.unknown));
