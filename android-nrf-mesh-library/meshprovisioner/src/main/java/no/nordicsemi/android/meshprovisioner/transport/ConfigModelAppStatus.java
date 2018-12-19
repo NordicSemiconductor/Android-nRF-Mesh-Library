@@ -36,7 +36,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * To be used as a wrapper class for when creating the ConfigModelAppStatus Message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigModelAppStatus.class.getSimpleName();
@@ -51,11 +51,10 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
     /**
      * Constructs the ConfigModelAppStatus mMessage.
      *
-     * @param node    Node from which the mMessage originated from
      * @param message Access Message
      */
-    public ConfigModelAppStatus(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
-        super(node, message);
+    public ConfigModelAppStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
@@ -63,9 +62,8 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
     private static final Creator<ConfigModelAppStatus> CREATOR = new Creator<ConfigModelAppStatus>() {
         @Override
         public ConfigModelAppStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigModelAppStatus(meshNode, message);
+            return new ConfigModelAppStatus(message);
         }
 
         @Override
@@ -141,7 +139,6 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 

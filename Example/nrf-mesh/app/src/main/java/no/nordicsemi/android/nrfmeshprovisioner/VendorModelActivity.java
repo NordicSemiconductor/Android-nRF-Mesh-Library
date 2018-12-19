@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
-import android.support.v7.widget.CardView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -217,14 +216,14 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
         final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
         final MeshMessage message;
         if (acknowledged) {
-            message = new VendorModelMessageAcked(node, appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters, 0);
+            message = new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters, 0);
             final List<byte[]> addresses = model.getNonGroupAddresses();
             for (byte[] address : addresses) {
                 mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, message);
             }
             mViewModel.getMeshManagerApi().sendMeshApplicationMessage(element.getElementAddress(), message);
         } else {
-            message = new VendorModelMessageUnacked(node, appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters, 0);
+            message = new VendorModelMessageUnacked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters, 0);
             final List<byte[]> addresses = model.getSubscriptionAddresses();
             //Send to unicast if empty
             if(addresses.isEmpty()) {

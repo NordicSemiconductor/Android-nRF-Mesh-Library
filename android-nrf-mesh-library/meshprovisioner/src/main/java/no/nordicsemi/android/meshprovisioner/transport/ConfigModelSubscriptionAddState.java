@@ -32,12 +32,30 @@ import android.util.Log;
 final class ConfigModelSubscriptionAddState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelSubscriptionAddState.class.getSimpleName();
+    private final byte[] mDeviceKey;
 
+    /**
+     * Constructs the state for creating ConfigModelSubscriptionAdd message
+     *
+     * @param context                   context
+     * @param src                       source address
+     * @param dst                       destination address
+     * @param deviceKey                 device key
+     * @param configModelSubscriptionAdd {@link ConfigModelSubscriptionAdd}
+     * @param meshTransport             {@link MeshTransport}
+     * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks}
+     */
     ConfigModelSubscriptionAddState(@NonNull final Context context,
-                                           @NonNull final ConfigModelSubscriptionAdd configModelSubscriptionAdd,
-                                           @NonNull final MeshTransport meshTransport,
-                                           @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+                                    @NonNull final byte[] src,
+                                    @NonNull final byte[] dst,
+                                    @NonNull final byte[] deviceKey,
+                                    @NonNull final ConfigModelSubscriptionAdd configModelSubscriptionAdd,
+                                    @NonNull final MeshTransport meshTransport,
+                                    @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, configModelSubscriptionAdd, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
+        this.mDeviceKey = deviceKey;
         createAccessMessage();
     }
 
@@ -50,14 +68,13 @@ final class ConfigModelSubscriptionAddState extends ConfigMessageState {
      * Creates the access message to be sent to the node
      */
     private void createAccessMessage() {
-        final byte[] key = mNode.getDeviceKey();
         final ConfigModelSubscriptionAdd configModelSubscriptionAdd = (ConfigModelSubscriptionAdd) mMeshMessage;
         final int akf = configModelSubscriptionAdd.getAkf();
         final int aid = configModelSubscriptionAdd.getAid();
         final int aszmic = configModelSubscriptionAdd.getAszmic();
         final int opCode = configModelSubscriptionAdd.getOpCode();
         final byte[] parameters = configModelSubscriptionAdd.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mDeviceKey, akf, aid, aszmic, opCode, parameters);
         configModelSubscriptionAdd.setMessage(message);
     }
 
@@ -68,16 +85,7 @@ final class ConfigModelSubscriptionAddState extends ConfigMessageState {
 
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
-    }
-
-    /**
-     * Returns the source address of the message i.e. where it originated from
-     *
-     * @return source address
-     */
-    public byte[] getSrc() {
-        return mSrc;
     }
 }

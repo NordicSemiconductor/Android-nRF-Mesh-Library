@@ -36,7 +36,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * To be used as a wrapper class for when creating the GenericOnOffStatus Message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class GenericOnOffStatus extends GenericStatusMessage implements Parcelable {
 
     private static final String TAG = GenericOnOffStatus.class.getSimpleName();
@@ -51,13 +51,10 @@ public final class GenericOnOffStatus extends GenericStatusMessage implements Pa
     /**
      * Constructs the GenericOnOffStatus mMessage.
      *
-     * @param node    Node from which the mMessage originated from
      * @param message Access Message
      */
-    public GenericOnOffStatus(@NonNull final ProvisionedMeshNode node,
-                              @NonNull final AccessMessage message) {
-        super(node, message);
-        this.mMessage = message;
+    public GenericOnOffStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
@@ -65,9 +62,8 @@ public final class GenericOnOffStatus extends GenericStatusMessage implements Pa
     private static final Creator<GenericOnOffStatus> CREATOR = new Creator<GenericOnOffStatus>() {
         @Override
         public GenericOnOffStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new GenericOnOffStatus(meshNode, message);
+            return new GenericOnOffStatus(message);
         }
 
         @Override
@@ -143,7 +139,6 @@ public final class GenericOnOffStatus extends GenericStatusMessage implements Pa
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }

@@ -24,18 +24,16 @@ public class SceneDeleteUnacknowledged extends GenericMessage {
     /**
      * Constructs SceneDeleteUnacknowledged message.
      *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param sceneNumber          scene number of SceneDeleteUnacknowledged message
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public SceneDeleteUnacknowledged(@NonNull final ProvisionedMeshNode node,
-                      @NonNull final byte[] appKey,
-                      final int sceneNumber,
-                      final int aszmic) {
-        super(node, appKey, aszmic);
+    public SceneDeleteUnacknowledged(@NonNull final byte[] appKey,
+                                     final int sceneNumber,
+                                     final int aszmic) {
+        super(appKey, aszmic);
         this.mSceneNumber = sceneNumber;
         assembleMessageParameters();
     }

@@ -48,19 +48,17 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessage {
     /**
      * Constructs GenericOnOffSet message.
      *
-     * @param node                Mesh node this message is to be sent to.
      * @param elementAddress      Address of the element to which the model belongs to.
      * @param subscriptionAddress Address to whic the element should subscribe.
      * @param modelIdentifier     identifier of the model, 16-bit for Sig model and 32-bit model id for vendor models.
      * @param aszmic              Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigModelSubscriptionAdd(@NonNull final ProvisionedMeshNode node,
-                                      @NonNull final byte[] elementAddress,
+    public ConfigModelSubscriptionAdd(@NonNull final byte[] elementAddress,
                                       @NonNull final byte[] subscriptionAddress,
                                       final int modelIdentifier,
                                       final int aszmic) throws IllegalArgumentException {
-        super(node, aszmic);
+        super(aszmic);
         if (elementAddress.length != 2)
             throw new IllegalArgumentException("Element address must be 2 bytes");
         this.mElementAddress = elementAddress;

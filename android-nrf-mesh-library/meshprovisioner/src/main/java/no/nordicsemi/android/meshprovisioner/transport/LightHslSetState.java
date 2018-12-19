@@ -14,18 +14,20 @@ class LightHslSetState extends GenericMessageState implements LowerTransportLaye
     /**
      * Constructs {@link LightHslSetState}
      *
-     * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param context     Context of the application
+     * @param src         Source address
+     * @param dst         Destination address to which the message must be sent to
      * @param lightHslSet Wrapper class {@link LightLightnessSet} containing the opcode and parameters for {@link GenericLevelSet} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param callbacks   {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     LightHslSetState(@NonNull final Context context,
-                     @NonNull final byte[] dstAddress,
+                     @NonNull final byte[] src,
+                     @NonNull final byte[] dst,
                      @NonNull final LightHslSet lightHslSet,
                      @NonNull final MeshTransport meshTransport,
                      @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, lightHslSet, meshTransport, callbacks);
+        super(context, src, dst, lightHslSet, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -45,7 +47,7 @@ class LightHslSetState extends GenericMessageState implements LowerTransportLaye
         final int aszmic = lightHslSet.getAszmic();
         final int opCode = lightHslSet.getOpCode();
         final byte[] parameters = lightHslSet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
         lightHslSet.setMessage(message);
     }
 
@@ -55,7 +57,7 @@ class LightHslSetState extends GenericMessageState implements LowerTransportLaye
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

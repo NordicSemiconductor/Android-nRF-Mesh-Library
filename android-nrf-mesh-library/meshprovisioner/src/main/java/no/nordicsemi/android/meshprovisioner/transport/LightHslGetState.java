@@ -15,18 +15,20 @@ class LightHslGetState extends GenericMessageState {
     /**
      * Constructs LightHslGetState
      *
-     * @param context           Context of the application
-     * @param dstAddress        Destination address to which the message must be sent to
-     * @param lightHslGet       Wrapper class {@link LightHslGet} containing the opcode and parameters for {@link LightHslGet} message
-     * @param callbacks         {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param context     Context of the application
+     * @param src         Source address
+     * @param dst         Destination address to which the message must be sent to
+     * @param lightHslGet Wrapper class {@link LightHslGet} containing the opcode and parameters for {@link LightHslGet} message
+     * @param callbacks   {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     LightHslGetState(@NonNull final Context context,
-                     @NonNull final byte[] dstAddress,
+                     @NonNull final byte[] src,
+                     @NonNull final byte[] dst,
                      @NonNull final LightHslGet lightHslGet,
                      @NonNull final MeshTransport meshTransport,
                      @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, lightHslGet, meshTransport, callbacks);
+        super(context, src, dst, lightHslGet, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -46,7 +48,7 @@ class LightHslGetState extends GenericMessageState {
         final int aszmic = lightHslGet.getAszmic();
         final int opCode = lightHslGet.getOpCode();
         final byte[] parameters = lightHslGet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
         lightHslGet.setMessage(message);
     }
 
@@ -56,7 +58,7 @@ class LightHslGetState extends GenericMessageState {
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

@@ -45,7 +45,7 @@ abstract class Message {
      **/
     private byte[] src;
     /**
-     * dst, destination address
+     * mDst, destination address
      **/
     private byte[] dst;
     /**

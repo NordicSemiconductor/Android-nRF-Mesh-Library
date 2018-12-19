@@ -97,60 +97,8 @@ public final class MeshTransport extends NetworkLayer {
      * Creates an access message to be sent to the peripheral node
      * <p>
      * This method will create the access message and propagate the message through the transport layers to create the final mesh pdu.
-     * The message created will use the node's unicast address as the destination for the message to be sent
      * </p>
      *
-     * @param node                    mesh node to which the message is to be sent
-     * @param src                     Source address of the provisioner/configurator.
-     * @param key                     Key could be application key or device key.
-     * @param akf                     Application key flag defines which key to be used to decrypt the message i.e device key or application key.
-     * @param aid                     Identifier of the application key.
-     * @param aszmic                  Defines the length of the transport mic length where 1 will encrypt withn 64 bit and 0 with 32 bit encryption.
-     * @param accessOpCode            Operation code for the access message.
-     * @param accessMessageParameters Parameters for the access message.
-     * @return access message containing the mesh pdu
-     */
-    final AccessMessage createMeshMessage(final ProvisionedMeshNode node, final byte[] src,
-                                    final byte[] key, final int akf, final int aid, final int aszmic,
-                                    final int accessOpCode, final byte[] accessMessageParameters) {
-        this.mMeshNode = node;
-        final int sequenceNumber = incrementSequenceNumber(src);
-        final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
-
-        Log.v(TAG, "Src address: " + MeshParserUtils.bytesToHex(src, false));
-        Log.v(TAG, "Dst address: " + MeshParserUtils.bytesToHex(node.getUnicastAddress(), false));
-        Log.v(TAG, "Key: " + MeshParserUtils.bytesToHex(key, false));
-        Log.v(TAG, "akf: " + akf);
-        Log.v(TAG, "aid: " + aid);
-        Log.v(TAG, "aszmic: " + aszmic);
-        Log.v(TAG, "Sequence number: " + sequenceNumber);
-        Log.v(TAG, "Access message opcode: " + Integer.toHexString(accessOpCode));
-        Log.v(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
-
-        final AccessMessage message = new AccessMessage();
-        message.setSrc(src);
-        message.setDst(node.getUnicastAddress());
-        message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-        message.setSequenceNumber(sequenceNum);
-        message.setKey(key);
-        message.setAkf(akf);
-        message.setAid(aid);
-        message.setAszmic(aszmic);
-        message.setOpCode(accessOpCode);
-        message.setParameters(accessMessageParameters);
-        message.setPduType(NETWORK_PDU);
-
-        super.createMeshMessage(message);
-        return message;
-    }
-
-    /**
-     * Creates an access message to be sent to the peripheral node
-     * <p>
-     * This method will create the access message and propagate the message through the transport layers to create the final mesh pdu.
-     * </p>
-     *
-     * @param node                    mesh node to which the message is to be sent
      * @param src                     Source address of the provisioner/configurator.
      * @param dst                     destination address to be sent to
      * @param key                     Key could be application key or device key.
@@ -161,10 +109,9 @@ public final class MeshTransport extends NetworkLayer {
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    final AccessMessage createMeshMessage(final ProvisionedMeshNode node, final byte[] src, final byte[] dst,
-                                                    final byte[] key, final int akf, final int aid, final int aszmic,
-                                                    final int accessOpCode, final byte[] accessMessageParameters) {
-        this.mMeshNode = node;
+    final AccessMessage createMeshMessage(final byte[] src, final byte[] dst,
+                                          final byte[] key, final int akf, final int aid, final int aszmic,
+                                          final int accessOpCode, final byte[] accessMessageParameters) {
         final int sequenceNumber = incrementSequenceNumber(src);
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
@@ -201,7 +148,6 @@ public final class MeshTransport extends NetworkLayer {
      * This method will create the access message and propagate the message through the transport layers to create the final mesh pdu.
      * </p>
      *
-     * @param node                    mesh node to which the message is to be sent
      * @param src                     Source address of the provisioner/configurator.
      * @param dst                     destination address to be sent to
      * @param key                     Key could be application key or device key.
@@ -212,10 +158,9 @@ public final class MeshTransport extends NetworkLayer {
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    final AccessMessage createVendorMeshMessage(final ProvisionedMeshNode node, final int companyIdentifier, final byte[] src, final byte[] dst,
+    final AccessMessage createVendorMeshMessage(final int companyIdentifier, final byte[] src, final byte[] dst,
                                                 final byte[] key, final int akf, final int aid, final int aszmic,
                                                 final int accessOpCode, final byte[] accessMessageParameters) {
-        this.mMeshNode = node;
         final int sequenceNumber = incrementSequenceNumber(src);
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
@@ -254,12 +199,11 @@ public final class MeshTransport extends NetworkLayer {
     /**
      * Parses the received pdu
      *
-     * @param configurationSrc Src address where the original message was sent from
      * @param pdu              pdu received
      * @return Message
      */
-    final Message parsePdu(final byte[] configurationSrc, final byte[] pdu) {
-        return parseMeshMessage(configurationSrc, pdu);
+    final Message parsePdu(final byte[] pdu) {
+        return parseMeshMessage(pdu);
     }
 
     /**
@@ -269,7 +213,7 @@ public final class MeshTransport extends NetworkLayer {
      * @return Message
      */
     @VisibleForTesting
-    final Message parsePdu(final byte[] pdu) {
+    final Message parsePduTest(final byte[] pdu) {
         return parseMeshMessage(pdu);
     }
 

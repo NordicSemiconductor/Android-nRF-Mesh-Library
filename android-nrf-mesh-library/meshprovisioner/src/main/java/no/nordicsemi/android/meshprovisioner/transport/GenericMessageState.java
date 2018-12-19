@@ -9,16 +9,20 @@ import android.support.annotation.NonNull;
 abstract class GenericMessageState extends MeshMessageState {
 
     private static final String TAG = GenericMessageState.class.getSimpleName();
-    final byte[] mDstAddress;
+
 
     GenericMessageState(@NonNull final Context context,
-                               @NonNull final byte[] dstAddress,
-                               @NonNull final MeshMessage meshMessage,
-                               @NonNull final MeshTransport meshTransport,
-                               @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+                        @NonNull final byte[] src,
+                        @NonNull final byte[] dst,
+                        @NonNull final MeshMessage meshMessage,
+                        @NonNull final MeshTransport meshTransport,
+                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
         super(context, meshMessage, meshTransport, callbacks);
-        if (dstAddress.length != 2)
+        if (src.length != 2)
+            throw new IllegalArgumentException("Source address must be a unicast address with 2 bytes!");
+        this.mSrc = src;
+        if (dst.length != 2)
             throw new IllegalArgumentException("Destination address must be 2 bytes!");
-        this.mDstAddress = dstAddress;
+        this.mDst = dst;
     }
 }

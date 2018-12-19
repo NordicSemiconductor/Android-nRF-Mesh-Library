@@ -47,11 +47,10 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelabl
     /**
      * Constructs the ConfigAppKeyStatus mMessage.
      *
-     * @param node    Node from which the mMessage originated from
      * @param message Access Message
      */
-    public ConfigAppKeyStatus(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
-        super(node, message);
+    public ConfigAppKeyStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
@@ -59,9 +58,8 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelabl
     public static final Creator<ConfigAppKeyStatus> CREATOR = new Creator<ConfigAppKeyStatus>() {
         @Override
         public ConfigAppKeyStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigAppKeyStatus(meshNode, message);
+            return new ConfigAppKeyStatus(message);
         }
 
         @Override
@@ -126,7 +124,6 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelabl
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }

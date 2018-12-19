@@ -14,18 +14,20 @@ class SceneDeleteUnacknowledgedState extends GenericMessageState implements Lowe
     /**
      * Constructs {@link SceneDeleteUnacknowledgedState}
      *
-     * @param context         Context of the application
-     * @param dstAddress      Destination address to which the message must be sent to
+     * @param context                   Context of the application
+     * @param src                       Source address
+     * @param dst                       Destination address to which the message must be sent to
      * @param sceneDeleteUnacknowledged Wrapper class {@link SceneDeleteUnacknowledged} containing the opcode and parameters for {@link SceneDeleteUnacknowledged} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     SceneDeleteUnacknowledgedState(@NonNull final Context context,
-                     @NonNull final byte[] dstAddress,
-                     @NonNull final SceneDeleteUnacknowledged sceneDeleteUnacknowledged,
-                     @NonNull final MeshTransport meshTransport,
-                     @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, dstAddress, sceneDeleteUnacknowledged, meshTransport, callbacks);
+                                   @NonNull final byte[] src,
+                                   @NonNull final byte[] dst,
+                                   @NonNull final SceneDeleteUnacknowledged sceneDeleteUnacknowledged,
+                                   @NonNull final MeshTransport meshTransport,
+                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, src, dst, sceneDeleteUnacknowledged, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -45,7 +47,7 @@ class SceneDeleteUnacknowledgedState extends GenericMessageState implements Lowe
         final int aszmic = sceneDeleteUnacknowledged.getAszmic();
         final int opCode = sceneDeleteUnacknowledged.getOpCode();
         final byte[] parameters = sceneDeleteUnacknowledged.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, mDstAddress, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
     }
 
     @Override
@@ -54,7 +56,7 @@ class SceneDeleteUnacknowledgedState extends GenericMessageState implements Lowe
         super.executeSend();
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null) {
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
             }
         }
     }

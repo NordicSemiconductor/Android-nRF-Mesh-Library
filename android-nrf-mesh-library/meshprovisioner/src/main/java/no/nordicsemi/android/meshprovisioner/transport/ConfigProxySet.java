@@ -30,12 +30,11 @@ public class ConfigProxySet extends ConfigMessage {
     /**
      * Constructs ConfigNodeReset message.
      *
-     * @param node   Mesh node this message is to be sent to.
      * @param aszmic Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigProxySet(final ProvisionedMeshNode node, @ProxyState final int proxyState, final int aszmic) {
-        super(node, aszmic);
+    public ConfigProxySet(@ProxyState final int proxyState, final int aszmic) {
+        super(aszmic);
         this.proxyState = proxyState;
         assembleMessageParameters();
     }

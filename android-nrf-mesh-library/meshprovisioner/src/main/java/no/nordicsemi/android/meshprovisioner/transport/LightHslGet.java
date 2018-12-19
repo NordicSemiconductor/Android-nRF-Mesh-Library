@@ -19,15 +19,13 @@ public class LightHslGet extends GenericMessage {
     /**
      * Constructs LightHslGet message.
      *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightHslGet(@NonNull final ProvisionedMeshNode node,
-                       @NonNull final byte[] appKey,
+    public LightHslGet(@NonNull final byte[] appKey,
                        final int aszmic) throws IllegalArgumentException {
-        super(node, appKey, aszmic);
+        super(appKey, aszmic);
         assembleMessageParameters();
     }
 

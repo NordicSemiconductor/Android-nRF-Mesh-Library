@@ -11,20 +11,30 @@ import android.util.Log;
 public final class ConfigRelaySetState extends ConfigMessageState {
 
     private static final String TAG = ConfigRelaySetState.class.getSimpleName();
+    private final byte[] mDeviceKey;
 
     /**
      * Constructs the state for {@link ConfigRelayGet} message
      *
      * @param context        context
+     * @param src            source address
+     * @param dst            destination address
+     * @param deviceKey      device key
      * @param configRelaySet {@link ConfigRelaySet} message
      * @param meshTransport  {@link MeshTransport}
      * @param callbacks      {@link InternalMeshMsgHandlerCallbacks} Internal mesh handler callbacks
      */
     ConfigRelaySetState(@NonNull final Context context,
+                        @NonNull final byte[] src,
+                        @NonNull final byte[] dst,
+                        @NonNull final byte[] deviceKey,
                         @NonNull final ConfigRelaySet configRelaySet,
                         @NonNull final MeshTransport meshTransport,
                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, configRelaySet, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
+        this.mDeviceKey = deviceKey;
         createAccessMessage();
     }
 
@@ -34,14 +44,13 @@ public final class ConfigRelaySetState extends ConfigMessageState {
     }
 
     private void createAccessMessage() {
-        final byte[] key = mNode.getDeviceKey();
         final ConfigRelaySet configRelaySet = (ConfigRelaySet) mMeshMessage;
         final int akf = configRelaySet.getAkf();
         final int aid = configRelaySet.getAid();
         final int aszmic = configRelaySet.getAszmic();
         final int opCode = configRelaySet.getOpCode();
         final byte[] parameters = configRelaySet.getParameters();
-        message = mMeshTransport.createMeshMessage(mNode, mSrc, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mDeviceKey, akf, aid, aszmic, opCode, parameters);
         configRelaySet.setMessage(message);
     }
 
@@ -52,7 +61,7 @@ public final class ConfigRelaySetState extends ConfigMessageState {
 
         if (message.getNetworkPdu().size() > 0) {
             if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 }

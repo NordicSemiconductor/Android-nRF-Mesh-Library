@@ -31,7 +31,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 /**
  * To be used as a wrapper class for when creating the ConfigAppKeyStatus Message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ConfigNodeResetStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigNodeResetStatus.class.getSimpleName();
@@ -40,11 +40,10 @@ public class ConfigNodeResetStatus extends ConfigStatusMessage implements Parcel
     /**
      * Constructs the ConfigAppKeyStatus mMessage.
      *
-     * @param node    Node from which the mMessage originated from
      * @param message Access Message
      */
-    public ConfigNodeResetStatus(final ProvisionedMeshNode node, @NonNull final AccessMessage message) {
-        super(node, message);
+    public ConfigNodeResetStatus(@NonNull final AccessMessage message) {
+        super(message);
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
@@ -52,9 +51,8 @@ public class ConfigNodeResetStatus extends ConfigStatusMessage implements Parcel
     private static final Creator<ConfigNodeResetStatus> CREATOR = new Creator<ConfigNodeResetStatus>() {
         @Override
         public ConfigNodeResetStatus createFromParcel(Parcel in) {
-            final ProvisionedMeshNode meshNode = (ProvisionedMeshNode) in.readValue(ProvisionedMeshNode.class.getClassLoader());
             final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigNodeResetStatus(meshNode, message);
+            return new ConfigNodeResetStatus(message);
         }
 
         @Override
@@ -80,7 +78,6 @@ public class ConfigNodeResetStatus extends ConfigStatusMessage implements Parcel
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mNode);
         dest.writeValue(mMessage);
     }
 }
