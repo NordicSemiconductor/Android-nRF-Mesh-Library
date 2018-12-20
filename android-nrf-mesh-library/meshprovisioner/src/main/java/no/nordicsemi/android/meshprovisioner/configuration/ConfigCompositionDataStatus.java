@@ -98,6 +98,26 @@ public final class ConfigCompositionDataStatus extends ConfigMessageState {
     }
 
     /**
+     * Get an *unsigned* byte from buffer
+     *
+     * @param buffer    underlying buffer
+     * @param offset    offset to start parsing from
+     */
+    private int getUnsignedByte(final byte[] buffer, final int offset) {
+        return buffer[offset] & 0xff;
+    }
+
+    /**
+     * Get an *unsigned* 16bit word (little endian) from buffer
+     *
+     * @param buffer    underlying buffer
+     * @param offset    offset to start parsing from
+     */
+    private int getUnsignedWord(final byte[] buffer, final int offset) {
+        return getUnsignedByte(buffer, offset + 1) << 8 | getUnsignedByte(buffer, offset);
+    }
+
+    /**
      * Parses the identifiers and the payloads
      *
      * @param message underlying access message
@@ -107,23 +127,23 @@ public final class ConfigCompositionDataStatus extends ConfigMessageState {
         final byte[] accessPayload = message.getAccessPdu();
 
         //Bluetooth SIG 16-bit company identifier
-        companyIdentifier = accessPayload[3] << 8 | accessPayload[2];
+        companyIdentifier = getUnsignedWord(accessPayload, offset + 0);
         Log.v(TAG, "Company identifier: " + String.format(Locale.US, "%04X", companyIdentifier));
 
         //16-bit vendor-assigned product identifier;
-        productIdentifier = accessPayload[5] << 8 | accessPayload[4];
+        productIdentifier = getUnsignedWord(accessPayload, offset + 2);
         Log.v(TAG, "Product identifier: " + String.format(Locale.US, "%04X", productIdentifier));
 
         //16-bit vendor-assigned product version identifier;
-        versionIdentifier = accessPayload[7] << 8 | accessPayload[6];
+        versionIdentifier = getUnsignedWord(accessPayload, offset + 4);
         Log.v(TAG, "Version identifier: " + String.format(Locale.US, "%04X", versionIdentifier));
 
         //16-bit representation of the minimum number of replay protection list entries in a device
-        crpl = accessPayload[9] << 8 | accessPayload[8];
+        crpl = getUnsignedWord(accessPayload, offset + 6);
         Log.v(TAG, "crpl: " + String.format(Locale.US, "%04X", crpl));
 
         //16-bit device features
-        features = accessPayload[11] << 8 | accessPayload[10];
+        features = getUnsignedWord(accessPayload, offset + 8);
         Log.v(TAG, "Features: " + String.format(Locale.US, "%04X", features));
 
         relayFeatureSupported = DeviceFeatureUtils.supportsRelayFeature(features);
