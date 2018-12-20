@@ -46,15 +46,6 @@ public abstract class MeshMessage {
     abstract byte[] getParameters();
 
     /**
-     * Returns the mesh node this message must be sent to.
-     *
-     * @return provisioned mesh node
-     */
-    public final ProvisionedMeshNode getMeshNode(){
-        return null;
-    }
-
-    /**
      * Returns the size of message integrity check used for this message.
      *
      * @return aszmic

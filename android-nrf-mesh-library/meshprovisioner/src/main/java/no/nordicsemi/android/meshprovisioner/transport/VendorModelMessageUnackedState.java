@@ -25,6 +25,8 @@ class VendorModelMessageUnackedState extends GenericMessageState {
                                    @NonNull final MeshTransport meshTransport,
                                    @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
         super(context, src, dst, vendorModelMessageUnacked, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
         createAccessMessage();
     }
 
@@ -38,7 +40,6 @@ class VendorModelMessageUnackedState extends GenericMessageState {
      */
     private void createAccessMessage() {
         final VendorModelMessageUnacked vendorModelMessageUnacked = (VendorModelMessageUnacked) mMeshMessage;
-        final byte[] src = vendorModelMessageUnacked.getMeshNode().getConfigurationSrc();
         final byte[] key = vendorModelMessageUnacked.getAppKey();
         final int akf = vendorModelMessageUnacked.getAkf();
         final int aid = vendorModelMessageUnacked.getAid();
@@ -46,7 +47,7 @@ class VendorModelMessageUnackedState extends GenericMessageState {
         final int opCode = vendorModelMessageUnacked.getOpCode();
         final byte[] parameters = vendorModelMessageUnacked.getParameters();
         final int companyIdentifier = vendorModelMessageUnacked.getCompanyIdentifier();
-        message = mMeshTransport.createVendorMeshMessage(companyIdentifier, src, mDst, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createVendorMeshMessage(companyIdentifier, mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
         vendorModelMessageUnacked.setMessage(message);
     }
 
