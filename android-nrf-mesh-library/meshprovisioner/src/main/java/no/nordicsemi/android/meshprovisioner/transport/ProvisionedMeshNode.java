@@ -34,6 +34,7 @@ import android.support.annotation.VisibleForTesting;
 import com.google.gson.annotations.Expose;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -176,6 +177,38 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     public final Map<Integer, Element> getElements() {
         return mElements;
+    }
+
+    /**
+     * Check if an unicast address is the address of an element
+     *
+     * @param unicastAddress    the address to check
+     * @return if this address is the address of an element
+     */
+    public final boolean hasUnicastAddress(final byte [] unicastAddress) {
+        if (Arrays.equals(unicastAddress, this.unicastAddress))
+            return true;
+        for (Element element:  mElements.values()) {
+            if (Arrays.equals(unicastAddress, element.getElementAddress()))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if an unicast address is the address of an element
+     *
+     * @param unicastAddress    the address to check
+     * @return if this address is the address of an element
+     */
+    public final boolean hasUnicastAddress(final int unicastAddress) {
+        if (unicastAddress == getUnicastAddressInt())
+            return true;
+        for (Element element:  mElements.values()) {
+            if (element.getElementAddressInt() == unicastAddress)
+                return true;
+        }
+        return false;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)

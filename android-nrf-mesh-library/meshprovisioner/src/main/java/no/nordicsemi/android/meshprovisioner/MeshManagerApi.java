@@ -860,12 +860,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     };
 
     private ProvisionedMeshNode getMeshNode(final int unicast){
-        for (ProvisionedMeshNode node : mMeshNetwork.getProvisionedNodes()) {
-            if (unicast == node.getUnicastAddressInt()) {
-                return node;
-            }
-        }
-        return null;
+        return mMeshNetwork.getProvisionedNode(unicast);
     }
 
     @SuppressWarnings("FieldCanBeLocal")
