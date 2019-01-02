@@ -1,6 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -23,18 +24,27 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     private static final String TAG = MeshMessageState.class.getSimpleName();
 
     protected final Context mContext;
-    protected final MeshMessage mMeshMessage;
+    protected MeshMessage mMeshMessage;
     final MeshTransport mMeshTransport;
     protected byte[] mSrc;
     protected byte[] mDst;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     protected MeshStatusCallbacks mMeshStatusCallbacks;
     private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
-    protected AccessMessage message;
+    protected Message message;
     private boolean isIncompleteTimerExpired;
 
-    MeshMessageState(final Context context, final MeshMessage meshMessage,
-                     final MeshTransport meshTransport, final InternalMeshMsgHandlerCallbacks callbacks) {
+    /**
+     * Constructs the base mesh message state class
+     * @param context Context
+     * @param meshMessage {@link MeshMessage} Mesh message
+     * @param meshTransport {@link MeshTransport} Mesh transport
+     * @param callbacks {@link InternalMeshMsgHandlerCallbacks} Internal mesh message handler callbacks
+     */
+    MeshMessageState(@NonNull final Context context,
+                     @NonNull final MeshMessage meshMessage,
+                     @NonNull final MeshTransport meshTransport,
+                     @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         this.mContext = context;
         this.mMeshMessage = meshMessage;
         this.message = meshMessage.getMessage();
