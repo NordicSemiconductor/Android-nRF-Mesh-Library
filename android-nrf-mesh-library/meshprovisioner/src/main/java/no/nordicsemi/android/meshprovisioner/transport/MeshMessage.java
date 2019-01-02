@@ -9,7 +9,7 @@ public abstract class MeshMessage {
 
     private final int mAszmic;
     byte[] mParameters;
-    protected AccessMessage mMessage;
+    protected Message mMessage;
 
     MeshMessage(final int aszmic) {
         if (aszmic != 1 && aszmic != 0)
@@ -58,14 +58,14 @@ public abstract class MeshMessage {
      * Set the access message
      * @param message access message
      */
-    void setMessage(@NonNull final AccessMessage message){
+    void setMessage(@NonNull final Message message){
         mMessage = message;
     }
 
     /**
      * Returns the message
      */
-    public AccessMessage getMessage(){
+    public Message getMessage(){
         return mMessage;
     }
 
