@@ -453,12 +453,12 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     void sendGetCompositionData() {
         final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
         final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
-        mMeshManagerApi.sendMeshConfigurationMessage(node.getUnicastAddress(), configCompositionDataGet);
+        mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), configCompositionDataGet);
     }
 
     void sendAppKeyAdd(final ConfigAppKeyAdd configAppKeyAdd) {
         final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
-        mMeshManagerApi.sendMeshConfigurationMessage(node.getUnicastAddress(), configAppKeyAdd);
+        mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), configAppKeyAdd);
     }
 
     @Override
@@ -525,7 +525,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 //Adding a slight delay here so we don't send anything before we receive the mesh beacon message
                 final ProvisionedMeshNode node = mProvisionedMeshNodeLiveData.getValue();
                 final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet();
-                mHandler.postDelayed(() -> mMeshManagerApi.sendMeshConfigurationMessage(node.getUnicastAddress(), compositionDataGet), 2000);
+                mHandler.postDelayed(() -> mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), compositionDataGet), 2000);
             }
             mIsConnectedToProxy.postValue(true);
         }
@@ -752,7 +752,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     mHandler.postDelayed(() -> {
                         final ApplicationKey appKey = mMeshNetworkLiveData.getSelectedAppKey();
                         final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node.getAddedNetworkKeys().get(0), appKey);
-                        mMeshManagerApi.sendMeshConfigurationMessage(node.getUnicastAddress(), configAppKeyAdd);
+                        mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), configAppKeyAdd);
                     }, 2500);
                 }
             } else {

@@ -270,7 +270,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final byte[] elementAddress = mViewModel.getSelectedElement().getElement().getElementAddress();
         final int modelIdentifier = mViewModel.getSelectedModel().getMeshModel().getModelId();
         final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, subscriptionAddress, modelIdentifier);
-        mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
+        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
         showProgressbar();
     }
 
@@ -313,7 +313,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
         final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(element.getElementAddress(), model.getModelId(), appKeyIndex);
-        mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
         showProgressbar();
     }
 
@@ -325,7 +325,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final Element element = mViewModel.getSelectedElement().getElement();
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
             final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(element.getElementAddress(), model.getModelId(), keyIndex);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+            mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
             showProgressbar();
         }
     }
@@ -349,7 +349,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                 final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), publishAddress,
                         appKeyIndex, credentialFlag, publishTtl, publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId());
                 if (!model.getBoundAppKeyIndexes().isEmpty()) {
-                    mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), configModelPublicationSet);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configModelPublicationSet);
                     showProgressbar();
                 } else {
                     Toast.makeText(this, getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
@@ -370,7 +370,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final boolean credentialFlag = meshModel.getPublicationSettings().getCredentialFlag();
             final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), address, appKeyIndex,
                     credentialFlag, 0, 0, 0, 0, 0, meshModel.getModelId());
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
+            mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
             showProgressbar();
         } else {
             Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
@@ -385,7 +385,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
             final ConfigModelSubscriptionDelete configModelAppUnbind = new ConfigModelSubscriptionDelete(element.getElementAddress(),
                     address, model.getModelId());
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+            mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
             showProgressbar();
         }
     }

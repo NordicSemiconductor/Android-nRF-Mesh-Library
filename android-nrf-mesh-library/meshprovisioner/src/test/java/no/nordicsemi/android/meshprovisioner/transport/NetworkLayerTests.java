@@ -202,4 +202,54 @@ public class NetworkLayerTests {
             }
         }
     }
+
+
+
+    @Test
+    public void create_proxy_pdu_isCorrect() {
+        //Message #6
+
+        final Map<Integer, String> expectedProxyConfigurationPdu = new HashMap<>();
+        expectedProxyConfigurationPdu.put(0, "0210386bd60efbbb8b8c28512e792d3711f4b526".toUpperCase());
+
+        final byte[] netkey = MeshParserUtils.toByteArray("d1aafb2a1a3c281cbdb0e960edfad852");
+
+        final int ctl = 0x00;
+        final int ttl = 0x04;
+        final byte[] sequenceNumber = MeshParserUtils.toByteArray("000001");
+        final byte[] src = MeshParserUtils.toByteArray("0001");
+        final byte[] dst = MeshParserUtils.toByteArray("0000");
+
+        final byte[] lowerTransportPdu0 = MeshParserUtils.toByteArray("0000".toUpperCase());
+        final byte[] ivIndex = MeshParserUtils.toByteArray("12345678");
+
+        final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(netkey, SecureUtils.K2_MASTER_INPUT);
+        final ProvisionedMeshNode meshNode = new ProvisionedMeshNode();
+        meshNode.setK2Output(k2Output);
+
+        final MeshTransport meshLayerTestBase = new MeshTransport(context, meshNode);
+        final AccessMessage accessMessage = new AccessMessage();
+        accessMessage.setTtl(ttl);
+        accessMessage.setSrc(src);
+        accessMessage.setDst(dst);
+        accessMessage.setSequenceNumber(sequenceNumber);
+        accessMessage.setIvIndex(ivIndex);
+        final SparseArray<byte[]> lowerTransportAccessPdu = new SparseArray<>();
+        lowerTransportAccessPdu.put(0, lowerTransportPdu0);
+        accessMessage.setLowerTransportAccessPdu(lowerTransportAccessPdu);
+
+        final Message message = meshLayerTestBase.createNetworkLayerPDU(accessMessage);
+
+        final SparseArray<byte[]> actualNetworkTransportPdu = message.getNetworkPdu();
+
+        Assert.assertFalse("Segment count does not match", expectedProxyConfigurationPdu.size() != actualNetworkTransportPdu.size());
+
+        if (expectedProxyConfigurationPdu.size() == actualNetworkTransportPdu.size()) {
+            final int size = actualNetworkTransportPdu.size();
+            for (int i = 0; i < size; i++) {
+                final byte[] actualTransportPDU = actualNetworkTransportPdu.get(i);
+                assertEquals(expectedProxyConfigurationPdu.get(i), MeshParserUtils.bytesToHex(actualTransportPDU, false));
+            }
+        }
+    }
 }

@@ -223,7 +223,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
             Log.v(TAG, "Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
 
             final GenericLevelGet genericLevelGet = new GenericLevelGet(appKey);
-            mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, genericLevelGet);
+            mViewModel.getMeshManagerApi().sendMeshMessage(address, genericLevelGet);
         } else {
             Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
         }
@@ -250,13 +250,13 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                         Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
                                 + ". Sending acknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
                         message = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level, node.getReceivedSequenceNumber());
-                        mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, message);
+                        mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
                         showProgressbar();
                     } else {
                         Log.v(TAG, "Group subscription address found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
                                 + ". Sending unacknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
                         message = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level,node.getReceivedSequenceNumber());
-                        mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, message);
+                        mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
                     }
                 }
             } else {
@@ -264,7 +264,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
                         + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
                 final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level,node.getReceivedSequenceNumber());
-                mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, genericLevelSet);
+                mViewModel.getMeshManagerApi().sendMeshMessage(address, genericLevelSet);
             }
             showProgressbar();
         } else {

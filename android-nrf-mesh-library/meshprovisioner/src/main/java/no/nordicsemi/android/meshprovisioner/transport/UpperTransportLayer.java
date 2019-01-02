@@ -32,7 +32,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 abstract class UpperTransportLayer extends AccessLayer {
-
+    static final int PROXY_CONFIG_OPCODE_LENGTH = 1;
     static final int MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH = 12;
     static final int MAX_UNSEGMENTED_CONTROL_PAYLOAD_LENGTH = 11;
     static final int MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH = 8;
@@ -66,11 +66,15 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @param message The access message required to create the encrypted upper transport pdu
      */
     void createMeshMessage(final Message message) { //Access message
-        super.createMeshMessage(message);
-        final AccessMessage accessMessage = (AccessMessage) message;
-        final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
-        Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
-        accessMessage.setUpperTransportPdu(encryptedTransportPDU);
+        if(message instanceof AccessMessage) {
+            super.createMeshMessage(message);
+            final AccessMessage accessMessage = (AccessMessage) message;
+            final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
+            Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
+            accessMessage.setUpperTransportPdu(encryptedTransportPDU);
+        } else {
+            createUpperTransportPDU(message);
+        }
     }
 
     /**
@@ -89,13 +93,35 @@ abstract class UpperTransportLayer extends AccessLayer {
     /**
      * Creates the upper transport access pdu
      *
-     * @param accessMessage The access message required to create the encrypted upper transport pdu
+     * @param message The message required to create the encrypted upper transport pdu
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    void createUpperTransportPDU(final AccessMessage accessMessage) { //Access message
-        final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
-        Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
-        accessMessage.setUpperTransportPdu(encryptedTransportPDU);
+    void createUpperTransportPDU(final Message message) {
+        if(message instanceof AccessMessage) {
+            //Access message
+            final AccessMessage accessMessage = (AccessMessage) message;
+            final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
+            Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
+            accessMessage.setUpperTransportPdu(encryptedTransportPDU);
+        } else {
+            final ControlMessage controlMessage = (ControlMessage) message;
+            final int opCode = controlMessage.getOpCode();
+            final byte[] parameters = controlMessage.getParameters();
+            final ByteBuffer accessMessageBuffer;
+            if (parameters != null) {
+                accessMessageBuffer = ByteBuffer.allocate(PROXY_CONFIG_OPCODE_LENGTH + parameters.length)
+                        .order(ByteOrder.BIG_ENDIAN)
+                        .put((byte) opCode)
+                        .put(parameters);
+            } else {
+                accessMessageBuffer = ByteBuffer.allocate(PROXY_CONFIG_OPCODE_LENGTH);
+                accessMessageBuffer.put((byte) opCode);
+            }
+            final byte[] accessPdu = accessMessageBuffer.array();
+
+            Log.v(TAG, "Created Transport Control PDU " + MeshParserUtils.bytesToHex(accessPdu, false));
+            controlMessage.setTransportControlPdu(accessPdu);
+        }
     }
 
     /**

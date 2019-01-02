@@ -1,8 +1,5 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import no.nordicsemi.android.meshprovisioner.opcodes.ProxyConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 
@@ -19,17 +16,14 @@ public class ProxyConfigSetFilterType extends ProxyConfigMessage {
      *
      * @param filterType Filter type set by the proxy configuration
      */
-    ProxyConfigSetFilterType(final ProxyFilterType filterType) {
-        super(0);
+    public ProxyConfigSetFilterType(final ProxyFilterType filterType) {
         this.filterType = filterType;
+        assembleMessageParameters();
     }
 
     @Override
     void assembleMessageParameters() {
-        mParameters = ByteBuffer.allocate(4)
-                .order(ByteOrder.BIG_ENDIAN)
-                .putInt(filterType.getFilterType())
-                .array();
+        mParameters = new byte[]{(byte) filterType.getFilterType()};
     }
 
     @Override

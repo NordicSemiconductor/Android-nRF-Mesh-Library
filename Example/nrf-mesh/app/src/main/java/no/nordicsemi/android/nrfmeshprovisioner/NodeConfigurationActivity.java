@@ -60,7 +60,6 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeResetStatus;
-import no.nordicsemi.android.meshprovisioner.transport.ConfigProxyGet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigProxySet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigProxyStatus;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
@@ -68,6 +67,8 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigSetFilterType;
+import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddedAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -199,7 +200,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             showProgressbar();
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
             final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), configCompositionDataGet);
+            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configCompositionDataGet);
         });
 
         actionAddAppkey.setOnClickListener(v -> {
@@ -212,8 +213,11 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
         actionGetProxyState.setOnClickListener(v -> {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-            final ConfigProxyGet configProxyGet = new ConfigProxyGet();
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), configProxyGet);
+            /*final ConfigProxyGet configProxyGet = new ConfigProxyGet();
+            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configProxyGet);*/
+            final ProxyConfigSetFilterType setFilterType = new ProxyConfigSetFilterType(new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER));
+            mViewModel.getMeshManagerApi().sendMeshMessage(new byte[] {0x00, 0x00}, setFilterType);
+
         });
 
         actionSetProxyState.setOnClickListener(v -> {
@@ -276,7 +280,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
                     final NetworkKey networkKey = mViewModel.getMeshManagerApi().getMeshNetwork().getPrimaryNetworkKey();
                     final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
-                    mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), configAppKeyAdd);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configAppKeyAdd);
                 }
             }
         }
@@ -330,7 +334,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         try {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
             final ConfigNodeReset configNodeReset = new ConfigNodeReset();
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), configNodeReset);
+            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configNodeReset);
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
         }
@@ -341,7 +345,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         try {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
             final ConfigProxySet configProxySet = new ConfigProxySet(state);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(),configProxySet);
+            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(),configProxySet);
             mRequestedState = state == 1;
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());

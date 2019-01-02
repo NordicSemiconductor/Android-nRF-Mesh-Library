@@ -41,7 +41,7 @@ public class ProxyFilterType {
      *
      * @param filterType {@link FilterTypes} supported by the proxy
      */
-    ProxyFilterType(@FilterTypes final int filterType) {
+    public ProxyFilterType(@FilterTypes final int filterType) {
         this.filterType = filterType;
     }
 

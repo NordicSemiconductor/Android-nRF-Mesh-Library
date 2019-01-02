@@ -211,7 +211,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             Log.v(TAG, "Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
 
             final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey);
-            mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, genericOnOffSet);
+            mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
             showProgressbar();
         } else {
             Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
@@ -238,7 +238,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                     Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
                             + ". Sending acknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
                     message = new GenericOnOffSet(appKey, state, delay,node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution);
-                    mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, message);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
                     showProgressbar();
                 }
             } else {
@@ -246,7 +246,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                 Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
                         + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
                 final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state, node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
-                mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, genericOnOffSet);
+                mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
             }
         } else {
             Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();

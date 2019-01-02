@@ -19,7 +19,6 @@ public class ProxyConfigRemoveAddressFromFilter extends ProxyConfigMessage {
      * @param addresses List of addresses to be added to the filter
      */
     ProxyConfigRemoveAddressFromFilter(final List<AddressArray> addresses) {
-        super(0);
         this.addresses = addresses;
     }
 

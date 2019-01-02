@@ -124,20 +124,9 @@ interface MeshMngrApi {
     /**
      * Sends the specified  mesh message specified within the {@link MeshMessage} object
      * @param dst
-     * @param configurationMessage {@link MeshMessage} Mesh message containing the message opcode and message parameters
+     * @param meshMessage {@link MeshMessage} Mesh message containing the message opcode and message parameters
      */
-    void sendMeshConfigurationMessage(@NonNull final byte[] dst, @NonNull final MeshMessage configurationMessage);
-
-    /**
-     * Sends the specified mesh message specified within the {@link MeshMessage} class
-     * <p> This method can be used specifically when sending an application message with a unicast address or a group address.
-     * Application messages currently supported in the library are {@link GenericOnOffGet},{@link GenericOnOffSet}, {@link GenericOnOffSetUnacknowledged},
-     * {@link GenericLevelGet},  {@link GenericLevelSet},  {@link GenericLevelSetUnacknowledged},
-     * {@link VendorModelMessageAcked} and {@link VendorModelMessageUnacked}</p>
-     *  @param dstAddress     Destination to which the message must be sent to, this could be a unicast address or a group address.
-     * @param genericMessage Mesh message containing the message opcode and message parameters.
-     */
-    void sendMeshApplicationMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage genericMessage);
+    void sendMeshMessage(@NonNull final byte[] dst, @NonNull final MeshMessage meshMessage);
 
     /**
      * Exports mesh network to a json file

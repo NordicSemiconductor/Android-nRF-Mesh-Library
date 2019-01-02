@@ -34,6 +34,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public final class MeshTransport extends NetworkLayer {
 
     private static final String TAG = MeshTransport.class.getSimpleName();
+    private static final int PROXY_CONFIGURATION_TTL = 0;
 
     MeshTransport(final Context context) {
         this.mContext = context;
@@ -216,11 +217,12 @@ public final class MeshTransport extends NetworkLayer {
         final ControlMessage message = new ControlMessage();
         message.setSrc(src);
         message.setDst(dst);
+        message.setTtl(PROXY_CONFIGURATION_TTL); //TTL for proxy configuration messages are set to 0
         message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         message.setSequenceNumber(sequenceNum);
         message.setOpCode(opcode);
         message.setParameters(parameters);
-        message.setPduType(MeshManagerApi.PDU_TYPE_NETWORK);
+        message.setPduType(MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION);
 
         super.createMeshMessage(message);
         return message;

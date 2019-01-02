@@ -219,18 +219,18 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
             message = new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
             final List<byte[]> addresses = model.getNonGroupAddresses();
             for (byte[] address : addresses) {
-                mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, message);
+                mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
             }
-            mViewModel.getMeshManagerApi().sendMeshApplicationMessage(element.getElementAddress(), message);
+            mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
         } else {
             message = new VendorModelMessageUnacked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
             final List<byte[]> addresses = model.getSubscriptionAddresses();
             //Send to unicast if empty
             if(addresses.isEmpty()) {
-                mViewModel.getMeshManagerApi().sendMeshApplicationMessage(element.getElementAddress(), message);
+                mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
             } else {
                 for (byte[] address : addresses) {
-                    mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, message);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
                 }
             }
         }

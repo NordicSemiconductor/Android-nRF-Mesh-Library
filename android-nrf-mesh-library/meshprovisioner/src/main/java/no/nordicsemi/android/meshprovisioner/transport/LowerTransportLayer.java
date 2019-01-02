@@ -80,15 +80,11 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
 
     @Override
     void createMeshMessage(final Message message) {
+        super.createMeshMessage(message);
         if (message instanceof AccessMessage) {
-            super.createMeshMessage(message);
             createLowerTransportAccessPDU((AccessMessage) message);
         } else {
-            switch (message.getPduType()) {
-                case MeshManagerApi.PDU_TYPE_NETWORK:
-                    createLowerTransportControlPDU((ControlMessage) message);
-                    break;
-            }
+            createLowerTransportControlPDU((ControlMessage) message);
         }
     }
 
@@ -123,13 +119,21 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     @Override
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public final void createLowerTransportControlPDU(final ControlMessage message) {
-        final byte[] transportControlPdu = message.getTransportControlPdu();
-        if (transportControlPdu.length <= MAX_UNSEGMENTED_CONTROL_PAYLOAD_LENGTH) {
-            Log.v(TAG, "Creating unsegmented transport control");
-            createUnsegmentedControlMessage(message);
-        } else {
-            Log.v(TAG, "Creating segmented transport control");
-            createSegmentedControlMessage(message);
+        switch (message.getPduType()) {
+            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
+                final SparseArray<byte[]> lowerTransportControlPduArray = new SparseArray<>();
+                lowerTransportControlPduArray.put(0, message.getTransportControlPdu());
+                message.setLowerTransportControlPdu(lowerTransportControlPduArray);
+                break;
+            case MeshManagerApi.PDU_TYPE_NETWORK:
+                final byte[] transportControlPdu = message.getTransportControlPdu();
+                if (transportControlPdu.length <= MAX_UNSEGMENTED_CONTROL_PAYLOAD_LENGTH) {
+                    Log.v(TAG, "Creating unsegmented transport control");
+                    createUnsegmentedControlMessage(message);
+                } else {
+                    Log.v(TAG, "Creating segmented transport control");
+                    createSegmentedControlMessage(message);
+                }
         }
     }
 

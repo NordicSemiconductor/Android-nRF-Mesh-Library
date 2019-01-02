@@ -93,18 +93,17 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
         final byte[] src = message.getSrc();
         final SparseArray<byte[]> lowerTransportPduMap;
-        if (message instanceof AccessMessage) {
-            lowerTransportPduMap = ((AccessMessage) message).getLowerTransportAccessPdu();
-        } else {
-            lowerTransportPduMap = ((ControlMessage) message).getLowerTransportControlPdu();
-        }
-
         final SparseArray<byte[]> encryptedNetworkPduPayloadMap = new SparseArray<>();
         final List<byte[]> sequenceNumbers = new ArrayList<>();
 
         final int pduType = message.getPduType();
         switch (message.getPduType()) {
             case MeshManagerApi.PDU_TYPE_NETWORK:
+                if (message instanceof AccessMessage) {
+                    lowerTransportPduMap = ((AccessMessage) message).getLowerTransportAccessPdu();
+                } else {
+                    lowerTransportPduMap = ((ControlMessage) message).getLowerTransportControlPdu();
+                }
                 for (int i = 0; i < lowerTransportPduMap.size(); i++) {
                     final byte[] lowerTransportPdu = lowerTransportPduMap.get(i);
                     if (i != 0) {
@@ -120,11 +119,13 @@ public abstract class NetworkLayer extends LowerTransportLayer {
                 }
                 break;
             case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
+                lowerTransportPduMap = ((ControlMessage) message).getLowerTransportControlPdu();
                 for (int i = 0; i < lowerTransportPduMap.size(); i++) {
                     final byte[] lowerTransportPdu = lowerTransportPduMap.get(i);
                     final int sequenceNumber = incrementSequenceNumber(message.getSrc());
                     final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
                     message.setSequenceNumber(sequenceNum);
+                    sequenceNumbers.add(message.getSequenceNumber());
                     final byte[] encryptedPayload = encryptProxyConfigurationPduPayload(message, lowerTransportPdu, encryptionKey);
                     encryptedNetworkPduPayloadMap.put(i, encryptedPayload);
                     Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedPayload, false));
