@@ -45,12 +45,10 @@ public class ConfigAppKeyAdd extends ConfigMessage {
     /**
      * Constructs ConfigAppKeyAdd message.
      *
-     * @param appKey      application key for this message
-     * @param aszmic      size of message integrity check
+     * @param appKey application key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigAppKeyAdd(@NonNull final NetworkKey networkKey, @NonNull final ApplicationKey appKey, final int aszmic) throws IllegalArgumentException {
-        super(aszmic);
+    public ConfigAppKeyAdd(@NonNull final NetworkKey networkKey, @NonNull final ApplicationKey appKey) throws IllegalArgumentException {
         if (networkKey != null && networkKey.getKey().length != 16)
             throw new IllegalArgumentException("Network key must be 16 bytes");
 
@@ -61,6 +59,7 @@ public class ConfigAppKeyAdd extends ConfigMessage {
         this.mAppKey = appKey;
         assembleMessageParameters();
     }
+
     /**
      * Returns the Network key that is needs to be sent to the node
      *

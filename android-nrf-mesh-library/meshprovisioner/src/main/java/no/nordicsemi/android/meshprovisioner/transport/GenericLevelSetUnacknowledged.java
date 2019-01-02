@@ -31,17 +31,15 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
     /**
      * Constructs GenericLevelSetUnacknowledged message.
      *
-     * @param appKey      application key for this message
-     * @param level       level of the GenericLevelModel
-     * @param tId                  transaction id
-     * @param aszmic      size of message integrity check
+     * @param appKey application key for this message
+     * @param level  level of the GenericLevelModel
+     * @param tId    transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public GenericLevelSetUnacknowledged(@NonNull final byte[] appKey,
                                          final int level,
-                                         final int tId,
-                                         final int aszmic) throws IllegalArgumentException {
-        this(appKey, null, null, null, level, tId, aszmic);
+                                         final int tId) throws IllegalArgumentException {
+        this(appKey, null, null, null, level, tId);
     }
 
     /**
@@ -53,7 +51,6 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
      * @param level                level of the GenericLevelModel
      * @param tId                  transaction id
-     * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
@@ -62,9 +59,8 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
                                          @Nullable final Integer transitionResolution,
                                          @Nullable final Integer delay,
                                          final int level,
-                                         final int tId,
-                                         final int aszmic) throws IllegalArgumentException {
-        super(appKey, aszmic);
+                                         final int tId) throws IllegalArgumentException {
+        super(appKey);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

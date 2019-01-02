@@ -61,6 +61,17 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
         indices = @Index("mesh_uuid"))
 public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
+    public static final Creator<ProvisionedMeshNode> CREATOR = new Creator<ProvisionedMeshNode>() {
+        @Override
+        public ProvisionedMeshNode createFromParcel(Parcel in) {
+            return new ProvisionedMeshNode(in);
+        }
+
+        @Override
+        public ProvisionedMeshNode[] newArray(int size) {
+            return new ProvisionedMeshNode[size];
+        }
+    };
     @Ignore
     @Expose
     private SecureUtils.K2Output k2Output;
@@ -157,18 +168,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeValue((byte) (blackListed ? 1 : 0));
     }
 
-    public static final Creator<ProvisionedMeshNode> CREATOR = new Creator<ProvisionedMeshNode>() {
-        @Override
-        public ProvisionedMeshNode createFromParcel(Parcel in) {
-            return new ProvisionedMeshNode(in);
-        }
-
-        @Override
-        public ProvisionedMeshNode[] newArray(int size) {
-            return new ProvisionedMeshNode[size];
-        }
-    };
-
     @Override
     public int describeContents() {
         return 0;
@@ -199,6 +198,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     /**
      * Sets the received sequence number
      * <p>This is only meant to be used internally within the library, hence the Restricted annotation</p>
+     *
      * @param receivedSequenceNumber sequence number of the message received from a node
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -266,6 +266,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     /**
      * Set {@link Features} of the node
+     *
      * @param features feature set supported by the node
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -316,7 +317,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * Returns the number of elements in the node
      */
     public int getNumberOfElements() {
-        if(numberOfElements > mElements.size()){
+        if (numberOfElements > mElements.size()) {
             return numberOfElements;
         }
 

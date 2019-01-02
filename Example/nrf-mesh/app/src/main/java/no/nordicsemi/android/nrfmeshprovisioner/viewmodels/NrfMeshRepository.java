@@ -452,7 +452,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     void sendGetCompositionData() {
         final ProvisionedMeshNode node = mExtendedMeshNode.getMeshNode();
-        final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet(0);
+        final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
         mMeshManagerApi.sendMeshConfigurationMessage(node.getUnicastAddress(), configCompositionDataGet);
     }
 
@@ -524,7 +524,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             if (mSetupProvisionedNode) {
                 //Adding a slight delay here so we don't send anything before we receive the mesh beacon message
                 final ProvisionedMeshNode node = mProvisionedMeshNodeLiveData.getValue();
-                final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet(0);
+                final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet();
                 mHandler.postDelayed(() -> mMeshManagerApi.sendMeshConfigurationMessage(node.getUnicastAddress(), compositionDataGet), 2000);
             }
             mIsConnectedToProxy.postValue(true);
@@ -751,7 +751,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 if (!mMeshNetwork.getAppKeys().isEmpty()) {
                     mHandler.postDelayed(() -> {
                         final ApplicationKey appKey = mMeshNetworkLiveData.getSelectedAppKey();
-                        final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node.getAddedNetworkKeys().get(0), appKey, 0);
+                        final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node.getAddedNetworkKeys().get(0), appKey);
                         mMeshManagerApi.sendMeshConfigurationMessage(node.getUnicastAddress(), configAppKeyAdd);
                     }, 2500);
                 }

@@ -399,7 +399,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
      * This method will drop messages with an invalid sequence number as all mesh messages are supposed to have a sequence
      * </p>
      *
-     * @param data             pdu received from the mesh node
+     * @param data pdu received from the mesh node
      * @return complete {@link Message} that was successfully parsed or null otherwise
      */
     final Message parseMeshMessage(final byte[] data) {

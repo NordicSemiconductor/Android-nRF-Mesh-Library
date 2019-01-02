@@ -43,7 +43,18 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implement
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_STATUS;
     private static final int CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH = 7;
     private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL_PDU_LENGTH = 9;
+    private static final Creator<ConfigModelSubscriptionStatus> CREATOR = new Creator<ConfigModelSubscriptionStatus>() {
+        @Override
+        public ConfigModelSubscriptionStatus createFromParcel(Parcel in) {
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new ConfigModelSubscriptionStatus(message);
+        }
 
+        @Override
+        public ConfigModelSubscriptionStatus[] newArray(int size) {
+            return new ConfigModelSubscriptionStatus[size];
+        }
+    };
     private int mElementAddress;
     private int mModelIdentifier;
     private byte[] mSubscriptionAddress;
@@ -58,19 +69,6 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implement
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
-
-    private static final Creator<ConfigModelSubscriptionStatus> CREATOR = new Creator<ConfigModelSubscriptionStatus>() {
-        @Override
-        public ConfigModelSubscriptionStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigModelSubscriptionStatus(message);
-        }
-
-        @Override
-        public ConfigModelSubscriptionStatus[] newArray(int size) {
-            return new ConfigModelSubscriptionStatus[size];
-        }
-    };
 
     @Override
     final void parseStatusParameters() {

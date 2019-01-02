@@ -269,7 +269,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         final byte[] elementAddress = mViewModel.getSelectedElement().getElement().getElementAddress();
         final int modelIdentifier = mViewModel.getSelectedModel().getMeshModel().getModelId();
-        final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, subscriptionAddress, modelIdentifier, 0);
+        final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, subscriptionAddress, modelIdentifier);
         mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
         showProgressbar();
     }
@@ -312,7 +312,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-        final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(element.getElementAddress(), model.getModelId(), appKeyIndex, 0);
+        final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(element.getElementAddress(), model.getModelId(), appKeyIndex);
         mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
         showProgressbar();
     }
@@ -324,7 +324,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
             final Element element = mViewModel.getSelectedElement().getElement();
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-            final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(element.getElementAddress(), model.getModelId(), keyIndex, 0);
+            final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(element.getElementAddress(), model.getModelId(), keyIndex);
             mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
             showProgressbar();
         }
@@ -347,7 +347,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             try {
 
                 final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), publishAddress,
-                        appKeyIndex, credentialFlag, publishTtl, publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId(), 0);
+                        appKeyIndex, credentialFlag, publishTtl, publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId());
                 if (!model.getBoundAppKeyIndexes().isEmpty()) {
                     mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), configModelPublicationSet);
                     showProgressbar();
@@ -369,7 +369,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final int appKeyIndex = meshModel.getPublicationSettings().getAppKeyIndex();
             final boolean credentialFlag = meshModel.getPublicationSettings().getCredentialFlag();
             final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), address, appKeyIndex,
-                    credentialFlag, 0, 0, 0, 0, 0, meshModel.getModelId(), 0);
+                    credentialFlag, 0, 0, 0, 0, 0, meshModel.getModelId());
             mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
             showProgressbar();
         } else {
@@ -384,7 +384,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final Element element = mViewModel.getSelectedElement().getElement();
             final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
             final ConfigModelSubscriptionDelete configModelAppUnbind = new ConfigModelSubscriptionDelete(element.getElementAddress(),
-                    address, model.getModelId(), 0);
+                    address, model.getModelId());
             mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
             showProgressbar();
         }

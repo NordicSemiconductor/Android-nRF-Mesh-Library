@@ -16,7 +16,7 @@ class LightHslSetUnacknowledgedState extends GenericMessageState implements Lowe
      *
      * @param context                   Context of the application
      * @param src                       Source address
-     * @param dst                Destination address to which the message must be sent to
+     * @param dst                       Destination address to which the message must be sent to
      * @param lightHslSetUnacknowledged Wrapper class {@link LightLightnessSet} containing the opcode and parameters for {@link GenericLevelSet} message
      * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.

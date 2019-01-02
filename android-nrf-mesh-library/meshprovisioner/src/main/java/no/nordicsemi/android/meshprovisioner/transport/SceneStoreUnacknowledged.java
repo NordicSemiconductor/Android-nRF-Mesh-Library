@@ -24,16 +24,14 @@ public class SceneStoreUnacknowledged extends GenericMessage {
     /**
      * Constructs SceneStoreUnacknowledged message.
      *
-     * @param appKey               application key for this message
-     * @param sceneNumber          scene number of SceneStoreUnacknowledged message
-     * @param aszmic               size of message integrity check
+     * @param appKey      application key for this message
+     * @param sceneNumber scene number of SceneStoreUnacknowledged message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
     public SceneStoreUnacknowledged(@NonNull final byte[] appKey,
-                                    final int sceneNumber,
-                                    final int aszmic) {
-        super(appKey, aszmic);
+                                    final int sceneNumber) {
+        super(appKey);
         this.mSceneNumber = sceneNumber;
         assembleMessageParameters();
     }

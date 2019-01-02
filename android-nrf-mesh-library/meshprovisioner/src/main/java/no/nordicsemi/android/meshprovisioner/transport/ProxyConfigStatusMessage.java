@@ -14,7 +14,6 @@ public abstract class ProxyConfigStatusMessage extends MeshMessage {
     protected String mStatusCodeName;
 
     ProxyConfigStatusMessage(@NonNull final ControlMessage message) {
-        super(0);
         mMessage = message;
     }
 

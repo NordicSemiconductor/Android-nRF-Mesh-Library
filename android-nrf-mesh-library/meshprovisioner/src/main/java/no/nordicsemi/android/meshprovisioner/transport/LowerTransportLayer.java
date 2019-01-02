@@ -62,6 +62,17 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     private boolean mBlockAckSent;
 
     private long mDuration;
+    /**
+     * Runnable for incomplete timer
+     */
+    private Runnable mIncompleteTimerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mLowerTransportLayerCallbacks.onIncompleteTimerExpired();
+            //Reset the incomplete timer flag once it expires
+            mIncompleteTimerStarted = false;
+        }
+    };
 
     protected void setLowerTransportLayerCallbacks(final LowerTransportLayerCallbacks callbacks) {
         mLowerTransportLayerCallbacks = callbacks;
@@ -642,18 +653,6 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         mIncompleteTimerStarted = false;
         mHandler.removeCallbacks(mIncompleteTimerRunnable);
     }
-
-    /**
-     * Runnable for incomplete timer
-     */
-    private Runnable mIncompleteTimerRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mLowerTransportLayerCallbacks.onIncompleteTimerExpired();
-            //Reset the incomplete timer flag once it expires
-            mIncompleteTimerStarted = false;
-        }
-    };
 
     /**
      * Start acknowledgement timer for segmented messages.

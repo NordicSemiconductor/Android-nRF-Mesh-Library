@@ -39,6 +39,18 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelable {
 
+    public static final Creator<ConfigAppKeyStatus> CREATOR = new Creator<ConfigAppKeyStatus>() {
+        @Override
+        public ConfigAppKeyStatus createFromParcel(Parcel in) {
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new ConfigAppKeyStatus(message);
+        }
+
+        @Override
+        public ConfigAppKeyStatus[] newArray(int size) {
+            return new ConfigAppKeyStatus[size];
+        }
+    };
     private static final String TAG = ConfigAppKeyStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_APPKEY_STATUS;
     private int mNetKeyIndex;
@@ -54,19 +66,6 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelabl
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
-
-    public static final Creator<ConfigAppKeyStatus> CREATOR = new Creator<ConfigAppKeyStatus>() {
-        @Override
-        public ConfigAppKeyStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigAppKeyStatus(message);
-        }
-
-        @Override
-        public ConfigAppKeyStatus[] newArray(int size) {
-            return new ConfigAppKeyStatus[size];
-        }
-    };
 
     @Override
     final void parseStatusParameters() {
@@ -113,7 +112,7 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelabl
      *
      * @return true if the message was successful or false otherwise
      */
-    public final boolean isSuccessful(){
+    public final boolean isSuccessful() {
         return mStatusCode == 0x00;
     }
 

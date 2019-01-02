@@ -24,22 +24,23 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     private static final String TAG = MeshMessageState.class.getSimpleName();
 
     protected final Context mContext;
-    protected MeshMessage mMeshMessage;
     final MeshTransport mMeshTransport;
+    private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
+    protected MeshMessage mMeshMessage;
     protected byte[] mSrc;
     protected byte[] mDst;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     protected MeshStatusCallbacks mMeshStatusCallbacks;
-    private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
     protected Message message;
     private boolean isIncompleteTimerExpired;
 
     /**
      * Constructs the base mesh message state class
-     * @param context Context
-     * @param meshMessage {@link MeshMessage} Mesh message
+     *
+     * @param context       Context
+     * @param meshMessage   {@link MeshMessage} Mesh message
      * @param meshTransport {@link MeshTransport} Mesh transport
-     * @param callbacks {@link InternalMeshMsgHandlerCallbacks} Internal mesh message handler callbacks
+     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} Internal mesh message handler callbacks
      */
     MeshMessageState(@NonNull final Context context,
                      @NonNull final MeshMessage meshMessage,

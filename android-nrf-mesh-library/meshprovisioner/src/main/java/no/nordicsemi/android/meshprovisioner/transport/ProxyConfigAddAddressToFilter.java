@@ -28,7 +28,7 @@ public class ProxyConfigAddAddressToFilter extends ProxyConfigMessage {
         final int length = addresses.size() * 2;
         mParameters = new byte[length];
         int count = 0;
-        for(AddressArray addressArray : addresses) {
+        for (AddressArray addressArray : addresses) {
             mParameters[count] = addressArray.getAddress()[0];
             mParameters[count + 1] = addressArray.getAddress()[1];
             count += 1;

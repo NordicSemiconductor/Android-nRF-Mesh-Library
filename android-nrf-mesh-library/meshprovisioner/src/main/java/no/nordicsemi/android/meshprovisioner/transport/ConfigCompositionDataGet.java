@@ -37,11 +37,9 @@ public class ConfigCompositionDataGet extends ConfigMessage {
     /**
      * Constructs ConfigCompositionDataGet message.
      *
-     * @param aszmic size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigCompositionDataGet(final int aszmic) {
-        super(aszmic);
+    public ConfigCompositionDataGet() {
         assembleMessageParameters();
     }
 

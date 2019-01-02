@@ -43,8 +43,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,196 +58,26 @@ import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
 abstract class ProvisionedBaseMeshNode implements Parcelable {
 
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({LOW, HIGH})
-    public @interface SecurityState {
-    }
-
     public static final int LOW = 0; //Low security
     public static final int HIGH = 1; //High security
-
     protected static final String TAG = ProvisionedBaseMeshNode.class.getSimpleName();
-    /**
-     * Unique identifier of the mesh network
-     */
-    @ColumnInfo(name = "mesh_uuid")
-    @Expose(serialize = false, deserialize = false)
-    String meshUuid;
-
-    /**
-     * Device UUID
-     */
-    @PrimaryKey
-    @NonNull
-    @ColumnInfo(name = "uuid")
-    String uuid;
-
-    @ColumnInfo(name = "security")
-    @Expose
-    int security = LOW;
-
-    @Ignore
-    @Expose
-    boolean isProvisioned;
-
-    @ColumnInfo(name = "unicast_address")
-    @Expose
-    byte[] unicastAddress;
-
-    @ColumnInfo(name = "name")
-    @Expose
-    protected String nodeName = "My Node";
-
-    @ColumnInfo(name = "configured")
-    @Expose
-    boolean isConfigured;
-
-    @ColumnInfo(name = "device_key")
-    @Expose
-    byte[] deviceKey;
-
-    @ColumnInfo(name = "ttl")
-    @Expose
-    protected Integer ttl = 5;
-
-    @ColumnInfo(name = "seq_number")
-    @Expose
-    int mReceivedSequenceNumber;
-
-    @Ignore
-    @Expose
-    String bluetoothAddress;
-
-    @Ignore
-    @Expose(serialize = false, deserialize = false)
-    String nodeIdentifier;
-
-    @ColumnInfo(name = "cid")
-    @Nullable
-    @Expose
-    Integer companyIdentifier = null;
-
-    @ColumnInfo(name = "pid")
-    @Nullable
-    @Expose
-    Integer productIdentifier = null;
-
-    @ColumnInfo(name = "vid")
-    @Nullable
-    @Expose
-    Integer versionIdentifier = null;
-
-    @ColumnInfo(name = "crpl")
-    @Nullable
-    @Expose
-    Integer crpl = null;
-
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Boolean relayFeatureSupported = null;
-
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Boolean proxyFeatureSupported = null;
-
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Boolean friendFeatureSupported = null;
-
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Boolean lowPowerFeatureSupported = null;
-
-    @Embedded
-    @Expose
-    Features nodeFeatures = null;
-
     @ColumnInfo(name = "timestamp")
     @Expose
     public long mTimeStampInMillis;
-
-    @Embedded
+    @TypeConverters(MeshTypeConverters.class)
     @Expose
-    SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
-
+    public List<NetworkKey> mAddedNetworkKeys = new ArrayList<>();
+    @ColumnInfo(name = "name")
+    @Expose
+    protected String nodeName = "My Node";
+    @ColumnInfo(name = "ttl")
+    @Expose
+    protected Integer ttl = 5;
     //Fields ignored by the entity as they have been migrated to the mesh network object
     @Deprecated
     @Ignore
     @Expose(serialize = false)
     protected byte[] networkKey;
-
-    @Ignore
-    @Expose(serialize = false)
-    List<Integer> mAddedNetworkKeyIndexes = new ArrayList<>();
-
-    @TypeConverters(MeshTypeConverters.class)
-    @Expose
-    public List<NetworkKey> mAddedNetworkKeys = new ArrayList<>();
-
-    @Ignore
-    @Expose
-    byte[] identityKey;
-
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    byte[] keyIndex;
-
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    int netKeyIndex;
-
-    @Ignore
-    @Expose
-    byte[] mFlags;
-
-    /**
-     * @deprecated use {@link Features} instead
-     */
-    @Deprecated
-    @Ignore
-    @Expose(deserialize = false)
-    Integer features = null;
-
-    @TypeConverters(MeshTypeConverters.class)
-    @Expose
-    Map<Integer, Element> mElements = new LinkedHashMap<>();
-
-    @Ignore
-    @SerializedName("appKeys")
-    @Expose(serialize = false)
-    List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
-
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Map<Integer, String> mAddedAppKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
-
-    @TypeConverters(MeshTypeConverters.class)
-    @Expose
-    Map<Integer, ApplicationKey> mAddedApplicationKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
-
-    @Ignore
-    @Expose
-    byte[] generatedNetworkId;
-
-    @Ignore
-    @Expose(deserialize = false)
-    private String bluetoothDeviceAddress;
-
-    @Ignore
-    @Expose
-    int numberOfElements;
-
-    @Ignore
-    @Expose
-    byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
-
     /**
      * @deprecated IV Index is a network property hence movec to {@link MeshNetwork}
      */
@@ -257,22 +85,143 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Ignore
     @Expose(serialize = false)
     protected byte[] ivIndex;
-
     @ColumnInfo(name = "blacklisted")
     @Expose
     protected boolean blackListed = false;
-
     @ColumnInfo(name = "secureNetworkBeacon")
     @Expose
     protected Boolean secureNetworkBeaconSupported;
-
     @Embedded
     @Expose
     protected NetworkTransmitSettings networkTransmitSettings;
-
     @Embedded
     @Expose
     protected RelaySettings relaySettings;
+    /**
+     * Unique identifier of the mesh network
+     */
+    @ColumnInfo(name = "mesh_uuid")
+    @Expose(serialize = false, deserialize = false)
+    String meshUuid;
+    /**
+     * Device UUID
+     */
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "uuid")
+    String uuid;
+    @ColumnInfo(name = "security")
+    @Expose
+    int security = LOW;
+    @Ignore
+    @Expose
+    boolean isProvisioned;
+    @ColumnInfo(name = "unicast_address")
+    @Expose
+    byte[] unicastAddress;
+    @ColumnInfo(name = "configured")
+    @Expose
+    boolean isConfigured;
+    @ColumnInfo(name = "device_key")
+    @Expose
+    byte[] deviceKey;
+    @ColumnInfo(name = "seq_number")
+    @Expose
+    int mReceivedSequenceNumber;
+    @Ignore
+    @Expose
+    String bluetoothAddress;
+    @Ignore
+    @Expose(serialize = false, deserialize = false)
+    String nodeIdentifier;
+    @ColumnInfo(name = "cid")
+    @Nullable
+    @Expose
+    Integer companyIdentifier = null;
+    @ColumnInfo(name = "pid")
+    @Nullable
+    @Expose
+    Integer productIdentifier = null;
+    @ColumnInfo(name = "vid")
+    @Nullable
+    @Expose
+    Integer versionIdentifier = null;
+    @ColumnInfo(name = "crpl")
+    @Nullable
+    @Expose
+    Integer crpl = null;
+    @Deprecated
+    @Ignore
+    @Expose(serialize = false)
+    Boolean relayFeatureSupported = null;
+    @Deprecated
+    @Ignore
+    @Expose(serialize = false)
+    Boolean proxyFeatureSupported = null;
+    @Deprecated
+    @Ignore
+    @Expose(serialize = false)
+    Boolean friendFeatureSupported = null;
+    @Deprecated
+    @Ignore
+    @Expose(serialize = false)
+    Boolean lowPowerFeatureSupported = null;
+    @Embedded
+    @Expose
+    Features nodeFeatures = null;
+    @Embedded
+    @Expose
+    SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
+    @Ignore
+    @Expose(serialize = false)
+    List<Integer> mAddedNetworkKeyIndexes = new ArrayList<>();
+    @Ignore
+    @Expose
+    byte[] identityKey;
+    @Deprecated
+    @Ignore
+    @Expose(serialize = false)
+    byte[] keyIndex;
+    @Deprecated
+    @Ignore
+    @Expose(serialize = false)
+    int netKeyIndex;
+    @Ignore
+    @Expose
+    byte[] mFlags;
+    /**
+     * @deprecated use {@link Features} instead
+     */
+    @Deprecated
+    @Ignore
+    @Expose(deserialize = false)
+    Integer features = null;
+    @TypeConverters(MeshTypeConverters.class)
+    @Expose
+    Map<Integer, Element> mElements = new LinkedHashMap<>();
+    @Ignore
+    @SerializedName("appKeys")
+    @Expose(serialize = false)
+    List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
+    @Deprecated
+    @Ignore
+    @Expose(serialize = false)
+    Map<Integer, String> mAddedAppKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
+    @TypeConverters(MeshTypeConverters.class)
+    @Expose
+    Map<Integer, ApplicationKey> mAddedApplicationKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
+    @Ignore
+    @Expose
+    byte[] generatedNetworkId;
+    @Ignore
+    @Expose
+    int numberOfElements;
+    @Ignore
+    @Expose
+    byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
+    @Ignore
+    @Expose(deserialize = false)
+    private String bluetoothDeviceAddress;
 
     public ProvisionedBaseMeshNode() {
 
@@ -321,12 +270,12 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         return unicastAddress;
     }
 
-    public final int getUnicastAddressInt() {
-        return ByteBuffer.wrap(unicastAddress).order(ByteOrder.BIG_ENDIAN).getShort();
-    }
-
     public final void setUnicastAddress(final byte[] unicastAddress) {
         this.unicastAddress = unicastAddress;
+    }
+
+    public final int getUnicastAddressInt() {
+        return ByteBuffer.wrap(unicastAddress).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 
     public final Integer getTtl() {
@@ -472,7 +421,12 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public List<Integer> getAddedAppKeyIndexes(){
+    public List<Integer> getAddedAppKeyIndexes() {
         return mAddedAppKeyIndexes;
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({LOW, HIGH})
+    public @interface SecurityState {
     }
 }

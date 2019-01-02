@@ -35,6 +35,19 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class VendorModelMessageStatus extends GenericStatusMessage implements Parcelable {
 
+    public static final Creator<VendorModelMessageStatus> CREATOR = new Creator<VendorModelMessageStatus>() {
+        @Override
+        public VendorModelMessageStatus createFromParcel(Parcel in) {
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final int modelIdentifier = in.readInt();
+            return new VendorModelMessageStatus(message, modelIdentifier);
+        }
+
+        @Override
+        public VendorModelMessageStatus[] newArray(int size) {
+            return new VendorModelMessageStatus[size];
+        }
+    };
     private static final String TAG = VendorModelMessageStatus.class.getSimpleName();
     private final int mModelIdentifier;
 
@@ -51,20 +64,6 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
         this.mModelIdentifier = modelIdentifier;
         parseStatusParameters();
     }
-
-    public static final Creator<VendorModelMessageStatus> CREATOR = new Creator<VendorModelMessageStatus>() {
-        @Override
-        public VendorModelMessageStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            final int modelIdentifier = in.readInt();
-            return new VendorModelMessageStatus(message, modelIdentifier);
-        }
-
-        @Override
-        public VendorModelMessageStatus[] newArray(int size) {
-            return new VendorModelMessageStatus[size];
-        }
-    };
 
     @Override
     void parseStatusParameters() {

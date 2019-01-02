@@ -30,17 +30,15 @@ public class GenericOnOffSetUnacknowledged extends GenericMessage {
     /**
      * Constructs GenericOnOffSet message.
      *
-     * @param appKey      Application key for this message
-     * @param state       Boolean state of the GenericOnOffModel
-     * @param tId                  transaction id
-     * @param aszmic      Size of message integrity check
+     * @param appKey Application key for this message
+     * @param state  Boolean state of the GenericOnOffModel
+     * @param tId    transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public GenericOnOffSetUnacknowledged(@NonNull final byte[] appKey,
                                          final boolean state,
-                                         final int tId,
-                                         final int aszmic) throws IllegalArgumentException {
-        this(appKey, state, tId, null, null, null, aszmic);
+                                         final int tId) throws IllegalArgumentException {
+        this(appKey, state, tId, null, null, null);
     }
 
     /**
@@ -52,7 +50,6 @@ public class GenericOnOffSetUnacknowledged extends GenericMessage {
      * @param transitionSteps      Transition steps for the level
      * @param transitionResolution Transition resolution for the level
      * @param delay                Delay for this message to be executed 0 - 1275 milliseconds
-     * @param aszmic               Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
@@ -61,9 +58,8 @@ public class GenericOnOffSetUnacknowledged extends GenericMessage {
                                          final int tId,
                                          @Nullable final Integer transitionSteps,
                                          @Nullable final Integer transitionResolution,
-                                         @Nullable final Integer delay,
-                                         final int aszmic) {
-        super(appKey, aszmic);
+                                         @Nullable final Integer delay) {
+        super(appKey);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

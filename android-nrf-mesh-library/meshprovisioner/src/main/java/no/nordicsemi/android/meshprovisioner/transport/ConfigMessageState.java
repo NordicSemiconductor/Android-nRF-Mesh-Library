@@ -30,9 +30,9 @@ abstract class ConfigMessageState extends MeshMessageState {
     private static final String TAG = ConfigMessageState.class.getSimpleName();
 
     ConfigMessageState(@NonNull final Context context,
-                              @NonNull final MeshMessage meshMessage,
-                              @NonNull final MeshTransport meshTransport,
-                              @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+                       @NonNull final MeshMessage meshMessage,
+                       @NonNull final MeshTransport meshTransport,
+                       @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, meshMessage, meshTransport, callbacks);
     }
 

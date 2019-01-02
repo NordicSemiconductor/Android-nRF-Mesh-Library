@@ -11,7 +11,6 @@ import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage
 import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
@@ -52,7 +51,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
      *
      * @param message access message received by the acccess layer
      */
-    private void parseAccessMessage(final AccessMessage message){
+    private void parseAccessMessage(final AccessMessage message) {
         final byte[] accessPayload = message.getAccessPdu();
         final ProvisionedMeshNode node = mInternalTransportCallbacks.getProvisionedNode(message.getSrc());
         final int opCodeLength = ((accessPayload[0] & 0xF0) >> 6);
@@ -86,7 +85,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS) {
                     final ConfigModelAppStatus status = new ConfigModelAppStatus(message);
                     if (status.isSuccessful()) {
-                        if(mMeshMessage instanceof ConfigModelAppBind) {
+                        if (mMeshMessage instanceof ConfigModelAppBind) {
                             node.setAppKeyBindStatus(status);
                         } else {
                             node.setAppKeyUnbindStatus(status);
@@ -95,7 +94,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
 
-                }  else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS) {
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS) {
                     final ConfigModelPublicationStatus status = new ConfigModelPublicationStatus(message);
                     if (status.isSuccessful()) {
                         final Element element = node.getElements().get(status.getElementAddress());
@@ -171,12 +170,12 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                 }
                 break;
             case 3:
-                if(mMeshMessage instanceof VendorModelMessageAcked) {
+                if (mMeshMessage instanceof VendorModelMessageAcked) {
                     final VendorModelMessageAcked vendorModelMessageAcked = (VendorModelMessageAcked) mMeshMessage;
                     final VendorModelMessageStatus status = new VendorModelMessageStatus(message, vendorModelMessageAcked.getModelIdentifier());
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                     Log.v(TAG, "Vendor model Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-                } else if(mMeshMessage instanceof  VendorModelMessageUnacked) {
+                } else if (mMeshMessage instanceof VendorModelMessageUnacked) {
                     final VendorModelMessageUnacked vendorModelMessageUnacked = (VendorModelMessageUnacked) mMeshMessage;
                     final VendorModelMessageStatus status = new VendorModelMessageStatus(message, vendorModelMessageUnacked.getModelIdentifier());
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
@@ -194,7 +193,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
      *
      * @param controlMessage control message received by the transport layer
      */
-    private void parseControlMessage(final ControlMessage controlMessage){
+    private void parseControlMessage(final ControlMessage controlMessage) {
         //Get the segment count count of the access message
         final int segmentCount = message.getNetworkPdu().size();
         final TransportControlMessage transportControlMessage = controlMessage.getTransportControlMessage();

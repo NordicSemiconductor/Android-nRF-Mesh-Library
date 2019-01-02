@@ -17,14 +17,12 @@ public class SceneGet extends GenericMessage {
     /**
      * Constructs SceneGet message.
      *
-     * @param appKey               application key for this message
-     * @param aszmic               size of message integrity check
+     * @param appKey application key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public SceneGet(@NonNull final byte[] appKey,
-                    final int aszmic) {
-        super(appKey, aszmic);
+    public SceneGet(@NonNull final byte[] appKey) {
+        super(appKey);
         assembleMessageParameters();
     }
 

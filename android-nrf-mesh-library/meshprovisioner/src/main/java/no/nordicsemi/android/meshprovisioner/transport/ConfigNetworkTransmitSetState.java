@@ -15,13 +15,13 @@ public final class ConfigNetworkTransmitSetState extends ConfigMessageState {
     /**
      * Constructs the state for creating ConfigNetworkTransmitSet message
      *
-     * @param context                       context
-     * @param src                           source address
-     * @param dst                           destination address
-     * @param deviceKey                     device key
+     * @param context                  context
+     * @param src                      source address
+     * @param dst                      destination address
+     * @param deviceKey                device key
      * @param configNetworkTransmitSet {@link ConfigNetworkTransmitSet}
-     * @param meshTransport                 {@link MeshTransport}
-     * @param callbacks                     {@link InternalMeshMsgHandlerCallbacks}
+     * @param meshTransport            {@link MeshTransport}
+     * @param callbacks                {@link InternalMeshMsgHandlerCallbacks}
      */
     ConfigNetworkTransmitSetState(@NonNull final Context context,
                                   @NonNull final byte[] src,

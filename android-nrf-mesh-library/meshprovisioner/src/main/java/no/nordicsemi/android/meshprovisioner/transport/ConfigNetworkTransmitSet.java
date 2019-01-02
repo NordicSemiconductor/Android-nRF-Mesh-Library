@@ -41,15 +41,12 @@ public final class ConfigNetworkTransmitSet extends ConfigMessage {
     /**
      * Constructs a ConfigNetworkTransmitSet message.
      *
-     * @param networkTransmitCount          The Network Transmit Count to be set
-     * @param networkTransmitIntervalSteps  The Network Transmit Interval Steps to be set
-     * @param aszmic                        Size of message integrity check
+     * @param networkTransmitCount         The Network Transmit Count to be set
+     * @param networkTransmitIntervalSteps The Network Transmit Interval Steps to be set
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public ConfigNetworkTransmitSet(final int networkTransmitCount,
-                                    final int networkTransmitIntervalSteps,
-                                    final int aszmic) throws IllegalArgumentException {
-        super(aszmic);
+                                    final int networkTransmitIntervalSteps) throws IllegalArgumentException {
         if (networkTransmitCount < 0 || 0b111 < networkTransmitCount) {
             throw new IllegalArgumentException("Network Transmit Count must be between 0 and 7 (inclusive)");
         }
@@ -63,7 +60,7 @@ public final class ConfigNetworkTransmitSet extends ConfigMessage {
 
     @Override
     final void assembleMessageParameters() {
-        mParameters = new byte[] { (byte) (((mNetworkTransmitIntervalSteps << 3) & 0xFF) | (mNetworkTransmitCount & 0xFF)) };
+        mParameters = new byte[]{(byte) (((mNetworkTransmitIntervalSteps << 3) & 0xFF) | (mNetworkTransmitCount & 0xFF))};
     }
 
     @Override

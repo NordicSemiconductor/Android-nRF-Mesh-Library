@@ -34,14 +34,12 @@ public class LightLightnessSet extends GenericMessage {
      * @param appKey         application key for this message
      * @param lightLightness lightLightness of the LightLightnessModel
      * @param tId            transaction id
-     * @param aszmic         size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public LightLightnessSet(@NonNull final byte[] appKey,
                              final int lightLightness,
-                             final int tId,
-                             final int aszmic) throws IllegalArgumentException {
-        this(appKey, null, null, null, lightLightness, tId, aszmic);
+                             final int tId) throws IllegalArgumentException {
+        this(appKey, null, null, null, lightLightness, tId);
     }
 
     /**
@@ -53,7 +51,6 @@ public class LightLightnessSet extends GenericMessage {
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
      * @param lightLightness       lightLightness
      * @param tId                  transaction id
-     * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
@@ -62,9 +59,8 @@ public class LightLightnessSet extends GenericMessage {
                              @Nullable final Integer transitionResolution,
                              @Nullable final Integer delay,
                              final int lightLightness,
-                             final int tId,
-                             final int aszmic) throws IllegalArgumentException {
-        super(appKey, aszmic);
+                             final int tId) throws IllegalArgumentException {
+        super(appKey);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

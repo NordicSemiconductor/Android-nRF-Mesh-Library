@@ -37,7 +37,18 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
 
     private static final String TAG = ConfigNetworkTransmitStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS;
+    private static final Creator<ConfigNetworkTransmitStatus> CREATOR = new Creator<ConfigNetworkTransmitStatus>() {
+        @Override
+        public ConfigNetworkTransmitStatus createFromParcel(Parcel in) {
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new ConfigNetworkTransmitStatus(message);
+        }
 
+        @Override
+        public ConfigNetworkTransmitStatus[] newArray(int size) {
+            return new ConfigNetworkTransmitStatus[size];
+        }
+    };
     private int mNetworkTransmitCount;
     private int mNetworkTransmitIntervalSteps;
 
@@ -52,19 +63,6 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
-
-    private static final Creator<ConfigNetworkTransmitStatus> CREATOR = new Creator<ConfigNetworkTransmitStatus>() {
-        @Override
-        public ConfigNetworkTransmitStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigNetworkTransmitStatus(message);
-        }
-
-        @Override
-        public ConfigNetworkTransmitStatus[] newArray(int size) {
-            return new ConfigNetworkTransmitStatus[size];
-        }
-    };
 
     @Override
     public int getOpCode() {

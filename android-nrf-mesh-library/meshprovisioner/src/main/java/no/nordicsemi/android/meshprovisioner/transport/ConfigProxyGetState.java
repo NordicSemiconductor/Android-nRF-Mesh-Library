@@ -15,12 +15,12 @@ class ConfigProxyGetState extends ConfigMessageState {
     /**
      * Constructs {@link ConfigProxyGetState}
      *
-     * @param context         Context of the application
-     * @param src             source address
-     * @param dst             destination address
-     * @param deviceKey       device key
+     * @param context        Context of the application
+     * @param src            source address
+     * @param dst            destination address
+     * @param deviceKey      device key
      * @param configProxyGet Wrapper class {@link ConfigProxyGet} containing the opcode and parameters for {@link ConfigProxyGet} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param callbacks      {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     ConfigProxyGetState(@NonNull final Context context,
@@ -29,7 +29,7 @@ class ConfigProxyGetState extends ConfigMessageState {
                         @NonNull final byte[] deviceKey,
                         @NonNull final ConfigProxyGet configProxyGet,
                         @NonNull final MeshTransport meshTransport,
-                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks)  {
+                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, configProxyGet, meshTransport, callbacks);
         this.mSrc = src;
         this.mDst = dst;

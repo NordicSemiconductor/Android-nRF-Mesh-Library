@@ -41,6 +41,18 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
     private static final int SCENE_STATUS_MANDATORY_LENGTH = 3;
     private static final String TAG = SceneStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_STATUS;
+    private static final Creator<SceneStatus> CREATOR = new Creator<SceneStatus>() {
+        @Override
+        public SceneStatus createFromParcel(Parcel in) {
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new SceneStatus(message);
+        }
+
+        @Override
+        public SceneStatus[] newArray(int size) {
+            return new SceneStatus[size];
+        }
+    };
     private int mStatusCode;
     private int mCurrentScene;
     private Integer mTargetScene;
@@ -59,19 +71,6 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
-
-    private static final Creator<SceneStatus> CREATOR = new Creator<SceneStatus>() {
-        @Override
-        public SceneStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new SceneStatus(message);
-        }
-
-        @Override
-        public SceneStatus[] newArray(int size) {
-            return new SceneStatus[size];
-        }
-    };
 
     @Override
     void parseStatusParameters() {

@@ -17,14 +17,12 @@ public class SceneRegisterGet extends GenericMessage {
     /**
      * Constructs SceneRegisterGet message.
      *
-     * @param appKey               application key for this message
-     * @param aszmic               size of message integrity check
+     * @param appKey application key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public SceneRegisterGet(@NonNull final byte[] appKey,
-                            final int aszmic) {
-        super(appKey, aszmic);
+    public SceneRegisterGet(@NonNull final byte[] appKey) {
+        super(appKey);
         assembleMessageParameters();
     }
 

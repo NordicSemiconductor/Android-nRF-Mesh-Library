@@ -66,7 +66,6 @@ public class ConfigModelPublicationSet extends ConfigMessage {
      * @param publishRetransmitCount         Number of publication retransmits
      * @param publishRetransmitIntervalSteps Publish retransmit interval steps
      * @param modelIdentifier                identifier for this model that will do publication
-     * @param aszmic                         size of message integrity check
      * @throws IllegalArgumentException for invalid arguments
      */
     public ConfigModelPublicationSet(@NonNull final byte[] elementAddress,
@@ -78,9 +77,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
                                      final int publicationResolution,
                                      final int publishRetransmitCount,
                                      final int publishRetransmitIntervalSteps,
-                                     final int modelIdentifier,
-                                     final int aszmic) throws IllegalArgumentException {
-        super(aszmic);
+                                     final int modelIdentifier) throws IllegalArgumentException {
         if (elementAddress.length != 2)
             throw new IllegalArgumentException("Element address must be 2 bytes");
         this.elementAddress = elementAddress;

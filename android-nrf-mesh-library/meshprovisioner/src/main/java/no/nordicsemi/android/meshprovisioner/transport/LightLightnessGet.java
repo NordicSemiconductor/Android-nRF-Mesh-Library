@@ -19,13 +19,11 @@ public class LightLightnessGet extends GenericMessage {
     /**
      * Constructs LightLightnessGet message.
      *
-     * @param appKey               application key for this message
-     * @param aszmic               size of message integrity check
+     * @param appKey application key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightLightnessGet(@NonNull final byte[] appKey,
-                             final int aszmic) throws IllegalArgumentException {
-        super(appKey, aszmic);
+    public LightLightnessGet(@NonNull final byte[] appKey) throws IllegalArgumentException {
+        super(appKey);
         assembleMessageParameters();
     }
 

@@ -6,7 +6,6 @@ package no.nordicsemi.android.meshprovisioner.transport;
 abstract class ProxyConfigMessage extends MeshMessage {
 
     ProxyConfigMessage(final int azmic) {
-        super(azmic);
     }
 
     /**

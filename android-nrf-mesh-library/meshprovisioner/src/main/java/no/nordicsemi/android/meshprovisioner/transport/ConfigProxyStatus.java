@@ -37,21 +37,6 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
 
     private static final String TAG = ConfigProxyStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS;
-
-    private int mProxyState;
-
-    /**
-     * Constructs a ConfigRelayStatus message.
-     *
-     * @param message   Access message received
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    public ConfigProxyStatus(@NonNull final AccessMessage message) {
-        super(message);
-        this.mParameters = message.getParameters();
-        parseStatusParameters();
-    }
-
     private static final Creator<ConfigProxyStatus> CREATOR = new Creator<ConfigProxyStatus>() {
         @Override
         public ConfigProxyStatus createFromParcel(Parcel in) {
@@ -64,6 +49,19 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
             return new ConfigProxyStatus[size];
         }
     };
+    private int mProxyState;
+
+    /**
+     * Constructs a ConfigRelayStatus message.
+     *
+     * @param message Access message received
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    public ConfigProxyStatus(@NonNull final AccessMessage message) {
+        super(message);
+        this.mParameters = message.getParameters();
+        parseStatusParameters();
+    }
 
     @Override
     public int getOpCode() {
@@ -88,7 +86,7 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
     /**
      * Returns true if the proxy feature is currently enabled on the node and false otherwise
      */
-    public boolean isProxyFeatureEnabled(){
+    public boolean isProxyFeatureEnabled() {
         return mProxyState == ConfigProxySet.PROXY_FEATURE_ENABLED;
     }
 

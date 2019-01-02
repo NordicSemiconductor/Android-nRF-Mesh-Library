@@ -31,16 +31,14 @@ public class SceneRecall extends GenericMessage {
      * Constructs SceneStore message.
      *
      * @param appKey      application key for this message
-     * @param sceneNumber       sceneNumber
-     * @param tId                   transaction Id
-     * @param aszmic      size of message integrity check
+     * @param sceneNumber sceneNumber
+     * @param tId         transaction Id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public SceneRecall(@NonNull final byte[] appKey,
                        final int sceneNumber,
-                       final int tId,
-                       final int aszmic) throws IllegalArgumentException {
-        this(appKey, null, null, null, sceneNumber, tId, aszmic);
+                       final int tId) throws IllegalArgumentException {
+        this(appKey, null, null, null, sceneNumber, tId);
     }
 
     /**
@@ -50,9 +48,8 @@ public class SceneRecall extends GenericMessage {
      * @param transitionSteps      transition steps for the level
      * @param transitionResolution transition resolution for the level
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param sceneNumber                sceneNumber
-     * @param tId                   transaction Id
-     * @param aszmic               size of message integrity check
+     * @param sceneNumber          sceneNumber
+     * @param tId                  transaction Id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
@@ -61,9 +58,8 @@ public class SceneRecall extends GenericMessage {
                        @Nullable final Integer transitionResolution,
                        @Nullable final Integer delay,
                        final int sceneNumber,
-                       final int tId,
-                       final int aszmic) {
-        super(appKey, aszmic);
+                       final int tId) {
+        super(appKey);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

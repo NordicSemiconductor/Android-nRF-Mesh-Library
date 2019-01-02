@@ -37,10 +37,8 @@ public final class ConfigProxyGet extends ConfigMessage {
     /**
      * Constructs a ConfigRelayGet message
      *
-     * @param aszmic    Size of message integrity check
      */
-    public ConfigProxyGet(final int aszmic) {
-        super(aszmic);
+    public ConfigProxyGet() {
         assembleMessageParameters();
     }
 

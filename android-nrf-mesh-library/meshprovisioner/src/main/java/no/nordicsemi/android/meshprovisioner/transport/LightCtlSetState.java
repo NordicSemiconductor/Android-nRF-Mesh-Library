@@ -14,10 +14,10 @@ class LightCtlSetState extends GenericMessageState implements LowerTransportLaye
     /**
      * Constructs {@link LightCtlSetState}
      *
-     * @param context         Context of the application
-     * @param dst      Destination address to which the message must be sent to
-     * @param lightCtlSet     Wrapper class {@link LightCtlSetState} containing the opcode and parameters for {@link LightCtlSetState} message
-     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param context     Context of the application
+     * @param dst         Destination address to which the message must be sent to
+     * @param lightCtlSet Wrapper class {@link LightCtlSetState} containing the opcode and parameters for {@link LightCtlSetState} message
+     * @param callbacks   {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
     LightCtlSetState(@NonNull final Context context,

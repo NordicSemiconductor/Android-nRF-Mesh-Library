@@ -36,11 +36,8 @@ public final class ConfigNetworkTransmitGet extends ConfigMessage {
 
     /**
      * Constructs a ConfigNetworkTransmitGet message
-     *
-     * @param aszmic Size of message integrity check
      */
-    public ConfigNetworkTransmitGet(final int aszmic) {
-        super(aszmic);
+    public ConfigNetworkTransmitGet() {
         assembleMessageParameters();
     }
 

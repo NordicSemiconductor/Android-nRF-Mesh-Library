@@ -41,23 +41,6 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
     private static final int SCENE_REGISTER_STATUS_MANDATORY_LENGTH = 3;
     private static final String TAG = SceneRegisterStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_REGISTER_STATUS;
-    private int mStatus;
-    private int mCurrentScene;
-    private int[] mSceneList;
-
-
-    /**
-     * Constructs the GenericOnOffStatus mMessage.
-     *
-     * @param message Access Message
-     */
-    public SceneRegisterStatus(@NonNull final AccessMessage message) {
-        super(message);
-        this.mMessage = message;
-        this.mParameters = message.getParameters();
-        parseStatusParameters();
-    }
-
     private static final Creator<SceneRegisterStatus> CREATOR = new Creator<SceneRegisterStatus>() {
         @Override
         public SceneRegisterStatus createFromParcel(Parcel in) {
@@ -70,6 +53,21 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
             return new SceneRegisterStatus[size];
         }
     };
+    private int mStatus;
+    private int mCurrentScene;
+    private int[] mSceneList;
+
+    /**
+     * Constructs the GenericOnOffStatus mMessage.
+     *
+     * @param message Access Message
+     */
+    public SceneRegisterStatus(@NonNull final AccessMessage message) {
+        super(message);
+        this.mMessage = message;
+        this.mParameters = message.getParameters();
+        parseStatusParameters();
+    }
 
     @Override
     void parseStatusParameters() {

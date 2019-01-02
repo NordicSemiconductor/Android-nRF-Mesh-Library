@@ -11,7 +11,6 @@ public abstract class ConfigStatusMessage extends MeshMessage {
     protected String mStatusCodeName;
 
     public ConfigStatusMessage(@NonNull final AccessMessage message) {
-        super(message.getAszmic());
         mMessage = message;
     }
 

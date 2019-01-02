@@ -24,6 +24,7 @@ public abstract class MeshStatusMessage {
 
     /**
      * Returns the opcode for this message.
+     *
      * @return opcode
      */
     public abstract int getOpCode();

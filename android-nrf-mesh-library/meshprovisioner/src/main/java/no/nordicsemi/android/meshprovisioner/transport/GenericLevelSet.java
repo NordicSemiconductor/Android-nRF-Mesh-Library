@@ -34,14 +34,12 @@ public class GenericLevelSet extends GenericMessage {
      * @param appKey application key for this message
      * @param level  level of the GenericLevelModel
      * @param tId    transaction id which must be incremented for every message
-     * @param aszmic size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public GenericLevelSet(@NonNull final byte[] appKey,
                            final int level,
-                           final int tId,
-                           final int aszmic) throws IllegalArgumentException {
-        this(appKey, null, null, null, level, tId, aszmic);
+                           final int tId) throws IllegalArgumentException {
+        this(appKey, null, null, null, level, tId);
     }
 
     /**
@@ -53,7 +51,6 @@ public class GenericLevelSet extends GenericMessage {
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
      * @param level                level of the GenericLevelModel
      * @param tId                  transaction id
-     * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
@@ -62,9 +59,8 @@ public class GenericLevelSet extends GenericMessage {
                            @Nullable final Integer transitionResolution,
                            @Nullable final Integer delay,
                            final int level,
-                           final int tId,
-                           final int aszmic) throws IllegalArgumentException {
-        super(appKey, aszmic);
+                           final int tId) throws IllegalArgumentException {
+        super(appKey);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

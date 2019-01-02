@@ -50,14 +50,11 @@ public final class ConfigRelaySet extends ConfigMessage {
      * @param relay                        {@link RelaySettings.RelayState} to be set if the relay feature is supported by the node.
      * @param relayRetransmitCount         Relay retransmit count to be set
      * @param relayRetransmitIntervalSteps Relay Retransmit Interval Steps to be set
-     * @param aszmic                       Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public ConfigRelaySet(@RelaySettings.RelayState final int relay,
                           final int relayRetransmitCount,
-                          final int relayRetransmitIntervalSteps,
-                          final int aszmic) throws IllegalArgumentException {
-        super(aszmic);
+                          final int relayRetransmitIntervalSteps) throws IllegalArgumentException {
         mRelay = relay;
         if (relayRetransmitCount < 0 || 0b111 < relayRetransmitCount) {
             throw new IllegalArgumentException("Network Transmit Count must be between 0 and 7 (inclusive)");

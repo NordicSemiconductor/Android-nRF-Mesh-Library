@@ -51,14 +51,11 @@ public final class ConfigModelSubscriptionDelete extends ConfigMessage {
      * @param elementAddress      Address of the element to which the model belongs to.
      * @param subscriptionAddress Addrress to unsubscribe from or deleted.
      * @param modelIdentifier     identifier of the model, 16-bit for Sig model and 32-bit model id for vendor models.
-     * @param aszmic              Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public ConfigModelSubscriptionDelete(@NonNull final byte[] elementAddress,
                                          @NonNull final byte[] subscriptionAddress,
-                                         final int modelIdentifier,
-                                         final int aszmic) throws IllegalArgumentException {
-        super(aszmic);
+                                         final int modelIdentifier) throws IllegalArgumentException {
         if (elementAddress.length != 2)
             throw new IllegalArgumentException("Element address must be 2 bytes");
         this.mElementAddress = elementAddress;

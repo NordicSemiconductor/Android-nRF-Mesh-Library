@@ -8,12 +8,7 @@ public abstract class GenericStatusMessage extends MeshMessage {
 
 
     GenericStatusMessage(@NonNull final AccessMessage message) {
-        this(message.getAszmic());
         mMessage = message;
-    }
-
-    private GenericStatusMessage(final int aszmic) {
-        super(aszmic);
     }
 
     /**

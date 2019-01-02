@@ -42,6 +42,18 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
     private static final String TAG = LightHslStatus.class.getSimpleName();
     private static final int LIGHT_CTL_STATUS_MANDATORY_LENGTH = 6;
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_HSL_STATUS;
+    private static final Creator<LightHslStatus> CREATOR = new Creator<LightHslStatus>() {
+        @Override
+        public LightHslStatus createFromParcel(Parcel in) {
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new LightHslStatus(message);
+        }
+
+        @Override
+        public LightHslStatus[] newArray(int size) {
+            return new LightHslStatus[size];
+        }
+    };
     private int mPresentHslLightness;
     private int mPresentHslHue;
     private int mPresentHslSaturation;
@@ -55,19 +67,6 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
         parseStatusParameters();
     }
 
-    private static final Creator<LightHslStatus> CREATOR = new Creator<LightHslStatus>() {
-        @Override
-        public LightHslStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new LightHslStatus(message);
-        }
-
-        @Override
-        public LightHslStatus[] newArray(int size) {
-            return new LightHslStatus[size];
-        }
-    };
-
     @Override
     void parseStatusParameters() {
         Log.v(TAG, "Received light hsl status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
@@ -78,7 +77,7 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
         Log.v(TAG, "Present lightness: " + mPresentHslLightness);
         Log.v(TAG, "Present hue: " + mPresentHslHue);
         Log.v(TAG, "Present saturation: " + mPresentHslSaturation);
-        if(buffer.limit() > LIGHT_CTL_STATUS_MANDATORY_LENGTH) {
+        if (buffer.limit() > LIGHT_CTL_STATUS_MANDATORY_LENGTH) {
             final int remainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (remainingTime & 0x3F);
             mTransitionResolution = (remainingTime >> 6);
@@ -110,6 +109,7 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
     public final int getPresentSaturation() {
         return mPresentHslSaturation;
     }
+
     /**
      * Returns the present level of the GenericOnOffModel
      *

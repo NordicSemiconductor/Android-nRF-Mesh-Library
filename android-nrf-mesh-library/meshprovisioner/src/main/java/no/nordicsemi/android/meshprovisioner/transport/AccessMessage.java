@@ -27,9 +27,9 @@ import android.util.SparseArray;
 @SuppressWarnings("WeakerAccess")
 public final class AccessMessage extends Message {
 
+    protected SparseArray<byte[]> lowerTransportAccessPdu = new SparseArray<>();
     private byte[] accessPdu;
     private byte[] transportPdu;
-    protected SparseArray<byte[]> lowerTransportAccessPdu = new SparseArray<>();
 
     public AccessMessage() {
         this.ctl = 0;

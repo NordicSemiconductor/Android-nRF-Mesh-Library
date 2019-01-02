@@ -7,15 +7,9 @@ import android.support.annotation.NonNull;
  */
 public abstract class MeshMessage {
 
-    private final int mAszmic;
-    byte[] mParameters;
+    private final int mAszmic = 0;
     protected Message mMessage;
-
-    MeshMessage(final int aszmic) {
-        if (aszmic != 1 && aszmic != 0)
-            throw new IllegalArgumentException("Application size message integrity check (aszmic) can only be 0 or 1");
-        this.mAszmic = 0; //Currently the library defaults to 0
-    }
+    byte[] mParameters;
 
     /**
      * Returns the application key flag used for this message.
@@ -55,31 +49,32 @@ public abstract class MeshMessage {
     }
 
     /**
-     * Set the access message
-     * @param message access message
+     * Returns the message
      */
-    void setMessage(@NonNull final Message message){
-        mMessage = message;
+    public Message getMessage() {
+        return mMessage;
     }
 
     /**
-     * Returns the message
+     * Set the access message
+     *
+     * @param message access message
      */
-    public Message getMessage(){
-        return mMessage;
+    void setMessage(@NonNull final Message message) {
+        mMessage = message;
     }
 
     /**
      * Returns the source address of the message
      */
-    public byte[] getSrc(){
+    public byte[] getSrc() {
         return mMessage.getSrc();
     }
 
     /**
      * Returns the destination address of the message
      */
-    public byte[] getDst(){
+    public byte[] getDst() {
         return mMessage.getDst();
     }
 

@@ -42,6 +42,18 @@ public final class GenericOnOffStatus extends GenericStatusMessage implements Pa
     private static final String TAG = GenericOnOffStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS;
     private static final int GENERIC_ON_OFF_STATE_ON = 0x01;
+    private static final Creator<GenericOnOffStatus> CREATOR = new Creator<GenericOnOffStatus>() {
+        @Override
+        public GenericOnOffStatus createFromParcel(Parcel in) {
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new GenericOnOffStatus(message);
+        }
+
+        @Override
+        public GenericOnOffStatus[] newArray(int size) {
+            return new GenericOnOffStatus[size];
+        }
+    };
     private boolean mPresentOn;
     private Boolean mTargetOn;
     private int mRemainingTime;
@@ -58,19 +70,6 @@ public final class GenericOnOffStatus extends GenericStatusMessage implements Pa
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
-
-    private static final Creator<GenericOnOffStatus> CREATOR = new Creator<GenericOnOffStatus>() {
-        @Override
-        public GenericOnOffStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new GenericOnOffStatus(message);
-        }
-
-        @Override
-        public GenericOnOffStatus[] newArray(int size) {
-            return new GenericOnOffStatus[size];
-        }
-    };
 
     @Override
     void parseStatusParameters() {
