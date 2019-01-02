@@ -95,7 +95,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
      * Parses composition data status received from the mesh node
      */
     private void parseCompositionDataPages() {
-        final AccessMessage message = mMessage;
+        final AccessMessage message = (AccessMessage)mMessage;
         final byte[] accessPayload = message.getAccessPdu();
 
         //Bluetooth SIG 16-bit company identifier

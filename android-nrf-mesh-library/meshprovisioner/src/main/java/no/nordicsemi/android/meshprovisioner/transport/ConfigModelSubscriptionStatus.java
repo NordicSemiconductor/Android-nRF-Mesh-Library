@@ -74,7 +74,7 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implement
 
     @Override
     final void parseStatusParameters() {
-        final AccessMessage message = mMessage;
+        final AccessMessage message = (AccessMessage) mMessage;
         mStatusCode = mParameters[0];
         mStatusCodeName = getStatusCodeName(mStatusCode);
         final byte[] elementAddress = new byte[]{mParameters[2], mParameters[1]};
@@ -135,7 +135,7 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implement
      *
      * @return true if the message was successful or false otherwise
      */
-    public final boolean isSuccessful(){
+    public final boolean isSuccessful() {
         return mStatusCode == 0x00;
     }
 

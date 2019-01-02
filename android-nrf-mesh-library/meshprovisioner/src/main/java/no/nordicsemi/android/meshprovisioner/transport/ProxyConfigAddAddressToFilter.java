@@ -19,6 +19,7 @@ public class ProxyConfigAddAddressToFilter extends ProxyConfigMessage {
      * @param addresses List of addresses to be added to the filter
      */
     ProxyConfigAddAddressToFilter(final List<AddressArray> addresses) {
+        super(0);
         this.addresses = addresses;
     }
 

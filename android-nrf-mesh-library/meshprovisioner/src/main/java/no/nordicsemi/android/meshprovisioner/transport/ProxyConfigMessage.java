@@ -3,9 +3,10 @@ package no.nordicsemi.android.meshprovisioner.transport;
 /**
  * Abstract wrapper class for mesh message.
  */
-abstract class ProxyConfigMessage extends ProxyConfigurationMessage {
+abstract class ProxyConfigMessage extends MeshMessage {
 
-    ProxyConfigMessage() {
+    ProxyConfigMessage(final int azmic) {
+        super(azmic);
     }
 
     /**
@@ -19,5 +20,16 @@ abstract class ProxyConfigMessage extends ProxyConfigurationMessage {
      * @return parameters
      */
     abstract byte[] getParameters();
+
+
+    @Override
+    int getAkf() {
+        return -1;
+    }
+
+    @Override
+    int getAid() {
+        return -1;
+    }
 
 }

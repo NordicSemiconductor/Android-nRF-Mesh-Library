@@ -56,7 +56,20 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param pdu mesh pdu that was sent
      */
     public final void handleMeshMsgWriteCallbacks(final byte[] pdu) {
-        if (mMeshMessageState instanceof ConfigMessageState) {
+        if (mMeshMessageState instanceof ProxyConfigMessageState) {
+            switch (mMeshMessageState.getState()) {
+                case PROXY_CONFIG_SET_FILTER_TYPE_STATE:
+                    final ProxyConfigSetFilterTypeState compositionDataGet = (ProxyConfigSetFilterTypeState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, compositionDataGet.getMeshMessage(), mMeshTransport, this));
+                    break;
+                case PROXY_CONFIG_ADD_ADDRESS_TO_FILTER_STATE:
+                    //TODO implement add address to filter state
+                    break;
+                case PROXY_CONFIG_REMOVE_ADDRESS_FROM_FILTER_STATE:
+                    //TODO implement remove address from filter state
+                    break;
+            }
+        } else if (mMeshMessageState instanceof ConfigMessageState) {
             if (mMeshMessageState.getState() == null)
                 return;
 

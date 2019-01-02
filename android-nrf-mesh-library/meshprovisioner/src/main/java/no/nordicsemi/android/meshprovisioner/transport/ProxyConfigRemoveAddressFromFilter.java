@@ -19,6 +19,7 @@ public class ProxyConfigRemoveAddressFromFilter extends ProxyConfigMessage {
      * @param addresses List of addresses to be added to the filter
      */
     ProxyConfigRemoveAddressFromFilter(final List<AddressArray> addresses) {
+        super(0);
         this.addresses = addresses;
     }
 
@@ -27,7 +28,7 @@ public class ProxyConfigRemoveAddressFromFilter extends ProxyConfigMessage {
         final int length = addresses.size() * 2;
         mParameters = new byte[length];
         int count = 0;
-        for(AddressArray addressArray : addresses) {
+        for (AddressArray addressArray : addresses) {
             mParameters[count] = addressArray.getAddress()[0];
             mParameters[count + 1] = addressArray.getAddress()[1];
             count += 1;

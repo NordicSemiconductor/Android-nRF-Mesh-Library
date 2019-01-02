@@ -44,7 +44,7 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
     /**
      * Constructs a ConfigNetworkTransmitStatus message.
      *
-     * @param message   Access message received
+     * @param message Access message received
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public ConfigNetworkTransmitStatus(@NonNull final AccessMessage message) {
@@ -73,7 +73,7 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
 
     @Override
     final void parseStatusParameters() {
-        final byte[] payload = mMessage.getAccessPdu();
+        final byte[] payload = ((AccessMessage) mMessage).getAccessPdu();
         mNetworkTransmitCount = payload[2] & 0b111;
         mNetworkTransmitIntervalSteps = (payload[2] >> 3) & 0b11111;
     }

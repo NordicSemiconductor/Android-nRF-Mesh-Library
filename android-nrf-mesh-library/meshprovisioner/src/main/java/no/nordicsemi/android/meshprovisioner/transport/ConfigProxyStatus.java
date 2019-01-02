@@ -72,7 +72,7 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
 
     @Override
     final void parseStatusParameters() {
-        final byte[] payload = mMessage.getAccessPdu();
+        final byte[] payload = ((AccessMessage) mMessage).getAccessPdu();
         mProxyState = payload[2];
     }
 

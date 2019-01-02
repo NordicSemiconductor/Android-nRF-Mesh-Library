@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -42,7 +43,6 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
  */
 public abstract class NetworkLayer extends LowerTransportLayer {
 
-    private static final int PROXY_CONFIGURATION_PDU = 0x02;
     private static final String TAG = NetworkLayer.class.getSimpleName();
     NetworkLayerCallbacks mNetworkLayerCallbacks;
     private SparseArray<byte[]> segmentedAccessMessagesMessages;
@@ -104,7 +104,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
         final int pduType = message.getPduType();
         switch (message.getPduType()) {
-            case NETWORK_PDU:
+            case MeshManagerApi.PDU_TYPE_NETWORK:
                 for (int i = 0; i < lowerTransportPduMap.size(); i++) {
                     final byte[] lowerTransportPdu = lowerTransportPduMap.get(i);
                     if (i != 0) {
@@ -119,7 +119,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
                     Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedPayload, false));
                 }
                 break;
-            case PROXY_CONFIGURATION_PDU:
+            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
                 for (int i = 0; i < lowerTransportPduMap.size(); i++) {
                     final byte[] lowerTransportPdu = lowerTransportPduMap.get(i);
                     final int sequenceNumber = incrementSequenceNumber(message.getSrc());
@@ -182,7 +182,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         byte[] encryptedNetworkPayload = null;
         final int pduType = message.getPduType();
         switch (message.getPduType()) {
-            case NETWORK_PDU:
+            case MeshManagerApi.PDU_TYPE_NETWORK:
                 final byte[] lowerTransportPdu = lowerTransportPduMap.get(segment);
                 final int sequenceNumber = incrementSequenceNumber(message.getSrc(), message.getSequenceNumber());
                 final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
@@ -192,7 +192,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
                 encryptedNetworkPayload = encryptNetworkPduPayload(message, sequenceNum, lowerTransportPdu, encryptionKey);
                 Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedNetworkPayload, false));
                 break;
-            case PROXY_CONFIGURATION_PDU:
+            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
                 break;
         }
 

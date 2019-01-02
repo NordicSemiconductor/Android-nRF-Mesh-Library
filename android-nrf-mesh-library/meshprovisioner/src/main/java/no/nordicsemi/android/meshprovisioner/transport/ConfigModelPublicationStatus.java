@@ -81,7 +81,7 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
 
     @Override
     final void parseStatusParameters() {
-        final AccessMessage message = mMessage;
+        final AccessMessage message = (AccessMessage)mMessage;
         final ByteBuffer buffer = ByteBuffer.wrap(message.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
         mStatusCode = mParameters[0];
         mStatusCodeName = getStatusCodeName(mStatusCode);

@@ -69,9 +69,9 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
 
     private static final String TAG = MeshManagerApi.class.getSimpleName();
     //PDU types
-    private static final byte PDU_TYPE_NETWORK = 0x00;
-    private static final byte PDU_TYPE_MESH_BEACON = 0x01;
-    private static final byte PDU_TYPE_PROXY_CONFIGURATION = 0x02;
+    public static final byte PDU_TYPE_NETWORK = 0x00;
+    public static final byte PDU_TYPE_MESH_BEACON = 0x01;
+    public static final byte PDU_TYPE_PROXY_CONFIGURATION = 0x02;
     //GATT level segmentation
     private static final byte SAR_COMPLETE = 0b00;
     private static final byte GATT_SAR_START = 0b01;

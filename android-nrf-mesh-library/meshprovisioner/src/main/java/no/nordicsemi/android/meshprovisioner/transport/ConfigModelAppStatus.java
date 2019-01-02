@@ -74,7 +74,7 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
 
     @Override
     final void parseStatusParameters() {
-        final AccessMessage message = mMessage;
+        final AccessMessage message = (AccessMessage)mMessage;
         final ByteBuffer buffer = ByteBuffer.wrap(message.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
         buffer.position(0);
         mStatusCode = buffer.get();

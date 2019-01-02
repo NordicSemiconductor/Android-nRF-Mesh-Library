@@ -76,7 +76,7 @@ public final class ConfigRelayStatus extends ConfigStatusMessage implements Parc
 
     @Override
     final void parseStatusParameters() {
-        final byte[] payload = mMessage.getAccessPdu();
+        final byte[] payload = ((AccessMessage)mMessage).getAccessPdu();
         mRelay = payload[2];
         mRelayRetransmitCount = payload[3] & 0b111;
         mRelayRetransmitIntervalSteps = (payload[3] >> 3) & 0b11111;

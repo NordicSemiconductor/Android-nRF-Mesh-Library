@@ -40,7 +40,8 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
 
     /**
      * Constructs the VendorModelMessageStatus mMessage.
-     *  @param message         Access Message
+     *
+     * @param message         Access Message
      * @param modelIdentifier model identifier
      */
     public VendorModelMessageStatus(@NonNull final AccessMessage message, final int modelIdentifier) {
@@ -87,7 +88,7 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
     }
 
     public final byte[] getAccessPayload() {
-        return mMessage.getAccessPdu();
+        return ((AccessMessage) mMessage).getAccessPdu();
     }
 
     /**

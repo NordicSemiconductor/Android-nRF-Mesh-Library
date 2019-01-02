@@ -150,6 +150,12 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     }
 
     public enum MessageState {
+
+        //Proxy configuration message
+        PROXY_CONFIG_SET_FILTER_TYPE_STATE(900),
+        PROXY_CONFIG_ADD_ADDRESS_TO_FILTER_STATE(901),
+        PROXY_CONFIG_REMOVE_ADDRESS_FROM_FILTER_STATE(902),
+
         //Configuration message States
         COMPOSITION_DATA_GET_STATE(0),
         APP_KEY_ADD_STATE(1),

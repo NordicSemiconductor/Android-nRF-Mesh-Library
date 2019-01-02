@@ -29,13 +29,13 @@ import android.util.SparseArray;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.TransportLayerOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 abstract class LowerTransportLayer extends UpperTransportLayer {
 
-    static final int NETWORK_PDU = 0x00;
     private static final String TAG = LowerTransportLayer.class.getSimpleName();
     private static final int UNSEGMENTED_HEADER = 0;
     private static final int SEGMENTED_HEADER = 1;
@@ -73,7 +73,11 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             super.createMeshMessage(message);
             createLowerTransportAccessPDU((AccessMessage) message);
         } else {
-            createLowerTransportControlPDU((ControlMessage) message);
+            switch (message.getPduType()) {
+                case MeshManagerApi.PDU_TYPE_NETWORK:
+                    createLowerTransportControlPDU((ControlMessage) message);
+                    break;
+            }
         }
     }
 
@@ -709,7 +713,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         controlMessage.setOpCode(TransportLayerOpCodes.SAR_ACK_OPCODE);
         controlMessage.setTransportControlPdu(upperTransportControlPdu);
         controlMessage.setTtl(ttl);
-        controlMessage.setPduType(NETWORK_PDU);
+        controlMessage.setPduType(MeshManagerApi.PDU_TYPE_NETWORK);
         controlMessage.setSrc(src);
         controlMessage.setDst(dst);
         controlMessage.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
@@ -734,7 +738,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         controlMessage.setOpCode(TransportLayerOpCodes.SAR_ACK_OPCODE);
         controlMessage.setTransportControlPdu(upperTransportControlPdu);
         controlMessage.setTtl(ttl);
-        controlMessage.setPduType(NETWORK_PDU);
+        controlMessage.setPduType(MeshManagerApi.PDU_TYPE_NETWORK);
         controlMessage.setSrc(src);
         controlMessage.setDst(dst);
         controlMessage.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());

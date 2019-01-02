@@ -9,7 +9,7 @@ import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 /**
  * To be used as a wrapper class to create the ProxyConfigSetFilterType message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ProxyConfigSetFilterType extends ProxyConfigMessage {
 
     private final ProxyFilterType filterType;
@@ -20,6 +20,7 @@ public class ProxyConfigSetFilterType extends ProxyConfigMessage {
      * @param filterType Filter type set by the proxy configuration
      */
     ProxyConfigSetFilterType(final ProxyFilterType filterType) {
+        super(0);
         this.filterType = filterType;
     }
 
