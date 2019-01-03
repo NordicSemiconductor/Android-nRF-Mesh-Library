@@ -1,13 +1,22 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
+
+import no.nordicsemi.android.meshprovisioner.opcodes.ProxyConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 
 /**
  * To be used as a wrapper class to create the ProxyConfigSetFilterType message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("WeakerAccess")
 public class ProxyConfigFilterStatus extends ProxyConfigStatusMessage {
+    private static final String TAG = SceneRegisterStatus.class.getSimpleName();
 
+
+    private ProxyFilterType mFilterType;
+    private int mAddressListSize;
 
     public ProxyConfigFilterStatus(@NonNull final ControlMessage controlMessage) {
         super(controlMessage);
@@ -16,12 +25,34 @@ public class ProxyConfigFilterStatus extends ProxyConfigStatusMessage {
     }
 
     @Override
-    void parseStatusParameters() {
-
+    int getOpCode() {
+        return ProxyConfigMessageOpCodes.FILTER_STATUS;
     }
 
     @Override
     byte[] getParameters() {
-        return new byte[0];
+        return mParameters;
+    }
+
+    @Override
+    void parseStatusParameters() {
+        mFilterType = new ProxyFilterType(MeshParserUtils.unsignedByteToInt(mParameters[0]));
+        mAddressListSize = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
+        Log.d(TAG, "Filter type: " + mFilterType.getFilterTypeName());
+        Log.d(TAG, "Filter size: " + mAddressListSize);
+    }
+
+    /**
+     * Returns the {@link ProxyFilterType} set on the proxy
+     */
+    public ProxyFilterType getFilterType() {
+        return mFilterType;
+    }
+
+    /**
+     * Returns the size of the address list in the proxy filter
+     */
+    public int getListSize(){
+        return mAddressListSize;
     }
 }

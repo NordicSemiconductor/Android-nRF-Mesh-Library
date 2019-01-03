@@ -52,4 +52,15 @@ public class ProxyFilterType {
     public int getFilterType() {
         return filterType;
     }
+
+    /**
+     * Returns the filter type name
+     */
+    public String getFilterTypeName(){
+        if(filterType == WHITE_LIST_FILTER){
+            return "Whitelist Filter";
+        } else {
+            return "Blacklist Filter";
+        }
+    }
 }

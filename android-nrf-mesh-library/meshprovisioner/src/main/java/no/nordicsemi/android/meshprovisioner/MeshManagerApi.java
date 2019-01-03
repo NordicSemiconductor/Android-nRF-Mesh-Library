@@ -302,6 +302,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
             case PDU_TYPE_PROXY_CONFIGURATION:
                 //Proxy configuration
                 Log.v(TAG, "Received proxy configuration message: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
+                mMeshMessageHandler.parseMeshMsgNotifications(unsegmentedPdu);
                 break;
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
@@ -345,6 +346,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
             case PDU_TYPE_PROXY_CONFIGURATION:
                 //Proxy configuration
                 Log.v(TAG, "Proxy configuration pdu sent: " + MeshParserUtils.bytesToHex(data, true));
+                mMeshMessageHandler.handleMeshMsgWriteCallbacks(data);
                 break;
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU

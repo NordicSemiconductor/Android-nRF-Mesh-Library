@@ -539,24 +539,35 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     /**
      * Parses a unsegmented lower transport control pdu.
      *
-     * @param pdu The complete pdu was received from the node. This is already de-obfuscated and decrypted at network layer.
+     * @param decryptedProxyPdu The complete pdu was received from the node. This is already de-obfuscated and decrypted at network layer.
      */
     /*package*/
-    final void parseUnsegmentedControlLowerTransportPDU(final ControlMessage controlMessage, final byte[] pdu) {
+    final void parseUnsegmentedControlLowerTransportPDU(final ControlMessage controlMessage, final byte[] decryptedProxyPdu) {
 
-        final byte header = pdu[10]; //Lower transport pdu starts here
-        final int opCode = header & 0x7F;
-        final int lowerTransportPduLength = pdu.length - 10;
+        final SparseArray<byte[]> unsegmentedMessages = new SparseArray<>();
+        final int lowerTransportPduLength = decryptedProxyPdu.length - 10;
         final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(lowerTransportPduLength).order(ByteOrder.BIG_ENDIAN);
-        lowerTransportBuffer.put(pdu, 10, lowerTransportPduLength);
+        lowerTransportBuffer.put(decryptedProxyPdu, 10, lowerTransportPduLength);
         final byte[] lowerTransportPDU = lowerTransportBuffer.array();
-        final SparseArray<byte[]> segmentedMessages = new SparseArray<>();
-        segmentedMessages.put(0, lowerTransportPDU);
-        controlMessage.setSegmented(false);
-        controlMessage.setAszmic(0);
-        controlMessage.setOpCode(opCode);
-        controlMessage.setLowerTransportControlPdu(segmentedMessages);
-        parseLowerTransportLayerPDU(controlMessage);
+        unsegmentedMessages.put(0, lowerTransportPDU);
+        final int opCode;
+        final int pduType = decryptedProxyPdu[0];
+        switch (pduType) {
+            case MeshManagerApi.PDU_TYPE_NETWORK:
+                final byte header = decryptedProxyPdu[10]; //Lower transport pdu starts here
+                opCode = header & 0x7F;
+                controlMessage.setPduType(MeshManagerApi.PDU_TYPE_NETWORK);//Set the pdu type here
+                controlMessage.setAszmic(0);
+                controlMessage.setOpCode(opCode);
+                controlMessage.setLowerTransportControlPdu(unsegmentedMessages);
+                parseLowerTransportLayerPDU(controlMessage);
+                break;
+            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
+                controlMessage.setPduType(MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION);
+                controlMessage.setLowerTransportControlPdu(unsegmentedMessages);
+                parseUpperTransportPDU(controlMessage);
+                break;
+        }
     }
 
     /**
@@ -776,7 +787,8 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
      * @param controlMessage underlying message containing the access pdu.
      */
     private void parseLowerTransportLayerPDU(final ControlMessage controlMessage) {
-        //First we reassemble the transport layer message in its a segmented message
+
+        //First we reassemble the transport layer message if its a segmented message
         reassembleLowerTransportControlPDU(controlMessage);
         final byte[] transportControlPdu = controlMessage.getTransportControlPdu();
         final int opCode = controlMessage.getOpCode();

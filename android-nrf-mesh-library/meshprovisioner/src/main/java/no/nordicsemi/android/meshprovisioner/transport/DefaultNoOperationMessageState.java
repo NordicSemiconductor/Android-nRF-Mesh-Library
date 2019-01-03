@@ -7,10 +7,12 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.opcodes.ProxyConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
@@ -163,6 +165,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightHslStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_REGISTER_STATUS) {
                     final SceneRegisterStatus registerStatus = new SceneRegisterStatus(message);
+                    registerStatus.parseStatusParameters();
                     mInternalTransportCallbacks.updateMeshNetwork(registerStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), registerStatus);
                 } else {
@@ -196,18 +199,26 @@ class DefaultNoOperationMessageState extends MeshMessageState {
     private void parseControlMessage(final ControlMessage controlMessage) {
         //Get the segment count count of the access message
         final int segmentCount = message.getNetworkPdu().size();
-        final TransportControlMessage transportControlMessage = controlMessage.getTransportControlMessage();
-        switch (transportControlMessage.getState()) {
-            case LOWER_TRANSPORT_BLOCK_ACKNOWLEDGEMENT:
-                Log.v(TAG, "Acknowledgement payload: " + MeshParserUtils.bytesToHex(controlMessage.getTransportControlPdu(), false));
-                final ArrayList<Integer> retransmitPduIndexes = BlockAcknowledgementMessage.getSegmentsToBeRetransmitted(controlMessage.getTransportControlPdu(), segmentCount);
-                mMeshStatusCallbacks.onBlockAcknowledgementReceived(controlMessage.getSrc());
-                executeResend(retransmitPduIndexes);
-                break;
-            default:
-                Log.v(TAG, "Unexpected control message received, ignoring message");
-                mMeshStatusCallbacks.onUnknownPduReceived(controlMessage.getSrc(), controlMessage.getTransportControlPdu());
-                break;
+        if(controlMessage.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
+            final TransportControlMessage transportControlMessage = controlMessage.getTransportControlMessage();
+            switch (transportControlMessage.getState()) {
+                case LOWER_TRANSPORT_BLOCK_ACKNOWLEDGEMENT:
+                    Log.v(TAG, "Acknowledgement payload: " + MeshParserUtils.bytesToHex(controlMessage.getTransportControlPdu(), false));
+                    final ArrayList<Integer> retransmitPduIndexes = BlockAcknowledgementMessage.getSegmentsToBeRetransmitted(controlMessage.getTransportControlPdu(), segmentCount);
+                    mMeshStatusCallbacks.onBlockAcknowledgementReceived(controlMessage.getSrc());
+                    executeResend(retransmitPduIndexes);
+                    break;
+                default:
+                    Log.v(TAG, "Unexpected control message received, ignoring message");
+                    mMeshStatusCallbacks.onUnknownPduReceived(controlMessage.getSrc(), controlMessage.getTransportControlPdu());
+                    break;
+            }
+        } else if (controlMessage.getPduType() == MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION){
+            if(controlMessage.getOpCode() == ProxyConfigMessageOpCodes.FILTER_STATUS){
+                final ProxyConfigFilterStatus status = new ProxyConfigFilterStatus(controlMessage);
+                mInternalTransportCallbacks.updateMeshNetwork(status);
+                mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+            }
         }
     }
 }
