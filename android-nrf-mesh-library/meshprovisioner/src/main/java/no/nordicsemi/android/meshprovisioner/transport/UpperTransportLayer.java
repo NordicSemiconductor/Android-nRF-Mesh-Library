@@ -177,7 +177,7 @@ abstract class UpperTransportLayer extends AccessLayer {
                             .order(ByteOrder.BIG_ENDIAN);
                     message.setOpCode(buffer.get());
                     final byte[] parameters = new byte[buffer.capacity() - 1];
-                    buffer.get(parameters);//, buffer.position(), parameters.length);
+                    buffer.get(parameters);
                     message.setParameters(parameters);
                 }
                 break;
