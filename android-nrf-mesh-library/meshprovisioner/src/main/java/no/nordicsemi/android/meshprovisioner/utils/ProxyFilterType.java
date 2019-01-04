@@ -1,5 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.IntDef;
 
 import java.lang.annotation.Retention;
@@ -9,7 +11,7 @@ import java.lang.annotation.RetentionPolicy;
  * Wrapper class for proxy filter types
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
-public class ProxyFilterType {
+public class ProxyFilterType implements Parcelable {
 
     @SuppressWarnings("WeakerAccess")
     @Retention(RetentionPolicy.SOURCE)
@@ -62,5 +64,27 @@ public class ProxyFilterType {
         } else {
             return "Blacklist Filter";
         }
+    }
+
+    public static final Creator<ProxyFilterType> CREATOR = new Creator<ProxyFilterType>() {
+        @Override
+        public ProxyFilterType createFromParcel(Parcel in) {
+            return new ProxyFilterType(in.readInt());
+        }
+
+        @Override
+        public ProxyFilterType[] newArray(int size) {
+            return new ProxyFilterType[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeInt(filterType);
     }
 }
