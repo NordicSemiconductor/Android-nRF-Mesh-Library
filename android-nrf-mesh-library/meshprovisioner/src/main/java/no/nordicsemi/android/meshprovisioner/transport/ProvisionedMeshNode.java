@@ -61,6 +61,10 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
         indices = @Index("mesh_uuid"))
 public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
+    @Ignore
+    @Expose
+    private SecureUtils.K2Output k2Output;
+
     public static final Creator<ProvisionedMeshNode> CREATOR = new Creator<ProvisionedMeshNode>() {
         @Override
         public ProvisionedMeshNode createFromParcel(Parcel in) {
@@ -72,9 +76,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
             return new ProvisionedMeshNode[size];
         }
     };
-    @Ignore
-    @Expose
-    private SecureUtils.K2Output k2Output;
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -133,6 +134,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         networkTransmitSettings = in.readParcelable(NetworkTransmitSettings.class.getClassLoader());
         relaySettings = in.readParcelable(RelaySettings.class.getClassLoader());
         blackListed = in.readByte() != 1;
+
     }
 
     @Override

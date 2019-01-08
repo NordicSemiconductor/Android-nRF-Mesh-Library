@@ -146,10 +146,6 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         mMeshStatusCallbacks.onBlockAcknowledgementSent(mDst);
     }
 
-    public boolean isIncompleteTimerExpired() {
-        return isIncompleteTimerExpired;
-    }
-
     public enum MessageState {
 
         //Proxy configuration message

@@ -126,4 +126,8 @@ public class SharedViewModel extends ViewModel {
     public LiveData<String> getNetworkExportState(){
         return nRFMeshRepository.getNetworkExportState();
     }
+
+    public LiveData<Integer> getConnectedMeshNodeAddress(){
+        return nRFMeshRepository.getConnectedMeshNodeAddress();
+    }
 }

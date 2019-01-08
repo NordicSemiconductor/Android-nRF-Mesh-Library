@@ -46,7 +46,10 @@ import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManagerCallbacks;
@@ -96,8 +99,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private final MutableLiveData<ProvisioningCapabilities> capabilitiesMutableLiveData = new MutableLiveData<>();
 
     private final MutableLiveData<UnprovisionedMeshNode> mUnprovisionedMeshNodeLiveData = new MutableLiveData<>();
+
     private final MutableLiveData<ProvisionedMeshNode> mProvisionedMeshNodeLiveData = new MutableLiveData<>();
 
+    private final SingleLiveEvent<Integer> mConnectedMeshNodeAddress = new SingleLiveEvent<>();
     /**
      * Contains the initial provisioning live data
      **/
@@ -390,6 +395,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mProvisionedMeshNodeLiveData;
     }
 
+    LiveData<Integer> getConnectedMeshNodeAddress() {
+        return mConnectedMeshNodeAddress;
+    }
+
     /**
      * Returns the selected mesh node
      */
@@ -500,9 +509,17 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         } else {
             mIsConnected.postValue(false);
             mIsConnectedToProxy.postValue(false);
+            if (mConnectedMeshNodeAddress.getValue() != null) {
+                final ProvisionedMeshNode node = mMeshManagerApi.getMeshNetwork().
+                        getProvisionedNode(AddressUtils.getUnicastAddressBytes(mConnectedMeshNodeAddress.getValue()));
+                if (node != null)
+                    node.setProxyFilter(null);
+
+            }
             clearExtendedMeshNode();
         }
         mSetupProvisionedNode = false;
+        mConnectedMeshNodeAddress.postValue(null);
     }
 
     @Override
@@ -654,8 +671,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onProvisioningCompleted(final ProvisionedMeshNode meshNode, final ProvisioningState.States state, final byte[] data) {
-        /*mMeshNetwork = mMeshManagerApi.getMeshNetwork();
-        mMeshNetworkLiveData.refresh(mMeshNetwork);*/
         mProvisionedMeshNode = meshNode;
         mUnprovisionedMeshNodeLiveData.postValue(null);
         mProvisionedMeshNodeLiveData.postValue(meshNode);
@@ -741,11 +756,20 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onMeshMessageReceived(final byte[] src, final MeshMessage meshMessage) {
         final ProvisionedMeshNode node = mMeshNetwork.getProvisionedNode(src);
-        if (meshMessage instanceof ConfigCompositionDataStatus) {
+        if (meshMessage instanceof ProxyConfigFilterStatus) {
+            mProvisionedMeshNode = node;
+            setSelectedMeshNode(node);
+            final ProxyConfigFilterStatus status = (ProxyConfigFilterStatus) meshMessage;
+            final int unicastAddress = AddressUtils.getUnicastAddressInt(status.getSrc());
+            Log.v(TAG, "Proxy configuration source: " + MeshParserUtils.bytesToHex(status.getSrc(), false));
+            mConnectedMeshNodeAddress.postValue(unicastAddress);
+            mMeshMessageLiveData.postValue(status);
+        } else if (meshMessage instanceof ConfigCompositionDataStatus) {
             final ConfigCompositionDataStatus status = (ConfigCompositionDataStatus) meshMessage;
             if (mSetupProvisionedNode) {
                 mIsCompositionDataReceived = true;
                 mProvisionedMeshNodeLiveData.postValue(node);
+                mConnectedMeshNodeAddress.postValue(node.getUnicastAddressInt());
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.COMPOSITION_DATA_STATUS_RECEIVED);
                 //We send app key add after composition is complete. Adding a delay so that we don't send anything before the acknowledgement is sent out.
                 if (!mMeshNetwork.getAppKeys().isEmpty()) {

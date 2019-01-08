@@ -104,6 +104,34 @@ public class MeshParserUtils {
     }
 
     /**
+     * Checks if the unicast address is valid
+     *
+     * @param address address to be validated
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidUnicastAddress(final byte[] address) {
+        if (address == null || address.length != 2)
+            return false;
+        final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
+
+        return addressVal > 0x0000 && addressVal <= 0x7FFF;
+    }
+
+    /**
+     * Checks if the address is a valid unassigned address
+     *
+     * @param address address to be validated
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidUnassignedAddress(final byte[] address) {
+        if (address == null|| address.length != 2)
+            return false;
+        final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
+
+        return addressVal == 0x0000;
+    }
+
+    /**
      * Validates a given group address
      *
      * @param address group address
@@ -124,13 +152,6 @@ public class MeshParserUtils {
      */
     public static boolean isValidGroupAddress(final int address) {
         return (address >= 0xC000 && address <= 0xFEFF) || (address >= 0xFFFC && address <= 0xFFFF);
-    }
-
-    public static boolean isValidUnicastAddress(final byte[] value) {
-        if (value == null)
-            return false;
-        final int address = ((value[0] & 0xFF) << 8) | value[1] & 0xFF;
-        return address == (address & 0x7FFF);
     }
 
     private static boolean isValidIvIndex(final Integer value) {

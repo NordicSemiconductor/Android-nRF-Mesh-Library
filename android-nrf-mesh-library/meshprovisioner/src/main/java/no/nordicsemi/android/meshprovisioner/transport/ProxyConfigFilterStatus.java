@@ -37,7 +37,8 @@ public class ProxyConfigFilterStatus extends ProxyConfigStatusMessage {
     @Override
     void parseStatusParameters() {
         mFilterType = new ProxyFilterType(MeshParserUtils.unsignedByteToInt(mParameters[0]));
-        mAddressListSize = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
+        //Note proxy protocol is in big endian
+        mAddressListSize = MeshParserUtils.unsignedBytesToInt(mParameters[2], mParameters[1]);
         Log.d(TAG, "Filter type: " + mFilterType.getFilterTypeName());
         Log.d(TAG, "Filter size: " + mAddressListSize);
     }

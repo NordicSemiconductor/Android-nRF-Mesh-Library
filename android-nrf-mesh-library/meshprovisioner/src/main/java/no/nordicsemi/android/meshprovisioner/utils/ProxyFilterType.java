@@ -51,7 +51,7 @@ public class ProxyFilterType implements Parcelable {
      * Returns the filter type
      */
     @FilterTypes
-    public int getFilterType() {
+    public int getType() {
         return filterType;
     }
 

@@ -18,8 +18,9 @@ public class ProxyConfigAddAddressToFilter extends ProxyConfigMessage {
      *
      * @param addresses List of addresses to be added to the filter
      */
-    ProxyConfigAddAddressToFilter(final List<AddressArray> addresses) {
+    public ProxyConfigAddAddressToFilter(final List<AddressArray> addresses) {
         this.addresses = addresses;
+        assembleMessageParameters();
     }
 
     @Override
@@ -28,8 +29,8 @@ public class ProxyConfigAddAddressToFilter extends ProxyConfigMessage {
         mParameters = new byte[length];
         int count = 0;
         for (AddressArray addressArray : addresses) {
-            mParameters[count] = addressArray.getAddress()[0];
-            mParameters[count + 1] = addressArray.getAddress()[1];
+            mParameters[count] = addressArray.getAddress()[1];
+            mParameters[count + 1] = addressArray.getAddress()[0];
             count += 1;
         }
     }
@@ -42,5 +43,12 @@ public class ProxyConfigAddAddressToFilter extends ProxyConfigMessage {
     @Override
     byte[] getParameters() {
         return mParameters;
+    }
+
+    /**
+     * Returns the addresses that were added to the proxy filter
+     */
+    public List<AddressArray> getAddresses(){
+        return addresses;
     }
 }

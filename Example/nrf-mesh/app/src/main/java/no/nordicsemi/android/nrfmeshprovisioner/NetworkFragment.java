@@ -40,6 +40,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
@@ -56,6 +58,7 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
+    private RecyclerView mRecyclerViewNodes;
     private NodeAdapter mAdapter;
 
     @Override
@@ -69,22 +72,22 @@ public class NetworkFragment extends Fragment implements Injectable,
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_network, null);
         // Configure the recycler view
-        final RecyclerView recyclerView = rootView.findViewById(R.id.recycler_view_provisioned_nodes);
+        mRecyclerViewNodes = rootView.findViewById(R.id.recycler_view_provisioned_nodes);
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
 
         mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
 
         boolean isTablet = getResources().getBoolean(R.bool.isTablet);
         if(isTablet){
-            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2)); //If its a tablet we use a grid layout with 2 columns
+            mRecyclerViewNodes.setLayoutManager(new GridLayoutManager(getContext(), 2)); //If its a tablet we use a grid layout with 2 columns
         } else {
-            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            mRecyclerViewNodes.setLayoutManager(new LinearLayoutManager(getContext()));
         }
 
 
         mAdapter = new NodeAdapter(getActivity(), mViewModel.getProvisionedNodes());
         mAdapter.setOnItemClickListener(this);
-        recyclerView.setAdapter(mAdapter);
+        mRecyclerViewNodes.setAdapter(mAdapter);
 
         // Create view model containing utility methods for scanning
         mViewModel.getProvisionedNodes().observe(this, nodes -> {
@@ -103,6 +106,9 @@ public class NetworkFragment extends Fragment implements Injectable,
                 requireActivity().invalidateOptionsMenu();
             }
         });
+
+        mViewModel.getConnectedMeshNodeAddress().observe(this, unicastAddress -> mAdapter.selectConnectedMeshNode(unicastAddress));
+
         return rootView;
 
     }
@@ -158,5 +164,4 @@ public class NetworkFragment extends Fragment implements Injectable,
         meshConfigurationIntent.putExtra(Utils.EXTRA_DEVICE, node);
         requireActivity().startActivity(meshConfigurationIntent);
     }
-
 }

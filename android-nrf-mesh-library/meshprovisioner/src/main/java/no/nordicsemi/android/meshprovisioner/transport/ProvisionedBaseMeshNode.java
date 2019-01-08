@@ -52,6 +52,7 @@ import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
+import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
@@ -221,7 +222,11 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
     @Ignore
     @Expose(deserialize = false)
-    private String bluetoothDeviceAddress;
+    protected String bluetoothDeviceAddress;
+
+    @Ignore
+    @Expose(serialize = false)
+    private ProxyFilter proxyFilter;
 
     public ProvisionedBaseMeshNode() {
 
@@ -428,5 +433,24 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({LOW, HIGH})
     public @interface SecurityState {
+    }
+
+    /**
+     * Returns the {@link ProxyFilter} set on the node
+     */
+    @Nullable
+    public ProxyFilter getProxyFilter() {
+        return proxyFilter;
+    }
+
+    /**
+     * Sets the {@link ProxyFilter} settings on the node
+     * <p>
+     * Please note that this is not persisted within the node since the filter is reinitialized to a whitelist filter upon connecting to a proxy node.
+     * Therefore after setting a proxy filter and disconnecting users will have to manually
+     * <p/>
+     */
+    public void setProxyFilter(@Nullable final ProxyFilter proxyFilter) {
+        this.proxyFilter = proxyFilter;
     }
 }

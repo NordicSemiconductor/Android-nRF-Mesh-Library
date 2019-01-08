@@ -13,8 +13,11 @@ import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ProxyConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
+import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
+import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 
 @SuppressWarnings("WeakerAccess")
@@ -199,7 +202,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
     private void parseControlMessage(final ControlMessage controlMessage) {
         //Get the segment count count of the access message
         final int segmentCount = message.getNetworkPdu().size();
-        if(controlMessage.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
+        if (controlMessage.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
             final TransportControlMessage transportControlMessage = controlMessage.getTransportControlMessage();
             switch (transportControlMessage.getState()) {
                 case LOWER_TRANSPORT_BLOCK_ACKNOWLEDGEMENT:
@@ -213,12 +216,52 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mMeshStatusCallbacks.onUnknownPduReceived(controlMessage.getSrc(), controlMessage.getTransportControlPdu());
                     break;
             }
-        } else if (controlMessage.getPduType() == MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION){
-            if(controlMessage.getOpCode() == ProxyConfigMessageOpCodes.FILTER_STATUS){
+        } else if (controlMessage.getPduType() == MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION) {
+            final ProvisionedMeshNode node = mInternalTransportCallbacks.getProvisionedNode(controlMessage.getSrc());
+            if (controlMessage.getOpCode() == ProxyConfigMessageOpCodes.FILTER_STATUS) {
+                final ProxyFilter currentFilter = node.getProxyFilter();
                 final ProxyConfigFilterStatus status = new ProxyConfigFilterStatus(controlMessage);
-                mInternalTransportCallbacks.updateMeshNetwork(status);
-                mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                final ProxyFilter filter;
+                if (mMeshMessage instanceof ProxyConfigSetFilterType) {
+                    node.setProxyFilter(new ProxyFilter(status.getFilterType()));
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(controlMessage.getSrc(), status);
+                } else if (mMeshMessage instanceof ProxyConfigAddAddressToFilter) {
+                    filter = getProxyFilter(currentFilter, status.getFilterType());
+
+                    final ProxyConfigAddAddressToFilter addAddressToFilter = (ProxyConfigAddAddressToFilter) mMeshMessage;
+                    for (AddressArray addressArray : addAddressToFilter.getAddresses()) {
+                        filter.addAddress(addressArray);
+                    }
+                    node.setProxyFilter(filter);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(controlMessage.getSrc(), status);
+
+                } else if (mMeshMessage instanceof ProxyConfigRemoveAddressFromFilter) {
+                    filter = getProxyFilter(currentFilter, status.getFilterType());
+                    final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = (ProxyConfigRemoveAddressFromFilter) mMeshMessage;
+                    for (AddressArray addressArray : removeAddressFromFilter.getAddresses()) {
+                        filter.removeAddress(addressArray);
+                    }
+                    node.setProxyFilter(filter);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(controlMessage.getSrc(), status);
+                }
             }
+        }
+    }
+
+    /**
+     * Checks and returns a new filter or the existing filter
+     *
+     * @param currentFilter Proxy filter that is currently set on this node
+     * @param filterType    Type of {@link ProxyFilterType} that was received by the status message
+     */
+    private ProxyFilter getProxyFilter(final ProxyFilter currentFilter, final ProxyFilterType filterType) {
+        if (currentFilter != null && currentFilter.getFilterType().getType() == filterType.getType()) {
+            return currentFilter;
+        } else {
+            return new ProxyFilter(filterType);
         }
     }
 }

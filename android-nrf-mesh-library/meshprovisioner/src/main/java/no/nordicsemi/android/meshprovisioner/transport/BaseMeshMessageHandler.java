@@ -59,14 +59,16 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         if (mMeshMessageState instanceof ProxyConfigMessageState) {
             switch (mMeshMessageState.getState()) {
                 case PROXY_CONFIG_SET_FILTER_TYPE_STATE:
-                    final ProxyConfigSetFilterTypeState compositionDataGet = (ProxyConfigSetFilterTypeState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, compositionDataGet.getMeshMessage(), mMeshTransport, this));
+                    final ProxyConfigSetFilterTypeState setFilterTypeState = (ProxyConfigSetFilterTypeState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, setFilterTypeState.getMeshMessage(), mMeshTransport, this));
                     break;
                 case PROXY_CONFIG_ADD_ADDRESS_TO_FILTER_STATE:
-                    //TODO implement add address to filter state
+                    final ProxyConfigAddAddressState addAddressState = (ProxyConfigAddAddressState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, addAddressState.getMeshMessage(), mMeshTransport, this));
                     break;
                 case PROXY_CONFIG_REMOVE_ADDRESS_FROM_FILTER_STATE:
-                    //TODO implement remove address from filter state
+                    final ProxyConfigRemoveAddressState removeAddressState = (ProxyConfigRemoveAddressState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, removeAddressState.getMeshMessage(), mMeshTransport, this));
                     break;
             }
         } else if (mMeshMessageState instanceof ConfigMessageState) {
@@ -293,7 +295,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     /**
      * Sends a mesh message specified within the {@link MeshMessage} object
      *
-     * @param configurationMessage {@link ConfigMessage} Mesh message containing the message opcode and message parameters
+     * @param configurationMessage {@link ProxyConfigMessage} Mesh message containing the message opcode and message parameters
      */
     private void sendProxyConfigMeshMessage(@NonNull final byte[] src, @NonNull final byte[] dst, @NonNull final ProxyConfigMessage configurationMessage) {
 
@@ -304,8 +306,20 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             proxyConfigSetFilterTypeState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = proxyConfigSetFilterTypeState;
             proxyConfigSetFilterTypeState.executeSend();
-        } else {
-            //TODO implement proxy configuration messages
+        } else if (configurationMessage instanceof ProxyConfigAddAddressToFilter) {
+            final ProxyConfigAddAddressState proxyConfigAddAddressState = new ProxyConfigAddAddressState(mContext, src, dst,
+                    (ProxyConfigAddAddressToFilter) configurationMessage, mMeshTransport, this);
+            proxyConfigAddAddressState.setTransportCallbacks(mInternalTransportCallbacks);
+            proxyConfigAddAddressState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = proxyConfigAddAddressState;
+            proxyConfigAddAddressState.executeSend();
+        } else if (configurationMessage instanceof ProxyConfigRemoveAddressFromFilter) {
+            final ProxyConfigRemoveAddressState proxyConfigRemoveAddressState = new ProxyConfigRemoveAddressState(mContext, src, dst,
+                    (ProxyConfigRemoveAddressFromFilter) configurationMessage, mMeshTransport, this);
+            proxyConfigRemoveAddressState.setTransportCallbacks(mInternalTransportCallbacks);
+            proxyConfigRemoveAddressState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = proxyConfigRemoveAddressState;
+            proxyConfigRemoveAddressState.executeSend();
         }
     }
 
