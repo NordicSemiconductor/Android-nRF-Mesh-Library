@@ -103,7 +103,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
-        alertDialogBuilder.setTitle(R.string.title_group_address);
+        alertDialogBuilder.setTitle(R.string.title_add_address);
         alertDialogBuilder.setMessage(R.string.dialog_summary_filter_address);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
