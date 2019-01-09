@@ -443,6 +443,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         actionAddAppkey.setEnabled(true);
         actionGetProxyState.setEnabled(true);
         actionSetProxyState.setEnabled(true);
+        actionSwitchFilter.setEnabled(true);
+        actionAddFilterAddress.setEnabled(true);
         actionResetNode.setEnabled(true);
     }
 
@@ -451,6 +453,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         actionAddAppkey.setEnabled(false);
         actionGetProxyState.setEnabled(false);
         actionSetProxyState.setEnabled(false);
+        actionSwitchFilter.setEnabled(false);
+        actionAddFilterAddress.setEnabled(false);
         actionResetNode.setEnabled(false);
     }
 
