@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -63,17 +64,17 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 @SuppressWarnings("WeakerAccess")
 public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks {
 
+    private static final String TAG = MeshManagerApi.class.getSimpleName();
     public final static UUID MESH_PROVISIONING_UUID = UUID.fromString("00001827-0000-1000-8000-00805F9B34FB");
     public final static UUID MESH_PROXY_UUID = UUID.fromString("00001828-0000-1000-8000-00805F9B34FB");
     public static final byte PDU_TYPE_PROVISIONING = 0x03;
 
-    private static final String TAG = MeshManagerApi.class.getSimpleName();
     //PDU types
     public static final byte PDU_TYPE_NETWORK = 0x00;
     public static final byte PDU_TYPE_MESH_BEACON = 0x01;
     public static final byte PDU_TYPE_PROXY_CONFIGURATION = 0x02;
     //GATT level segmentation
-    private static final byte SAR_COMPLETE = 0b00;
+    private static final byte GATT_SAR_COMPLETE = 0b00;
     private static final byte GATT_SAR_START = 0b01;
     private static final byte GATT_SAR_CONTINUATION = 0b10;
     private static final byte GATT_SAR_END = 0b11;
@@ -81,6 +82,9 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     private static final int GATT_SAR_MASK = 0xC0;
     private static final int GATT_SAR_UNMASK = 0x3F;
     private static final int SAR_BIT_OFFSET = 6;
+
+    //According to the spec the proxy protocol must contain an SAR timeout of 20 seconds.
+    private static final long PROXY_SAR_TRANSFER_TIME_OUT = 20 * 1000;
     /**
      * Length of the random number required to calculate the hash containing the node id
      */
@@ -106,12 +110,13 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     /**
      * Offset of the network id contained in the advertisement service data
      */
-    private final static int ADVERTISED_NETWWORK_ID_OFFSET = 1;
+    private final static int ADVERTISED_NETWORK_ID_OFFSET = 1;
     /**
      * Length of the network id contained in the advertisement service data
      */
-    private final static int ADVERTISED_NETWWORK_ID_LENGTH = 8;
+    private final static int ADVERTISED_NETWORK_ID_LENGTH = 8;
     private Context mContext;
+    private final Handler mHanlder;
     private MeshManagerTransportCallbacks mTransportCallbacks;
     private MeshProvisioningHandler mMeshProvisioningHandler;
     private MeshMessageHandler mMeshMessageHandler;
@@ -131,8 +136,16 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     private GroupDao mGroupDao;
     private SceneDao mSceneDao;
 
-    public MeshManagerApi(final Context context) {
+    private final Runnable mProxyProtocolTimeoutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mMeshMessageHandler.onIncompleteTimerExpired(true);
+        }
+    };
+
+    public MeshManagerApi(@NonNull final Context context) {
         this.mContext = context;
+        mHanlder = new Handler();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, internalTransportCallbacks, internalMeshMgrCallbacks);
         mMeshMessageHandler = new MeshMessageHandler(context, internalTransportCallbacks);
         mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(networkLayerCallbacks);
@@ -267,15 +280,31 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
             unsegmentedPdu = data;
         } else {
             final byte[] combinedPdu = appendPdu(mtuSize, data);
-            if (combinedPdu == null)
+            if (combinedPdu == null) {
+                //Start the timer
+                toggleProxyProtocolSarTimeOut(data);
                 return;
+            }
             else {
+                toggleProxyProtocolSarTimeOut(data);
                 unsegmentedPdu = removeSegmentation(mtuSize, combinedPdu);
             }
         }
         parseNotifications(unsegmentedPdu);
     }
 
+    /**
+     * Toggles the Segmentation and Reassembly timeout for proxy configuration messages received via proxy protocol
+     * @param data pdu
+     */
+    private void toggleProxyProtocolSarTimeOut(final byte[] data){
+        final int pduType = MeshParserUtils.unsignedByteToInt(data[0]);
+        if (pduType == ((GATT_SAR_START << SAR_BIT_OFFSET) | MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION)) {
+            mHanlder.postDelayed(mProxyProtocolTimeoutRunnable, PROXY_SAR_TRANSFER_TIME_OUT);
+        } else if(pduType == ((GATT_SAR_END << SAR_BIT_OFFSET) | MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION)) {
+            mHanlder.removeCallbacks(mProxyProtocolTimeoutRunnable);
+        }
+    }
 
     /**
      * Parses notifications received by the client.
@@ -646,7 +675,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
 
     @Override
     public boolean isAdvertisingWithNetworkIdentity(@Nullable final byte[] serviceData) {
-        return serviceData != null && serviceData[ADVERTISED_NETWWORK_ID_OFFSET - 1] == ADVERTISEMENT_TYPE_NETWORK_ID;
+        return serviceData != null && serviceData[ADVERTISED_NETWORK_ID_OFFSET - 1] == ADVERTISEMENT_TYPE_NETWORK_ID;
     }
 
     /**
@@ -658,8 +687,8 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     private byte[] getAdvertisedNetworkId(final byte[] serviceData) {
         if (serviceData == null)
             return null;
-        final ByteBuffer advertisedNetowrkID = ByteBuffer.allocate(ADVERTISED_NETWWORK_ID_LENGTH).order(ByteOrder.BIG_ENDIAN);
-        advertisedNetowrkID.put(serviceData, ADVERTISED_NETWWORK_ID_OFFSET, ADVERTISED_HASH_LENGTH);
+        final ByteBuffer advertisedNetowrkID = ByteBuffer.allocate(ADVERTISED_NETWORK_ID_LENGTH).order(ByteOrder.BIG_ENDIAN);
+        advertisedNetowrkID.put(serviceData, ADVERTISED_NETWORK_ID_OFFSET, ADVERTISED_HASH_LENGTH);
         return advertisedNetowrkID.array();
     }
 
@@ -856,7 +885,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
         }
     };
 
-    private ProvisionedMeshNode getMeshNode(final int unicast){
+    private ProvisionedMeshNode getMeshNode(final int unicast) {
         for (ProvisionedMeshNode node : mMeshNetwork.getProvisionedNodes()) {
             if (unicast == node.getUnicastAddressInt()) {
                 return node;
