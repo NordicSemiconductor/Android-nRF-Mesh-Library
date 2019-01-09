@@ -71,6 +71,7 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigAddAddressToFilter;
+import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigRemoveAddressFromFilter;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigSetFilterType;
 import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
@@ -477,7 +478,9 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     private void updateMeshMessage(final MeshMessage meshMessage) {
-        if (meshMessage instanceof ConfigCompositionDataStatus) {
+        if(meshMessage instanceof ProxyConfigFilterStatus) {
+            hideProgressBar();
+        } if (meshMessage instanceof ConfigCompositionDataStatus) {
             hideProgressBar();
         } else if (meshMessage instanceof ConfigAppKeyStatus) {
             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_APP_KEY_STATUS) == null) {
@@ -504,6 +507,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     @Override
     public void addAddress(@NonNull final byte[] address) {
+        showProgressbar();
         final AddressArray addressArr = new AddressArray(address[0], address[1]);
         final List<AddressArray> addresses = new ArrayList<>();
         addresses.add(addressArr);
@@ -512,6 +516,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     private void removeAddress(final int position) {
+        showProgressbar();
         final ProxyFilter proxyFilter = mViewModel.getSelectedMeshNode().getMeshNode().getProxyFilter();
         final AddressArray addressArr = proxyFilter.getAddresses().get(position);
         final List<AddressArray> addresses = new ArrayList<>();
@@ -521,6 +526,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     private void setFilter(final ProxyFilterType filterType) {
+        showProgressbar();
         final ProxyConfigSetFilterType setFilterType = new ProxyConfigSetFilterType(filterType);
         mViewModel.getMeshManagerApi().sendMeshMessage(new byte[]{0x00, 0x00}, setFilterType);
     }
