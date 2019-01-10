@@ -1,5 +1,6 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ProxyConfigMessageOpCodes;
@@ -18,19 +19,23 @@ public class ProxyConfigRemoveAddressFromFilter extends ProxyConfigMessage {
      *
      * @param addresses List of addresses to be added to the filter
      */
-    public ProxyConfigRemoveAddressFromFilter(final List<AddressArray> addresses) {
-        this.addresses = addresses;
+    public ProxyConfigRemoveAddressFromFilter(final List<AddressArray> addresses) throws IllegalArgumentException {
+        this.addresses = new ArrayList<>();
+        this.addresses.addAll(addresses);
+        assembleMessageParameters();
     }
 
     @Override
-    void assembleMessageParameters() {
-        final int length = addresses.size() * 2;
+    void assembleMessageParameters() throws IllegalArgumentException {
+        if (addresses.isEmpty())
+            throw new IllegalArgumentException("Address list cannot be empty!");
+        final int length = (int) Math.pow(2, addresses.size());
         mParameters = new byte[length];
         int count = 0;
         for (AddressArray addressArray : addresses) {
-            mParameters[count] = addressArray.getAddress()[0];
-            mParameters[count + 1] = addressArray.getAddress()[1];
-            count += 1;
+            mParameters[count] = addressArray.getAddress()[1];
+            mParameters[count + 1] = addressArray.getAddress()[0];
+            count += 2;
         }
     }
 
