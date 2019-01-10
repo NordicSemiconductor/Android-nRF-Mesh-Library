@@ -1,5 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.support.annotation.NonNull;
+
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ProxyConfigMessageOpCodes;
@@ -18,13 +20,15 @@ public class ProxyConfigAddAddressToFilter extends ProxyConfigMessage {
      *
      * @param addresses List of addresses to be added to the filter
      */
-    public ProxyConfigAddAddressToFilter(final List<AddressArray> addresses) {
+    public ProxyConfigAddAddressToFilter(@NonNull final List<AddressArray> addresses) throws IllegalArgumentException {
         this.addresses = addresses;
         assembleMessageParameters();
     }
 
     @Override
-    void assembleMessageParameters() {
+    void assembleMessageParameters() throws IllegalArgumentException {
+        if(addresses.isEmpty())
+            throw new IllegalArgumentException("Address list cannot be empty!");
         final int length = (int) Math.pow(2 , addresses.size());
         mParameters = new byte[length];
         int count = 0;
