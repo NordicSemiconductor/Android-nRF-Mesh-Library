@@ -99,7 +99,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         for (MeshModel model : models) {
             final View modelView = LayoutInflater.from(mContext).inflate(R.layout.model_item, holder.mElementContainer, false);
             modelView.setTag(model.getModelId());
-            final TextView modelNameView = modelView.findViewById(R.id.model_name);
+            final TextView modelNameView = modelView.findViewById(R.id.address);
             final TextView modelIdView = modelView.findViewById(R.id.model_id);
             modelNameView.setText(model.getModelName());
             if (model instanceof VendorModel) {

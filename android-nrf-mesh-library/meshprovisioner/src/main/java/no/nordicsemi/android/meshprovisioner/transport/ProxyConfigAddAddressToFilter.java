@@ -25,13 +25,13 @@ public class ProxyConfigAddAddressToFilter extends ProxyConfigMessage {
 
     @Override
     void assembleMessageParameters() {
-        final int length = addresses.size() * 2;
+        final int length = (int) Math.pow(2 , addresses.size());
         mParameters = new byte[length];
         int count = 0;
         for (AddressArray addressArray : addresses) {
             mParameters[count] = addressArray.getAddress()[1];
             mParameters[count + 1] = addressArray.getAddress()[0];
-            count += 1;
+            count += 2;
         }
     }
 

@@ -24,56 +24,104 @@ package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.adapter.FilterAddressAdapter1;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 
 public class DialogFragmentFilterAddAddress extends DialogFragment {
 
+    private static final String PROXY_FILTER_KEY = "PROXY_FILTER";
     //UI Bindings
     @BindView(R.id.text_input_layout)
     TextInputLayout addressInputLayout;
     @BindView(R.id.text_input)
     TextInputEditText addressInput;
+    @BindView(R.id.recycler_view_addresses)
+    RecyclerView recyclerViewAddresses;
+    private ArrayList<AddressArray> addresses;
+    private ProxyFilterType filterType;
 
     public interface DialogFragmentFilterAddressListener {
-        void addAddress(final byte[] subscriptionAddress);
+        void addAddresses(final List<AddressArray> addresses);
     }
 
-    public static DialogFragmentFilterAddAddress newInstance() {
-        return new DialogFragmentFilterAddAddress();
+    public static DialogFragmentFilterAddAddress newInstance(final ProxyFilterType filterType) {
+        final DialogFragmentFilterAddAddress fragment = new DialogFragmentFilterAddAddress();
+        final Bundle bundle = new Bundle();
+        bundle.putParcelable(PROXY_FILTER_KEY, filterType);
+        fragment.setArguments(bundle);
+        return fragment;
     }
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            filterType = getArguments().getParcelable(PROXY_FILTER_KEY);
+        }
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_address_input, null);
+        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_filter_address, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
+
+        if (savedInstanceState != null) {
+            filterType = savedInstanceState.getParcelable(PROXY_FILTER_KEY);
+            addresses = savedInstanceState.getParcelableArrayList("AddressList");
+        } else {
+            addresses = new ArrayList<>();
+        }
+
+        final FilterAddressAdapter1 adapter = new FilterAddressAdapter1(requireContext(), addresses);
+        recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewAddresses.setItemAnimator(new DefaultItemAnimator());
+        recyclerViewAddresses.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+        final Button actionAdd = rootView.findViewById(R.id.action_add);
+        actionAdd.setOnClickListener(v -> {
+            final String addressVal = addressInput.getEditableText().toString();
+            if (validateInput(addressVal)) {
+                addressInput.getEditableText().clear();
+                final byte[] address = MeshParserUtils.toByteArray(addressVal);
+                addresses.add(new AddressArray(address[0], address[1]));
+                if (!addresses.isEmpty()) {
+                    recyclerViewAddresses.setVisibility(View.VISIBLE);
+                }
+                adapter.notifyDataSetChanged();
+            }
+        });
 
         final KeyListener hexKeyListener = new HexKeyListener();
         addressInputLayout.setHint(getString((R.string.hint_filter_address)));
@@ -86,11 +134,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
 
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                if (TextUtils.isEmpty(s.toString())) {
-                    addressInputLayout.setError(getString(R.string.error_empty_publish_address));
-                } else {
-                    addressInputLayout.setError(null);
-                }
+                addressInputLayout.setError(null);
             }
 
             @Override
@@ -99,40 +143,44 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
-                .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
+        return new AlertDialog.Builder(getContext()).setView(rootView)
+                .setPositiveButton(R.string.confirm, (dialog, which) -> {
+                    if (!addresses.isEmpty()) {
+                        if (getParentFragment() == null) {
+                            ((DialogFragmentFilterAddressListener) requireActivity()).addAddresses(addresses);
+                        } else {
+                            ((DialogFragmentFilterAddressListener) getParentFragment()).addAddresses(addresses);
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), R.string.error_empty_filter_address, Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .setIcon(R.drawable.ic_lan_black_alpha_24dp)
+                .setTitle(R.string.title_add_address)
+                .setMessage(getString(R.string.dialog_summary_filter_address, filterType.getFilterTypeName())).create();
+    }
 
-        alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
-        alertDialogBuilder.setTitle(R.string.title_add_address);
-        alertDialogBuilder.setMessage(R.string.dialog_summary_filter_address);
-
-        final AlertDialog alertDialog = alertDialogBuilder.show();
-        alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String pubAddress = addressInput.getText().toString();
-            if (validateInput(pubAddress)) {
-                if (getParentFragment() == null) {
-                    ((DialogFragmentFilterAddressListener) requireActivity()).addAddress(MeshParserUtils.toByteArray(pubAddress));
-                } else {
-                    ((DialogFragmentFilterAddressListener) getParentFragment()).addAddress(MeshParserUtils.toByteArray(pubAddress));
-                }
-                dismiss();
-            }
-        });
-
-        return alertDialog;
+    @Override
+    public void onSaveInstanceState(@NonNull final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(PROXY_FILTER_KEY, filterType);
+        if (addresses.size() > 0) {
+            outState.putParcelableArrayList("AddressList", addresses);
+        }
     }
 
     private boolean validateInput(final String input) {
 
         try {
 
-            if(input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
+            if (input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
                 addressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }
 
             final byte[] address = MeshParserUtils.toByteArray(input);
-            if(!MeshParserUtils.isValidUnicastAddress(address) && !MeshParserUtils.isValidGroupAddress(address)) {
+            if (!MeshParserUtils.isValidUnicastAddress(address) && !MeshParserUtils.isValidGroupAddress(address)) {
                 addressInputLayout.setError(getString(R.string.invalid_filter_address));
                 return false;
             }

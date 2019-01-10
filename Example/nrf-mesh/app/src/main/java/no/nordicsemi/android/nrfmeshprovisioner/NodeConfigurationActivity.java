@@ -247,7 +247,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         });
 
         actionAddAppkey.setOnClickListener(v -> {
-            showProgressbar();
             final List<ApplicationKey> appKeys = mViewModel.getMeshManagerApi().getMeshNetwork().getAppKeys();
             final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageNodeAppKeysActivity.class);
             addAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
@@ -282,7 +281,14 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             }
         });
         actionAddFilterAddress.setOnClickListener(v -> {
-            final DialogFragmentFilterAddAddress filterAddAddress = DialogFragmentFilterAddAddress.newInstance();
+            final ProxyFilter filter = mViewModel.getSelectedMeshNode().getMeshNode().getProxyFilter();
+            final ProxyFilterType filterType;
+            if(filter == null){
+                filterType = new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER);
+            } else {
+                filterType = filter.getFilterType();
+            }
+            final DialogFragmentFilterAddAddress filterAddAddress = DialogFragmentFilterAddAddress.newInstance(filterType);
             filterAddAddress.show(getSupportFragmentManager(), null);
         });
 
@@ -510,11 +516,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     @Override
-    public void addAddress(@NonNull final byte[] address) {
-        showProgressbar();
-        final AddressArray addressArr = new AddressArray(address[0], address[1]);
-        final List<AddressArray> addresses = new ArrayList<>();
-        addresses.add(addressArr);
+    public void addAddresses(final List<AddressArray> addresses) {
         final ProxyConfigAddAddressToFilter addAddressToFilter = new ProxyConfigAddAddressToFilter(addresses);
         mViewModel.getMeshManagerApi().sendMeshMessage(new byte[]{0x00, 0x00}, addAddressToFilter);
     }

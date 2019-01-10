@@ -22,13 +22,13 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
-import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -37,60 +37,30 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdapter.ViewHolder> {
+public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAdapter1.ViewHolder> {
 
-    private final ArrayList<AddressArray> mAddresses;// = new ArrayList<>();
+    private final ArrayList<AddressArray> mAddresses;
     private final Context mContext;
-    private OnItemClickListener mOnItemClickListener;
 
-    public FilterAddressAdapter(@NonNull final Context context, @NonNull final ExtendedMeshNode extendedMeshNode) {
-        this.mContext = context;
-        mAddresses = new ArrayList<>();
-        extendedMeshNode.observe((LifecycleOwner) context, meshNode -> {
-            if (meshNode != null) {
-                final ProxyFilter proxyFilter = meshNode.getProxyFilter();
-                if (proxyFilter != null) {
-                    mAddresses.clear();
-                    mAddresses.addAll(proxyFilter.getAddresses());
-                    notifyDataSetChanged();
-                }
-            }
-        });
-    }
-
-    public FilterAddressAdapter(@NonNull final Context context, final ArrayList<AddressArray> addresses) {
+    public FilterAddressAdapter1(@NonNull final Context context, final ArrayList<AddressArray> addresses) {
         this.mContext = context;
         this.mAddresses = addresses;
     }
 
-    public void setOnItemClickListener(final FilterAddressAdapter.OnItemClickListener listener) {
-        mOnItemClickListener = listener;
-    }
-
     @NonNull
     @Override
-    public FilterAddressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.address_item, parent, false);
-        return new FilterAddressAdapter.ViewHolder(layoutView);
+    public FilterAddressAdapter1.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.custom_chip, parent, false);
+        return new FilterAddressAdapter1.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final FilterAddressAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final FilterAddressAdapter1.ViewHolder holder, final int position) {
         if (mAddresses.size() > 0) {
             final byte[] address = mAddresses.get(position).getAddress();
             holder.address.setText(MeshParserUtils.bytesToHex(address, true));
-            if (MeshParserUtils.isValidGroupAddress(address)) {
-                holder.addressTitle.setText(R.string.title_group_address);
-            } else if (MeshParserUtils.isValidUnicastAddress(address)) {
-                holder.addressTitle.setText(R.string.title_unicast_address);
-            } else {
-                holder.addressTitle.setText(R.string.address);
-            }
         }
     }
 
@@ -113,20 +83,22 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
         void onItemClick(final int position, final byte[] address);
     }
 
-    public final class ViewHolder extends RemovableViewHolder {
+    final class ViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.address_id)
-        TextView addressTitle;
         @BindView(R.id.address)
         TextView address;
+
+        @BindView(R.id.img_delete)
+        ImageView imgDelete;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            view.findViewById(R.id.removable).setOnClickListener(v -> {
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), mAddresses.get(getAdapterPosition()).getAddress());
-                }
+
+            imgDelete.setOnClickListener(v -> {
+                final int position = getAdapterPosition();
+                mAddresses.remove(position);
+                notifyItemRemoved(position);
             });
         }
     }

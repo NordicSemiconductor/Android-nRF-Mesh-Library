@@ -36,7 +36,7 @@
     tools:ignore="ContentDescription">
 
     <TextView
-        android:id="@+id/model_name"
+        android:id="@+id/address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ellipsize="end"
@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:textSize="12sp"
         tools:text="SIG Model ID: 0x0000"
-        app:layout_constraintTop_toBottomOf="@id/model_name"
+        app:layout_constraintTop_toBottomOf="@id/address"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:textColor="@color/textColorSecondary"/>

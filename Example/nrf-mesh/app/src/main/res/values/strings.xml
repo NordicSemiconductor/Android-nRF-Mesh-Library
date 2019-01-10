@@ -341,8 +341,9 @@
     <string name="no_addresses_added">No addresses are added to this filter!</string>
     <string name="title_add_address">Add Address</string>
     <string name="address">Address %d</string>
-    <string name="dialog_summary_filter_address">Address to be added to the Whitelist/Blacklist filter. Supported addresses are Unicast, Group or Virtual Addresses</string>
+    <string name="dialog_summary_filter_address">Addresses to be added to the %s. Supported addresses are Unicast, Group or Virtual Addresses.</string>
     <string name="invalid_filter_address">Address must be a Unicast, Group or a Virtual Address!</string>
+    <string name="error_empty_filter_address">Add at least one address to confirm!</string>
 
     <string name="no_app_keys_added">No app keys are added to this node!</string>
     <string name="app_keys_added">%d app keys added</string>
