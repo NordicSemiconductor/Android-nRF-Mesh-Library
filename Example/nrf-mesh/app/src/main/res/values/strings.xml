@@ -288,6 +288,7 @@
 
     <string name="action_add">ADD</string>
     <string name="action_remove">REMOVE</string>
+    <string name="action_clear">CLEAR</string>
     <string name="action_view">VIEW</string>
     <string name="title_about">About</string>
     <string name="summary_verion">App Version</string>
@@ -336,7 +337,7 @@
     <string name="white_list_filter">Whitelist Filter</string>
     <string name="black_list_filter">Blacklist Filter</string>
     <string name="action_proxy_set_black_list_filter">Set blacklist</string>
-    <string name="hint_remove">Hint: Swipe address to remove</string>
+    <string name="hint_remove">Hint: Swipe address to remove.</string>
     <string name="hint_filter_address">Unicast/Group Address</string>
     <string name="no_addresses_added">No addresses are added to this filter!</string>
     <string name="title_add_address">Add Address</string>
@@ -352,7 +353,7 @@
     <string name="action_generic_on">ON</string>
     <string name="action_generic_off">OFF</string>
     <string name="transition_time_interval">%s %s</string>
-    <string name="hint_unsubscribe">Hint: Swipe address to unsubscribe</string>
+    <string name="hint_unsubscribe">Hint: Swipe address to unsubscribe.</string>
     <string name="hint_step_resolution_ms">Currently on 100 ms step resolution</string>
     <string name="hint_step_resolution_s">Currently on 1 s step resolution</string>
     <string name="hint_step_resolution_ten_s">Currently on 10 s step resolution</string>
