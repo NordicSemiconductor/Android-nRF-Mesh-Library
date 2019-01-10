@@ -25,24 +25,24 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:paddingTop="@dimen/item_padding_top"
-    android:paddingBottom="@dimen/item_padding_bottom">
+    android:layout_height="wrap_content">
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/text_input_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/activity_horizontal_margin"
-        android:paddingEnd="@dimen/activity_horizontal_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingTop="@dimen/item_padding_top"
+        android:paddingBottom="@dimen/item_padding_bottom"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
             android:orientation="horizontal">
 
             <TextView
@@ -67,14 +67,13 @@
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:padding="@dimen/activity_horizontal_margin"
                 android:text="@string/action_add"/>
 
         </LinearLayout>
     </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.RecyclerView
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:id="@+id/recycler_view_addresses"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -84,8 +83,6 @@
         android:scrollbars="none"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_input_layout"
-        android:visibility="gone"
-        tools:visibility="visible"/>
+        app:layout_constraintTop_toBottomOf="@id/text_input_layout"/>
 
 </android.support.constraint.ConstraintLayout>

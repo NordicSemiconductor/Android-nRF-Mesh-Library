@@ -65,7 +65,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
     TextInputEditText addressInput;
     @BindView(R.id.recycler_view_addresses)
     RecyclerView recyclerViewAddresses;
-    private ArrayList<AddressArray> addresses;
+    private ArrayList<AddressArray> addresses = new ArrayList<>();
     private ProxyFilterType filterType;
 
     public interface DialogFragmentFilterAddressListener {
@@ -99,8 +99,6 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
         if (savedInstanceState != null) {
             filterType = savedInstanceState.getParcelable(PROXY_FILTER_KEY);
             addresses = savedInstanceState.getParcelableArrayList("AddressList");
-        } else {
-            addresses = new ArrayList<>();
         }
 
         final FilterAddressAdapter1 adapter = new FilterAddressAdapter1(requireContext(), addresses);
@@ -116,9 +114,6 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
                 addressInput.getEditableText().clear();
                 final byte[] address = MeshParserUtils.toByteArray(addressVal);
                 addresses.add(new AddressArray(address[0], address[1]));
-                if (!addresses.isEmpty()) {
-                    recyclerViewAddresses.setVisibility(View.VISIBLE);
-                }
                 adapter.notifyDataSetChanged();
             }
         });
@@ -165,9 +160,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
     public void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(PROXY_FILTER_KEY, filterType);
-        if (addresses.size() > 0) {
-            outState.putParcelableArrayList("AddressList", addresses);
-        }
+        outState.putParcelableArrayList("AddressList", addresses);
     }
 
     private boolean validateInput(final String input) {
