@@ -36,7 +36,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:paddingTop="@dimen/item_padding_top"
         android:paddingStart="@dimen/item_padding_start"
         android:paddingEnd="@dimen/item_padding_end"/>
 

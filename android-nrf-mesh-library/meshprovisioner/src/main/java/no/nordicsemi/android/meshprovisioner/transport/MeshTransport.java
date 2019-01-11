@@ -27,15 +27,16 @@ import android.os.Handler;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public final class MeshTransport extends NetworkLayer {
 
     private static final String TAG = MeshTransport.class.getSimpleName();
+    private static final int PROXY_CONFIGURATION_TTL = 0;
 
     MeshTransport(final Context context) {
-        super();
         this.mContext = context;
         initHandler();
     }
@@ -58,12 +59,12 @@ public final class MeshTransport extends NetworkLayer {
         super.setLowerTransportLayerCallbacks(callbacks);
     }
 
-    public final void setNetworkLayerCallbacks(final NetworkLayerCallbacks callbacks){
+    public final void setNetworkLayerCallbacks(final NetworkLayerCallbacks callbacks) {
         this.mNetworkLayerCallbacks = callbacks;
     }
 
 
-    public final void setUpperTransportLayerCallbacks(final UpperTransportLayerCallbacks callbacks){
+    public final void setUpperTransportLayerCallbacks(final UpperTransportLayerCallbacks callbacks) {
         this.mUpperTransportLayerCallbacks = callbacks;
     }
 
@@ -136,7 +137,7 @@ public final class MeshTransport extends NetworkLayer {
         message.setAszmic(aszmic);
         message.setOpCode(accessOpCode);
         message.setParameters(accessMessageParameters);
-        message.setPduType(NETWORK_PDU);
+        message.setPduType(MeshManagerApi.PDU_TYPE_NETWORK);
 
         super.createMeshMessage(message);
         return message;
@@ -186,9 +187,44 @@ public final class MeshTransport extends NetworkLayer {
         message.setAszmic(aszmic);
         message.setOpCode(accessOpCode);
         message.setParameters(accessMessageParameters);
-        message.setPduType(NETWORK_PDU);
+        message.setPduType(MeshManagerApi.PDU_TYPE_NETWORK);
 
         super.createVendorMeshMessage(message);
+        return message;
+    }
+
+    /**
+     * Creates a proxy configuration message to be sent to the peripheral node
+     *
+     * @param src        Source address of the provisioner/configurator.
+     * @param dst        destination address to be sent to
+     * @param opcode     Operation code for the access message.
+     * @param parameters Parameters for the access message.
+     * @return Control message containing the proxy configuration pdu
+     */
+    final ControlMessage createProxyConfigurationMessage(final byte[] src,
+                                                         final byte[] dst,
+                                                         final int opcode, final byte[] parameters) {
+        final int sequenceNumber = incrementSequenceNumber(src);
+        final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
+
+        Log.v(TAG, "Src address: " + MeshParserUtils.bytesToHex(src, false));
+        Log.v(TAG, "Dst address: " + MeshParserUtils.bytesToHex(dst, false));
+        Log.v(TAG, "Sequence number: " + sequenceNumber);
+        Log.v(TAG, "Control message opcode: " + Integer.toHexString(opcode));
+        Log.v(TAG, "Control message parameters: " + MeshParserUtils.bytesToHex(parameters, false));
+
+        final ControlMessage message = new ControlMessage();
+        message.setSrc(src);
+        message.setDst(dst);
+        message.setTtl(PROXY_CONFIGURATION_TTL); //TTL for proxy configuration messages are set to 0
+        message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
+        message.setSequenceNumber(sequenceNum);
+        message.setOpCode(opcode);
+        message.setParameters(parameters);
+        message.setPduType(MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION);
+
+        super.createMeshMessage(message);
         return message;
     }
 
@@ -199,7 +235,7 @@ public final class MeshTransport extends NetworkLayer {
     /**
      * Parses the received pdu
      *
-     * @param pdu              pdu received
+     * @param pdu pdu received
      * @return Message
      */
     final Message parsePdu(final byte[] pdu) {

@@ -1,6 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -23,18 +24,28 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     private static final String TAG = MeshMessageState.class.getSimpleName();
 
     protected final Context mContext;
-    protected final MeshMessage mMeshMessage;
     final MeshTransport mMeshTransport;
+    private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
+    protected MeshMessage mMeshMessage;
     protected byte[] mSrc;
     protected byte[] mDst;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     protected MeshStatusCallbacks mMeshStatusCallbacks;
-    private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
-    protected AccessMessage message;
+    protected Message message;
     private boolean isIncompleteTimerExpired;
 
-    MeshMessageState(final Context context, final MeshMessage meshMessage,
-                     final MeshTransport meshTransport, final InternalMeshMsgHandlerCallbacks callbacks) {
+    /**
+     * Constructs the base mesh message state class
+     *
+     * @param context       Context
+     * @param meshMessage   {@link MeshMessage} Mesh message
+     * @param meshTransport {@link MeshTransport} Mesh transport
+     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} Internal mesh message handler callbacks
+     */
+    MeshMessageState(@NonNull final Context context,
+                     @NonNull final MeshMessage meshMessage,
+                     @NonNull final MeshTransport meshTransport,
+                     @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         this.mContext = context;
         this.mMeshMessage = meshMessage;
         this.message = meshMessage.getMessage();
@@ -135,11 +146,13 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         mMeshStatusCallbacks.onBlockAcknowledgementSent(mDst);
     }
 
-    public boolean isIncompleteTimerExpired() {
-        return isIncompleteTimerExpired;
-    }
-
     public enum MessageState {
+
+        //Proxy configuration message
+        PROXY_CONFIG_SET_FILTER_TYPE_STATE(900),
+        PROXY_CONFIG_ADD_ADDRESS_TO_FILTER_STATE(901),
+        PROXY_CONFIG_REMOVE_ADDRESS_FROM_FILTER_STATE(902),
+
         //Configuration message States
         COMPOSITION_DATA_GET_STATE(0),
         APP_KEY_ADD_STATE(1),

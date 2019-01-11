@@ -42,18 +42,6 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
     private static final String TAG = GenericLevelStatus.class.getSimpleName();
     private static final int GENERIC_LEVEL_STATUS_MANDATORY_LENGTH = 2;
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS;
-    private int mPresentLevel;
-    private Integer mTargetLevel;
-    private int mTransitionSteps;
-    private int mTransitionResolution;
-
-    public GenericLevelStatus(@NonNull final AccessMessage message) {
-        super(message);
-        this.mMessage = message;
-        this.mParameters = message.getParameters();
-        parseStatusParameters();
-    }
-
     private static final Creator<GenericLevelStatus> CREATOR = new Creator<GenericLevelStatus>() {
         @Override
         public GenericLevelStatus createFromParcel(Parcel in) {
@@ -66,6 +54,17 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
             return new GenericLevelStatus[size];
         }
     };
+    private int mPresentLevel;
+    private Integer mTargetLevel;
+    private int mTransitionSteps;
+    private int mTransitionResolution;
+
+    public GenericLevelStatus(@NonNull final AccessMessage message) {
+        super(message);
+        this.mMessage = message;
+        this.mParameters = message.getParameters();
+        parseStatusParameters();
+    }
 
     @Override
     void parseStatusParameters() {
@@ -73,7 +72,7 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         mPresentLevel = (int) (buffer.getShort());
         Log.v(TAG, "Present level: " + mPresentLevel);
-        if(buffer.limit() > GENERIC_LEVEL_STATUS_MANDATORY_LENGTH) {
+        if (buffer.limit() > GENERIC_LEVEL_STATUS_MANDATORY_LENGTH) {
             mTargetLevel = (int) (buffer.getShort());
             final int remainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (remainingTime & 0x3F);

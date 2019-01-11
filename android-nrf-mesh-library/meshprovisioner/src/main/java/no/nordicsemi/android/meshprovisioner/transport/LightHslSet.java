@@ -38,16 +38,14 @@ public class LightHslSet extends GenericMessage {
      * @param lightHue        hue of the LightHslModel
      * @param lightSaturation saturation of the LightHslModel
      * @param tId             transaction id
-     * @param aszmic          size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public LightHslSet(@NonNull final byte[] appKey,
                        final int lightLightness,
                        final int lightHue,
                        final int lightSaturation,
-                       final int tId,
-                       final int aszmic) throws IllegalArgumentException {
-        this(appKey, null, null, null, lightLightness, lightHue, lightSaturation, tId, aszmic);
+                       final int tId) throws IllegalArgumentException {
+        this(appKey, null, null, null, lightLightness, lightHue, lightSaturation, tId);
     }
 
     /**
@@ -61,7 +59,6 @@ public class LightHslSet extends GenericMessage {
      * @param lightHue             hue of the LightHslModel
      * @param lightSaturation      saturation of the LightHslModel
      * @param tId                  transaction id
-     * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
@@ -72,9 +69,8 @@ public class LightHslSet extends GenericMessage {
                        final int lightLightness,
                        final int lightHue,
                        final int lightSaturation,
-                       final int tId,
-                       final int aszmic) throws IllegalArgumentException {
-        super(appKey, aszmic);
+                       final int tId) throws IllegalArgumentException {
+        super(appKey);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

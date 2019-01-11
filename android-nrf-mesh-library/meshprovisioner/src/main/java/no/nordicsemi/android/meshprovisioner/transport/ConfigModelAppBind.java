@@ -51,15 +51,14 @@ public final class ConfigModelAppBind extends ConfigMessage {
     /**
      * Constructs ConfigModelAppBind message.
      *
-     * @param appKeyIndex Application key index of this message
-     * @param aszmic      Size of message integrity check
+     * @param elementAddress  element address
+     * @param modelIdentifier model id
+     * @param appKeyIndex     Application key index of this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public ConfigModelAppBind(@NonNull final byte[] elementAddress,
                               final int modelIdentifier,
-                              final int appKeyIndex,
-                              final int aszmic) throws IllegalArgumentException {
-        super(aszmic);
+                              final int appKeyIndex) throws IllegalArgumentException {
         if (elementAddress.length != 2)
             throw new IllegalArgumentException("Element address cannot be cannot be greater than 2 octets");
         this.mElementAddress = elementAddress;

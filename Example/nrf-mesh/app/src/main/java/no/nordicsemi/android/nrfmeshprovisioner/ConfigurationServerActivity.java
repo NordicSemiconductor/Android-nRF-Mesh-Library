@@ -119,8 +119,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private void getRelayRetransmit() {
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         try {
-            ConfigRelayGet message = new ConfigRelayGet(0);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), message);
+            ConfigRelayGet message = new ConfigRelayGet();
+            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
             showProgressbar();
         } catch (Exception e) {
             Log.e(TAG, "Exception while constructing ConfigNetworkTransmitGet", e);
@@ -130,8 +130,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private void getNetworkTransmit() {
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         try {
-            ConfigNetworkTransmitGet message = new ConfigNetworkTransmitGet(0);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), message);
+            ConfigNetworkTransmitGet message = new ConfigNetworkTransmitGet();
+            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
             showProgressbar();
         } catch (Exception e) {
             Log.e(TAG, "Exception while constructing ConfigNetworkTransmitGet", e);
@@ -141,8 +141,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private void setRelayRetransmit(final int relay, final int relayRetransmit, final int relayRetransmitIntervalSteps) {
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         try {
-            final ConfigRelaySet message = new ConfigRelaySet(relay, relayRetransmit, relayRetransmitIntervalSteps, 0);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), message);
+            final ConfigRelaySet message = new ConfigRelaySet(relay, relayRetransmit, relayRetransmitIntervalSteps);
+            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
             showProgressbar();
         } catch (Exception e) {
             Log.e(TAG, "Exception while ConfigNetworkTransmitSet: " + e.getMessage());
@@ -152,8 +152,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private void setNetworkTransmit(final int networkTransmitCount, final int networkTransmitIntervalSteps) {
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         try {
-            final ConfigNetworkTransmitSet message = new ConfigNetworkTransmitSet(networkTransmitCount, networkTransmitIntervalSteps, 0);
-            mViewModel.getMeshManagerApi().sendMeshConfigurationMessage(node.getUnicastAddress(), message);
+            final ConfigNetworkTransmitSet message = new ConfigNetworkTransmitSet(networkTransmitCount, networkTransmitIntervalSteps);
+            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
             showProgressbar();
         } catch (Exception e) {
             Log.e(TAG, "Error ConfigNetworkTransmitSet: " + e.getMessage());

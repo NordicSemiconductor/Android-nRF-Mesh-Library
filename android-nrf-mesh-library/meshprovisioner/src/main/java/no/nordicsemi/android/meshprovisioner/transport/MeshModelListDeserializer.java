@@ -51,7 +51,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         final JsonArray jsonArray = new JsonArray();
         for (MeshModel model : models) {
             final JsonObject meshModelJson = new JsonObject();
-            if(model instanceof VendorModel){
+            if (model instanceof VendorModel) {
                 meshModelJson.addProperty("modelId", String.format(Locale.US, "%08X", model.getModelId()));
             } else {
                 meshModelJson.addProperty("modelId", String.format(Locale.US, "%04X", model.getModelId()));

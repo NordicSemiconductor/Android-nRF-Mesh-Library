@@ -39,23 +39,6 @@ public final class ConfigRelayStatus extends ConfigStatusMessage implements Parc
 
     private static final String TAG = ConfigRelayStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS;
-
-    private int mRelay;
-    private int mRelayRetransmitCount;
-    private int mRelayRetransmitIntervalSteps;
-
-    /**
-     * Constructs a ConfigRelayStatus message.
-     *
-     * @param message   Access message received
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    public ConfigRelayStatus(@NonNull final AccessMessage message) {
-        super(message);
-        this.mParameters = message.getParameters();
-        parseStatusParameters();
-    }
-
     private static final Creator<ConfigRelayStatus> CREATOR = new Creator<ConfigRelayStatus>() {
         @Override
         public ConfigRelayStatus createFromParcel(Parcel in) {
@@ -68,6 +51,21 @@ public final class ConfigRelayStatus extends ConfigStatusMessage implements Parc
             return new ConfigRelayStatus[size];
         }
     };
+    private int mRelay;
+    private int mRelayRetransmitCount;
+    private int mRelayRetransmitIntervalSteps;
+
+    /**
+     * Constructs a ConfigRelayStatus message.
+     *
+     * @param message Access message received
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    public ConfigRelayStatus(@NonNull final AccessMessage message) {
+        super(message);
+        this.mParameters = message.getParameters();
+        parseStatusParameters();
+    }
 
     @Override
     public int getOpCode() {
@@ -76,7 +74,7 @@ public final class ConfigRelayStatus extends ConfigStatusMessage implements Parc
 
     @Override
     final void parseStatusParameters() {
-        final byte[] payload = mMessage.getAccessPdu();
+        final byte[] payload = ((AccessMessage) mMessage).getAccessPdu();
         mRelay = payload[2];
         mRelayRetransmitCount = payload[3] & 0b111;
         mRelayRetransmitIntervalSteps = (payload[3] >> 3) & 0b11111;

@@ -44,24 +44,26 @@ import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 public abstract class MeshModel implements Parcelable {
 
     @Expose
-    protected int mModelId;
-    @Expose
     final List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
     @Expose(serialize = false)
     final Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
     @Expose
     final Map<Integer, ApplicationKey> mBoundApplicationKeys = new LinkedHashMap<>();
     @Expose
-    PublicationSettings mPublicationSettings;
-    @Expose
     final List<byte[]> mSubscriptionAddress = new ArrayList<>();
+    @Expose
+    protected int mModelId;
+    @Expose
+    PublicationSettings mPublicationSettings;
 
     public MeshModel(final int modelId) {
         this.mModelId = modelId;
     }
+
     MeshModel() {
 
     }
+
     @SuppressWarnings("unchecked")
     protected MeshModel(final Parcel in) {
 

@@ -34,16 +34,21 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
         indices = @Index("mesh_uuid"))
 public final class NetworkKey implements Parcelable {
 
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({PHASE_0, PHASE_1, PHASE_2})
-    public @interface KeyRefreshPhases {
-    }
-
     // Key refresh phases
     public static final int PHASE_0 = 0; //Distribution of new keys
     public static final int PHASE_1 = 1; //Switching to the new keys
     public static final int PHASE_2 = 2; //Revoking the old keys
+    public static final Creator<NetworkKey> CREATOR = new Creator<NetworkKey>() {
+        @Override
+        public NetworkKey createFromParcel(Parcel in) {
+            return new NetworkKey(in);
+        }
 
+        @Override
+        public NetworkKey[] newArray(int size) {
+            return new NetworkKey[size];
+        }
+    };
     @PrimaryKey(autoGenerate = true)
     int id;
 
@@ -118,18 +123,6 @@ public final class NetworkKey implements Parcelable {
     public int describeContents() {
         return 0;
     }
-
-    public static final Creator<NetworkKey> CREATOR = new Creator<NetworkKey>() {
-        @Override
-        public NetworkKey createFromParcel(Parcel in) {
-            return new NetworkKey(in);
-        }
-
-        @Override
-        public NetworkKey[] newArray(int size) {
-            return new NetworkKey[size];
-        }
-    };
 
     public String getMeshUuid() {
         return meshUuid;
@@ -248,7 +241,6 @@ public final class NetworkKey implements Parcelable {
      * Set the old key
      *
      * @param oldKey old network key
-     *
      */
     public void setOldKey(final byte[] oldKey) {
         this.oldKey = oldKey;
@@ -270,5 +262,10 @@ public final class NetworkKey implements Parcelable {
      */
     public void setTimestamp(final long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({PHASE_0, PHASE_1, PHASE_2})
+    public @interface KeyRefreshPhases {
     }
 }

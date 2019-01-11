@@ -49,13 +49,23 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
     private static final String TAG = ConfigCompositionDataStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS;
     private static final int ELEMENTS_OFFSET = 12;
+    private static final Creator<ConfigCompositionDataStatus> CREATOR = new Creator<ConfigCompositionDataStatus>() {
+        @Override
+        public ConfigCompositionDataStatus createFromParcel(Parcel in) {
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new ConfigCompositionDataStatus(message);
+        }
 
+        @Override
+        public ConfigCompositionDataStatus[] newArray(int size) {
+            return new ConfigCompositionDataStatus[size];
+        }
+    };
     private int companyIdentifier;
     private int productIdentifier;
     private int versionIdentifier;
     private int crpl;
     private int features;
-
     private boolean relayFeatureSupported;
     private boolean proxyFeatureSupported;
     private boolean friendFeatureSupported;
@@ -73,19 +83,6 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
         parseStatusParameters();
     }
 
-    private static final Creator<ConfigCompositionDataStatus> CREATOR = new Creator<ConfigCompositionDataStatus>() {
-        @Override
-        public ConfigCompositionDataStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigCompositionDataStatus(message);
-        }
-
-        @Override
-        public ConfigCompositionDataStatus[] newArray(int size) {
-            return new ConfigCompositionDataStatus[size];
-        }
-    };
-
     @Override
     final void parseStatusParameters() {
         parseCompositionDataPages();
@@ -95,7 +92,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
      * Parses composition data status received from the mesh node
      */
     private void parseCompositionDataPages() {
-        final AccessMessage message = mMessage;
+        final AccessMessage message = (AccessMessage) mMessage;
         final byte[] accessPayload = message.getAccessPdu();
 
         //Bluetooth SIG 16-bit company identifier

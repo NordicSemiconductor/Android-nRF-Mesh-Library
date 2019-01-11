@@ -42,20 +42,6 @@ public final class LightCtlStatus extends GenericStatusMessage implements Parcel
     private static final String TAG = LightCtlStatus.class.getSimpleName();
     private static final int LIGHT_CTL_STATUS_MANDATORY_LENGTH = 4;
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_CTL_STATUS;
-    private int mPresentCtlLightness;
-    private int mPresentCtlTemperature;
-    private Integer mTargetCtlLightness;
-    private  Integer mTargetCtlTemperature;
-    private int mTransitionSteps;
-    private int mTransitionResolution;
-
-    public LightCtlStatus(@NonNull final AccessMessage message) {
-        super(message);
-        this.mMessage = message;
-        this.mParameters = message.getParameters();
-        parseStatusParameters();
-    }
-
     private static final Creator<LightCtlStatus> CREATOR = new Creator<LightCtlStatus>() {
         @Override
         public LightCtlStatus createFromParcel(Parcel in) {
@@ -68,6 +54,19 @@ public final class LightCtlStatus extends GenericStatusMessage implements Parcel
             return new LightCtlStatus[size];
         }
     };
+    private int mPresentCtlLightness;
+    private int mPresentCtlTemperature;
+    private Integer mTargetCtlLightness;
+    private Integer mTargetCtlTemperature;
+    private int mTransitionSteps;
+    private int mTransitionResolution;
+
+    public LightCtlStatus(@NonNull final AccessMessage message) {
+        super(message);
+        this.mMessage = message;
+        this.mParameters = message.getParameters();
+        parseStatusParameters();
+    }
 
     @Override
     void parseStatusParameters() {
@@ -77,7 +76,7 @@ public final class LightCtlStatus extends GenericStatusMessage implements Parcel
         mPresentCtlTemperature = buffer.getShort() & 0xFFFF;
         Log.v(TAG, "Present lightness: " + mPresentCtlLightness);
         Log.v(TAG, "Present temperature: " + mPresentCtlTemperature);
-        if(buffer.limit() > LIGHT_CTL_STATUS_MANDATORY_LENGTH) {
+        if (buffer.limit() > LIGHT_CTL_STATUS_MANDATORY_LENGTH) {
             mTargetCtlLightness = buffer.getShort() & 0xFFFF;
             mTargetCtlTemperature = buffer.getShort() & 0xFFFF;
             final int remainingTime = buffer.get() & 0xFF;

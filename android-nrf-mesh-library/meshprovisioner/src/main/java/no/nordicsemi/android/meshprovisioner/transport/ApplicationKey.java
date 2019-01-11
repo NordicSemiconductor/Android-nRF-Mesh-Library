@@ -29,29 +29,34 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
         indices = @Index("mesh_uuid"))
 public final class ApplicationKey implements Parcelable {
 
+    public static final Creator<ApplicationKey> CREATOR = new Creator<ApplicationKey>() {
+        @Override
+        public ApplicationKey createFromParcel(Parcel in) {
+            return new ApplicationKey(in);
+        }
+
+        @Override
+        public ApplicationKey[] newArray(int size) {
+            return new ApplicationKey[size];
+        }
+    };
     @PrimaryKey(autoGenerate = true)
     int id;
-
     @ColumnInfo(name = "mesh_uuid")
     @Expose
     String meshUuid;
-
     @ColumnInfo(name = "index")
     @Expose
     private int keyIndex;
-
     @ColumnInfo(name = "name")
     @Expose
     private String name = "Application Key";
-
     @ColumnInfo(name = "bound_key_index")
     @Expose
     private int boundNetKeyIndex = 0;
-
     @ColumnInfo(name = "key")
     @Expose
     private byte[] key;
-
     @ColumnInfo(name = "old_key")
     @Expose
     private byte[] oldKey;
@@ -90,18 +95,6 @@ public final class ApplicationKey implements Parcelable {
     public int describeContents() {
         return 0;
     }
-
-    public static final Creator<ApplicationKey> CREATOR = new Creator<ApplicationKey>() {
-        @Override
-        public ApplicationKey createFromParcel(Parcel in) {
-            return new ApplicationKey(in);
-        }
-
-        @Override
-        public ApplicationKey[] newArray(int size) {
-            return new ApplicationKey[size];
-        }
-    };
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public int getId() {

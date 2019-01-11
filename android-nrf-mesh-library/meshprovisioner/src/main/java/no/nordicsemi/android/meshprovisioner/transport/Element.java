@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,14 +43,24 @@ import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public final class Element implements Parcelable {
 
-    @Expose
-    byte[] elementAddress;
+    public static final Creator<Element> CREATOR = new Creator<Element>() {
+        @Override
+        public Element createFromParcel(Parcel in) {
+            return new Element(in);
+        }
 
+        @Override
+        public Element[] newArray(int size) {
+            return new Element[size];
+        }
+    };
     @Expose
     final int locationDescriptor;
 
     @Expose
     final Map<Integer, MeshModel> meshModels;
+    @Expose
+    byte[] elementAddress;
 
     Element(@NonNull final byte[] elementAddress, final int locationDescriptor, final Map<Integer, MeshModel> models) {
         this.elementAddress = elementAddress;
@@ -59,12 +68,11 @@ public final class Element implements Parcelable {
         this.meshModels = models;
     }
 
+
     Element(final int locationDescriptor, final Map<Integer, MeshModel> models) {
         this.locationDescriptor = locationDescriptor;
         this.meshModels = models;
     }
-
-
 
     protected Element(Parcel in) {
         elementAddress = in.createByteArray();
@@ -80,7 +88,6 @@ public final class Element implements Parcelable {
         dest.writeMap(meshModels);
     }
 
-
     private void sortModels(final HashMap<Integer, MeshModel> unorderedElements) {
         final Set<Integer> unorderedKeys = unorderedElements.keySet();
 
@@ -90,18 +97,6 @@ public final class Element implements Parcelable {
             meshModels.put(key, unorderedElements.get(key));
         }
     }
-
-    public static final Creator<Element> CREATOR = new Creator<Element>() {
-        @Override
-        public Element createFromParcel(Parcel in) {
-            return new Element(in);
-        }
-
-        @Override
-        public Element[] newArray(int size) {
-            return new Element[size];
-        }
-    };
 
     @Override
     public int describeContents() {

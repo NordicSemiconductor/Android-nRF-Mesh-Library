@@ -15,11 +15,9 @@ public class ConfigNodeReset extends ConfigMessage {
     /**
      * Constructs ConfigNodeReset message.
      *
-     * @param aszmic              Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigNodeReset(final int aszmic)  {
-        super(aszmic);
+    public ConfigNodeReset() {
         assembleMessageParameters();
     }
 

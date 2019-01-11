@@ -42,18 +42,6 @@ public final class LightLightnessStatus extends GenericStatusMessage implements 
     private static final String TAG = LightLightnessStatus.class.getSimpleName();
     private static final int LIGHT_LIGHTNESS_STATUS_MANDATORY_LENGTH = 2;
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LIGHTNESS_STATUS;
-    private int mPresentLightness;
-    private Integer mTargetLightness;
-    private int mTransitionSteps;
-    private int mTransitionResolution;
-
-    public LightLightnessStatus(@NonNull final AccessMessage message) {
-        super(message);
-        this.mMessage = message;
-        this.mParameters = message.getParameters();
-        parseStatusParameters();
-    }
-
     private static final Creator<LightLightnessStatus> CREATOR = new Creator<LightLightnessStatus>() {
         @Override
         public LightLightnessStatus createFromParcel(Parcel in) {
@@ -66,6 +54,17 @@ public final class LightLightnessStatus extends GenericStatusMessage implements 
             return new LightLightnessStatus[size];
         }
     };
+    private int mPresentLightness;
+    private Integer mTargetLightness;
+    private int mTransitionSteps;
+    private int mTransitionResolution;
+
+    public LightLightnessStatus(@NonNull final AccessMessage message) {
+        super(message);
+        this.mMessage = message;
+        this.mParameters = message.getParameters();
+        parseStatusParameters();
+    }
 
     @Override
     void parseStatusParameters() {

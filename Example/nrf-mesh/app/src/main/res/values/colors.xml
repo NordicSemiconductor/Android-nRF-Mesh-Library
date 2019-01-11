@@ -26,7 +26,10 @@
     <color name="colorPrimaryDark">#0081B7</color>
     <color name="colorAccent">#0081B7</color>
     <color name="background">#FFF5F5F5</color>
+    <color name="node_highlight_color">#D9E1E2</color>
     <color name="nav_item_unselected">#a1a1a1</color>
     <color name="background_swipe_delete">#FF999999</color>
     <color name="textColorSecondary">#727272</color>
+
+    <color name="nordic_grass">#D0DF00</color>
 </resources>

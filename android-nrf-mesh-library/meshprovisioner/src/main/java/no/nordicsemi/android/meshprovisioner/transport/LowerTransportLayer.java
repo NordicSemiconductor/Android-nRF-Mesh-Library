@@ -29,13 +29,13 @@ import android.util.SparseArray;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.TransportLayerOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 abstract class LowerTransportLayer extends UpperTransportLayer {
 
-    static final int NETWORK_PDU = 0x00;
     private static final String TAG = LowerTransportLayer.class.getSimpleName();
     private static final int UNSEGMENTED_HEADER = 0;
     private static final int SEGMENTED_HEADER = 1;
@@ -62,6 +62,17 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     private boolean mBlockAckSent;
 
     private long mDuration;
+    /**
+     * Runnable for incomplete timer
+     */
+    private Runnable mIncompleteTimerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mLowerTransportLayerCallbacks.onIncompleteTimerExpired();
+            //Reset the incomplete timer flag once it expires
+            mIncompleteTimerStarted = false;
+        }
+    };
 
     protected void setLowerTransportLayerCallbacks(final LowerTransportLayerCallbacks callbacks) {
         mLowerTransportLayerCallbacks = callbacks;
@@ -69,8 +80,8 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
 
     @Override
     void createMeshMessage(final Message message) {
+        super.createMeshMessage(message);
         if (message instanceof AccessMessage) {
-            super.createMeshMessage(message);
             createLowerTransportAccessPDU((AccessMessage) message);
         } else {
             createLowerTransportControlPDU((ControlMessage) message);
@@ -108,13 +119,21 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     @Override
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public final void createLowerTransportControlPDU(final ControlMessage message) {
-        final byte[] transportControlPdu = message.getTransportControlPdu();
-        if (transportControlPdu.length <= MAX_UNSEGMENTED_CONTROL_PAYLOAD_LENGTH) {
-            Log.v(TAG, "Creating unsegmented transport control");
-            createUnsegmentedControlMessage(message);
-        } else {
-            Log.v(TAG, "Creating segmented transport control");
-            createSegmentedControlMessage(message);
+        switch (message.getPduType()) {
+            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
+                final SparseArray<byte[]> lowerTransportControlPduArray = new SparseArray<>();
+                lowerTransportControlPduArray.put(0, message.getTransportControlPdu());
+                message.setLowerTransportControlPdu(lowerTransportControlPduArray);
+                break;
+            case MeshManagerApi.PDU_TYPE_NETWORK:
+                final byte[] transportControlPdu = message.getTransportControlPdu();
+                if (transportControlPdu.length <= MAX_UNSEGMENTED_CONTROL_PAYLOAD_LENGTH) {
+                    Log.v(TAG, "Creating unsegmented transport control");
+                    createUnsegmentedControlMessage(message);
+                } else {
+                    Log.v(TAG, "Creating segmented transport control");
+                    createSegmentedControlMessage(message);
+                }
         }
     }
 
@@ -520,24 +539,35 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     /**
      * Parses a unsegmented lower transport control pdu.
      *
-     * @param pdu The complete pdu was received from the node. This is already de-obfuscated and decrypted at network layer.
+     * @param decryptedProxyPdu The complete pdu was received from the node. This is already de-obfuscated and decrypted at network layer.
      */
     /*package*/
-    final void parseUnsegmentedControlLowerTransportPDU(final ControlMessage controlMessage, final byte[] pdu) {
+    final void parseUnsegmentedControlLowerTransportPDU(final ControlMessage controlMessage, final byte[] decryptedProxyPdu) {
 
-        final byte header = pdu[10]; //Lower transport pdu starts here
-        final int opCode = header & 0x7F;
-        final int lowerTransportPduLength = pdu.length - 10;
+        final SparseArray<byte[]> unsegmentedMessages = new SparseArray<>();
+        final int lowerTransportPduLength = decryptedProxyPdu.length - 10;
         final ByteBuffer lowerTransportBuffer = ByteBuffer.allocate(lowerTransportPduLength).order(ByteOrder.BIG_ENDIAN);
-        lowerTransportBuffer.put(pdu, 10, lowerTransportPduLength);
+        lowerTransportBuffer.put(decryptedProxyPdu, 10, lowerTransportPduLength);
         final byte[] lowerTransportPDU = lowerTransportBuffer.array();
-        final SparseArray<byte[]> segmentedMessages = new SparseArray<>();
-        segmentedMessages.put(0, lowerTransportPDU);
-        controlMessage.setSegmented(false);
-        controlMessage.setAszmic(0);
-        controlMessage.setOpCode(opCode);
-        controlMessage.setLowerTransportControlPdu(segmentedMessages);
-        parseLowerTransportLayerPDU(controlMessage);
+        unsegmentedMessages.put(0, lowerTransportPDU);
+        final int opCode;
+        final int pduType = decryptedProxyPdu[0];
+        switch (pduType) {
+            case MeshManagerApi.PDU_TYPE_NETWORK:
+                final byte header = decryptedProxyPdu[10]; //Lower transport pdu starts here
+                opCode = header & 0x7F;
+                controlMessage.setPduType(MeshManagerApi.PDU_TYPE_NETWORK);//Set the pdu type here
+                controlMessage.setAszmic(0);
+                controlMessage.setOpCode(opCode);
+                controlMessage.setLowerTransportControlPdu(unsegmentedMessages);
+                parseLowerTransportLayerPDU(controlMessage);
+                break;
+            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
+                controlMessage.setPduType(MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION);
+                controlMessage.setLowerTransportControlPdu(unsegmentedMessages);
+                parseUpperTransportPDU(controlMessage);
+                break;
+        }
     }
 
     /**
@@ -640,18 +670,6 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     }
 
     /**
-     * Runnable for incomplete timer
-     */
-    private Runnable mIncompleteTimerRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mLowerTransportLayerCallbacks.onIncompleteTimerExpired();
-            //Reset the incomplete timer flag once it expires
-            mIncompleteTimerStarted = false;
-        }
-    };
-
-    /**
      * Start acknowledgement timer for segmented messages.
      *
      * @param seqZero seqzero of the segmented messages.
@@ -709,7 +727,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         controlMessage.setOpCode(TransportLayerOpCodes.SAR_ACK_OPCODE);
         controlMessage.setTransportControlPdu(upperTransportControlPdu);
         controlMessage.setTtl(ttl);
-        controlMessage.setPduType(NETWORK_PDU);
+        controlMessage.setPduType(MeshManagerApi.PDU_TYPE_NETWORK);
         controlMessage.setSrc(src);
         controlMessage.setDst(dst);
         controlMessage.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
@@ -734,7 +752,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         controlMessage.setOpCode(TransportLayerOpCodes.SAR_ACK_OPCODE);
         controlMessage.setTransportControlPdu(upperTransportControlPdu);
         controlMessage.setTtl(ttl);
-        controlMessage.setPduType(NETWORK_PDU);
+        controlMessage.setPduType(MeshManagerApi.PDU_TYPE_NETWORK);
         controlMessage.setSrc(src);
         controlMessage.setDst(dst);
         controlMessage.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
@@ -769,7 +787,8 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
      * @param controlMessage underlying message containing the access pdu.
      */
     private void parseLowerTransportLayerPDU(final ControlMessage controlMessage) {
-        //First we reassemble the transport layer message in its a segmented message
+
+        //First we reassemble the transport layer message if its a segmented message
         reassembleLowerTransportControlPDU(controlMessage);
         final byte[] transportControlPdu = controlMessage.getTransportControlPdu();
         final int opCode = controlMessage.getOpCode();

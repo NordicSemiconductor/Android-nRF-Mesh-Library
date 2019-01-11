@@ -32,7 +32,7 @@ public class ExtendedMeshNode extends LiveData<ProvisionedMeshNode> {
 
     ExtendedMeshNode(final ProvisionedMeshNode meshNode) {
         this.mMeshNode = meshNode;
-        setValue(meshNode);
+        postValue(meshNode);
     }
 
     public ProvisionedMeshNode getMeshNode() {

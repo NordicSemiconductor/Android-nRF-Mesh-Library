@@ -43,7 +43,18 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS;
     private static final int CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH = 12;
     private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL_PDU_LENGTH = 14;
+    private static final Creator<ConfigModelPublicationStatus> CREATOR = new Creator<ConfigModelPublicationStatus>() {
+        @Override
+        public ConfigModelPublicationStatus createFromParcel(Parcel in) {
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new ConfigModelPublicationStatus(message);
+        }
 
+        @Override
+        public ConfigModelPublicationStatus[] newArray(int size) {
+            return new ConfigModelPublicationStatus[size];
+        }
+    };
     private int mElementAddress;
     private byte[] publishAddress;
     private int mAppKeyIndex;
@@ -66,22 +77,9 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
         parseStatusParameters();
     }
 
-    private static final Creator<ConfigModelPublicationStatus> CREATOR = new Creator<ConfigModelPublicationStatus>() {
-        @Override
-        public ConfigModelPublicationStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigModelPublicationStatus(message);
-        }
-
-        @Override
-        public ConfigModelPublicationStatus[] newArray(int size) {
-            return new ConfigModelPublicationStatus[size];
-        }
-    };
-
     @Override
     final void parseStatusParameters() {
-        final AccessMessage message = mMessage;
+        final AccessMessage message = (AccessMessage) mMessage;
         final ByteBuffer buffer = ByteBuffer.wrap(message.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
         mStatusCode = mParameters[0];
         mStatusCodeName = getStatusCodeName(mStatusCode);

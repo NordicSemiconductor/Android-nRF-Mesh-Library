@@ -156,7 +156,21 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public ProvisionedMeshNode getProvisionedNode(final byte[] unicastAddress) {
         for (ProvisionedMeshNode node : nodes) {
-            if (Arrays.equals(unicastAddress, node.getUnicastAddress())) {
+            if (node.hasUnicastAddress(unicastAddress)) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the mesh node with the corresponding unicast address
+     *
+     * @param unicastAddress unicast address of the node
+     */
+    public ProvisionedMeshNode getProvisionedNode(final int unicastAddress) {
+        for (ProvisionedMeshNode node : nodes) {
+            if (node.hasUnicastAddress(unicastAddress)) {
                 return node;
             }
         }

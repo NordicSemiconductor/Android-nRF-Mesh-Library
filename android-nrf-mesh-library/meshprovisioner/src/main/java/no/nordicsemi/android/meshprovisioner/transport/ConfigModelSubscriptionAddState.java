@@ -37,13 +37,13 @@ final class ConfigModelSubscriptionAddState extends ConfigMessageState {
     /**
      * Constructs the state for creating ConfigModelSubscriptionAdd message
      *
-     * @param context                   context
-     * @param src                       source address
-     * @param dst                       destination address
-     * @param deviceKey                 device key
+     * @param context                    context
+     * @param src                        source address
+     * @param dst                        destination address
+     * @param deviceKey                  device key
      * @param configModelSubscriptionAdd {@link ConfigModelSubscriptionAdd}
-     * @param meshTransport             {@link MeshTransport}
-     * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks}
+     * @param meshTransport              {@link MeshTransport}
+     * @param callbacks                  {@link InternalMeshMsgHandlerCallbacks}
      */
     ConfigModelSubscriptionAddState(@NonNull final Context context,
                                     @NonNull final byte[] src,

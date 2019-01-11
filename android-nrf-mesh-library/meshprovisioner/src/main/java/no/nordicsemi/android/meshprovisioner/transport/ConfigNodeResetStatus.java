@@ -36,18 +36,6 @@ public class ConfigNodeResetStatus extends ConfigStatusMessage implements Parcel
 
     private static final String TAG = ConfigNodeResetStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS;
-
-    /**
-     * Constructs the ConfigAppKeyStatus mMessage.
-     *
-     * @param message Access Message
-     */
-    public ConfigNodeResetStatus(@NonNull final AccessMessage message) {
-        super(message);
-        this.mParameters = message.getParameters();
-        parseStatusParameters();
-    }
-
     private static final Creator<ConfigNodeResetStatus> CREATOR = new Creator<ConfigNodeResetStatus>() {
         @Override
         public ConfigNodeResetStatus createFromParcel(Parcel in) {
@@ -60,6 +48,17 @@ public class ConfigNodeResetStatus extends ConfigStatusMessage implements Parcel
             return new ConfigNodeResetStatus[size];
         }
     };
+
+    /**
+     * Constructs the ConfigAppKeyStatus mMessage.
+     *
+     * @param message Access Message
+     */
+    public ConfigNodeResetStatus(@NonNull final AccessMessage message) {
+        super(message);
+        this.mParameters = message.getParameters();
+        parseStatusParameters();
+    }
 
     @Override
     final void parseStatusParameters() {

@@ -22,21 +22,19 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.List;
 
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 abstract class UpperTransportLayer extends AccessLayer {
-
-    private static final int APPLICATION_KEY_IDENTIFIER = 0; //Identifies that the device key is to be used
-    private static final int MAX_UNSEGMENTED_ACCESS_PAYLOAD_LENGTH = 15;
+    static final int PROXY_CONFIG_OPCODE_LENGTH = 1;
     static final int MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH = 12;
     static final int MAX_UNSEGMENTED_CONTROL_PAYLOAD_LENGTH = 11;
     static final int MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH = 8;
@@ -44,15 +42,17 @@ abstract class UpperTransportLayer extends AccessLayer {
      * Nonce types
      **/
     static final int NONCE_TYPE_NETWORK = 0x00;
-    private static final int NONCE_TYPE_APPLICATION = 0x01;
-    private static final int NONCE_TYPE_DEVICE = 0x02;
     static final int NONCE_TYPE_PROXY = 0x03;
     /**
      * Nonce paddings
      **/
     static final int PAD_NETWORK_NONCE = 0x00;
-    private static final int PAD_APPLICATION_DEVICE_NONCE = 0b0000000;
     static final int PAD_PROXY_NONCE = 0x00;
+    private static final int APPLICATION_KEY_IDENTIFIER = 0; //Identifies that the device key is to be used
+    private static final int MAX_UNSEGMENTED_ACCESS_PAYLOAD_LENGTH = 15;
+    private static final int NONCE_TYPE_APPLICATION = 0x01;
+    private static final int NONCE_TYPE_DEVICE = 0x02;
+    private static final int PAD_APPLICATION_DEVICE_NONCE = 0b0000000;
     private static final String TAG = UpperTransportLayer.class.getSimpleName();
     private static final int SZMIC = 1; //Transmic becomes 8 bytes
     private static final int TRANSPORT_SAR_SEQZERO_MASK = 8191;
@@ -64,18 +64,24 @@ abstract class UpperTransportLayer extends AccessLayer {
 
     /**
      * Creates a mesh message containing an upper transport access pdu
+     *
      * @param message The access message required to create the encrypted upper transport pdu
      */
     void createMeshMessage(final Message message) { //Access message
-        super.createMeshMessage(message);
-        final AccessMessage accessMessage = (AccessMessage) message;
-        final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
-        Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
-        accessMessage.setUpperTransportPdu(encryptedTransportPDU);
+        if(message instanceof AccessMessage) {
+            super.createMeshMessage(message);
+            final AccessMessage accessMessage = (AccessMessage) message;
+            final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
+            Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
+            accessMessage.setUpperTransportPdu(encryptedTransportPDU);
+        } else {
+            createUpperTransportPDU(message);
+        }
     }
 
     /**
      * Creates a vendor model mesh message containing an upper transport access pdu
+     *
      * @param message The access message required to create the encrypted upper transport pdu
      */
     void createVendorMeshMessage(final Message message) { //Access message
@@ -88,13 +94,36 @@ abstract class UpperTransportLayer extends AccessLayer {
 
     /**
      * Creates the upper transport access pdu
-     * @param accessMessage The access message required to create the encrypted upper transport pdu
+     *
+     * @param message The message required to create the encrypted upper transport pdu
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    void createUpperTransportPDU(final AccessMessage accessMessage) { //Access message
-        final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
-        Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
-        accessMessage.setUpperTransportPdu(encryptedTransportPDU);
+    void createUpperTransportPDU(final Message message) {
+        if(message instanceof AccessMessage) {
+            //Access message
+            final AccessMessage accessMessage = (AccessMessage) message;
+            final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
+            Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
+            accessMessage.setUpperTransportPdu(encryptedTransportPDU);
+        } else {
+            final ControlMessage controlMessage = (ControlMessage) message;
+            final int opCode = controlMessage.getOpCode();
+            final byte[] parameters = controlMessage.getParameters();
+            final ByteBuffer accessMessageBuffer;
+            if (parameters != null) {
+                accessMessageBuffer = ByteBuffer.allocate(PROXY_CONFIG_OPCODE_LENGTH + parameters.length)
+                        .order(ByteOrder.BIG_ENDIAN)
+                        .put((byte) opCode)
+                        .put(parameters);
+            } else {
+                accessMessageBuffer = ByteBuffer.allocate(PROXY_CONFIG_OPCODE_LENGTH);
+                accessMessageBuffer.put((byte) opCode);
+            }
+            final byte[] accessPdu = accessMessageBuffer.array();
+
+            Log.v(TAG, "Created Transport Control PDU " + MeshParserUtils.bytesToHex(accessPdu, false));
+            controlMessage.setTransportControlPdu(accessPdu);
+        }
     }
 
     /**
@@ -127,30 +156,33 @@ abstract class UpperTransportLayer extends AccessLayer {
      *
      * @param message access message containing the upper transport pdu
      */
-    final void parseUpperTransportPDU(final AccessMessage message) {
-        final int ctl = message.getCtl();
-        if (ctl == 0) { //Access message
-            reassembleLowerTransportAccessPDU(message);
-            final byte[] decryptedUpperTransportControlPdu = decryptUpperTransportPDU(message);
-            message.setAccessPdu(decryptedUpperTransportControlPdu);
+    final void parseUpperTransportPDU(@NonNull final Message message) {
+        switch (message.getPduType()) {
+            case MeshManagerApi.PDU_TYPE_NETWORK:
+                if (message.getCtl() == 0) { //Access message
+                    final AccessMessage accessMessage = (AccessMessage) message;
+                    reassembleLowerTransportAccessPDU(accessMessage);
+                    final byte[] decryptedUpperTransportControlPdu = decryptUpperTransportPDU(accessMessage);
+                    accessMessage.setAccessPdu(decryptedUpperTransportControlPdu);
+                } else {
+                    //TODO
+                    //this where control messages such as heartbeat and friendship messages are to be implemented
+                }
+                break;
+            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
+                final ControlMessage controlMessage = (ControlMessage) message;
+                if(controlMessage.getLowerTransportControlPdu().size() == 1) {
+                    final byte[] lowerTransportControlPdu = controlMessage.getLowerTransportControlPdu().get(0);
+                    final ByteBuffer buffer = ByteBuffer.wrap(lowerTransportControlPdu)
+                            .order(ByteOrder.BIG_ENDIAN);
+                    message.setOpCode(buffer.get());
+                    final byte[] parameters = new byte[buffer.capacity() - 1];
+                    buffer.get(parameters);
+                    message.setParameters(parameters);
+                }
+                break;
         }
-    }
 
-    /**
-     * Encrypts upper transport pdu
-     *
-     * @return encrypted upper transport pdu
-     */
-    private byte[] encryptUpperTransportPDU(final byte[] sequenceNumber, final byte[] src, final byte[] dst, final byte[] ivIndex, final byte[] key, final int akf, final int transMicLength, final byte[] accessPDU) {
-        final int aszmic = 0; // upper transport layer will alaways have the aszmic as 0 because the mic is always 32bit
-        byte[] nonce;
-
-        if (akf == APPLICATION_KEY_IDENTIFIER) {
-            nonce = createDeviceNonce(aszmic, sequenceNumber, src, dst, ivIndex);
-        } else {
-            nonce = createApplicationNonce(aszmic, sequenceNumber, src, dst, ivIndex);
-        }
-        return SecureUtils.encryptCCM(accessPDU, key, nonce, transMicLength);
     }
 
     /**
@@ -202,17 +234,17 @@ abstract class UpperTransportLayer extends AccessLayer {
         final byte[] key;
         //Check if the key used for encryption is an application key or a device key
         final byte[] nonce;
-        if(APPLICATION_KEY_IDENTIFIER == accessMessage.getAkf()) {
+        if (APPLICATION_KEY_IDENTIFIER == accessMessage.getAkf()) {
             key = mMeshNode.getDeviceKey();
             //If its a device key that was used to encrypt the message we need to create a device nonce to decrypt it
             nonce = createDeviceNonce(accessMessage.getAszmic(), accessMessage.getSequenceNumber(), accessMessage.getSrc(), accessMessage.getDst(), accessMessage.getIvIndex());
         } else {
             key = mUpperTransportLayerCallbacks.getApplicationKey(accessMessage.getAid());
-            if(key == null)
+            if (key == null)
                 throw new IllegalArgumentException("Unable to find the app key to decrypt the message");
 
             final int aid = SecureUtils.calculateK4(key);
-            if(aid != accessMessage.getAid()) {
+            if (aid != accessMessage.getAid()) {
                 throw new IllegalArgumentException("Unable to decrypt the message, invalid application key identifier");
             }
             //If its an application key that was used to encrypt the message we need to create a application nonce to decrypt it

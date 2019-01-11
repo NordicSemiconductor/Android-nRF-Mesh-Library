@@ -67,7 +67,7 @@ public interface MeshStatusCallbacks {
     /**
      * Callback to notify the mesh message has been sent
      *
-     * @param dst
+     * @param dst         Destination address to be sent
      * @param meshMessage {@link MeshMessage} containing the message that was sent
      */
     void onMeshMessageSent(final byte[] dst, final MeshMessage meshMessage);

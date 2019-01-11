@@ -34,6 +34,7 @@ import android.support.annotation.VisibleForTesting;
 import com.google.gson.annotations.Expose;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +65,18 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     @Ignore
     @Expose
     private SecureUtils.K2Output k2Output;
+
+    public static final Creator<ProvisionedMeshNode> CREATOR = new Creator<ProvisionedMeshNode>() {
+        @Override
+        public ProvisionedMeshNode createFromParcel(Parcel in) {
+            return new ProvisionedMeshNode(in);
+        }
+
+        @Override
+        public ProvisionedMeshNode[] newArray(int size) {
+            return new ProvisionedMeshNode[size];
+        }
+    };
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -122,6 +135,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         networkTransmitSettings = in.readParcelable(NetworkTransmitSettings.class.getClassLoader());
         relaySettings = in.readParcelable(RelaySettings.class.getClassLoader());
         blackListed = in.readByte() != 1;
+
     }
 
     @Override
@@ -157,18 +171,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeValue((byte) (blackListed ? 1 : 0));
     }
 
-    public static final Creator<ProvisionedMeshNode> CREATOR = new Creator<ProvisionedMeshNode>() {
-        @Override
-        public ProvisionedMeshNode createFromParcel(Parcel in) {
-            return new ProvisionedMeshNode(in);
-        }
-
-        @Override
-        public ProvisionedMeshNode[] newArray(int size) {
-            return new ProvisionedMeshNode[size];
-        }
-    };
-
     @Override
     public int describeContents() {
         return 0;
@@ -176,6 +178,38 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     public final Map<Integer, Element> getElements() {
         return mElements;
+    }
+
+    /**
+     * Check if an unicast address is the address of an element
+     *
+     * @param unicastAddress    the address to check
+     * @return if this address is the address of an element
+     */
+    public final boolean hasUnicastAddress(final byte [] unicastAddress) {
+        if (Arrays.equals(unicastAddress, this.unicastAddress))
+            return true;
+        for (Element element:  mElements.values()) {
+            if (Arrays.equals(unicastAddress, element.getElementAddress()))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if an unicast address is the address of an element
+     *
+     * @param unicastAddress    the address to check
+     * @return if this address is the address of an element
+     */
+    public final boolean hasUnicastAddress(final int unicastAddress) {
+        if (unicastAddress == getUnicastAddressInt())
+            return true;
+        for (Element element:  mElements.values()) {
+            if (element.getElementAddressInt() == unicastAddress)
+                return true;
+        }
+        return false;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -199,6 +233,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     /**
      * Sets the received sequence number
      * <p>This is only meant to be used internally within the library, hence the Restricted annotation</p>
+     *
      * @param receivedSequenceNumber sequence number of the message received from a node
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -266,6 +301,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     /**
      * Set {@link Features} of the node
+     *
      * @param features feature set supported by the node
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -316,7 +352,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * Returns the number of elements in the node
      */
     public int getNumberOfElements() {
-        if(numberOfElements > mElements.size()){
+        if (numberOfElements > mElements.size()) {
             return numberOfElements;
         }
 

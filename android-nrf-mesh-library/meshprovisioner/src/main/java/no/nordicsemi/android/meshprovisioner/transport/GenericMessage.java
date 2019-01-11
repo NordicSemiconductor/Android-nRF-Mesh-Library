@@ -14,11 +14,10 @@ abstract class GenericMessage extends MeshMessage {
 
     /**
      * Constracts a generic message
+     *
      * @param appKey application key
-     * @param aszmic aszmic of message
      */
-    GenericMessage(@NonNull final byte[] appKey, final int aszmic) {
-        super(aszmic);
+    GenericMessage(@NonNull final byte[] appKey) {
         if (appKey.length != 16)
             throw new IllegalArgumentException("Application key must be 16 bytes");
         this.mAppKey = appKey;

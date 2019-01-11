@@ -19,13 +19,11 @@ public class LightHslGet extends GenericMessage {
     /**
      * Constructs LightHslGet message.
      *
-     * @param appKey               application key for this message
-     * @param aszmic               size of message integrity check
+     * @param appKey application key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightHslGet(@NonNull final byte[] appKey,
-                       final int aszmic) throws IllegalArgumentException {
-        super(appKey, aszmic);
+    public LightHslGet(@NonNull final byte[] appKey) throws IllegalArgumentException {
+        super(appKey);
         assembleMessageParameters();
     }
 

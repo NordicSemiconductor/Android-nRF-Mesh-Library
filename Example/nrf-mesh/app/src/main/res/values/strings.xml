@@ -286,8 +286,10 @@
     <string name="configuration_complete_summary">Mesh node has been successfully configured.</string>
     <string name="action_composition_data">GET COMPOSITION DATA</string>
 
-    <string name="action_add_app_keys">ADD</string>
-    <string name="action_view_app_keys">VIEW</string>
+    <string name="action_add">ADD</string>
+    <string name="action_remove">REMOVE</string>
+    <string name="action_clear">CLEAR</string>
+    <string name="action_view">VIEW</string>
     <string name="title_about">About</string>
     <string name="summary_verion">App Version</string>
     <string name="title_node_configuration">Node Configuration</string>
@@ -317,7 +319,7 @@
     <string name="text_action_relay_retransmit_interval_steps">%d ms</string>
 
     <string name="title_proxy_state_info">Proxy</string>
-    <string name="title_proxy_state_settings">Proxy Settings</string>
+    <string name="title_proxy_state_settings">Proxy State</string>
     <string name="title_proxy_state">Proxy</string>
     <string name="proxy_state">STATE</string>
     <string name="action_proxy_state_set_on">ON</string>
@@ -330,6 +332,20 @@
     <string name="proxy_set_off_rationale_summary">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.
         However, you will still be able to continue sending messages via the other proxy nodes in the network. Do you wish to continue?</string>
 
+    <string name="title_proxy_filter_info">Proxy</string>
+    <string name="title_proxy_filter">Proxy Filter</string>
+    <string name="white_list_filter">Whitelist Filter</string>
+    <string name="black_list_filter">Blacklist Filter</string>
+    <string name="action_proxy_set_black_list_filter">Set blacklist</string>
+    <string name="hint_remove">Hint: Swipe address to remove.</string>
+    <string name="hint_filter_address">Unicast/Group Address</string>
+    <string name="no_addresses_added">No addresses are added to this filter!</string>
+    <string name="title_add_address">Add Address</string>
+    <string name="address">Address %d</string>
+    <string name="dialog_summary_filter_address">Addresses to be added to the %s. Supported addresses are Unicast, Group or Virtual Addresses.</string>
+    <string name="invalid_filter_address">Address must be a Unicast, Group or a Virtual Address!</string>
+    <string name="error_empty_filter_address">Add at least one address to confirm!</string>
+
     <string name="no_app_keys_added">No app keys are added to this node!</string>
     <string name="app_keys_added">%d app keys added</string>
     <string name="error_no_app_keys_bound">No app keys are bound for this model. Please bind an app key first!</string>
@@ -337,7 +353,7 @@
     <string name="action_generic_on">ON</string>
     <string name="action_generic_off">OFF</string>
     <string name="transition_time_interval">%s %s</string>
-    <string name="hint_unsubscribe">Hint: Swipe address to unsubscribe</string>
+    <string name="hint_unsubscribe">Hint: Swipe address to unsubscribe.</string>
     <string name="hint_step_resolution_ms">Currently on 100 ms step resolution</string>
     <string name="hint_step_resolution_s">Currently on 1 s step resolution</string>
     <string name="hint_step_resolution_ten_s">Currently on 10 s step resolution</string>

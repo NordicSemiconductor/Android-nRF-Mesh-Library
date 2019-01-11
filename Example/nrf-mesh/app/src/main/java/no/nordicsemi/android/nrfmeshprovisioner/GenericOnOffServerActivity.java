@@ -210,8 +210,8 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             final byte[] address = element.getElementAddress();
             Log.v(TAG, "Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
 
-            final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey, 0);
-            mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, genericOnOffSet);
+            final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey);
+            mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
             showProgressbar();
         } else {
             Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
@@ -237,16 +237,16 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                     final MeshMessage message;
                     Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
                             + ". Sending acknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
-                    message = new GenericOnOffSet(appKey, state, delay,node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, 0);
-                    mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, message);
+                    message = new GenericOnOffSet(appKey, state, delay,node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
                     showProgressbar();
                 }
             } else {
                 final byte[] address = element.getElementAddress();
                 Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
                         + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
-                final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state, node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay, 0);
-                mViewModel.getMeshManagerApi().sendMeshApplicationMessage(address, genericOnOffSet);
+                final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state, node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
+                mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
             }
         } else {
             Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();

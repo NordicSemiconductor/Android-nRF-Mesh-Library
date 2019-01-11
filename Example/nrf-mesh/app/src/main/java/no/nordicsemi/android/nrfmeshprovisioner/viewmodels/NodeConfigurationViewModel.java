@@ -98,4 +98,8 @@ public class NodeConfigurationViewModel extends ViewModel {
         return mNrfMeshRepository;
     }
 
+    public LiveData<Integer> getConnectedMeshNodeAddress(){
+        return mNrfMeshRepository.getConnectedMeshNodeAddress();
+    }
+
 }

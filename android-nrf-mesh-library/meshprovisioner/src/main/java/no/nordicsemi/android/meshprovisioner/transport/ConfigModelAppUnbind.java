@@ -50,14 +50,11 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
      * @param elementAddress  Address of the element to which the model belongs to
      * @param modelIdentifier Model from which the key must be unbound from
      * @param appKeyIndex     Global app key index of the key to be unbound
-     * @param aszmic          Size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public ConfigModelAppUnbind(final byte[] elementAddress,
                                 final int modelIdentifier,
-                                final int appKeyIndex,
-                                final int aszmic) throws IllegalArgumentException {
-        super(aszmic);
+                                final int appKeyIndex) throws IllegalArgumentException {
         if (elementAddress.length != 2)
             throw new IllegalArgumentException("Element address cannot be cannot be greater than 2 octets");
         this.mElementAddress = elementAddress;

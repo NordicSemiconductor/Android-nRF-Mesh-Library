@@ -37,22 +37,6 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
 
     private static final String TAG = ConfigNetworkTransmitStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS;
-
-    private int mNetworkTransmitCount;
-    private int mNetworkTransmitIntervalSteps;
-
-    /**
-     * Constructs a ConfigNetworkTransmitStatus message.
-     *
-     * @param message   Access message received
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
-    public ConfigNetworkTransmitStatus(@NonNull final AccessMessage message) {
-        super(message);
-        this.mParameters = message.getParameters();
-        parseStatusParameters();
-    }
-
     private static final Creator<ConfigNetworkTransmitStatus> CREATOR = new Creator<ConfigNetworkTransmitStatus>() {
         @Override
         public ConfigNetworkTransmitStatus createFromParcel(Parcel in) {
@@ -65,6 +49,20 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
             return new ConfigNetworkTransmitStatus[size];
         }
     };
+    private int mNetworkTransmitCount;
+    private int mNetworkTransmitIntervalSteps;
+
+    /**
+     * Constructs a ConfigNetworkTransmitStatus message.
+     *
+     * @param message Access message received
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    public ConfigNetworkTransmitStatus(@NonNull final AccessMessage message) {
+        super(message);
+        this.mParameters = message.getParameters();
+        parseStatusParameters();
+    }
 
     @Override
     public int getOpCode() {
@@ -73,7 +71,7 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
 
     @Override
     final void parseStatusParameters() {
-        final byte[] payload = mMessage.getAccessPdu();
+        final byte[] payload = ((AccessMessage) mMessage).getAccessPdu();
         mNetworkTransmitCount = payload[2] & 0b111;
         mNetworkTransmitIntervalSteps = (payload[2] >> 3) & 0b11111;
     }

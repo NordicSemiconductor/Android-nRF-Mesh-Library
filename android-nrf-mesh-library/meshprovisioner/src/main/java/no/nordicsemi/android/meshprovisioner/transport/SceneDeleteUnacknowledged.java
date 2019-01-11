@@ -24,16 +24,14 @@ public class SceneDeleteUnacknowledged extends GenericMessage {
     /**
      * Constructs SceneDeleteUnacknowledged message.
      *
-     * @param appKey               application key for this message
-     * @param sceneNumber          scene number of SceneDeleteUnacknowledged message
-     * @param aszmic               size of message integrity check
+     * @param appKey      application key for this message
+     * @param sceneNumber scene number of SceneDeleteUnacknowledged message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
     public SceneDeleteUnacknowledged(@NonNull final byte[] appKey,
-                                     final int sceneNumber,
-                                     final int aszmic) {
-        super(appKey, aszmic);
+                                     final int sceneNumber) {
+        super(appKey);
         this.mSceneNumber = sceneNumber;
         assembleMessageParameters();
     }

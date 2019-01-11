@@ -25,6 +25,7 @@ package no.nordicsemi.android.meshprovisioner.utils;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.gson.annotations.Expose;
 
@@ -223,7 +224,7 @@ public class SecureUtils {
         try {
             ccmBlockCipher.doFinal(ccm, 0);
         } catch (InvalidCipherTextException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error wile encrypting: " + e.getMessage());
         }
         return ccm;
     }
@@ -239,7 +240,7 @@ public class SecureUtils {
         try {
             ccmBlockCipher.doFinal(ccm, 0);
         } catch (InvalidCipherTextException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error wile decrypting: " + e.getMessage());
         }
         final int ccmLength = data.length - micSize;
         final ByteBuffer ccmBuffer = ByteBuffer.allocate(ccmLength).order(ByteOrder.BIG_ENDIAN);

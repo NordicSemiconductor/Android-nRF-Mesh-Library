@@ -24,16 +24,14 @@ public class SceneStore extends GenericMessage {
     /**
      * Constructs SceneStore message.
      *
-     * @param appKey               application key for this message
-     * @param sceneNumber          scene number of SceneStore message
-     * @param aszmic               size of message integrity check
+     * @param appKey      application key for this message
+     * @param sceneNumber scene number of SceneStore message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
     public SceneStore(@NonNull final byte[] appKey,
-                      final int sceneNumber,
-                      final int aszmic) {
-        super(appKey, aszmic);
+                      final int sceneNumber) {
+        super(appKey);
         this.mSceneNumber = sceneNumber;
         assembleMessageParameters();
     }

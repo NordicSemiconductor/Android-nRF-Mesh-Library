@@ -33,14 +33,12 @@ public class GenericOnOffSet extends GenericMessage {
      * @param appKey application key for this message
      * @param state  boolean state of the GenericOnOffModel
      * @param tId    transaction id
-     * @param aszmic size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public GenericOnOffSet(@NonNull final byte[] appKey,
                            final boolean state,
-                           final int tId,
-                           final int aszmic) throws IllegalArgumentException {
-        this(appKey, state, tId, null, null, null, aszmic);
+                           final int tId) throws IllegalArgumentException {
+        this(appKey, state, tId, null, null, null);
     }
 
     /**
@@ -52,7 +50,6 @@ public class GenericOnOffSet extends GenericMessage {
      * @param transitionSteps      transition steps for the level
      * @param transitionResolution transition resolution for the level
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param aszmic               size of message integrity check
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
@@ -61,9 +58,8 @@ public class GenericOnOffSet extends GenericMessage {
                            final int tId,
                            @Nullable final Integer transitionSteps,
                            @Nullable final Integer transitionResolution,
-                           @Nullable final Integer delay,
-                           final int aszmic) {
-        super(appKey, aszmic);
+                           @Nullable final Integer delay) {
+        super(appKey);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
         this.mDelay = delay;

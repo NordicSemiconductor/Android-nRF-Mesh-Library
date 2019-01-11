@@ -35,22 +35,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class VendorModelMessageStatus extends GenericStatusMessage implements Parcelable {
 
-    private static final String TAG = VendorModelMessageStatus.class.getSimpleName();
-    private final int mModelIdentifier;
-
-    /**
-     * Constructs the VendorModelMessageStatus mMessage.
-     *  @param message         Access Message
-     * @param modelIdentifier model identifier
-     */
-    public VendorModelMessageStatus(@NonNull final AccessMessage message, final int modelIdentifier) {
-        super(message);
-        this.mMessage = message;
-        this.mParameters = message.getParameters();
-        this.mModelIdentifier = modelIdentifier;
-        parseStatusParameters();
-    }
-
     public static final Creator<VendorModelMessageStatus> CREATOR = new Creator<VendorModelMessageStatus>() {
         @Override
         public VendorModelMessageStatus createFromParcel(Parcel in) {
@@ -64,6 +48,22 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
             return new VendorModelMessageStatus[size];
         }
     };
+    private static final String TAG = VendorModelMessageStatus.class.getSimpleName();
+    private final int mModelIdentifier;
+
+    /**
+     * Constructs the VendorModelMessageStatus mMessage.
+     *
+     * @param message         Access Message
+     * @param modelIdentifier model identifier
+     */
+    public VendorModelMessageStatus(@NonNull final AccessMessage message, final int modelIdentifier) {
+        super(message);
+        this.mMessage = message;
+        this.mParameters = message.getParameters();
+        this.mModelIdentifier = modelIdentifier;
+        parseStatusParameters();
+    }
 
     @Override
     void parseStatusParameters() {
@@ -87,7 +87,7 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
     }
 
     public final byte[] getAccessPayload() {
-        return mMessage.getAccessPdu();
+        return ((AccessMessage) mMessage).getAccessPdu();
     }
 
     /**

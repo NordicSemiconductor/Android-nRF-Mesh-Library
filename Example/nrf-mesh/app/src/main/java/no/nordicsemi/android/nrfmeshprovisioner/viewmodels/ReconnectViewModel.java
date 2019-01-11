@@ -28,6 +28,7 @@ import android.content.Context;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 
@@ -60,7 +61,15 @@ public class ReconnectViewModel extends ViewModel {
         mNrfMeshRepository.disconnect();
     }
 
+    public NrfMeshRepository getNrfMeshRepository() {
+        return mNrfMeshRepository;
+    }
+
     public BleMeshManager getBleMeshManager() {
         return mNrfMeshRepository.getBleMeshManager();
+    }
+
+    public MeshManagerApi getMeshManagerApi() {
+        return mNrfMeshRepository.getMeshManagerApi();
     }
 }

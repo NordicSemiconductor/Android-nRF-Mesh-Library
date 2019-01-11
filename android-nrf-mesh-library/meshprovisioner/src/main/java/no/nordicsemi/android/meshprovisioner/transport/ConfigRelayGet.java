@@ -36,11 +36,8 @@ public final class ConfigRelayGet extends ConfigMessage {
 
     /**
      * Constructs a ConfigRelayGet message
-     *
-     * @param aszmic    Size of message integrity check
      */
-    public ConfigRelayGet(final int aszmic) {
-        super(aszmic);
+    public ConfigRelayGet() {
         assembleMessageParameters();
     }
 

@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -63,17 +64,17 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 @SuppressWarnings("WeakerAccess")
 public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks {
 
+    private static final String TAG = MeshManagerApi.class.getSimpleName();
     public final static UUID MESH_PROVISIONING_UUID = UUID.fromString("00001827-0000-1000-8000-00805F9B34FB");
     public final static UUID MESH_PROXY_UUID = UUID.fromString("00001828-0000-1000-8000-00805F9B34FB");
     public static final byte PDU_TYPE_PROVISIONING = 0x03;
 
-    private static final String TAG = MeshManagerApi.class.getSimpleName();
     //PDU types
-    private static final byte PDU_TYPE_NETWORK = 0x00;
-    private static final byte PDU_TYPE_MESH_BEACON = 0x01;
-    private static final byte PDU_TYPE_PROXY_CONFIGURATION = 0x02;
+    public static final byte PDU_TYPE_NETWORK = 0x00;
+    public static final byte PDU_TYPE_MESH_BEACON = 0x01;
+    public static final byte PDU_TYPE_PROXY_CONFIGURATION = 0x02;
     //GATT level segmentation
-    private static final byte SAR_COMPLETE = 0b00;
+    private static final byte GATT_SAR_COMPLETE = 0b00;
     private static final byte GATT_SAR_START = 0b01;
     private static final byte GATT_SAR_CONTINUATION = 0b10;
     private static final byte GATT_SAR_END = 0b11;
@@ -81,6 +82,9 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     private static final int GATT_SAR_MASK = 0xC0;
     private static final int GATT_SAR_UNMASK = 0x3F;
     private static final int SAR_BIT_OFFSET = 6;
+
+    //According to the spec the proxy protocol must contain an SAR timeout of 20 seconds.
+    private static final long PROXY_SAR_TRANSFER_TIME_OUT = 20 * 1000;
     /**
      * Length of the random number required to calculate the hash containing the node id
      */
@@ -106,13 +110,14 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     /**
      * Offset of the network id contained in the advertisement service data
      */
-    private final static int ADVERTISED_NETWWORK_ID_OFFSET = 1;
+    private final static int ADVERTISED_NETWORK_ID_OFFSET = 1;
     /**
      * Length of the network id contained in the advertisement service data
      */
-    private final static int ADVERTISED_NETWWORK_ID_LENGTH = 8;
+    private final static int ADVERTISED_NETWORK_ID_LENGTH = 8;
     private Context mContext;
-    private MeshManagerTransportCallbacks mTransportCallbacks;
+    private final Handler mHanlder;
+    private MeshManagerCallbacks mTransportCallbacks;
     private MeshProvisioningHandler mMeshProvisioningHandler;
     private MeshMessageHandler mMeshMessageHandler;
     private byte[] mIncomingBuffer;
@@ -131,8 +136,27 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     private GroupDao mGroupDao;
     private SceneDao mSceneDao;
 
-    public MeshManagerApi(final Context context) {
+    private final Runnable mProxyProtocolTimeoutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mMeshMessageHandler.onIncompleteTimerExpired(true);
+        }
+    };
+
+    /**
+     * The mesh manager api constructor.
+     * <p>
+     * After constructing the manager, the meshProvision following callbacks must be set
+     * {@link #setMeshManagerCallbacks(MeshManagerCallbacks)}.
+     * {@link #setProvisioningStatusCallbacks(MeshProvisioningStatusCallbacks)}.
+     * {@link #setMeshStatusCallbacks(MeshStatusCallbacks)}.
+     * <p>
+     *
+     * @param context context
+     */
+    public MeshManagerApi(@NonNull final Context context) {
         this.mContext = context;
+        mHanlder = new Handler();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, internalTransportCallbacks, internalMeshMgrCallbacks);
         mMeshMessageHandler = new MeshMessageHandler(context, internalTransportCallbacks);
         mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(networkLayerCallbacks);
@@ -145,14 +169,29 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
 
     }
 
-    public void setProvisionerManagerTransportCallbacks(final MeshManagerTransportCallbacks transportCallbacks) {
-        mTransportCallbacks = transportCallbacks;
+    /**
+     * Sets the {@link MeshManagerCallbacks} listener
+     *
+     * @param callbacks callbacks
+     */
+    public void setMeshManagerCallbacks(final MeshManagerCallbacks callbacks) {
+        mTransportCallbacks = callbacks;
     }
 
+    /**
+     * Sets the {@link MeshProvisioningStatusCallbacks} listener to return provisioning status callbacks.
+     *
+     * @param callbacks callbacks
+     */
     public void setProvisioningStatusCallbacks(final MeshProvisioningStatusCallbacks callbacks) {
         mMeshProvisioningHandler.setProvisioningCallbacks(callbacks);
     }
 
+    /**
+     * Sets the {@link MeshManagerCallbacks} listener to return mesh status callbacks.
+     *
+     * @param callbacks callbacks
+     */
     public void setMeshStatusCallbacks(final MeshStatusCallbacks callbacks) {
         mMeshMessageHandler.setMeshStatusCallbacks(callbacks);
     }
@@ -161,7 +200,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
      * Loads the mesh network from the local database.
      * <p>
      * This will start an AsyncTask that will load the network from the database.
-     * {@link MeshManagerTransportCallbacks#onNetworkLoaded(MeshNetwork) will return the mesh network
+     * {@link MeshManagerCallbacks#onNetworkLoaded(MeshNetwork) will return the mesh network
      * </p>
      */
     public void loadMeshNetwork() {
@@ -267,15 +306,31 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
             unsegmentedPdu = data;
         } else {
             final byte[] combinedPdu = appendPdu(mtuSize, data);
-            if (combinedPdu == null)
+            if (combinedPdu == null) {
+                //Start the timer
+                toggleProxyProtocolSarTimeOut(data);
                 return;
-            else {
+            } else {
+                toggleProxyProtocolSarTimeOut(data);
                 unsegmentedPdu = removeSegmentation(mtuSize, combinedPdu);
             }
         }
         parseNotifications(unsegmentedPdu);
     }
 
+    /**
+     * Toggles the Segmentation and Reassembly timeout for proxy configuration messages received via proxy protocol
+     *
+     * @param data pdu
+     */
+    private void toggleProxyProtocolSarTimeOut(final byte[] data) {
+        final int pduType = MeshParserUtils.unsignedByteToInt(data[0]);
+        if (pduType == ((GATT_SAR_START << SAR_BIT_OFFSET) | MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION)) {
+            mHanlder.postDelayed(mProxyProtocolTimeoutRunnable, PROXY_SAR_TRANSFER_TIME_OUT);
+        } else if (pduType == ((GATT_SAR_END << SAR_BIT_OFFSET) | MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION)) {
+            mHanlder.removeCallbacks(mProxyProtocolTimeoutRunnable);
+        }
+    }
 
     /**
      * Parses notifications received by the client.
@@ -302,6 +357,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
             case PDU_TYPE_PROXY_CONFIGURATION:
                 //Proxy configuration
                 Log.v(TAG, "Received proxy configuration message: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
+                mMeshMessageHandler.parseMeshMsgNotifications(unsegmentedPdu);
                 break;
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
@@ -345,6 +401,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
             case PDU_TYPE_PROXY_CONFIGURATION:
                 //Proxy configuration
                 Log.v(TAG, "Proxy configuration pdu sent: " + MeshParserUtils.bytesToHex(data, true));
+                mMeshMessageHandler.handleMeshMsgWriteCallbacks(data);
                 break;
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
@@ -644,7 +701,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
 
     @Override
     public boolean isAdvertisingWithNetworkIdentity(@Nullable final byte[] serviceData) {
-        return serviceData != null && serviceData[ADVERTISED_NETWWORK_ID_OFFSET - 1] == ADVERTISEMENT_TYPE_NETWORK_ID;
+        return serviceData != null && serviceData[ADVERTISED_NETWORK_ID_OFFSET - 1] == ADVERTISEMENT_TYPE_NETWORK_ID;
     }
 
     /**
@@ -656,8 +713,8 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     private byte[] getAdvertisedNetworkId(final byte[] serviceData) {
         if (serviceData == null)
             return null;
-        final ByteBuffer advertisedNetowrkID = ByteBuffer.allocate(ADVERTISED_NETWWORK_ID_LENGTH).order(ByteOrder.BIG_ENDIAN);
-        advertisedNetowrkID.put(serviceData, ADVERTISED_NETWWORK_ID_OFFSET, ADVERTISED_HASH_LENGTH);
+        final ByteBuffer advertisedNetowrkID = ByteBuffer.allocate(ADVERTISED_NETWORK_ID_LENGTH).order(ByteOrder.BIG_ENDIAN);
+        advertisedNetowrkID.put(serviceData, ADVERTISED_NETWORK_ID_OFFSET, ADVERTISED_HASH_LENGTH);
         return advertisedNetowrkID.array();
     }
 
@@ -665,7 +722,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
      * Resets the provisioned mesh network and will generate a new one
      * <p>
      * This method will clear the provisioned nodes, reset the sequence number and generate new network with new provisioning data.
-     * {@link MeshManagerTransportCallbacks#onNetworkLoaded(MeshNetwork)} will return the newly generated network
+     * {@link MeshManagerCallbacks#onNetworkLoaded(MeshNetwork)} will return the newly generated network
      * </p>
      */
     public final void resetMeshNetwork() {
@@ -731,15 +788,9 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     }
 
     @Override
-    public final void sendMeshConfigurationMessage(@NonNull final byte[] dst, @NonNull final MeshMessage configMessage) {
+    public final void sendMeshMessage(@NonNull final byte[] dst, @NonNull final MeshMessage meshMessage) {
         final byte[] src = mMeshNetwork.getSelectedProvisioner().getProvisionerAddress();
-        mMeshMessageHandler.sendConfigMeshMessage(src, dst, configMessage);
-    }
-
-    @Override
-    public final void sendMeshApplicationMessage(@NonNull final byte[] dstAddress, @NonNull final MeshMessage meshMessage) {
-        final byte[] src = mMeshNetwork.getSelectedProvisioner().getProvisionerAddress();
-        mMeshMessageHandler.sendAppMeshMessage(src, dstAddress, meshMessage);
+        mMeshMessageHandler.sendMeshMessage(src, dst, meshMessage);
     }
 
     @Override
@@ -755,7 +806,8 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
         if (uri != null && uri.getPath().endsWith(".json")) {
             NetworkImportExportUtils.importMeshNetwork(mContext, uri, networkLoadCallbacks);
         } else {
-            mTransportCallbacks.onNetworkImportFailed("Invalid file type detected! Network information can be imported only from a valid JSON file that follows the Mesh Provisioning/Configuration Database format!");
+            mTransportCallbacks.onNetworkImportFailed("Invalid file type detected! " +
+                    "Network information can be imported only from a valid JSON file that follows the Mesh Provisioning/Configuration Database format!");
         }
     }
 
@@ -859,13 +911,8 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
         }
     };
 
-    private ProvisionedMeshNode getMeshNode(final int unicast){
-        for (ProvisionedMeshNode node : mMeshNetwork.getProvisionedNodes()) {
-            if (unicast == node.getUnicastAddressInt()) {
-                return node;
-            }
-        }
-        return null;
+    private ProvisionedMeshNode getMeshNode(final int unicast) {
+        return mMeshNetwork.getProvisionedNode(unicast);
     }
 
     @SuppressWarnings("FieldCanBeLocal")

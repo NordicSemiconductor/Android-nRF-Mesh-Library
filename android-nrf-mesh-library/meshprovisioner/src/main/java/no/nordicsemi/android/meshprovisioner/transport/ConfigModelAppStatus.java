@@ -43,7 +43,18 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS;
     private static final int CONFIG_MODEL_APP_BIND_STATUS_SIG_MODEL = 7;
     private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL = 9;
+    private static final Creator<ConfigModelAppStatus> CREATOR = new Creator<ConfigModelAppStatus>() {
+        @Override
+        public ConfigModelAppStatus createFromParcel(Parcel in) {
+            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            return new ConfigModelAppStatus(message);
+        }
 
+        @Override
+        public ConfigModelAppStatus[] newArray(int size) {
+            return new ConfigModelAppStatus[size];
+        }
+    };
     private int mElementAddress;
     private int mAppKeyIndex;
     private int mModelIdentifier;
@@ -59,22 +70,9 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
         parseStatusParameters();
     }
 
-    private static final Creator<ConfigModelAppStatus> CREATOR = new Creator<ConfigModelAppStatus>() {
-        @Override
-        public ConfigModelAppStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigModelAppStatus(message);
-        }
-
-        @Override
-        public ConfigModelAppStatus[] newArray(int size) {
-            return new ConfigModelAppStatus[size];
-        }
-    };
-
     @Override
     final void parseStatusParameters() {
-        final AccessMessage message = mMessage;
+        final AccessMessage message = (AccessMessage) mMessage;
         final ByteBuffer buffer = ByteBuffer.wrap(message.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
         buffer.position(0);
         mStatusCode = buffer.get();
