@@ -794,7 +794,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     }
 
     @Override
-    public void exportMeshNetwork(final String path) {
+    public void exportMeshNetwork(@NonNull final String path) {
         final MeshNetwork meshNetwork = mMeshNetwork;
         if (meshNetwork != null) {
             NetworkImportExportUtils.exportMeshNetwork(meshNetwork, path, networkLoadCallbacks);
@@ -802,12 +802,16 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     }
 
     @Override
-    public void importMeshNetwork(final Uri uri) {
-        if (uri != null && uri.getPath() != null && uri.getPath().endsWith(".json")) {
-            NetworkImportExportUtils.importMeshNetwork(mContext, uri, networkLoadCallbacks);
+    public void importMeshNetwork(@NonNull final Uri uri) {
+        if (uri.getPath() != null) {
+            if (uri.getPath().endsWith(".json")) {
+                NetworkImportExportUtils.importMeshNetwork(mContext, uri, networkLoadCallbacks);
+            } else {
+                mTransportCallbacks.onNetworkImportFailed("Invalid file type detected! " +
+                        "Network information can be imported only from a valid JSON file that follows the Mesh Provisioning/Configuration Database format!");
+            }
         } else {
-            mTransportCallbacks.onNetworkImportFailed("Invalid file type detected! " +
-                    "Network information can be imported only from a valid JSON file that follows the Mesh Provisioning/Configuration Database format!");
+            mTransportCallbacks.onNetworkImportFailed("URI getPath() returned null!");
         }
     }
 

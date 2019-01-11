@@ -131,7 +131,7 @@ interface MeshMngrApi {
     /**
      * Exports mesh network to a json file
      */
-    void exportMeshNetwork(final String path);
+    void exportMeshNetwork(@NonNull final String path);
 
 
     /**
@@ -139,5 +139,5 @@ interface MeshMngrApi {
      * <p>Af</p>
      * @param uri path to the mesh configuration database json file.
      */
-    void importMeshNetwork(final Uri uri);
+    void importMeshNetwork(@NonNull final Uri uri);
 }
