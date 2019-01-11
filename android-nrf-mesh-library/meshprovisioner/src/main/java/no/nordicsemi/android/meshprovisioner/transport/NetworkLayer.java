@@ -191,7 +191,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
                 Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNum, false));
                 encryptedNetworkPayload = encryptNetworkPduPayload(message, sequenceNum, lowerTransportPdu, encryptionKey);
-                if(encryptedNetworkPayload == null)
+                if (encryptedNetworkPayload == null)
                     return null;
                 Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedNetworkPayload, false));
                 break;
@@ -202,7 +202,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         //Next we create the PECB
         final byte[] pecb = createPECB(message.getIvIndex(), privacyRandom, privacyKey);
 
-        if(encryptedNetworkPayload != null) {
+        if (encryptedNetworkPayload != null) {
             final byte[] header = obfuscateNetworkHeader(ctlTTL, message.getSequenceNumber(), src, pecb);
             final byte[] networkPdu = ByteBuffer.allocate(1 + 1 + header.length + encryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN)
                     .put((byte) pduType)
@@ -409,11 +409,13 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         final int micLength = SecureUtils.getNetMicLength(ctl);
         final byte[] sequenceNumber = ByteBuffer.allocate(3).order(ByteOrder.BIG_ENDIAN).put(networkHeader, 1, 3).array();
         final byte[] src = ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).put(networkHeader, 4, 2).array();
+        Log.v(TAG, "Src: " + MeshParserUtils.bytesToHex(src, true));
 
         if (mMeshNode == null || mMeshNode.getUnicastAddressInt() != AddressUtils.getUnicastAddressInt(src)) {
             mMeshNode = mNetworkLayerCallbacks.getProvisionedNode(AddressUtils.getUnicastAddressInt(src));
-            if (mMeshNode == null)
+            if (mMeshNode == null) {
                 return null;
+            }
         }
 
         //Check if the sequence number has been incremented since the last message sent and return null if not
@@ -474,16 +476,16 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Parses access message
      *
-     * @param configurationSrc source address of the configurator
-     * @param data             receieved from the node
-     * @param networkHeader    de-obfuscated network header
-     * @param networkNonce     network nonce
-     * @param src              source address
-     * @param sequenceNumber   sequence number of the received message
-     * @param micLength        network mic length of the received message
+     * @param provisionerAddress source address of the configurator
+     * @param data               received from the node
+     * @param networkHeader      de-obfuscated network header
+     * @param networkNonce       network nonce
+     * @param src                source address
+     * @param sequenceNumber     sequence number of the received message
+     * @param micLength          network mic length of the received message
      * @return access message
      */
-    private AccessMessage parseAccessMessage(final byte[] configurationSrc, final byte[] data, final byte[] networkHeader, final byte[] networkNonce, final byte[] src, final byte[] sequenceNumber, final int micLength) {
+    private AccessMessage parseAccessMessage(final byte[] provisionerAddress, final byte[] data, final byte[] networkHeader, final byte[] networkNonce, final byte[] src, final byte[] sequenceNumber, final int micLength) {
         final SecureUtils.K2Output k2Output = getK2Output();
 
         final byte[] encryptionKey = k2Output.getEncryptionKey();
@@ -496,13 +498,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         final byte[] decryptedNetworkPayload = SecureUtils.decryptCCM(transportPdu, encryptionKey, networkNonce, micLength);
         final byte[] dst = ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).put(decryptedNetworkPayload, 0, 2).array();
 
-        //Check if the message is directed to us, if its not ignore the message
-        if (!Arrays.equals(configurationSrc, dst)) {
-            Log.v(TAG, "Src: " + MeshParserUtils.bytesToHex(src, true));
-            Log.v(TAG, "Dst: " + MeshParserUtils.bytesToHex(dst, true));
-            Log.v(TAG, "Received an access message that was not directed to us, let's drop it");
-            return null;
-        }
+        Log.v(TAG, "Dst: " + MeshParserUtils.bytesToHex(dst, true));
 
         if (isSegmentedMessage(decryptedNetworkPayload[2])) {
             Log.v(TAG, "Received a segmented access message from: " + MeshParserUtils.bytesToHex(src, false));
@@ -521,7 +517,12 @@ public abstract class NetworkLayer extends LowerTransportLayer {
                 segmentedAccessMessagesMessages.put(k, data);
             }
             //Removing the mDst here
-            final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
+            final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
+                    .order(ByteOrder.BIG_ENDIAN)
+                    .put(data, 0, 2)
+                    .put(networkHeader)
+                    .put(decryptedNetworkPayload)
+                    .array();
             final AccessMessage message = parseSegmentedAccessLowerTransportPDU(pdu);
             if (message != null) {
                 final SparseArray<byte[]> segmentedMessages = segmentedAccessMessagesMessages.clone();
@@ -549,7 +550,12 @@ public abstract class NetworkLayer extends LowerTransportLayer {
             message.setSequenceNumber(sequenceNumber);
 
             //Removing the mDst here
-            final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
+            final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
+                    .order(ByteOrder.BIG_ENDIAN)
+                    .put(data, 0, 2)
+                    .put(networkHeader)
+                    .put(decryptedNetworkPayload)
+                    .array();
             parseUnsegmentedAccessLowerTransportPDU(message, pdu);
             parseUpperTransportPDU(message);
             parseAccessLayerPDU(message);
