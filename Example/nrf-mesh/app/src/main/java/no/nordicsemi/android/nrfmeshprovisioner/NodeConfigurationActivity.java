@@ -518,9 +518,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             mProxyState = status.isProxyFeatureEnabled();
             updateProxySettingsCardUi();
             hideProgressBar();
-            if (!mProxyState && !mRequestedState) {
-                mViewModel.getNrfMeshRepository().disconnect();
-            }
         }
     }
 
