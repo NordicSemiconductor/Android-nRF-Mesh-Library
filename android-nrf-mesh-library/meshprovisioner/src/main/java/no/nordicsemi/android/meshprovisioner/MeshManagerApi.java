@@ -803,7 +803,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
 
     @Override
     public void importMeshNetwork(final Uri uri) {
-        if (uri != null && uri.getPath().endsWith(".json")) {
+        if (uri != null && uri.getPath() != null && uri.getPath().endsWith(".json")) {
             NetworkImportExportUtils.importMeshNetwork(mContext, uri, networkLoadCallbacks);
         } else {
             mTransportCallbacks.onNetworkImportFailed("Invalid file type detected! " +
