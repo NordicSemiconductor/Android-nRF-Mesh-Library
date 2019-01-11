@@ -494,6 +494,8 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
         //Check if the message is directed to us, if its not ignore the message
         if (!Arrays.equals(configurationSrc, dst)) {
+            Log.v(TAG, "Src: " + MeshParserUtils.bytesToHex(src, true));
+            Log.v(TAG, "Dst: " + MeshParserUtils.bytesToHex(dst, true));
             Log.v(TAG, "Received an access message that was not directed to us, let's drop it");
             return null;
         }
