@@ -18,7 +18,7 @@ import java.util.UUID;
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.MeshManagerTransportCallbacks;
+import no.nordicsemi.android.meshprovisioner.MeshManagerCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
@@ -64,7 +64,7 @@ import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 import static no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager.MESH_PROXY_UUID;
 
 @SuppressWarnings("unused")
-public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshStatusCallbacks, MeshManagerTransportCallbacks, BleMeshManagerCallbacks {
+public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshStatusCallbacks, MeshManagerCallbacks, BleMeshManagerCallbacks {
 
     private static final String TAG = NrfMeshRepository.class.getSimpleName();
     public static final String EXPORT_PATH = Environment.getExternalStorageDirectory() + File.separator +
@@ -189,7 +189,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                              final BleMeshManager bleMeshManager) {
         //Initialize the mesh api
         mMeshManagerApi = meshManagerApi;
-        mMeshManagerApi.setProvisionerManagerTransportCallbacks(this);
+        mMeshManagerApi.setMeshManagerCallbacks(this);
         mMeshManagerApi.setProvisioningStatusCallbacks(this);
         mMeshManagerApi.setMeshStatusCallbacks(this);
         mMeshManagerApi.loadMeshNetwork();

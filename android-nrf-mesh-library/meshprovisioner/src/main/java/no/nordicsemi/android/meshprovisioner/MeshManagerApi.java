@@ -117,7 +117,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
     private final static int ADVERTISED_NETWORK_ID_LENGTH = 8;
     private Context mContext;
     private final Handler mHanlder;
-    private MeshManagerTransportCallbacks mTransportCallbacks;
+    private MeshManagerCallbacks mTransportCallbacks;
     private MeshProvisioningHandler mMeshProvisioningHandler;
     private MeshMessageHandler mMeshMessageHandler;
     private byte[] mIncomingBuffer;
@@ -143,6 +143,17 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
         }
     };
 
+    /**
+     * The mesh manager api constructor.
+     * <p>
+     * After constructing the manager, the meshProvision following callbacks must be set
+     * {@link #setMeshManagerCallbacks(MeshManagerCallbacks)}.
+     * {@link #setProvisioningStatusCallbacks(MeshProvisioningStatusCallbacks)}.
+     * {@link #setMeshStatusCallbacks(MeshStatusCallbacks)}.
+     * <p>
+     *
+     * @param context context
+     */
     public MeshManagerApi(@NonNull final Context context) {
         this.mContext = context;
         mHanlder = new Handler();
@@ -158,14 +169,29 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
 
     }
 
-    public void setProvisionerManagerTransportCallbacks(final MeshManagerTransportCallbacks transportCallbacks) {
-        mTransportCallbacks = transportCallbacks;
+    /**
+     * Sets the {@link MeshManagerCallbacks} listener
+     *
+     * @param callbacks callbacks
+     */
+    public void setMeshManagerCallbacks(final MeshManagerCallbacks callbacks) {
+        mTransportCallbacks = callbacks;
     }
 
+    /**
+     * Sets the {@link MeshProvisioningStatusCallbacks} listener to return provisioning status callbacks.
+     *
+     * @param callbacks callbacks
+     */
     public void setProvisioningStatusCallbacks(final MeshProvisioningStatusCallbacks callbacks) {
         mMeshProvisioningHandler.setProvisioningCallbacks(callbacks);
     }
 
+    /**
+     * Sets the {@link MeshManagerCallbacks} listener to return mesh status callbacks.
+     *
+     * @param callbacks callbacks
+     */
     public void setMeshStatusCallbacks(final MeshStatusCallbacks callbacks) {
         mMeshMessageHandler.setMeshStatusCallbacks(callbacks);
     }
@@ -174,7 +200,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
      * Loads the mesh network from the local database.
      * <p>
      * This will start an AsyncTask that will load the network from the database.
-     * {@link MeshManagerTransportCallbacks#onNetworkLoaded(MeshNetwork) will return the mesh network
+     * {@link MeshManagerCallbacks#onNetworkLoaded(MeshNetwork) will return the mesh network
      * </p>
      */
     public void loadMeshNetwork() {
@@ -284,8 +310,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
                 //Start the timer
                 toggleProxyProtocolSarTimeOut(data);
                 return;
-            }
-            else {
+            } else {
                 toggleProxyProtocolSarTimeOut(data);
                 unsegmentedPdu = removeSegmentation(mtuSize, combinedPdu);
             }
@@ -295,13 +320,14 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
 
     /**
      * Toggles the Segmentation and Reassembly timeout for proxy configuration messages received via proxy protocol
+     *
      * @param data pdu
      */
-    private void toggleProxyProtocolSarTimeOut(final byte[] data){
+    private void toggleProxyProtocolSarTimeOut(final byte[] data) {
         final int pduType = MeshParserUtils.unsignedByteToInt(data[0]);
         if (pduType == ((GATT_SAR_START << SAR_BIT_OFFSET) | MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION)) {
             mHanlder.postDelayed(mProxyProtocolTimeoutRunnable, PROXY_SAR_TRANSFER_TIME_OUT);
-        } else if(pduType == ((GATT_SAR_END << SAR_BIT_OFFSET) | MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION)) {
+        } else if (pduType == ((GATT_SAR_END << SAR_BIT_OFFSET) | MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION)) {
             mHanlder.removeCallbacks(mProxyProtocolTimeoutRunnable);
         }
     }
@@ -696,7 +722,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
      * Resets the provisioned mesh network and will generate a new one
      * <p>
      * This method will clear the provisioned nodes, reset the sequence number and generate new network with new provisioning data.
-     * {@link MeshManagerTransportCallbacks#onNetworkLoaded(MeshNetwork)} will return the newly generated network
+     * {@link MeshManagerCallbacks#onNetworkLoaded(MeshNetwork)} will return the newly generated network
      * </p>
      */
     public final void resetMeshNetwork() {

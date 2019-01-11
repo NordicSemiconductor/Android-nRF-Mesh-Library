@@ -27,7 +27,7 @@ import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMesh
 /**
  * Implement this class in order to get the transport callbacks from the {@link MeshManagerApi}
  */
-public interface MeshManagerTransportCallbacks {
+public interface MeshManagerCallbacks {
 
     /**
      * Returns the network that was loaded
