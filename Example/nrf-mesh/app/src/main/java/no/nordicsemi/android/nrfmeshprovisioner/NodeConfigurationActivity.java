@@ -274,8 +274,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             resetNodeFragment.show(getSupportFragmentManager(), null);
         });
 
-        actionSwitchFilter.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
+        actionSwitchFilter.setOnClickListener(v -> {
+            if (((Switch)v).isChecked()) {
                 setFilter(new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER));
                 actionSwitchFilter.setText(R.string.white_list_filter);
             } else {
