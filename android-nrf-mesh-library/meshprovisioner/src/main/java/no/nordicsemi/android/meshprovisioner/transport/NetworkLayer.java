@@ -191,9 +191,9 @@ public abstract class NetworkLayer extends LowerTransportLayer {
 
                 Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNum, false));
                 encryptedNetworkPayload = encryptNetworkPduPayload(message, sequenceNum, lowerTransportPdu, encryptionKey);
+                if(encryptedNetworkPayload == null)
+                    return null;
                 Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedNetworkPayload, false));
-                break;
-            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
                 break;
         }
 
@@ -202,17 +202,21 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         //Next we create the PECB
         final byte[] pecb = createPECB(message.getIvIndex(), privacyRandom, privacyKey);
 
+        if(encryptedNetworkPayload != null) {
+            final byte[] header = obfuscateNetworkHeader(ctlTTL, message.getSequenceNumber(), src, pecb);
+            final byte[] networkPdu = ByteBuffer.allocate(1 + 1 + header.length + encryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN)
+                    .put((byte) pduType)
+                    .put(iviNID)
+                    .put(header)
+                    .put(encryptedNetworkPayload)
+                    .array();
+            networkPduMap.put(segment, networkPdu);
+            message.setNetworkPdu(networkPduMap);
+            return message;
+        } else {
+            return null;
+        }
 
-        final byte[] header = obfuscateNetworkHeader(ctlTTL, message.getSequenceNumber(), src, pecb);
-        final byte[] networkPdu = ByteBuffer.allocate(1 + 1 + header.length + encryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN)
-                .put((byte) pduType)
-                .put(iviNID)
-                .put(header)
-                .put(encryptedNetworkPayload)
-                .array();
-        networkPduMap.put(segment, networkPdu);
-        message.setNetworkPdu(networkPduMap);
-        return message;
     }
 
     /**
