@@ -2,6 +2,7 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,10 +80,35 @@ public class ProxyFilter implements Parcelable {
         }
     }
 
-    private boolean contains(final AddressArray addressArray){
-        for(AddressArray arr : addresses) {
-            if(Arrays.equals(addressArray.getAddress(), arr.getAddress())){
+    /**
+     * Checks is the address exists within the list of proxy filter addresses.
+     *
+     * @param addressArray address
+     */
+    private boolean contains(@NonNull final AddressArray addressArray) {
+        for (AddressArray arr : addresses) {
+            if (Arrays.equals(addressArray.getAddress(), arr.getAddress())) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks is the address exists within the list of proxy filter addresses.
+     * <p>
+     * Currently does not support virtual addresses.
+     * </p>
+     *
+     * @param address Unicast, Group address
+     */
+    public final boolean contains(@NonNull final byte[] address) {
+        if (MeshParserUtils.isValidUnicastAddress(address) || MeshParserUtils.isValidGroupAddress(address)) {
+            final AddressArray addressArray = new AddressArray(address[0], address[1]);
+            for (AddressArray arr : addresses) {
+                if (Arrays.equals(addressArray.getAddress(), arr.getAddress())) {
+                    return true;
+                }
             }
         }
         return false;
