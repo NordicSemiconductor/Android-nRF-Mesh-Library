@@ -22,13 +22,6 @@
 
 <resources>
 
-    <style name="Widget"/>
-
-    <style name="Widget.ScannerSubtitle">
-        <item name="android:textColor">?android:textColorSecondary</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
     <!-- Base application theme. -->
     <style name="AppTheme" parent="AppTheme.Base">
         <!-- Customize your theme here. -->
@@ -54,6 +47,13 @@
 
     <style name="AppTheme.SplashScreen">
         <item name="colorPrimaryDark">@android:color/transparent</item>
+    </style>
+
+    <style name="Widget"/>
+
+    <style name="Widget.InfoWarningTitles">
+        <item name="android:textColor">?android:textColorSecondary</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="BlueTextButton" parent="Widget.MaterialComponents.Button.TextButton">

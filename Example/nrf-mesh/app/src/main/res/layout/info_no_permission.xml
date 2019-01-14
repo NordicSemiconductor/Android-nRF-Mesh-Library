@@ -39,7 +39,7 @@
         app:srcCompat="@drawable/ic_location_off"/>
 
     <TextView
-        style="@style/Widget.ScannerSubtitle"
+        style="@style/Widget.InfoWarningTitles"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
