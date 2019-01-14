@@ -27,7 +27,7 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="AppTheme.Base" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="AppTheme.Base" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
         <item name="android:windowBackground">@color/background</item>
         <!-- Toolbar -->
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -39,6 +39,7 @@
         <item name="android:textColorPrimary">@color/black</item>
         <!-- Secondary text color i.e. descriptions and subtitles of lists etc -->
         <item name="android:textColorSecondary">@color/textColorSecondary</item>
+
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
@@ -57,7 +58,7 @@
     </style>
 
     <style name="BlueTextButton" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/colorAccent</item>
     </style>
 
     <style name="RedButton" parent="Widget.MaterialComponents.Button.TextButton">
