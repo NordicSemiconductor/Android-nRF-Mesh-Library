@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
@@ -21,40 +22,10 @@
   -->
 
 <resources>
-
-    <style name="Widget"/>
-
-    <style name="Widget.ScannerSubtitle">
-        <item name="android:textColor">?android:textColorSecondary</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="AppTheme.Base">
-        <!-- Customize your theme here. -->
-    </style>
-
-    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">@color/background</item>
-        <!-- Toolbar -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <!-- Status bar -->
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <!--Checked checkboxes -->
-        <item name="colorAccent">@color/colorAccent</item>
-        <!--Checked checkboxes -->
-        <item name="android:textColorSecondary">@color/textColorSecondary</item>
-    </style>
-
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
-
-    <style name="AppTheme.SplashScreen">
-        <item name="colorPrimaryDark">@android:color/transparent</item>
-    </style>
-
-    <style name="RedButton" parent="Widget.AppCompat.Button.Borderless.Colored">
-        <item name="android:textColor">@drawable/red_button_states</item>
-    </style>
+	<style name="AppTheme.SplashScreen">
+		<item name="colorPrimaryDark">@android:color/transparent</item>
+		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
+		<item name="android:statusBarColor">@android:color/transparent</item>
+		<item name="android:windowLightStatusBar">true</item>
+	</style>
 </resources>
