@@ -175,7 +175,7 @@
 
                     <Button
                         android:id="@+id/action_bind_app_key"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -189,7 +189,7 @@
 
                     <Button
                         android:id="@+id/action_unbind_app_key"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -292,7 +292,7 @@
 
                     <Button
                         android:id="@+id/action_set_publication"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -306,7 +306,7 @@
 
                     <Button
                         android:id="@+id/action_clear_publication_set"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -413,7 +413,7 @@
 
                     <Button
                         android:id="@+id/action_subscribe_address"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"

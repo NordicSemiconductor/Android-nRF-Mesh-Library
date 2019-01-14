@@ -64,7 +64,7 @@
 
             <Button
                 android:id="@+id/action_add"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/action_add"/>

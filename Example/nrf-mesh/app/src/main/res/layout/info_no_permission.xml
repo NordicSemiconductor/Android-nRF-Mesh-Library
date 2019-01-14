@@ -54,7 +54,7 @@
 
     <Button
         android:id="@+id/action_grant_location_permission"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        style="@style/BlueTextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -62,7 +62,7 @@
 
     <Button
         android:id="@+id/action_permission_settings"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        style="@style/BlueTextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"

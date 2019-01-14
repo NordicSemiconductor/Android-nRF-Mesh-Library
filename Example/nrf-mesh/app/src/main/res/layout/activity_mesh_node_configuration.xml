@@ -157,7 +157,7 @@
 
                         <Button
                             android:id="@+id/action_get_compostion_data"
-                            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                            style="@style/BlueTextButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
@@ -250,7 +250,7 @@
 
                     <Button
                         android:id="@+id/action_add_app_keys"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -314,7 +314,7 @@
 
                     <Button
                         android:id="@+id/action_get_proxy_state"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -437,7 +437,7 @@
 
                     <Button
                         android:id="@+id/action_add_address"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"

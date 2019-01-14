@@ -34,27 +34,34 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme.Base" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowBackground">@color/background</item>
         <!-- Toolbar -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <!-- Status bar -->
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <!--Checked checkboxes -->
+        <!-- Checked checkboxes, radio buttons and switches -->
         <item name="colorAccent">@color/colorAccent</item>
-        <!--Checked checkboxes -->
+        <!-- Primary text color i.e. titles of lists etc -->
+        <item name="android:textColorPrimary">@color/black</item>
+        <!-- Secondary text color i.e. descriptions and subtitles of lists etc -->
         <item name="android:textColorSecondary">@color/textColorSecondary</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light"/>
 
     <style name="AppTheme.SplashScreen">
         <item name="colorPrimaryDark">@android:color/transparent</item>
     </style>
 
-    <style name="RedButton" parent="Widget.AppCompat.Button.Borderless.Colored">
+    <style name="BlueTextButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="RedButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">@drawable/red_button_states</item>
     </style>
+
 </resources>
