@@ -42,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@android:color/white"
+        android:background="@color/white"
         android:paddingBottom="@dimen/item_padding_bottom"
         android:paddingEnd="@dimen/activity_horizontal_margin"
         android:paddingStart="@dimen/activity_horizontal_margin"
@@ -72,7 +72,7 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textSize="16sp"
-                android:textColor="@android:color/black"/>
+                android:textColor="@color/black"/>
 
             <TextView
                 android:id="@+id/app_key"

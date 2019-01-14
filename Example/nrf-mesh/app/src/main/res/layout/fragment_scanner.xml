@@ -38,7 +38,7 @@
         android:layout_marginBottom="-7dp"
         android:layout_marginTop="-8dp"
         android:indeterminate="true"
-        android:indeterminateTint="@android:color/white"
+        android:indeterminateTint="@color/white"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -38,6 +38,7 @@
         android:paddingStart="@dimen/activity_horizontal_margin"
         android:paddingEnd="@dimen/activity_horizontal_margin"
         android:textSize="16sp"
+        android:textColor="@color/black"
         android:text="@string/node_features"
         app:layout_constraintLeft_toRightOf="@id/image"
         app:layout_constraintTop_toTopOf="parent"/>
