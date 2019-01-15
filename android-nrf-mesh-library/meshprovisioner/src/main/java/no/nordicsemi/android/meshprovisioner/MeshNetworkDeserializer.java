@@ -348,8 +348,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
      */
     private void populateNetworkKeys(final List<ProvisionedMeshNode> nodes, final List<NetworkKey> networkKeys) {
         for (ProvisionedMeshNode node : nodes) {
-            for (Integer index : node.getAddedAppKeyIndexes()) {
-                final NetworkKey networkKey = networkKeys.get(index);
+            for (NetworkKey networkKey : networkKeys) {
                 node.getAddedNetworkKeys().add(networkKey);
             }
         }
