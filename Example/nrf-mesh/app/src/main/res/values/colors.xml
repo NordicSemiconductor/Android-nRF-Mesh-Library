@@ -65,5 +65,6 @@
     <!-- Common -->
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
+    <color name="red">#FFFF0000</color>
     <color name="lightGray">#FFF5F5F5</color>
 </resources>
