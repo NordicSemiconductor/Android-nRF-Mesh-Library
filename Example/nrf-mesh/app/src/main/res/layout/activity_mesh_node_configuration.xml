@@ -59,17 +59,6 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:paddingBottom="4dp"
-        android:src="@drawable/background_title"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="ContentDescription"/>
-
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/main_container"
         android:layout_width="0dp"

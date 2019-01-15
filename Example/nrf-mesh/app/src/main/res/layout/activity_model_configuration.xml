@@ -60,16 +60,6 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/item_padding_bottom"
-        android:src="@drawable/background_title"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
     <android.support.v4.widget.NestedScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -251,6 +241,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:paddingStart="@dimen/activity_horizontal_margin"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:text="@string/title_publish_address"
                             android:textColor="@color/black"
                             android:textSize="16sp"

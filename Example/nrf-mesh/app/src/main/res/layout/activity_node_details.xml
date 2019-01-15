@@ -53,16 +53,6 @@
 
         </android.support.design.widget.AppBarLayout>
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/background_title"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginBottom="@dimen/item_padding_bottom"/>
-
         <ScrollView
             android:layout_width="0dp"
             android:layout_height="0dp"
