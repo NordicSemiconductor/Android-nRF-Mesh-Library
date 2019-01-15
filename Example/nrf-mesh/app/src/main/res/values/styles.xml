@@ -27,7 +27,7 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="AppTheme.Base" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@color/background</item>
         <!-- Toolbar -->
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -39,15 +39,19 @@
         <item name="android:textColorPrimary">@color/black</item>
         <!-- Secondary text color i.e. descriptions and subtitles of lists etc -->
         <item name="android:textColorSecondary">@color/textColorSecondary</item>
-
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light"/>
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
     <style name="AppTheme.SplashScreen">
         <item name="colorPrimaryDark">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <style name="CustomAlertDialogLight" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button.TextButton.Dialog</item>
     </style>
 
     <style name="Widget"/>
@@ -57,11 +61,10 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="BlueTextButton" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/colorAccent</item>
+    <style name="BlueTextButton" parent="Widget.AppCompat.Button.Borderless.Colored">
     </style>
 
-    <style name="RedButton" parent="Widget.MaterialComponents.Button.TextButton">
+    <style name="RedButton" parent="Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:textColor">@drawable/red_button_states</item>
     </style>
 

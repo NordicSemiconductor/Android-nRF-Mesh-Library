@@ -44,7 +44,7 @@
                 android:id="@+id/icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/ic_node_bg_primary"
+                android:background="@drawable/ic_node_bg_node"
                 android:padding="@dimen/item_padding_start"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_mesh_symbol"
