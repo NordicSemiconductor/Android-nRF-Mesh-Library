@@ -55,20 +55,10 @@
             android:layout_marginTop="-8dp"
             android:layout_marginBottom="-7dp"
             android:indeterminate="true"
-            android:indeterminateTint="@android:color/white"
+            android:indeterminateTint="@color/white"
             android:visibility="invisible"/>
 
     </android.support.design.widget.AppBarLayout>
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/item_padding_bottom"
-        android:src="@drawable/background_title"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="0dp"
@@ -91,7 +81,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -131,7 +121,7 @@
                             android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:paddingBottom="@dimen/item_padding_bottom"
                             android:text="@string/no_app_keys_bound"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/black"
                             android:textSize="14sp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -175,7 +165,7 @@
 
                     <Button
                         android:id="@+id/action_bind_app_key"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -189,7 +179,7 @@
 
                     <Button
                         android:id="@+id/action_unbind_app_key"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -211,7 +201,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -251,8 +241,9 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:paddingStart="@dimen/activity_horizontal_margin"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:text="@string/title_publish_address"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/black"
                             android:textSize="16sp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/image_pub_address"
@@ -292,7 +283,7 @@
 
                     <Button
                         android:id="@+id/action_set_publication"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -306,7 +297,7 @@
 
                     <Button
                         android:id="@+id/action_clear_publication_set"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -328,7 +319,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -369,7 +360,7 @@
                             android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:paddingBottom="@dimen/item_padding_bottom"
                             android:text="@string/not_subscribed_to_groups"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/black"
                             android:textSize="14sp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -413,7 +404,7 @@
 
                     <Button
                         android:id="@+id/action_subscribe_address"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"

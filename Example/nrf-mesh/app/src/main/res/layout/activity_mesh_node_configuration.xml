@@ -54,21 +54,10 @@
             android:layout_marginTop="-8dp"
             android:layout_marginBottom="-7dp"
             android:indeterminate="true"
-            android:indeterminateTint="@android:color/white"
+            android:indeterminateTint="@color/white"
             android:visibility="invisible"/>
 
     </android.support.design.widget.AppBarLayout>
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:paddingBottom="4dp"
-        android:src="@drawable/background_title"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="ContentDescription"/>
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/main_container"
@@ -90,7 +79,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -157,7 +146,7 @@
 
                         <Button
                             android:id="@+id/action_get_compostion_data"
-                            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                            style="@style/BlueTextButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
@@ -180,7 +169,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -250,7 +239,7 @@
 
                     <Button
                         android:id="@+id/action_add_app_keys"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -271,7 +260,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -314,7 +303,7 @@
 
                     <Button
                         android:id="@+id/action_get_proxy_state"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -351,7 +340,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -437,7 +426,7 @@
 
                     <Button
                         android:id="@+id/action_add_address"
-                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -486,7 +475,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

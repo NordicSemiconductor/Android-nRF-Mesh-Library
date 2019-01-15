@@ -53,16 +53,6 @@
 
         </android.support.design.widget.AppBarLayout>
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/background_title"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginBottom="@dimen/item_padding_bottom"/>
-
         <ScrollView
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -85,7 +75,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                    android:background="@android:color/white"
+                    android:background="@color/white"
                     app:cardElevation="1dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -221,7 +211,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
                     android:layout_marginBottom="@dimen/item_padding_bottom"
-                    android:background="@android:color/white"
+                    android:background="@color/white"
                     app:cardElevation="1dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -249,7 +239,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:text="@string/no_elements_guide_info"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/black"
                             android:textSize="14sp"
                             android:paddingTop="@dimen/item_padding_top"
                             android:paddingBottom="@dimen/activity_vertical_margin"

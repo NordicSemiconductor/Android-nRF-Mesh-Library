@@ -21,7 +21,9 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/colorAccent" android:state_checked="true" />
-    <item android:color="@color/nav_item_unselected" android:state_checked="false" />
-</selector>
+<resources>
+	<style name="AppTheme.SplashScreen">
+		<item name="colorPrimaryDark">@android:color/transparent</item>
+		<item name="android:windowTranslucentStatus">true</item>
+	</style>
+</resources>

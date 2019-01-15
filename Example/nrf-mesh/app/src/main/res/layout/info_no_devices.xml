@@ -39,7 +39,7 @@
         app:srcCompat="@drawable/ic_bluetooth_searching_black_alpha"/>
 
     <TextView
-        style="@style/Widget.ScannerSubtitle"
+        style="@style/Widget.InfoWarningTitles"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -66,7 +66,7 @@
 
         <Button
             android:id="@+id/action_enable_location"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            style="@style/BlueTextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"

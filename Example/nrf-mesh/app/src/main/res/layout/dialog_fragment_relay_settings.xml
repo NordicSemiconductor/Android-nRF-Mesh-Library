@@ -30,7 +30,7 @@
             android:paddingStart="@dimen/activity_horizontal_margin"
             android:paddingEnd="@dimen/activity_horizontal_margin"
             android:text="@string/title_relay_state"
-            android:textColor="@android:color/black"
+            android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintStart_toEndOf="@id/dialog_image_relay_state"
             app:layout_constraintTop_toTopOf="parent" />
@@ -71,7 +71,7 @@
             android:paddingStart="@dimen/activity_horizontal_margin"
             android:paddingEnd="@dimen/activity_horizontal_margin"
             android:text="@string/title_relay_retransmit_count"
-            android:textColor="@android:color/black"
+            android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintStart_toEndOf="@id/dialog_image_relay_retransmit_count"
             app:layout_constraintTop_toTopOf="parent" />
@@ -126,7 +126,7 @@
             android:paddingStart="@dimen/activity_horizontal_margin"
             android:paddingEnd="@dimen/activity_horizontal_margin"
             android:text="@string/title_relay_retransmit_interval_steps"
-            android:textColor="@android:color/black"
+            android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@id/dialog_relay_interval_steps"
             app:layout_constraintStart_toEndOf="@id/dialog_image_relay_interval_steps"

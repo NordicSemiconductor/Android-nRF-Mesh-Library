@@ -50,14 +50,6 @@
 
         </android.support.design.widget.AppBarLayout>
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="8dp"
-            android:src="@drawable/background_title"/>
-
         <include
             android:id="@+id/info_provisioning_status_container"
             layout="@layout/info_live_provisioning_status"

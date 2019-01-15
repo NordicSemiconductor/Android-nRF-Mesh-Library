@@ -40,7 +40,7 @@
         app:srcCompat="@drawable/ic_vpn_key_black_alpha_48dp"/>
 
     <TextView
-        style="@style/Widget.ScannerSubtitle"
+        style="@style/Widget.InfoWarningTitles"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"

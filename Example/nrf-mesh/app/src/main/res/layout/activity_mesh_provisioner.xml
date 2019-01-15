@@ -56,18 +56,10 @@
                 android:layout_marginBottom="-7dp"
                 android:layout_marginTop="-8dp"
                 android:indeterminate="true"
-                android:indeterminateTint="@android:color/white"
+                android:indeterminateTint="@color/white"
                 android:visibility="invisible"/>
 
         </android.support.design.widget.AppBarLayout>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="@dimen/item_padding_bottom"
-            android:src="@drawable/background_title"/>
 
         <ScrollView
             android:id="@+id/data_container"
@@ -91,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_horizontal_margin"
-                    android:background="@android:color/white"
+                    android:background="@color/white"
                     app:cardElevation="1dp">
 
                     <android.support.constraint.ConstraintLayout
@@ -148,7 +140,7 @@
 
                         <Button
                             android:id="@+id/action_provision_device"
-                            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                            style="@style/BlueTextButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"

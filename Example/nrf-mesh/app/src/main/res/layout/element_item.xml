@@ -70,7 +70,7 @@
                 android:ellipsize="end"
                 android:gravity="top"
                 android:singleLine="true"
-                android:textColor="@android:color/black"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 tools:text="Element 0"/>
 

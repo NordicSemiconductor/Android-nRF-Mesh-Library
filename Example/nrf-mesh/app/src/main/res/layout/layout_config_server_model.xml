@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@android:color/white"
+        android:background="@color/white"
         app:cardElevation="1dp"
         android:visibility="gone"
         tools:visibility="visible">
@@ -58,7 +58,7 @@
                     android:paddingStart="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:text="@string/title_relay_retransmit_count"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/black"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_count"
@@ -120,7 +120,7 @@
                     android:paddingStart="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:text="@string/title_relay_retransmit_interval"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/black"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_interval_steps"
@@ -151,7 +151,7 @@
 
             <Button
                 android:id="@+id/action_relay_retransmit_get"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -164,7 +164,7 @@
 
             <Button
                 android:id="@+id/action_relay_retransmit_configure"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -186,7 +186,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/config_relay_set_card"
-        android:background="@android:color/white"
+        android:background="@color/white"
         app:cardElevation="1dp">
 
         <android.support.constraint.ConstraintLayout
@@ -225,7 +225,7 @@
                     android:paddingStart="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:text="@string/title_network_transmit_count"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/black"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/image_network_transmit_count"
@@ -287,7 +287,7 @@
                     android:paddingStart="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:text="@string/title_network_transmit_interval"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/black"
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/image_network_transmit_interval_steps"
@@ -318,7 +318,7 @@
 
             <Button
                 android:id="@+id/action_network_transmit_get"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -331,7 +331,7 @@
 
             <Button
                 android:id="@+id/action_network_transmit_configure"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
