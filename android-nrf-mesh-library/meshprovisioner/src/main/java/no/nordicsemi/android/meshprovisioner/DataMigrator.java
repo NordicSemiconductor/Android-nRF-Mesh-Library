@@ -71,6 +71,7 @@ class DataMigrator {
                     if (json != null) {
                         try {
                             final ProvisionedMeshNode node = gson.fromJson(json, ProvisionedMeshNode.class);
+                            fixInvalidParsing(node);
                             //TODO Temporary check to handle data migration this is to be removed in the version after next
                             if (node.getAddedNetworkKeys().isEmpty()) {
                                 final Method tempMigrateNetworkKey = node.getClass().getDeclaredMethod("tempMigrateNetworkKey");
@@ -95,10 +96,10 @@ class DataMigrator {
                             //device we manually generate one for exporting purposes as a work around
                             node.setUuid(UUID.randomUUID().toString().toUpperCase(Locale.US));
                             node.setMeshUuid(meshNetwork.meshUUID);
-                            final Features features = new Features(node.isFriendFeatureSupported() ? 0 : 2,
-                                    node.isLowPowerFeatureSupported() ? 0 : 2,
-                                    node.isProxyFeatureSupported() ? 0 : 2,
-                                    node.isRelayFeatureSupported() ? 0 : 2);
+                            final Features features = new Features(node.isFriendFeatureSupported() ? Features.DISABLED : Features.UNSUPPORTED,
+                                    node.isLowPowerFeatureSupported() ? Features.DISABLED : Features.UNSUPPORTED,
+                                    node.isProxyFeatureSupported() ? Features.DISABLED : Features.UNSUPPORTED,
+                                    node.isRelayFeatureSupported() ? Features.DISABLED : Features.UNSUPPORTED);
                             node.setNodeFeatures(features);
                             tempNodes.add(node);
 
@@ -235,5 +236,32 @@ class DataMigrator {
         }
         Collections.sort(orderedKeys);
         return orderedKeys;
+    }
+
+    //TODO working around to be removed, very dirty fix and was added to stop breaking when importing existing networks.
+    private static void fixInvalidParsing(final ProvisionedMeshNode node){
+        if(node.getProductIdentifier() != null) {
+            if (node.getProductIdentifier() < 0) {
+                node.setProductIdentifier(node.getProductIdentifier().shortValue() & 0x00FF);
+            }
+        }
+
+        if(node.getCompanyIdentifier() != null) {
+            if (node.getCompanyIdentifier() < 0) {
+                node.setCompanyIdentifier(node.getCompanyIdentifier().shortValue() & 0x00FF);
+            }
+        }
+
+        if(node.getVersionIdentifier() != null) {
+            if (node.getVersionIdentifier() < 0) {
+                node.setVersionIdentifier(node.getVersionIdentifier().shortValue() & 0x00FF);
+            }
+        }
+
+        if(node.getCrpl() != null) {
+            if (node.getCrpl() < 0) {
+                node.setCrpl(node.getCrpl().shortValue() & 0x00FF);
+            }
+        }
     }
 }
