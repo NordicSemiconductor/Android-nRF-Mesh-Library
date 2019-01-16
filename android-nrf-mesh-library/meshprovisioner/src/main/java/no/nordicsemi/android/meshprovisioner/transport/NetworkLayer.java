@@ -25,6 +25,8 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import android.util.SparseArray;
 
+import org.spongycastle.crypto.InvalidCipherTextException;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ import java.util.List;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -396,7 +399,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
      * @param data pdu received from the mesh node
      * @return complete {@link Message} that was successfully parsed or null otherwise
      */
-    final Message parseMeshMessage(final byte[] data) {
+    final Message parseMeshMessage(final byte[] data) throws ExtendedInvalidCipherTextException {
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner();
 
         //D-eobfuscate network header
@@ -446,12 +449,12 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         if (ctl == 1) {
             return parseControlMessage(provisioner.getProvisionerAddress(), data, networkHeader, nonce, src, sequenceNumber, micLength);
         } else {
-            return parseAccessMessage(provisioner.getProvisionerAddress(), data, networkHeader, nonce, src, sequenceNumber, micLength);
+            return parseAccessMessage(data, networkHeader, nonce, src, sequenceNumber, micLength);
         }
     }
 
     @VisibleForTesting
-    final Message parseMeshMessageTest(final byte[] data) {
+    final Message parseMeshMessageTest(final byte[] data) throws ExtendedInvalidCipherTextException {
 
         //D-eobfuscate network header
         final byte[] networkHeader = deobfuscateNetworkHeader(data);
@@ -476,99 +479,8 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Parses access message
      *
-     * @param provisionerAddress source address of the configurator
-     * @param data               received from the node
-     * @param networkHeader      de-obfuscated network header
-     * @param networkNonce       network nonce
-     * @param src                source address
-     * @param sequenceNumber     sequence number of the received message
-     * @param micLength          network mic length of the received message
-     * @return access message
-     */
-    private AccessMessage parseAccessMessage(final byte[] provisionerAddress, final byte[] data, final byte[] networkHeader, final byte[] networkNonce, final byte[] src, final byte[] sequenceNumber, final int micLength) {
-        final SecureUtils.K2Output k2Output = getK2Output();
-
-        final byte[] encryptionKey = k2Output.getEncryptionKey();
-
-        final int ttl = networkHeader[0] & 0x7F;
-
-        final int networkPayloadLength = data.length - (2 + networkHeader.length);
-        final byte[] transportPdu = new byte[networkPayloadLength];
-        System.arraycopy(data, 8, transportPdu, 0, networkPayloadLength);
-        final byte[] decryptedNetworkPayload = SecureUtils.decryptCCM(transportPdu, encryptionKey, networkNonce, micLength);
-        final byte[] dst = ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).put(decryptedNetworkPayload, 0, 2).array();
-
-        Log.v(TAG, "Dst: " + MeshParserUtils.bytesToHex(dst, true));
-
-        if (isSegmentedMessage(decryptedNetworkPayload[2])) {
-            Log.v(TAG, "Received a segmented access message from: " + MeshParserUtils.bytesToHex(src, false));
-
-            //Check if the received segmented message is from the same src as the previous segment
-            if (!Arrays.equals(src, mMeshNode.getUnicastAddress())) {
-                Log.v(TAG, "Segment received is from a different src than the one we are processing, let's drop it");
-                return null;
-            }
-
-            if (segmentedAccessMessagesMessages == null) {
-                segmentedAccessMessagesMessages = new SparseArray<>();
-                segmentedAccessMessagesMessages.put(0, data);
-            } else {
-                final int k = segmentedAccessMessagesMessages.size();
-                segmentedAccessMessagesMessages.put(k, data);
-            }
-            //Removing the mDst here
-            final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
-                    .order(ByteOrder.BIG_ENDIAN)
-                    .put(data, 0, 2)
-                    .put(networkHeader)
-                    .put(decryptedNetworkPayload)
-                    .array();
-            final AccessMessage message = parseSegmentedAccessLowerTransportPDU(pdu);
-            if (message != null) {
-                final SparseArray<byte[]> segmentedMessages = segmentedAccessMessagesMessages.clone();
-                segmentedAccessMessagesMessages = null;
-                message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-                message.setNetworkPdu(segmentedMessages);
-                message.setTtl(ttl);
-                message.setSrc(src);
-                message.setDst(dst);
-
-                parseUpperTransportPDU(message);
-                parseAccessLayerPDU(message);
-            }
-            return message;
-
-        } else {
-            final AccessMessage message = new AccessMessage();
-            message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-            final SparseArray<byte[]> networkPduMap = new SparseArray<>();
-            networkPduMap.put(0, data);
-            message.setNetworkPdu(networkPduMap);
-            message.setTtl(ttl);
-            message.setSrc(src);
-            message.setDst(dst);
-            message.setSequenceNumber(sequenceNumber);
-
-            //Removing the mDst here
-            final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
-                    .order(ByteOrder.BIG_ENDIAN)
-                    .put(data, 0, 2)
-                    .put(networkHeader)
-                    .put(decryptedNetworkPayload)
-                    .array();
-            parseUnsegmentedAccessLowerTransportPDU(message, pdu);
-            parseUpperTransportPDU(message);
-            parseAccessLayerPDU(message);
-
-            return message;
-        }
-    }
-
-    /**
-     * Parses access message
-     *
      * @param data           received from the node
-     * @param networkHeader  deobfuscated network header
+     * @param networkHeader  de-obfuscated network header
      * @param networkNonce   network nonce
      * @param src            source address
      * @param sequenceNumber sequence number of the received message
@@ -576,64 +488,97 @@ public abstract class NetworkLayer extends LowerTransportLayer {
      * @return access message
      */
     @VisibleForTesting
-    private AccessMessage parseAccessMessage(final byte[] data, final byte[] networkHeader, final byte[] networkNonce, final byte[] src, final byte[] sequenceNumber, final int micLength) {
-        final SecureUtils.K2Output k2Output = getK2Output();
-        final byte[] encryptionKey = k2Output.getEncryptionKey();
-        final int ttl = networkHeader[0] & 0x7F;
-        final int networkPayloadLength = data.length - (2 + networkHeader.length);
-        final byte[] transportPdu = new byte[networkPayloadLength];
-        System.arraycopy(data, 8, transportPdu, 0, networkPayloadLength);
-        final byte[] decryptedNetworkPayload = SecureUtils.decryptCCM(transportPdu, encryptionKey, networkNonce, micLength);
-        final byte[] dst = ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).put(decryptedNetworkPayload, 0, 2).array();
+    private AccessMessage parseAccessMessage(final byte[] data,
+                                             final byte[] networkHeader,
+                                             final byte[] networkNonce,
+                                             final byte[] src,
+                                             final byte[] sequenceNumber,
+                                             final int micLength) throws ExtendedInvalidCipherTextException {
+        try {
 
-        if (isSegmentedMessage(decryptedNetworkPayload[2])) {
+            final SecureUtils.K2Output k2Output = getK2Output();
 
-            if (segmentedAccessMessagesMessages == null) {
-                segmentedAccessMessagesMessages = new SparseArray<>();
-                segmentedAccessMessagesMessages.put(0, data);
-            } else {
-                final int k = segmentedAccessMessagesMessages.size();
-                segmentedAccessMessagesMessages.put(k, data);
+            final byte[] encryptionKey = k2Output.getEncryptionKey();
+
+            final int ttl = networkHeader[0] & 0x7F;
+
+            final int networkPayloadLength = data.length - (2 + networkHeader.length);
+            final byte[] transportPdu = new byte[networkPayloadLength];
+            System.arraycopy(data, 8, transportPdu, 0, networkPayloadLength);
+            final byte[] decryptedNetworkPayload;
+            try {
+                decryptedNetworkPayload = SecureUtils.decryptCCM(transportPdu, encryptionKey, networkNonce, micLength);
+            } catch (InvalidCipherTextException ex) {
+                throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
             }
-            //Removing the mDst here
-            final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
-            final AccessMessage message = parseSegmentedAccessLowerTransportPDU(pdu);
-            if (message != null) {
-                final SparseArray<byte[]> segmentedMessages = segmentedAccessMessagesMessages.clone();
-                segmentedAccessMessagesMessages = null;
+            final byte[] dst = ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).put(decryptedNetworkPayload, 0, 2).array();
+
+            Log.v(TAG, "Dst: " + MeshParserUtils.bytesToHex(dst, true));
+
+            if (isSegmentedMessage(decryptedNetworkPayload[2])) {
+                Log.v(TAG, "Received a segmented access message from: " + MeshParserUtils.bytesToHex(src, false));
+
+                //Check if the received segmented message is from the same src as the previous segment
+                if (!Arrays.equals(src, mMeshNode.getUnicastAddress())) {
+                    Log.v(TAG, "Segment received is from a different src than the one we are processing, let's drop it");
+                    return null;
+                }
+
+                if (segmentedAccessMessagesMessages == null) {
+                    segmentedAccessMessagesMessages = new SparseArray<>();
+                    segmentedAccessMessagesMessages.put(0, data);
+                } else {
+                    final int k = segmentedAccessMessagesMessages.size();
+                    segmentedAccessMessagesMessages.put(k, data);
+                }
+                //Removing the mDst here
+                final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
+                        .order(ByteOrder.BIG_ENDIAN)
+                        .put(data, 0, 2)
+                        .put(networkHeader)
+                        .put(decryptedNetworkPayload)
+                        .array();
+                final AccessMessage message = parseSegmentedAccessLowerTransportPDU(pdu);
+                if (message != null) {
+                    final SparseArray<byte[]> segmentedMessages = segmentedAccessMessagesMessages.clone();
+                    segmentedAccessMessagesMessages = null;
+                    message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
+                    message.setNetworkPdu(segmentedMessages);
+                    message.setTtl(ttl);
+                    message.setSrc(src);
+                    message.setDst(dst);
+
+                    parseUpperTransportPDU(message);
+                    parseAccessLayerPDU(message);
+                }
+                return message;
+
+            } else {
+                final AccessMessage message = new AccessMessage();
                 message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-                message.setNetworkPdu(segmentedMessages);
+                final SparseArray<byte[]> networkPduMap = new SparseArray<>();
+                networkPduMap.put(0, data);
+                message.setNetworkPdu(networkPduMap);
                 message.setTtl(ttl);
                 message.setSrc(src);
                 message.setDst(dst);
+                message.setSequenceNumber(sequenceNumber);
 
+                //Removing the mDst here
+                final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
+                        .order(ByteOrder.BIG_ENDIAN)
+                        .put(data, 0, 2)
+                        .put(networkHeader)
+                        .put(decryptedNetworkPayload)
+                        .array();
+                parseUnsegmentedAccessLowerTransportPDU(message, pdu);
                 parseUpperTransportPDU(message);
                 parseAccessLayerPDU(message);
+
+                return message;
             }
-            return message;
-
-        } else {
-            final AccessMessage message = new AccessMessage();
-            message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-            final SparseArray<byte[]> networkPduMap = new SparseArray<>();
-            networkPduMap.put(0, data);
-            message.setNetworkPdu(networkPduMap);
-            message.setTtl(ttl);
-            message.setSrc(src);
-            message.setDst(dst);
-            message.setSequenceNumber(sequenceNumber);
-
-            //Removing the mDst here
-            final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
-                    .order(ByteOrder.BIG_ENDIAN)
-                    .put(data, 0, 2)
-                    .put(networkHeader)
-                    .put(decryptedNetworkPayload)
-                    .array();
-            parseUnsegmentedAccessLowerTransportPDU(message, pdu);
-            parseUpperTransportPDU(message);
-
-            return message;
+        } catch (InvalidCipherTextException ex) {
+            throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
         }
     }
 
@@ -649,46 +594,59 @@ public abstract class NetworkLayer extends LowerTransportLayer {
      * @param micLength          Network mic length of the received message
      * @return a complete {@link ControlMessage} or null if the message was unable to parsed
      */
-    private ControlMessage parseControlMessage(final byte[] provisionerAddress, final byte[] data, final byte[] networkHeader,
-                                               final byte[] nonce, final byte[] src, final byte[] sequenceNumber, final int micLength) {
-        final SecureUtils.K2Output k2Output = getK2Output();
-        final byte[] encryptionKey = k2Output.getEncryptionKey();
-        final int ttl = networkHeader[0] & 0x7F;
-        final int networkPayloadLength = data.length - (2 + networkHeader.length);
-        final byte[] transportPdu = new byte[networkPayloadLength];
-        System.arraycopy(data, 8, transportPdu, 0, networkPayloadLength);
+    private ControlMessage parseControlMessage(final byte[] provisionerAddress,
+                                               final byte[] data,
+                                               final byte[] networkHeader,
+                                               final byte[] nonce,
+                                               final byte[] src,
+                                               final byte[] sequenceNumber,
+                                               final int micLength) throws ExtendedInvalidCipherTextException {
+        try {
+            final SecureUtils.K2Output k2Output = getK2Output();
+            final byte[] encryptionKey = k2Output.getEncryptionKey();
+            final int ttl = networkHeader[0] & 0x7F;
+            final int networkPayloadLength = data.length - (2 + networkHeader.length);
+            final byte[] transportPdu = new byte[networkPayloadLength];
+            System.arraycopy(data, 8, transportPdu, 0, networkPayloadLength);
+            final byte[] decryptedNetworkPayload;
+            try {
+                decryptedNetworkPayload = SecureUtils.decryptCCM(transportPdu, encryptionKey, nonce, micLength);
+            } catch (InvalidCipherTextException ex) {
+                throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
+            }
+            final byte[] dst = ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).put(decryptedNetworkPayload, 0, 2).array();
 
-        final byte[] decryptedNetworkPayload = SecureUtils.decryptCCM(transportPdu, encryptionKey, nonce, micLength);
-        final byte[] dst = ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).put(decryptedNetworkPayload, 0, 2).array();
+            //Removing the mDst here
+            final byte[] decryptedProxyPdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
+                    .order(ByteOrder.BIG_ENDIAN)
+                    .put(data, 0, 2)
+                    .put(networkHeader)
+                    .put(decryptedNetworkPayload)
+                    .array();
 
-        //Removing the mDst here
-        final byte[] decryptedProxyPdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
-                .order(ByteOrder.BIG_ENDIAN)
-                .put(data, 0, 2)
-                .put(networkHeader)
-                .put(decryptedNetworkPayload)
-                .array();
+            //We check the pdu type
+            final int pduType = data[0];
+            switch (pduType) {
+                case MeshManagerApi.PDU_TYPE_NETWORK:
+                    //Check if the message is directed to us, if its not ignore the message
+                    if (!Arrays.equals(provisionerAddress, dst)) {
+                        Log.v(TAG, "Received a control message that was not directed to us, so we drop it");
+                        return null;
+                    }
 
-        //We check the pdu type
-        final int pduType = data[0];
-        switch (pduType) {
-            case MeshManagerApi.PDU_TYPE_NETWORK:
-                //Check if the message is directed to us, if its not ignore the message
-                if (!Arrays.equals(provisionerAddress, dst)) {
-                    Log.v(TAG, "Received a control message that was not directed to us, so we drop it");
-                    return null;
-                }
-
-                if (isSegmentedMessage(decryptedNetworkPayload[2])) {
-                    return parseSegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst);
-                } else {
+                    if (isSegmentedMessage(decryptedNetworkPayload[2])) {
+                        return parseSegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst);
+                    } else {
+                        return parseUnsegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst, sequenceNumber);
+                    }
+                case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
+                    //Proxy configuration messages are segmented only at the gatt level
                     return parseUnsegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst, sequenceNumber);
-                }
-            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
-                //Proxy configuration messages are segmented only at the gatt level
-                return parseUnsegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst, sequenceNumber);
-            default:
-                return null;
+                default:
+                    return null;
+            }
+        } catch (InvalidCipherTextException ex) {
+            throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
         }
     }
 
@@ -703,8 +661,12 @@ public abstract class NetworkLayer extends LowerTransportLayer {
      * @param sequenceNumber    Sequence number of the pdu
      * @return a complete {@link ControlMessage} or null if the message was unable to parsed
      */
-    private ControlMessage parseUnsegmentedControlMessage(final byte[] data, final byte[] decryptedProxyPdu, final int ttl, final byte[] src, final byte[] dst,
-                                                          final byte[] sequenceNumber) {
+    private ControlMessage parseUnsegmentedControlMessage(final byte[] data,
+                                                          final byte[] decryptedProxyPdu,
+                                                          final int ttl,
+                                                          final byte[] src,
+                                                          final byte[] dst,
+                                                          final byte[] sequenceNumber) throws ExtendedInvalidCipherTextException{
         final ControlMessage message = new ControlMessage();
         message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         final SparseArray<byte[]> proxyPduArray = new SparseArray<>();
@@ -764,56 +726,70 @@ public abstract class NetworkLayer extends LowerTransportLayer {
      * @return access message
      */
     @VisibleForTesting
-    private ControlMessage parseControlMessage(final byte[] data, final byte[] networkHeader, final byte[] networkNonce, final byte[] src, final byte[] sequenceNumber, final int micLength) {
-        final SecureUtils.K2Output k2Output = getK2Output();
-        final byte[] encryptionKey = k2Output.getEncryptionKey();
-        final int ttl = networkHeader[0] & 0x7F;
-        final int networkPayloadLength = data.length - (2 + networkHeader.length);
-        final byte[] transportPdu = new byte[networkPayloadLength];
-        System.arraycopy(data, 8, transportPdu, 0, networkPayloadLength);
-        final byte[] decryptedNetworkPayload = SecureUtils.decryptCCM(transportPdu, encryptionKey, networkNonce, micLength);
-        final byte[] dst = ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).put(decryptedNetworkPayload, 0, 2).array();
-
-        if (isSegmentedMessage(decryptedNetworkPayload[2])) {
-
-            if (segmentedControlMessagesMessages == null) {
-                segmentedControlMessagesMessages = new SparseArray<>();
-                segmentedControlMessagesMessages.put(0, data);
-            } else {
-                final int k = segmentedControlMessagesMessages.size();
-                segmentedAccessMessagesMessages.put(k, data);
+    private ControlMessage parseControlMessage(final byte[] data,
+                                               final byte[] networkHeader,
+                                               final byte[] networkNonce,
+                                               final byte[] src,
+                                               final byte[] sequenceNumber,
+                                               final int micLength) throws ExtendedInvalidCipherTextException {
+        try {
+            final SecureUtils.K2Output k2Output = getK2Output();
+            final byte[] encryptionKey = k2Output.getEncryptionKey();
+            final int ttl = networkHeader[0] & 0x7F;
+            final int networkPayloadLength = data.length - (2 + networkHeader.length);
+            final byte[] transportPdu = new byte[networkPayloadLength];
+            System.arraycopy(data, 8, transportPdu, 0, networkPayloadLength);
+            final byte[] decryptedNetworkPayload;
+            try {
+                decryptedNetworkPayload = SecureUtils.decryptCCM(transportPdu, encryptionKey, networkNonce, micLength);
+            } catch (InvalidCipherTextException ex) {
+                throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
             }
-            //Removing the mDst here
-            final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
-            final ControlMessage message = parseSegmentedControlLowerTransportPDU(pdu);
-            if (message != null) {
-                final SparseArray<byte[]> segmentedMessages = segmentedControlMessagesMessages;
-                segmentedControlMessagesMessages = null;
+            final byte[] dst = ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).put(decryptedNetworkPayload, 0, 2).array();
+
+            if (isSegmentedMessage(decryptedNetworkPayload[2])) {
+
+                if (segmentedControlMessagesMessages == null) {
+                    segmentedControlMessagesMessages = new SparseArray<>();
+                    segmentedControlMessagesMessages.put(0, data);
+                } else {
+                    final int k = segmentedControlMessagesMessages.size();
+                    segmentedAccessMessagesMessages.put(k, data);
+                }
+                //Removing the mDst here
+                final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
+                final ControlMessage message = parseSegmentedControlLowerTransportPDU(pdu);
+                if (message != null) {
+                    final SparseArray<byte[]> segmentedMessages = segmentedControlMessagesMessages;
+                    segmentedControlMessagesMessages = null;
+                    message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
+                    message.setNetworkPdu(segmentedMessages);
+                    message.setTtl(ttl);
+                    message.setSrc(src);
+                    message.setDst(dst);
+
+                }
+                return message;
+
+            } else {
+                final ControlMessage message = new ControlMessage();
                 message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-                message.setNetworkPdu(segmentedMessages);
+                final SparseArray<byte[]> networkPduMap = new SparseArray<>();
+                networkPduMap.put(0, data);
+                message.setNetworkPdu(networkPduMap);
                 message.setTtl(ttl);
                 message.setSrc(src);
                 message.setDst(dst);
+                message.setSequenceNumber(sequenceNumber);
 
+                //Removing the mDst here
+                final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
+                parseUnsegmentedControlLowerTransportPDU(message, pdu);
+
+                return message;
             }
-            return message;
-
-        } else {
-            final ControlMessage message = new ControlMessage();
-            message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-            final SparseArray<byte[]> networkPduMap = new SparseArray<>();
-            networkPduMap.put(0, data);
-            message.setNetworkPdu(networkPduMap);
-            message.setTtl(ttl);
-            message.setSrc(src);
-            message.setDst(dst);
-            message.setSequenceNumber(sequenceNumber);
-
-            //Removing the mDst here
-            final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN).put(data, 0, 2).put(networkHeader).put(decryptedNetworkPayload).array();
-            parseUnsegmentedControlLowerTransportPDU(message, pdu);
-
-            return message;
+        } catch (InvalidCipherTextException ex) {
+            throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
         }
     }
 

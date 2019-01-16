@@ -216,36 +216,28 @@ public class SecureUtils {
     public static byte[] encryptCCM(final byte[] data, final byte[] key, final byte[] nonce, final int micSize) {
         final byte[] ccm = new byte[data.length + micSize];
 
-        CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
-
-        AEADParameters aeadParameters = new AEADParameters(new KeyParameter(key), micSize * 8, nonce);
+        final CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
+        final AEADParameters aeadParameters = new AEADParameters(new KeyParameter(key), micSize * 8, nonce);
         ccmBlockCipher.init(true, aeadParameters);
         ccmBlockCipher.processBytes(data, 0, data.length, ccm, data.length);
         try {
             ccmBlockCipher.doFinal(ccm, 0);
+            return ccm;
         } catch (InvalidCipherTextException e) {
             Log.e(TAG, "Error wile encrypting: " + e.getMessage());
+            return null;
         }
-        return ccm;
     }
 
+    public static byte[] decryptCCM(final byte[] data, final byte[] key, final byte[] nonce, final int micSize) throws InvalidCipherTextException {
+        final byte[] ccm = new byte[data.length - micSize];
 
-    public static byte[] decryptCCM(final byte[] data, final byte[] key, final byte[] nonce, final int micSize) {
-        final byte[] ccm = new byte[data.length];
-
-        CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
-        AEADParameters aeadParameters = new AEADParameters(new KeyParameter(key), micSize * 8, nonce);
+        final CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
+        final AEADParameters aeadParameters = new AEADParameters(new KeyParameter(key), micSize * 8, nonce);
         ccmBlockCipher.init(false, aeadParameters);
         ccmBlockCipher.processBytes(data, 0, data.length, ccm, 0);
-        try {
-            ccmBlockCipher.doFinal(ccm, 0);
-        } catch (InvalidCipherTextException e) {
-            Log.e(TAG, "Error wile decrypting: " + e.getMessage());
-        }
-        final int ccmLength = data.length - micSize;
-        final ByteBuffer ccmBuffer = ByteBuffer.allocate(ccmLength).order(ByteOrder.BIG_ENDIAN);
-        ccmBuffer.put(ccm, 0, ccmLength);
-        return ccmBuffer.array();
+        ccmBlockCipher.doFinal(ccm, 0);
+        return ccm;
     }
 
     public static byte[] calculateK1(final byte[] ecdh, final byte[] confirmationSalt, final byte[] text) {
@@ -256,8 +248,7 @@ public class SecureUtils {
      * Calculate k2
      *
      * @param data network key
-     * @param p
-     * @return
+     * @param p    master input
      */
     public static K2Output calculateK2(final byte[] data, final byte[] p) {
         final byte[] salt = calculateSalt(SMK2);
@@ -290,7 +281,6 @@ public class SecureUtils {
      * Calculate k3
      *
      * @param n network key
-     * @return
      */
     public static byte[] calculateK3(final byte[] n) {
 
@@ -305,7 +295,7 @@ public class SecureUtils {
 
         final byte[] result = calculateCMAC(cmacInput, t);
 
-        //Only the least siginificant 8 bytes are returned
+        //Only the least significant 8 bytes are returned
         final byte[] networkId = new byte[8];
         final int srcOffset = result.length - networkId.length;
 
@@ -318,7 +308,6 @@ public class SecureUtils {
      * Calculate k4
      *
      * @param n network key
-     * @return
      */
     public static byte calculateK4(final byte[] n) {
 
@@ -367,6 +356,14 @@ public class SecureUtils {
         return calculateK1(n, salt, p);
     }
 
+    /**
+     * Calculates the authentication value of secure network beacon
+     *
+     * @param n         network key
+     * @param flags     flags
+     * @param networkId network id of the network
+     * @param ivIndex   ivindex of the network
+     */
     public static byte[] calculateAuthValueSecureNetBeacon(@NonNull final byte[] n,
                                                            @NonNull final byte[] flags,
                                                            @NonNull final byte[] networkId,
@@ -384,7 +381,7 @@ public class SecureUtils {
      * Calculates the secure network beacon
      *
      * @param n         network key
-     * @param flags     network flags, this represents the ccurrent state of hte network if key refresh/iv update is ongoing or complete
+     * @param flags     network flags, this represents the current state of hte network if key refresh/iv update is ongoing or complete
      * @param networkId unique id of the network
      * @param ivIndex   iv index of the network
      */
@@ -461,8 +458,7 @@ public class SecureUtils {
     /**
      * Gets the transport MIC length based on the aszmic value
      *
-     * @param aszmic
-     * @return
+     * @param aszmic application size message integrity check
      */
     public static int getTransMicLength(final int aszmic) {
         if (aszmic == 0) {

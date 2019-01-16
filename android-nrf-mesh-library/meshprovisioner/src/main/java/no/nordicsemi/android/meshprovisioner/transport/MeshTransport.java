@@ -27,8 +27,11 @@ import android.os.Handler;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
+import org.spongycastle.crypto.InvalidCipherTextException;
+
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
+import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public final class MeshTransport extends NetworkLayer {
@@ -238,19 +241,8 @@ public final class MeshTransport extends NetworkLayer {
      * @param pdu pdu received
      * @return Message
      */
-    final Message parsePdu(final byte[] pdu) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    final Message parsePdu(final byte[] pdu) throws ExtendedInvalidCipherTextException {
         return parseMeshMessage(pdu);
     }
-
-    /**
-     * Parses the received pdu
-     *
-     * @param pdu pdu received
-     * @return Message
-     */
-    @VisibleForTesting
-    final Message parsePduTest(final byte[] pdu) {
-        return parseMeshMessage(pdu);
-    }
-
 }

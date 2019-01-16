@@ -26,10 +26,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
+import org.spongycastle.crypto.InvalidCipherTextException;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -68,7 +71,7 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @param message The access message required to create the encrypted upper transport pdu
      */
     void createMeshMessage(final Message message) { //Access message
-        if(message instanceof AccessMessage) {
+        if (message instanceof AccessMessage) {
             super.createMeshMessage(message);
             final AccessMessage accessMessage = (AccessMessage) message;
             final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
@@ -99,7 +102,7 @@ abstract class UpperTransportLayer extends AccessLayer {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     void createUpperTransportPDU(final Message message) {
-        if(message instanceof AccessMessage) {
+        if (message instanceof AccessMessage) {
             //Access message
             final AccessMessage accessMessage = (AccessMessage) message;
             final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
@@ -156,33 +159,37 @@ abstract class UpperTransportLayer extends AccessLayer {
      *
      * @param message access message containing the upper transport pdu
      */
-    final void parseUpperTransportPDU(@NonNull final Message message) {
-        switch (message.getPduType()) {
-            case MeshManagerApi.PDU_TYPE_NETWORK:
-                if (message.getCtl() == 0) { //Access message
-                    final AccessMessage accessMessage = (AccessMessage) message;
-                    reassembleLowerTransportAccessPDU(accessMessage);
-                    final byte[] decryptedUpperTransportControlPdu = decryptUpperTransportPDU(accessMessage);
-                    accessMessage.setAccessPdu(decryptedUpperTransportControlPdu);
-                } else {
-                    //TODO
-                    //this where control messages such as heartbeat and friendship messages are to be implemented
-                }
-                break;
-            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
-                final ControlMessage controlMessage = (ControlMessage) message;
-                if(controlMessage.getLowerTransportControlPdu().size() == 1) {
-                    final byte[] lowerTransportControlPdu = controlMessage.getLowerTransportControlPdu().get(0);
-                    final ByteBuffer buffer = ByteBuffer.wrap(lowerTransportControlPdu)
-                            .order(ByteOrder.BIG_ENDIAN);
-                    message.setOpCode(buffer.get());
-                    final byte[] parameters = new byte[buffer.capacity() - 1];
-                    buffer.get(parameters);
-                    message.setParameters(parameters);
-                }
-                break;
-        }
+    final void parseUpperTransportPDU(@NonNull final Message message) throws ExtendedInvalidCipherTextException {
+        try {
 
+            switch (message.getPduType()) {
+                case MeshManagerApi.PDU_TYPE_NETWORK:
+                    if (message.getCtl() == 0) { //Access message
+                        final AccessMessage accessMessage = (AccessMessage) message;
+                        reassembleLowerTransportAccessPDU(accessMessage);
+                        final byte[] decryptedUpperTransportControlPdu = decryptUpperTransportPDU(accessMessage);
+                        accessMessage.setAccessPdu(decryptedUpperTransportControlPdu);
+                    } else {
+                        //TODO
+                        //this where control messages such as heartbeat and friendship messages are to be implemented
+                    }
+                    break;
+                case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
+                    final ControlMessage controlMessage = (ControlMessage) message;
+                    if (controlMessage.getLowerTransportControlPdu().size() == 1) {
+                        final byte[] lowerTransportControlPdu = controlMessage.getLowerTransportControlPdu().get(0);
+                        final ByteBuffer buffer = ByteBuffer.wrap(lowerTransportControlPdu)
+                                .order(ByteOrder.BIG_ENDIAN);
+                        message.setOpCode(buffer.get());
+                        final byte[] parameters = new byte[buffer.capacity() - 1];
+                        buffer.get(parameters);
+                        message.setParameters(parameters);
+                    }
+                    break;
+            }
+        } catch (InvalidCipherTextException ex) {
+            throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
+        }
     }
 
     /**
@@ -229,8 +236,8 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @param accessMessage access message object containing the upper transport pdu
      * @return decrypted upper transport pdu
      */
-    private byte[] decryptUpperTransportPDU(final AccessMessage accessMessage) {
-        byte[] decryptedUpperTansportPDU;
+    private byte[] decryptUpperTransportPDU(final AccessMessage accessMessage) throws InvalidCipherTextException {
+        byte[] decryptedUpperTransportPDU;
         final byte[] key;
         //Check if the key used for encryption is an application key or a device key
         final byte[] nonce;
@@ -252,17 +259,17 @@ abstract class UpperTransportLayer extends AccessLayer {
         }
 
         if (accessMessage.getAszmic() == SZMIC) {
-            decryptedUpperTansportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, MAXIMUM_TRANSMIC_LENGTH);
+            decryptedUpperTransportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, MAXIMUM_TRANSMIC_LENGTH);
         } else {
-            decryptedUpperTansportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, MINIMUM_TRANSMIC_LENGTH);
+            decryptedUpperTransportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, MINIMUM_TRANSMIC_LENGTH);
         }
 
-        final byte[] tempBytes = new byte[decryptedUpperTansportPDU.length];
+        final byte[] tempBytes = new byte[decryptedUpperTransportPDU.length];
         ByteBuffer decryptedBuffer = ByteBuffer.wrap(tempBytes);
         decryptedBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        decryptedBuffer.put(decryptedUpperTansportPDU);
-        decryptedUpperTansportPDU = decryptedBuffer.array();
-        return decryptedUpperTansportPDU;
+        decryptedBuffer.put(decryptedUpperTransportPDU);
+        decryptedUpperTransportPDU = decryptedBuffer.array();
+        return decryptedUpperTransportPDU;
     }
 
     /**

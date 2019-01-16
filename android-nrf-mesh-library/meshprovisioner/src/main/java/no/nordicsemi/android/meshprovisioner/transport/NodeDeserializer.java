@@ -47,13 +47,13 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
 
             if (jsonObject.has("cid"))
                 node.companyIdentifier = Integer.parseInt(jsonObject.get("cid").getAsString(), 16);
-            if (jsonObject.has("cid"))
+            if (jsonObject.has("pid"))
                 node.productIdentifier = Integer.parseInt(jsonObject.get("pid").getAsString(), 16);
 
-            if (jsonObject.has("cid"))
+            if (jsonObject.has("vid"))
                 node.versionIdentifier = Integer.parseInt(jsonObject.get("vid").getAsString(), 16);
 
-            if (jsonObject.has("cid"))
+            if (jsonObject.has("crpl"))
                 node.crpl = Integer.parseInt(jsonObject.get("crpl").getAsString(), 16);
 
             if (jsonObject.has("features")) {
