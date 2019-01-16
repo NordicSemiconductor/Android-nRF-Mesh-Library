@@ -23,6 +23,7 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 
 /**
  * Callbacks to notify the status of the mesh messgaes
@@ -79,4 +80,11 @@ public interface MeshStatusCallbacks {
      * @param meshMessage {@link MeshMessage} containing the message that was received
      */
     void onMeshMessageReceived(final byte[] src, final MeshMessage meshMessage);
+
+    /**
+     * Callback to notify if the decryption failed of a received mesh message
+     *
+     * @param errorMessage Error message
+     */
+    void onMessageDecryptionFailed(final String meshLayer, final String errorMessage);
 }
