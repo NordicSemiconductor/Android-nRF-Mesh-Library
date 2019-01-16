@@ -239,28 +239,30 @@ class DataMigrator {
     }
 
     //TODO working around to be removed, very dirty fix and was added to stop breaking when importing existing networks.
+    //This may only work for certain companies due to invalid parsing in the previous version of the app,
+    //so please bear with the stupidity.
     private static void fixInvalidParsing(final ProvisionedMeshNode node){
         if(node.getProductIdentifier() != null) {
             if (node.getProductIdentifier() < 0) {
-                node.setProductIdentifier(node.getProductIdentifier().shortValue() & 0x00FF);
+                node.setProductIdentifier(node.getProductIdentifier() & 0x00FF);
             }
         }
 
         if(node.getCompanyIdentifier() != null) {
             if (node.getCompanyIdentifier() < 0) {
-                node.setCompanyIdentifier(node.getCompanyIdentifier().shortValue() & 0x00FF);
+                node.setCompanyIdentifier(node.getCompanyIdentifier() & 0x00FF);
             }
         }
 
         if(node.getVersionIdentifier() != null) {
             if (node.getVersionIdentifier() < 0) {
-                node.setVersionIdentifier(node.getVersionIdentifier().shortValue() & 0x00FF);
+                node.setVersionIdentifier(node.getVersionIdentifier() & 0x00FF);
             }
         }
 
         if(node.getCrpl() != null) {
             if (node.getCrpl() < 0) {
-                node.setCrpl(node.getCrpl().shortValue() & 0x00FF);
+                node.setCrpl(node.getCrpl() & 0x00FF);
             }
         }
     }
