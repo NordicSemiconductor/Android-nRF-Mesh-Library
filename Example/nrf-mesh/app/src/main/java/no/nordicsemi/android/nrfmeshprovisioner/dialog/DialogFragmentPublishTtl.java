@@ -37,6 +37,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CheckBox;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,8 +47,9 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 public class DialogFragmentPublishTtl extends DialogFragment {
 
     private static final String PUBLISH_TTL = "PUBLISH_TTL";
-
     //UI Bindings
+    @BindView(R.id.chk_default_ttl)
+    CheckBox chkPublishTtl;
     @BindView(R.id.text_input_layout)
     TextInputLayout ttlInputLayout;
     @BindView(R.id.text_input)
@@ -74,15 +76,16 @@ public class DialogFragmentPublishTtl extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_ttl_input, null);
-
-        //Bind ui
+        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publish_ttl_input, null);
         ButterKnife.bind(this, rootView);
-        final String ttl = String.valueOf(mPulishTtl);
-        ttlInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-        ttlInputLayout.setHint(getString(R.string.hint_publish_ttl));
-        ttlInput.setText(ttl);
-        ttlInput.setSelection(ttl.length());
+
+        chkPublishTtl.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            ttlInputLayout.setVisibility(isChecked ? View.GONE : View.VISIBLE);
+            if(isChecked){
+                ttlInputLayout.setError(null);
+            }
+        });
+
         ttlInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
@@ -113,12 +116,31 @@ public class DialogFragmentPublishTtl extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String publishTtl = ttlInput.getText().toString();
-            if (validateInput(publishTtl)) {
-                ((DialogFragmentPublishTtlListener) getActivity()).setPublishTtl(Integer.parseInt(publishTtl));
+            if(chkPublishTtl.isChecked()) {
+                ((DialogFragmentPublishTtlListener) getActivity()).setPublishTtl(MeshParserUtils.USE_DEFAULT_TTL);
                 dismiss();
+            } else {
+                final String publishTtl = ttlInput.getText().toString();
+                if (validateInput(publishTtl)) {
+                    ((DialogFragmentPublishTtlListener) getActivity()).setPublishTtl(Integer.parseInt(publishTtl));
+                    dismiss();
+                }
             }
         });
+
+        if(savedInstanceState == null) {
+
+            //Update ui
+            if(MeshParserUtils.isDefaultPublishTtl(mPulishTtl)){
+                chkPublishTtl.setChecked(true);
+            } else {
+                final String ttl = String.valueOf(mPulishTtl);
+                ttlInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+                ttlInput.setText(ttl);
+                ttlInput.setSelection(ttl.length());
+            }
+            ttlInputLayout.setHint(getString(R.string.hint_publish_ttl));
+        }
 
         return alertDialog;
     }
@@ -129,7 +151,7 @@ public class DialogFragmentPublishTtl extends DialogFragment {
                 ttlInputLayout.setError(getString(R.string.error_empty_publish_ttl));
                 return false;
             }
-            if(!MeshParserUtils.validatePublishTtl(Integer.parseInt(input))) {
+            if(!MeshParserUtils.isValidTtl(Integer.parseInt(input))) {
                 ttlInputLayout.setError(getString(R.string.error_invalid_publish_ttl));
                 return false;
             }

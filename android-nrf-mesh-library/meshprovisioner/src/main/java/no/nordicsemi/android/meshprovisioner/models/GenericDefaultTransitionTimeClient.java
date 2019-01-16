@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class GenericDefaultTransitionTimeClient extends SigModel {
 
     public static final Creator<GenericDefaultTransitionTimeClient> CREATOR = new Creator<GenericDefaultTransitionTimeClient>() {

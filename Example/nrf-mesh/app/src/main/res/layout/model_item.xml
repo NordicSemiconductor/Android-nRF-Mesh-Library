@@ -28,19 +28,21 @@
     android:id="@+id/mesh_model_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/white"
+    android:background="?android:selectableItemBackground"
     android:paddingTop="@dimen/item_padding_top"
     android:paddingBottom="@dimen/item_padding_bottom"
+    android:paddingStart="56dp"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
     tools:ignore="ContentDescription">
 
     <TextView
-        android:id="@+id/model_name"
+        android:id="@+id/address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:singleLine="true"
         android:textSize="14sp"
-        android:textColor="@android:color/black"
+        android:textColor="@color/black"
         tools:text="Configuration Server"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
@@ -51,7 +53,7 @@
         android:layout_height="wrap_content"
         android:textSize="12sp"
         tools:text="SIG Model ID: 0x0000"
-        app:layout_constraintTop_toBottomOf="@id/model_name"
+        app:layout_constraintTop_toBottomOf="@id/address"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:textColor="@color/textColorSecondary"/>

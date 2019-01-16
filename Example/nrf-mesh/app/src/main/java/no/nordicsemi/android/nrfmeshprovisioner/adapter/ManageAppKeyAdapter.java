@@ -34,25 +34,26 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapter.ViewHolder> {
 
-    private final List<String> appKeys = new ArrayList<>();
+    private final List<ApplicationKey> appKeys = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public ManageAppKeyAdapter(final ManageAppKeysActivity activity, final ProvisioningLiveData provisioningLiveData) {
+    public ManageAppKeyAdapter(final ManageAppKeysActivity activity, final MeshNetworkLiveData meshNetworkLiveData) {
         this.mContext = activity;
-        provisioningLiveData.observe(activity, provisioningData -> {
-            final ProvisioningSettings provisioningSettings = provisioningData.getProvisioningSettings();
-            if(provisioningSettings != null){
+        meshNetworkLiveData.observe(activity, networkData -> {
+            final List<ApplicationKey> keys = networkData.getAppKeys();
+            if(keys != null){
                 appKeys.clear();
-                appKeys.addAll(provisioningSettings.getAppKeys());
+                appKeys.addAll(keys);
             }
             notifyDataSetChanged();
         });
@@ -71,9 +72,12 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
     @Override
     public void onBindViewHolder(final ManageAppKeyAdapter.ViewHolder holder, final int position) {
         if(appKeys.size() > 0) {
-            holder.appKeyId.setText(mContext.getString(R.string.app_key_item , position + 1));
-            final String key = appKeys.get(position);
+            final ApplicationKey appKey = appKeys.get(position);
+            holder.appKeyId.setText(mContext.getString(R.string.app_key_item , appKey.getKeyIndex()));
+            final String key = MeshParserUtils.bytesToHex(appKey.getKey(), false);
             holder.appKey.setText(key.toUpperCase());
+            holder.getSwipeableView().setTag(appKey);
+
         }
     }
 
@@ -93,7 +97,7 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final int position, final String appKey);
+        void onItemClick(final int position, final ApplicationKey appKey);
     }
 
     final class ViewHolder extends RemovableViewHolder {
@@ -108,7 +112,7 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
             ButterKnife.bind(this, view);
             view.findViewById(R.id.removable).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    final String key = appKeys.get(getAdapterPosition());
+                    final ApplicationKey key = appKeys.get(getAdapterPosition());
                     mOnItemClickListener.onItemClick(getAdapterPosition(), key);
                 }
             });

@@ -22,8 +22,9 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.configuration.*;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
+
 /**
  * Callbacks to notify the status of the mesh messgaes
  */
@@ -32,215 +33,58 @@ public interface MeshStatusCallbacks {
     /**
      * Notifies if a transaction has failed
      * <p>
-     *     As of now this is only triggered if the incomplete timer has expired for a given segmented message.
-     *     The incomplete timer will wait for a minimum of 10 seconds on receiving a segmented message.
-     *     If all segments are not received during this period, that transaction shall be considered as failed.
+     * As of now this is only triggered if the incomplete timer has expired for a given segmented message.
+     * The incomplete timer will wait for a minimum of 10 seconds on receiving a segmented message.
+     * If all segments are not received during this period, that transaction shall be considered as failed.
      * </p>
      *
-     * @param node                      mesh node that failed to handle the transaction
-     * @param src                       unique src address of the device
+     * @param dst                       unique src address of the device
      * @param hasIncompleteTimerExpired flag that notifies if the incomplete timer had expired
      */
-    void onTransactionFailed(final ProvisionedMeshNode node, final int src, final boolean hasIncompleteTimerExpired);
+    void onTransactionFailed(final byte[] dst, final boolean hasIncompleteTimerExpired);
 
     /**
      * Notifies if an unknown pdu was received
      *
-     * @param node mesh node that the message was received from
+     * @param src           address where the message originated from
+     * @param accessPayload access payload of the message
      */
-    void onUnknownPduReceived(final ProvisionedMeshNode node);
+    void onUnknownPduReceived(final byte[] src, final byte[] accessPayload);
 
     /**
      * Notifies if a block acknowledgement was sent
      *
-     * @param node mesh node that the message was sent to
+     * @param dst dst address to which the block ack was sent
      */
-    void onBlockAcknowledgementSent(final ProvisionedMeshNode node);
+    void onBlockAcknowledgementSent(final byte[] dst);
 
     /**
      * Notifies if a block acknowledgement was received
      *
-     * @param node mesh node that the message was received from
+     * @param src source address from which the block ack was received
      */
-    void onBlockAcknowledgementReceived(final ProvisionedMeshNode node);
+    void onBlockAcknowledgementReceived(final byte[] src);
 
     /**
-     * Notifies if {@link ConfigCompositionDataGet} was sent
+     * Callback to notify the mesh message has been sent
      *
-     * @param node mesh node that the message was sent to
+     * @param dst         Destination address to be sent
+     * @param meshMessage {@link MeshMessage} containing the message that was sent
      */
-    void onGetCompositionDataSent(final ProvisionedMeshNode node);
+    void onMeshMessageSent(final byte[] dst, final MeshMessage meshMessage);
 
     /**
-     * Notifies if {@link ConfigCompositionDataStatus} was received
+     * Callback to notify that a mesh status message was received
      *
-     * @param node mesh node that the message was sent to
+     * @param src         source address where the message originated from
+     * @param meshMessage {@link MeshMessage} containing the message that was received
      */
-    void onCompositionDataStatusReceived(final ProvisionedMeshNode node);
+    void onMeshMessageReceived(final byte[] src, final MeshMessage meshMessage);
 
     /**
-     * Notifies if {@link ConfigAppKeyAdd} was sent
+     * Callback to notify if the decryption failed of a received mesh message
      *
-     * @param node mesh node that the message was sent to
+     * @param errorMessage Error message
      */
-    void onAppKeyAddSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if {@link ConfigAppKeyStatus} was received
-     *
-     * @param node mesh node that the message was received from
-     */
-    void onAppKeyStatusReceived(final ProvisionedMeshNode node, final boolean success, int status, final int netKeyIndex, final int appKeyIndex);
-
-    /**
-     * Notifies if {@link ConfigModelAppBind} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onAppKeyBindSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if {@link ConfigModelAppUnbind} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onAppKeyUnbindSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if {@link ConfigModelAppStatus} was received
-     *
-     * @param node mesh node that the message was received from
-     */
-    void onAppKeyBindStatusReceived(final ProvisionedMeshNode node, final boolean success, int status, final int elementAddress, final int appKeyIndex, final int modelIdentifier);
-
-    /**
-     * Notifies if {@link ConfigModelPublicationSet} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onPublicationSetSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if an {@link ConfigModelPublicationStatus} was received
-     *
-     * @param node mesh node that the message was received from
-     */
-    void onPublicationStatusReceived(final ProvisionedMeshNode node, final boolean success, final int status, final byte[] elementAddress, final byte[] publishAddress, final int modelIdentifier);
-
-    /**
-     * Notifies if {@link ConfigModelSubscriptionAdd} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onSubscriptionAddSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if {@link ConfigModelSubscriptionDelete} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onSubscriptionDeleteSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if {@link ConfigModelSubscriptionStatus} was received
-     *
-     * @param node mesh node that the message was received from
-     */
-    void onSubscriptionStatusReceived(final ProvisionedMeshNode node, final boolean success, final int status, final byte[] elementAddress, final byte[] subscriptionAddress, final int modelIdentifier);
-
-    /**
-     * Notifies if the mesh {@link ConfigNodeReset} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onMeshNodeResetSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if the mesh {@link ConfigNodeResetStatus} was received
-     *
-     * @param node mesh node that the message was received from
-     */
-    void onMeshNodeResetStatusReceived(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if {@link GenericOnOffGet} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onGenericOnOffGetSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if {@link GenericOnOffSet} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onGenericOnOffSetSent(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime);
-
-    /**
-     * Notifies if {@link GenericOnOffSetUnacknowledged} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onGenericOnOffSetUnacknowledgedSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if {@link GenericOnOffStatus} was received
-     *  @param node mesh node that the message was received from
-     * @param targetOnOff
-     * @param transitionSteps
-     * @param transitionResolution
-     */
-    void onGenericOnOffStatusReceived(final ProvisionedMeshNode node, final boolean presentOnOff, final Boolean targetOnOff, final int transitionSteps, final int transitionResolution);
-
-
-    /**
-     * Notifies if {@link GenericLevelGet} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onGenericLevelGetSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if {@link GenericLevelSet} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onGenericLevelSetSent(final ProvisionedMeshNode node, final boolean presentOnOff, final boolean targetOnOff, final int remainingTime);
-
-    /**
-     * Notifies if {@link GenericLevelSetUnacknowledged} was sent
-     *
-     * @param node mesh node that the message was sent to
-     */
-    void onGenericLevelSetUnacknowledgedSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if {@link GenericLevelStatus} was received
-     * @param node mesh node that the message was received from
-     * @param targetLevel
-     * @param transitionSteps
-     * @param transitionResolution
-     */
-    void onGenericLevelStatusReceived(final ProvisionedMeshNode node, final int presentLevel, final int targetLevel, final int transitionSteps, final int transitionResolution);
-
-    /**
-     * Notifies if {@link VendorModelMessageUnacknowledged} was received
-     *
-     * @param node mesh node that the message was received from
-     */
-    void onUnacknowledgedVendorModelMessageSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if {@link VendorModelMessageState} was received
-     *
-     * @param node mesh node that the message was received from
-     */
-    void onAcknowledgedVendorModelMessageSent(final ProvisionedMeshNode node);
-
-    /**
-     * Notifies if {@link GenericOnOffStatus} was received
-     *
-     * @param node mesh node that the message was received from
-     */
-    void onVendorModelMessageStatusReceived(final ProvisionedMeshNode node, final byte[] pdu);
+    void onMessageDecryptionFailed(final String meshLayer, final String errorMessage);
 }

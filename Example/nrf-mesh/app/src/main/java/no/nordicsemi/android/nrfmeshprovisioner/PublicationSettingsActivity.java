@@ -1,6 +1,8 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.app.Activity;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,20 +16,25 @@ import android.widget.TextView;
 
 import java.io.Serializable;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
+import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPubRetransmitIntervalSteps;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublicationResolution;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublicationSteps;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentRetransmitCount;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
 
-import static no.nordicsemi.android.nrfmeshprovisioner.utils.Utils.EXTRA_DEVICE;
-
-public class PublicationSettingsActivity extends AppCompatActivity implements DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
+public class PublicationSettingsActivity extends AppCompatActivity implements Injectable,
+        DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
         DialogFragmentPublicationSteps.DialogFragmentPublicationStepsListener,
         DialogFragmentPublicationResolution.DialogFragmentPublicationResolutionListener,
         DialogFragmentRetransmitCount.DialogFragmentRetransmitCountListener,
@@ -52,11 +59,14 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
     private MeshModel mMeshModel;
     private byte[] mPublishAddress;
     private Integer mAppKeyIndex;
-    private int mPublishTtl = MeshParserUtils.DEFAULT_TTL;
+    private int mPublishTtl = MeshParserUtils.USE_DEFAULT_TTL;
     private int mPublicationSteps =  DEFAULT_PUBLICATION_STEPS;
     private int mPublicationResolution;
     private int mPublishRetransmitCount = DEFAULT_PUB_RETRANSMIT_COUNT;
     private int mPublishRetransmitIntervalSteps = DEFAULT_PUB_RETRANSMIT_INTERVAL_STEPS;
+
+    @Inject
+    ViewModelProvider.Factory mViewModelFactory;
 
     @BindView(R.id.publish_address)
     TextView mPublishAddressView;
@@ -81,8 +91,11 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
         setContentView(R.layout.activity_publication_settings);
         ButterKnife.bind(this);
 
-        final Intent intent = getIntent();
-        final MeshModel meshModel = mMeshModel = intent.getParcelableExtra(EXTRA_DEVICE);
+        final PublicationViewModel viewModel = ViewModelProviders.of(this, mViewModelFactory).get(PublicationViewModel.class);
+
+        //final Intent intent = getIntent();
+        //intent.getParcelableExtra(EXTRA_DEVICE);
+        final MeshModel meshModel = mMeshModel = viewModel.getSelectedModel().getMeshModel();
         if(meshModel == null)
             finish();
 
@@ -102,7 +115,6 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
 
         if(savedInstanceState == null) {
             updateUi(meshModel);
-        } else {
         }
 
         actionPublishAddress.setOnClickListener(v -> {
@@ -132,12 +144,18 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
 
         actionKeyIndex.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(this, BindAppKeysActivity.class);
-            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) meshModel.getBoundAppkeys());
+            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) meshModel.getBoundApplicationKeys());
             startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
         actionPublishTtl.setOnClickListener(v -> {
-            final DialogFragmentPublishTtl fragmentPublishTtl = DialogFragmentPublishTtl.newInstance(MeshParserUtils.DEFAULT_TTL);
+            final PublicationSettings publicationSettings = meshModel.getPublicationSettings();
+            final DialogFragmentPublishTtl fragmentPublishTtl;
+            if(publicationSettings != null) {
+                fragmentPublishTtl = DialogFragmentPublishTtl.newInstance(meshModel.getPublicationSettings().getPublishTtl());
+            } else {
+                fragmentPublishTtl = DialogFragmentPublishTtl.newInstance(MeshParserUtils.USE_DEFAULT_TTL);
+            }
             fragmentPublishTtl.show(getSupportFragmentManager(), null);
         });
     }
@@ -171,11 +189,10 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ManageAppKeysActivity.SELECT_APP_KEY){
             if(resultCode == RESULT_OK){
-                final String appKey = data.getStringExtra(ManageAppKeysActivity.RESULT_APP_KEY);
-                final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
+                final ApplicationKey appKey = data.getParcelableExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 if(appKey != null){
-                    mAppKeyIndex = appKeyIndex;
-                    mAppKeyIndexView.setText(getString(R.string.app_key_index, appKeyIndex));
+                    mAppKeyIndex = appKey.getKeyIndex();
+                    mAppKeyIndexView.setText(getString(R.string.app_key_index, appKey.getKeyIndex()));
                 }
             }
         }
@@ -242,37 +259,44 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
     @Override
     public void setPublishTtl(final int ttl) {
         mPublishTtl = ttl;
-        mPublishTtlView.setText(String.valueOf(ttl));
+        updateTtlUi(ttl);
     }
 
     private void updateUi(final MeshModel model){
-        mPublishAddress = model.getPublishAddress();
-        if(mPublishAddress != null) {
-            mPublishAddressView.setText(MeshParserUtils.bytesToHex(mPublishAddress, true));
+        final PublicationSettings publicationSettings = model.getPublicationSettings();
+
+        //Default app key index to the 0th key in the list of bound app keys
+        if(!model.getBoundAppKeyIndexes().isEmpty()) {
+            mAppKeyIndex = mMeshModel.getBoundAppKeyIndexes().get(0);
         }
 
-        if(!model.getBoundAppKeyIndexes().isEmpty()){
-            mAppKeyIndex = mMeshModel.getPublishAppKeyIndexInt();
-            if(mAppKeyIndex == null)
-                mAppKeyIndex = mMeshModel.getBoundAppKeyIndexes().get(0);
-            mAppKeyIndexView.setText(getString(R.string.app_key_index, mAppKeyIndex));
+        if(publicationSettings != null) {
+            mPublishAddress = publicationSettings.getPublishAddress();
+            if (mPublishAddress != null) {
+                mPublishAddressView.setText(MeshParserUtils.bytesToHex(mPublishAddress, true));
+            }
+
+            mActionFriendshipCredentialSwitch.setChecked(publicationSettings.getCredentialFlag());
+            mPublishTtl = publicationSettings.getPublishTtl();
+
+            mPublicationSteps = publicationSettings.getPublicationSteps();
+            mPublicationStepsView.setText(getString(R.string.publication_steps, mPublicationSteps));
+
+            mPublicationResolution = publicationSettings.getPublicationResolution();
+            mPublicationResolutionView.setText(getResolutionSummary(mPublicationResolution));
+
+            mPublishRetransmitCount = publicationSettings.getPublishRetransmitCount();
+            mRetransmitCountView.setText(getString(R.string.retransmit_count, mPublishRetransmitCount));
+
+            mPublishRetransmitIntervalSteps = publicationSettings.getPublishRetransmitIntervalSteps();
+            mIntervalStepsView.setText(getString(R.string.retransmit_interval_steps, mPublishRetransmitIntervalSteps));
+
+            if(!model.getBoundAppKeyIndexes().isEmpty()) {
+                mAppKeyIndex = publicationSettings.getAppKeyIndex();
+            }
         }
-
-        mActionFriendshipCredentialSwitch.setChecked(mMeshModel.getCredentialFlag() == 1);
-        mPublishTtl = mMeshModel.getPublishTtl();
-        mPublishTtlView.setText(String.valueOf(mPublishTtl));
-
-        mPublicationSteps = mMeshModel.getPublicationSteps();
-        mPublicationStepsView.setText(getString(R.string.publication_steps, mPublicationSteps));
-
-        mPublicationResolution = mMeshModel.getPublicationResolution();
-        mPublicationResolutionView.setText(getResolutionSummary(mPublicationResolution));
-
-        mPublishRetransmitCount = mMeshModel.getPublishRetransmitCount();
-        mRetransmitCountView.setText(getString(R.string.retransmit_count, mPublishRetransmitCount));
-
-        mPublishRetransmitIntervalSteps = mMeshModel.getPublishRetransmitIntervalSteps();
-        mIntervalStepsView.setText(getString(R.string.retransmit_interval_steps, mPublishRetransmitIntervalSteps));
+        final int ttl = mPublishTtl;
+        updateTtlUi(ttl);
 
     }
 
@@ -280,12 +304,20 @@ public class PublicationSettingsActivity extends AppCompatActivity implements Di
         mPublishAddressView.setText(MeshParserUtils.bytesToHex(mPublishAddress, true));
         mAppKeyIndexView.setText(getString(R.string.app_key_index, mAppKeyIndex));
         mActionFriendshipCredentialSwitch.setChecked(credentialFlag);
-        mPublishTtlView.setText(String.valueOf(mPublishTtl));
+        updateTtlUi(mPublishTtl);
         mPublicationStepsView.setText(getString(R.string.publication_steps, mPublicationSteps));
         mPublicationResolutionView.setText(getResolutionSummary(mPublicationResolution));
         mRetransmitCountView.setText(getString(R.string.retransmit_count, mPublishRetransmitCount));
         mIntervalStepsView.setText(getString(R.string.retransmit_interval_steps, mPublishRetransmitIntervalSteps));
 
+    }
+
+    private void updateTtlUi(final int ttl){
+        if(MeshParserUtils.isDefaultPublishTtl(ttl)){
+            mPublishTtlView.setText(getString(R.string.uses_default_ttl));
+        } else {
+            mPublishTtlView.setText(String.valueOf(ttl));
+        }
     }
 
     private String getResolutionSummary(final int resolution) {

@@ -28,6 +28,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 
+@SuppressWarnings("unused")
 public class BlockAcknowledgementMessage extends TransportControlMessage {
 
     private static final String TAG = BlockAcknowledgementMessage.class.getSimpleName();
@@ -49,12 +50,31 @@ public class BlockAcknowledgementMessage extends TransportControlMessage {
         int ack = 0;
         if (blockAck == null) {
             ack |= 1 << segO;
+            Log.v(TAG, "Block ack value: " + ack);
             return ack;
         } else {
             ack = blockAck;
             ack |= 1 << segO;
+            Log.v(TAG, "Block ack value: " + ack);
             return ack;
         }
+    }
+
+    /**
+     * Calculates the block acknowledgement payload.
+     * <p>
+     * This method will set the segO bit to 1
+     * </p>
+     *
+     * @param segN number of segments
+     */
+    public static int calculateBlockAcknowledgement(final int segN) {
+        final int segmentCount = segN + 1;
+        int ack = 0;
+        for (int i = 0; i < segmentCount; i++) {
+            ack |= 1 << i;
+        }
+        return ack;
     }
 
     @Override
@@ -76,7 +96,7 @@ public class BlockAcknowledgementMessage extends TransportControlMessage {
         final int blockAck = ByteBuffer.wrap(blockAcknowledgement).order(ByteOrder.BIG_ENDIAN).getInt();
         for (int i = 0; i < segmentCount; i++) {
             int bit = (blockAck >> i) & 1;
-            if(bit == 1) {
+            if (bit == 1) {
                 Log.v(TAG, "Segment " + i + " of " + (segmentCount - 1) + " received by peer");
             } else {
                 retransmitSegments.add(i);
@@ -90,17 +110,21 @@ public class BlockAcknowledgementMessage extends TransportControlMessage {
      * Checks if all segments are received based on the segment count
      *
      * @param blockAcknowledgement acknowledgement payload received
-     * @param segmentCount         number of segments
+     * @param segN                 number of segments
      */
-    public static boolean hasAllSegmentsBeenReceived(final Integer blockAcknowledgement, final int segmentCount) {
+    public static boolean hasAllSegmentsBeenReceived(final Integer blockAcknowledgement, final int segN) {
+        if(blockAcknowledgement == null)
+            return false;
+        Log.v(TAG, "Block ack: " + blockAcknowledgement);
         final int blockAck = blockAcknowledgement;
         int setBitCount = 0;
-        for (int i = 0; i < segmentCount; i++) {
+        for (int i = 0; i < segN; i++) {
             int bit = (blockAck >> i) & 1;
-            if(bit == 1) {
+            if (bit == 1) {
                 setBitCount++;
             }
         }
-        return setBitCount == segmentCount;
+        Log.v(TAG, "bit count: " + setBitCount);
+        return setBitCount == segN + 1; //Since segN is 0 based add 1 as the bit count represents the number of segments
     }
 }

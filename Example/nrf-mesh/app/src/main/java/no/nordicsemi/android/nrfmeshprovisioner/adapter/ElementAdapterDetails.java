@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -38,11 +39,11 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
@@ -64,14 +65,15 @@ public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDe
         mOnItemClickListener = listener;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.element_item_details, parent, false);
         return new ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Element element = mElements.get(position);
         holder.mElementContainer.setTag(element);
         final int modelCount = element.getSigModelCount() + element.getVendorModelCount();
@@ -87,9 +89,9 @@ public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDe
         //Remove all child views to avoid duplicating
         holder.mModelContainer.removeAllViews();
         for(MeshModel model : models) {
-            final View modelView = LayoutInflater.from(mContext).inflate(R.layout.model_item, holder.mElementContainer, false);
+            final View modelView = LayoutInflater.from(mContext).inflate(R.layout.model_item_details, holder.mElementContainer, false);
             modelView.setTag(model.getModelId());
-            final TextView modelNameView = modelView.findViewById(R.id.model_name);
+            final TextView modelNameView = modelView.findViewById(R.id.address);
             final TextView modelIdView = modelView.findViewById(R.id.model_id);
             modelNameView.setText(model.getModelName());
             if(model instanceof VendorModel){

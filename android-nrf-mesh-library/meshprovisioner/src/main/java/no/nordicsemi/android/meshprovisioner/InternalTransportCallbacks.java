@@ -22,27 +22,52 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.configuration.ConfigNodeResetStatus;
+import android.support.annotation.RestrictTo;
 
+import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface InternalTransportCallbacks {
 
     /**
+     * Returns the node with the corresponding unicast address
+     *
+     * @param unicast unicast address
+     */
+    ProvisionedMeshNode getProvisionedNode(final byte[] unicast);
+
+    /**
      * Send mesh pdu
+     *
      * @param meshNode mesh node to send to
-     * @param pdu mesh pdu to be sent,
+     * @param pdu      mesh pdu to be sent
      */
-    void sendPdu(final BaseMeshNode meshNode, final byte[] pdu);
+    void sendProvisioningPdu(final UnprovisionedMeshNode meshNode, final byte[] pdu);
 
     /**
-     * Update mesh node
-     * @param meshNode mesh to be updated
+     * Send mesh pdu
+     *
+     * @param dst Destination address to be sent
+     * @param pdu mesh pdu to be sent
      */
-    void updateMeshNode(final ProvisionedMeshNode meshNode);
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    void sendMeshPdu(final byte[] dst, final byte[] pdu);
 
     /**
-     * This callback is invoked by {@link ConfigNodeResetStatus}when the mesh node is succesfull reset
+     * Update mesh network
+     *
+     * @param message mesh message
+     */
+    void updateMeshNetwork(final MeshMessage message);
+
+    /**
+     * This callback is invoked when the mesh node is successfully reset
+     *
      * @param meshNode mesh to be updated
      */
     void onMeshNodeReset(final ProvisionedMeshNode meshNode);
+
+
 }

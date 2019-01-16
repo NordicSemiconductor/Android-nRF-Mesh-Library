@@ -42,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@android:color/white"
+        android:background="@color/white"
         android:paddingBottom="@dimen/item_padding_bottom"
         android:paddingEnd="@dimen/activity_horizontal_margin"
         android:paddingStart="@dimen/activity_horizontal_margin"
@@ -63,24 +63,23 @@
             android:orientation="vertical">
             <TextView
                 android:id="@+id/app_key_id"
-                android:text="AppKey 0"
+                tools:text="AppKey 0"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_centerVertical="true"
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textSize="16sp"
-                android:textColor="@android:color/black"/>
+                android:textColor="@color/black"/>
 
             <TextView
                 android:id="@+id/app_key"
+                tools:text="11223344556677889900AABBCCDDEEFF"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_centerVertical="true"
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textSize="12sp"

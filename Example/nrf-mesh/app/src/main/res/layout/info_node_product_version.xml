@@ -38,7 +38,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:paddingStart="@dimen/activity_horizontal_margin"
-        android:textColor="@android:color/black"
+        android:textColor="@color/black"
         android:textSize="16sp"
         android:text="@string/node_product_version"
         app:layout_constraintLeft_toRightOf="@id/image"
@@ -60,7 +60,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/title"
-        app:srcCompat="@drawable/ic_lock_open"
+        app:srcCompat="@drawable/ic_puzzle"
         tools:ignore="VectorDrawableCompat"/>
 
 </android.support.constraint.ConstraintLayout>

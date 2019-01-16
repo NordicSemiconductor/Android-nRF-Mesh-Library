@@ -4,30 +4,24 @@ import android.arch.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshRepository;
+import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
 
+/**
+ * ViewModel for {@link ManageAppKeysActivity}
+ */
 public class ManageAppKeysViewModel extends ViewModel {
 
-    private final MeshRepository mMeshRepository;
+    private final NrfMeshRepository mNrfMeshRepository;
 
     @Inject
-    ManageAppKeysViewModel(final MeshRepository meshRepository) {
-        super();
-        this.mMeshRepository = meshRepository;
-        mMeshRepository.registerBroadcastReceiver();
+    ManageAppKeysViewModel(final NrfMeshRepository nrfMeshRepository) {
+        mNrfMeshRepository = nrfMeshRepository;
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-    }
-
-    public MeshRepository getMeshRepository() {
-        return mMeshRepository;
-    }
-
-    public ProvisioningLiveData getProvisioningLiveData() {
-        return mMeshRepository.getProvisioningData();
+    /**
+     * Returns live data object containing provisioning settings.
+     */
+    public MeshNetworkLiveData getMeshNetworkLiveData() {
+        return mNrfMeshRepository.getMeshNetworkLiveData();
     }
 }

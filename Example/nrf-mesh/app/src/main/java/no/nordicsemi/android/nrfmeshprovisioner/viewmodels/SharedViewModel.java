@@ -24,99 +24,110 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
+import android.net.Uri;
 
-import java.util.Map;
+import java.util.List;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ScannerRepository;
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 public class SharedViewModel extends ViewModel {
 
     private final ScannerRepository mScannerRepository;
-    private final MeshRepository mMeshRepository;
+    private final NrfMeshRepository nRFMeshRepository;
 
     @Inject
-    SharedViewModel(final ScannerRepository scannerRepository, final MeshRepository meshRepository) {
-        this.mScannerRepository = scannerRepository;
-        this.mMeshRepository = meshRepository;
+    SharedViewModel(final ScannerRepository scannerRepository, final NrfMeshRepository nrfMeshRepository) {
+        mScannerRepository = scannerRepository;
+        nRFMeshRepository = nrfMeshRepository;
         scannerRepository.registerBroadcastReceivers();
-        mMeshRepository.registerBroadcastReceiver();
     }
 
-    public ProvisioningLiveData getProvisioningData() {
-        return mMeshRepository.getProvisioningData();
+    public MeshManagerApi getMeshManagerApi(){
+        return nRFMeshRepository.getMeshManagerApi();
     }
 
+    public void importMeshNetwork(final Uri uri){
+        nRFMeshRepository.importMeshNetwork(uri);
+    }
+
+    public MeshNetworkLiveData getMeshNetworkLiveData() {
+        return nRFMeshRepository.getMeshNetworkLiveData();
+    }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        mMeshRepository.disconnect();
+        nRFMeshRepository.disconnect();
         mScannerRepository.unregisterBroadcastReceivers();
-        mMeshRepository.unregisterBroadcastReceiver();
-        mMeshRepository.unbindService();
-        mMeshRepository.stopService();
     }
 
+
+    /**
+     * Returns an instance of the scanner repository
+     */
     public ScannerRepository getScannerRepository() {
         return mScannerRepository;
     }
 
-
-    public MeshRepository getMeshRepository() {
-        return mMeshRepository;
+    /**
+     * Returns the provisioned nodes as a live data object.
+     */
+    public LiveData<List<ProvisionedMeshNode>> getProvisionedNodes() {
+        return nRFMeshRepository.getProvisionedNodes();
     }
 
-    public ProvisionedNodesLiveData getProvisionedNodesLiveData() {
-        return mMeshRepository.getProvisionedNodesLiveData();
-    }
-
-    public void saveApplicationKeys(final Map<Integer, String> appKeys){
-        mMeshRepository.saveApplicationKeys(appKeys);
-    }
-
+    /**
+     * Returns if currently connected to a peripheral device.
+     *
+     * @return true if connected and false otherwise
+     */
     public LiveData<Boolean> isConnected() {
-        return mMeshRepository.isConnected();
+        return nRFMeshRepository.isConnected();
     }
 
+    /**
+     * Disconnect from peripheral
+     */
     public void disconnect() {
-        mMeshRepository.disconnect();
+        nRFMeshRepository.disconnect();
     }
 
-    public String getNetworkId() {
-        return mMeshRepository.getNetworkId();
+    /**
+     * Returns if currently connected to the mesh network.
+     *
+     * @return true if connected and false otherwise
+     */
+    public LiveData<Boolean> isConnectedToProxy() {
+        return nRFMeshRepository.isConnectedToProxy();
     }
 
-    public boolean isConenctedToMesh() {
-        return mMeshRepository.isConnectedToMesh();
+    /**
+     * Set the mesh node to be configured
+     *
+     * @param meshNode provisioned mesh node
+     */
+    public void setSelectedMeshNode(final ProvisionedMeshNode meshNode) {
+        nRFMeshRepository.setSelectedMeshNode(meshNode);
     }
 
-    public void refreshProvisionedNodes() {
-        mMeshRepository.refreshProvisionedNodes();
-    }
-
-    public void setMeshNode(final ProvisionedMeshNode meshNode) {
-        mMeshRepository.setMeshNode(meshNode);
-    }
-
+    /**
+     * Reset mesh network
+     */
     public void resetMeshNetwork() {
-        mMeshRepository.resetMeshNetwork();
+        nRFMeshRepository.resetMeshNetwork();
     }
 
-    public void refreshProvisioningData() {
-        mMeshRepository.refreshProvisioningData();
+    public LiveData<String> getNetworkLoadState(){
+        return nRFMeshRepository.getNetworkLoadState();
+    }
+    public LiveData<String> getNetworkExportState(){
+        return nRFMeshRepository.getNetworkExportState();
     }
 
-    public LiveData<byte[]> getConfigurationSrcLiveData() {
-        return mMeshRepository.getConfigurationSrc();
-    }
-
-    public boolean setConfiguratorSrouce(final byte[] configuratorSource) {
-        return mMeshRepository.setConfiguratorSrc(configuratorSource);
+    public LiveData<Integer> getConnectedMeshNodeAddress(){
+        return nRFMeshRepository.getConnectedMeshNodeAddress();
     }
 }

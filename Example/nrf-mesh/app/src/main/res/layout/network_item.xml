@@ -34,7 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/item_padding_top"
-        android:background="@android:color/white">
+        android:background="@color/white">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
@@ -44,7 +44,7 @@
                 android:id="@+id/icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/ic_node_bg"
+                android:background="@drawable/ic_node_bg_node"
                 android:padding="@dimen/item_padding_start"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_mesh_symbol"
@@ -86,7 +86,8 @@
                     android:text="Address:"
                     android:textSize="14sp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"/>
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="HardcodedText"/>
 
                 <TextView
                     android:id="@+id/unicast"
@@ -99,7 +100,8 @@
                     android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/unicast_title"
-                    app:layout_constraintTop_toTopOf="@id/unicast_title"/>
+                    app:layout_constraintTop_toTopOf="@id/unicast_title"
+                    tools:ignore="HardcodedText"/>
 
                 <TextView
                     android:id="@+id/company_identifier_title"
@@ -121,7 +123,8 @@
                     android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@+id/unicast"
-                    app:layout_constraintTop_toBottomOf="@+id/unicast"/>
+                    app:layout_constraintTop_toBottomOf="@+id/unicast"
+                    tools:ignore="RtlSymmetry"/>
 
                 <TextView
                     android:id="@+id/elements_title"
@@ -188,7 +191,7 @@
 
             <Button
                 android:id="@+id/action_configure"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/configure"
@@ -203,7 +206,7 @@
                 android:text="@string/details"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/icon"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+                style="@style/BlueTextButton"/>
 
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>

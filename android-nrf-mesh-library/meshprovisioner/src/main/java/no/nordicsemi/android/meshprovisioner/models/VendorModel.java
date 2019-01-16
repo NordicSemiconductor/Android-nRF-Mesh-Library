@@ -29,9 +29,10 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 
+@SuppressWarnings("unused")
 public class VendorModel extends MeshModel {
 
     private static final String TAG = VendorModel.class.getSimpleName();

@@ -24,6 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,26 +37,28 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.BaseModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapter.ViewHolder> {
 
-    private final ArrayList<String> mAppKeys = new ArrayList<>();
+    private final ArrayList<ApplicationKey> mAppKeys = new ArrayList<>();
     private final Context mContext;
-    private Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
+    private Map<Integer, ApplicationKey> mBoundAppKeys = new LinkedHashMap<>();
     private OnItemClickListener mOnItemClickListener;
 
     public BoundAppKeysAdapter(final BaseModelConfigurationActivity activity, final LiveData<MeshModel> meshModelLiveData) {
         this.mContext = activity;
         meshModelLiveData.observe(activity, meshModel -> {
             if(meshModel != null) {
-                if (meshModel.getBoundAppkeys() != null) {
-                    mBoundAppKeys.putAll(meshModel.getBoundAppkeys());
+                if (meshModel.getBoundApplicationKeys() != null) {
+                    mBoundAppKeys.putAll(meshModel.getBoundApplicationKeys());
                     mAppKeys.clear();
-                    mAppKeys.addAll(meshModel.getBoundAppkeys().values());
+                    mAppKeys.addAll(meshModel.getBoundApplicationKeys().values());
                     notifyDataSetChanged();
                 }
             }
@@ -66,17 +69,19 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
         mOnItemClickListener = listener;
     }
 
+    @NonNull
     @Override
-    public BoundAppKeysAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public BoundAppKeysAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.bound_app_key_item, parent, false);
         return new BoundAppKeysAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final BoundAppKeysAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final BoundAppKeysAdapter.ViewHolder holder, final int position) {
         if(mAppKeys.size() > 0) {
-            final String appKey = mAppKeys.get(position);
-            final Integer appKeyIndex = getAppKeyIndex(appKey);
+            final ApplicationKey applicationKey = mAppKeys.get(position);
+            final String appKey = MeshParserUtils.bytesToHex(applicationKey.getKey(), false);
+            final Integer appKeyIndex = applicationKey.getKeyIndex();
             if(appKeyIndex != null) {
                 holder.appKeyId.setText(mContext.getString(R.string.app_key_index_item, appKeyIndex));
                 holder.appKey.setText(appKey.toUpperCase());
@@ -107,7 +112,7 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
         return getItemCount() == 0;
     }
 
-    public String getAppKey(final int position) {
+    public ApplicationKey getAppKey(final int position) {
         if(!mAppKeys.isEmpty()){
             return mAppKeys.get(position);
         }
@@ -116,7 +121,7 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final int position, final String appKey);
+        void onItemClick(final int position, final ApplicationKey appKey);
     }
 
     public final class ViewHolder extends RemovableViewHolder {

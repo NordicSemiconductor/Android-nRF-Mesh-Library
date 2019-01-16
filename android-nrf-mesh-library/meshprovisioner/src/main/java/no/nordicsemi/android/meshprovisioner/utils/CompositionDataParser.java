@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import java.util.Locale;
 
+@SuppressWarnings("unused")
 public class CompositionDataParser {
 
     public static String formatCompanyIdentifier(final int companyIdentifier, final boolean add0x) {
@@ -45,7 +46,6 @@ public class CompositionDataParser {
     public static String formatFeatures(final int features, final boolean add0x) {
         return add0x ? "0x" + String.format(Locale.US, "%04X", features) : String.format(Locale.US, "%04X", features);
     }
-
 
     public static String formatModelIdentifier(final int modelId, final boolean add0x) {
         if (modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {

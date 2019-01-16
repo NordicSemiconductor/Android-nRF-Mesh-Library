@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.app.Activity;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -38,6 +39,10 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
+import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigSetFilterType;
+import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -71,7 +76,7 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
 		// Create view model containing utility methods for scanning
 		mReconnectViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ReconnectViewModel.class);
 
-		mReconnectViewModel.connect(device);
+		mReconnectViewModel.connect(this, device, true);
 		mReconnectViewModel.isConnected().observe(this, isConnected -> {
 			if(!isConnected){
 				finish();
@@ -81,11 +86,14 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
 		mReconnectViewModel.getConnectionState().observe(this, connectionState::setText);
 
 		mReconnectViewModel.isDeviceReady().observe(this, deviceReady -> {
-		    if(deviceReady) {
+		    if(mReconnectViewModel.getBleMeshManager().isDeviceReady()) {
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra(Utils.ACTIVITY_RESULT, true);
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
+                //We send a proxy whitelist filter message to identify the node we are connected to when reconnecting to the network
+				final ProxyConfigSetFilterType setFilterType = new ProxyConfigSetFilterType(new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER));
+				mReconnectViewModel.getMeshManagerApi().sendMeshMessage(new byte[] {0x00, 0x00}, setFilterType);
             }
 		});
 

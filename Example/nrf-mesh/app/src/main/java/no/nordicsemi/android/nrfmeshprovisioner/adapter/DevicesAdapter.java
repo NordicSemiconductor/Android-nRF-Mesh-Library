@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -38,7 +39,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.ScannerFragment;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ScannerLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerLiveData;
 
 public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.ViewHolder> {
     private Context mContext;
@@ -73,14 +74,15 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.ViewHold
         mOnItemClickListener = listener;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.device_item, parent, false);
         return new ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final ExtendedBluetoothDevice device = mDevices.get(position);
         final String deviceName = device.getName();
 
@@ -126,7 +128,9 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.ViewHold
 
             view.findViewById(R.id.device_container).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(mDevices.get(getAdapterPosition()));
+                    if(getAdapterPosition() > -1) {
+                        mOnItemClickListener.onItemClick(mDevices.get(getAdapterPosition()));
+                    }
                 }
             });
         }

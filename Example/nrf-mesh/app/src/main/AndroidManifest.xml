@@ -27,7 +27,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
@@ -44,10 +45,11 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".SplashScreenActivity"
+            android:theme="@style/AppTheme.SplashScreen"
+            android:noHistory="true"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -58,7 +60,6 @@
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="no.nordicsemi.android.nrftoolbox.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -99,14 +100,9 @@
             android:name=".VendorModelActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".ModelConfigurationActivity"
+            android:name=".ConfigurationServerActivity"
             android:launchMode="singleTop"/>
-
-        <service
-            android:name=".service.MeshService"
-            android:exported="false">
-        </service>
-
+        <activity android:name=".ModelConfigurationActivity"/>
     </application>
 
 </manifest>

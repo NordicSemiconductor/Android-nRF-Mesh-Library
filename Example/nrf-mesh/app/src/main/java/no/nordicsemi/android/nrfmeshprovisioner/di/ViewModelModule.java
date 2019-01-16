@@ -29,58 +29,28 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshProvisionerRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.MeshRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.NodeConfigurationRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ProvisionedNodesScannerRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ReconnectRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ScannerRepository;
-import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetworkInformation;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshRepository;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ViewModelFactory;
 
+
 @Module(subcomponents = ViewModelSubComponent.class)
-public class ViewModelModule {
+class ViewModelModule {
 
 	@Provides
-	static ScannerRepository provideScannerRepository(final Context context) {
-		return new ScannerRepository(context);
+	static ScannerRepository provideScannerRepository(final Context context, final MeshManagerApi meshManagerApi) {
+		return new ScannerRepository(context, meshManagerApi);
 	}
 
 	@Provides
-	static ProvisionedNodesScannerRepository provideProvisionedNodesScannerRepository(final Context context) {
-		return new ProvisionedNodesScannerRepository(context);
-	}
-
-	@Provides
-	static MeshRepository provideMeshRepository(final Context context) {
-		return new MeshRepository(context);
-	}
-
-	@Provides
-	static MeshProvisionerRepository provideMeshProvisionerRepository(final Context context) {
-		return new MeshProvisionerRepository(context);
-	}
-
-	@Provides
-	static NodeConfigurationRepository provideElementConfigurationRepository(final Context context) {
-		return new NodeConfigurationRepository(context);
-	}
-
-
-	@Provides
-	static ModelConfigurationRepository provideMeshConfigurationRepository(final Context context) {
-		return new ModelConfigurationRepository(context);
-	}
-
-	@Provides
-	static ReconnectRepository provideReconnectRepository(final Context context) {
-		return new ReconnectRepository(context);
-	}
-
-	@Provides
-	static MeshService providerMeshService() {
-		return new MeshService();
+	@Singleton
+	static NrfMeshRepository provideNrfMeshRepository(final MeshManagerApi meshManagerApi,
+													  final NetworkInformation networkInformation,
+													  final BleMeshManager bleMeshManager) {
+		return new NrfMeshRepository(meshManagerApi, networkInformation, bleMeshManager);
 	}
 
 	@Provides

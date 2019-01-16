@@ -41,7 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:cardElevation="1dp">
 
                 <android.support.constraint.ConstraintLayout
@@ -95,7 +95,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:cardElevation="1dp">
 
                 <android.support.constraint.ConstraintLayout
@@ -166,7 +166,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:cardElevation="1dp">
 
                 <android.support.constraint.ConstraintLayout
@@ -202,7 +202,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                android:background="@android:color/white"
+                android:background="@color/white"
                 app:cardElevation="1dp">
 
                 <android.support.constraint.ConstraintLayout

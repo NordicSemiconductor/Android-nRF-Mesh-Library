@@ -27,151 +27,81 @@ import android.arch.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.AppKeyBindStatusLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelPublicationStatusLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ConfigModelSubscriptionStatusLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ExtendedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericLevelStatusUpdate;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.GenericOnOffStatusUpdate;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.TransactionFailedLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ModelConfigurationRepository;
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
 
+/**
+ * View Model class for {@link ConfigurationServerActivity}
+ */
 public class ModelConfigurationViewModel extends ViewModel {
 
-    private final ModelConfigurationRepository mModelConfigurationRepository;
+    private final NrfMeshRepository mNrfMeshRepository;
 
     @Inject
-    ModelConfigurationViewModel(final ModelConfigurationRepository configurationRepository) {
-        this.mModelConfigurationRepository = configurationRepository;
-        mModelConfigurationRepository.registerBroadcastReceiver();
+    ModelConfigurationViewModel(final NrfMeshRepository nrfMeshRepository) {
+        this.mNrfMeshRepository = nrfMeshRepository;
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        mModelConfigurationRepository.unbindService();
-        mModelConfigurationRepository.unregisterBroadcastReceiver();
-    }
-
-    public LiveData<Boolean> isConnected() {
-        return mModelConfigurationRepository.isConnected();
+    public LiveData<Boolean> isConnectedToProxy() {
+        return mNrfMeshRepository.isConnectedToProxy();
     }
 
     /**
      * Returns the Mesh repository
-     *
-     * @return mesh repository
      */
-    public ModelConfigurationRepository getMeshRepository() {
-        return mModelConfigurationRepository;
+    public NrfMeshRepository getNrfMeshRepository() {
+        return mNrfMeshRepository;
     }
 
     /**
-     * Returns the selected mesh model
-     *
-     * @return meshmodel live data object
+     * Returns the mesh manager api
      */
-    public LiveData<MeshModel> getMeshModel() {
-        return mModelConfigurationRepository.getMeshModel();
-    }
-
-    public ExtendedMeshNode getExtendedMeshNode() {
-        return mModelConfigurationRepository.getExtendedMeshNode();
-    }
-
-    public void sendBindAppKey(final int appKeyIndex) {
-        mModelConfigurationRepository.sendBindAppKey(appKeyIndex);
-    }
-
-    public void sendUnbindAppKey(final int appKeyIndex) {
-        mModelConfigurationRepository.sendUnbindAppKey(appKeyIndex);
-    }
-
-    public LiveData<TransactionFailedLiveData> getTransactionStatus() {
-        return mModelConfigurationRepository.getTransactionFailedLiveData();
-    }
-
-    public LiveData<AppKeyBindStatusLiveData> getAppKeyBindStatusLiveData() {
-        return mModelConfigurationRepository.getAppKeyBindStatus();
-    }
-
-    public LiveData<ConfigModelPublicationStatusLiveData> getConfigModelPublicationStatusLiveData() {
-        return mModelConfigurationRepository.getConfigModelPublicationStatus();
-    }
-
-    public LiveData<ConfigModelSubscriptionStatusLiveData> getConfigModelSubscriptionStatusLiveData() {
-        return mModelConfigurationRepository.getConfigModelSubscriptionStatus();
-    }
-
-    public void sendConfigModelPublicationSet(final byte[] publishAddress, final int appKeyIndex, final boolean credentialFlag, final int publishTtl,
-                                              final int publicationSteps, final int resolution, final int publishRetransmitCount, final int publishRetransmitIntervalSteps) {
-        mModelConfigurationRepository.sendConfigModelPublicationSet(publishAddress, appKeyIndex, credentialFlag, publishTtl, publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps);
-    }
-    public void sendConfigModelSubscriptionAdd(final byte[] subscriptionAddress) {
-        mModelConfigurationRepository.sendConfigModelSubscriptionAdd(subscriptionAddress);
-    }
-
-    public void sendConfigModelSubscriptionDelete(final byte[] subscriptionAddress) {
-        mModelConfigurationRepository.sendConfigModelSubscriptionDelete(subscriptionAddress);
-    }
-
-    public void setModel(final ProvisionedMeshNode meshNode, final int elementAddress, final int modelId) {
-        mModelConfigurationRepository.setModel(meshNode, elementAddress, modelId);
+    public MeshManagerApi getMeshManagerApi() {
+        return mNrfMeshRepository.getMeshManagerApi();
     }
 
     /**
-     * Send generic on off set to mesh node
+     * Returns an observable live data object containing the mesh message received
      *
-     * @param node                 mesh node to send generic on off message
-     * @param transitionSteps      the number of steps
-     * @param transitionResolution the resolution for the number of steps
-     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
-     * @param state                on off state
+     * @return {@link MeshMessageLiveData}
      */
-    public void sendGenericOnOff(final ProvisionedMeshNode node, final Integer transitionSteps, final Integer transitionResolution, final Integer delay, final boolean state) {
-        mModelConfigurationRepository.sendGenericOnOffSet(node, transitionSteps, transitionResolution, delay, state);
+    public MeshMessageLiveData getMeshMessageLiveData() {
+        return mNrfMeshRepository.getMeshMessageLiveData();
     }
 
     /**
-     * Send generic on off get to mesh node
+     * Get selected mesh node
      *
-     * @param node mesh node to send generic on off get
+     * @return {@link ExtendedMeshNode} element
      */
-    public void sendGenericOnOffGet(final ProvisionedMeshNode node) {
-        mModelConfigurationRepository.sendGenericOnOffGet(node);
+    public ExtendedMeshNode getSelectedMeshNode() {
+        return mNrfMeshRepository.getSelectedMeshNode();
     }
 
-    public LiveData<GenericOnOffStatusUpdate> getGenericOnOffState() {
-        return mModelConfigurationRepository.getGenericOnOffState();
+    /**
+     * Get selected element
+     *
+     * @return {@link ExtendedElement} element
+     */
+    public ExtendedElement getSelectedElement() {
+        return mNrfMeshRepository.getSelectedElement();
     }
 
-    public LiveData<byte[]> getVendorModelState() {
-        return mModelConfigurationRepository.getVendorModelState();
+    /**
+     * Get selected model
+     *
+     * @return {@link ExtendedMeshModel} element
+     */
+    public ExtendedMeshModel getSelectedModel() {
+        return mNrfMeshRepository.getSelectedModel();
     }
 
-    public void sendVendorModelUnacknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters){
-        mModelConfigurationRepository.sendVendorModelUnacknowledgedMessage(node, model, appKeyIndex, opcode, parameters);
-    }
-
-    public void sendVendorModelAcknowledgedMessage(final ProvisionedMeshNode node, final MeshModel model, final int appKeyIndex, final int opcode, final byte[] parameters){
-        mModelConfigurationRepository.sendVendorModelAcknowledgedMessage(node, model, appKeyIndex, opcode, parameters);
-    }
-
-    public LiveData<GenericLevelStatusUpdate> getGenericLevelState() {
-        return mModelConfigurationRepository.getGenericLevelState();
-    }
-
-    public void sendGenericLevelGet(final ProvisionedMeshNode node) {
-        mModelConfigurationRepository.sendGenericLevelGet(node);
-    }
-
-    public void sendGenericLevelSet(final ProvisionedMeshNode node, final int level, final Integer transitionSteps, final Integer transitionResolution, final Integer delay) {
-        mModelConfigurationRepository.sendGenericLevelSet(node, level, transitionSteps, transitionResolution, delay);
-    }
-
-    public void sendGenericLevelSetUnacknowledged(final ProvisionedMeshNode node, final int level, final Integer transitionSteps, final Integer transitionResolution, final Integer delay) {
-        mModelConfigurationRepository.sendGenericLevelSetUnacknowledged(node, level, transitionSteps, transitionResolution, delay);
+    /**
+     * Returns an observable live data object containing the transaction status.
+     *
+     * @return {@link TransactionStatusLiveData}
+     */
+    public TransactionStatusLiveData getTransactionStatus() {
+        return mNrfMeshRepository.getTransactionStatusLiveData();
     }
 }

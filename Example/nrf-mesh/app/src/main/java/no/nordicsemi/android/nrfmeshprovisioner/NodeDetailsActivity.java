@@ -39,7 +39,8 @@ import android.widget.Toast;
 import java.text.DateFormat;
 
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.Features;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -80,11 +81,6 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         final TextView timestamp = containerProvisioningTimeStamp.findViewById(R.id.text);
         final String format = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(node.getTimeStamp());
         timestamp.setText(format);
-
-        final View containerNodeIdentifier = findViewById(R.id.container_identifier);
-        containerNodeIdentifier.setClickable(false);
-        final TextView nodeIdentifier = containerNodeIdentifier.findViewById(R.id.text);
-        nodeIdentifier.setText(node.getNodeIdentifier());
 
         final View containerUnicastAddress = findViewById(R.id.container_supported_algorithm);
         containerUnicastAddress.setClickable(false);
@@ -144,8 +140,8 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         final View containerFeatures = findViewById(R.id.container_features);
         containerFeatures.setClickable(false);
         final TextView features = containerFeatures.findViewById(R.id.text);
-        if(node.getFeatures() != null) {
-            features.setText(CompositionDataParser.formatFeatures(node.getFeatures().shortValue(), false));
+        if(node.getNodeFeatures() != null) {
+            features.setText(parseFeatures(node.getNodeFeatures()));
         } else {
             features.setText(R.string.unavailable);
         }
@@ -194,5 +190,24 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
     @Override
     public void onItemClick(final int position) {
         mRecyclerView.scrollToPosition(position);
+    }
+
+
+    /**
+     * Returns a String representation of the features
+     */
+    private String parseFeatures(final Features features){
+        return "Friend feature " + parseFeature(features.isFriendFeatureSupported()) + ", " +
+                "Low power feature " + parseFeature(features.isLowPowerFeatureSupported()) + ", " +
+                "Proxy feature " + parseFeature(features.isProxyFeatureSupported()) + ", " +
+                "Relay feature " + parseFeature(features.isRelayFeatureSupported());
+    }
+
+    public String parseFeature(final boolean isSupported){
+        if(isSupported){
+            return "supported";
+        } else {
+            return "unsupported";
+        }
     }
 }

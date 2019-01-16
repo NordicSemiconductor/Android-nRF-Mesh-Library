@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class LightHslClient extends SigModel {
 
     public static final Creator<LightHslClient> CREATOR = new Creator<LightHslClient>() {

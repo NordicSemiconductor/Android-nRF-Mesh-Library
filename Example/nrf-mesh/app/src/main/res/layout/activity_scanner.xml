@@ -32,9 +32,12 @@
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar_layout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -51,22 +54,13 @@
             android:layout_marginBottom="-7dp"
             android:layout_marginTop="-8dp"
             android:indeterminate="true"
-            android:indeterminateTint="@android:color/white"
+            android:indeterminateTint="@color/white"
             android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/recycler_view_ble_devices"/>
 
     </android.support.design.widget.AppBarLayout>
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:src="@drawable/background_title"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_ble_devices"

@@ -23,8 +23,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import javax.inject.Singleton;
 

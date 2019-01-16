@@ -25,12 +25,12 @@ package no.nordicsemi.android.meshprovisioner.opcodes;
 public class ConfigMessageOpCodes {
 
     /**
-     * Opcode for the "AppKey Add" message.
+     * Opcode for the "ApplicationKey Add" message.
      */
     public static final byte CONFIG_APPKEY_ADD = 0x00;
 
     /**
-     * Opcode for the "AppKey Update" message.
+     * Opcode for the "ApplicationKey Update" message.
      */
     public static final int CONFIG_APPKEY_UPDATE = 0x01;
 
@@ -50,24 +50,24 @@ public class ConfigMessageOpCodes {
     public static final int CONFIG_HEARTBEAT_PUBLICATION_STATUS = 0x06;
 
     /**
-     * Opcode for the "AppKey Delete" message.
+     * Opcode for the "ApplicationKey Delete" message.
      */
     public static final int CONFIG_APPKEY_DELETE = 0x8000;
 
     /**
-     * Opcode for the "AppKey Get" message.
+     * Opcode for the "ApplicationKey Get" message.
      */
     public static final int CONFIG_APPKEY_GET = 0x8001;
 
     /**
-     * Opcode for the "AppKey List" message.
+     * Opcode for the "ApplicationKey List" message.
      */
     public static final int CONFIG_APPKEY_LIST = 0x8002;
 
     /**
-     * Opcode for the "AppKey Status" message.
+     * Opcode for the "ApplicationKey Status" message.
      */
-    public static final short CONFIG_APPKEY_STATUS = (short) 0x8003;
+    public static final int CONFIG_APPKEY_STATUS = 0x8003;
 
     /**
      * Opcode for the "Composition Data Get" message.
@@ -157,7 +157,7 @@ public class ConfigMessageOpCodes {
     /**
      * Opcode for the "Config Model Publication Status" message.
      */
-    public static final short CONFIG_MODEL_PUBLICATION_STATUS = (short) 0x8019;
+    public static final int CONFIG_MODEL_PUBLICATION_STATUS = 0x8019;
 
     /**
      * Opcode for the "Config Model Publication Virtual Address Set" message.
@@ -187,7 +187,7 @@ public class ConfigMessageOpCodes {
     /**
      * Opcode for the "Config Model Subscription Status" message.
      */
-    public static final short CONFIG_MODEL_SUBSCRIPTION_STATUS = (short) 0x801F;
+    public static final int CONFIG_MODEL_SUBSCRIPTION_STATUS = 0x801F;
 
     /**
      * Opcode for the "Config Model Subscription Virtual Address Add" message.
@@ -297,7 +297,7 @@ public class ConfigMessageOpCodes {
     /**
      * Opcode for the "Model App Status" message.
      */
-    public static final short CONFIG_MODEL_APP_STATUS = (short) 0x803E;
+    public static final int CONFIG_MODEL_APP_STATUS = 0x803E;
 
     /**
      * Opcode for the "Model App Unbind" message.
@@ -357,7 +357,7 @@ public class ConfigMessageOpCodes {
     /**
      * Opcode for the "UnprovisionedMeshNode Reset Status" message.
      */
-    public static final short CONFIG_NODE_RESET_STATUS = (short) 0x804A;
+    public static final int CONFIG_NODE_RESET_STATUS = 0x804A;
 
     /**
      * Opcode for the "SIG Model App Get" message.

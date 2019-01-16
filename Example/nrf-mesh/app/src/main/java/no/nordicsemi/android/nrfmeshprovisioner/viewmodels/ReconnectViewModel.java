@@ -24,45 +24,52 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
+import android.content.Context;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
-import no.nordicsemi.android.nrfmeshprovisioner.repository.ReconnectRepository;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 
 public class ReconnectViewModel extends ViewModel {
 
-    private final ReconnectRepository mReconnectRepository;
+    private final NrfMeshRepository mNrfMeshRepository;
 
     @Inject
-    ReconnectViewModel(final ReconnectRepository reconnectRepository) {
-        this.mReconnectRepository = reconnectRepository;
-        mReconnectRepository.registerBroadcastReceiver();
+    ReconnectViewModel(final NrfMeshRepository nrfMeshRepository) {
+        this.mNrfMeshRepository = nrfMeshRepository;
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        mReconnectRepository.unregisterBroadcastReceiver();
-    }
-
-    public LiveData<Boolean> isDeviceReady() {
-        return mReconnectRepository.isDeviceReady();
+    public LiveData<Void> isDeviceReady() {
+        return mNrfMeshRepository.isDeviceReady();
     }
 
     public LiveData<String> getConnectionState() {
-        return mReconnectRepository.getConnectionState();
+        return mNrfMeshRepository.getConnectionState();
     }
 
     public LiveData<Boolean> isConnected() {
-        return mReconnectRepository.isConnected();
+        return mNrfMeshRepository.isConnected();
     }
 
-    public void connect(final ExtendedBluetoothDevice device) {
-        mReconnectRepository.connect(device);
+    public void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
+        mNrfMeshRepository.connect(context, device, connectToNetwork);
     }
 
     public void disconnect() {
-        mReconnectRepository.disconnect();
+        mNrfMeshRepository.disconnect();
+    }
+
+    public NrfMeshRepository getNrfMeshRepository() {
+        return mNrfMeshRepository;
+    }
+
+    public BleMeshManager getBleMeshManager() {
+        return mNrfMeshRepository.getBleMeshManager();
+    }
+
+    public MeshManagerApi getMeshManagerApi() {
+        return mNrfMeshRepository.getMeshManagerApi();
     }
 }

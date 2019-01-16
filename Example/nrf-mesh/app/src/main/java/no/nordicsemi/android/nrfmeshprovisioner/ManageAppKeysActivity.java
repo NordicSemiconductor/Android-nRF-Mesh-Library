@@ -42,11 +42,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.ProvisioningSettings;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ManageAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAddAppKey;
@@ -108,7 +110,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(appKeysRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
         appKeysRecyclerView.addItemDecoration(dividerItemDecoration);
         appKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new ManageAppKeyAdapter(this, mViewModel.getProvisioningLiveData());
+        mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
         mAdapter.setOnItemClickListener(this);
         appKeysRecyclerView.setAdapter(mAdapter);
 
@@ -120,10 +122,10 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
 
-        mViewModel.getProvisioningLiveData().observe(this, provisioningLiveData -> {
-            final ProvisioningSettings settings = provisioningLiveData.getProvisioningSettings();
-            if(settings != null) {
-                mEmptyView.setVisibility(settings.getAppKeys().isEmpty() ? View.VISIBLE : View.GONE);
+        mViewModel.getMeshNetworkLiveData().observe(this, networkLiveData -> {
+            final List<ApplicationKey> keys = networkLiveData.getAppKeys();
+            if(keys != null) {
+                mEmptyView.setVisibility(keys.isEmpty() ? View.VISIBLE : View.GONE);
             }
         });
     }
@@ -152,7 +154,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
     }
 
     @Override
-    public void onItemClick(final int position, final String appKey) {
+    public void onItemClick(final int position, final ApplicationKey appKey) {
         final ComponentName componentName = getCallingActivity();
         if(componentName != null && componentName.getShortClassName().equals(CALLING_ACTIVITY)) {
             final DialogFragmentEditAppKey dialogFragmentEditAppKey = DialogFragmentEditAppKey.newInstance(position, appKey);
@@ -168,20 +170,19 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
 
     @Override
     public void onAppKeysUpdated(final int position, final String appKey) {
-        mViewModel.getProvisioningLiveData().updateAppKey(position, appKey);
+        mViewModel.getMeshNetworkLiveData().updateAppKey(position, appKey);
     }
 
     @Override
     public void onAppKeyAdded(final String appKey) {
-        mViewModel.getProvisioningLiveData().addAppKey(appKey);
+        mViewModel.getMeshNetworkLiveData().addAppKey(appKey);
     }
 
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
-        final TextView textView = viewHolder.getSwipeableView().findViewById(R.id.app_key);
-        final String appKey = textView.getText().toString();
-        mViewModel.getProvisioningLiveData().removeAppKey(appKey);
-        displaySnackBar(viewHolder.getAdapterPosition(), appKey);
+        final ApplicationKey key = (ApplicationKey) viewHolder.getSwipeableView().getTag();
+        mViewModel.getMeshNetworkLiveData().removeAppKey(key);
+        displaySnackBar(viewHolder.getAdapterPosition(), key);
         // Show the empty view
         final boolean empty = mAdapter.getItemCount() == 0;
         if (empty) {
@@ -190,12 +191,12 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
     }
 
 
-    private void displaySnackBar(final int key, final String appKey){
+    private void displaySnackBar(final int key, final ApplicationKey appKey){
 
         Snackbar.make(container, getString(R.string.app_key_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
                     mEmptyView.setVisibility(View.INVISIBLE);
-                    mViewModel.getProvisioningLiveData().addAppKey(key, appKey);
+                    mViewModel.getMeshNetworkLiveData().addAppKey(key, appKey);
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
                 .show();

@@ -25,17 +25,15 @@ package no.nordicsemi.android.nrfmeshprovisioner.di;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import dagger.android.AndroidInjectionModule;
+import dagger.android.support.AndroidSupportInjectionModule;
 
 @Singleton
 @Component(modules = {
-        AndroidInjectionModule.class,
+        AndroidSupportInjectionModule.class,
         ContextModule.class,
         ViewModelModule.class,
         BleMeshManagerModule.class,
-        ActivitiesModule.class,
-        AppControlActivitiesModule.class,
-        ServiceModule.class})
+        ActivitiesModule.class})
 public interface MeshAppComponent {
 
     @Component.Builder

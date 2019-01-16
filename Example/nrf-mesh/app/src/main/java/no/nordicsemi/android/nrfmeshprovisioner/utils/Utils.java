@@ -26,80 +26,41 @@ import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
-import java.util.Map;
+import java.util.UUID;
 
-import no.nordicsemi.android.nrfmeshprovisioner.service.MeshService;
+import no.nordicsemi.android.support.v18.scanner.ScanRecord;
+import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
 public class Utils {
 
     public static final String HEX_PATTERN = "^[0-9a-fA-F]+$";
-
-    public static final String ACTION_CONNECT_TO_UNPROVISIONED_NODE = "ACTION_CONNECT_TO_UNPROVISIONED_NODE";
-    public static final String ACTION_CONNECT_TO_MESH_NETWORK = "ACTION_CONNECT_TO_MESH_NETWORK";
-    public static final String ACTION_IS_CONNECTED = "ACTION_IS_CONNECTED";
-    public static final String ACTION_ON_DEVICE_READY = "ACTION_ON_DEVICE_READY";
-    public static final String ACTION_CONNECTION_STATE = "ACTION_CONNECTION_STATE";
-    public static final String ACTION_IS_RECONNECTING = "ACTION_IS_RECONNECTING";
-    public static final String ACTION_PROVISIONING_STATE = "ACTION_PROVISIONING_STATE";
-    public static final String ACTION_CONFIGURATION_STATE = "ACTION_CONFIGURATION_STATE";
-    public static final String ACTION_GENERIC_STATE = "ACTION_GENERIC_STATE";
-    public static final String ACTION_GENERIC_ON_OFF_STATE = "ACTION_GENERIC_ON_OFF_STATE";
-    public static final String ACTION_GENERIC_LEVEL_STATE = "ACTION_GENERIC_LEVEL_STATE";
-
-    public static final String ACTION_VENDOR_MODEL_MESSAGE = "ACTION_VENDOR_MODEL_MESSAGE";
-    public static final String ACTION_VENDOR_MODEL_MESSAGE_STATE = "ACTION_VENDOR_MODEL_MESSAGE_STATE";
-
-    public static final String ACTION_TRANSACTION_STATE = "ACTION_TRANSACTION_STATE";
-    public static final String ACTION_UPDATE_PROVISIONED_NODES = "ACTION_UPDATE_PROVISIONED_NODES";
-
-    public static final String EXTRA_DATA = "EXTRA_DATA";
-    public static final String EXTRA_PROVISIONING_STATE = "EXTRA_PROVISIONING_STATE";
-    public static final String EXTRA_CONFIGURATION_STATE = "EXTRA_CONFIGURATION_STATE";
-
-    public static final String EXTRA_GENERIC_ON_OFF_GET = "EXTRA_GENERIC_ON_OFF_GET";
-    public static final String EXTRA_GENERIC_ON_OFF_SET = "EXTRA_GENERIC_ON_OFF_SET";
-    public static final String EXTRA_GENERIC_ON_OFF_SET_UNACK = "EXTRA_GENERIC_ON_OFF_SET_UNACK";
-    public static final String EXTRA_GENERIC_ON_OFF_STATE = "EXTRA_GENERIC_ON_OFF_STATE";
-
-    public static final String EXTRA_STATUS = "EXTRA_STATUS";
-    public static final String EXTRA_IS_SUCCESS = "EXTRA_IS_SUCCESS";
-    public static final String EXTRA_NET_KEY_INDEX = "EXTRA_APP_KEY_INDEX";
-    public static final String EXTRA_APP_KEY_INDEX = "EXTRA_APP_KEY_INDEX";
-    public static final String EXTRA_PUBLISH_ADDRESS = "EXTRA_PUBLISH_ADDRESS";
-    public static final String EXTRA_SUBSCRIPTION_ADDRESS = "EXTRA_SUBSCRIPTION_ADDRESS";
     public static final String EXTRA_MODEL_ID = "EXTRA_MODEL_ID";
     public static final String EXTRA_ELEMENT_ADDRESS = "EXTRA_ELEMENT_ADDRESS";
     public static final String EXTRA_DATA_MODEL_NAME = "EXTRA_DATA_MODEL_NAME";
 
-    public static final String EXTRA_DATA_NODE_RESET = "EXTRA_DATA_NODE_RESET";
-    public static final String EXTRA_DATA_NODE_RESET_STATUS = "EXTRA_DATA_NODE_RESET_STATUS";
-
     public static final String EXTRA_DEVICE = "EXTRA_DEVICE";
     public static final String ACTIVITY_RESULT = "RESULT_APP_KEY";
+    public static final String PROVISIONING_COMPLETED = "PROVISIONING_COMPLETED";
+    public static final String COMPOSITION_DATA_COMPLETED = "COMPOSITION_DATA_COMPLETED";
+    public static final String APP_KEY_ADD_COMPLETED = "APP_KEY_ADD_COMPLETED";
     private static final String PREFS_LOCATION_NOT_REQUIRED = "location_not_required";
     private static final String PREFS_PERMISSION_REQUESTED = "permission_requested";
+    private static final String PREFS_READ_STORAGE_PERMISSION_REQUESTED = "read_storage_permission_requested";
+    private static final String PREFS_WRITE_STORAGE_PERMISSION_REQUESTED = "write_storage_permission_requested";
     public static final int PROVISIONING_SUCCESS = 2112;
-    private static final String PROVISIONED_NODES_FILE = "PROVISIONED_FILES";
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
-    public static String EXTRA_UNICAST_ADDRESS = "EXTRA_UNICAST_ADDRESS";
-    public static String ACTION_ADD_APP_KEY = "ACTION_ADD_APP_KEY";
-    public static String ACTION_DELETE_APP_KEY = "ACTION_DELETE_APP_KEY";
-    public static String ACTION_VIEW_APP_KEY = "ACTION_VIEW_APP_KEY";
-
-    public static final String EXTRA_GENERIC_PRESENT_STATE = "EXTRA_GENERIC_PRESENT_STATE";
-    public static final String EXTRA_GENERIC_TARGET_STATE = "EXTRA_GENERIC_TARGET_STATE";
-    public static final String EXTRA_GENERIC_TRANSITION_STEPS = "EXTRA_GENERIC_TRANSITION_STEPS";
-    public static final String EXTRA_GENERIC_TRANSITION_RES = "EXTRA_GENERIC_TRANSITION_RES";
 
     /**
      * Checks whether Bluetooth is enabled.
@@ -190,12 +151,53 @@ public class Utils {
         preferences.edit().putBoolean(PREFS_PERMISSION_REQUESTED, true).apply();
     }
 
+    /**
+     * Checks for required permissions.
+     *
+     * @return true if permissions are already granted, false otherwise.
+     */
+    public static boolean isWriteExternalStoragePermissionsGranted(final Context context) {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * The first time an app requests a permission there is no 'Don't ask again' checkbox and
+     * {@link ActivityCompat#shouldShowRequestPermissionRationale(Activity, String)} returns false.
+     * This situation is similar to a permission being denied forever, so to distinguish both cases
+     * a flag needs to be saved.
+     *
+     * @param context the context
+     */
+    public static void markWriteStoragePermissionRequested(final Context context) {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(PREFS_WRITE_STORAGE_PERMISSION_REQUESTED, true).apply();
+    }
+
+    /**
+     * Returns true if write external permission has been requested at least twice and
+     * user denied it, and checked 'Don't ask again'.
+     *
+     * @param activity the activity
+     * @return true if permission has been denied and the popup will not come up any more, false otherwise
+     */
+    public static boolean isWriteExternalStoragePermissionDeniedForever(final Activity activity) {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+
+        return !isWriteExternalStoragePermissionsGranted(activity) // Location permission must be denied
+                && preferences.getBoolean(PREFS_WRITE_STORAGE_PERMISSION_REQUESTED, false) // Permission must have been requested before
+                && !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE); // This method should return false
+    }
+
     public static boolean isMarshmallowOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
     }
 
     public static boolean isLollipopOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
+    public static boolean isKitkatOrAbove() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     }
 
     public static void showToast(final Context context, final String message) {
@@ -206,45 +208,16 @@ public class Utils {
         return ((i & 0xFFFFFF00) == 0 || (i & 0xFFFFFF00) == 0xFFFFFF00);
     }
 
-    public static void saveApplicationKeys(final Context context, final Map<Integer, String> appKeys) {
-        SharedPreferences preferences = context.getSharedPreferences(APPLICATION_KEYS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        for (int i = 0; i < appKeys.size(); i++) {
-            editor.putString(String.valueOf(i), appKeys.get(i));
-        }
-        editor.commit();
-    }
-
-    public static int getKey(final Map<Integer, String> appKeys, final String appKey) {
-        for (Map.Entry<Integer, String> entry : appKeys.entrySet()) {
-            if (entry.getValue().equals(appKey)) {
-                return entry.getKey();
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Create the intent filters to listen for events on the {@link MeshService}
-     *
-     * @return intent filter
-     */
-    public static IntentFilter createIntentFilters() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_CONNECTION_STATE);
-        intentFilter.addAction(ACTION_IS_CONNECTED);
-        intentFilter.addAction(ACTION_IS_RECONNECTING);
-        intentFilter.addAction(ACTION_ON_DEVICE_READY);
-        intentFilter.addAction(ACTION_PROVISIONING_STATE);
-        intentFilter.addAction(ACTION_CONFIGURATION_STATE);
-        intentFilter.addAction(ACTION_TRANSACTION_STATE);
-        intentFilter.addAction(ACTION_GENERIC_ON_OFF_STATE);
-        intentFilter.addAction(ACTION_GENERIC_LEVEL_STATE);
-        intentFilter.addAction(ACTION_VENDOR_MODEL_MESSAGE_STATE);
-        return intentFilter;
-    }
-
     public static boolean checkIfVersionIsOreoOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+    }
+
+    @Nullable
+    public static byte[] getServiceData(@NonNull final ScanResult result, @NonNull final UUID serviceUuid) {
+        final ScanRecord scanRecord = result.getScanRecord();
+        if (scanRecord != null) {
+            return scanRecord.getServiceData(new ParcelUuid((serviceUuid)));
+        }
+        return null;
     }
 }

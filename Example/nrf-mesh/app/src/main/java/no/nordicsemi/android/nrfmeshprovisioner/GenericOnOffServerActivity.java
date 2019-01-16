@@ -2,7 +2,8 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
+import android.support.constraint.ConstraintLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -12,28 +13,40 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffGet;
+import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSet;
+import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffStatus;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
+import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
 
+    private static final String TAG = GenericOnOffServerActivity.class.getSimpleName();
+
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
+    private TextView onOffState;
+    private TextView remainingTime;
     private Button mActionOnOff;
     protected int mTransitionStepResolution;
-    protected int mTransitionStep;
+    protected int mTransitionSteps;
 
     @Override
-    protected final void addControlsUi(final MeshModel model) {
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
         if (model instanceof GenericOnOffServerModel) {
-            final CardView cardView = findViewById(R.id.node_controls_card);
-            final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, cardView);
+            final ConstraintLayout container = findViewById(R.id.node_controls_container);
+            final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, container);
             final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
-            final TextView onOffState = nodeControlsContainer.findViewById(R.id.on_off_state);
-            final TextView remainingTime = nodeControlsContainer.findViewById(R.id.transition_state);
+            onOffState = nodeControlsContainer.findViewById(R.id.on_off_state);
+            remainingTime = nodeControlsContainer.findViewById(R.id.transition_state);
             final SeekBar transitionTimeSeekBar = nodeControlsContainer.findViewById(R.id.transition_seekbar);
             transitionTimeSeekBar.setProgress(0);
             transitionTimeSeekBar.incrementProgressBy(1);
@@ -47,24 +60,18 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             mActionOnOff = nodeControlsContainer.findViewById(R.id.action_on_off);
             mActionOnOff.setOnClickListener(v -> {
                 try {
-                    final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
                     if (mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on))) {
-                        mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), true);
+                        sendGenericOnOff(true, delaySeekBar.getProgress());
                     } else {
-                        mViewModel.sendGenericOnOff(node, mTransitionStep, mTransitionStepResolution, delaySeekBar.getProgress(), false);
+                        sendGenericOnOff(false, delaySeekBar.getProgress());
                     }
-                    showProgressbar();
                 } catch (IllegalArgumentException ex) {
                     Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
 
             mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
-            mActionRead.setOnClickListener(v -> {
-                final ProvisionedMeshNode node = (ProvisionedMeshNode) mViewModel.getExtendedMeshNode().getMeshNode();
-                mViewModel.sendGenericOnOffGet(node);
-                showProgressbar();
-            });
+            mActionRead.setOnClickListener(v -> sendGenericOnOffGet());
 
             transitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 int lastValue = 0;
@@ -76,37 +83,37 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                     if (progress >= 0 && progress <= 62) {
                         lastValue = progress;
                         mTransitionStepResolution = 0;
-                        mTransitionStep = progress;
+                        mTransitionSteps = progress;
                         res = progress / 10.0;
                         time.setText(getString(R.string.transition_time_interval, String.valueOf(res), "s"));
                     } else if (progress >= 63 && progress <= 118) {
                         if (progress > lastValue) {
-                            mTransitionStep = progress - 56;
+                            mTransitionSteps = progress - 56;
                             lastValue = progress;
                         } else if (progress < lastValue) {
-                            mTransitionStep = -(56 - progress);
+                            mTransitionSteps = -(56 - progress);
                         }
                         mTransitionStepResolution = 1;
-                        time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionStep), "s"));
+                        time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionSteps), "s"));
 
                     } else if (progress >= 119 && progress <= 174) {
                         if (progress > lastValue) {
-                            mTransitionStep = progress - 112;
+                            mTransitionSteps = progress - 112;
                             lastValue = progress;
                         } else if (progress < lastValue) {
-                            mTransitionStep = -(112 - progress);
+                            mTransitionSteps = -(112 - progress);
                         }
                         mTransitionStepResolution = 2;
-                        time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionStep * 10), "s"));
+                        time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionSteps * 10), "s"));
                     } else if (progress >= 175 && progress <= 230) {
                         if (progress >= lastValue) {
-                            mTransitionStep = progress - 168;
+                            mTransitionSteps = progress - 168;
                             lastValue = progress;
                         } else if (progress < lastValue) {
-                            mTransitionStep = -(168 - progress);
+                            mTransitionSteps = -(168 - progress);
                         }
                         mTransitionStepResolution = 3;
-                        time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionStep * 10), "min"));
+                        time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionSteps * 10), "min"));
                     }
                 }
 
@@ -137,53 +144,112 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
 
                 }
             });
-
-            mViewModel.getGenericOnOffState().observe(this, genericOnOffStatusUpdate -> {
-                hideProgressBar();
-                final boolean presentState = genericOnOffStatusUpdate.isPresentOnOff();
-                final Boolean targetOnOff = genericOnOffStatusUpdate.getTargetOnOff();
-                final int steps = genericOnOffStatusUpdate.getSteps();
-                final int resolution = genericOnOffStatusUpdate.getResolution();
-                if (targetOnOff == null) {
-                    if (presentState) {
-                        onOffState.setText(R.string.generic_state_on);
-                        mActionOnOff.setText(R.string.action_generic_off);
-                    } else {
-                        onOffState.setText(R.string.generic_state_off);
-                        mActionOnOff.setText(R.string.action_generic_on);
-                    }
-                    remainingTime.setVisibility(View.GONE);
-                } else {
-                    if (!targetOnOff) {
-                        onOffState.setText(R.string.generic_state_on);
-                        mActionOnOff.setText(R.string.action_generic_off);
-                    } else {
-                        onOffState.setText(R.string.generic_state_off);
-                        mActionOnOff.setText(R.string.action_generic_on);
-                    }
-                    remainingTime.setText(getString(R.string.remaining_time, MeshParserUtils.getRemainingTransitionTime(resolution, steps)));
-                    remainingTime.setVisibility(View.VISIBLE);
-                }
-            });
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
     protected void enableClickableViews() {
         super.enableClickableViews();
-        if(mActionOnOff != null && !mActionOnOff.isEnabled())
+        if (mActionOnOff != null && !mActionOnOff.isEnabled())
             mActionOnOff.setEnabled(true);
     }
 
     @Override
     protected void disableClickableViews() {
         super.disableClickableViews();
-        if(mActionOnOff != null)
+        if (mActionOnOff != null)
             mActionOnOff.setEnabled(false);
+    }
+
+    @Override
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+        super.updateMeshMessage(meshMessage);
+        if (meshMessage instanceof GenericOnOffStatus) {
+            hideProgressBar();
+            final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
+            final boolean presentState = status.getPresentState();
+            final Boolean targetOnOff = status.getTargetState();
+            final int steps = status.getTransitionSteps();
+            final int resolution = status.getTransitionResolution();
+            if (targetOnOff == null) {
+                if (presentState) {
+                    onOffState.setText(R.string.generic_state_on);
+                    mActionOnOff.setText(R.string.action_generic_off);
+                } else {
+                    onOffState.setText(R.string.generic_state_off);
+                    mActionOnOff.setText(R.string.action_generic_on);
+                }
+                remainingTime.setVisibility(View.GONE);
+            } else {
+                if (!targetOnOff) {
+                    onOffState.setText(R.string.generic_state_on);
+                    mActionOnOff.setText(R.string.action_generic_off);
+                } else {
+                    onOffState.setText(R.string.generic_state_off);
+                    mActionOnOff.setText(R.string.action_generic_on);
+                }
+                remainingTime.setText(getString(R.string.remaining_time, MeshParserUtils.getRemainingTransitionTime(resolution, steps)));
+                remainingTime.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+
+    /**
+     * Send generic on off get to mesh node
+     */
+    public void sendGenericOnOffGet() {
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+        final Element element = mViewModel.getSelectedElement().getElement();
+        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
+
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+            final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
+
+            final byte[] address = element.getElementAddress();
+            Log.v(TAG, "Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
+
+            final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey);
+            mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
+            showProgressbar();
+        } else {
+            Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Send generic on off set to mesh node
+     *
+     * @param state true to turn on and false to turn off
+     * @param delay message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     */
+    public void sendGenericOnOff(final boolean state, final Integer delay) {
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+        final Element element = mViewModel.getSelectedElement().getElement();
+        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
+
+        if (!model.getBoundAppKeyIndexes().isEmpty()) {
+            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+            final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
+            if (!model.getSubscriptionAddresses().isEmpty()) {
+                for (byte[] address : model.getSubscriptionAddresses()) {
+                    final MeshMessage message;
+                    Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                            + ". Sending acknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
+                    message = new GenericOnOffSet(appKey, state, delay,node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
+                    showProgressbar();
+                }
+            } else {
+                final byte[] address = element.getElementAddress();
+                Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                        + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
+                final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state, node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
+                mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
+            }
+        } else {
+            Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+        }
     }
 }

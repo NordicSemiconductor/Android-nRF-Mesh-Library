@@ -41,9 +41,10 @@ public class AppInjector {
 	}
 
 	public static void init(final MeshApplication application) {
-		final ContextModule contextModule = new ContextModule(application);
-		DaggerMeshAppComponent.builder().contextModule(contextModule)
-				.build().inject(application);
+		DaggerMeshAppComponent.builder()
+				.contextModule(new ContextModule(application))
+				.build()
+				.inject(application);
 
 		application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
 			@Override

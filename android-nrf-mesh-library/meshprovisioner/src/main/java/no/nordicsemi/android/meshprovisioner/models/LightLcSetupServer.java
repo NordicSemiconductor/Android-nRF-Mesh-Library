@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class LightLcSetupServer extends SigModel {
 
     public static final Creator<LightLcSetupServer> CREATOR = new Creator<LightLcSetupServer>() {

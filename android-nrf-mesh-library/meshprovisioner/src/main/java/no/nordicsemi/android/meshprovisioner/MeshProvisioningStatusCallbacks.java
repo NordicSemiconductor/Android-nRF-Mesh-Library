@@ -22,37 +22,40 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.states.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
+import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
+/**
+ * Callbacks to notify status during the provisioning process
+ */
 public interface MeshProvisioningStatusCallbacks {
 
-    void onProvisioningInviteSent(final UnprovisionedMeshNode unprovisionedMeshNode);
+    /**
+     * Invoked when the provisioning state changed.
+     *
+     * @param meshNode {@link UnprovisionedMeshNode} unprovisioned node.
+     * @param state    {@link ProvisioningState.State} each provisioning state.
+     * @param data     data that was sent or received during each provisioning state.
+     */
+    void onProvisioningStateChanged(final UnprovisionedMeshNode meshNode, final ProvisioningState.States state, final byte[] data);
 
-    void onProvisioningCapabilitiesReceived(final UnprovisionedMeshNode unprovisionedMeshNode);
+    /**
+     * Invoked when the provisioning state changed.
+     *
+     * @param meshNode {@link UnprovisionedMeshNode} unprovisioned node.
+     * @param state    {@link ProvisioningState.State} each provisioning state.
+     * @param data     data that was sent or received during each provisioning state.
+     */
+    void onProvisioningFailed(final UnprovisionedMeshNode meshNode, final ProvisioningState.States state, final byte[] data);
 
-    void onProvisioningStartSent(final UnprovisionedMeshNode unprovisionedMeshNode);
-
-    void onProvisioningPublicKeySent(final UnprovisionedMeshNode unprovisionedMeshNode);
-
-    void onProvisioningPublicKeyReceived(final UnprovisionedMeshNode unprovisionedMeshNode);
-
-    void onProvisioningAuthenticationInputRequested(final UnprovisionedMeshNode unprovisionedMeshNode);
-
-    void onProvisioningInputCompleteSent(final UnprovisionedMeshNode unprovisionedMeshNode);
-
-    void onProvisioningConfirmationSent(final UnprovisionedMeshNode unprovisionedMeshNode);
-
-    void onProvisioningConfirmationReceived(final UnprovisionedMeshNode unprovisionedMeshNode);
-
-    void onProvisioningRandomSent(final UnprovisionedMeshNode unprovisionedMeshNode);
-
-    void onProvisioningRandomReceived(final UnprovisionedMeshNode unprovisionedMeshNode);
-
-    void onProvisioningDataSent(final UnprovisionedMeshNode unprovisionedMeshNode);
-
-    void onProvisioningFailed(final UnprovisionedMeshNode unprovisionedMeshNode, final int errorCode);
-
-    void onProvisioningComplete(final ProvisionedMeshNode provisionedMeshNode);
+    /**
+     * Invoked when the provisioning state changed.
+     *
+     * @param meshNode {@link ProvisionedMeshNode} provisioned mesh node.
+     * @param state    {@link ProvisioningState.State} each provisioning state.
+     * @param data     data that was sent or received during each provisioning state.
+     */
+    void onProvisioningCompleted(final ProvisionedMeshNode meshNode, final ProvisioningState.States state, final byte[] data);
 
 }

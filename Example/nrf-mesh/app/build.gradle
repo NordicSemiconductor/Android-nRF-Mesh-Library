@@ -24,14 +24,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "28.0.2"
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
         targetSdkVersion 28
-        versionCode 14
-        versionName "1.0.4"
+        versionCode 27
+        versionName "1.1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -53,15 +53,23 @@ android {
     dexOptions {
         preDexLibraries = false
     }
+
+    configurations.all {
+        resolutionStrategy.force 'com.android.support:multidex:1.0.2'
+    }
 }
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:28.0.0-rc02'
-    implementation 'com.android.support:design:28.0.0-rc02'
-    implementation 'com.android.support:recyclerview-v7:28.0.0-rc02'
-    implementation 'com.android.support:cardview-v7:28.0.0-rc02'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
-    implementation 'com.android.support:support-v4:28.0.0-rc02'
+    // Required -- JUnit 4 framework
+    testImplementation 'junit:junit:4.12'
+
+    def support_lib_version = "28.0.0"
+    implementation "com.android.support:appcompat-v7:$support_lib_version"
+    implementation "com.android.support:design:$support_lib_version"
+    implementation "com.android.support:recyclerview-v7:$support_lib_version"
+    implementation "com.android.support:cardview-v7:$support_lib_version"
+    implementation "com.android.support:support-v4:$support_lib_version"
+    implementation 'com.android.support.constraint:constraint-layout:2.0.0-alpha2'
 
     // Butter Knife
     implementation 'com.jakewharton:butterknife:8.8.1'
@@ -70,14 +78,18 @@ dependencies {
     implementation 'no.nordicsemi.android.support.v18:scanner:1.1.0'
     implementation 'no.nordicsemi.android:ble:1.2.0'
     // Log Bluetooth LE events in nRF Logger
-    compileOnly 'com.android.support:multidex:1.0.2'
+    compileOnly 'com.android.support:multidex:1.0.3'
     // Lifecycle extensions
-    implementation 'android.arch.lifecycle:extensions:1.1.0'
-    implementation 'com.google.dagger:dagger:2.11'
-    implementation 'com.google.dagger:dagger-android:2.11'
-    implementation 'com.google.dagger:dagger-android-support:2.11'
-    annotationProcessor 'com.google.dagger:dagger-android-processor:2.11'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.11'
-    implementation 'com.google.code.gson:gson:2.8.3'
+
+    def arch_version = "1.1.1"
+    implementation "android.arch.lifecycle:extensions:$arch_version"
+    implementation "android.arch.persistence.room:runtime:$arch_version"
+    annotationProcessor "android.arch.persistence.room:compiler:$arch_version"
+
+    implementation 'com.google.dagger:dagger:2.17'
+    implementation "com.google.dagger:dagger-android:2.17"
+    implementation "com.google.dagger:dagger-android-support:2.17"
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.17'
+    annotationProcessor "com.google.dagger:dagger-android-processor:2.17"
     implementation project(':meshprovisioner')
 }

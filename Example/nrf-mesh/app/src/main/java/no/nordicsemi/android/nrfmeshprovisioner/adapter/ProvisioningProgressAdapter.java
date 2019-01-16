@@ -38,14 +38,14 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.ProvisioningProgress;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisioningStateLiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionerProgress;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningStatusLiveData;
 
 public class ProvisioningProgressAdapter extends RecyclerView.Adapter<ProvisioningProgressAdapter.ViewHolder> {
     private final Context mContext;
-    private final List<ProvisioningProgress> mProgress = new ArrayList<>();
+    private final List<ProvisionerProgress> mProgress = new ArrayList<>();
 
-    public ProvisioningProgressAdapter(final AppCompatActivity mContext, final ProvisioningStateLiveData provisioningProgress) {
+    public ProvisioningProgressAdapter(final AppCompatActivity mContext, final ProvisioningStatusLiveData provisioningProgress) {
         this.mContext = mContext;
         this.mProgress.addAll(provisioningProgress.getStateList());
     }
@@ -58,7 +58,7 @@ public class ProvisioningProgressAdapter extends RecyclerView.Adapter<Provisioni
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        final ProvisioningProgress provisioningProgress = mProgress.get(position);
+        final ProvisionerProgress provisioningProgress = mProgress.get(position);
         if(provisioningProgress != null) {
             holder.image.setImageDrawable(ContextCompat.getDrawable(mContext, provisioningProgress.getResId()));
             holder.progress.setText(provisioningProgress.getMessage());
@@ -74,7 +74,7 @@ public class ProvisioningProgressAdapter extends RecyclerView.Adapter<Provisioni
         return getItemCount() == 0;
     }
 
-    public void refresh(final ArrayList<ProvisioningProgress> stateList) {
+    public void refresh(final ArrayList<ProvisionerProgress> stateList) {
         mProgress.clear();
         mProgress.addAll(stateList);
         notifyDataSetChanged();

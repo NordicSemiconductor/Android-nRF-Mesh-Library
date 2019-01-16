@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/dialog_container_relay_state"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:clickable="false"
+        android:padding="@dimen/activity_horizontal_margin">
+
+        <ImageView
+            android:id="@+id/dialog_image_relay_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/dialog_relay_state_title"
+            app:layout_constraintBottom_toBottomOf="@id/dialog_relay_state_title"
+            tools:ignore="ContentDescription"/>
+
+        <TextView
+            android:id="@+id/dialog_relay_state_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/title_relay_state"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@id/dialog_image_relay_state"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Switch
+            android:id="@+id/switch_relay_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/dialog_relay_state_title"
+            app:layout_constraintBottom_toBottomOf="@id/dialog_relay_state_title"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/dialog_container_relay_retransmit_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:clickable="false"
+        android:padding="@dimen/activity_horizontal_margin">
+
+        <ImageView
+            android:id="@+id/dialog_image_relay_retransmit_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/dialog_relay_retransmit_count_title"
+            app:layout_constraintBottom_toBottomOf="@id/dialog_relay_retransmit_count_title"
+            app:srcCompat="@drawable/ic_numeric"
+            tools:ignore="ContentDescription"/>
+
+        <TextView
+            android:id="@+id/dialog_relay_retransmit_count_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/title_relay_retransmit_count"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@id/dialog_image_relay_retransmit_count"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/dialog_relay_retransmit_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="1 time(s)"
+            android:textSize="16sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/dialog_relay_retransmit_count_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="HardcodedText"/>
+
+        <SeekBar
+            android:id="@+id/dialog_relay_retransmit_count_seekbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/item_padding_bottom"
+            android:paddingTop="@dimen/item_padding_top"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/dialog_image_relay_retransmit_count"
+            app:layout_constraintTop_toBottomOf="@id/dialog_image_relay_retransmit_count" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/dialog_container_relay_retransmit_interval_steps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:clickable="false"
+        android:padding="@dimen/activity_horizontal_margin">
+
+        <ImageView
+            android:id="@+id/dialog_image_relay_interval_steps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/dialog_relay_interval_steps_title"
+            app:layout_constraintBottom_toBottomOf="@id/steps_summary"
+            app:srcCompat="@drawable/ic_index"
+            tools:ignore="ContentDescription"/>
+
+        <TextView
+            android:id="@+id/dialog_relay_interval_steps_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/title_relay_retransmit_interval_steps"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@id/dialog_relay_interval_steps"
+            app:layout_constraintStart_toEndOf="@id/dialog_image_relay_interval_steps"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/steps_summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/network_transmit_interval_steps_summary"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@id/dialog_relay_interval_steps_title"
+            app:layout_constraintStart_toStartOf="@id/dialog_relay_interval_steps_title" />
+
+        <TextView
+            android:id="@+id/dialog_relay_interval_steps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="10 ms"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/dialog_relay_interval_steps_title"
+            app:layout_constraintTop_toTopOf="@id/dialog_relay_interval_steps_title"
+            tools:ignore="HardcodedText"/>
+
+        <SeekBar
+            android:id="@+id/dialog_relay_interval_steps_seekbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/item_padding_top"
+            android:paddingBottom="@dimen/item_padding_bottom"
+            app:layout_constraintStart_toEndOf="@id/dialog_image_relay_interval_steps"
+            app:layout_constraintEnd_toEndOf="@id/dialog_relay_interval_steps"
+            app:layout_constraintTop_toBottomOf="@id/steps_summary"/>
+
+    </android.support.constraint.ConstraintLayout>
+
+</LinearLayout>

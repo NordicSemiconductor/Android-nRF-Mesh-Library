@@ -276,23 +276,75 @@
     <string name="invalid_hex_value">Invalid hex value</string>
     <string name="invalid_address_value">Invalid address</string>
     <string name="mesh_provioner_service_running">Mesh provisioner service is running in background.</string>
-    <string name="action_reset_network">Reset Network</string>
+    <string name="action_reset_network">Reset</string>
     <string name="title_reset_network">Reset Mesh Network</string>
     <string name="message_reset_network">This will clear all the data stored related to this network and will not be recoverable. Would you like to continue?</string>
     <string name="not_subscribed_to_groups">Not subscribed to any group addresses.</string>
     <string name="title_group_address">Group Address</string>
     <string name="dialog_summary_group_address">Group address this model should subscribe.</string>
-    <string name="title_configuration_compete">Confguration Complete</string>
+    <string name="title_configuration_compete">Configuration Complete</string>
     <string name="configuration_complete_summary">Mesh node has been successfully configured.</string>
     <string name="action_composition_data">GET COMPOSITION DATA</string>
 
-    <string name="action_add_app_keys">ADD</string>
-    <string name="action_view_app_keys">VIEW</string>
+    <string name="action_add">ADD</string>
+    <string name="action_remove">REMOVE</string>
+    <string name="action_clear">CLEAR</string>
+    <string name="action_view">VIEW</string>
     <string name="title_about">About</string>
     <string name="summary_verion">App Version</string>
     <string name="title_node_configuration">Node Configuration</string>
     <string name="title_added_app_keys">Added App Keys</string>
     <string name="action_view_added_keys">VIEW</string>
+
+    <string name="title_network_transmit_info">Network Transmit</string>
+    <string name="title_network_transmit">Network Transmit Settings</string>
+    <string name="title_network_transmit_count">Transmit Count</string>
+    <string name="title_network_transmit_interval">Transmit Interval</string>
+    <string name="title_network_transmit_interval_steps">Transmit Interval</string>
+    <string name="action_network_transmit_get">READ STATE</string>
+    <string name="action_network_transmit_set">SET NETWORK TRANSMIT</string>
+    <string name="text_network_transmit_count">%d retransmit(s)</string>
+    <string name="summary_network_transmit_count">%d time(s) and total transmissions: %d</string>
+    <string name="text_network_transmit_interval_steps">%d ms</string>
+
+    <string name="title_relay_retransmit_info">Relay</string>
+    <string name="title_relay_retransmit">Relay Settings</string>
+    <string name="title_relay_state">Relay</string>
+    <string name="title_relay_retransmit_count">Retransmit Count</string>
+    <string name="title_relay_retransmit_interval">Retransmit Interval</string>
+    <string name="title_relay_retransmit_interval_steps">Retransmit Interval</string>
+    <string name="action_relay_retransmit_get">READ STATE</string>
+    <string name="action_relay_retransmit_set">SET RELAY</string>
+    <string name="text_action_relay_retransmit_count">%d time(s)</string>
+    <string name="text_action_relay_retransmit_interval_steps">%d ms</string>
+
+    <string name="title_proxy_state_info">Proxy</string>
+    <string name="title_proxy_state_settings">Proxy State</string>
+    <string name="title_proxy_state">Proxy</string>
+    <string name="proxy_state">STATE</string>
+    <string name="action_proxy_state_set_on">ON</string>
+    <string name="action_proxy_state_set_off">OFF</string>
+    <string name="action_proxy_state_get">READ STATE</string>
+    <string name="proxy_set_on_rationale">Turning on the proxy feature will set this node to a connectable state and enable the proxy server.</string>
+    <string name="proxy_set_on_rationale_summary">Turning on the proxy feature will set this node to a connectable state and enable the proxy server.
+        You will also be able to connect to this node and send mesh messages over GATT. Do you wish to continue?</string>
+    <string name="proxy_set_off_rationale">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.</string>
+    <string name="proxy_set_off_rationale_summary">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.
+        However, you will still be able to continue sending messages via the other proxy nodes in the network. Do you wish to continue?</string>
+
+    <string name="title_proxy_filter_info">Proxy</string>
+    <string name="title_proxy_filter">Proxy Filter</string>
+    <string name="white_list_filter">Whitelist Filter</string>
+    <string name="black_list_filter">Blacklist Filter</string>
+    <string name="action_proxy_set_black_list_filter">Set blacklist</string>
+    <string name="hint_remove">Hint: Swipe address to remove.</string>
+    <string name="hint_filter_address">Unicast/Group Address</string>
+    <string name="no_addresses_added">No addresses are added to this filter!</string>
+    <string name="title_add_address">Add Address</string>
+    <string name="address">Address %d</string>
+    <string name="dialog_summary_filter_address">Addresses to be added to the %s. Supported addresses are Unicast, Group or Virtual Addresses.</string>
+    <string name="invalid_filter_address">Address must be a Unicast, Group or a Virtual Address!</string>
+    <string name="error_empty_filter_address">Add at least one address to confirm!</string>
 
     <string name="no_app_keys_added">No app keys are added to this node!</string>
     <string name="app_keys_added">%d app keys added</string>
@@ -301,7 +353,7 @@
     <string name="action_generic_on">ON</string>
     <string name="action_generic_off">OFF</string>
     <string name="transition_time_interval">%s %s</string>
-    <string name="hint_unsubscribe">Hint: Swipe address to unsubscribe</string>
+    <string name="hint_unsubscribe">Hint: Swipe address to unsubscribe.</string>
     <string name="hint_step_resolution_ms">Currently on 100 ms step resolution</string>
     <string name="hint_step_resolution_s">Currently on 1 s step resolution</string>
     <string name="hint_step_resolution_ten_s">Currently on 10 s step resolution</string>
@@ -317,6 +369,8 @@
     <string name="reset_node_rationale">Resetting this node will change its provisioned state back to un-provisioned state.</string>
     <string name="reset_node_rationale_summary">Resetting this node will change its provisioned state back to un-provisioned
         state. Any stored data related to the node will be deleted from the app. Do you wish to continue?</string>
+
+
     <string name="node_device_key">Device Key</string>
     <string name="device_key_clipboard_copied">Device key copied to clipboard</string>
     <string name="unavailable">Unavailable</string>
@@ -365,7 +419,7 @@
     <string name="error_empty_publication_steps">Number of publication steps cannot be empty!</string>
     <string name="error_invalid_publication_steps">Publication steps must be in range of 0 to 63!</string>
     <string name="error_empty_publish_ttl">Publish TTL cannot be empty!</string>
-    <string name="error_invalid_publish_ttl">Publish TTL value must be in range of 0 to 127 or 255 for default TTL!</string>
+    <string name="error_invalid_publish_ttl">Publish TTL value must be in range of 0 to 127!</string>
 
     <string name="dialog_summary_retransmit_count">Enter the desired number of retransmissions.</string>
     <string name="dialog_summary_interval_steps">Enter the desired number of interval steps for retransmission. \n1 step = 50ms</string>
@@ -390,7 +444,7 @@
     </string-array>
 
     <string name="dialog_summary_publication_resolution">Select desired resolution for publish period</string>
-    <string name="hint_publish_ttl">Pubilsh TTL</string>
+    <string name="hint_publish_ttl">TTL ranges from 0 to 127</string>
     <string name="hint_publication_steps">Publication steps</string>
     <string name="model_id">Model ID: %s</string>
     <string name="title_disconnected_error">Error</string>
@@ -401,4 +455,33 @@
     <string name="generic_level_percent">%d%%</string>
     <string name="title_generic_level_controls">Generic Level Controls</string>
     <string name="invalid_value">Invalid value!</string>
+    <string name="use_default_ttl">Use default ttl value (0xFF)</string>
+    <string name="uses_default_ttl">Uses default ttl (0xFF)</string>
+    <string name="action_import_network">Import</string>
+    <string name="action_export_network">Export</string>
+    <string name="title_network_import">Import Network</string>
+    <string name="title_network_export">Export Network</string>
+    <string name="network_import_rationale">Importing new mesh network information will delete the existing network information from the application.
+        Would you like to proceed? \n\nNote: You can also export the existing network information before importing.</string>
+    <string name="export_existing_network">Export Network</string>
+    <string name="view_files">View files</string>
+    <string name="title_permission_required">Permission Required</string>
+    <string name="external_storage_permission_required">Exporting mesh network information to a file in the external storage directory requires permission
+        to access the external storage.</string>
+    <string name="permission_rationale_settings"> You may grant this permission by navigating to the app settings.</string>
+    <string name="settings">Settings</string>
+    <string name="ext_storage_permission_denied">Unable to export network, external storage permission denied!</string>
+    <string name="title_init_config_error">Initial Configuration Failed</string>
+    <string name="init_config_error_app_key_msg">Initial configuration of the node has failed.
+        Continue with the following steps to configure the node\n\n
+        Step 1. Connect to the network.\n\n
+        Step 2. Select the configure option of the node.\n\n
+        Step 3. Add app key</string>
+    <string name="init_config_error_all">Initial configuration of the node has failed.
+        Continue with the following steps to configure the node\n\n
+        Step 1. Connect to the network.\n\n
+        Step 2. Select the configure option of the node.\n\n
+        Step 3. Click get composition data\n\n
+        Step 4. Add app key</string>
+    <string name="network_transmit_interval_steps_summary">10 ms step(s)</string>
 </resources>

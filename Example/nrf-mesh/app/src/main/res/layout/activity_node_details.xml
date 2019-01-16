@@ -53,16 +53,6 @@
 
         </android.support.design.widget.AppBarLayout>
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/background_title"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginBottom="@dimen/item_padding_bottom"/>
-
         <ScrollView
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -85,7 +75,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                    android:background="@android:color/white"
+                    android:background="@color/white"
                     app:cardElevation="1dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -114,7 +104,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/node_details_tool_bar"/>
+                            app:layout_constraintTop_toBottomOf="@id/node_details_tool_bar"/>
 
                         <include
                             android:id="@+id/container_timestamp"
@@ -123,7 +113,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_element_count"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_element_count"/>
 
                         <include
                             android:id="@+id/container_identifier"
@@ -133,7 +123,7 @@
                             android:visibility="gone"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_timestamp"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_timestamp"/>
 
                         <include
                             android:id="@+id/container_supported_algorithm"
@@ -151,7 +141,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/copy"
-                            app:layout_constraintTop_toBottomOf="@+id/container_supported_algorithm"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_supported_algorithm"/>
 
                         <ImageView
                             android:id="@+id/copy"
@@ -174,7 +164,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_device_key"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_device_key"/>
 
                         <include
                             android:id="@+id/container_product_identifier"
@@ -183,16 +173,16 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_company_identifier"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_company_identifier"/>
 
                         <include
                             android:id="@+id/container_product_version"
-                            layout="@layout/info_node_product_identifier"
+                            layout="@layout/info_node_product_version"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_company_identifier"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_product_identifier"/>
 
                         <include
                             android:id="@+id/container_crpl"
@@ -201,7 +191,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_product_version"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_product_version"/>
 
                         <include
                             android:id="@+id/container_features"
@@ -210,7 +200,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_crpl"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_crpl"/>
 
                     </android.support.constraint.ConstraintLayout>
                 </android.support.v7.widget.CardView>
@@ -221,7 +211,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
                     android:layout_marginBottom="@dimen/item_padding_bottom"
-                    android:background="@android:color/white"
+                    android:background="@color/white"
                     app:cardElevation="1dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -249,7 +239,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:text="@string/no_elements_guide_info"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/black"
                             android:textSize="14sp"
                             android:paddingTop="@dimen/item_padding_top"
                             android:paddingBottom="@dimen/activity_vertical_margin"

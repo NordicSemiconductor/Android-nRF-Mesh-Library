@@ -26,6 +26,7 @@ import android.util.Log;
 
 import java.util.Locale;
 
+@SuppressWarnings("WeakerAccess")
 public class SigModelParser {
     private static final String TAG = SigModelParser.class.getSimpleName();
 
@@ -34,10 +35,10 @@ public class SigModelParser {
     private static final short HEALTH_SERVER_MODEL = 0x0002;
     private static final short HEALTH_CLIENT_MODEL = 0x0003;
 
-    private static final short GENERIC_ON_OFF_SERVER = 0x1000;
-    private static final short GENERIC_ON_OFF_CLIENT = 0x1001;
-    private static final short GENERIC_LEVEL_SERVER = 0x1002;
-    private static final short GENERIC_LEVEL_CLIENT = 0x1003;
+    public static final short GENERIC_ON_OFF_SERVER = 0x1000;
+    public static final short GENERIC_ON_OFF_CLIENT = 0x1001;
+    public static final short GENERIC_LEVEL_SERVER = 0x1002;
+    public static final short GENERIC_LEVEL_CLIENT = 0x1003;
 
     private static final short GENERIC_DEFAULT_TRANSITION_TIME_SERVER = 0x1004;
     private static final short GENERIC_DEFAULT_TRANSITION_TIME_CLIENT = 0x1005;
@@ -63,7 +64,7 @@ public class SigModelParser {
     private static final short SENSOR_SETUP_SERVER = 0x1101;
     private static final short SENSOR_CLIENT = 0x1102;
 
-    //SIG Time and Scenes, Mesh Model Spec;
+    //SIG Time and Scene, Mesh Model Spec;
     private static final short TIME_SERVER = 0x1200;
     private static final short TIME_SETUP_SERVER = 0x1201;
     private static final short TIME_CLIENT = 0x1202;
@@ -97,126 +98,127 @@ public class SigModelParser {
     /**
      * Returns the Bluetooth sig model based on the model id.
      *
-     * @param sigModelId bluetooth sig model id
+     * @param modelId bluetooth sig model id
      * @return SigModel
      */
-    public static SigModel getSigModel(final int sigModelId) {
-        switch (sigModelId) {
+    public static SigModel getSigModel(final int modelId) {
+        switch (modelId) {
             case CONFIGURATION_SERVER:
-                return new ConfigurationServerModel(sigModelId);
+                return new ConfigurationServerModel(modelId);
             case CONFIGURATION_CLIENT:
-                return new ConfigurationClientModel(sigModelId);
+                return new ConfigurationClientModel(modelId);
             case HEALTH_SERVER_MODEL:
-                return new HealthServerModel(sigModelId);
+                return new HealthServerModel(modelId);
             case HEALTH_CLIENT_MODEL:
-                return new HealthClientModel(sigModelId);
+                return new HealthClientModel(modelId);
             case GENERIC_ON_OFF_SERVER:
-                return new GenericOnOffServerModel(sigModelId);
+                return new GenericOnOffServerModel(modelId);
             case GENERIC_ON_OFF_CLIENT:
-                return new GenericOnOffClientModel(sigModelId);
+                return new GenericOnOffClientModel(modelId);
             case GENERIC_LEVEL_SERVER:
-                return new GenericLevelServerModel(sigModelId);
+                return new GenericLevelServerModel(modelId);
             case GENERIC_LEVEL_CLIENT:
-                return new GenericLevelClientModel(sigModelId);
+                return new GenericLevelClientModel(modelId);
             case GENERIC_DEFAULT_TRANSITION_TIME_SERVER:
-                return new GenericDefaultTransitionTimeServer(sigModelId);
+                return new GenericDefaultTransitionTimeServer(modelId);
             case GENERIC_DEFAULT_TRANSITION_TIME_CLIENT:
-                return new GenericDefaultTransitionTimeClient(sigModelId);
+                return new GenericDefaultTransitionTimeClient(modelId);
             case GENERIC_POWER_ON_OFF_SERVER:
-                return new GenericPowerOnOffServer(sigModelId);
+                return new GenericPowerOnOffServer(modelId);
             case GENERIC_POWER_ON_OFF_SETUP_SERVER:
-                return new GenericPowerOnOffSetupServer(sigModelId);
+                return new GenericPowerOnOffSetupServer(modelId);
             case GENERIC_POWER_ON_OFF_CLIENT:
-                return new GenericPowerOnOffClient(sigModelId);
+                return new GenericPowerOnOffClient(modelId);
             case GENERIC_POWER_LEVEL_SERVER:
-                return new GenericPowerLevelServer(sigModelId);
+                return new GenericPowerLevelServer(modelId);
             case GENERIC_POWER_LEVEL_SETUP_SERVER:
-                return new GenericPowerLevelSetupServer(sigModelId);
+                return new GenericPowerLevelSetupServer(modelId);
             case GENERIC_POWER_LEVEL_CLIENT:
-                return new GenericPowerLevelClient(sigModelId);
+                return new GenericPowerLevelClient(modelId);
             case GENERIC_BATTERY_SERVER:
-                return new GenericBatteryServer(sigModelId);
+                return new GenericBatteryServer(modelId);
             case GENERIC_BATTERY_CLIENT:
-                return new GenericBatteryClient(sigModelId);
+                return new GenericBatteryClient(modelId);
             case GENERIC_LOCATION_SERVER:
-                return new GenericLocationServer(sigModelId);
+                return new GenericLocationServer(modelId);
             case GENERIC_LOCATION_SETUP_SERVER:
-                return new GenericLocationSetupServer(sigModelId);
+                return new GenericLocationSetupServer(modelId);
             case GENERIC_LOCATION_CLIENT:
-                return new GenericLocationClient(sigModelId);
+                return new GenericLocationClient(modelId);
             case GENERIC_ADMIN_PROPERTY_SERVER:
-                return new GenericAdminPropertyServer(sigModelId);
+                return new GenericAdminPropertyServer(modelId);
             case GENERIC_MANUFACTURER_PROPERTY_SERVER:
-                return new GenericManufacturerPropertyServer(sigModelId);
+                return new GenericManufacturerPropertyServer(modelId);
             case GENERIC_USER_PROPERTY_SERVER:
-                return new GenericUserPropertyServer(sigModelId);
+                return new GenericUserPropertyServer(modelId);
             case GENERIC_CLIENT_PROPERTY_SERVER:
-                return new GenericClientPropertyServer(sigModelId);
+                return new GenericClientPropertyServer(modelId);
             case GENERIC_PROPERTY_CLIENT:
-                return new GenericPropertyClient(sigModelId);
+                return new GenericPropertyClient(modelId);
             case SENSOR_SERVER:
-                return new SensorServer(sigModelId);
+                return new SensorServer(modelId);
             case SENSOR_SETUP_SERVER:
-                return new SensorSetupServer(sigModelId);
+                return new SensorSetupServer(modelId);
             case SENSOR_CLIENT:
-                return new SensorClient(sigModelId);
+                return new SensorClient(modelId);
             case TIME_SERVER:
-                return new TimeServer(sigModelId);
+                return new TimeServer(modelId);
             case TIME_SETUP_SERVER:
-                return new TimeSetupServer(sigModelId);
+                return new TimeSetupServer(modelId);
             case TIME_CLIENT:
-                return new TimeClient(sigModelId);
+                return new TimeClient(modelId);
             case SCENE_SERVER:
-                return new SceneServer(sigModelId);
+                return new SceneServer(modelId);
             case SCENE_SETUP_SERVER:
-                return new SceneSetupServer(sigModelId);
+                return new SceneSetupServer(modelId);
             case SCENE_CLIENT:
-                return new SceneClient(sigModelId);
+                return new SceneClient(modelId);
             case SCHEDULER_SERVER:
-                return new SchedulerServer(sigModelId);
+                return new SchedulerServer(modelId);
             case SCHEDULER_SETUP_SERVER:
-                return new SchedulerSetupServer(sigModelId);
+                return new SchedulerSetupServer(modelId);
             case SCHEDULER_CLIENT:
-                return new SchedulerClient(sigModelId);
+                return new SchedulerClient(modelId);
             case LIGHT_LIGHTNESS_SERVER:
-                return new LightLightnessServer(sigModelId);
+                return new LightLightnessServer(modelId);
             case LIGHT_LIGHTNESS_SETUP_SERVER:
-                return new LightLightnessSetupServer(sigModelId);
+                return new LightLightnessSetupServer(modelId);
             case LIGHT_LIGHTNESS_CLIENT:
-                return new LightLightnessClient(sigModelId);
+                return new LightLightnessClient(modelId);
             case LIGHT_CTL_SERVER:
-                return new LightCtlServer(sigModelId);
+                return new LightCtlServer(modelId);
             case LIGHT_CTL_SETUP_SERVER:
-                return new LightCtlSetupServer(sigModelId);
+                return new LightCtlSetupServer(modelId);
             case LIGHT_CTL_CLIENT:
-                return new LightCtlClient(sigModelId);
+                return new LightCtlClient(modelId);
             case LIGHT_CTL_TEMPERATURE_SERVER:
-                return new LightCtlTemperatureServer(sigModelId);
+                return new LightCtlTemperatureServer(modelId);
             case LIGHT_HSL_SERVER:
-                return new LightHslServer(sigModelId);
+                return new LightHslServer(modelId);
             case LIGHT_HSL_SETUP_SERVER:
-                return new LightHslSetupServer(sigModelId);
+                return new LightHslSetupServer(modelId);
             case LIGHT_HSL_CLIENT:
-                return new LightHslClient(sigModelId);
+                return new LightHslClient(modelId);
             case LIGHT_HSL_HUE_SERVER:
-                return new LightHslHueServer(sigModelId);
+                return new LightHslHueServer(modelId);
             case LIGHT_HSL_SATURATION_SERVER:
-                return new LightHslSaturationServer(sigModelId);
+                return new LightHslSaturationServer(modelId);
             case LIGHT_XYL_SERVER:
-                return new LightXylServer(sigModelId);
+                return new LightXylServer(modelId);
             case LIGHT_XYL_SETUP_SERVER:
-                return new LightXylSetupServer(sigModelId);
+                return new LightXylSetupServer(modelId);
             case LIGHT_XYL_CLIENT:
-                return new LightXylClient(sigModelId);
+                return new LightXylClient(modelId);
             case LIGHT_LC_SERVER:
-                return new LightLcServer(sigModelId);
+                return new LightLcServer(modelId);
             case LIGHT_LC_SETUP_SERVER:
-                return new LightLcSetupServer(sigModelId);
+                return new LightLcSetupServer(modelId);
             case LIGHT_LC_CLIENT:
-                return new LightLightnessClient(sigModelId);
-            default:
-                Log.v(TAG, "Model ID: " + String.format(Locale.US, "%04X", sigModelId));
+                return new LightLightnessClient(modelId);
+            default: {
+                Log.v(TAG, "Model ID: " + String.format(Locale.US, "%04X", modelId));
+                return null;
+            }
         }
-        return null;
     }
 }

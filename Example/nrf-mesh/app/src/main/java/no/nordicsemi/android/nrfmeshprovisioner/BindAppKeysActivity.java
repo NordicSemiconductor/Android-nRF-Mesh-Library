@@ -32,15 +32,17 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.SparseArray;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.BindAppKeyAdapter;
 
 public class BindAppKeysActivity extends AppCompatActivity implements BindAppKeyAdapter.OnItemClickListener {
@@ -55,15 +57,14 @@ public class BindAppKeysActivity extends AppCompatActivity implements BindAppKey
     @BindView(R.id.container)
     View container;
 
-    private SparseArray<String> mAppKeysMap = new SparseArray<>();
+    private List<ApplicationKey> mAppKeysMap = new ArrayList<>();
     private BindAppKeyAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bind_app_keys);
-        final HashMap<Integer, String> tempAppKeys = (HashMap<Integer, String>) getIntent().getSerializableExtra(APP_KEYS);
-        populateAppKeysMap(tempAppKeys);
+        final HashMap<Integer, ApplicationKey> tempAppKeys = (HashMap<Integer, ApplicationKey>) getIntent().getSerializableExtra(APP_KEYS);
 
         //Bind ui
         ButterKnife.bind(this);
@@ -78,7 +79,7 @@ public class BindAppKeysActivity extends AppCompatActivity implements BindAppKey
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(appKeysRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
         appKeysRecyclerView.addItemDecoration(dividerItemDecoration);
         appKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new BindAppKeyAdapter(this, mAppKeysMap);
+        mAdapter = new BindAppKeyAdapter(this, populateAppKeys(tempAppKeys));
         mAdapter.setOnItemClickListener(this);
         appKeysRecyclerView.setAdapter(mAdapter);
 
@@ -103,19 +104,19 @@ public class BindAppKeysActivity extends AppCompatActivity implements BindAppKey
     }
 
     @Override
-    public void onItemClick(final int keyIndex, final String appKey) {
+    public void onItemClick(final int keyIndex, final ApplicationKey appKey) {
         Intent returnIntent = new Intent();
-        returnIntent.putExtra(RESULT_APP_KEY_INDEX, keyIndex);
         returnIntent.putExtra(RESULT_APP_KEY, appKey);
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
     }
 
-    private void populateAppKeysMap(final HashMap<Integer, String> tempAppKeys){
-        final Set<Integer> appKeyIndexes = tempAppKeys.keySet();
-
-        for(Integer keyIndex : appKeyIndexes){
-            mAppKeysMap.put(keyIndex,tempAppKeys.get(keyIndex));
+    private List<ApplicationKey> populateAppKeys(final HashMap<Integer, ApplicationKey> tempAppKeys){
+        final List<ApplicationKey> applicationKeys = new ArrayList<>();
+        for (Map.Entry<Integer, ApplicationKey> appKeyEntry : tempAppKeys.entrySet()) {
+            final ApplicationKey applicationKey = appKeyEntry.getValue();
+            applicationKeys.add(applicationKey);
         }
+        return applicationKeys;
     }
 }

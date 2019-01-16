@@ -31,9 +31,9 @@ import no.nordicsemi.android.nrfmeshprovisioner.SettingsFragment;
 @Module
 abstract class FragmentBuildersModule {
 	@ContributesAndroidInjector
-	abstract NetworkFragment contirbyteNetworkFragment();
+	abstract NetworkFragment contributeNetworkFragment();
 	@ContributesAndroidInjector
-	abstract ScannerFragment contribyteScannerFragment();
+	abstract ScannerFragment contributeScannerFragment();
 	@ContributesAndroidInjector
 	abstract SettingsFragment contributeSettingsFragment();
 }

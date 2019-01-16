@@ -24,6 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,10 +36,12 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.nrfmeshprovisioner.BaseModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHolder> {
@@ -65,14 +68,15 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHold
         mOnItemClickListener = listener;
     }
 
+    @NonNull
     @Override
-    public AddressAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public AddressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.address_item, parent, false);
         return new AddressAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final AddressAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final AddressAdapter.ViewHolder holder, final int position) {
         if(mAddresses.size() > 0) {
             final String address = MeshParserUtils.bytesToHex(mAddresses.get(position), true);
             holder.address.setText(address);

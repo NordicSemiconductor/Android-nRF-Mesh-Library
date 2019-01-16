@@ -22,7 +22,10 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
+import android.arch.lifecycle.LiveData;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,48 +39,47 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
-import no.nordicsemi.android.meshprovisioner.utils.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.livedata.ProvisionedNodesLiveData;
 
-public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
-
+public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
+    private Integer mUnicastAddress;
+    private int mNodeIndex = -1;
     private final FragmentActivity mContext;
     private final List<ProvisionedMeshNode> mNodes = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
 
-    public NodeAdapter(final FragmentActivity fragmentActivity, final ProvisionedNodesLiveData provisionedNodesLiveData) {
+    public NodeAdapter(final FragmentActivity fragmentActivity, LiveData<List<ProvisionedMeshNode>> provisionedNodesLiveData) {
         this.mContext = fragmentActivity;
-        provisionedNodesLiveData.observe(fragmentActivity, provisionedNodesLiveData1 -> {
-            final Map<Integer, ProvisionedMeshNode> nodes = provisionedNodesLiveData1.getProvisionedNodes();
-            if(nodes != null){
+        provisionedNodesLiveData.observe(fragmentActivity, provisionedNodes -> {
+            if (provisionedNodes != null) {
                 mNodes.clear();
-                mNodes.addAll(nodes.values());
+                mNodes.addAll(provisionedNodes);
             }
         });
-
     }
 
     public void setOnItemClickListener(final OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.network_item, parent, false);
         return new NodeAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final ProvisionedMeshNode node = mNodes.get(position);
         holder.name.setText(node.getNodeName());
         holder.unicastAddress.setText(MeshParserUtils.bytesToHex(node.getUnicastAddress(), false));
         final Map<Integer, Element> elements = node.getElements();
-        if(elements != null && !elements.isEmpty()) {
+        if (!elements.isEmpty()) {
             holder.notConfiguredView.setVisibility(View.GONE);
             holder.nodeInfoContainer.setVisibility(View.VISIBLE);
             holder.companyIdentifier.setText(CompanyIdentifiers.getCompanyName(node.getCompanyIdentifier().shortValue()));
@@ -99,20 +101,42 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder>{
         return getItemCount() == 0;
     }
 
-    private int getModels(final Map<Integer, Element> elements){
+    private int getModels(final Map<Integer, Element> elements) {
         int models = 0;
-        for(Element element : elements.values()) {
+        for (Element element : elements.values()) {
             models += element.getMeshModels().size();
         }
         return models;
     }
 
+    public void selectConnectedMeshNode(final Integer unicastAddress) {
+        if (unicastAddress != null) {
+            final int index = mNodeIndex = getMeshNodeIndex(unicastAddress);
+            if (index > -1) {
+                notifyItemChanged(mNodeIndex);
+            }
+        } else {
+            notifyItemChanged(mNodeIndex);
+        }
+        mUnicastAddress = unicastAddress;
+    }
+
+    private int getMeshNodeIndex(final int unicastAddress) {
+        for (int i = 0; i < mNodes.size(); i++) {
+            if (unicastAddress == mNodes.get(i).getUnicastAddressInt()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public interface OnItemClickListener {
         void onConfigureClicked(final ProvisionedMeshNode node);
+
         void onDetailsClicked(final ProvisionedMeshNode node);
     }
 
-    final class ViewHolder extends RecyclerView.ViewHolder{
+    final class ViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.node_name)
         TextView name;

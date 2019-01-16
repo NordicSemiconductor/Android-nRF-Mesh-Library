@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class LightCtlTemperatureServer extends SigModel {
 
     public static final Creator<LightCtlTemperatureServer> CREATOR = new Creator<LightCtlTemperatureServer>() {

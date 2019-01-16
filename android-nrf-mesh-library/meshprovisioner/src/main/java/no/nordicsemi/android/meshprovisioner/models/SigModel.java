@@ -23,10 +23,11 @@
 package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
-import no.nordicsemi.android.meshprovisioner.configuration.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 
-public abstract class SigModel extends MeshModel {
+public abstract class SigModel extends MeshModel implements Parcelable {
 
     public static final int MODEL_ID_LENGTH = 2;
 

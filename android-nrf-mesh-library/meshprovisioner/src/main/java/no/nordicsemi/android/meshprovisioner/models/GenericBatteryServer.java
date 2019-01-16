@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class GenericBatteryServer extends SigModel {
 
     public static final Creator<GenericBatteryServer> CREATOR = new Creator<GenericBatteryServer>() {

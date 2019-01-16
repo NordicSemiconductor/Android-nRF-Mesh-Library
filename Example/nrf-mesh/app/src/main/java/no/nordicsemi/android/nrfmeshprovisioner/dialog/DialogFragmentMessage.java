@@ -29,26 +29,30 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 
-import no.nordicsemi.android.nrfmeshprovisioner.R;
-
 public class DialogFragmentMessage extends DialogFragment {
 
+    protected static final String ICON_RES_ID = "ICON_RES_ID";
     protected static final String TITLE = "TITLE";
     protected static final String MESSAGE = "MESSAGE";
-
     protected AlertDialog.Builder alertDialogBuilder;
+    protected String title;
+    protected String message;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getArguments() != null) {
+            title = getArguments().getString(TITLE);
+            message = getArguments().getString(MESSAGE);
+        }
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
 
-        alertDialogBuilder.setTitle(getArguments().getString(TITLE));
-        alertDialogBuilder.setMessage(getArguments().getString(MESSAGE));
+        alertDialogBuilder.setTitle(title);
+        alertDialogBuilder.setMessage(message);
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.setCancelable(false);
         alertDialog.setCanceledOnTouchOutside(false);

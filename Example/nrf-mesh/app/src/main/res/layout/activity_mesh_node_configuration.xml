@@ -22,320 +22,518 @@
   -->
 
 <!--suppress AndroidDomInspection -->
-<android.support.design.widget.CoordinatorLayout
+
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:ignore="ContentDescription">
+    android:layout_height="match_parent">
 
-    <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <android.support.design.widget.AppBarLayout
-            android:id="@+id/appbar_layout"
-            android:layout_width="0dp"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay"/>
+
+        <ProgressBar
+            android:id="@+id/configuration_progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:layout_marginTop="-8dp"
+            android:layout_marginBottom="-7dp"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/white"
+            android:visibility="invisible"/>
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+    </android.support.design.widget.AppBarLayout>
 
-            <ProgressBar
-                android:id="@+id/configuration_progress_bar"
-                style="?android:attr/progressBarStyleHorizontal"
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/main_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar_layout">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/activity_vertical_margin">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/composition_data_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="-7dp"
-                android:layout_marginTop="-8dp"
-                android:indeterminate="true"
-                android:indeterminateTint="@android:color/white"
-                android:visibility="invisible"/>
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
+                android:background="@color/white"
+                app:cardElevation="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible">
 
-        </android.support.design.widget.AppBarLayout>
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/background_title"
-            android:paddingBottom="4dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
-        <android.support.v4.widget.NestedScrollView
-            android:id="@+id/main_container"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/appbar_layout"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="@dimen/activity_vertical_margin"
-                android:clipToPadding="false">
-
-                <android.support.v7.widget.CardView
-                    android:id="@+id/composition_data_card"
+                <android.support.constraint.ConstraintLayout
+                    android:id="@+id/composition_data_container"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/activity_horizontal_margin"
-                    android:background="@android:color/white"
-                    app:cardElevation="1dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    tools:visibility="visible">
+                    android:layout_height="match_parent">
+
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/composition_data_tool_bar"
+                        android:layout_width="0dp"
+                        android:layout_height="?actionBarSize"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:logo="@drawable/ic_widgets_black_24dp_alpha"
+                        app:title="@string/title_elements"
+                        app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+                    <TextView
+                        android:id="@+id/no_elements"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
+                        android:paddingBottom="@dimen/activity_vertical_margin"
+                        android:text="@string/no_elements_guide_composition_data"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/composition_data_tool_bar"/>
+
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/recycler_view_elements"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        android:paddingBottom="@dimen/activity_vertical_margin"
+                        android:scrollbars="none"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/composition_data_tool_bar"/>
 
                     <android.support.constraint.ConstraintLayout
-                        android:id="@+id/composition_data_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:id="@+id/composition_action_container"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/no_elements">
 
-                        <android.support.v7.widget.Toolbar
-                            android:id="@+id/composition_data_tool_bar"
+                        <View
+                            android:id="@+id/div1"
                             android:layout_width="0dp"
-                            android:layout_height="?actionBarSize"
+                            android:layout_height="1dp"
+                            android:background="@drawable/divider"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:logo="@drawable/ic_widgets_black_24dp_alpha"
-                            app:title="@string/title_elements"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                            app:layout_constraintTop_toTopOf="parent"/>
+
+                        <Button
+                            android:id="@+id/action_get_compostion_data"
+                            style="@style/BlueTextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:padding="@dimen/activity_horizontal_margin"
+                            android:text="@string/action_composition_data"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/div1"/>
+                    </android.support.constraint.ConstraintLayout>
+
+
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/app_key_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:background="@color/white"
+                app:cardElevation="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/composition_data_card">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/app_key_tool_bar"
+                        android:layout_width="0dp"
+                        android:layout_height="?actionBarSize"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:logo="@drawable/ic_folder_key_black_24dp_alpha"
+                        app:title="@string/title_added_app_keys"
+                        app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+                    <android.support.constraint.ConstraintLayout
+                        android:id="@+id/container_app_key_bind"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?selectableItemBackground"
+                        android:paddingTop="@dimen/item_padding_top"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/app_key_tool_bar">
 
                         <TextView
-                            android:id="@+id/no_elements"
+                            android:id="@+id/no_app_keys"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="@string/no_elements_guide_composition_data"
-                            app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/composition_data_tool_bar"
                             android:paddingStart="@dimen/activity_horizontal_margin"
                             android:paddingEnd="@dimen/activity_horizontal_margin"
-                            android:paddingBottom="@dimen/activity_vertical_margin"/>
+                            android:paddingBottom="@dimen/activity_vertical_margin"
+                            android:text="@string/no_app_keys_added"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
 
 
                         <android.support.v7.widget.RecyclerView
-                            android:id="@+id/recycler_view_elements"
+                            android:id="@+id/recycler_view_app_keys"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:clipToPadding="false"
+                            android:paddingBottom="@dimen/activity_vertical_margin"
                             android:scrollbars="none"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/composition_data_tool_bar"
                             android:visibility="gone"
-                            android:paddingBottom="@dimen/activity_vertical_margin"/>
-
-                        <android.support.constraint.ConstraintLayout
-                            android:id="@+id/composition_action_container"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintTop_toBottomOf="@id/no_elements"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent">
-
-                            <View
-                                android:id="@+id/div1"
-                                android:layout_width="0dp"
-                                android:layout_height="1dp"
-                                android:background="@drawable/divider"
-                                app:layout_constraintLeft_toLeftOf="parent"
-                                app:layout_constraintRight_toRightOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"/>
-
-                            <Button
-                                android:id="@+id/action_get_compostion_data"
-                                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center_horizontal"
-                                android:layout_marginEnd="8dp"
-                                android:layout_marginStart="8dp"
-                                android:padding="@dimen/activity_horizontal_margin"
-                                android:text="@string/action_composition_data"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintRight_toRightOf="parent"
-                                app:layout_constraintTop_toBottomOf="@+id/div1"/>
-                        </android.support.constraint.ConstraintLayout>
-
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:visibility="visible"/>
 
                     </android.support.constraint.ConstraintLayout>
-                </android.support.v7.widget.CardView>
 
-                <android.support.v7.widget.CardView
-                    android:id="@+id/app_key_card"
+                    <include
+                        android:id="@+id/div2"
+                        layout="@layout/layout_divider"
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/icon"
+                        app:layout_constraintTop_toBottomOf="@id/container_app_key_bind"/>
+
+                    <Button
+                        android:id="@+id/action_add_app_keys"
+                        style="@style/BlueTextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginStart="@dimen/item_padding_end"
+                        android:layout_marginEnd="@dimen/item_padding_start"
+                        android:padding="@dimen/activity_horizontal_margin"
+                        android:text="@string/action_add"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/node_proxy_state_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:background="@color/white"
+                app:cardElevation="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/app_key_card">
+
+                <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:background="@android:color/white"
-                    app:cardElevation="1dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/composition_data_card">
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/node_proxy_tool_bar"
+                        android:layout_width="0dp"
+                        android:layout_height="?actionBarSize"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:logo="@drawable/ic_proxy_24dp_black_alpha"
+                        app:title="@string/title_proxy_state_settings"
+                        app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+                    <TextView
+                        android:id="@+id/proxy_state_summary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/activity_vertical_margin"
+                        android:text="@string/proxy_set_off_rationale"
+                        android:textSize="16sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/node_proxy_tool_bar"/>
+
+                    <include
+                        android:id="@+id/div2"
+                        layout="@layout/layout_divider"
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/icon"
+                        app:layout_constraintTop_toBottomOf="@id/proxy_state_summary"/>
+
+                    <Button
+                        android:id="@+id/action_get_proxy_state"
+                        style="@style/BlueTextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginStart="@dimen/item_padding_end"
+                        android:layout_marginEnd="@dimen/item_padding_start"
+                        android:padding="@dimen/activity_horizontal_margin"
+                        android:text="@string/action_proxy_state_get"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/action_set_proxy_state"
+                        app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                    <Button
+                        android:id="@+id/action_set_proxy_state"
+                        style="@style/RedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginStart="@dimen/item_padding_end"
+                        android:layout_marginEnd="@dimen/item_padding_start"
+                        android:padding="@dimen/activity_horizontal_margin"
+                        android:text="@string/action_proxy_state_set_on"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/div2"
+                        android:enabled="false"/>
+
+                </android.support.constraint.ConstraintLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/proxy_filter_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:background="@color/white"
+                app:cardElevation="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/node_proxy_state_card"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/proxy_filter_tool_bar"
+                        android:layout_width="0dp"
+                        android:layout_height="?actionBarSize"
+                        android:layout_marginEnd="8dp"
+                        app:layout_constraintEnd_toStartOf="@+id/filter_switch"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:logo="@drawable/ic_filter_list_black_alpha_24dp"
+                        app:title="@string/title_proxy_filter"
+                        app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+                    <Switch
+                        android:id="@+id/filter_switch"
+                        android:layout_width="150dp"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="@string/white_list_filter"
+                        android:textColor="@color/textColorSecondary"
+                        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                        app:layout_constraintBottom_toBottomOf="@+id/proxy_filter_tool_bar"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/proxy_filter_tool_bar"
+                        app:layout_constraintTop_toTopOf="@id/proxy_filter_tool_bar"/>
 
                     <android.support.constraint.ConstraintLayout
+                        android:id="@+id/container_proxy_filter"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <android.support.v7.widget.Toolbar
-                            android:id="@+id/app_key_tool_bar"
-                            android:layout_width="0dp"
-                            android:layout_height="?actionBarSize"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:logo="@drawable/ic_folder_key_black_24dp_alpha"
-                            app:title="@string/title_added_app_keys"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
-
-                        <android.support.constraint.ConstraintLayout
-                            android:id="@+id/container_app_key_bind"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="?selectableItemBackground"
-                            android:paddingTop="@dimen/item_padding_top"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/app_key_tool_bar">
-
-                            <TextView
-                                android:id="@+id/no_app_keys"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:text="@string/no_app_keys_added"
-                                app:layout_constraintLeft_toLeftOf="parent"
-                                app:layout_constraintRight_toRightOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                android:paddingStart="@dimen/activity_horizontal_margin"
-                                android:paddingEnd="@dimen/activity_horizontal_margin"
-                                android:paddingBottom="@dimen/activity_vertical_margin"/>
-
-
-                            <android.support.v7.widget.RecyclerView
-                                android:id="@+id/recycler_view_app_keys"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:clipToPadding="false"
-                                android:scrollbars="none"
-                                app:layout_constraintLeft_toLeftOf="parent"
-                                app:layout_constraintRight_toRightOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                android:visibility="gone"
-                                tools:visibility="visible"
-                                android:paddingBottom="@dimen/activity_vertical_margin"/>
-
-                        </android.support.constraint.ConstraintLayout>
-
-                        <include
-                            android:id="@+id/div2"
-                            layout="@layout/layout_divider"
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/icon"
-                            app:layout_constraintTop_toBottomOf="@id/container_app_key_bind"/>
-
-                        <Button
-                            android:id="@+id/action_add_app_keys"
-                            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginEnd="@dimen/item_padding_start"
-                            android:layout_marginStart="@dimen/item_padding_end"
-                            android:padding="@dimen/activity_horizontal_margin"
-                            android:text="@string/action_add_app_keys"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/div2"/>
-
-                    </android.support.constraint.ConstraintLayout>
-                </android.support.v7.widget.CardView>
-
-                <android.support.v7.widget.CardView
-                    android:id="@+id/node_reset_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:background="@android:color/white"
-                    app:cardElevation="1dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/app_key_card">
-
-                    <android.support.constraint.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <android.support.v7.widget.Toolbar
-                            android:id="@+id/node_reset_tool_bar"
-                            android:layout_width="0dp"
-                            android:layout_height="?actionBarSize"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:logo="@drawable/ic_reset_black_24dp_alpha"
-                            app:title="@string/title_reset_node"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                        android:layout_height="wrap_content"
+                        android:background="?selectableItemBackground"
+                        android:paddingTop="@dimen/item_padding_top"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/proxy_filter_tool_bar">
 
                         <TextView
-                            android:id="@+id/textview"
+                            android:id="@+id/no_addresses"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:paddingStart="@dimen/activity_horizontal_margin"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
+                            android:paddingBottom="@dimen/activity_vertical_margin"
+                            android:text="@string/no_addresses_added"
                             android:textSize="16sp"
-                            android:padding="@dimen/activity_vertical_margin"
-                            android:text="@string/reset_node_rationale"
-                            app:layout_constraintTop_toBottomOf="@id/node_reset_tool_bar"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"/>
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
 
-                        <include
-                            android:id="@+id/div2"
-                            layout="@layout/layout_divider"
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recycler_view_addresses"
                             android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/icon"
-                            app:layout_constraintTop_toBottomOf="@id/textview"/>
-
-                        <Button
-                            android:id="@+id/action_reset_node"
-                            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                            android:textColor="@android:color/holo_red_dark"
-                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginEnd="@dimen/item_padding_start"
-                            android:layout_marginStart="@dimen/item_padding_end"
-                            android:padding="@dimen/activity_horizontal_margin"
-                            android:text="@string/action_reset_node"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/div2"/>
+                            android:clipToPadding="false"
+                            android:paddingBottom="@dimen/activity_vertical_margin"
+                            android:scrollbars="none"
+                            android:visibility="gone"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:visibility="invisible"/>
 
                     </android.support.constraint.ConstraintLayout>
 
-                </android.support.v7.widget.CardView>
+                    <include
+                        android:id="@+id/div2"
+                        layout="@layout/layout_divider"
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/icon"
+                        app:layout_constraintTop_toBottomOf="@id/container_proxy_filter"/>
 
-            </android.support.constraint.ConstraintLayout>
-        </android.support.v4.widget.NestedScrollView>
-    </android.support.constraint.ConstraintLayout>
-</android.support.design.widget.CoordinatorLayout>
+                    <Button
+                        android:id="@+id/action_add_address"
+                        style="@style/BlueTextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginStart="@dimen/item_padding_end"
+                        android:layout_marginEnd="@dimen/item_padding_start"
+                        android:padding="@dimen/activity_horizontal_margin"
+                        android:text="@string/action_add"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+
+                    <Button
+                        android:id="@+id/action_clear_addresses"
+                        style="@style/RedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginStart="@dimen/item_padding_end"
+                        android:layout_marginEnd="@dimen/item_padding_start"
+                        android:padding="@dimen/activity_horizontal_margin"
+                        android:text="@string/action_clear"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="@id/action_add_address"
+                        app:layout_constraintEnd_toStartOf="@id/action_add_address"
+                        app:layout_constraintTop_toTopOf="@id/action_add_address"
+                        tools:visibility="visible"/>
+
+                    <TextView
+                        android:id="@+id/remove_hint"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/item_padding_end"
+                        android:padding="@dimen/activity_horizontal_margin"
+                        android:text="@string/hint_remove"
+                        app:layout_constraintBottom_toBottomOf="@id/action_add_address"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/action_add_address"/>
+
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/node_reset_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:background="@color/white"
+                app:cardElevation="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/proxy_filter_card">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.Toolbar
+                        android:id="@+id/node_reset_tool_bar"
+                        android:layout_width="0dp"
+                        android:layout_height="?actionBarSize"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:logo="@drawable/ic_reset_black_24dp_alpha"
+                        app:title="@string/title_reset_node"
+                        app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+                    <TextView
+                        android:id="@+id/textview"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/activity_vertical_margin"
+                        android:text="@string/reset_node_rationale"
+                        android:textSize="16sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/node_reset_tool_bar"/>
+
+                    <include
+                        android:id="@+id/div2"
+                        layout="@layout/layout_divider"
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/icon"
+                        app:layout_constraintTop_toBottomOf="@id/textview"/>
+
+                    <Button
+                        android:id="@+id/action_reset_node"
+                        style="@style/RedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginStart="@dimen/item_padding_end"
+                        android:layout_marginEnd="@dimen/item_padding_start"
+                        android:padding="@dimen/activity_horizontal_margin"
+                        android:text="@string/action_reset_node"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                </android.support.constraint.ConstraintLayout>
+
+            </android.support.v7.widget.CardView>
+
+        </android.support.constraint.ConstraintLayout>
+    </android.support.v4.widget.NestedScrollView>
+</android.support.constraint.ConstraintLayout>

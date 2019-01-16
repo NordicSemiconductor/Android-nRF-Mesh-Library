@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.models;
 
 import android.os.Parcel;
 
+@SuppressWarnings("WeakerAccess")
 public class GenericPropertyClient extends SigModel {
 
     public static final Creator<GenericPropertyClient> CREATOR = new Creator<GenericPropertyClient>() {

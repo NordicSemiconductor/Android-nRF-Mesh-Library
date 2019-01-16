@@ -22,24 +22,31 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.Locale;
+import java.util.Calendar;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
+@SuppressWarnings("WeakerAccess")
 public class MeshParserUtils {
 
     private static final String PATTERN_NETWORK_KEY = "[0-9a-fA-F]{32}";
+    private static final int TAI_YEAR = 2000;
+    private static final int TAI_MONTH = 1;
+    private static final int TAI_DATE = 1;
 
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MIN = 0x01;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MID = 0x80;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MAX = 0xFF;
-    public static final int DEFAULT_TTL = 0xFF;
+    public static final int USE_DEFAULT_TTL = 0xFF;
 
+    private static final int MIN_TTL = 0x00;
+    private static final int MAX_TTL = 0x7F;
     private static final int PROHIBITED_PUBLISH_TTL_MIN = 0x80;
     private static final int PROHIBITED_PUBLISH_TTL_MAX = 0xFE;
 
@@ -48,12 +55,12 @@ public class MeshParserUtils {
     private static final int UNICAST_ADDRESS_MIN = 0;
     private static final char[] HEX_ARRAY = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
-    public static final int RESOLUTION_100_MS   = 0b00;
-    public static final int RESOLUTION_1_S      = 0b01;
-    public static final int RESOLUTION_10_S     = 0b10;
-    public static final int RESOLUTION_10_M     = 0b11;
+    public static final int RESOLUTION_100_MS = 0b00;
+    public static final int RESOLUTION_1_S = 0b01;
+    public static final int RESOLUTION_10_S = 0b10;
+    public static final int RESOLUTION_10_M = 0b11;
 
-    public static final byte[] DISABLED_PUBLICATION_ADDRESS = new byte[] {0x00,0x00};
+    public static final byte[] DISABLED_PUBLICATION_ADDRESS = new byte[]{0x00, 0x00};
     public static final int GENERIC_ON_OFF_5_MS = 5;
 
     public static String bytesToHex(final byte[] bytes, final boolean add0x) {
@@ -88,17 +95,6 @@ public class MeshParserUtils {
         return bytes;
     }
 
-    public static int setByteArrayValue(final byte[] dest, final int offset, final String value) {
-        if (value == null)
-            return offset;
-
-        for (int i = 0; i < value.length(); i += 2) {
-            dest[offset + i / 2] = (byte) ((Character.digit(value.charAt(i), 16) << 244)
-                    + Character.digit(value.charAt(i + 1), 16));
-        }
-        return offset + value.length() / 2;
-    }
-
     private static boolean isValidKeyIndex(final Integer value) {
         return value == null || value != (value & 0xFFF);
     }
@@ -107,11 +103,55 @@ public class MeshParserUtils {
         return value != null && value == (value & 0x7FFF);
     }
 
-    public static boolean isValidUnicastAddress(final byte[] value) {
-        if(value == null)
+    /**
+     * Checks if the unicast address is valid
+     *
+     * @param address address to be validated
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidUnicastAddress(final byte[] address) {
+        if (address == null || address.length != 2)
             return false;
-        final int address = ((value[0] & 0xFF) << 8) | value[1] & 0xFF;
-        return address == (address & 0x7FFF);
+        final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
+
+        return addressVal > 0x0000 && addressVal <= 0x7FFF;
+    }
+
+    /**
+     * Checks if the address is a valid unassigned address
+     *
+     * @param address address to be validated
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidUnassignedAddress(final byte[] address) {
+        if (address == null|| address.length != 2)
+            return false;
+        final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
+
+        return addressVal == 0x0000;
+    }
+
+    /**
+     * Validates a given group address
+     *
+     * @param address group address
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidGroupAddress(@NonNull final byte[] address) {
+        if (address != null && address.length == 2) {
+            return (address[0] >= 0xC0 && address[0] <= 0xFF) && address[0] != 0xFF || !(address[1] >= 0x00 && address[1] <= 0xFB);
+        }
+        return false;
+    }
+
+    /**
+     * Validates a given group address
+     *
+     * @param address group address
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidGroupAddress(final int address) {
+        return (address >= 0xC000 && address <= 0xFEFF) || (address >= 0xFFFC && address <= 0xFFFF);
     }
 
     private static boolean isValidIvIndex(final Integer value) {
@@ -142,6 +182,10 @@ public class MeshParserUtils {
         return ByteBuffer.allocate(2).order(ByteOrder.BIG_ENDIAN).putShort((short) (keyIndex & 0x0FFF)).array();
     }
 
+    public static int removeKeyIndexPadding(final byte[] keyIndex) {
+        return keyIndex[0] & 0x0F | keyIndex[1];
+    }
+
     /**
      * Validates the ttl input
      *
@@ -154,7 +198,7 @@ public class MeshParserUtils {
 
         if (ttlInput == null) {
             throw new IllegalArgumentException(context.getString(R.string.error_empty_global_ttl));
-        } else if (ttlInput == PROHIBITED_DEFAULT_TTL_STATE_MIN || (ttlInput >= PROHIBITED_DEFAULT_TTL_STATE_MID && ttlInput <= PROHIBITED_DEFAULT_TTL_STATE_MAX)) {
+        } else if (!isValidTtl(ttlInput)) {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_global_ttl));
         }
 
@@ -396,10 +440,10 @@ public class MeshParserUtils {
     }
 
     public static byte[] getDstAddress(final byte[] pdu) {
-        return ByteBuffer.allocate(2).put(pdu, 8, 2).array(); // get dst address from pdu
+        return ByteBuffer.allocate(2).put(pdu, 8, 2).array(); // get mDst address from pdu
     }
 
-    private static int getSegmentedMessageLength(final HashMap<Integer, byte[]> segmentedMessageMap) {
+    private static int getSegmentedMessageLength(final SparseArray<byte[]> segmentedMessageMap) {
         int length = 0;
         for (int i = 0; i < segmentedMessageMap.size(); i++) {
             length += segmentedMessageMap.get(i).length;
@@ -407,7 +451,7 @@ public class MeshParserUtils {
         return length;
     }
 
-    public static byte[] concatenateSegmentedMessages(final HashMap<Integer, byte[]> segmentedMessages) {
+    public static byte[] concatenateSegmentedMessages(final SparseArray<byte[]> segmentedMessages) {
         final int length = getSegmentedMessageLength(segmentedMessages);
         final ByteBuffer completeBuffer = ByteBuffer.allocate(length);
         completeBuffer.order(ByteOrder.BIG_ENDIAN);
@@ -429,7 +473,7 @@ public class MeshParserUtils {
             case 1:
                 return accessPayload[0];
             case 2:
-                return ((short) (((accessPayload[0] << 8)) | (byte) ((accessPayload[1]) & 0xFF)));
+                return MeshParserUtils.unsignedBytesToInt(accessPayload[1], accessPayload[0]);
             case 3:
                 return ((byte) (accessPayload[0] & 0xFF) | (byte) ((accessPayload[1] << 8) & 0xFF) | (byte) ((accessPayload[2] << 16) & 0xFF));
         }
@@ -480,8 +524,8 @@ public class MeshParserUtils {
      * @param opCode opCode of mesh message
      * @return if the opcode is valid
      */
-    public static final boolean isValidOpcode(final int opCode) throws IllegalArgumentException{
-        if(opCode != (opCode & 0xFFFFFF))
+    public static boolean isValidOpcode(final int opCode) throws IllegalArgumentException {
+        if (opCode != (opCode & 0xFFFFFF))
             throw new IllegalArgumentException("Invalid opcode, opcode must be 1-3 octets");
 
         return true;
@@ -493,21 +537,31 @@ public class MeshParserUtils {
      * @param parameters opCode of mesh message
      * @return if the opcode is valid
      */
-    public static final boolean isValidParameters(final byte[] parameters) throws IllegalArgumentException{
-        if(parameters != null && parameters.length > 379)
+    public static boolean isValidParameters(final byte[] parameters) throws IllegalArgumentException {
+        if (parameters != null && parameters.length > 379)
             throw new IllegalArgumentException("Invalid parameters, parameters must be 0-379 octets");
 
         return true;
     }
 
     /**
-     * Checks if the publish ttl value is within the allowed range
+     * Checks if the ttl value is within the allowed range where the range is 0x00 - 0x7F
+     *
+     * @param ttl ttl
+     * @return true if valid and false otherwise
+     */
+    public static boolean isValidTtl(final int ttl) {
+        return (ttl >= MIN_TTL) && (ttl <= MAX_TTL);
+    }
+
+    /**
+     * Checks if the default publish ttl is used for publication
      *
      * @param publishTtl publish ttl
      * @return true if valid and false otherwise
      */
-    public static boolean validatePublishTtl(final int publishTtl) {
-        return (publishTtl < PROHIBITED_PUBLISH_TTL_MIN) || (publishTtl > PROHIBITED_PUBLISH_TTL_MAX) || (publishTtl == PROHIBITED_DEFAULT_TTL_STATE_MAX);
+    public static boolean isDefaultPublishTtl(final int publishTtl) {
+        return publishTtl == USE_DEFAULT_TTL;
     }
 
     /**
@@ -532,16 +586,16 @@ public class MeshParserUtils {
 
     /**
      * Returns the remaining time as a string
-     * @param remainingTime remaining time that for the transition to finish
      *
+     * @param remainingTime remaining time that for the transition to finish
      * @return remaining time as string.
      */
     public static String getRemainingTime(final int remainingTime) {
         final int stepResolution = remainingTime >> 6;
         final int numberOfSteps = remainingTime & 0x3F;
-        switch (stepResolution){
+        switch (stepResolution) {
             case RESOLUTION_100_MS:
-                return (numberOfSteps * 100)+ " milliseconds";
+                return (numberOfSteps * 100) + " milliseconds";
             case RESOLUTION_1_S:
                 return numberOfSteps + " seconds";
             case RESOLUTION_10_S:
@@ -559,9 +613,9 @@ public class MeshParserUtils {
      * @return remaining time as string.
      */
     public static String getRemainingTransitionTime(final int stepResolution, final int numberOfSteps) {
-        switch (stepResolution){
+        switch (stepResolution) {
             case RESOLUTION_100_MS:
-                return (numberOfSteps * 100)+ " ms";
+                return (numberOfSteps * 100) + " ms";
             case RESOLUTION_1_S:
                 return numberOfSteps + " s";
             case RESOLUTION_10_S:
@@ -577,8 +631,7 @@ public class MeshParserUtils {
      * Returns the remaining time in milliseconds
      *
      * @param resolution time resolution
-     * @param steps number of steps
-     *
+     * @param steps      number of steps
      * @return time in milliseconds
      */
     public static int getRemainingTime(final int resolution, final int steps) {
@@ -592,7 +645,7 @@ public class MeshParserUtils {
             case RESOLUTION_10_M:
                 return (steps * 10) * 1000 * 60;
         }
-        return  0;
+        return 0;
     }
 
     public static int getValue(final byte[] bytes) {
@@ -604,15 +657,25 @@ public class MeshParserUtils {
     /**
      * Convert a signed byte to an unsigned int.
      */
-    private static int unsignedByteToInt(byte b) {
+    public static int unsignedByteToInt(byte b) {
         return b & 0xFF;
     }
 
     /**
      * Convert signed bytes to a 16-bit unsigned int.
      */
-    private static int unsignedBytesToInt(byte b0, byte b1) {
+    public static int unsignedBytesToInt(byte b0, byte b1) {
         return (unsignedByteToInt(b0) + (unsignedByteToInt(b1) << 8));
+    }
+
+    public static int bytesToInt(byte[] b) {
+        return b.length == 4 ? ByteBuffer.wrap(b).getInt() : ByteBuffer.wrap(b).getShort();
+    }
+
+    public static byte[] intToBytes(int i) {
+        ByteBuffer b = ByteBuffer.allocate(4);
+        b.putInt(i);
+        return b.array();
     }
 
     /**
@@ -624,5 +687,20 @@ public class MeshParserUtils {
             unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
         }
         return unsigned;
+    }
+
+    /**
+     * Returns the international atomic time (TAI) in seconds
+     * <p>
+     * TAI seconds and is the number of seconds after 00:00:00 TAI on 2000-01-01
+     * </p>
+     *
+     * @param currentTime current time in milliseconds
+     */
+    public static long getInternationalAtomicTime(final long currentTime) {
+        final Calendar calendar = Calendar.getInstance();
+        calendar.set(TAI_YEAR, TAI_MONTH, TAI_DATE, 0, 0, 0);
+        final long millisSinceEpoch = calendar.getTimeInMillis();
+        return (currentTime - millisSinceEpoch) / 1000;
     }
 }

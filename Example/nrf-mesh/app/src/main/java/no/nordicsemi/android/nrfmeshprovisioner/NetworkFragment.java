@@ -40,9 +40,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.configuration.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.NodeAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -56,11 +58,8 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
+    private RecyclerView mRecyclerViewNodes;
     private NodeAdapter mAdapter;
-
-    public interface NetworkFragmentListener {
-        void onProvisionedMeshNodeSelected();
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,24 +72,26 @@ public class NetworkFragment extends Fragment implements Injectable,
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_network, null);
         // Configure the recycler view
-        final RecyclerView recyclerView = rootView.findViewById(R.id.recycler_view_provisioned_nodes);
+        mRecyclerViewNodes = rootView.findViewById(R.id.recycler_view_provisioned_nodes);
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
 
-        mViewModel = ViewModelProviders.of(getActivity(), mViewModelFactory).get(SharedViewModel.class);
+        mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
 
         boolean isTablet = getResources().getBoolean(R.bool.isTablet);
         if(isTablet){
-            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2)); //If its a tablet we use a grid layout with 2 columns
+            mRecyclerViewNodes.setLayoutManager(new GridLayoutManager(getContext(), 2)); //If its a tablet we use a grid layout with 2 columns
         } else {
-            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            mRecyclerViewNodes.setLayoutManager(new LinearLayoutManager(getContext()));
         }
-        mAdapter = new NodeAdapter(getActivity(), mViewModel.getMeshRepository().getProvisionedNodesLiveData());
+
+
+        mAdapter = new NodeAdapter(getActivity(), mViewModel.getProvisionedNodes());
         mAdapter.setOnItemClickListener(this);
-        recyclerView.setAdapter(mAdapter);
+        mRecyclerViewNodes.setAdapter(mAdapter);
 
         // Create view model containing utility methods for scanning
-        mViewModel.getMeshRepository().getProvisionedNodesLiveData().observe(this, provisionedNodesLiveData -> {
-            if(mAdapter.getItemCount() > 0) {
+        mViewModel.getProvisionedNodes().observe(this, nodes -> {
+            if(!nodes.isEmpty()) {
                 noNetworksConfiguredView.setVisibility(View.GONE);
             } else {
                 noNetworksConfiguredView.setVisibility(View.VISIBLE);
@@ -98,6 +99,15 @@ public class NetworkFragment extends Fragment implements Injectable,
             mAdapter.notifyDataSetChanged();
         });
 
+        mViewModel.getProvisionedNodes().observe(this, provisionedNodes -> requireActivity().invalidateOptionsMenu());
+
+        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
+            if(isConnected != null) {
+                requireActivity().invalidateOptionsMenu();
+            }
+        });
+
+        mViewModel.getConnectedMeshNodeAddress().observe(this, unicastAddress -> mAdapter.selectConnectedMeshNode(unicastAddress));
 
         return rootView;
 
@@ -106,17 +116,16 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public void onStart() {
         super.onStart();
-        mViewModel.refreshProvisionedNodes();
     }
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        if(!mViewModel.getProvisionedNodesLiveData().getProvisionedNodes().isEmpty()){
-
-            if (!mViewModel.isConenctedToMesh()) {
-                inflater.inflate(R.menu.connect, menu);
-            } else {
+        if(mViewModel.getProvisionedNodes().getValue() != null && !mViewModel.getProvisionedNodes().getValue().isEmpty()){
+            final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
+            if(isConnectedToNetwork != null && isConnectedToNetwork){
                 inflater.inflate(R.menu.disconnect, menu);
+            } else {
+                inflater.inflate(R.menu.connect, menu);
             }
         }
     }
@@ -127,7 +136,7 @@ public class NetworkFragment extends Fragment implements Injectable,
         switch (id) {
             case R.id.action_connect:
                 final Intent scannerActivity = new Intent(getContext(), ProvisionedNodesScannerActivity.class);
-                scannerActivity.putExtra(ProvisionedNodesScannerActivity.NETWORK_ID, mViewModel.getNetworkId());
+                scannerActivity.putExtra(ProvisionedNodesScannerActivity.NETWORK_ID, "");
                 startActivity(scannerActivity);
                 return true;
             case R.id.action_disconnect:
@@ -139,11 +148,11 @@ public class NetworkFragment extends Fragment implements Injectable,
 
     @Override
     public void onConfigureClicked(final ProvisionedMeshNode node) {
-        if(mViewModel.isConenctedToMesh()) {
-            ((NetworkFragmentListener) getActivity()).onProvisionedMeshNodeSelected();
+        final Boolean isConnectedToProxy = mViewModel.isConnectedToProxy().getValue();
+        if(isConnectedToProxy != null && isConnectedToProxy) {
+            mViewModel.setSelectedMeshNode(node);
             final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
-            meshConfigurationIntent.putExtra(Utils.EXTRA_DEVICE, node);
-            getActivity().startActivity(meshConfigurationIntent);
+            requireActivity().startActivity(meshConfigurationIntent);
         } else {
             Toast.makeText(getActivity(), R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();
         }
@@ -153,7 +162,6 @@ public class NetworkFragment extends Fragment implements Injectable,
     public void onDetailsClicked(final ProvisionedMeshNode node) {
         final Intent meshConfigurationIntent = new Intent(getActivity(), NodeDetailsActivity.class);
         meshConfigurationIntent.putExtra(Utils.EXTRA_DEVICE, node);
-        getActivity().startActivity(meshConfigurationIntent);
+        requireActivity().startActivity(meshConfigurationIntent);
     }
-
 }
