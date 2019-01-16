@@ -62,7 +62,7 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 
 @SuppressWarnings("WeakerAccess")
-public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks {
+public class MeshManagerApi implements MeshMngrApi {
 
     private static final String TAG = MeshManagerApi.class.getSimpleName();
     public final static UUID MESH_PROVISIONING_UUID = UUID.fromString("00001827-0000-1000-8000-00805F9B34FB");
@@ -160,7 +160,7 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, internalTransportCallbacks, internalMeshMgrCallbacks);
         mMeshMessageHandler = new MeshMessageHandler(context, internalTransportCallbacks);
         mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(networkLayerCallbacks);
-        mMeshMessageHandler.getMeshTransport().setUpperTransportLayerCallbacks(this);
+        mMeshMessageHandler.getMeshTransport().setUpperTransportLayerCallbacks(upperTransportLayerCallbacks);
 
         //Init database
         initDb(context);
@@ -815,22 +815,6 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
         }
     }
 
-    @Override
-    public byte[] getIvIndex() {
-        return ByteBuffer.allocate(4).putInt(mMeshNetwork.getIvIndex()).array();
-    }
-
-    @Override
-    public byte[] getApplicationKey(final int aid) {
-        for (ApplicationKey key : mMeshNetwork.getAppKeys()) {
-            final byte[] k = key.getKey();
-            if (aid == SecureUtils.calculateK4(k)) {
-                return key.getKey();
-            }
-        }
-        return null;
-    }
-
     @SuppressWarnings("FieldCanBeLocal")
     private final InternalTransportCallbacks internalTransportCallbacks = new InternalTransportCallbacks() {
         @Override
@@ -943,6 +927,27 @@ public class MeshManagerApi implements MeshMngrApi, UpperTransportLayerCallbacks
         @Override
         public NetworkKey getPrimaryNetworkKey() {
             return mMeshNetwork.getPrimaryNetworkKey();
+        }
+    };
+
+    @SuppressWarnings("FieldCanBeLocal")
+    private final UpperTransportLayerCallbacks upperTransportLayerCallbacks = new UpperTransportLayerCallbacks() {
+
+
+        @Override
+        public byte[] getIvIndex() {
+            return ByteBuffer.allocate(4).putInt(mMeshNetwork.getIvIndex()).array();
+        }
+
+        @Override
+        public byte[] getApplicationKey(final int aid) {
+            for (ApplicationKey key : mMeshNetwork.getAppKeys()) {
+                final byte[] k = key.getKey();
+                if (aid == SecureUtils.calculateK4(k)) {
+                    return key.getKey();
+                }
+            }
+            return null;
         }
     };
 

@@ -317,7 +317,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      *
      * @param device bluetooth device
      */
-    public void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
+    void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
         mMeshNetworkLiveData.getValue().setNodeName(device.getName());
         mIsProvisioningComplete = false;
         mIsCompositionDataReceived = false;
@@ -351,7 +351,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Disconnects from peripheral
      */
-    public void disconnect() {
+    void disconnect() {
         clearProvisioningLiveData();
         removeCallbacks();
         mIsProvisioningComplete = false;
@@ -895,6 +895,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
         //Refresh mesh network live data
         mMeshNetworkLiveData.refresh(mMeshManagerApi.getMeshNetwork());
+    }
+
+    @Override
+    public void onMessageDecryptionFailed(final String meshLayer, final String errorMessage) {
+        Log.e(TAG,  "Decryption failed in " + meshLayer + " : " + errorMessage);
     }
 
     /**

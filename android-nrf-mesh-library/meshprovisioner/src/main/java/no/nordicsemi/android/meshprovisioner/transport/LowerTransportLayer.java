@@ -32,6 +32,7 @@ import java.nio.ByteOrder;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.TransportLayerOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 abstract class LowerTransportLayer extends UpperTransportLayer {
@@ -542,7 +543,8 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
      * @param decryptedProxyPdu The complete pdu was received from the node. This is already de-obfuscated and decrypted at network layer.
      */
     /*package*/
-    final void parseUnsegmentedControlLowerTransportPDU(final ControlMessage controlMessage, final byte[] decryptedProxyPdu) {
+    final void parseUnsegmentedControlLowerTransportPDU(final ControlMessage controlMessage,
+                                                        final byte[] decryptedProxyPdu) throws ExtendedInvalidCipherTextException {
 
         final SparseArray<byte[]> unsegmentedMessages = new SparseArray<>();
         final int lowerTransportPduLength = decryptedProxyPdu.length - 10;

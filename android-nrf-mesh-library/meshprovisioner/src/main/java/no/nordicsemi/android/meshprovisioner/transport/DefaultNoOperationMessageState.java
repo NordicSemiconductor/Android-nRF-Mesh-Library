@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.spongycastle.crypto.InvalidCipherTextException;
+
 import java.util.ArrayList;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
@@ -14,6 +16,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.opcodes.ProxyConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
+import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
@@ -39,15 +42,21 @@ class DefaultNoOperationMessageState extends MeshMessageState {
     }
 
     void parseMeshPdu(final byte[] pdu) {
-        final Message message = mMeshTransport.parsePdu(pdu);
-        if (message != null) {
-            if (message instanceof AccessMessage) {
-                parseAccessMessage((AccessMessage) message);
+        final Message message;
+        try {
+            message = mMeshTransport.parsePdu(pdu);
+            if (message != null) {
+                if (message instanceof AccessMessage) {
+                    parseAccessMessage((AccessMessage) message);
+                } else {
+                    parseControlMessage((ControlMessage) message);
+                }
             } else {
-                parseControlMessage((ControlMessage) message);
+                Log.v(TAG, "Message reassembly may not be completed yet!");
             }
-        } else {
-            Log.v(TAG, "Message reassembly may not be completed yet!");
+        } catch (ExtendedInvalidCipherTextException e) {
+            Log.e(TAG, "Decryption failed in " + e.getTag() + " : " + e.getMessage());
+            mMeshStatusCallbacks.onMessageDecryptionFailed(e.getTag(), e.getMessage());
         }
     }
 
@@ -60,6 +69,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
         final byte[] accessPayload = message.getAccessPdu();
         final ProvisionedMeshNode node = mInternalTransportCallbacks.getProvisionedNode(message.getSrc());
         final int opCodeLength = ((accessPayload[0] & 0xF0) >> 6);
+        //OpCode length
         switch (opCodeLength) {
             case 0:
                 if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS) {
