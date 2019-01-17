@@ -39,6 +39,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.NodeDetailsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ProvisionedNodesScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.PublicationSettingsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ReconnectActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.ScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.VendorModelActivity;
 
 @Module
@@ -60,7 +61,10 @@ abstract class ActivitiesModule {
 	abstract BaseModelConfigurationActivity contributeBaseModelConfigurationActivity();
 
 	@ContributesAndroidInjector()
-	abstract ProvisionedNodesScannerActivity contributeScannerActivity();
+	abstract ProvisionedNodesScannerActivity contributeProvScannerActivity();
+
+	@ContributesAndroidInjector()
+	abstract ScannerActivity contributeScannerActivity();
 
 	@ContributesAndroidInjector()
 	abstract ReconnectActivity contributeReconnectActivity();

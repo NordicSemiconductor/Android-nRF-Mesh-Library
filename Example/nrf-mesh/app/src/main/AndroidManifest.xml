@@ -67,6 +67,9 @@
             android:name=".ProvisionedNodesScannerActivity"
             android:launchMode="singleTop"/>
         <activity
+            android:name=".ScannerActivity"
+            android:launchMode="singleTop"/>
+        <activity
             android:name=".ReconnectActivity"
             android:launchMode="singleTop"/>
         <activity

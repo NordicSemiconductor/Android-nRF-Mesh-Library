@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -40,8 +41,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
@@ -53,7 +52,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 public class NetworkFragment extends Fragment implements Injectable,
         NodeAdapter.OnItemClickListener {
 
-    SharedViewModel mViewModel;
+    private static final String TAG_SCANNER_FRAGMENT = "SCANNER_FRAGMENT";
+    private SharedViewModel mViewModel;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -73,12 +73,13 @@ public class NetworkFragment extends Fragment implements Injectable,
         final View rootView = inflater.inflate(R.layout.fragment_network, null);
         // Configure the recycler view
         mRecyclerViewNodes = rootView.findViewById(R.id.recycler_view_provisioned_nodes);
+        final FloatingActionButton fab = rootView.findViewById(R.id.fab_add_node);
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
 
         mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
 
         boolean isTablet = getResources().getBoolean(R.bool.isTablet);
-        if(isTablet){
+        if (isTablet) {
             mRecyclerViewNodes.setLayoutManager(new GridLayoutManager(getContext(), 2)); //If its a tablet we use a grid layout with 2 columns
         } else {
             mRecyclerViewNodes.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -91,7 +92,7 @@ public class NetworkFragment extends Fragment implements Injectable,
 
         // Create view model containing utility methods for scanning
         mViewModel.getProvisionedNodes().observe(this, nodes -> {
-            if(!nodes.isEmpty()) {
+            if (!nodes.isEmpty()) {
                 noNetworksConfiguredView.setVisibility(View.GONE);
             } else {
                 noNetworksConfiguredView.setVisibility(View.VISIBLE);
@@ -102,12 +103,17 @@ public class NetworkFragment extends Fragment implements Injectable,
         mViewModel.getProvisionedNodes().observe(this, provisionedNodes -> requireActivity().invalidateOptionsMenu());
 
         mViewModel.isConnectedToProxy().observe(this, isConnected -> {
-            if(isConnected != null) {
+            if (isConnected != null) {
                 requireActivity().invalidateOptionsMenu();
             }
         });
 
         mViewModel.getConnectedMeshNodeAddress().observe(this, unicastAddress -> mAdapter.selectConnectedMeshNode(unicastAddress));
+
+        fab.setOnClickListener(v -> {
+            final Intent intent = new Intent(requireActivity(), ScannerActivity.class);
+            startActivity(intent);
+        });
 
         return rootView;
 
@@ -120,9 +126,9 @@ public class NetworkFragment extends Fragment implements Injectable,
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        if(mViewModel.getProvisionedNodes().getValue() != null && !mViewModel.getProvisionedNodes().getValue().isEmpty()){
+        if (mViewModel.getProvisionedNodes().getValue() != null && !mViewModel.getProvisionedNodes().getValue().isEmpty()) {
             final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-            if(isConnectedToNetwork != null && isConnectedToNetwork){
+            if (isConnectedToNetwork != null && isConnectedToNetwork) {
                 inflater.inflate(R.menu.disconnect, menu);
             } else {
                 inflater.inflate(R.menu.connect, menu);
@@ -149,7 +155,7 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public void onConfigureClicked(final ProvisionedMeshNode node) {
         final Boolean isConnectedToProxy = mViewModel.isConnectedToProxy().getValue();
-        if(isConnectedToProxy != null && isConnectedToProxy) {
+        if (isConnectedToProxy != null && isConnectedToProxy) {
             mViewModel.setSelectedMeshNode(node);
             final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
             requireActivity().startActivity(meshConfigurationIntent);
