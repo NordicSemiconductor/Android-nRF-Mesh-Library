@@ -45,6 +45,7 @@ import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
 public class Utils {
 
+    public static final String EXTRA_DATA_PROVISIONING_SERVICE = "EXTRA_DATA_PROVISIONING_SERVICE";
     public static final String HEX_PATTERN = "^[0-9a-fA-F]+$";
     public static final String EXTRA_MODEL_ID = "EXTRA_MODEL_ID";
     public static final String EXTRA_ELEMENT_ADDRESS = "EXTRA_ELEMENT_ADDRESS";
@@ -55,11 +56,13 @@ public class Utils {
     public static final String PROVISIONING_COMPLETED = "PROVISIONING_COMPLETED";
     public static final String COMPOSITION_DATA_COMPLETED = "COMPOSITION_DATA_COMPLETED";
     public static final String APP_KEY_ADD_COMPLETED = "APP_KEY_ADD_COMPLETED";
+    public static final String EXTRA_DATA = "EXTRA_DATA";
     private static final String PREFS_LOCATION_NOT_REQUIRED = "location_not_required";
     private static final String PREFS_PERMISSION_REQUESTED = "permission_requested";
     private static final String PREFS_READ_STORAGE_PERMISSION_REQUESTED = "read_storage_permission_requested";
     private static final String PREFS_WRITE_STORAGE_PERMISSION_REQUESTED = "write_storage_permission_requested";
     public static final int PROVISIONING_SUCCESS = 2112;
+    public static final int CONNECT_TO_NETWORK = 2113;
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
 
     /**

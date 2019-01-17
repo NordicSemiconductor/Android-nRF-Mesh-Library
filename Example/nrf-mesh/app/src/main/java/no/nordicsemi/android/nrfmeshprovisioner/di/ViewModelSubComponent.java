@@ -27,7 +27,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ManageAppKeysViewMode
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionedNodesScannerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ReconnectViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerViewModel;
@@ -52,6 +51,5 @@ public interface ViewModelSubComponent {
 	NodeConfigurationViewModel meshConfigurationViewModel();
 	ModelConfigurationViewModel modelConfigurationViewModel();
 	PublicationViewModel publicationViewModel();
-	ProvisionedNodesScannerViewModel provScannerViewModel();
 	ReconnectViewModel reconnectViewModule();
 }

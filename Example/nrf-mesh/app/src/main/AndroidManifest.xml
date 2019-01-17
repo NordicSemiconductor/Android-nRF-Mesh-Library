@@ -64,9 +64,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ProvisionedNodesScannerActivity"
-            android:launchMode="singleTop"/>
-        <activity
             android:name=".ScannerActivity"
             android:launchMode="singleTop"/>
         <activity

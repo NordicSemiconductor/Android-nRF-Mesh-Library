@@ -144,11 +144,6 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
     }
 
     @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
     public void onItemClick(final ExtendedBluetoothDevice device) {
         mSharedViewModel.disconnect();
         final Intent meshProvisionerIntent = new Intent(getActivity(), MeshProvisionerActivity.class);

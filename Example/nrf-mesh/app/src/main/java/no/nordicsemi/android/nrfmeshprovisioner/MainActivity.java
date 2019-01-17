@@ -103,30 +103,6 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Utils.PROVISIONING_SUCCESS) {
-            if (resultCode == RESULT_OK) {
-                final boolean provisioningSuccess = data.getBooleanExtra(Utils.PROVISIONING_COMPLETED, false);
-                if (provisioningSuccess) {
-                    mBottomNavigationView.setSelectedItemId(R.id.action_network);
-                    final boolean compositionDataReceived = data.getBooleanExtra(Utils.COMPOSITION_DATA_COMPLETED, false);
-                    final boolean appKeyAddCompleted = data.getBooleanExtra(Utils.APP_KEY_ADD_COMPLETED, false);
-                    final DialogFragmentConfigError fragmentConfigError;
-                    if(compositionDataReceived){
-                        if(!appKeyAddCompleted){
-                            fragmentConfigError =
-                                    DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                            , getString(R.string.init_config_error_app_key_msg));
-                            fragmentConfigError.show(getSupportFragmentManager(), null);
-                        }
-                    } else {
-                        fragmentConfigError =
-                                DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                        , getString(R.string.init_config_error_all));
-                        fragmentConfigError.show(getSupportFragmentManager(), null);
-                    }
-                }
-            }
-        }
     }
 
     @Override

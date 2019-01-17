@@ -78,6 +78,7 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
     View mNoBluetoothView;
 
     private ScannerViewModel mViewModel;
+    private boolean mScanWithProxyService;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -85,15 +86,24 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
         setContentView(R.layout.activity_scanner);
         ButterKnife.bind(this);
 
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.title_scanning);
-
         // Create view model containing utility methods for scanning
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ScannerViewModel.class);
         mViewModel.getScannerRepository().getScannerState().startScanning();
         mViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
+
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.title_scanner);
+
+        if (getIntent() != null) {
+            mScanWithProxyService = getIntent().getBooleanExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, true);
+            if(mScanWithProxyService) {
+                getSupportActionBar().setSubtitle(R.string.sub_title_scanning_nodes);
+            } else {
+                getSupportActionBar().setSubtitle(R.string.sub_title_scanning_proxy_node);
+            }
+        }
 
         // Configure the recycler view
         final RecyclerView recyclerViewDevices = findViewById(R.id.recycler_view_ble_devices);
@@ -104,11 +114,6 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
         adapter.setOnItemClickListener(this);
         recyclerViewDevices.setAdapter(adapter);
 
-		/*mViewModel.isDeviceReady().observe(this, isDeviceReady -> {
-			if(isDeviceReady){
-				finish();
-			}
-		});*/
 
     }
 
@@ -142,15 +147,28 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
             if (resultCode == RESULT_OK) {
                 setResultIntent(data);
             }
+        } else if (requestCode == Utils.CONNECT_TO_NETWORK) {
+            if (resultCode == RESULT_OK) {
+                finish();
+            }
         }
     }
 
     @Override
     public void onItemClick(final ExtendedBluetoothDevice device) {
+        //We must disconnect from any nodes that we are connected to before we start scanning.
+        mViewModel.disconnect();
+        final Intent intent;
         stopScan();
-        final Intent meshProvisionerIntent = new Intent(this, MeshProvisionerActivity.class);
-        meshProvisionerIntent.putExtra(Utils.EXTRA_DEVICE, device);
-        startActivityForResult(meshProvisionerIntent, Utils.PROVISIONING_SUCCESS);
+        if (mScanWithProxyService) {
+            intent = new Intent(this, MeshProvisionerActivity.class);
+            intent.putExtra(Utils.EXTRA_DEVICE, device);
+            startActivityForResult(intent, Utils.PROVISIONING_SUCCESS);
+        } else {
+            intent = new Intent(this, ReconnectActivity.class);
+            intent.putExtra(Utils.EXTRA_DEVICE, device);
+            startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
+        }
     }
 
     @Override
@@ -188,7 +206,6 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
         startActivity(intent);
     }
 
-
     /**
      * Start scanning for Bluetooth devices or displays a message based on the scanner state.
      */
@@ -202,7 +219,11 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
                 mNoBluetoothView.setVisibility(View.GONE);
 
                 // We are now OK to start scanning
-                mViewModel.getScannerRepository().startScan(BleMeshManager.MESH_PROVISIONING_UUID);
+                if (mScanWithProxyService) {
+                    mViewModel.getScannerRepository().startScan(BleMeshManager.MESH_PROVISIONING_UUID);
+                } else {
+                    mViewModel.getScannerRepository().startScan(BleMeshManager.MESH_PROXY_UUID);
+                }
                 mScanningView.setVisibility(View.VISIBLE);
 
                 if (state.isEmpty()) {
@@ -232,7 +253,6 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
             mPermissionSettingsButton.setVisibility(deniedForever ? View.VISIBLE : View.GONE);
         }
     }
-
 
     /**
      * stop scanning for bluetooth devices.

@@ -50,7 +50,6 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
 		creators.put(NodeConfigurationViewModel.class, viewModelSubComponent::meshConfigurationViewModel);
 		creators.put(ModelConfigurationViewModel.class, viewModelSubComponent::modelConfigurationViewModel);
 		creators.put(PublicationViewModel.class, viewModelSubComponent::publicationViewModel);
-		creators.put(ProvisionedNodesScannerViewModel.class, viewModelSubComponent::provScannerViewModel);
 		creators.put(ReconnectViewModel.class, viewModelSubComponent::reconnectViewModule);
 	}
 

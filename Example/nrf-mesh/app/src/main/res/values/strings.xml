@@ -23,7 +23,9 @@
 <resources>
     <string name="app_name">nRF Mesh</string>
     <string name="feature_name">Mesh Provisioner</string>
-    <string name="title_scanning">Scanning</string>
+    <string name="title_scanner">Scanner</string>
+    <string name="sub_title_scanning_nodes">Looking for unprovisioned proxy nodes…</string>
+    <string name="sub_title_scanning_proxy_node">Looking for provisioned proxy nodes…</string>
 
     <string name="title">@string/app_name</string>
 

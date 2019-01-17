@@ -46,8 +46,11 @@ import javax.inject.Inject;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.NodeAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
+
+import static android.app.Activity.RESULT_OK;
 
 public class NetworkFragment extends Fragment implements Injectable,
         NodeAdapter.OnItemClickListener {
@@ -112,7 +115,8 @@ public class NetworkFragment extends Fragment implements Injectable,
 
         fab.setOnClickListener(v -> {
             final Intent intent = new Intent(requireActivity(), ScannerActivity.class);
-            startActivity(intent);
+            intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, true);
+            startActivityForResult(intent, Utils.PROVISIONING_SUCCESS);
         });
 
         return rootView;
@@ -141,15 +145,43 @@ public class NetworkFragment extends Fragment implements Injectable,
         final int id = item.getItemId();
         switch (id) {
             case R.id.action_connect:
-                final Intent scannerActivity = new Intent(getContext(), ProvisionedNodesScannerActivity.class);
-                scannerActivity.putExtra(ProvisionedNodesScannerActivity.NETWORK_ID, "");
-                startActivity(scannerActivity);
+                final Intent intent = new Intent(requireActivity(), ScannerActivity.class);
+                intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, false);
+                startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
                 return true;
             case R.id.action_disconnect:
                 mViewModel.disconnect();
                 return true;
         }
         return false;
+    }
+
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        if (requestCode == Utils.PROVISIONING_SUCCESS) {
+            if (resultCode == RESULT_OK) {
+                final boolean provisioningSuccess = data.getBooleanExtra(Utils.PROVISIONING_COMPLETED, false);
+                if (provisioningSuccess) {
+                    final boolean compositionDataReceived = data.getBooleanExtra(Utils.COMPOSITION_DATA_COMPLETED, false);
+                    final boolean appKeyAddCompleted = data.getBooleanExtra(Utils.APP_KEY_ADD_COMPLETED, false);
+                    final DialogFragmentConfigError fragmentConfigError;
+                    if(compositionDataReceived){
+                        if(!appKeyAddCompleted){
+                            fragmentConfigError =
+                                    DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                            , getString(R.string.init_config_error_app_key_msg));
+                            fragmentConfigError.show(getChildFragmentManager(), null);
+                        }
+                    } else {
+                        fragmentConfigError =
+                                DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                        , getString(R.string.init_config_error_all));
+                        fragmentConfigError.show(getChildFragmentManager(), null);
+                    }
+                }
+                requireActivity().invalidateOptionsMenu();
+            }
+        }
     }
 
     @Override
