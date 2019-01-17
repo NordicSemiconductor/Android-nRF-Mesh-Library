@@ -39,7 +39,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/network_recycler_view_bottom_padding"/>
 
         <include
             android:id="@+id/no_networks_configured"
