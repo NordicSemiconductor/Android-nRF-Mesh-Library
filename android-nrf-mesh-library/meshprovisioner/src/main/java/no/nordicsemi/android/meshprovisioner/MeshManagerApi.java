@@ -864,11 +864,11 @@ public class MeshManagerApi implements MeshMngrApi {
                         break;
                     }
                 }
-                mMeshNetworkDb.updateProvisioner(mProvisionerDao, mMeshNetwork.getSelectedProvisioner());
-                mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
-                mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
-                mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
             }
+            mMeshNetworkDb.updateProvisioner(mProvisionerDao, mMeshNetwork.getSelectedProvisioner());
+            mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
+            mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
+            mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
     };
 
