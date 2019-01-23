@@ -2,17 +2,22 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.arch.persistence.room.Entity;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess", "unused", "UnusedReturnValue"})
 @Entity(tableName = "mesh_network")
 public final class MeshNetwork extends BaseMeshNetwork {
 
@@ -99,8 +104,88 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return Collections.unmodifiableList(groups);
     }
 
-    void setGroups(List<Group> groups) {
+    void setGroups(final List<Group> groups) {
         this.groups = groups;
+    }
+
+    /**
+     * Adds a group to the existing group list within the network
+     *
+     * @param group to be added
+     * @return true if the group was successfully added and false otherwise since a group may already exist with the same group address
+     */
+    public boolean addGroup(@NonNull final Group group) {
+        if (!isGroupExist(group)) {
+            this.groups.add(group);
+            if(mCallbacks != null) {
+                mCallbacks.onGroupAdded(group);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public Group getGroup(@NonNull final byte[] address) {
+        for (final Group group : groups) {
+            if (Arrays.equals(group.getGroupAddress(), address)) {
+                return group;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns true if a group exists with the same address
+     *
+     * @param address Group address
+     */
+    public boolean isGroupExist(@NonNull final byte[] address) {
+        for (final Group group : groups) {
+            if (Arrays.equals(group.getGroupAddress(), address)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if a group exists with the given group. This is checked against the group address.
+     *
+     * @param group Group to check
+     */
+    public boolean isGroupExist(@NonNull final Group group) {
+        for (final Group grp : groups) {
+            if (Arrays.equals(grp.getGroupAddress(), group.getGroupAddress())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns a list of models assigned to a particular group
+     *
+     * @param group group
+     */
+    public List<MeshModel> getModels(final Group group) {
+        final List<MeshModel> models = new ArrayList<>();
+        for (final ProvisionedMeshNode node : nodes) {
+            for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
+                final Element element = elementEntry.getValue();
+                for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                    final MeshModel model = modelEntry.getValue();
+                    if (model != null) {
+                        final List<byte[]> subscriptionAddresses = model.getSubscriptionAddresses();
+                        for (byte[] subscriptionAddress : subscriptionAddresses) {
+                            if (Arrays.equals(group.getGroupAddress(), subscriptionAddress)) {
+                                models.add(model);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return models;
     }
 
     public List<Scene> getScenes() {
