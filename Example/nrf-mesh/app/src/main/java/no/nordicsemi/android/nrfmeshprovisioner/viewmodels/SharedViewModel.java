@@ -64,12 +64,15 @@ public class SharedViewModel extends ViewModel {
         mScannerRepository.unregisterBroadcastReceivers();
     }
 
-
     /**
      * Returns an instance of the scanner repository
      */
     public ScannerRepository getScannerRepository() {
         return mScannerRepository;
+    }
+
+    public NrfMeshRepository getnRFMeshRepository() {
+        return nRFMeshRepository;
     }
 
     /**
@@ -129,5 +132,9 @@ public class SharedViewModel extends ViewModel {
 
     public LiveData<Integer> getConnectedMeshNodeAddress(){
         return nRFMeshRepository.getConnectedMeshNodeAddress();
+    }
+
+    public void setSelectedGroup(final byte [] address){
+        nRFMeshRepository.setSelectedGroup(address);
     }
 }

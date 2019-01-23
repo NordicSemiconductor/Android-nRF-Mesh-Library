@@ -109,7 +109,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                         if (progress >= lastValue) {
                             mTransitionSteps = progress - 168;
                             lastValue = progress;
-                        } else if (progress < lastValue) {
+                        } else {
                             mTransitionSteps = -(168 - progress);
                         }
                         mTransitionStepResolution = 3;
@@ -232,7 +232,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
             final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
             final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-            if (!model.getSubscriptionAddresses().isEmpty()) {
+            /*if (!model.getSubscriptionAddresses().isEmpty()) {
                 for (byte[] address : model.getSubscriptionAddresses()) {
                     final MeshMessage message;
                     Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
@@ -241,7 +241,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                     mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
                     showProgressbar();
                 }
-            } else {
+            } else*/ {
                 final byte[] address = element.getElementAddress();
                 Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
                         + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));

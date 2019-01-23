@@ -24,8 +24,8 @@ package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
+import no.nordicsemi.android.nrfmeshprovisioner.GroupsFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.NetworkFragment;
-import no.nordicsemi.android.nrfmeshprovisioner.ScannerFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.SettingsFragment;
 
 @Module
@@ -33,7 +33,7 @@ abstract class FragmentBuildersModule {
 	@ContributesAndroidInjector
 	abstract NetworkFragment contributeNetworkFragment();
 	@ContributesAndroidInjector
-	abstract ScannerFragment contributeScannerFragment();
+	abstract GroupsFragment contributeGroupFragment();
 	@ContributesAndroidInjector
 	abstract SettingsFragment contributeSettingsFragment();
 }

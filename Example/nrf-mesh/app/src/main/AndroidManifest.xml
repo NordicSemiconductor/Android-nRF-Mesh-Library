@@ -70,6 +70,9 @@
             android:name=".ReconnectActivity"
             android:launchMode="singleTop"/>
         <activity
+            android:name=".GroupControlsActivity"
+            android:launchMode="singleTop"/>
+        <activity
             android:name=".ManageAppKeysActivity"
             android:launchMode="singleTop"/>
         <activity

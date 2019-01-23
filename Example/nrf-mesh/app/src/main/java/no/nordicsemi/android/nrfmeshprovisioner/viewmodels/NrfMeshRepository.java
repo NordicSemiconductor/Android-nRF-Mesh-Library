@@ -13,10 +13,12 @@ import android.util.Log;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
+import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshManagerCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
@@ -138,6 +140,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      **/
     final MutableLiveData<Element> mElement = new MutableLiveData<>();
 
+    private final MutableLiveData<Group> mSelectedGroupLiveData = new MutableLiveData<>();
     /**
      * Composition data status
      **/
@@ -149,7 +152,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     final SingleLiveEvent<ConfigAppKeyStatus> mAppKeyStatus = new SingleLiveEvent<>();
 
     /**
-     * Contains the initial provisioning live data
+     * Contains the MeshNetwork
      **/
     private MeshNetworkLiveData mMeshNetworkLiveData = new MeshNetworkLiveData();
 
@@ -302,6 +305,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      */
     MeshMessageLiveData getMeshMessageLiveData() {
         return mMeshMessageLiveData;
+    }
+
+    LiveData<Group> getSelectedGroup() {
+        return mSelectedGroupLiveData;
     }
 
     /**
@@ -582,11 +589,13 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onNetworkLoaded(final MeshNetwork meshNetwork) {
         loadNetwork(meshNetwork);
+        generateGroups();
     }
 
     @Override
     public void onNetworkUpdated(final MeshNetwork meshNetwork) {
         loadNetwork(meshNetwork);
+        generateGroups();
     }
 
     @Override
@@ -899,7 +908,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onMessageDecryptionFailed(final String meshLayer, final String errorMessage) {
-        Log.e(TAG,  "Decryption failed in " + meshLayer + " : " + errorMessage);
+        Log.e(TAG, "Decryption failed in " + meshLayer + " : " + errorMessage);
     }
 
     /**
@@ -1020,5 +1029,40 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         //We disconnect from the current mesh network before importing one
         mBleMeshManager.disconnect();
         mMeshManagerApi.importMeshNetwork(uri);
+    }
+
+    /**
+     * Generates the groups based on the addresses each models have subscribed to
+     */
+    private void generateGroups() {
+        final String uuid = mMeshNetwork.getMeshUUID();
+        final List<Group> groups = new ArrayList<>();
+        for (final ProvisionedMeshNode node : mMeshNetwork.getProvisionedNodes()) {
+            for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
+                final Element element = elementEntry.getValue();
+                for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                    final MeshModel model = modelEntry.getValue();
+                    if (model != null) {
+                        final List<byte[]> subscriptionAddresses = model.getSubscriptionAddresses();
+                        for (byte[] address : subscriptionAddresses) {
+                            if (!mMeshNetwork.isGroupExist(address)) {
+                                final Group group = new Group(address, null, uuid);
+                                mMeshNetwork.addGroup(group);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets the group that was selected from the GroupAdapter.
+     */
+    void setSelectedGroup(final byte[] address) {
+        final Group group = mMeshNetwork.getGroup(address);
+        if (group != null) {
+            mSelectedGroupLiveData.postValue(group);
+        }
     }
 }

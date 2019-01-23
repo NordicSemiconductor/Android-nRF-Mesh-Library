@@ -24,70 +24,31 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ScannerFragment"
-    tools:ignore="ContentDescription">
+    android:layout_height="match_parent">
 
-    <ProgressBar
-        android:id="@+id/state_scanning"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="-7dp"
-        android:layout_marginTop="-8dp"
-        android:indeterminate="true"
-        android:indeterminateTint="@color/white"
-        android:visibility="invisible"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view_provisioned_nodes"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingStart="@dimen/item_padding_start"
+        android:paddingEnd="@dimen/item_padding_end"
+        android:paddingBottom="@dimen/network_recycler_view_bottom_padding"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view_ble_devices"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:paddingBottom="@dimen/activity_vertical_margin_bottom"
-        android:paddingTop="@dimen/activity_vertical_margin_top"
-        android:scrollbars="none"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/state_scanning"/>
-
     <include
-        android:id="@+id/no_devices"
-        layout="@layout/info_no_devices"
+        android:id="@+id/no_networks_configured"
+        layout="@layout/info_no_groups_configured"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/state_scanning"/>
-
-    <include
-        android:id="@+id/bluetooth_off"
-        layout="@layout/info_no_bluetooth"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/state_scanning"/>
-
-    <include
-        android:id="@+id/no_location_permission"
-        layout="@layout/info_no_permission"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/state_scanning"/>
+        app:layout_constraintTop_toTopOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>

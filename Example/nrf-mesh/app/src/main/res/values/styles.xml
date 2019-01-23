@@ -61,11 +61,15 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="Widget.GroupTitle">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
     <style name="BlueTextButton" parent="Widget.AppCompat.Button.Borderless.Colored">
     </style>
 
     <style name="RedButton" parent="Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:textColor">@drawable/red_button_states</item>
     </style>
-
 </resources>

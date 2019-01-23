@@ -29,6 +29,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.BindAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.GenericLevelServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.GenericOnOffServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.GroupControlsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MainActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ManageNodeAppKeysActivity;
@@ -67,6 +68,9 @@ abstract class ActivitiesModule {
 
 	@ContributesAndroidInjector()
 	abstract NodeDetailsActivity contributeNodeDetailsActivity();
+
+	@ContributesAndroidInjector()
+	abstract GroupControlsActivity contributeGroupControlsActivity();
 
 	@ContributesAndroidInjector()
 	abstract ManageNodeAppKeysActivity contributeManageNodeAppKeysActivity();

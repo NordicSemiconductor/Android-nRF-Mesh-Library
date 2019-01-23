@@ -56,6 +56,10 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
         postValue(this);
     }
 
+    public MeshNetwork getMeshNetwork() {
+        return meshNetwork;
+    }
+
     /**
      * Refreshes the mesh network information
      *

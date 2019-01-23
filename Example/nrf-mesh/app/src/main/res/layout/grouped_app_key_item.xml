@@ -21,39 +21,48 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<RelativeLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/device_container"
+    android:id="@+id/group_app_key_item_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:paddingBottom="@dimen/item_padding_bottom"
-    android:paddingEnd="@dimen/activity_horizontal_margin"
-    android:paddingStart="@dimen/activity_horizontal_margin"
+    android:background="@color/background"
     android:paddingTop="@dimen/item_padding_top"
+    android:paddingBottom="@dimen/item_padding_bottom"
     tools:ignore="ContentDescription">
 
     <TextView
-        android:id="@+id/generic_title"
+        android:id="@+id/grp_app_key_title"
+        style="@style/Widget.GroupTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_alignParentStart="true"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:textSize="16sp"
-        tools:text="Name"/>
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/item_padding_top"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/item_padding_bottom"
+        android:text="Application Key 0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText"/>
 
-    <TextView
-        android:id="@+id/generic_subtitle"
-        android:layout_width="wrap_content"
+    <HorizontalScrollView
+        android:id="@+id/grp_scrollable"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/generic_title"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_toEndOf="@id/icon"
-        android:textSize="12sp"
-        tools:text="nRF Mesh Light Server"/>
-</RelativeLayout>
+        android:clipToPadding="false"
+        android:paddingStart="@dimen/item_padding_top"
+        android:paddingEnd="@dimen/item_padding_bottom"
+        android:scrollbars="none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/grp_app_key_title">
+
+        <GridLayout
+            android:id="@+id/grp_grid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:ignore="UselessLeaf"/>
+    </HorizontalScrollView>
+</android.support.constraint.ConstraintLayout>

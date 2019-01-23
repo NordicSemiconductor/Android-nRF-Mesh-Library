@@ -24,6 +24,7 @@
     <string name="app_name">nRF Mesh</string>
     <string name="feature_name">Mesh Provisioner</string>
     <string name="title_scanner">Scanner</string>
+    <string name="title_group_controls">Group Controls</string>
     <string name="sub_title_scanning_nodes">Looking for unprovisioned proxy nodes…</string>
     <string name="sub_title_scanning_proxy_node">Looking for provisioned proxy nodes…</string>
 
@@ -197,10 +198,18 @@
     <string name="node_id">Node ID: %d</string>
     <string name="network">Network</string>
     <string name="action_settings">Settings</string>
-    <string name="action_scanner">Scanner</string>
+    <string name="action_groups">Groups</string>
     <string name="no_networks_configured_title">NO NETWORKS CONFIGURED</string>
     <string name="no_networks_configured_rationale">In order to configure a network start by scanning, provisioning and then configuring the device from the scanner tab.</string>
     <string name="error_invalid_unicast_address">Unicast Address must be between 0 and 32767!</string>
+
+    <string name="no_groups_configured_title">NO GROUPS CONFIGURED</string>
+    <string name="no_groups_configured_rationale">Create a group and select which elements to be added to each group.</string>
+    <string name="group_configuration">Group Configuration</string>
+    <string name="group_friendly_name">Friendly Name</string>
+    <string name="group_address">Group Address</string>
+    <string name="group_device_count">%d Devices</string>
+    <string name="title_group_info">Group Info</string>
 
     <string name="title_manage_app_keys">Manage App Keys</string>
     <string name="title_select_app_key">Select App Key</string>
@@ -487,4 +496,7 @@
         Step 3. Click get composition data\n\n
         Step 4. Add app key</string>
     <string name="network_transmit_interval_steps_summary">10 ms step(s)</string>
+    <string name="light_count">%d Light(s)</string>
+    <string name="dimmer_count">%d Dimmer(s)</string>
+    <string name="unknown_device_count">%d Device(s)</string>
 </resources>
