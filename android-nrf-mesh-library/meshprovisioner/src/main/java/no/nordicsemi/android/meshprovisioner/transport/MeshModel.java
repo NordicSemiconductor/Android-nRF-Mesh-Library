@@ -75,12 +75,8 @@ public abstract class MeshModel implements Parcelable {
         }
         in.readList(mBoundAppKeyIndexes, Integer.class.getClassLoader());
         sortAppKeys(in.readHashMap(ApplicationKey.class.getClassLoader()));
-        try {
-            mPublicationSettings = (PublicationSettings) in.readValue(PublicationSettings.class.getClassLoader());
-            in.readList(mSubscriptionAddress, byte[].class.getClassLoader());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        mPublicationSettings = (PublicationSettings) in.readValue(PublicationSettings.class.getClassLoader());
+        in.readList(mSubscriptionAddress, byte[].class.getClassLoader());
     }
 
     /**
