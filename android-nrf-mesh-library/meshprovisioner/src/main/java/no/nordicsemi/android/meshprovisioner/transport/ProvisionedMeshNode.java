@@ -132,7 +132,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         secureNetworkBeaconSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
         networkTransmitSettings = in.readParcelable(NetworkTransmitSettings.class.getClassLoader());
         relaySettings = in.readParcelable(RelaySettings.class.getClassLoader());
-        blackListed = in.readByte() != 1;
+        blackListed = in.readInt() != 1;
 
     }
 
@@ -165,7 +165,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeValue(secureNetworkBeaconSupported);
         dest.writeParcelable(networkTransmitSettings, flags);
         dest.writeParcelable(relaySettings, flags);
-        dest.writeValue((byte) (blackListed ? 1 : 0));
+        dest.writeInt((blackListed ? 1 : 0));
     }
 
     @Override
