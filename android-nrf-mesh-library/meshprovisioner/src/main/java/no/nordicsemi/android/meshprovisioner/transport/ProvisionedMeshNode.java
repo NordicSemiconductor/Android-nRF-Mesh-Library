@@ -87,7 +87,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedMeshNode(final UnprovisionedMeshNode unprovisionedMeshNode) {
         uuid = unprovisionedMeshNode.getDeviceUuid().toString();
-        isProvisioned = unprovisionedMeshNode.isProvisioned();
         isConfigured = unprovisionedMeshNode.isConfigured();
         nodeName = unprovisionedMeshNode.getNodeName();
         networkKey = unprovisionedMeshNode.getNetworkKey();
@@ -107,7 +106,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     @Ignore
     protected ProvisionedMeshNode(Parcel in) {
         uuid = in.readString();
-        isProvisioned = in.readByte() != 1;
         isConfigured = in.readByte() != 1;
         nodeName = in.readString();
         mAddedNetworkKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
@@ -141,7 +139,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(uuid);
-        dest.writeByte((byte) (isProvisioned ? 1 : 0));
         dest.writeByte((byte) (isConfigured ? 1 : 0));
         dest.writeString(nodeName);
         dest.writeList(mAddedNetworkKeyIndexes);

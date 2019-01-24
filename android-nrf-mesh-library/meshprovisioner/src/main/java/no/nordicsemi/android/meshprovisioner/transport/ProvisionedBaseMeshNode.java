@@ -114,9 +114,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @ColumnInfo(name = "security")
     @Expose
     int security = LOW;
-    @Ignore
-    @Expose
-    boolean isProvisioned;
     @ColumnInfo(name = "unicast_address")
     @Expose
     byte[] unicastAddress;
@@ -247,10 +244,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     public void setUuid(@NonNull final String uuid) {
         this.uuid = uuid;
-    }
-
-    public boolean isProvisioned() {
-        return isProvisioned;
     }
 
     public final boolean isConfigured() {
