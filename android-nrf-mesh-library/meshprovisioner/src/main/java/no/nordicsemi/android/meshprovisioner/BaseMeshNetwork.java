@@ -159,7 +159,7 @@ abstract class BaseMeshNetwork {
     }
 
     /**
-     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, it will be replaced by the net key.
+     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, an illegal argument exception is thrown.
      *
      * @param keyIndex      index of the key
      * @param newNetworkKey key
@@ -280,7 +280,7 @@ abstract class BaseMeshNetwork {
     }
 
     /**
-     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, it will be replaced.
+     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, an illegal argument exception is thrown.
      *
      * @param keyIndex  index of the key
      * @param newAppKey application key
@@ -297,14 +297,14 @@ abstract class BaseMeshNetwork {
         if (isAppKeyExists(newAppKey)) {
             throw new IllegalArgumentException("App key already exists");
         } else {
-            final ApplicationKey applicationKey = new ApplicationKey(keyIndex, MeshParserUtils.toByteArray(newAppKey));//appKeys.get(i);
+            final ApplicationKey applicationKey = new ApplicationKey(keyIndex, MeshParserUtils.toByteArray(newAppKey));
             appKeys.add(keyIndex, applicationKey);
             notifyAppKeyAdded(applicationKey);
         }
     }
 
     /**
-     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, it will be replaced.
+     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, an illegal argument exception is thrown.
      *
      * @param keyIndex  index of the key
      * @param newAppKey application key
