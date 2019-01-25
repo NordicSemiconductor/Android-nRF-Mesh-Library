@@ -197,7 +197,7 @@ abstract class BaseMeshNetwork {
             throw new IllegalArgumentException("Net key already exists");
 
         for (int i = 0; i < netKeys.size(); i++) {
-            final NetworkKey networkKey = netKeys.get(0);
+            final NetworkKey networkKey = netKeys.get(i);
             if (keyIndex == networkKey.getKeyIndex()) {
                 networkKey.setKey(MeshParserUtils.toByteArray(netKey));
                 notifyNetKeyUpdated(networkKey);
@@ -336,7 +336,7 @@ abstract class BaseMeshNetwork {
             throw new IllegalArgumentException("App key already exists");
 
         for (int i = 0; i < appKeys.size(); i++) {
-            final ApplicationKey applicationKey = appKeys.get(0);
+            final ApplicationKey applicationKey = appKeys.get(i);
             if (keyIndex == applicationKey.getKeyIndex()) {
                 applicationKey.setKey(MeshParserUtils.toByteArray(appKey));
                 notifyAppKeyUpdated(applicationKey);
