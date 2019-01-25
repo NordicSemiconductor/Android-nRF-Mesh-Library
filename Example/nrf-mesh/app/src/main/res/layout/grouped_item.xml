@@ -33,6 +33,7 @@
         android:id="@+id/group_container_card"
         android:layout_width="125dp"
         android:layout_height="150dp"
+        android:background="?selectableItemBackground"
         android:layout_margin="@dimen/item_padding_end"
         app:elevation="8dp"
         app:cardCornerRadius="6dp">

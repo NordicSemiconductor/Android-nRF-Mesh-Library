@@ -27,9 +27,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -51,7 +49,10 @@ import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.GroupControlsViewModel;
 
-public class GroupControlsActivity extends AppCompatActivity implements Injectable, SubGroupAdapter.OnItemClickListener {
+public class GroupControlsActivity extends AppCompatActivity implements Injectable,
+        SubGroupAdapter.OnItemClickListener,
+        BottomSheetOnOffDialogFragment.BottomSheetOnOffListener,
+        BottomSheetLevelDialogFragment.BottomSheetLevelListener {
 
     private GroupControlsViewModel mViewModel;
     private SubGroupAdapter groupAdapter;
@@ -125,8 +126,17 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
     }
 
     @Override
-    public void onModelItemClick() {
-
+    public void onSubGroupItemClick(final int appKeyIndex, final int modelId) {
+        switch (modelId) {
+            case SigModelParser.GENERIC_ON_OFF_SERVER:
+                final BottomSheetOnOffDialogFragment onOffFragment = BottomSheetOnOffDialogFragment.getInstance(appKeyIndex);
+                onOffFragment.show(getSupportFragmentManager(), "ON_OFF_FRAGMENT");
+                break;
+            case SigModelParser.GENERIC_LEVEL_SERVER:
+                final BottomSheetLevelDialogFragment levelFragment = BottomSheetLevelDialogFragment.getInstance(appKeyIndex);
+                levelFragment.show(getSupportFragmentManager(), "LEVEL_FRAGMENT");
+                break;
+        }
     }
 
     @Override
@@ -148,6 +158,31 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
                 mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
                 break;
         }
+
+    }
+
+    @Override
+    public void toggle(final int keyIndex, final boolean state, final int transitionSteps, final int transitionStepResolution, final int delay) {
+        final Group group = mViewModel.getSelectedGroup().getValue();
+        if (group == null)
+            return;
+
+        final ApplicationKey applicationKey = mViewModel.getMeshManagerApi().getMeshNetwork().getAppKey(keyIndex);
+        final int tid = mViewModel.getMeshManagerApi().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
+        final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey.getKey(), state, tid, transitionSteps, transitionStepResolution, delay);
+        mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
+    }
+
+    @Override
+    public void toggleLevel(final int keyIndex, final int level, final int transitionSteps, final int transitionStepResolution, final int delay) {
+        final Group group = mViewModel.getSelectedGroup().getValue();
+        if (group == null)
+            return;
+
+        final ApplicationKey applicationKey = mViewModel.getMeshManagerApi().getMeshNetwork().getAppKey(keyIndex);
+        final int tid = mViewModel.getMeshManagerApi().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
+        final MeshMessage meshMessage = new GenericLevelSetUnacknowledged(applicationKey.getKey(), transitionSteps, transitionStepResolution, delay, level, tid);
+        mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
 
     }
 }

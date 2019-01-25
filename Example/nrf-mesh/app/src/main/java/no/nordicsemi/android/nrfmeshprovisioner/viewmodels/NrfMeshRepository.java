@@ -334,7 +334,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mBleMeshManager.setLogger(logSession);
         final BluetoothDevice bluetoothDevice = device.getDevice();
         initIsConnectedLiveData(connectToNetwork);
-        mBleMeshManager.connect(bluetoothDevice);
+        //Added a 1 second delay for connection, mostly to wait for a disconnection to complete before connecting.
+        mHandler.postDelayed(() -> mBleMeshManager.connect(bluetoothDevice), 1000);
     }
 
     /**

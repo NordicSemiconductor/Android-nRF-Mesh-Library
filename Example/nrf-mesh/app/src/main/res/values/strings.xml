@@ -244,7 +244,7 @@
     <string name="element_address">Element : %s</string>
     <string name="model_count">%d Models</string>
     <string name="title_model_configuration">Model Configuration</string>
-    <string name="subtitle_model_configuration">%s %s</string>
+    <string name="subtitle_model_configuration" formatted="false">%s %s</string>
     <string name="format_sig_model_id">SIG Model ID: %s</string>
     <string name="format_vendor_model_id">Vendor Model ID: %s</string>
     <string name="model_id_type_vendor">Vendor Model ID:</string>
@@ -316,7 +316,7 @@
     <string name="action_network_transmit_get">READ STATE</string>
     <string name="action_network_transmit_set">SET NETWORK TRANSMIT</string>
     <string name="text_network_transmit_count">%d retransmit(s)</string>
-    <string name="summary_network_transmit_count">%d time(s) and total transmissions: %d</string>
+    <string name="summary_network_transmit_count" formatted="false">%d time(s) and total transmissions: %d</string>
     <string name="text_network_transmit_interval_steps">%d ms</string>
 
     <string name="title_relay_retransmit_info">Relay</string>
@@ -364,7 +364,7 @@
     <string name="action_generic_read_state">READ STATE</string>
     <string name="action_generic_on">ON</string>
     <string name="action_generic_off">OFF</string>
-    <string name="transition_time_interval">%s %s</string>
+    <string name="transition_time_interval" formatted="false">%s %s</string>
     <string name="hint_unsubscribe">Hint: Swipe address to unsubscribe.</string>
     <string name="hint_step_resolution_ms">Currently on 100 ms step resolution</string>
     <string name="hint_step_resolution_s">Currently on 1 s step resolution</string>

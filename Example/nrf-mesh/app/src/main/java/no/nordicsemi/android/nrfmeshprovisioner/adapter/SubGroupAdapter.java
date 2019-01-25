@@ -28,6 +28,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -125,6 +126,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
 
     private void inflateView(@NonNull final ViewHolder holder, final int modelId, final int modelCount, final int index) {
         final View view = LayoutInflater.from(mContext).inflate(R.layout.grouped_item, holder.mGroupGrid, false);
+        final CardView groupContainerCard = view.findViewById(R.id.group_container_card);
         final ImageView icon = view.findViewById(R.id.icon);
         final TextView groupSummary = view.findViewById(R.id.group_summary);
         final Switch toggle = view.findViewById(R.id.switch_on_off);
@@ -132,14 +134,27 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         switch (modelId) {
             case SigModelParser.GENERIC_ON_OFF_SERVER:
                 groupSummary.setText(mContext.getString(R.string.light_count, modelCount));
+                groupContainerCard.setOnClickListener(v ->  {
+                    final int appKeyIndex = (int) holder.groupItemContainer.getTag();
+                    final int modelIdentifier = (int) v.findViewById(R.id.switch_on_off).getTag();
+                    mOnItemClickListener.onSubGroupItemClick(appKeyIndex, modelIdentifier);
+                });
                 break;
             case SigModelParser.GENERIC_LEVEL_SERVER:
                 groupSummary.setText(mContext.getString(R.string.dimmer_count, modelCount));
+                groupContainerCard.setOnClickListener(v ->  {
+                    final int appKeyIndex = (int) holder.groupItemContainer.getTag();
+                    final int modelIdentifier = (int) v.findViewById(R.id.switch_on_off).getTag();
+                    mOnItemClickListener.onSubGroupItemClick(appKeyIndex, modelIdentifier);
+                });
                 break;
             default:
+                icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_nordic_medium_grey_48dp));
+                toggle.setVisibility(View.GONE);
                 groupSummary.setText(mContext.getString(R.string.unknown_device_count, modelCount));
                 break;
         }
+
         toggle.setEnabled(mIsConnected); //Enable disable switch state based on the connection state
         toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -147,7 +162,9 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
             } else {
                 icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_outline_nordic_medium_grey_48dp));
             }
-            mOnItemClickListener.toggle((int) holder.groupItemContainer.getTag(), (int) buttonView.getTag(), isChecked);
+            final int appKeyIndex = (int) holder.groupItemContainer.getTag();
+            final int modelIdentifier = (int) buttonView.getTag();
+            mOnItemClickListener.toggle(appKeyIndex, modelIdentifier, isChecked);
         });
 
         holder.mGroupGrid.addView(view, index);
@@ -196,7 +213,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
 
     public interface OnItemClickListener {
 
-        void onModelItemClick();
+        void onSubGroupItemClick(final int appKeyIndex, final int modelId);
 
         void toggle(final int appKeyIndex, final int modelId, final boolean isChecked);
     }

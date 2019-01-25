@@ -20,31 +20,34 @@
   ~ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
-<android.support.constraint.ConstraintLayout
+
+
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="@dimen/activity_vertical_margin">
+    android:layout_width="match_parent"
+    android:layout_height="?actionBarSize"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/activity_horizontal_margin"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
+    android:gravity="center_vertical">
 
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="wrap_content"
+    <TextView
+        style="@style/Widget.GroupTitle"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:scaleType="center"
-        app:srcCompat="@drawable/ic_lightbulb_outline_nordic_grass_24dp"
-        tools:ignore="ContentDescription"/>
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="Details"
+        tools:ignore="HardcodedText"/>
 
-    <Switch
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/subtitle"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/icon"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:checked="true"/>
-</android.support.constraint.ConstraintLayout>
+        android:textColor="@color/textColorSecondary"
+        android:textSize="12sp"
+        android:text="Devices are grouped based on application key assigned"
+        tools:ignore="HardcodedText"/>
+
+</LinearLayout>
