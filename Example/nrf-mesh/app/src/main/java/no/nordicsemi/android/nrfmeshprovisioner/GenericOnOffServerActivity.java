@@ -199,7 +199,6 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
      * Send generic on off get to mesh node
      */
     public void sendGenericOnOffGet() {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
         final Element element = mViewModel.getSelectedElement().getElement();
         final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
 

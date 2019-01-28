@@ -35,10 +35,12 @@ import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,6 +128,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
 
     private void inflateView(@NonNull final ViewHolder holder, final int modelId, final int modelCount, final int index) {
         final View view = LayoutInflater.from(mContext).inflate(R.layout.grouped_item, holder.mGroupGrid, false);
+        view.setTag(modelId);
         final CardView groupContainerCard = view.findViewById(R.id.group_container_card);
         final ImageView icon = view.findViewById(R.id.icon);
         final TextView groupSummary = view.findViewById(R.id.group_summary);
@@ -134,18 +137,18 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         switch (modelId) {
             case SigModelParser.GENERIC_ON_OFF_SERVER:
                 groupSummary.setText(mContext.getString(R.string.light_count, modelCount));
-                groupContainerCard.setOnClickListener(v ->  {
+                groupContainerCard.setOnClickListener(v -> {
                     final int appKeyIndex = (int) holder.groupItemContainer.getTag();
                     final int modelIdentifier = (int) v.findViewById(R.id.switch_on_off).getTag();
-                    mOnItemClickListener.onSubGroupItemClick(appKeyIndex, modelIdentifier);
+                    onSubGroupItemClicked(appKeyIndex, modelIdentifier);
                 });
                 break;
             case SigModelParser.GENERIC_LEVEL_SERVER:
                 groupSummary.setText(mContext.getString(R.string.dimmer_count, modelCount));
-                groupContainerCard.setOnClickListener(v ->  {
+                groupContainerCard.setOnClickListener(v -> {
                     final int appKeyIndex = (int) holder.groupItemContainer.getTag();
                     final int modelIdentifier = (int) v.findViewById(R.id.switch_on_off).getTag();
-                    mOnItemClickListener.onSubGroupItemClick(appKeyIndex, modelIdentifier);
+                    onSubGroupItemClicked(appKeyIndex, modelIdentifier);
                 });
                 break;
             default:
@@ -155,19 +158,35 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
                 break;
         }
 
-        toggle.setEnabled(mIsConnected); //Enable disable switch state based on the connection state
+        toggle.setOnClickListener((v -> {
+            final boolean isChecked = ((Switch) v).isChecked();
+            if (mIsConnected) {
+                final int appKeyIndex = (int) holder.groupItemContainer.getTag();
+                final int modelIdentifier = (int) v.getTag();
+                mOnItemClickListener.toggle(appKeyIndex, modelIdentifier, isChecked);
+            } else {
+                toggle.setChecked(!isChecked);
+                Toast.makeText(mContext, R.string.please_connect_to_network, Toast.LENGTH_SHORT).show();
+            }
+        }));
+
         toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_outline_nordic_grass_48dp));
             } else {
                 icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_outline_nordic_medium_grey_48dp));
             }
-            final int appKeyIndex = (int) holder.groupItemContainer.getTag();
-            final int modelIdentifier = (int) buttonView.getTag();
-            mOnItemClickListener.toggle(appKeyIndex, modelIdentifier, isChecked);
         });
 
         holder.mGroupGrid.addView(view, index);
+    }
+
+    private void onSubGroupItemClicked(final int keyIndex, final int modelIdentifier) {
+        if (mIsConnected) {
+            mOnItemClickListener.onSubGroupItemClick(keyIndex, modelIdentifier);
+        } else {
+            Toast.makeText(mContext, R.string.please_connect_to_network, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -182,10 +201,6 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         if (mGroupedKeyModels != null)
             mGroupedKeyModels.keyAt(position);
         return super.getItemId(position);
-    }
-
-    public boolean isEmpty() {
-        return getItemCount() == 0;
     }
 
     /**

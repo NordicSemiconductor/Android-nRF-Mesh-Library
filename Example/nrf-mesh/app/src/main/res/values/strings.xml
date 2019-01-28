@@ -499,4 +499,5 @@
     <string name="light_count">%d Light(s)</string>
     <string name="dimmer_count">%d Dimmer(s)</string>
     <string name="unknown_device_count">%d Device(s)</string>
+    <string name="please_connect_to_network">Please connect to network to control devices!</string>
 </resources>

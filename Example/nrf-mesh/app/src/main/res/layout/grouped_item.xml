@@ -21,7 +21,7 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -80,4 +80,4 @@
                 android:padding="@dimen/item_padding_top"/>
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>
-</FrameLayout>
+</RelativeLayout>

@@ -71,7 +71,8 @@
             android:launchMode="singleTop"/>
         <activity
             android:name=".GroupControlsActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".ManageAppKeysActivity"
             android:launchMode="singleTop"/>

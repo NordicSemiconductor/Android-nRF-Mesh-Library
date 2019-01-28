@@ -33,6 +33,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.GridLayout;
+import android.widget.Switch;
 
 import javax.inject.Inject;
 
@@ -56,7 +59,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     private GroupControlsViewModel mViewModel;
     private SubGroupAdapter groupAdapter;
-
+    private RecyclerView recyclerViewSubGroups;
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
@@ -71,7 +74,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final RecyclerView recyclerViewSubGroups = findViewById(R.id.recycler_view_grouped_models);
+        recyclerViewSubGroups = findViewById(R.id.recycler_view_grouped_models);
         recyclerViewSubGroups.setLayoutManager(new LinearLayoutManager(this));
         groupAdapter = new SubGroupAdapter(this,
                 mViewModel.getMeshManagerApi().getMeshNetwork(),
@@ -171,6 +174,14 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final int tid = mViewModel.getMeshManagerApi().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
         final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey.getKey(), state, tid, transitionSteps, transitionStepResolution, delay);
         mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
+
+        final RecyclerView.ViewHolder holder = recyclerViewSubGroups.findViewHolderForAdapterPosition(keyIndex);
+        if(holder != null) {
+            final GridLayout gridLayout = holder.itemView.findViewById(R.id.grp_grid);
+            final View gridChild = gridLayout.findViewWithTag((int)SigModelParser.GENERIC_ON_OFF_SERVER);
+            final Switch s = gridChild.findViewById(R.id.switch_on_off);
+            s.setChecked(state);
+        }
     }
 
     @Override
@@ -184,5 +195,12 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final MeshMessage meshMessage = new GenericLevelSetUnacknowledged(applicationKey.getKey(), transitionSteps, transitionStepResolution, delay, level, tid);
         mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
 
+        final RecyclerView.ViewHolder holder = recyclerViewSubGroups.findViewHolderForAdapterPosition(keyIndex);
+        if(holder != null) {
+            final GridLayout gridLayout = holder.itemView.findViewById(R.id.grp_grid);
+            final View gridChild = gridLayout.findViewWithTag((int)SigModelParser.GENERIC_LEVEL_SERVER);
+            final Switch s = gridChild.findViewById(R.id.switch_on_off);
+            s.setChecked(level > -32768);
+        }
     }
 }
