@@ -20,14 +20,14 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageAcked;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageUnacked;
-import no.nordicsemi.android.meshprovisioner.models.VendorModel;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -209,29 +209,30 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
      * @param parameters parameters of the message
      */
     public void sendVendorModelMessage(final int opcode, final byte[] parameters, final boolean acknowledged) {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getElement();
-        final VendorModel model = (VendorModel) mViewModel.getSelectedModel().getValue();
-        if(model != null) {
-            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-            final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-            final MeshMessage message;
-            if (acknowledged) {
-                message = new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
-                final List<byte[]> addresses = model.getNonGroupAddresses();
-                for (byte[] address : addresses) {
-                    mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
-                }
-                mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
-            } else {
-                message = new VendorModelMessageUnacked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
-                final List<byte[]> addresses = model.getSubscriptionAddresses();
-                //Send to unicast if empty
-                if (addresses.isEmpty()) {
-                    mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
-                } else {
+        final Element element = mViewModel.getSelectedElement().getValue();
+        if (element != null) {
+            final VendorModel model = (VendorModel) mViewModel.getSelectedModel().getValue();
+            if (model != null) {
+                final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+                final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
+                final MeshMessage message;
+                if (acknowledged) {
+                    message = new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
+                    final List<byte[]> addresses = model.getNonGroupAddresses();
                     for (byte[] address : addresses) {
                         mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
+                    }
+                    mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
+                } else {
+                    message = new VendorModelMessageUnacked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
+                    final List<byte[]> addresses = model.getSubscriptionAddresses();
+                    //Send to unicast if empty
+                    if (addresses.isEmpty()) {
+                        mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
+                    } else {
+                        for (byte[] address : addresses) {
+                            mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
+                        }
                     }
                 }
             }

@@ -28,6 +28,7 @@ import android.arch.lifecycle.ViewModel;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
 
@@ -68,10 +69,8 @@ public class PublicationViewModel extends ViewModel {
 
     /**
      * Get selected element
-     *
-     * @return {@link ExtendedElement} element
      */
-    public ExtendedElement getSelectedElement() {
+    public LiveData<Element> getSelectedElement() {
         return mNrfMeshRepository.getSelectedElement();
     }
 
