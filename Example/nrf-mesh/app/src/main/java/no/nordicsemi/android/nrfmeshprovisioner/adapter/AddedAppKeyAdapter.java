@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
+import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -36,10 +37,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.ViewHolder> {
@@ -48,12 +49,12 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public AddedAppKeyAdapter(final NodeConfigurationActivity activity, final ExtendedMeshNode extendedMeshNode) {
+    public AddedAppKeyAdapter(final NodeConfigurationActivity activity, final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
         this.mContext = activity.getApplicationContext();
-        extendedMeshNode.observe(activity, extendedNode -> {
-            if (extendedNode != null) {
+        meshNodeLiveData.observe(activity, meshNode -> {
+            if (meshNode != null) {
                 appKeys.clear();
-                appKeys.addAll(extendedNode.getAddedApplicationKeys().values());
+                appKeys.addAll(meshNode.getAddedApplicationKeys().values());
                 notifyDataSetChanged();
             }
         });

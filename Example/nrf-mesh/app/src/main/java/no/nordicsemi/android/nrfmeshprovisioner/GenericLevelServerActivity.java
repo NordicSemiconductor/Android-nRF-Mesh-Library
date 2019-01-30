@@ -238,22 +238,24 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
      * @param delay message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      */
     public void sendGenericLevel(final int level, final Integer delay) {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getValue();
-        if (element != null) {
-            final MeshModel model = mViewModel.getSelectedModel().getValue();
-            if (model != null) {
-                if (!model.getBoundAppKeyIndexes().isEmpty()) {
-                    final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                    final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-                    final byte[] address = element.getElementAddress();
-                    Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                            + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
-                    final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level, node.getReceivedSequenceNumber());
-                    mViewModel.getMeshManagerApi().sendMeshMessage(address, genericLevelSet);
-                    showProgressbar();
-                } else {
-                    Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        if (node != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                        final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+                        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
+                        final byte[] address = element.getElementAddress();
+                        Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                                + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
+                        final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level, node.getReceivedSequenceNumber());
+                        mViewModel.getMeshManagerApi().sendMeshMessage(address, genericLevelSet);
+                        showProgressbar();
+                    } else {
+                        Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         }

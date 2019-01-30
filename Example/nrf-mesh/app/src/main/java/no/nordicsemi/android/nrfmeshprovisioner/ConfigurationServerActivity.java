@@ -1,6 +1,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.CardView;
 import android.util.Log;
@@ -61,7 +62,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             final View nodeControlsContainer = LayoutInflater.from(this)
                     .inflate(R.layout.layout_config_server_model, view);
 
-            final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
+            final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
             if(meshNode != null) {
                 if(meshNode.getNodeFeatures().isRelayFeatureSupported()) {
                     final CardView relayCardView = findViewById(R.id.config_relay_set_card);
@@ -110,51 +111,59 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             });
 
             if (savedInstanceState == null) {
-                updateNetworkTransmitUi(mViewModel.getSelectedMeshNode().getMeshNode());
-                updateRelayUi(mViewModel.getSelectedMeshNode().getMeshNode());
+                updateNetworkTransmitUi(mViewModel.getSelectedMeshNode().getValue());
+                updateRelayUi(mViewModel.getSelectedMeshNode().getValue());
             }
         }
     }
 
     private void getRelayRetransmit() {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         try {
-            ConfigRelayGet message = new ConfigRelayGet();
-            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
-            showProgressbar();
+            if(node != null) {
+                ConfigRelayGet message = new ConfigRelayGet();
+                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
+                showProgressbar();
+            }
         } catch (Exception e) {
             Log.e(TAG, "Exception while constructing ConfigNetworkTransmitGet", e);
         }
     }
 
     private void getNetworkTransmit() {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         try {
-            ConfigNetworkTransmitGet message = new ConfigNetworkTransmitGet();
-            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
-            showProgressbar();
+            if(node != null) {
+                ConfigNetworkTransmitGet message = new ConfigNetworkTransmitGet();
+                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
+                showProgressbar();
+            }
         } catch (Exception e) {
             Log.e(TAG, "Exception while constructing ConfigNetworkTransmitGet", e);
         }
     }
 
     private void setRelayRetransmit(final int relay, final int relayRetransmit, final int relayRetransmitIntervalSteps) {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         try {
-            final ConfigRelaySet message = new ConfigRelaySet(relay, relayRetransmit, relayRetransmitIntervalSteps);
-            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
-            showProgressbar();
+            if(node != null) {
+                final ConfigRelaySet message = new ConfigRelaySet(relay, relayRetransmit, relayRetransmitIntervalSteps);
+                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
+                showProgressbar();
+            }
         } catch (Exception e) {
             Log.e(TAG, "Exception while ConfigNetworkTransmitSet: " + e.getMessage());
         }
     }
 
     private void setNetworkTransmit(final int networkTransmitCount, final int networkTransmitIntervalSteps) {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         try {
-            final ConfigNetworkTransmitSet message = new ConfigNetworkTransmitSet(networkTransmitCount, networkTransmitIntervalSteps);
-            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
-            showProgressbar();
+            if(node != null) {
+                final ConfigNetworkTransmitSet message = new ConfigNetworkTransmitSet(networkTransmitCount, networkTransmitIntervalSteps);
+                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
+                showProgressbar();
+            }
         } catch (Exception e) {
             Log.e(TAG, "Error ConfigNetworkTransmitSet: " + e.getMessage());
         }
@@ -177,33 +186,38 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     }
 
     private void updateNetworkTransmitUi(final ProvisionedMeshNode meshNode) {
-        final NetworkTransmitSettings networkTransmitSettings = meshNode.getNetworkTransmitSettings();
-        if (networkTransmitSettings != null) {
-            mSetNetworkTransmitStateButton.setEnabled(true);
-            mNetworkTransmitCountText.setText(getString(R.string.text_network_transmit_count,
-                    networkTransmitSettings.getTransmissionCount()));
-            mNetworkTransmitIntervalStepsText.setText(getString(R.string.text_network_transmit_interval_steps,
-                    networkTransmitSettings.getNetworkTransmissionInterval()));
-        } else {
-            mSetNetworkTransmitStateButton.setEnabled(false);
-            mNetworkTransmitCountText.setText(getResources().getString(R.string.unknown));
-            mNetworkTransmitIntervalStepsText.setText(getResources().getString(R.string.unknown));
+        if(meshNode != null) {
+            final NetworkTransmitSettings networkTransmitSettings = meshNode.getNetworkTransmitSettings();
+            if (networkTransmitSettings != null) {
+                mSetNetworkTransmitStateButton.setEnabled(true);
+                mNetworkTransmitCountText.setText(getString(R.string.text_network_transmit_count,
+                        networkTransmitSettings.getTransmissionCount()));
+                mNetworkTransmitIntervalStepsText.setText(getString(R.string.text_network_transmit_interval_steps,
+                        networkTransmitSettings.getNetworkTransmissionInterval()));
+            } else {
+                mSetNetworkTransmitStateButton.setEnabled(false);
+                mNetworkTransmitCountText.setText(getResources().getString(R.string.unknown));
+                mNetworkTransmitIntervalStepsText.setText(getResources().getString(R.string.unknown));
+            }
         }
     }
 
-    private void updateRelayUi(final ProvisionedMeshNode meshNode) {
-        final RelaySettings relaySettings = meshNode.getRelaySettings();
-        if (relaySettings != null) {
-            mActionSetRelayState.setEnabled(true);
-            mRelayRetransmitCountText.setText(getString(R.string.summary_network_transmit_count,
-                    relaySettings.getRelayTransmitCount(),
-                    relaySettings.getTotalTransmissionsCount()));
-            mRelayRetransmitIntervalStepsText.setText(getString(R.string.text_network_transmit_interval_steps,
-                    relaySettings.getRetransmissionIntervals()));
-        } else {
-            mActionSetRelayState.setEnabled(false);
-            mRelayRetransmitCountText.setText(getResources().getString(R.string.unknown));
-            mRelayRetransmitIntervalStepsText.setText(getResources().getString(R.string.unknown));
+    private void updateRelayUi(@NonNull final ProvisionedMeshNode meshNode) {
+        //noinspection ConstantConditions
+        if(meshNode != null) {
+            final RelaySettings relaySettings = meshNode.getRelaySettings();
+            if (relaySettings != null) {
+                mActionSetRelayState.setEnabled(true);
+                mRelayRetransmitCountText.setText(getString(R.string.summary_network_transmit_count,
+                        relaySettings.getRelayTransmitCount(),
+                        relaySettings.getTotalTransmissionsCount()));
+                mRelayRetransmitIntervalStepsText.setText(getString(R.string.text_network_transmit_interval_steps,
+                        relaySettings.getRetransmissionIntervals()));
+            } else {
+                mActionSetRelayState.setEnabled(false);
+                mRelayRetransmitCountText.setText(getResources().getString(R.string.unknown));
+                mRelayRetransmitIntervalStepsText.setText(getResources().getString(R.string.unknown));
+            }
         }
     }
 

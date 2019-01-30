@@ -83,7 +83,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         ItemTouchHelperAdapter,
         DialogFragmentDisconnected.DialogFragmentDisconnectedListener {
 
-    private static final String TAG = BaseModelConfigurationActivity.class.getSimpleName();
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
 
@@ -134,11 +133,13 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mHandler = new Handler();
 
         final MeshModel meshModel = mViewModel.getSelectedModel().getValue();
+        //noinspection ConstantConditions
         final String modelName = meshModel.getModelName();
 
         // Set up views
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(modelName);
         final int modelId = meshModel.getModelId();
@@ -164,9 +165,11 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
         mActionBindAppKey.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, BindAppKeysActivity.class);
-            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) node.getAddedApplicationKeys());
-            startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+            if(node != null) {
+                bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) node.getAddedApplicationKeys());
+                startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
+            }
         });
 
         mPublishAddressView.setText(R.string.none);
@@ -243,7 +246,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             case ManageAppKeysActivity.SELECT_APP_KEY:
                 if (resultCode == RESULT_OK) {
                     final ApplicationKey appKey = data.getParcelableExtra(ManageAppKeysActivity.RESULT_APP_KEY);
-                    final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
                     if (appKey != null) {
                         bindAppKey(appKey.getKeyIndex());
                     }
@@ -267,16 +269,18 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     @Override
     public void setSubscriptionAddress(final byte[] subscriptionAddress) {
-        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getValue();
-        if (element != null) {
-            final byte[] elementAddress = element.getElementAddress();
-            final MeshModel model = mViewModel.getSelectedModel().getValue();
-            if (model != null) {
-                final int modelIdentifier = model.getModelId();
-                final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, subscriptionAddress, modelIdentifier);
-                mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
-                showProgressbar();
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if(meshNode != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final byte[] elementAddress = element.getElementAddress();
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    final int modelIdentifier = model.getModelId();
+                    final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, subscriptionAddress, modelIdentifier);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
+                    showProgressbar();
+                }
             }
         }
     }
@@ -316,14 +320,16 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     private void bindAppKey(final int appKeyIndex) {
-        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getValue();
-        if (element != null) {
-            final MeshModel model = mViewModel.getSelectedModel().getValue();
-            if (model != null) {
-                final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(element.getElementAddress(), model.getModelId(), appKeyIndex);
-                mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
-                showProgressbar();
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if(meshNode != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(element.getElementAddress(), model.getModelId(), appKeyIndex);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+                    showProgressbar();
+                }
             }
         }
     }
@@ -332,46 +338,50 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         if (mBoundAppKeyAdapter.getItemCount() != 0) {
             final ApplicationKey appKey = mBoundAppKeyAdapter.getAppKey(position);
             final int keyIndex = appKey.getKeyIndex();//getAppKeyIndex(appKey);
-            final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-            final Element element = mViewModel.getSelectedElement().getValue();
-            if (element != null) {
-                final MeshModel model = mViewModel.getSelectedModel().getValue();
-                if (model != null) {
-                    final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(element.getElementAddress(), model.getModelId(), keyIndex);
-                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
-                    showProgressbar();
+            final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+            if(meshNode != null) {
+                final Element element = mViewModel.getSelectedElement().getValue();
+                if (element != null) {
+                    final MeshModel model = mViewModel.getSelectedModel().getValue();
+                    if (model != null) {
+                        final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(element.getElementAddress(), model.getModelId(), keyIndex);
+                        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+                        showProgressbar();
+                    }
                 }
             }
         }
     }
 
     private void setPublication(final Intent data) {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getValue();
-        if (element != null) {
-            final MeshModel model = mViewModel.getSelectedModel().getValue();
-            if (model != null) {
-                final byte[] publishAddress = data.getByteArrayExtra(PublicationSettingsActivity.RESULT_PUBLISH_ADDRESS);
-                final int appKeyIndex = data.getIntExtra(PublicationSettingsActivity.RESULT_APP_KEY_INDEX, -1);
-                final boolean credentialFlag = data.getBooleanExtra(PublicationSettingsActivity.RESULT_CREDENTIAL_FLAG, false);
-                final int publishTtl = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_TTL, 0);
-                final int publicationSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_STEPS, 0);
-                final int resolution = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_RESOLUTION, 0);
-                final int publishRetransmitCount = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_COUNT, 0);
-                final int publishRetransmitIntervalSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS, 0);
-                if (publishAddress != null && appKeyIndex > -1) {
-                    try {
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        if(node != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    final byte[] publishAddress = data.getByteArrayExtra(PublicationSettingsActivity.RESULT_PUBLISH_ADDRESS);
+                    final int appKeyIndex = data.getIntExtra(PublicationSettingsActivity.RESULT_APP_KEY_INDEX, -1);
+                    final boolean credentialFlag = data.getBooleanExtra(PublicationSettingsActivity.RESULT_CREDENTIAL_FLAG, false);
+                    final int publishTtl = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_TTL, 0);
+                    final int publicationSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_STEPS, 0);
+                    final int resolution = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_RESOLUTION, 0);
+                    final int publishRetransmitCount = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_COUNT, 0);
+                    final int publishRetransmitIntervalSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS, 0);
+                    if (publishAddress != null && appKeyIndex > -1) {
+                        try {
 
-                        final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), publishAddress,
-                                appKeyIndex, credentialFlag, publishTtl, publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId());
-                        if (!model.getBoundAppKeyIndexes().isEmpty()) {
-                            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configModelPublicationSet);
-                            showProgressbar();
-                        } else {
-                            Toast.makeText(this, getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
+                            final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), publishAddress,
+                                    appKeyIndex, credentialFlag, publishTtl, publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId());
+                            if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configModelPublicationSet);
+                                showProgressbar();
+                            } else {
+                                Toast.makeText(this, getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
                     }
                 }
             }
@@ -379,21 +389,23 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     private void clearPublication() {
-        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getValue();
-        if (element != null) {
-            final MeshModel model = mViewModel.getSelectedModel().getValue();
-            if (model != null) {
-                if (!model.getBoundAppKeyIndexes().isEmpty()) {
-                    final byte[] address = MeshParserUtils.DISABLED_PUBLICATION_ADDRESS;
-                    final int appKeyIndex = model.getPublicationSettings().getAppKeyIndex();
-                    final boolean credentialFlag = model.getPublicationSettings().getCredentialFlag();
-                    final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), address, appKeyIndex,
-                            credentialFlag, 0, 0, 0, 0, 0, model.getModelId());
-                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
-                    showProgressbar();
-                } else {
-                    Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if(meshNode != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                        final byte[] address = MeshParserUtils.DISABLED_PUBLICATION_ADDRESS;
+                        final int appKeyIndex = model.getPublicationSettings().getAppKeyIndex();
+                        final boolean credentialFlag = model.getPublicationSettings().getCredentialFlag();
+                        final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), address, appKeyIndex,
+                                credentialFlag, 0, 0, 0, 0, 0, model.getModelId());
+                        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
+                        showProgressbar();
+                    } else {
+                        Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         }
@@ -402,15 +414,17 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     private void deleteSubscription(final int position) {
         if (mAddressAdapter.getItemCount() != 0) {
             final byte[] address = mGroupAddress.get(position);
-            final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-            final Element element = mViewModel.getSelectedElement().getValue();
-            if (element != null) {
-                final MeshModel model = mViewModel.getSelectedModel().getValue();
-                if (model != null) {
-                    final ConfigModelSubscriptionDelete configModelAppUnbind = new ConfigModelSubscriptionDelete(element.getElementAddress(),
-                            address, model.getModelId());
-                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
-                    showProgressbar();
+            final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+            if (meshNode != null) {
+                final Element element = mViewModel.getSelectedElement().getValue();
+                if (element != null) {
+                    final MeshModel model = mViewModel.getSelectedModel().getValue();
+                    if (model != null) {
+                        final ConfigModelSubscriptionDelete configModelAppUnbind = new ConfigModelSubscriptionDelete(element.getElementAddress(),
+                                address, model.getModelId());
+                        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+                        showProgressbar();
+                    }
                 }
             }
         }

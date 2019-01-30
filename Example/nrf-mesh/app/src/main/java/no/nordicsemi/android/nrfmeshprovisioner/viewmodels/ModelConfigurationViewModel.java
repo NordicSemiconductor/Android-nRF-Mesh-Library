@@ -31,6 +31,7 @@ import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
 
 /**
@@ -74,10 +75,8 @@ public class ModelConfigurationViewModel extends ViewModel {
 
     /**
      * Get selected mesh node
-     *
-     * @return {@link ExtendedMeshNode} element
      */
-    public ExtendedMeshNode getSelectedMeshNode() {
+    public LiveData<ProvisionedMeshNode> getSelectedMeshNode() {
         return mNrfMeshRepository.getSelectedMeshNode();
     }
 

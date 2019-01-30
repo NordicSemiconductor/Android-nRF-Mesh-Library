@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
@@ -48,10 +50,10 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public FilterAddressAdapter(@NonNull final Context context, @NonNull final ExtendedMeshNode extendedMeshNode) {
+    public FilterAddressAdapter(@NonNull final Context context, @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
         this.mContext = context;
         mAddresses = new ArrayList<>();
-        extendedMeshNode.observe((LifecycleOwner) context, meshNode -> {
+        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
             if (meshNode != null) {
                 final ProxyFilter proxyFilter = meshNode.getProxyFilter();
                 if (proxyFilter != null) {
