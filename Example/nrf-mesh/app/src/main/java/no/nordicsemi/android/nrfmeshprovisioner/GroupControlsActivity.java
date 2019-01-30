@@ -34,6 +34,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -232,12 +233,17 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     @Override
     public void editModelItem(@NonNull final Element element, @NonNull final MeshModel model) {
-        final ProvisionedMeshNode node = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(element.getElementAddress());
-        if (node != null) {
-            mViewModel.setSelectedMeshNode(node);
-            mViewModel.setSelectedElement(element);
-            mViewModel.setSelectedModel(model);
-            startActivity(model);
+        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
+        if (isConnectedToNetwork != null && isConnectedToNetwork) {
+            final ProvisionedMeshNode node = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(element.getElementAddress());
+            if (node != null) {
+                mViewModel.setSelectedMeshNode(node);
+                mViewModel.setSelectedElement(element);
+                mViewModel.setSelectedModel(model);
+                startActivity(model);
+            }
+        } else {
+            Toast.makeText(this, R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();
         }
     }
 

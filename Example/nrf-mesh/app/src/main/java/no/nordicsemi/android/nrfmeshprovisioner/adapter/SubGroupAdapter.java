@@ -131,8 +131,14 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
             case SigModelParser.GENERIC_ON_OFF_SERVER:
                 groupSummary.setText(mContext.getString(R.string.light_count, modelCount));
                 break;
+            case SigModelParser.GENERIC_ON_OFF_CLIENT:
+                icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_light_switch_nordic_medium_grey_48dp));
+                on.setVisibility(View.GONE);
+                off.setVisibility(View.GONE);
+                groupSummary.setText(mContext.getString(R.string.switch_count, modelCount));
+                break;
             case SigModelParser.GENERIC_LEVEL_SERVER:
-                icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_level_nordic_medium_gray_outline_48dp));
+                icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_level_nordic_sun_outline_48dp));
                 groupSummary.setText(mContext.getString(R.string.dimmer_count, modelCount));
                 break;
             default:
@@ -151,8 +157,8 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         holder.mGroupGrid.addView(view, position);
     }
 
-    private void toggleState(final int appKeyIndex, final int modelId, final boolean state){
-        if(mIsConnected) {
+    private void toggleState(final int appKeyIndex, final int modelId, final boolean state) {
+        if (mIsConnected) {
             mOnItemClickListener.toggle(appKeyIndex, modelId, state);
         } else {
             Toast.makeText(mContext, R.string.please_connect_to_network, Toast.LENGTH_SHORT).show();

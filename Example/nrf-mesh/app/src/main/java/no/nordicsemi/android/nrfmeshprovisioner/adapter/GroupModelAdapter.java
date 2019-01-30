@@ -116,6 +116,9 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
                         case SigModelParser.GENERIC_ON_OFF_SERVER:
                             modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_outline_nordic_medium_grey_24dp));
                             break;
+                        case SigModelParser.GENERIC_ON_OFF_CLIENT:
+                            modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_light_switch_nordic_medium_grey_24dp));
+                            break;
                         case SigModelParser.GENERIC_LEVEL_SERVER:
                             modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_level_nordic_medium_gray_outline_24dp));
                             break;

@@ -67,4 +67,9 @@
     <color name="black">#FF000000</color>
     <color name="red">#FFFF0000</color>
     <color name="lightGray">#FFF5F5F5</color>
+
+    <color name="bulbNordicGrass">@color/nordicGrass</color>
+    <color name="bulbNordicSun">@color/nordicSun</color>
+    <color name="bulbNordicMediumGray">@color/nordicMediumGray</color>
+    <color name="switchNordicMediumGray">@color/nordicMediumGray</color>
 </resources>
