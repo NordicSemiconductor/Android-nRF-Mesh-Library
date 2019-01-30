@@ -38,7 +38,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,12 +54,10 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHolder> {
 
-    private final String TAG = SubGroupAdapter.class.getSimpleName();
     private final Context mContext;
     private MeshNetwork mMeshNetwork;
     private List<MeshModel> mModels;
     private SparseArray<SparseIntArray> mGroupedKeyModels;
-    private SparseIntArray mGroupedModels;
     private boolean mIsConnected = false;
     private Group mGroup;
     private OnItemClickListener mOnItemClickListener;
@@ -87,7 +84,6 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
     public void updateAdapterData() {
         final Group group = mGroup;
         mModels = mMeshNetwork.getModels(group);
-        mGroupedModels = groupModels();
         mGroupedKeyModels = groupModelsBasedOnAppKeys();
     }
 
@@ -139,6 +135,8 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
                 break;
             default:
                 icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_nordic_medium_grey_48dp));
+                on.setVisibility(View.GONE);
+                off.setVisibility(View.GONE);
                 groupSummary.setText(mContext.getString(R.string.unknown_device_count, modelCount));
                 break;
         }
@@ -179,18 +177,6 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         if (mGroupedKeyModels != null)
             mGroupedKeyModels.keyAt(position);
         return super.getItemId(position);
-    }
-
-    /**
-     * Group the mModels based on the model id
-     */
-    private SparseIntArray groupModels() {
-        final SparseIntArray groupedModels = new SparseIntArray();
-        for (MeshModel model : mModels) {
-            final int modelCount = groupedModels.get(model.getModelId(), 0);
-            groupedModels.put(model.getModelId(), modelCount + 1);
-        }
-        return groupedModels;
     }
 
     private SparseArray<SparseIntArray> groupModelsBasedOnAppKeys() {
