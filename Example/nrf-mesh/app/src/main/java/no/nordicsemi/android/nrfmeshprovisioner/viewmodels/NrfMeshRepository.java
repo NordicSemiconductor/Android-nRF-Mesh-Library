@@ -126,19 +126,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private ExtendedElement mExtendedElement;
 
     /**
-     * Contains the {@link ExtendedMeshModel}
+     * Holds the selected mesh model to configure
      **/
-    private ExtendedMeshModel mExtendedMeshModel;
-
-    /**
-     * Mesh model to configure
-     **/
-    final MutableLiveData<MeshModel> mMeshModel = new MutableLiveData<>();
-
-    /**
-     * Mesh model to configure
-     **/
-    final MutableLiveData<Element> mElement = new MutableLiveData<>();
+    private MutableLiveData<MeshModel> mSelectedModel = new MutableLiveData<>();
 
     private final MutableLiveData<Group> mSelectedGroupLiveData = new MutableLiveData<>();
     /**
@@ -450,8 +440,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Returns the selected mesh model
      */
-    ExtendedMeshModel getSelectedModel() {
-        return mExtendedMeshModel;
+    LiveData<MeshModel> getSelectedModel() {
+        return mSelectedModel;
     }
 
     /**
@@ -460,11 +450,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      * @param model mesh model
      */
     void setSelectedModel(final MeshModel model) {
-        if (mExtendedMeshModel == null) {
-            mExtendedMeshModel = new ExtendedMeshModel(model);
-        } else {
-            mExtendedMeshModel.setMeshModel(model);
-        }
+        mSelectedModel.postValue(model);
     }
 
     void sendGetCompositionData() {
@@ -811,7 +797,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 if (node.getElements().containsKey(status.getElementAddress())) {
                     mExtendedElement.setElement(element);
                     final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-                    mExtendedMeshModel.setMeshModel(model);
+                    mSelectedModel.postValue(model);
                 }
             }
 
@@ -823,7 +809,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     final Element element = node.getElements().get(status.getElementAddress());
                     mExtendedElement.setElement(element);
                     final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-                    mExtendedMeshModel.setMeshModel(model);
+                    mSelectedModel.postValue(model);
                 }
             }
 
@@ -835,7 +821,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     final Element element = node.getElements().get(status.getElementAddress());
                     mExtendedElement.setElement(element);
                     final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-                    mExtendedMeshModel.setMeshModel(model);
+                    mSelectedModel.postValue(model);
                 }
             }
 
@@ -871,7 +857,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     final Element element = node.getElements().get(status.getSrcAddress());
                     mExtendedElement.setElement(element);
                     final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_ON_OFF_SERVER);
-                    mExtendedMeshModel.setMeshModel(model);
+                    mSelectedModel.postValue(model);
                 }
             }
         } else if (meshMessage instanceof GenericLevelStatus) {
@@ -882,7 +868,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     final Element element = node.getElements().get(status.getSrcAddress());
                     mExtendedElement.setElement(element);
                     final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_LEVEL_SERVER);
-                    mExtendedMeshModel.setMeshModel(model);
+                    mSelectedModel.postValue(model);
                 }
             }
 
@@ -894,7 +880,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     final Element element = node.getElements().get(status.getSrcAddress());
                     mExtendedElement.setElement(element);
                     final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-                    mExtendedMeshModel.setMeshModel(model);
+                    mSelectedModel.postValue(model);
                 }
             }
         }

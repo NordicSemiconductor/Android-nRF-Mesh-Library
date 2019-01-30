@@ -95,7 +95,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
         //final Intent intent = getIntent();
         //intent.getParcelableExtra(EXTRA_DEVICE);
-        final MeshModel meshModel = mMeshModel = viewModel.getSelectedModel().getMeshModel();
+        final MeshModel meshModel = mMeshModel = viewModel.getSelectedModel().getValue();
         if(meshModel == null)
             finish();
 

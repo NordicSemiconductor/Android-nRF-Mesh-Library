@@ -53,7 +53,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof ConfigurationServerModel) {
             //Hide the subscription view since the ConfigurationServerModel is not a subscribe model
             mContainerSubscribe.setVisibility(View.GONE);

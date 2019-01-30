@@ -143,10 +143,8 @@ public class GroupControlsViewModel extends ViewModel {
 
     /**
      * Get selected model
-     *
-     * @return {@link ExtendedMeshModel} element
      */
-    public ExtendedMeshModel getSelectedModel() {
+    public LiveData<MeshModel> getSelectedModel() {
         return mNrfMeshRepository.getSelectedModel();
     }
 
