@@ -85,6 +85,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         final Group group = mGroup;
         mModels = mMeshNetwork.getModels(group);
         mGroupedKeyModels = groupModelsBasedOnAppKeys();
+        notifyDataSetChanged();
     }
 
 
@@ -131,6 +132,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
                 groupSummary.setText(mContext.getString(R.string.light_count, modelCount));
                 break;
             case SigModelParser.GENERIC_LEVEL_SERVER:
+                icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_level_nordic_medium_gray_outline_48dp));
                 groupSummary.setText(mContext.getString(R.string.dimmer_count, modelCount));
                 break;
             default:

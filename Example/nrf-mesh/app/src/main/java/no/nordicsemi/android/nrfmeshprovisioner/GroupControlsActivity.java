@@ -86,6 +86,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
         final Toolbar toolbar = findViewById(R.id.toolbar_info);
         setSupportActionBar(toolbar);
+        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         recyclerViewSubGroups = findViewById(R.id.recycler_view_grouped_models);
@@ -98,14 +99,15 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         recyclerViewSubGroups.setAdapter(groupAdapter);
 
         mViewModel.getSelectedGroup().observe(this, group -> {
-            getSupportActionBar().setTitle(group.getName());
-            getSupportActionBar().setSubtitle(MeshParserUtils.bytesToHex(group.getGroupAddress(), true));
+            if(group != null) {
+                getSupportActionBar().setTitle(group.getName());
+                getSupportActionBar().setSubtitle(MeshParserUtils.bytesToHex(group.getGroupAddress(), true));
+            }
         });
 
         mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> groupAdapter.updateAdapterData());
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshModel -> {
-            //TODO update adapter data on unsubscribing models
+        mViewModel.getSelectedModel().observe(this, meshModel -> {
             groupAdapter.updateAdapterData();
             final BottomSheetDetailsDialogFragment fragment = (BottomSheetDetailsDialogFragment) getSupportFragmentManager().findFragmentByTag(DETAILS_FRAGMENT);
             if (fragment != null) {
