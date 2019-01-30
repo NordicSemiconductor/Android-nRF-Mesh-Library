@@ -28,6 +28,7 @@ import android.arch.lifecycle.ViewModel;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
 
 /**
@@ -65,7 +66,7 @@ public class ModelConfigurationViewModel extends ViewModel {
      *
      * @return {@link MeshMessageLiveData}
      */
-    public MeshMessageLiveData getMeshMessageLiveData() {
+    public LiveData<MeshMessage> getMeshMessageLiveData() {
         return mNrfMeshRepository.getMeshMessageLiveData();
     }
 

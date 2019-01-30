@@ -21,11 +21,19 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:tools="http://schemas.android.com/tools"
+      xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_apply"
+        android:id="@+id/action_edit"
         android:enabled="true"
-        android:title="@string/action_apply"
+        android:title="@string/action_edit"
+        android:icon="@drawable/ic_edit_white_24dp"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction"/>
+    <item
+        android:id="@+id/action_connect"
+        android:enabled="true"
+        android:title="@string/action_connect"
         app:showAsAction="always"/>
 </menu>

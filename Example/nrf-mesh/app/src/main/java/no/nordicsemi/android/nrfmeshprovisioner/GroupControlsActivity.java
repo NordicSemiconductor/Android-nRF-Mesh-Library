@@ -26,6 +26,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,19 +34,26 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.GridLayout;
-import android.widget.Switch;
+
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.models.ConfigurationServerModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSetUnacknowledged;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSetUnacknowledged;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.SubGroupAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -55,13 +63,19 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.GroupControlsViewMode
 public class GroupControlsActivity extends AppCompatActivity implements Injectable,
         SubGroupAdapter.OnItemClickListener,
         BottomSheetOnOffDialogFragment.BottomSheetOnOffListener,
-        BottomSheetLevelDialogFragment.BottomSheetLevelListener {
+        BottomSheetLevelDialogFragment.BottomSheetLevelListener,
+        BottomSheetDetailsDialogFragment.BottomSheetDetailsListener {
+
+    private static final String ON_OFF_FRAGMENT = "ON_OFF_FRAGMENT";
+    private static final String LEVEL_FRAGMENT = "LEVEL_FRAGMENT";
+    private static final String DETAILS_FRAGMENT = "DETAILS_FRAGMENT";
+
+    @Inject
+    ViewModelProvider.Factory mViewModelFactory;
 
     private GroupControlsViewModel mViewModel;
     private SubGroupAdapter groupAdapter;
     private RecyclerView recyclerViewSubGroups;
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -88,6 +102,20 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             getSupportActionBar().setSubtitle(MeshParserUtils.bytesToHex(group.getGroupAddress(), true));
         });
 
+        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> groupAdapter.updateAdapterData());
+
+        mViewModel.getMeshNetworkLiveData().observe(this, meshModel -> {
+            //TODO update adapter data on unsubscribing models
+            groupAdapter.updateAdapterData();
+            final BottomSheetDetailsDialogFragment fragment = (BottomSheetDetailsDialogFragment) getSupportFragmentManager().findFragmentByTag(DETAILS_FRAGMENT);
+            if (fragment != null) {
+                final Group group = mViewModel.getSelectedGroup().getValue();
+                final MeshNetwork meshNetwork = mViewModel.getMeshManagerApi().getMeshNetwork();
+                final ArrayList<Element> elements = new ArrayList<>(meshNetwork.getElements(group));
+                fragment.updateAdapter(group, elements);
+            }
+        });
+
         mViewModel.isConnectedToProxy().observe(this, aBoolean -> invalidateOptionsMenu());
 
     }
@@ -97,9 +125,9 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         if (mViewModel.getProvisionedNodes().getValue() != null && !mViewModel.getProvisionedNodes().getValue().isEmpty()) {
             final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
             if (isConnectedToNetwork != null && isConnectedToNetwork) {
-                getMenuInflater().inflate(R.menu.disconnect, menu);
+                getMenuInflater().inflate(R.menu.menu_group_controls_disconnect, menu);
             } else {
-                getMenuInflater().inflate(R.menu.connect, menu);
+                getMenuInflater().inflate(R.menu.menu_group_controls_connect, menu);
             }
         }
         return true;
@@ -111,6 +139,9 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             case android.R.id.home:
                 onBackPressed();
                 return true;
+            case R.id.action_edit:
+                editGroup();
+                break;
             case R.id.action_connect:
                 final Intent intent = new Intent(this, ScannerActivity.class);
                 intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, false);
@@ -133,11 +164,11 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         switch (modelId) {
             case SigModelParser.GENERIC_ON_OFF_SERVER:
                 final BottomSheetOnOffDialogFragment onOffFragment = BottomSheetOnOffDialogFragment.getInstance(appKeyIndex);
-                onOffFragment.show(getSupportFragmentManager(), "ON_OFF_FRAGMENT");
+                onOffFragment.show(getSupportFragmentManager(), ON_OFF_FRAGMENT);
                 break;
             case SigModelParser.GENERIC_LEVEL_SERVER:
                 final BottomSheetLevelDialogFragment levelFragment = BottomSheetLevelDialogFragment.getInstance(appKeyIndex);
-                levelFragment.show(getSupportFragmentManager(), "LEVEL_FRAGMENT");
+                levelFragment.show(getSupportFragmentManager(), LEVEL_FRAGMENT);
                 break;
         }
     }
@@ -157,7 +188,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
                 mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
                 break;
             case SigModelParser.GENERIC_LEVEL_SERVER:
-                meshMessage = new GenericLevelSetUnacknowledged(applicationKey.getKey(), isChecked ? 32678 : -32678, tid);
+                meshMessage = new GenericLevelSetUnacknowledged(applicationKey.getKey(), isChecked ? 32767 : -32768, tid);
                 mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
                 break;
         }
@@ -174,14 +205,6 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final int tid = mViewModel.getMeshManagerApi().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
         final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey.getKey(), state, tid, transitionSteps, transitionStepResolution, delay);
         mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
-
-        final RecyclerView.ViewHolder holder = recyclerViewSubGroups.findViewHolderForAdapterPosition(keyIndex);
-        if(holder != null) {
-            final GridLayout gridLayout = holder.itemView.findViewById(R.id.grp_grid);
-            final View gridChild = gridLayout.findViewWithTag((int)SigModelParser.GENERIC_ON_OFF_SERVER);
-            final Switch s = gridChild.findViewById(R.id.switch_on_off);
-            s.setChecked(state);
-        }
     }
 
     @Override
@@ -194,13 +217,48 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final int tid = mViewModel.getMeshManagerApi().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
         final MeshMessage meshMessage = new GenericLevelSetUnacknowledged(applicationKey.getKey(), transitionSteps, transitionStepResolution, delay, level, tid);
         mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
+    }
 
-        final RecyclerView.ViewHolder holder = recyclerViewSubGroups.findViewHolderForAdapterPosition(keyIndex);
-        if(holder != null) {
-            final GridLayout gridLayout = holder.itemView.findViewById(R.id.grp_grid);
-            final View gridChild = gridLayout.findViewWithTag((int)SigModelParser.GENERIC_LEVEL_SERVER);
-            final Switch s = gridChild.findViewById(R.id.switch_on_off);
-            s.setChecked(level > -32768);
+    private void editGroup() {
+        final Group group = mViewModel.getSelectedGroup().getValue();
+        final MeshNetwork meshNetwork = mViewModel.getMeshManagerApi().getMeshNetwork();
+        final ArrayList<Element> elements = new ArrayList<>(meshNetwork.getElements(group));
+        final ArrayList<MeshModel> models = new ArrayList<>(meshNetwork.getModels(group));
+        final BottomSheetDetailsDialogFragment onOffFragment = BottomSheetDetailsDialogFragment.getInstance(group, elements);
+        onOffFragment.show(getSupportFragmentManager(), DETAILS_FRAGMENT);
+    }
+
+    @Override
+    public void editModelItem(@NonNull final Element element, @NonNull final MeshModel model) {
+        final ProvisionedMeshNode node = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(element.getElementAddress());
+        if (node != null) {
+            mViewModel.setSelectedMeshNode(node);
+            mViewModel.setSelectedElement(element);
+            mViewModel.setSelectedModel(model);
+            startActivity(model);
         }
+    }
+
+    /**
+     * Start activity based on the type of the model
+     *
+     * <p> This way we can seperate the ui logic for different activities</p>
+     *
+     * @param model model
+     */
+    private void startActivity(final MeshModel model) {
+        final Intent intent;
+        if (model instanceof ConfigurationServerModel) {
+            intent = new Intent(this, ConfigurationServerActivity.class);
+        } else if (model instanceof GenericOnOffServerModel) {
+            intent = new Intent(this, GenericOnOffServerActivity.class);
+        } else if (model instanceof GenericLevelServerModel) {
+            intent = new Intent(this, GenericLevelServerActivity.class);
+        } else if (model instanceof VendorModel) {
+            intent = new Intent(this, VendorModelActivity.class);
+        } else {
+            intent = new Intent(this, ModelConfigurationActivity.class);
+        }
+        startActivity(intent);
     }
 }

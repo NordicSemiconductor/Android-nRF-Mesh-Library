@@ -40,7 +40,7 @@
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/group_item_container"
-            android:layout_width="125dp"
+            android:layout_width="145dp"
             android:layout_height="150dp"
             android:layout_margin="@dimen/item_padding_end"
             android:background="?android:selectableItemBackground"
@@ -70,14 +70,27 @@
                 android:text="2 Lights"
                 tools:ignore="HardcodedText"/>
 
-            <Switch
-                android:id="@+id/switch_on_off"
-                android:layout_width="wrap_content"
+            <Button
+                android:id="@+id/action_on"
+                android:gravity="center"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
+                android:text="@string/action_generic_on"
                 app:layout_constraintTop_toBottomOf="@id/group_summary"
                 app:layout_constraintStart_toStartOf="@id/icon"
+                app:layout_constraintEnd_toStartOf="@id/action_off"
+                style="@style/BlueTextButton"/>
+
+
+            <Button
+                android:id="@+id/action_off"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="@string/action_generic_off"
+                app:layout_constraintTop_toBottomOf="@id/group_summary"
                 app:layout_constraintEnd_toEndOf="@id/icon"
-                android:padding="@dimen/item_padding_top"/>
+                app:layout_constraintStart_toEndOf="@id/action_on"
+                style="@style/BlueTextButton"/>
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>
 </RelativeLayout>

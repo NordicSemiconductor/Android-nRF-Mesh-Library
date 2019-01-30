@@ -159,7 +159,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private SingleLiveEvent<String> mNetworkImportState = new SingleLiveEvent<>();
     private SingleLiveEvent<String> mNetworkExportState = new SingleLiveEvent<>();
 
-    private MeshMessageLiveData mMeshMessageLiveData = new MeshMessageLiveData();
+    private SingleLiveEvent<MeshMessage> mMeshMessageLiveData = new SingleLiveEvent<>();
     /**
      * Contains the provisioned nodes
      **/
@@ -303,7 +303,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Returns the {@link MeshMessageLiveData} live data object containing the mesh message
      */
-    MeshMessageLiveData getMeshMessageLiveData() {
+    LiveData<MeshMessage> getMeshMessageLiveData() {
         return mMeshMessageLiveData;
     }
 

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
@@ -20,13 +21,19 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:width="24dp"
-        android:height="24dp"
-        android:alpha="0.60"
-        android:viewportHeight="24.0"
-        android:viewportWidth="24.0">
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M3,17.25V21h3.75L17.81,9.94l-3.75,-3.75L3,17.25zM20.71,7.04c0.39,-0.39 0.39,-1.02 0,-1.41l-2.34,-2.34c-0.39,-0.39 -1.02,-0.39 -1.41,0l-1.83,1.83 3.75,3.75 1.83,-1.83z"/>
-</vector>
+<menu xmlns:tools="http://schemas.android.com/tools"
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_edit"
+        android:enabled="true"
+        android:title="@string/action_edit"
+        android:icon="@drawable/ic_edit_white_24dp"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction"/>
+    <item
+        android:id="@+id/action_disconnect"
+        android:enabled="true"
+        android:title="@string/action_disconnect"
+        app:showAsAction="always"/>
+</menu>

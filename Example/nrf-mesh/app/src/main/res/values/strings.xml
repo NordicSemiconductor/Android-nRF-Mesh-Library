@@ -210,6 +210,7 @@
     <string name="group_address">Group Address</string>
     <string name="group_device_count">%d Devices</string>
     <string name="title_group_info">Group Info</string>
+    <string name="title_edit_group_info">Edit Group</string>
 
     <string name="title_manage_app_keys">Manage App Keys</string>
     <string name="title_select_app_key">Select App Key</string>
@@ -241,7 +242,7 @@
     <string name="app_key_item">App key %d</string>
     <string name="app_key_index_item">Key Index: %d</string>
     <string name="error_node_name">Node name cannot be empty!</string>
-    <string name="element_address">Element : %s</string>
+    <string name="element_address">Element: %s</string>
     <string name="model_count">%d Models</string>
     <string name="title_model_configuration">Model Configuration</string>
     <string name="subtitle_model_configuration" formatted="false">%s %s</string>
@@ -500,4 +501,6 @@
     <string name="dimmer_count">%d Dimmer(s)</string>
     <string name="unknown_device_count">%d Device(s)</string>
     <string name="please_connect_to_network">Please connect to network to control devices!</string>
+    <string name="action_edit">Edit</string>
+    <string name="parent_address">Element Address: %s</string>
 </resources>

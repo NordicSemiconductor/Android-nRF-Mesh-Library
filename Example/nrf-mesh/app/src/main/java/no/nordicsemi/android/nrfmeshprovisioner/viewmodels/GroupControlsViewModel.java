@@ -32,6 +32,9 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
@@ -110,5 +113,57 @@ public class GroupControlsViewModel extends ViewModel {
      */
     public LiveData<Boolean> isConnectedToProxy() {
         return mNrfMeshRepository.isConnectedToProxy();
+    }
+
+    public MeshNetworkLiveData getMeshNetworkLiveData() {
+        return mNrfMeshRepository.getMeshNetworkLiveData();
+    }
+
+    public LiveData<MeshMessage> getMeshMessageLiveData() {
+        return mNrfMeshRepository.getMeshMessageLiveData();
+    }
+
+    /**
+     * Set the mesh node to be configured
+     *
+     * @param meshNode provisioned mesh node
+     */
+    public void setSelectedMeshNode(final ProvisionedMeshNode meshNode) {
+        mNrfMeshRepository.setSelectedMeshNode(meshNode);
+    }
+
+    /**
+     * Set the element to be configured
+     *
+     * @param element {@link Element}
+     */
+    public void setSelectedElement(final Element element) {
+        mNrfMeshRepository.setSelectedElement(element);
+    }
+
+    /**
+     * Get selected model
+     *
+     * @return {@link ExtendedMeshModel} element
+     */
+    public ExtendedMeshModel getSelectedModel() {
+        return mNrfMeshRepository.getSelectedModel();
+    }
+
+    /**
+     * Set the mesh model to be configured
+     *
+     * @param model {@link MeshModel}
+     */
+    public void setSelectedModel(final MeshModel model) {
+        mNrfMeshRepository.setSelectedModel(model);
+    }
+    /**
+     * Get selected mesh node
+     *
+     * @return {@link ExtendedMeshNode} element
+     */
+    public ExtendedMeshNode getSelectedMeshNode() {
+        return mNrfMeshRepository.getSelectedMeshNode();
     }
 }

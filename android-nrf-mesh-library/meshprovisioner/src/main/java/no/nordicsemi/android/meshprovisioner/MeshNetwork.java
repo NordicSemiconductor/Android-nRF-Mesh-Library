@@ -117,7 +117,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
     public boolean addGroup(@NonNull final Group group) {
         if (!isGroupExist(group)) {
             this.groups.add(group);
-            if(mCallbacks != null) {
+            if (mCallbacks != null) {
                 mCallbacks.onGroupAdded(group);
             }
             return true;
@@ -160,6 +160,33 @@ public final class MeshNetwork extends BaseMeshNetwork {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns a list of elements assigned to a particular group
+     *
+     * @param group group
+     */
+    public List<Element> getElements(final Group group) {
+        final List<Element> elements = new ArrayList<>();
+        for (final ProvisionedMeshNode node : nodes) {
+            for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
+                final Element element = elementEntry.getValue();
+                for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                    final MeshModel model = modelEntry.getValue();
+                    if (model != null) {
+                        final List<byte[]> subscriptionAddresses = model.getSubscriptionAddresses();
+                        for (byte[] subscriptionAddress : subscriptionAddresses) {
+                            if (Arrays.equals(group.getGroupAddress(), subscriptionAddress)) {
+                                if (!elements.contains(element))
+                                    elements.add(element);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return elements;
     }
 
     /**

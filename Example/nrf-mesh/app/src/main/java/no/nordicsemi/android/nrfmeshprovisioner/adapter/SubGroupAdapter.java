@@ -35,14 +35,13 @@ import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -58,10 +57,10 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
 
     private final String TAG = SubGroupAdapter.class.getSimpleName();
     private final Context mContext;
-    private final MeshNetwork mMeshNetwork;
-    private final List<MeshModel> models = new ArrayList<>();
-    private SparseArray<SparseIntArray> mGroupedKeyModels = new SparseArray<>();
-    private SparseIntArray mGroupedModels = new SparseIntArray();
+    private MeshNetwork mMeshNetwork;
+    private List<MeshModel> mModels;
+    private SparseArray<SparseIntArray> mGroupedKeyModels;
+    private SparseIntArray mGroupedModels;
     private boolean mIsConnected = false;
     private Group mGroup;
     private OnItemClickListener mOnItemClickListener;
@@ -85,13 +84,11 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         });
     }
 
-    private void updateAdapterData() {
+    public void updateAdapterData() {
         final Group group = mGroup;
-        models.clear();
-        models.addAll(mMeshNetwork.getModels(group));
-        groupModels();
-        groupModelsBasedOnAppKeys();
-        notifyDataSetChanged();
+        mModels = mMeshNetwork.getModels(group);
+        mGroupedModels = groupModels();
+        mGroupedKeyModels = groupModelsBasedOnAppKeys();
     }
 
 
@@ -121,64 +118,45 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
             for (int i = 0; i < groupedModels.size(); i++) {
                 final int modelId = groupedModels.keyAt(i);
                 final int count = groupedModels.valueAt(i);
-                inflateView(holder, modelId, count, i);
+                inflateView(holder, keyIndex, modelId, count, i);
             }
         }
     }
 
-    private void inflateView(@NonNull final ViewHolder holder, final int modelId, final int modelCount, final int index) {
+    private void inflateView(@NonNull final ViewHolder holder, final int keyIndex, final int modelId, final int modelCount, final int position) {
         final View view = LayoutInflater.from(mContext).inflate(R.layout.grouped_item, holder.mGroupGrid, false);
-        view.setTag(modelId);
         final CardView groupContainerCard = view.findViewById(R.id.group_container_card);
         final ImageView icon = view.findViewById(R.id.icon);
         final TextView groupSummary = view.findViewById(R.id.group_summary);
-        final Switch toggle = view.findViewById(R.id.switch_on_off);
-        toggle.setTag(modelId);
+        final Button on = view.findViewById(R.id.action_on);
+        final Button off = view.findViewById(R.id.action_off);
         switch (modelId) {
             case SigModelParser.GENERIC_ON_OFF_SERVER:
                 groupSummary.setText(mContext.getString(R.string.light_count, modelCount));
-                groupContainerCard.setOnClickListener(v -> {
-                    final int appKeyIndex = (int) holder.groupItemContainer.getTag();
-                    final int modelIdentifier = (int) v.findViewById(R.id.switch_on_off).getTag();
-                    onSubGroupItemClicked(appKeyIndex, modelIdentifier);
-                });
                 break;
             case SigModelParser.GENERIC_LEVEL_SERVER:
                 groupSummary.setText(mContext.getString(R.string.dimmer_count, modelCount));
-                groupContainerCard.setOnClickListener(v -> {
-                    final int appKeyIndex = (int) holder.groupItemContainer.getTag();
-                    final int modelIdentifier = (int) v.findViewById(R.id.switch_on_off).getTag();
-                    onSubGroupItemClicked(appKeyIndex, modelIdentifier);
-                });
                 break;
             default:
                 icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_nordic_medium_grey_48dp));
-                toggle.setVisibility(View.GONE);
                 groupSummary.setText(mContext.getString(R.string.unknown_device_count, modelCount));
                 break;
         }
 
-        toggle.setOnClickListener((v -> {
-            final boolean isChecked = ((Switch) v).isChecked();
-            if (mIsConnected) {
-                final int appKeyIndex = (int) holder.groupItemContainer.getTag();
-                final int modelIdentifier = (int) v.getTag();
-                mOnItemClickListener.toggle(appKeyIndex, modelIdentifier, isChecked);
-            } else {
-                toggle.setChecked(!isChecked);
-                Toast.makeText(mContext, R.string.please_connect_to_network, Toast.LENGTH_SHORT).show();
-            }
-        }));
+        groupContainerCard.setOnClickListener(v -> onSubGroupItemClicked(keyIndex, modelId));
 
-        toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_outline_nordic_grass_48dp));
-            } else {
-                icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_outline_nordic_medium_grey_48dp));
-            }
-        });
+        on.setOnClickListener(v -> toggleState(keyIndex, modelId, true));
+        off.setOnClickListener(v -> toggleState(keyIndex, modelId, false));
 
-        holder.mGroupGrid.addView(view, index);
+        holder.mGroupGrid.addView(view, position);
+    }
+
+    private void toggleState(final int appKeyIndex, final int modelId, final boolean state){
+        if(mIsConnected) {
+            mOnItemClickListener.toggle(appKeyIndex, modelId, state);
+        } else {
+            Toast.makeText(mContext, R.string.please_connect_to_network, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void onSubGroupItemClicked(final int keyIndex, final int modelIdentifier) {
@@ -204,26 +182,28 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
     }
 
     /**
-     * Group the models based on the model id
+     * Group the mModels based on the model id
      */
-    private void groupModels() {
-        mGroupedModels.clear();
-        for (MeshModel model : models) {
-            final int modelCount = mGroupedModels.get(model.getModelId(), 0);
-            mGroupedModels.put(model.getModelId(), modelCount + 1);
+    private SparseIntArray groupModels() {
+        final SparseIntArray groupedModels = new SparseIntArray();
+        for (MeshModel model : mModels) {
+            final int modelCount = groupedModels.get(model.getModelId(), 0);
+            groupedModels.put(model.getModelId(), modelCount + 1);
         }
+        return groupedModels;
     }
 
-    private void groupModelsBasedOnAppKeys() {
-        mGroupedKeyModels.clear();
-        for (MeshModel model : models) {
+    private SparseArray<SparseIntArray> groupModelsBasedOnAppKeys() {
+        final SparseArray<SparseIntArray> groupedKeyModels = new SparseArray<>();
+        for (MeshModel model : mModels) {
             for (Integer keyIndex : model.getBoundAppKeyIndexes()) {
-                final SparseIntArray sparseIntArr = mGroupedKeyModels.get(keyIndex, new SparseIntArray());
+                final SparseIntArray sparseIntArr = groupedKeyModels.get(keyIndex, new SparseIntArray());
                 final int modelIdCount = sparseIntArr.get(model.getModelId(), 0);
                 sparseIntArr.put(model.getModelId(), modelIdCount + 1);
-                mGroupedKeyModels.put(keyIndex, sparseIntArr);
+                groupedKeyModels.put(keyIndex, sparseIntArr);
             }
         }
+        return groupedKeyModels;
     }
 
     public interface OnItemClickListener {

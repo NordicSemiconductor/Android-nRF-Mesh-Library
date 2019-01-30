@@ -24,6 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
+import no.nordicsemi.android.nrfmeshprovisioner.BottomSheetDetailsDialogFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.GroupsFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.NetworkFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.SettingsFragment;

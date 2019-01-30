@@ -12,15 +12,15 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelGet;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSet;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
@@ -184,7 +184,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
     @Override
     protected void updateMeshMessage(final MeshMessage meshMessage) {
         super.updateMeshMessage(meshMessage);
-        if(meshMessage instanceof GenericLevelStatus){
+        if (meshMessage instanceof GenericLevelStatus) {
             final GenericLevelStatus status = (GenericLevelStatus) meshMessage;
             hideProgressBar();
             final int presentLevel = status.getPresentLevel();
@@ -232,8 +232,8 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
     /**
      * Send generic level set to mesh node
      *
-     * @param level                level
-     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     * @param level level
+     * @param delay message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      */
     public void sendGenericLevel(final int level, final Integer delay) {
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
@@ -243,14 +243,12 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
         if (!model.getBoundAppKeyIndexes().isEmpty()) {
             final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
             final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-            if (!model.getSubscriptionAddresses().isEmpty()) {
-                final byte[] address = element.getElementAddress();
-                Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                        + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
-                final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level,node.getReceivedSequenceNumber());
-                mViewModel.getMeshManagerApi().sendMeshMessage(address, genericLevelSet);
-                showProgressbar();
-            }
+            final byte[] address = element.getElementAddress();
+            Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                    + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
+            final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level, node.getReceivedSequenceNumber());
+            mViewModel.getMeshManagerApi().sendMeshMessage(address, genericLevelSet);
+            showProgressbar();
         } else {
             Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
         }

@@ -50,14 +50,12 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDetails.ViewHolder> {
 
     private final Context mContext;
-    private final List<Element> mElements = new ArrayList<>();
+    private final List<Element> mElements;
     private OnItemClickListener mOnItemClickListener;
 
-    public ElementAdapterDetails(final Context mContext, final ProvisionedMeshNode node) {
+    public ElementAdapterDetails(@NonNull final Context mContext, @NonNull final List<Element> elements) {
         this.mContext = mContext;
-        if(node != null  && node.getElements() != null) {
-            mElements.addAll(node.getElements().values());
-        }
+        mElements = elements;
     }
 
 
