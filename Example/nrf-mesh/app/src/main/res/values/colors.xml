@@ -72,4 +72,5 @@
     <color name="bulbNordicSun">@color/nordicSun</color>
     <color name="bulbNordicMediumGray">@color/nordicMediumGray</color>
     <color name="switchNordicMediumGray">@color/nordicMediumGray</color>
+    <color name="vendorNordicMediumGray">@color/nordicMediumGray</color>
 </resources>
