@@ -112,7 +112,9 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
                     final ImageView modelIcon = view.findViewById(R.id.icon);
                     final TextView modelTitle = view.findViewById(R.id.model_title);
                     modelTitle.setText(model.getModelName());
-                    if(model.getModelId() < Short.MAX_VALUE) {
+                    if(MeshParserUtils.isVendorModel(model.getModelId())){
+                        modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_nordic_medium_gray_24dp));
+                    } else {
                         switch (model.getModelId()) {
                             case SigModelParser.GENERIC_ON_OFF_SERVER:
                                 modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_outline_nordic_medium_grey_24dp));
@@ -127,8 +129,6 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
                                 modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_nordic_medium_grey_24dp));
                                 break;
                         }
-                    } else {
-                        modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_nordic_medium_gray_24dp));
                     }
                     container.setOnClickListener(v -> mOnItemClickListener.onModelItemClick(element, model));
                     holder.mModelContainer.addView(view);

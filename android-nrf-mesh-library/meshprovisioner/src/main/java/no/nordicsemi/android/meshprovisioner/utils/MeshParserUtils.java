@@ -703,4 +703,12 @@ public class MeshParserUtils {
         final long millisSinceEpoch = calendar.getTimeInMillis();
         return (currentTime - millisSinceEpoch) / 1000;
     }
+
+    /**
+     * Returns if the model id is a vendor model
+     * @param modelId model identifier
+     */
+    public static boolean isVendorModel(final int modelId){
+        return modelId > Short.MAX_VALUE;
+    }
 }

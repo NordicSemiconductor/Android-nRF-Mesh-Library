@@ -76,7 +76,6 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     private GroupControlsViewModel mViewModel;
     private SubGroupAdapter groupAdapter;
-    private RecyclerView recyclerViewSubGroups;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -90,7 +89,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        recyclerViewSubGroups = findViewById(R.id.recycler_view_grouped_models);
+        final RecyclerView recyclerViewSubGroups = findViewById(R.id.recycler_view_grouped_models);
         recyclerViewSubGroups.setLayoutManager(new LinearLayoutManager(this));
         groupAdapter = new SubGroupAdapter(this,
                 mViewModel.getMeshManagerApi().getMeshNetwork(),
@@ -100,7 +99,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         recyclerViewSubGroups.setAdapter(groupAdapter);
 
         mViewModel.getSelectedGroup().observe(this, group -> {
-            if(group != null) {
+            if (group != null) {
                 getSupportActionBar().setTitle(group.getName());
                 getSupportActionBar().setSubtitle(MeshParserUtils.bytesToHex(group.getGroupAddress(), true));
             }
@@ -226,7 +225,6 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final Group group = mViewModel.getSelectedGroup().getValue();
         final MeshNetwork meshNetwork = mViewModel.getMeshManagerApi().getMeshNetwork();
         final ArrayList<Element> elements = new ArrayList<>(meshNetwork.getElements(group));
-        final ArrayList<MeshModel> models = new ArrayList<>(meshNetwork.getModels(group));
         final BottomSheetDetailsDialogFragment onOffFragment = BottomSheetDetailsDialogFragment.getInstance(group, elements);
         onOffFragment.show(getSupportFragmentManager(), DETAILS_FRAGMENT);
     }

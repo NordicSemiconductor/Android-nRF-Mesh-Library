@@ -50,6 +50,7 @@ import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHolder> {
@@ -127,7 +128,12 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         final TextView groupSummary = view.findViewById(R.id.group_summary);
         final Button on = view.findViewById(R.id.action_on);
         final Button off = view.findViewById(R.id.action_off);
-        if(modelId < Short.MAX_VALUE) {
+        if (MeshParserUtils.isVendorModel(modelId)) {
+            icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_nordic_medium_gray_48dp));
+            on.setVisibility(View.GONE);
+            off.setVisibility(View.GONE);
+            groupSummary.setText(mContext.getString(R.string.unknown_device_count, modelCount));
+        } else {
             switch (modelId) {
                 case SigModelParser.GENERIC_ON_OFF_SERVER:
                     groupSummary.setText(mContext.getString(R.string.light_count, modelCount));
@@ -149,11 +155,6 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
                     groupSummary.setText(mContext.getString(R.string.unknown_device_count, modelCount));
                     break;
             }
-        } else {
-            icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_nordic_medium_gray_48dp));
-            on.setVisibility(View.GONE);
-            off.setVisibility(View.GONE);
-            groupSummary.setText(mContext.getString(R.string.unknown_device_count, modelCount));
         }
 
         groupContainerCard.setOnClickListener(v -> onSubGroupItemClicked(keyIndex, modelId));
