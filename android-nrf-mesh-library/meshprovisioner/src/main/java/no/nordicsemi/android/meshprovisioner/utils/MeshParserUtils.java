@@ -124,7 +124,7 @@ public class MeshParserUtils {
      * @return true if is valid and false otherwise
      */
     public static boolean isValidUnassignedAddress(final byte[] address) {
-        if (address == null|| address.length != 2)
+        if (address == null || address.length != 2)
             return false;
         final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
 
@@ -511,8 +511,6 @@ public class MeshParserUtils {
      */
     public static byte[] createVendorOpCode(final int opCode, final int companyIdentifier) {
         if (companyIdentifier != 0xFFFF) {
-            //TODO nRF Mesh SDK implementation contains a bug related to endianness of the company identifier
-            //In order to get this working with the sdk you may have to switch the company identifier bytes here
             return new byte[]{(byte) (0xC0 | (opCode & 0x3F)), (byte) (companyIdentifier & 0xFF), (byte) ((companyIdentifier >> 8) & 0xFF)};
         }
         return null;
@@ -706,9 +704,10 @@ public class MeshParserUtils {
 
     /**
      * Returns if the model id is a vendor model
+     *
      * @param modelId model identifier
      */
-    public static boolean isVendorModel(final int modelId){
+    public static boolean isVendorModel(final int modelId) {
         return modelId > Short.MAX_VALUE;
     }
 }

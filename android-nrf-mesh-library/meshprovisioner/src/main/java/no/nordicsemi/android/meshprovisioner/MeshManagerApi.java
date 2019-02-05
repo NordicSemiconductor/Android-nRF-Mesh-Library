@@ -42,6 +42,7 @@ import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.data.ApplicationKeyDao;
 import no.nordicsemi.android.meshprovisioner.data.GroupDao;
+import no.nordicsemi.android.meshprovisioner.data.GroupsDao;
 import no.nordicsemi.android.meshprovisioner.data.MeshNetworkDao;
 import no.nordicsemi.android.meshprovisioner.data.NetworkKeyDao;
 import no.nordicsemi.android.meshprovisioner.data.ProvisionedMeshNodeDao;
@@ -133,6 +134,7 @@ public class MeshManagerApi implements MeshMngrApi {
     private ApplicationKeyDao mApplicationKeyDao;
     private ProvisionerDao mProvisionerDao;
     private ProvisionedMeshNodeDao mProvisionedNodeDao;
+    private GroupsDao mGroupsDao;
     private GroupDao mGroupDao;
     private SceneDao mSceneDao;
 
@@ -209,7 +211,7 @@ public class MeshManagerApi implements MeshMngrApi {
                 mApplicationKeyDao,
                 mProvisionerDao,
                 mProvisionedNodeDao,
-                mGroupDao, mSceneDao,
+                mGroupsDao, mSceneDao,
                 networkLoadCallbacks);
     }
 
@@ -229,6 +231,7 @@ public class MeshManagerApi implements MeshMngrApi {
         mApplicationKeyDao = mMeshNetworkDb.applicationKeyDao();
         mProvisionerDao = mMeshNetworkDb.provisionerDao();
         mProvisionedNodeDao = mMeshNetworkDb.provisionedMeshNodeDao();
+        mGroupsDao = mMeshNetworkDb.groupsDao();
         mGroupDao = mMeshNetworkDb.groupDao();
         mSceneDao = mMeshNetworkDb.sceneDao();
     }

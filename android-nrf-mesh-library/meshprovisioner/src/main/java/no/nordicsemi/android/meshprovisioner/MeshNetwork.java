@@ -134,6 +134,16 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return null;
     }
 
+    public boolean updateGroup(@NonNull final Group group){
+        if (isGroupExist(group)) {
+            if (mCallbacks != null) {
+                mCallbacks.onGroupUpdated(group);
+            }
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Returns true if a group exists with the same address
      *

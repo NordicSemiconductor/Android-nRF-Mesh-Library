@@ -72,4 +72,10 @@
     <style name="RedButton" parent="Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:textColor">@drawable/red_button_states</item>
     </style>
+
+    <style name="CustomBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 </resources>

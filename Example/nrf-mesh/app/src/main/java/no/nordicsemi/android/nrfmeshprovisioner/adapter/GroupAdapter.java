@@ -22,16 +22,15 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
+import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -41,12 +40,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
 
@@ -56,17 +53,24 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     private OnItemClickListener mOnItemClickListener;
     private MeshNetwork mNetwork;
 
-    public GroupAdapter(final FragmentActivity context, final MeshNetworkLiveData meshNetworkLiveData) {
+    public GroupAdapter(final FragmentActivity context, final MeshNetworkLiveData meshNetworkLiveData, final LiveData<List<Group>> groupLiveData) {
         this.mContext = context;
         meshNetworkLiveData.observe(context, networkLiveData -> {
             if (networkLiveData != null) {
                 mNetwork = networkLiveData.getMeshNetwork();
-                mGroups.clear();
+                /*mGroups.clear();
                 mGroups.addAll(mNetwork.getGroups());
-                notifyDataSetChanged();
+                notifyDataSetChanged();*/
             }
         });
 
+        groupLiveData.observe(context, groups -> {
+            if(groups != null && !groups.isEmpty()) {
+                mGroups.clear();
+                mGroups.addAll(groups);
+                notifyDataSetChanged();
+            }
+        });
     }
 
     public void setOnItemClickListener(final OnItemClickListener listener) {

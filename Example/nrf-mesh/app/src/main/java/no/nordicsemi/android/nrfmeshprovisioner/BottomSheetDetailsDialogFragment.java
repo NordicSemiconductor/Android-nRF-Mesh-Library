@@ -5,11 +5,15 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import java.util.ArrayList;
 
@@ -24,27 +28,22 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
 
     private static final String GROUP = "GROUP";
     private static final String ELEMENTS = "ELEMENTS";
-    private static final String MODELS = "MODELS";
 
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
+    private TextInputLayout mGroupNameInputLayout;
+    private TextInputEditText mGroupNameTextInput;
+
     private Group mGroup;
     private ArrayList<Element> mElements = new ArrayList<>();
     private GroupModelAdapter mGroupModelsAdapter;
 
-    public void updateAdapter(final Group group, final ArrayList<Element> elements) {
-        if(mGroupModelsAdapter != null) {
-            mGroup = group;
-            mElements = elements;
-            mGroupModelsAdapter.updateAdapter(group, elements);
-            mGroupModelsAdapter.notifyDataSetChanged();
-        }
-    }
-
     public interface BottomSheetDetailsListener {
         void editModelItem(@NonNull final Element element, @NonNull final MeshModel model);
+
+        void onGroupNameChanged(@NonNull final Group group);
     }
 
     public static BottomSheetDetailsDialogFragment getInstance(final Group group, final ArrayList<Element> elements) {
@@ -59,7 +58,8 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments() != null) {
+        setStyle(STYLE_NORMAL, R.style.CustomBottomSheetDialog);
+        if (getArguments() != null) {
             mGroup = getArguments().getParcelable(GROUP);
             mElements = getArguments().getParcelableArrayList(ELEMENTS);
         }
@@ -70,16 +70,43 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_bottom_sheet_dialog, container, false);
 
+        mGroupNameInputLayout = rootView.findViewById(R.id.text_input_layout);
+        mGroupNameTextInput = rootView.findViewById(R.id.text_input);
+        mGroupNameTextInput.setText(mGroup.getName());
+
         final RecyclerView recyclerViewGroupItems = rootView.findViewById(R.id.group_items);
         recyclerViewGroupItems.setLayoutManager(new LinearLayoutManager(requireContext()));
         mGroupModelsAdapter = new GroupModelAdapter(requireContext(), mGroup, mElements);
         mGroupModelsAdapter.setOnItemClickListener(this);
         recyclerViewGroupItems.setAdapter(mGroupModelsAdapter);
+
+        final Button actionApply = rootView.findViewById(R.id.action_apply);
+        actionApply.setOnClickListener(v -> {
+            final String groupName = mGroupNameTextInput.getEditableText().toString();
+            if (validateInput(groupName)) {
+                mGroup.setName(groupName);
+                ((BottomSheetDetailsListener) requireActivity()).onGroupNameChanged(mGroup);
+            }
+        });
+
         return rootView;
     }
 
     @Override
     public void onModelItemClick(final Element element, final MeshModel model) {
-        ((BottomSheetDetailsListener)requireActivity()).editModelItem(element, model);
+        ((BottomSheetDetailsListener) requireActivity()).editModelItem(element, model);
+    }
+
+    public void updateAdapter(final Group group, final ArrayList<Element> elements) {
+        if (mGroupModelsAdapter != null) {
+            mGroup = group;
+            mElements = elements;
+            mGroupModelsAdapter.updateAdapter(group, elements);
+            mGroupModelsAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private boolean validateInput(final String groupName) {
+        return !TextUtils.isEmpty(groupName);
     }
 }

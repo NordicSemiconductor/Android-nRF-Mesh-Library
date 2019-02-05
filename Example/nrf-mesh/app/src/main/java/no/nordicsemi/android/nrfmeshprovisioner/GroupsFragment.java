@@ -84,7 +84,7 @@ public class GroupsFragment extends Fragment implements Injectable, FragmentMana
         recyclerViewDevices.setLayoutManager(new LinearLayoutManager(requireContext()));
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewDevices.getContext(), DividerItemDecoration.VERTICAL);
         recyclerViewDevices.addItemDecoration(dividerItemDecoration);
-        final GroupAdapter adapter = new GroupAdapter(requireActivity(), mViewModel.getMeshNetworkLiveData());
+        final GroupAdapter adapter = new GroupAdapter(requireActivity(), mViewModel.getMeshNetworkLiveData(), mViewModel.getGroups());
         adapter.setOnItemClickListener(this);
         recyclerViewDevices.setAdapter(adapter);
 

@@ -155,6 +155,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      **/
     private final MutableLiveData<List<ProvisionedMeshNode>> mProvisionedNodes = new MutableLiveData<>();
 
+    private final MutableLiveData<List<Group>> mGroups = new MutableLiveData<>();
+
     private final TransactionStatusLiveData mTransactionFailedLiveData = new TransactionStatusLiveData();
 
     private MeshManagerApi mMeshManagerApi;
@@ -246,6 +248,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     LiveData<List<ProvisionedMeshNode>> getProvisionedNodes() {
         return mProvisionedNodes;
+    }
+
+    LiveData<List<Group>> getGroups() {
+        return mGroups;
     }
 
     LiveData<String> getNetworkLoadState() {
@@ -583,7 +589,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onNetworkUpdated(final MeshNetwork meshNetwork) {
         loadNetwork(meshNetwork);
-        generateGroups();
+        updateGroup();
     }
 
     @Override
@@ -918,6 +924,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mMeshNetworkLiveData.loadNetworkInformation(meshNetwork);
             //Load live data with provisioned nodes
             mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
+
+            mGroups.postValue(mMeshNetwork.getGroups());
         }
     }
 
@@ -1023,24 +1031,34 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      * Generates the groups based on the addresses each models have subscribed to
      */
     private void generateGroups() {
-        final String uuid = mMeshNetwork.getMeshUUID();
-        final List<Group> groups = new ArrayList<>();
-        for (final ProvisionedMeshNode node : mMeshNetwork.getProvisionedNodes()) {
-            for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
-                final Element element = elementEntry.getValue();
-                for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
-                    final MeshModel model = modelEntry.getValue();
-                    if (model != null) {
-                        final List<byte[]> subscriptionAddresses = model.getSubscriptionAddresses();
-                        for (byte[] address : subscriptionAddresses) {
-                            if (!mMeshNetwork.isGroupExist(address)) {
-                                final Group group = new Group(address, null, uuid);
-                                mMeshNetwork.addGroup(group);
+        if(mMeshNetwork.getGroups().isEmpty()) {
+            final String uuid = mMeshNetwork.getMeshUUID();
+            final List<Group> groups = new ArrayList<>();
+            for (final ProvisionedMeshNode node : mMeshNetwork.getProvisionedNodes()) {
+                for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
+                    final Element element = elementEntry.getValue();
+                    for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                        final MeshModel model = modelEntry.getValue();
+                        if (model != null) {
+                            final List<byte[]> subscriptionAddresses = model.getSubscriptionAddresses();
+                            for (byte[] address : subscriptionAddresses) {
+                                if (!mMeshNetwork.isGroupExist(address)) {
+                                    final Group group = new Group(address, null, uuid);
+                                    mMeshNetwork.addGroup(group);
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+        mGroups.postValue(mMeshNetwork.getGroups());
+    }
+
+    private void updateGroup(){
+        final Group selectedGroup = mSelectedGroupLiveData.getValue();
+        if(selectedGroup != null) {
+            mSelectedGroupLiveData.postValue(mMeshNetwork.getGroup(selectedGroup.getGroupAddress()));
         }
     }
 

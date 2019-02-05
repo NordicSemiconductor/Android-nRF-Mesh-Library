@@ -245,6 +245,11 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         }
     }
 
+    @Override
+    public void onGroupNameChanged(@NonNull final Group group) {
+        mViewModel.getMeshManagerApi().getMeshNetwork().updateGroup(group);
+    }
+
     /**
      * Start activity based on the type of the model
      *
