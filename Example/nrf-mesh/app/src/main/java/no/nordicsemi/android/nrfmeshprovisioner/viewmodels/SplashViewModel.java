@@ -20,46 +20,37 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner;
+package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import android.arch.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SplashViewModel;
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 
-public class SplashScreenActivity extends AppCompatActivity implements Injectable {
-    private static final int DURATION = 1000;
+public class SplashViewModel extends ViewModel {
+
+    private final NrfMeshRepository mNrfMeshRepository;
+
     @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
-    @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        setContentView(R.layout.activity_splash_screen);
-        super.onCreate(savedInstanceState);
-        final SplashViewModel viewModel = ViewModelProviders.of(SplashScreenActivity.this, mViewModelFactory).get(SplashViewModel.class);
-        viewModel.getMeshNetworkLiveData().observe(this,meshNetworkLiveData -> {
-            if(meshNetworkLiveData != null && meshNetworkLiveData.getMeshNetwork() != null) {
-                navigateActivity();
-            }
-        });
-    }
-
-    private void navigateActivity(){
-        final Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        startActivity(intent);
-        finish();
+    SplashViewModel(final NrfMeshRepository nrfMeshRepository) {
+        this.mNrfMeshRepository = nrfMeshRepository;
     }
 
     @Override
-    public void onBackPressed() {
-        // We don't want the splash screen to be interrupted
+    protected void onCleared() {
+        super.onCleared();
+    }
+
+    public NrfMeshRepository getNrfMeshRepository() {
+        return mNrfMeshRepository;
+    }
+
+    public MeshManagerApi getMeshManagerApi() {
+        return mNrfMeshRepository.getMeshManagerApi();
+    }
+
+    public MeshNetworkLiveData getMeshNetworkLiveData(){
+        return mNrfMeshRepository.getMeshNetworkLiveData();
     }
 }

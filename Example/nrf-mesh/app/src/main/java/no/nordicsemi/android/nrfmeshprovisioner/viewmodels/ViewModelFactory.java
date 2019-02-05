@@ -43,6 +43,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
 		creators = new HashMap<>();
 		// we cannot inject view models directly because they won't be bound to the owner's
 		// view model scope.
+		creators.put(SplashViewModel.class, viewModelSubComponent::splashViewModel);
 		creators.put(SharedViewModel.class, viewModelSubComponent::commonViewModel);
 		creators.put(ScannerViewModel.class, viewModelSubComponent::scannerViewModel);
 		creators.put(GroupControlsViewModel.class, viewModelSubComponent::groupControlsViewModel);

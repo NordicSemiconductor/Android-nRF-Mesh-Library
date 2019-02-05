@@ -43,27 +43,17 @@ import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
 
-    private static final int COLUMN_COUNT = 3;
     private final ArrayList<Group> mGroups = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
     private MeshNetwork mNetwork;
 
-    public GroupAdapter(final FragmentActivity context, final MeshNetworkLiveData meshNetworkLiveData, final LiveData<List<Group>> groupLiveData) {
+    public GroupAdapter(final FragmentActivity context, final MeshNetwork meshNetwork, final LiveData<List<Group>> groupLiveData) {
         this.mContext = context;
-        meshNetworkLiveData.observe(context, networkLiveData -> {
-            if (networkLiveData != null) {
-                mNetwork = networkLiveData.getMeshNetwork();
-                /*mGroups.clear();
-                mGroups.addAll(mNetwork.getGroups());
-                notifyDataSetChanged();*/
-            }
-        });
-
+        mNetwork = meshNetwork;
         groupLiveData.observe(context, groups -> {
             if(groups != null && !groups.isEmpty()) {
                 mGroups.clear();
@@ -86,7 +76,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull final GroupAdapter.ViewHolder holder, final int position) {
-        if (mGroups.size() > 0) {
+        if (mNetwork != null && mGroups.size() > 0) {
             final Group group = mGroups.get(position);
             if (group != null) {
                 final List<MeshModel> models = mNetwork.getModels(group);

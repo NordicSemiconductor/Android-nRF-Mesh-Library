@@ -45,6 +45,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -84,7 +85,8 @@ public class GroupsFragment extends Fragment implements Injectable, FragmentMana
         recyclerViewDevices.setLayoutManager(new LinearLayoutManager(requireContext()));
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewDevices.getContext(), DividerItemDecoration.VERTICAL);
         recyclerViewDevices.addItemDecoration(dividerItemDecoration);
-        final GroupAdapter adapter = new GroupAdapter(requireActivity(), mViewModel.getMeshNetworkLiveData(), mViewModel.getGroups());
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final GroupAdapter adapter = new GroupAdapter(requireActivity(), network, mViewModel.getGroups());
         adapter.setOnItemClickListener(this);
         recyclerViewDevices.setAdapter(adapter);
 

@@ -32,6 +32,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ReconnectViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SplashViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ViewModelFactory;
 
 /**
@@ -45,6 +46,7 @@ public interface ViewModelSubComponent {
 	interface Builder {
 		ViewModelSubComponent build();
 	}
+	SplashViewModel splashViewModel();
 	SharedViewModel commonViewModel();
 	ScannerViewModel scannerViewModel();
 	GroupControlsViewModel groupControlsViewModel();

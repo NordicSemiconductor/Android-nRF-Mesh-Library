@@ -40,10 +40,14 @@ import no.nordicsemi.android.nrfmeshprovisioner.NodeDetailsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.PublicationSettingsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ReconnectActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ScannerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.SplashScreenActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.VendorModelActivity;
 
 @Module
 abstract class ActivitiesModule {
+
+	@ContributesAndroidInjector()
+	abstract SplashScreenActivity contributeSplashScreenActivity();
 
 	@ContributesAndroidInjector(modules = FragmentBuildersModule.class)
 	abstract MainActivity contributeMainActivity();

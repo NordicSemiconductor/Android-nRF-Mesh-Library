@@ -1052,7 +1052,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 }
             }
         }
-        mGroups.postValue(mMeshNetwork.getGroups());
     }
 
     private void updateGroup(){

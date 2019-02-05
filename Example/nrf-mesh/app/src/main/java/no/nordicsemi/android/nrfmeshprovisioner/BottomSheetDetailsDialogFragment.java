@@ -1,5 +1,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
+import android.app.Activity;
 import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,6 +14,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 import java.util.ArrayList;
@@ -84,6 +86,8 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
         actionApply.setOnClickListener(v -> {
             final String groupName = mGroupNameTextInput.getEditableText().toString();
             if (validateInput(groupName)) {
+                //mGroupNameTextInput.clearFocus();
+                hideKeyboard();
                 mGroup.setName(groupName);
                 ((BottomSheetDetailsListener) requireActivity()).onGroupNameChanged(mGroup);
             }
@@ -108,5 +112,12 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
 
     private boolean validateInput(final String groupName) {
         return !TextUtils.isEmpty(groupName);
+    }
+
+    public void hideKeyboard() {
+        final InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(mGroupNameTextInput.getWindowToken(), 0);
+        }
     }
 }
