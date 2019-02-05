@@ -211,6 +211,8 @@
     <string name="group_device_count">%d Devices</string>
     <string name="title_group_info">Group Info</string>
     <string name="title_edit_group_info">Edit Group</string>
+    <string name="no_app_key_configured_title">NO APP KEYS BOUND</string>
+    <string name="no_app_key_configured_rationale">No app keys are bound for models in this group. \nClick edit on the options menu to bind an app key.</string>
 
     <string name="title_manage_app_keys">Manage App Keys</string>
     <string name="title_select_app_key">Select App Key</string>

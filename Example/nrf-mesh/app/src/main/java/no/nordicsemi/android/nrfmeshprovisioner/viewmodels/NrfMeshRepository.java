@@ -583,12 +583,13 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onNetworkLoaded(final MeshNetwork meshNetwork) {
         loadNetwork(meshNetwork);
-        generateGroups();
+        loadGroups();
     }
 
     @Override
     public void onNetworkUpdated(final MeshNetwork meshNetwork) {
         loadNetwork(meshNetwork);
+        loadGroups();
         updateGroup();
     }
 
@@ -924,8 +925,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mMeshNetworkLiveData.loadNetworkInformation(meshNetwork);
             //Load live data with provisioned nodes
             mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
-
-            mGroups.postValue(mMeshNetwork.getGroups());
         }
     }
 
@@ -1030,28 +1029,27 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Generates the groups based on the addresses each models have subscribed to
      */
-    private void generateGroups() {
-        if(mMeshNetwork.getGroups().isEmpty()) {
-            final String uuid = mMeshNetwork.getMeshUUID();
-            final List<Group> groups = new ArrayList<>();
-            for (final ProvisionedMeshNode node : mMeshNetwork.getProvisionedNodes()) {
-                for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
-                    final Element element = elementEntry.getValue();
-                    for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
-                        final MeshModel model = modelEntry.getValue();
-                        if (model != null) {
-                            final List<byte[]> subscriptionAddresses = model.getSubscriptionAddresses();
-                            for (byte[] address : subscriptionAddresses) {
-                                if (!mMeshNetwork.isGroupExist(address)) {
-                                    final Group group = new Group(address, null, uuid);
-                                    mMeshNetwork.addGroup(group);
-                                }
+    private void loadGroups() {
+        final String uuid = mMeshNetwork.getMeshUUID();
+        final List<Group> groups = new ArrayList<>();
+        for (final ProvisionedMeshNode node : mMeshNetwork.getProvisionedNodes()) {
+            for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
+                final Element element = elementEntry.getValue();
+                for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                    final MeshModel model = modelEntry.getValue();
+                    if (model != null) {
+                        final List<byte[]> subscriptionAddresses = model.getSubscriptionAddresses();
+                        for (byte[] address : subscriptionAddresses) {
+                            if (!mMeshNetwork.isGroupExist(address)) {
+                                final Group group = new Group(address, null, uuid);
+                                mMeshNetwork.addGroup(group);
                             }
                         }
                     }
                 }
             }
         }
+        mGroups.postValue(mMeshNetwork.getGroups());
     }
 
     private void updateGroup(){

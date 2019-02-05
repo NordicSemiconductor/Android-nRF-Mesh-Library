@@ -34,6 +34,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -88,6 +89,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         setSupportActionBar(toolbar);
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        final View noAppKeysBound = findViewById(R.id.no_app_keys);
 
         final RecyclerView recyclerViewSubGroups = findViewById(R.id.recycler_view_grouped_models);
         recyclerViewSubGroups.setLayoutManager(new LinearLayoutManager(this));
@@ -105,7 +107,14 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             }
         });
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> groupAdapter.updateAdapterData());
+        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+            if(groupAdapter.getItemCount() > 0){
+                noAppKeysBound.setVisibility(View.INVISIBLE);
+            } else {
+                noAppKeysBound.setVisibility(View.VISIBLE);
+            }
+            groupAdapter.updateAdapterData();
+        });
 
         mViewModel.getSelectedModel().observe(this, meshModel -> {
             groupAdapter.updateAdapterData();

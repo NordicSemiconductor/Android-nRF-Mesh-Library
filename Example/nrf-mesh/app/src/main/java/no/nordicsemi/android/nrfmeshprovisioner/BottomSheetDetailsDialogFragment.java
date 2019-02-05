@@ -86,8 +86,8 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
         actionApply.setOnClickListener(v -> {
             final String groupName = mGroupNameTextInput.getEditableText().toString();
             if (validateInput(groupName)) {
-                //mGroupNameTextInput.clearFocus();
                 hideKeyboard();
+                mGroupNameTextInput.clearFocus();
                 mGroup.setName(groupName);
                 ((BottomSheetDetailsListener) requireActivity()).onGroupNameChanged(mGroup);
             }
