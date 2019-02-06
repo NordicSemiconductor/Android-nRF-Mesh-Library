@@ -254,7 +254,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageNodeAppKeysActivity.class);
             addAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
             startActivityForResult(addAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
-            showProgressbar();
         });
 
         actionGetProxyState.setOnClickListener(v -> {
@@ -344,6 +343,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             if (resultCode == RESULT_OK) {
                 final ApplicationKey appKey = data.getParcelableExtra(ManageNodeAppKeysActivity.RESULT);
                 if (appKey != null) {
+                    showProgressbar();
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
                     final NetworkKey networkKey = mViewModel.getMeshManagerApi().getMeshNetwork().getPrimaryNetworkKey();
                     final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
