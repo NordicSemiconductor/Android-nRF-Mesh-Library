@@ -458,7 +458,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     void sendGetCompositionData() {
         final ProvisionedMeshNode node = mExtendedMeshNode.getValue();
-        if(node != null) {
+        if (node != null) {
             final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
             mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), configCompositionDataGet);
         }
@@ -466,7 +466,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     void sendAppKeyAdd(final ConfigAppKeyAdd configAppKeyAdd) {
         final ProvisionedMeshNode node = mExtendedMeshNode.getValue();
-        if(node != null) {
+        if (node != null) {
             mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), configAppKeyAdd);
         }
     }
@@ -717,12 +717,14 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onBlockAcknowledgementSent(final byte[] dst) {
-        final ProvisionedMeshNode node = mMeshNetwork.getProvisionedNode(dst);
-        if (node != null) {
-            mProvisionedMeshNode = node;
-            if (mSetupProvisionedNode) {
-                mProvisionedMeshNodeLiveData.postValue(mProvisionedMeshNode);
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.SENDING_BLOCK_ACKNOWLEDGEMENT);
+        if (dst != null) {
+            final ProvisionedMeshNode node = mMeshNetwork.getProvisionedNode(dst);
+            if (node != null) {
+                mProvisionedMeshNode = node;
+                if (mSetupProvisionedNode) {
+                    mProvisionedMeshNodeLiveData.postValue(mProvisionedMeshNode);
+                    mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.SENDING_BLOCK_ACKNOWLEDGEMENT);
+                }
             }
         }
     }
@@ -1052,9 +1054,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mGroups.postValue(mMeshNetwork.getGroups());
     }
 
-    private void updateGroup(){
+    private void updateGroup() {
         final Group selectedGroup = mSelectedGroupLiveData.getValue();
-        if(selectedGroup != null) {
+        if (selectedGroup != null) {
             mSelectedGroupLiveData.postValue(mMeshNetwork.getGroup(selectedGroup.getGroupAddress()));
         }
     }
