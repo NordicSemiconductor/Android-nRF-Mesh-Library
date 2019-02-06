@@ -207,12 +207,15 @@
     <string name="no_groups_configured_rationale">Create a group and select which elements to be added to each group.</string>
     <string name="group_configuration">Group Configuration</string>
     <string name="group_friendly_name">Friendly Name</string>
+    <string name="group_name">Group Name</string>
     <string name="group_address">Group Address</string>
     <string name="group_device_count">%d Devices</string>
     <string name="title_group_info">Group Info</string>
     <string name="title_edit_group_info">Edit Group</string>
     <string name="no_app_key_configured_title">NO APP KEYS BOUND</string>
     <string name="no_app_key_configured_rationale">No app keys are bound for models in this group. \nClick edit on the options menu to bind an app key.</string>
+    <string name="select_a_group_rationale">Select a group to subscribe from the list below</string>
+    <string name="create_a_group_rationale">Create a new group to subscribe</string>
 
     <string name="title_manage_app_keys">Manage App Keys</string>
     <string name="title_select_app_key">Select App Key</string>
@@ -506,4 +509,5 @@
     <string name="please_connect_to_network">Please connect to network to control devices!</string>
     <string name="action_edit">Edit</string>
     <string name="parent_address">Element Address: %s</string>
+    <string name="or">OR</string>
 </resources>

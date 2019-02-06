@@ -49,14 +49,13 @@ import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 public class DialogFragmentSubscriptionAddress extends DialogFragment {
 
     //UI Bindings
-    @BindView(R.id.text_input_layout)
+    @BindView(R.id.address_input_layout)
     TextInputLayout unicastAddressInputLayout;
-    @BindView(R.id.text_input)
+    @BindView(R.id.address_input)
     TextInputEditText unicastAddressInput;
 
     public static DialogFragmentSubscriptionAddress newInstance() {
-        DialogFragmentSubscriptionAddress fragmentPublishAddress = new DialogFragmentSubscriptionAddress();
-        return fragmentPublishAddress;
+        return new DialogFragmentSubscriptionAddress();
     }
 
     @Override
@@ -67,7 +66,7 @@ public class DialogFragmentSubscriptionAddress extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_address_input, null);
+        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_group_subscription, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
@@ -101,7 +100,6 @@ public class DialogFragmentSubscriptionAddress extends DialogFragment {
 
         alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
         alertDialogBuilder.setTitle(R.string.title_group_address);
-        alertDialogBuilder.setMessage(R.string.dialog_summary_group_address);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
