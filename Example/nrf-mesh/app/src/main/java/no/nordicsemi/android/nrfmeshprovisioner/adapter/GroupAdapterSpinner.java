@@ -40,20 +40,20 @@ import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public class GroupAdapter1 extends BaseAdapter {
+public class GroupAdapterSpinner extends BaseAdapter {
 
     private final ArrayList<Group> mGroups = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public GroupAdapter1(@NonNull final Context context, @NonNull final List<Group> groups) {
+    public GroupAdapterSpinner(@NonNull final Context context, @NonNull final List<Group> groups) {
         this.mContext = context;
         mGroups.clear();
         mGroups.addAll(groups);
         notifyDataSetChanged();
     }
 
-    public void setOnItemClickListener(final GroupAdapter1.OnItemClickListener listener) {
+    public void setOnItemClickListener(final GroupAdapterSpinner.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 

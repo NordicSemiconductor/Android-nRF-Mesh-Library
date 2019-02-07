@@ -28,7 +28,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
@@ -50,12 +49,12 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAdapter1;
+import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAdapterSpinner;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 
-public class DialogFragmentSubscriptionAddress extends DialogFragment {
+public class DialogFragmentGroupSubscription extends DialogFragment {
 
     private static final String GROUPS = "GROUPS";
     //UI Bindings
@@ -81,13 +80,13 @@ public class DialogFragmentSubscriptionAddress extends DialogFragment {
 
     public interface DialogFragmentSubscriptionAddressListener {
 
-        void setSubscriptionAddress(@NonNull final String name, @NonNull final byte[] address);
-        void setSubscriptionAddress(@NonNull final Group group);
+        void setGroupSubscription(@NonNull final String name, @NonNull final byte[] address);
+        void setGroupSubscription(@NonNull final Group group);
 
     }
 
-    public static DialogFragmentSubscriptionAddress newInstance(final ArrayList<Group> groups) {
-        final DialogFragmentSubscriptionAddress fragment = new DialogFragmentSubscriptionAddress();
+    public static DialogFragmentGroupSubscription newInstance(final ArrayList<Group> groups) {
+        final DialogFragmentGroupSubscription fragment = new DialogFragmentGroupSubscription();
         final Bundle args = new Bundle();
         args.putParcelableArrayList(GROUPS, groups);
         fragment.setArguments(args);
@@ -128,7 +127,7 @@ public class DialogFragmentSubscriptionAddress extends DialogFragment {
             selectGroup.setChecked(!isChecked);
         });
 
-        final GroupAdapter1 adapter = new GroupAdapter1(requireContext(), mGroups);
+        final GroupAdapterSpinner adapter = new GroupAdapterSpinner(requireContext(), mGroups);
         groups.setAdapter(adapter);
 
         if(mGroups.isEmpty()){
@@ -175,12 +174,12 @@ public class DialogFragmentSubscriptionAddress extends DialogFragment {
                 final String name = groupNameInput.getEditableText().toString();
                 final String address = addressInput.getEditableText().toString();
                 if (validateInput(name, address)) {
-                    ((DialogFragmentSubscriptionAddressListener) requireActivity()).setSubscriptionAddress(name, MeshParserUtils.toByteArray(address));
+                    ((DialogFragmentSubscriptionAddressListener) requireActivity()).setGroupSubscription(name, MeshParserUtils.toByteArray(address));
                     dismiss();
                 }
             } else {
                 final Group group = (Group) groups.getSelectedItem();
-                ((DialogFragmentSubscriptionAddressListener) requireActivity()).setSubscriptionAddress(group);
+                ((DialogFragmentSubscriptionAddressListener) requireActivity()).setGroupSubscription(group);
                 dismiss();
             }
         });

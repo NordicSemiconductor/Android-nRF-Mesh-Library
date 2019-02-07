@@ -74,7 +74,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDisconnected;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSubscriptionAddress;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGroupSubscription;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
@@ -82,7 +82,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelper
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public abstract class BaseModelConfigurationActivity extends AppCompatActivity implements Injectable,
-        DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener,
+        DialogFragmentGroupSubscription.DialogFragmentSubscriptionAddressListener,
         AddressAdapter.OnItemClickListener,
         BoundAppKeysAdapter.OnItemClickListener,
         ItemTouchHelperAdapter,
@@ -191,7 +191,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mActionSubscribe.setOnClickListener(v -> {
             //noinspection ConstantConditions
             final ArrayList<Group> groups = new ArrayList<>(mViewModel.getGroups().getValue());
-            final DialogFragmentSubscriptionAddress fragmentSubscriptionAddress = DialogFragmentSubscriptionAddress.newInstance(groups);
+            final DialogFragmentGroupSubscription fragmentSubscriptionAddress = DialogFragmentGroupSubscription.newInstance(groups);
             fragmentSubscriptionAddress.show(getSupportFragmentManager(), null);
         });
 
@@ -278,7 +278,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public void setSubscriptionAddress(@NonNull final String name, @NonNull final byte[] address) {
+    public void setGroupSubscription(@NonNull final String name, @NonNull final byte[] address) {
         final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
         final Group group = new Group(address, null, network.getMeshUUID());
         group.setName(name);
@@ -287,7 +287,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public void setSubscriptionAddress(@NonNull final Group group) {
+    public void setGroupSubscription(@NonNull final Group group) {
         subscribe(group.getGroupAddress());
     }
 
