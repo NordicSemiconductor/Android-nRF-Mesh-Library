@@ -25,8 +25,11 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
@@ -101,5 +104,9 @@ public class ModelConfigurationViewModel extends ViewModel {
      */
     public TransactionStatusLiveData getTransactionStatus() {
         return mNrfMeshRepository.getTransactionStatusLiveData();
+    }
+
+    public LiveData<List<Group>> getGroups(){
+        return mNrfMeshRepository.getGroups();
     }
 }

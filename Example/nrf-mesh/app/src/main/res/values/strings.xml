@@ -207,15 +207,21 @@
     <string name="no_groups_configured_rationale">Create a group and select which elements to be added to each group.</string>
     <string name="group_configuration">Group Configuration</string>
     <string name="group_friendly_name">Friendly Name</string>
-    <string name="group_name">Group Name</string>
-    <string name="group_address">Group Address</string>
+    <string name="group_name">Name</string>
+    <string name="group_address">Address</string>
     <string name="group_device_count">%d Devices</string>
     <string name="title_group_info">Group Info</string>
     <string name="title_edit_group_info">Edit Group</string>
     <string name="no_app_key_configured_title">NO APP KEYS BOUND</string>
     <string name="no_app_key_configured_rationale">No app keys are bound for models in this group. \nClick edit on the options menu to bind an app key.</string>
-    <string name="select_a_group_rationale">Select a group to subscribe from the list below</string>
+    <string name="select_a_group_rationale">Select an existing group</string>
+    <string name="no_available_groups">No available groups.</string>
     <string name="create_a_group_rationale">Create a new group to subscribe</string>
+    <string name="title_subscribe_group">Subscribe</string>
+    <string name="dialog_summary_subscribe">Subscribe to a group.</string>
+    <string name="error_empty_group_name">Group name cannot be empty!</string>
+    <string name="error_empty_group_address">Group address cannot be empty!</string>
+    <string name="error_group_address_in_used">Group address already in use!</string>
 
     <string name="title_manage_app_keys">Manage App Keys</string>
     <string name="title_select_app_key">Select App Key</string>
@@ -299,7 +305,6 @@
     <string name="message_reset_network">This will clear all the data stored related to this network and will not be recoverable. Would you like to continue?</string>
     <string name="not_subscribed_to_groups">Not subscribed to any group addresses.</string>
     <string name="title_group_address">Group Address</string>
-    <string name="dialog_summary_group_address">Group address this model should subscribe.</string>
     <string name="title_configuration_compete">Configuration Complete</string>
     <string name="configuration_complete_summary">Mesh node has been successfully configured.</string>
     <string name="action_composition_data">GET COMPOSITION DATA</string>

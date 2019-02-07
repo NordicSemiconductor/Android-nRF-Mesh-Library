@@ -27,6 +27,8 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -48,6 +50,9 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.android.DispatchingAndroidInjector;
+import no.nordicsemi.android.meshprovisioner.Group;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppStatus;
@@ -85,6 +90,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
+
+    @Inject
+    DispatchingAndroidInjector<Fragment> mDispatchingAndroidInjector;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -181,7 +189,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mActionClearPublication.setOnClickListener(v -> clearPublication());
 
         mActionSubscribe.setOnClickListener(v -> {
-            final DialogFragmentSubscriptionAddress fragmentSubscriptionAddress = DialogFragmentSubscriptionAddress.newInstance();
+            //noinspection ConstantConditions
+            final ArrayList<Group> groups = new ArrayList<>(mViewModel.getGroups().getValue());
+            final DialogFragmentSubscriptionAddress fragmentSubscriptionAddress = DialogFragmentSubscriptionAddress.newInstance(groups);
             fragmentSubscriptionAddress.show(getSupportFragmentManager(), null);
         });
 
@@ -268,7 +278,20 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public void setSubscriptionAddress(final byte[] subscriptionAddress) {
+    public void setSubscriptionAddress(@NonNull final String name, @NonNull final byte[] address) {
+        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        final Group group = new Group(address, null, network.getMeshUUID());
+        group.setName(name);
+        network.addGroup(group);
+        subscribe(address);
+    }
+
+    @Override
+    public void setSubscriptionAddress(@NonNull final Group group) {
+        subscribe(group.getGroupAddress());
+    }
+
+    private void subscribe(final byte[] address) {
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
         if(meshNode != null) {
             final Element element = mViewModel.getSelectedElement().getValue();
@@ -277,7 +300,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                 final MeshModel model = mViewModel.getSelectedModel().getValue();
                 if (model != null) {
                     final int modelIdentifier = model.getModelId();
-                    final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, subscriptionAddress, modelIdentifier);
+                    final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, address, modelIdentifier);
                     mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
                     showProgressbar();
                 }

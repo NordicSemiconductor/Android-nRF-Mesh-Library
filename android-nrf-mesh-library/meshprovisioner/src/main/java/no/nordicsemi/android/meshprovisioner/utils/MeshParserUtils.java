@@ -138,8 +138,14 @@ public class MeshParserUtils {
      * @return true if is valid and false otherwise
      */
     public static boolean isValidGroupAddress(@NonNull final byte[] address) {
-        if (address != null && address.length == 2) {
-            return (address[0] >= 0xC0 && address[0] <= 0xFF) && address[0] != 0xFF || !(address[1] >= 0x00 && address[1] <= 0xFB);
+        if (address.length == 2) {
+            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
+            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
+
+            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
+            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
+            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
+            return groupRange && !rfu && !allNodes;
         }
         return false;
     }
