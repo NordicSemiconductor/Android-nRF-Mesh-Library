@@ -44,4 +44,6 @@ public interface ItemTouchHelperAdapter {
 	 * @see RecyclerView.ViewHolder#getAdapterPosition()
 	 */
 	void onItemDismiss(final RemovableViewHolder viewHolder);
+
+	void onItemDismissFailed(final RemovableViewHolder viewHolder);
 }

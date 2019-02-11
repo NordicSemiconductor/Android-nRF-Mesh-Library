@@ -4,6 +4,7 @@ package no.nordicsemi.android.meshprovisioner;
 import android.arch.persistence.room.Entity;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -125,6 +126,28 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return false;
     }
 
+    /**
+     * Adds a group to the existing group list within the network
+     *
+     * @param address Address of the group
+     * @param name Friendly name of the group
+     * @return true if the group was successfully added and false otherwise since a group may already exist with the same group address
+     */
+    public boolean addGroup(@NonNull final byte[] address, @NonNull final String name) {
+        final Group group = new Group(address, null, meshUUID);
+        if(!TextUtils.isEmpty(name))
+            group.setName(name);
+
+        if (!isGroupExist(group)) {
+            this.groups.add(group);
+            if (mCallbacks != null) {
+                mCallbacks.onGroupAdded(group);
+            }
+            return true;
+        }
+        return false;
+    }
+
     public Group getGroup(@NonNull final byte[] address) {
         for (final Group group : groups) {
             if (Arrays.equals(group.getGroupAddress(), address)) {
@@ -134,10 +157,28 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return null;
     }
 
+    /**
+     * Updates a group in the mesh network
+     * @param group group to be updated
+     */
     public boolean updateGroup(@NonNull final Group group){
         if (isGroupExist(group)) {
             if (mCallbacks != null) {
                 mCallbacks.onGroupUpdated(group);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Removes a group from the mesh network
+     * @param group group to be removed
+     */
+    public boolean removeGroup(@NonNull final Group group){
+        if(groups.remove(group)){
+            if(mCallbacks != null) {
+                mCallbacks.onGroupDeleted(group);
             }
             return true;
         }

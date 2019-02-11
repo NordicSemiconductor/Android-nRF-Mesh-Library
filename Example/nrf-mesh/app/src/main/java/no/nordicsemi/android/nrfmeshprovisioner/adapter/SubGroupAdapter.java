@@ -183,8 +183,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
 
     @Override
     public int getItemCount() {
-        if (mGroupedKeyModels == null)
-            return 0;
+        if (mGroupedKeyModels == null) return 0;
         return mGroupedKeyModels.size();
     }
 
@@ -193,6 +192,10 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         if (mGroupedKeyModels != null)
             mGroupedKeyModels.keyAt(position);
         return super.getItemId(position);
+    }
+
+    public int getModels(){
+        return mModels.size();
     }
 
     private SparseArray<SparseIntArray> groupModelsBasedOnAppKeys() {
@@ -213,6 +216,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         void onSubGroupItemClick(final int appKeyIndex, final int modelId);
 
         void toggle(final int appKeyIndex, final int modelId, final boolean isChecked);
+
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder {

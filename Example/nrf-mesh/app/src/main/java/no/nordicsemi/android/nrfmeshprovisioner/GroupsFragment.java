@@ -30,11 +30,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,23 +45,35 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentCreateGroup;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class GroupsFragment extends Fragment implements Injectable, FragmentManager.OnBackStackChangedListener, GroupAdapter.OnItemClickListener {
+public class GroupsFragment extends Fragment implements Injectable,
+        ItemTouchHelperAdapter,
+        GroupAdapter.OnItemClickListener,
+        DialogFragmentCreateGroup.DialogFragmentCreateGroupListener {
 
     private static final String TAG = GroupsFragment.class.getSimpleName();
 
     private SharedViewModel mViewModel;
-    private FloatingActionButton fab;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
+    @BindView(R.id.container)
+    View container;
+    @BindView(R.id.fab_add_group)
+    FloatingActionButton fab;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,19 +89,20 @@ public class GroupsFragment extends Fragment implements Injectable, FragmentMana
 
         mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
 
-        requireActivity().getSupportFragmentManager().addOnBackStackChangedListener(this);
-
         final View noGroupsConfiguredView = rootView.findViewById(R.id.no_groups_configured);
 
         // Configure the recycler view
-        final RecyclerView recyclerViewDevices = rootView.findViewById(R.id.recycler_view_groups);
-        recyclerViewDevices.setLayoutManager(new LinearLayoutManager(requireContext()));
-        final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewDevices.getContext(), DividerItemDecoration.VERTICAL);
-        recyclerViewDevices.addItemDecoration(dividerItemDecoration);
+        final RecyclerView recyclerViewGroups = rootView.findViewById(R.id.recycler_view_groups);
+        recyclerViewGroups.setLayoutManager(new LinearLayoutManager(requireContext()));
+        final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewGroups.getContext(), DividerItemDecoration.VERTICAL);
+        recyclerViewGroups.addItemDecoration(dividerItemDecoration);
+        final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
+        final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerViewGroups);
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         final GroupAdapter adapter = new GroupAdapter(requireActivity(), network, mViewModel.getGroups());
         adapter.setOnItemClickListener(this);
-        recyclerViewDevices.setAdapter(adapter);
+        recyclerViewGroups.setAdapter(adapter);
 
         mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
@@ -98,6 +112,11 @@ public class GroupsFragment extends Fragment implements Injectable, FragmentMana
                     noGroupsConfiguredView.setVisibility(View.INVISIBLE);
                 }
             }
+        });
+
+        fab.setOnClickListener(v -> {
+            DialogFragmentCreateGroup fragmentCreateGroup = DialogFragmentCreateGroup.newInstance();
+            fragmentCreateGroup.show(getChildFragmentManager(), null);
         });
 
         return rootView;
@@ -148,15 +167,39 @@ public class GroupsFragment extends Fragment implements Injectable, FragmentMana
     }
 
     @Override
-    public void onBackStackChanged() {
-        if(requireActivity().getSupportFragmentManager().getFragments().size() == 3) {
-            fab.show();
+    public void onItemClick(final byte[] address) {
+        mViewModel.setSelectedGroup(address);
+        startActivity(new Intent(requireContext(), GroupControlsActivity.class));
+    }
+
+    @Override
+    public void onItemDismiss(final RemovableViewHolder viewHolder) {
+        final int position = viewHolder.getAdapterPosition();
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final Group group = network.getGroups().get(position);
+        if(network.getModels(group).size() == 0) {
+            network.removeGroup(group);
+            final String message = getString(R.string.group_deleted, group.getName());
+            displaySnackBar(message);
         }
     }
 
     @Override
-    public void onItemClick(final byte[] address) {
-        mViewModel.setSelectedGroup(address);
-        startActivity(new Intent(requireContext(), GroupControlsActivity.class));
+    public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
+        final String message = getString(R.string.error_group_unsubscribe_to_delete);
+        displaySnackBar(message);
+    }
+
+
+    private void displaySnackBar(final String message){
+        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
+                .show();
+    }
+
+    @Override
+    public boolean createGroup(@NonNull final String name, @NonNull final byte[] address) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        return network.addGroup(address, name);
     }
 }

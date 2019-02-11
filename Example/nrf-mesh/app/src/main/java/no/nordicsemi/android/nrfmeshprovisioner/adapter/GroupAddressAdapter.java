@@ -25,10 +25,12 @@ package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -36,22 +38,24 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.Group;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.nrfmeshprovisioner.BaseModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHolder> {
+public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapter.ViewHolder> {
 
-    private final ArrayList<byte[]> mAddresses = new ArrayList<>();
     private final Context mContext;
+    private final MeshNetwork network;
+    private final ArrayList<byte[]> mAddresses = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
 
-    public AddressAdapter(final BaseModelConfigurationActivity context, final LiveData<MeshModel> meshModelLiveData) {
+    public GroupAddressAdapter(final BaseModelConfigurationActivity context, final MeshNetwork network, final LiveData<MeshModel> meshModelLiveData) {
         this.mContext = context;
+        this.network = network;
         meshModelLiveData.observe(context, meshModel -> {
             if(meshModel != null) {
                 final List<byte[]> tempAddresses = meshModel.getSubscriptionAddresses();
@@ -64,22 +68,29 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHold
         });
     }
 
-    public void setOnItemClickListener(final AddressAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(final GroupAddressAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
     @NonNull
     @Override
-    public AddressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+    public GroupAddressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.address_item, parent, false);
-        return new AddressAdapter.ViewHolder(layoutView);
+        return new GroupAddressAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final AddressAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final GroupAddressAdapter.ViewHolder holder, final int position) {
         if(mAddresses.size() > 0) {
-            final String address = MeshParserUtils.bytesToHex(mAddresses.get(position), true);
-            holder.address.setText(address);
+            final byte[] address = mAddresses.get(position);
+            final Group group = network.getGroup(address);
+            if(group != null) {
+                holder.icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_outline_group_work_black_alpha_24dp));
+                holder.name.setText(group.getName());
+                holder.address.setText(MeshParserUtils.bytesToHex(group.getGroupAddress(), true));
+            } else {
+                holder.address.setText(MeshParserUtils.bytesToHex(address, true));
+            }
         }
     }
 
@@ -104,6 +115,10 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHold
 
     public final class ViewHolder extends RemovableViewHolder {
 
+        @BindView(R.id.icon)
+        ImageView icon;
+        @BindView(R.id.address_id)
+        TextView name;
         @BindView(R.id.address)
         TextView address;
 

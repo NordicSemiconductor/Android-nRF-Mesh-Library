@@ -132,12 +132,12 @@ public class MeshParserUtils {
     }
 
     /**
-     * Validates a given group address
+     * Validates a given address for subscriptions
      *
      * @param address group address
      * @return true if is valid and false otherwise
      */
-    public static boolean isValidGroupAddress(@NonNull final byte[] address) {
+    public static boolean isValidSubscriptionAddress(@NonNull final byte[] address) {
         if (address.length == 2) {
             final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
             final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
@@ -156,8 +156,36 @@ public class MeshParserUtils {
      * @param address group address
      * @return true if is valid and false otherwise
      */
-    public static boolean isValidGroupAddress(final int address) {
-        return (address >= 0xC000 && address <= 0xFEFF) || (address >= 0xFFFC && address <= 0xFFFF);
+    public static boolean isValidGroupAddress(@NonNull final byte[] address) {
+        if (address.length == 2) {
+            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
+            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
+
+            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
+            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
+            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
+            return groupRange && !rfu && allNodes;
+        }
+        return false;
+    }
+
+    /**
+     * Validates a given group address
+     *
+     * @param address group address
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidFilterAddress(@NonNull final byte[] address) {
+        if (address.length == 2) {
+            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
+            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
+
+            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
+            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
+            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
+            return groupRange && !rfu && allNodes;
+        }
+        return false;
     }
 
     private static boolean isValidIvIndex(final Integer value) {

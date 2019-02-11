@@ -211,9 +211,8 @@
     <string name="group_address">Address</string>
     <string name="group_device_count">%d Devices</string>
     <string name="title_group_info">Group Info</string>
+    <string name="title_create_group">Create Group</string>
     <string name="title_edit_group_info">Edit Group</string>
-    <string name="no_app_key_configured_title">NO APP KEYS BOUND</string>
-    <string name="no_app_key_configured_rationale">No app keys are bound for models in this group. \nClick edit on the options menu to bind an app key.</string>
     <string name="select_a_group_rationale">Select an existing group</string>
     <string name="no_available_groups">No available groups.</string>
     <string name="create_a_group_rationale">Create a new group to subscribe</string>
@@ -222,6 +221,12 @@
     <string name="error_empty_group_name">Group name cannot be empty!</string>
     <string name="error_empty_group_address">Group address cannot be empty!</string>
     <string name="error_group_address_in_used">Group address already in use!</string>
+    <string name="error_group_unsubscribe_to_delete">Please unsubscribe the models from this group inorder to delete the group!</string>
+    <string name="group_deleted">Group %s deleted!</string>
+    <string name="no_models_configured_title">NO MODELS CONFIGURED</string>
+    <string name="no_models_configured_rationale">No models are subscribed to this group.</string>
+    <string name="no_app_key_configured_title">NO APP KEYS BOUND</string>
+    <string name="no_app_key_configured_rationale">No app keys are bound for models in this group. \nClick edit on the options menu to bind an app key to the models.</string>
 
     <string name="title_manage_app_keys">Manage App Keys</string>
     <string name="title_select_app_key">Select App Key</string>

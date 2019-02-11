@@ -41,7 +41,6 @@ import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdapter.ViewHolder> {
@@ -86,7 +85,7 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
         if (mAddresses.size() > 0) {
             final byte[] address = mAddresses.get(position).getAddress();
             holder.address.setText(MeshParserUtils.bytesToHex(address, true));
-            if (MeshParserUtils.isValidGroupAddress(address)) {
+            if (MeshParserUtils.isValidSubscriptionAddress(address)) {
                 holder.addressTitle.setText(R.string.title_group_address);
             } else if (MeshParserUtils.isValidUnicastAddress(address)) {
                 holder.addressTitle.setText(R.string.title_unicast_address);

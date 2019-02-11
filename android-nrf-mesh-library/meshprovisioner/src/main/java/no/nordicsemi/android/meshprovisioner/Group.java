@@ -16,6 +16,8 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Arrays;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 /**
@@ -58,10 +60,12 @@ public class Group implements Parcelable {
      * @param parentAddress parent address
      */
     public Group(@NonNull final byte[] groupAddress, @Nullable final byte[] parentAddress, @NonNull final String meshUuid) {
-        this.groupAddress = groupAddress;
-        if (Arrays.equals(groupAddress, parentAddress)) {
-            throw new IllegalArgumentException("Address cannot match parent adddress");
+        if(!MeshParserUtils.isValidSubscriptionAddress(groupAddress)) {
+            throw new IllegalArgumentException("Address cannot be an unassigned address, unicast address, all-nodes address or virtual address");
+        } else if (Arrays.equals(groupAddress, parentAddress)) {
+            throw new IllegalArgumentException("Address cannot match parent address");
         }
+        this.groupAddress = groupAddress;
         this.parentAddress = parentAddress;
         this.meshUuid = meshUuid;
     }
@@ -150,7 +154,7 @@ public class Group implements Parcelable {
     /**
      * Sets a name to a mesh group
      */
-    public void setName(final String name) {
+    public void setName(@NonNull final String name) {
         this.name = name;
     }
 

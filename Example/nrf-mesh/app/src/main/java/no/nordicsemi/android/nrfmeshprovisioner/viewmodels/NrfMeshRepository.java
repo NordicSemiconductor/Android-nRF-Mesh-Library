@@ -12,6 +12,8 @@ import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -590,7 +592,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void onNetworkUpdated(final MeshNetwork meshNetwork) {
         loadNetwork(meshNetwork);
         loadGroups();
-        updateGroup();
+        updateSelectedGroup();
     }
 
     @Override
@@ -607,6 +609,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mMeshManagerApi.deleteMeshNetworkFromDb(oldNet);
         }
         loadNetwork(meshNetwork);
+        loadGroups();
         mNetworkImportState.postValue(meshNetwork.getMeshName() + " has been successfully imported.\n" +
                 "In order to start sending messages to this network, please change the provisioner address. " +
                 "Using the same provisioner address will cause messages to be discarded due to the usage of incorrect sequence numbers " +
@@ -1054,7 +1057,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mGroups.postValue(mMeshNetwork.getGroups());
     }
 
-    private void updateGroup() {
+    private void updateSelectedGroup() {
         final Group selectedGroup = mSelectedGroupLiveData.getValue();
         if (selectedGroup != null) {
             mSelectedGroupLiveData.postValue(mMeshNetwork.getGroup(selectedGroup.getGroupAddress()));

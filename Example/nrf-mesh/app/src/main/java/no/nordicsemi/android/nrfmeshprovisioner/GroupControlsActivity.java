@@ -41,6 +41,7 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
@@ -89,6 +90,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         setSupportActionBar(toolbar);
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        final View noModelsConfigured = findViewById(R.id.no_models_subscribed);
         final View noAppKeysBound = findViewById(R.id.no_app_keys);
 
         final RecyclerView recyclerViewSubGroups = findViewById(R.id.recycler_view_grouped_models);
@@ -108,10 +110,16 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         });
 
         mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
-            if(groupAdapter.getItemCount() > 0){
-                noAppKeysBound.setVisibility(View.INVISIBLE);
+            if(groupAdapter.getModels() > 0){
+                noModelsConfigured.setVisibility(View.INVISIBLE);
+                if(groupAdapter.getItemCount() > 0) {
+                    noAppKeysBound.setVisibility(View.INVISIBLE);
+                } else {
+                    noAppKeysBound.setVisibility(View.VISIBLE);
+                }
             } else {
-                noAppKeysBound.setVisibility(View.VISIBLE);
+                noModelsConfigured.setVisibility(View.VISIBLE);
+                noAppKeysBound.setVisibility(View.INVISIBLE);
             }
             groupAdapter.updateAdapterData();
         });

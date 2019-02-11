@@ -173,7 +173,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
             }
 
             final byte[] address = MeshParserUtils.toByteArray(input);
-            if (!MeshParserUtils.isValidUnicastAddress(address) && !MeshParserUtils.isValidGroupAddress(address)) {
+            if (!MeshParserUtils.isValidUnicastAddress(address) && !MeshParserUtils.isValidFilterAddress(address)) {
                 addressInputLayout.setError(getString(R.string.invalid_filter_address));
                 return false;
             }

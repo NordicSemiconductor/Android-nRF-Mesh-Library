@@ -69,7 +69,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatus;
@@ -83,7 +83,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public abstract class BaseModelConfigurationActivity extends AppCompatActivity implements Injectable,
         DialogFragmentGroupSubscription.DialogFragmentSubscriptionAddressListener,
-        AddressAdapter.OnItemClickListener,
         BoundAppKeysAdapter.OnItemClickListener,
         ItemTouchHelperAdapter,
         DialogFragmentDisconnected.DialogFragmentDisconnectedListener {
@@ -127,7 +126,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected ModelConfigurationViewModel mViewModel;
     protected List<byte[]> mGroupAddress = new ArrayList<>();
     protected List<Integer> mKeyIndexes = new ArrayList<>();
-    protected AddressAdapter mAddressAdapter;
+    protected GroupAddressAdapter mSubscriptionAdapter;
     protected BoundAppKeysAdapter mBoundAppKeyAdapter;
     protected Button mActionRead;
     private RecyclerView recyclerViewBoundKeys, recyclerViewAddresses;
@@ -158,9 +157,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerViewAddresses);
-        mAddressAdapter = new AddressAdapter(this, mViewModel.getSelectedModel());
-        recyclerViewAddresses.setAdapter(mAddressAdapter);
-        mAddressAdapter.setOnItemClickListener(this);
+        mSubscriptionAdapter = new GroupAddressAdapter(this, mViewModel.getMeshManagerApi().getMeshNetwork(), mViewModel.getSelectedModel());
+        recyclerViewAddresses.setAdapter(mSubscriptionAdapter);
 
         recyclerViewBoundKeys = findViewById(R.id.recycler_view_bound_keys);
         recyclerViewBoundKeys.setLayoutManager(new LinearLayoutManager(this));
@@ -311,7 +309,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         final int position = viewHolder.getAdapterPosition();
-        if (viewHolder instanceof AddressAdapter.ViewHolder) {
+        if (viewHolder instanceof GroupAddressAdapter.ViewHolder) {
             deleteSubscription(position);
         } else if (viewHolder instanceof BoundAppKeysAdapter.ViewHolder) {
             unbindAppKey(position);
@@ -319,7 +317,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public void onItemClick(final int position, final byte[] address) {
+    public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
 
     }
 
@@ -435,7 +433,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     private void deleteSubscription(final int position) {
-        if (mAddressAdapter.getItemCount() != 0) {
+        if (mSubscriptionAdapter.getItemCount() != 0) {
             final byte[] address = mGroupAddress.get(position);
             final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
             if (meshNode != null) {

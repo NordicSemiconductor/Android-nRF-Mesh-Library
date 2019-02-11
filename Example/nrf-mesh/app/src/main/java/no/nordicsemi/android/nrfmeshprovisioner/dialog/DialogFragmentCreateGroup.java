@@ -37,33 +37,19 @@ import android.text.TextWatcher;
 import android.text.method.KeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.RadioButton;
-import android.widget.Spinner;
-import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAdapterSpinner;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 
-public class DialogFragmentGroupSubscription extends DialogFragment {
+public class DialogFragmentCreateGroup extends DialogFragment {
 
     private static final String GROUPS = "GROUPS";
     //UI Bindings
-    @BindView(R.id.radio_select_group)
-    RadioButton selectGroup;
-    @BindView(R.id.radio_create_group)
-    RadioButton createGroup;
-    @BindView(R.id.groups)
-    Spinner groups;
     @BindView(R.id.group_name_layout)
     TextInputLayout groupNameInputLayout;
     @BindView(R.id.name_input)
@@ -72,72 +58,28 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
     TextInputLayout addressInputLayout;
     @BindView(R.id.address_input)
     TextInputEditText addressInput;
-    @BindView(R.id.no_groups_configured)
-    TextView noGroups;
-
-    private ArrayList<Group> mGroups;
 
 
-    public interface DialogFragmentSubscriptionAddressListener {
-
-        void setGroupSubscription(@NonNull final String name, @NonNull final byte[] address);
-        void setGroupSubscription(@NonNull final Group group);
-
+    public interface DialogFragmentCreateGroupListener {
+        boolean createGroup(@NonNull final String name, @NonNull final byte[] address);
     }
 
-    public static DialogFragmentGroupSubscription newInstance(final ArrayList<Group> groups) {
-        final DialogFragmentGroupSubscription fragment = new DialogFragmentGroupSubscription();
-        final Bundle args = new Bundle();
-        args.putParcelableArrayList(GROUPS, groups);
-        fragment.setArguments(args);
-        return fragment;
+    public static DialogFragmentCreateGroup newInstance() {
+        return new DialogFragmentCreateGroup();
     }
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mGroups = getArguments().getParcelableArrayList(GROUPS);
-        }
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_group_subscription, null);
+        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_create_group, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
-
-        selectGroup.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            groupNameInputLayout.setEnabled(!isChecked);
-            groupNameInputLayout.setError(null);
-            addressInputLayout.setEnabled(!isChecked);
-            addressInputLayout.setError(null);
-            groups.setEnabled(isChecked);
-            createGroup.setChecked(!isChecked);
-        });
-
-        createGroup.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            groupNameInputLayout.setEnabled(isChecked);
-            groupNameInputLayout.setError(null);
-            addressInputLayout.setEnabled(isChecked);
-            addressInputLayout.setError(null);
-            groups.setEnabled(!isChecked);
-            selectGroup.setChecked(!isChecked);
-        });
-
-        final GroupAdapterSpinner adapter = new GroupAdapterSpinner(requireContext(), mGroups);
-        groups.setAdapter(adapter);
-
-        if(mGroups.isEmpty()){
-            selectGroup.setEnabled(false);
-            groups.setEnabled(false);
-            createGroup.setChecked(true);
-        } else {
-            selectGroup.setChecked(true);
-            createGroup.setChecked(false);
-        }
 
         final KeyListener hexKeyListener = new HexKeyListener();
         addressInput.setKeyListener(hexKeyListener);
@@ -165,23 +107,22 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_subscribe_black_alpha_24dp);
+        alertDialogBuilder.setIcon(R.drawable.ic_outline_group_work_black_24dp);
         alertDialogBuilder.setTitle(R.string.title_subscribe_group);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            if(createGroup.isChecked()) {
                 final String name = groupNameInput.getEditableText().toString();
                 final String address = addressInput.getEditableText().toString();
                 if (validateInput(name, address)) {
-                    ((DialogFragmentSubscriptionAddressListener) requireActivity()).setGroupSubscription(name, MeshParserUtils.toByteArray(address));
-                    dismiss();
+                    if(getParentFragment() != null) {
+                        if(((DialogFragmentCreateGroupListener) getParentFragment()).createGroup(name, MeshParserUtils.toByteArray(address))) {
+                            dismiss();
+                        } else {
+                            addressInputLayout.setError(getString(R.string.error_group_address_in_used));
+                        }
+                    }
                 }
-            } else {
-                final Group group = (Group) groups.getSelectedItem();
-                ((DialogFragmentSubscriptionAddressListener) requireActivity()).setGroupSubscription(group);
-                dismiss();
-            }
         });
 
         return alertDialog;
@@ -202,13 +143,6 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
             if(!MeshParserUtils.isValidSubscriptionAddress(groupAddress)){
                 addressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
-            }
-
-            for(Group group : mGroups) {
-                if(Arrays.equals(groupAddress, group.getGroupAddress())){
-                    addressInputLayout.setError(getString(R.string.error_group_address_in_used));
-                    return false;
-                }
             }
         } catch (IllegalArgumentException ex) {
             addressInputLayout.setError(ex.getMessage());

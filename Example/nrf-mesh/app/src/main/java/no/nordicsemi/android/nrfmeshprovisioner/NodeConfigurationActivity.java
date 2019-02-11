@@ -395,6 +395,11 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     @Override
+    public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
+
+    }
+
+    @Override
     public void onItemClick(final ApplicationKey appKey) {
 
     }

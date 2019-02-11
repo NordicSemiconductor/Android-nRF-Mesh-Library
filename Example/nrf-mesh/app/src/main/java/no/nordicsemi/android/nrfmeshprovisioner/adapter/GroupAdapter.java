@@ -27,10 +27,13 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -43,6 +46,7 @@ import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
 
@@ -55,7 +59,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         this.mContext = context;
         mNetwork = meshNetwork;
         groupLiveData.observe(context, groups -> {
-            if(groups != null && !groups.isEmpty()) {
+            if(groups != null) {
                 mGroups.clear();
                 mGroups.addAll(groups);
                 notifyDataSetChanged();
@@ -102,14 +106,24 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         return getItemCount() == 0;
     }
 
+    /**
+     * Returns the number of models associated to the group in a particular position
+     * @param position position
+     */
+    public int getModelCount(final int position){
+        if(position >= 0 && !mGroups.isEmpty() && position < mGroups.size()) {
+            final Group group = mGroups.get(position);
+            return mNetwork.getModels(group).size();
+        }
+        return 0;
+    }
+
     @FunctionalInterface
     public interface OnItemClickListener {
         void onItemClick(final byte[] address);
     }
 
-    public final class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.group_container)
-        ConstraintLayout container;
+    public final class ViewHolder extends RemovableViewHolder {
         @BindView(R.id.group_name)
         TextView groupName;
         @BindView(R.id.group_address)
@@ -120,7 +134,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            container.setOnClickListener(v -> {
+            view.findViewById(R.id.container).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClick(mGroups.get(getAdapterPosition()).getGroupAddress());
                 }

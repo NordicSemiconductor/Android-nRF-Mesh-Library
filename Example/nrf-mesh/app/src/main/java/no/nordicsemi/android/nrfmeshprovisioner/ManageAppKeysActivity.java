@@ -190,6 +190,10 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         }
     }
 
+    @Override
+    public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
+
+    }
 
     private void displaySnackBar(final int key, final ApplicationKey appKey){
 
