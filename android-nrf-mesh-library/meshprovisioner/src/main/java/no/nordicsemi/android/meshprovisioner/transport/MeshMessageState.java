@@ -143,7 +143,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.sendMeshPdu(mDst, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mDst);
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(message.getDst());
     }
 
     public enum MessageState {

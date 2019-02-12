@@ -61,6 +61,11 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="Widget.GroupTitle">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
     <style name="BlueTextButton" parent="Widget.AppCompat.Button.Borderless.Colored">
     </style>
 
@@ -68,4 +73,9 @@
         <item name="android:textColor">@drawable/red_button_states</item>
     </style>
 
+    <style name="CustomBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 </resources>

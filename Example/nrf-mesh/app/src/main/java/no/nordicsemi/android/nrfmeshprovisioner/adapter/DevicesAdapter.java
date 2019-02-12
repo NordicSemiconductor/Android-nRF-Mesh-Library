@@ -38,25 +38,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.ScannerFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerLiveData;
 
 public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.ViewHolder> {
     private Context mContext;
     private final List<ExtendedBluetoothDevice> mDevices;
     private OnItemClickListener mOnItemClickListener;
-
-    public DevicesAdapter(final ScannerFragment scannerFragment, final ScannerLiveData scannerLiveData) {
-        mContext = scannerFragment.getContext();
-        mDevices = scannerLiveData.getDevices();
-        scannerLiveData.observe(scannerFragment, devices -> {
-            final Integer i = devices.getUpdatedDeviceIndex();
-            if (i != null)
-                notifyItemChanged(i);
-            else
-                notifyDataSetChanged();
-        });
-    }
 
     public DevicesAdapter(final FragmentActivity fragmentActivity, final ScannerLiveData scannerLiveData) {
         mContext = fragmentActivity;

@@ -23,7 +23,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.app.Activity;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -39,8 +38,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigSetFilterType;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
@@ -49,55 +46,57 @@ import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ReconnectViewModel;
 
 public class ReconnectActivity extends AppCompatActivity implements Injectable {
-	public static final int REQUEST_DEVICE_READY = 1122; //Random number
-	private ReconnectViewModel mReconnectViewModel;
+    public static final int REQUEST_DEVICE_READY = 1122; //Random number
+    private ReconnectViewModel mReconnectViewModel;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
-	@BindView(R.id.connectivity_progress_container) View mConnectivityProgress;
-	@Override
-	protected void onCreate(@Nullable final Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_reconnect);
-		ButterKnife.bind(this);
+    @BindView(R.id.connectivity_progress_container)
+    View mConnectivityProgress;
 
-		final Intent intent = getIntent();
-		final ExtendedBluetoothDevice device = intent.getParcelableExtra(Utils.EXTRA_DEVICE);
-		final String deviceName = device.getName();
-		final String deviceAddress = device.getAddress();
+    @Override
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_reconnect);
+        ButterKnife.bind(this);
 
-		final Toolbar toolbar = findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
+        final Intent intent = getIntent();
+        final ExtendedBluetoothDevice device = intent.getParcelableExtra(Utils.EXTRA_DEVICE);
+        final String deviceName = device.getName();
+        final String deviceAddress = device.getAddress();
+
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setTitle(deviceName);
-		getSupportActionBar().setSubtitle(deviceAddress);
+        getSupportActionBar().setTitle(deviceName);
+        getSupportActionBar().setSubtitle(deviceAddress);
         final TextView connectionState = findViewById(R.id.connection_state);
-		// Create view model containing utility methods for scanning
-		mReconnectViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ReconnectViewModel.class);
+        // Create view model containing utility methods for scanning
+        mReconnectViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ReconnectViewModel.class);
 
-		mReconnectViewModel.connect(this, device, true);
-		mReconnectViewModel.isConnected().observe(this, isConnected -> {
-			if(!isConnected){
-				finish();
-			}
-		});
+        mReconnectViewModel.connect(this, device, true);
+        mReconnectViewModel.isConnected().observe(this, isConnected -> {
+            if (!isConnected) {
+                finish();
+            }
+        });
 
-		mReconnectViewModel.getConnectionState().observe(this, connectionState::setText);
+        mReconnectViewModel.getConnectionState().observe(this, connectionState::setText);
 
-		mReconnectViewModel.isDeviceReady().observe(this, deviceReady -> {
-		    if(mReconnectViewModel.getBleMeshManager().isDeviceReady()) {
+        mReconnectViewModel.isDeviceReady().observe(this, deviceReady -> {
+            if (mReconnectViewModel.getBleMeshManager().isDeviceReady()) {
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra(Utils.ACTIVITY_RESULT, true);
+                returnIntent.putExtra(Utils.EXTRA_DATA, true);
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
                 //We send a proxy whitelist filter message to identify the node we are connected to when reconnecting to the network
-				final ProxyConfigSetFilterType setFilterType = new ProxyConfigSetFilterType(new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER));
-				mReconnectViewModel.getMeshManagerApi().sendMeshMessage(new byte[] {0x00, 0x00}, setFilterType);
+                final ProxyConfigSetFilterType setFilterType = new ProxyConfigSetFilterType(new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER));
+                mReconnectViewModel.getMeshManagerApi().sendMeshMessage(new byte[]{0x00, 0x00}, setFilterType);
             }
-		});
+        });
 
-	}
+    }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
@@ -109,14 +108,14 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
         return false;
     }
 
-	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-		mReconnectViewModel.disconnect();
-	}
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        mReconnectViewModel.disconnect();
+    }
 
-	@Override
-	protected void onStop() {
-		super.onStop();
-	}
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 }

@@ -20,14 +20,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageAcked;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageUnacked;
-import no.nordicsemi.android.meshprovisioner.models.VendorModel;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -43,7 +42,7 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof VendorModel) {
             final ConstraintLayout container = findViewById(R.id.node_controls_container);
             final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_vendor_model_controls, container);
@@ -98,6 +97,7 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
 
             actionSend.setOnClickListener(v -> {
                 messageContainer.setVisibility(View.GONE);
+                receivedMessage.setText("");
                 final String opCode = opCodeEditText.getText().toString().trim();
                 final String parameters = parametersEditText.getText().toString().trim();
 
@@ -209,29 +209,19 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
      * @param parameters parameters of the message
      */
     public void sendVendorModelMessage(final int opcode, final byte[] parameters, final boolean acknowledged) {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getElement();
-        final VendorModel model = (VendorModel) mViewModel.getSelectedModel().getMeshModel();
-        final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-        final MeshMessage message;
-        if (acknowledged) {
-            message = new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
-            final List<byte[]> addresses = model.getNonGroupAddresses();
-            for (byte[] address : addresses) {
-                mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
-            }
-            mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
-        } else {
-            message = new VendorModelMessageUnacked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
-            final List<byte[]> addresses = model.getSubscriptionAddresses();
-            //Send to unicast if empty
-            if(addresses.isEmpty()) {
-                mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
-            } else {
-                for (byte[] address : addresses) {
-                    mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
+        final Element element = mViewModel.getSelectedElement().getValue();
+        if (element != null) {
+            final VendorModel model = (VendorModel) mViewModel.getSelectedModel().getValue();
+            if (model != null) {
+                final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+                final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
+                final MeshMessage message;
+                if (acknowledged) {
+                    message = new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
+                } else {
+                    message = new VendorModelMessageUnacked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
                 }
+                mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
             }
         }
     }

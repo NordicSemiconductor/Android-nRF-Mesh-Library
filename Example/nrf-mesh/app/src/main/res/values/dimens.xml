@@ -34,4 +34,5 @@
     <dimen name="toolbar_title_margin">32dp</dimen>
     <dimen name="fab_elevation">6dp</dimen>
     <dimen name="swipe_background_delete_margin">56dp</dimen>
+    <dimen name="network_recycler_view_bottom_padding">72dp</dimen>
 </resources>

@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -35,11 +36,11 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdapter.ViewHolder> {
@@ -48,10 +49,10 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public FilterAddressAdapter(@NonNull final Context context, @NonNull final ExtendedMeshNode extendedMeshNode) {
+    public FilterAddressAdapter(@NonNull final Context context, @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
         this.mContext = context;
         mAddresses = new ArrayList<>();
-        extendedMeshNode.observe((LifecycleOwner) context, meshNode -> {
+        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
             if (meshNode != null) {
                 final ProxyFilter proxyFilter = meshNode.getProxyFilter();
                 if (proxyFilter != null) {
@@ -61,11 +62,6 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
                 }
             }
         });
-    }
-
-    public FilterAddressAdapter(@NonNull final Context context, final ArrayList<AddressArray> addresses) {
-        this.mContext = context;
-        this.mAddresses = addresses;
     }
 
     public void setOnItemClickListener(final FilterAddressAdapter.OnItemClickListener listener) {
@@ -84,7 +80,7 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
         if (mAddresses.size() > 0) {
             final byte[] address = mAddresses.get(position).getAddress();
             holder.address.setText(MeshParserUtils.bytesToHex(address, true));
-            if (MeshParserUtils.isValidGroupAddress(address)) {
+            if (MeshParserUtils.isValidSubscriptionAddress(address)) {
                 holder.addressTitle.setText(R.string.title_group_address);
             } else if (MeshParserUtils.isValidUnicastAddress(address)) {
                 holder.addressTitle.setText(R.string.title_unicast_address);

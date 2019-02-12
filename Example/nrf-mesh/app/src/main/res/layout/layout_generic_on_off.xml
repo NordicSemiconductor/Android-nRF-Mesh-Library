@@ -202,11 +202,11 @@
                 android:padding="@dimen/activity_horizontal_margin"
                 android:text="@string/action_generic_read_state"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/action_on_off"
-                app:layout_constraintTop_toTopOf="@+id/action_on_off"/>
+                app:layout_constraintEnd_toStartOf="@id/action_on"
+                app:layout_constraintTop_toTopOf="@+id/action_on"/>
 
             <Button
-                android:id="@+id/action_on_off"
+                android:id="@+id/action_on"
                 style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -226,9 +226,9 @@
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:paddingTop="@dimen/activity_vertical_margin"
                 android:paddingBottom="@dimen/activity_vertical_margin"
-                app:layout_constraintBottom_toBottomOf="@id/action_on_off"
+                app:layout_constraintBottom_toBottomOf="@id/action_on"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/action_on_off"/>
+                app:layout_constraintTop_toTopOf="@id/action_on"/>
 
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>

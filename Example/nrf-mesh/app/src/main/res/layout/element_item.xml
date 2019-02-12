@@ -30,9 +30,6 @@
     tools:ignore="ContentDescription">
 
     <android.support.constraint.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/element_item_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -59,6 +56,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingStart="@dimen/activity_horizontal_margin"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toStartOf="@id/element_expand"
             app:layout_constraintStart_toEndOf="@id/icon"
             tools:ignore="RtlSymmetry">

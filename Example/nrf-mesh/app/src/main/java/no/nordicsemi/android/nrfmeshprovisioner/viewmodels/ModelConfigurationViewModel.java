@@ -25,9 +25,16 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
 
 /**
@@ -65,34 +72,28 @@ public class ModelConfigurationViewModel extends ViewModel {
      *
      * @return {@link MeshMessageLiveData}
      */
-    public MeshMessageLiveData getMeshMessageLiveData() {
+    public LiveData<MeshMessage> getMeshMessageLiveData() {
         return mNrfMeshRepository.getMeshMessageLiveData();
     }
 
     /**
      * Get selected mesh node
-     *
-     * @return {@link ExtendedMeshNode} element
      */
-    public ExtendedMeshNode getSelectedMeshNode() {
+    public LiveData<ProvisionedMeshNode> getSelectedMeshNode() {
         return mNrfMeshRepository.getSelectedMeshNode();
     }
 
     /**
      * Get selected element
-     *
-     * @return {@link ExtendedElement} element
      */
-    public ExtendedElement getSelectedElement() {
+    public LiveData<Element> getSelectedElement() {
         return mNrfMeshRepository.getSelectedElement();
     }
 
     /**
      * Get selected model
-     *
-     * @return {@link ExtendedMeshModel} element
      */
-    public ExtendedMeshModel getSelectedModel() {
+    public LiveData<MeshModel> getSelectedModel() {
         return mNrfMeshRepository.getSelectedModel();
     }
 
@@ -103,5 +104,9 @@ public class ModelConfigurationViewModel extends ViewModel {
      */
     public TransactionStatusLiveData getTransactionStatus() {
         return mNrfMeshRepository.getTransactionStatusLiveData();
+    }
+
+    public LiveData<List<Group>> getGroups(){
+        return mNrfMeshRepository.getGroups();
     }
 }

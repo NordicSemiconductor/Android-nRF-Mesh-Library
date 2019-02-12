@@ -25,7 +25,4 @@
 
     <solid android:color="@color/colorPrimary"/>
 
-    <size
-        android:width="100dp"
-        android:height="100dp"/>
 </shape>

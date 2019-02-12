@@ -21,20 +21,19 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical"
-              android:paddingEnd="@dimen/activity_horizontal_margin"
-              android:paddingStart="@dimen/activity_horizontal_margin"
-              tools:ignore="ContentDescription">
-
-    <Button
-        android:id="@+id/action_configure"
-        style="@style/BlueTextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/configure"/>
-</LinearLayout>
+<menu xmlns:tools="http://schemas.android.com/tools"
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_edit"
+        android:enabled="true"
+        android:title="@string/action_edit"
+        android:icon="@drawable/ic_edit_white_24dp"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction"/>
+    <item
+        android:id="@+id/action_connect"
+        android:enabled="true"
+        android:title="@string/action_connect"
+        app:showAsAction="always"/>
+</menu>

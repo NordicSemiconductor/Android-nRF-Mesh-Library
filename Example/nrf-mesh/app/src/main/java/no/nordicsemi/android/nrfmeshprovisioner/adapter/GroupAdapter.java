@@ -25,10 +25,15 @@ package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -36,50 +41,54 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.Group;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
-import no.nordicsemi.android.nrfmeshprovisioner.BaseModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHolder> {
+public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
 
-    private final ArrayList<byte[]> mAddresses = new ArrayList<>();
+    private final ArrayList<Group> mGroups = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
+    private MeshNetwork mNetwork;
 
-    public AddressAdapter(final BaseModelConfigurationActivity context, final LiveData<MeshModel> meshModelLiveData) {
+    public GroupAdapter(final FragmentActivity context, final MeshNetwork meshNetwork, final LiveData<List<Group>> groupLiveData) {
         this.mContext = context;
-        meshModelLiveData.observe(context, meshModel -> {
-            if(meshModel != null) {
-                final List<byte[]> tempAddresses = meshModel.getSubscriptionAddresses();
-                if (tempAddresses != null) {
-                    mAddresses.clear();
-                    mAddresses.addAll(tempAddresses);
-                    notifyDataSetChanged();
-                }
+        mNetwork = meshNetwork;
+        groupLiveData.observe(context, groups -> {
+            if(groups != null) {
+                mGroups.clear();
+                mGroups.addAll(groups);
+                notifyDataSetChanged();
             }
         });
     }
 
-    public void setOnItemClickListener(final AddressAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(final OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
     @NonNull
     @Override
-    public AddressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.address_item, parent, false);
-        return new AddressAdapter.ViewHolder(layoutView);
+    public GroupAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.group_item, parent, false);
+        return new GroupAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final AddressAdapter.ViewHolder holder, final int position) {
-        if(mAddresses.size() > 0) {
-            final String address = MeshParserUtils.bytesToHex(mAddresses.get(position), true);
-            holder.address.setText(address);
+    public void onBindViewHolder(@NonNull final GroupAdapter.ViewHolder holder, final int position) {
+        if (mNetwork != null && mGroups.size() > 0) {
+            final Group group = mGroups.get(position);
+            if (group != null) {
+                final List<MeshModel> models = mNetwork.getModels(group);
+                holder.groupName.setText(group.getName());
+                final String addressSummary = "Address: " + MeshParserUtils.bytesToHex(group.getGroupAddress(), true);
+                holder.groupAddress.setText(addressSummary);
+                holder.groupDeviceCount.setText(mContext.getString(R.string.group_device_count, models.size()));
+            }
         }
     }
 
@@ -90,29 +99,44 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return mAddresses.size();
+        return mGroups.size();
     }
 
     public boolean isEmpty() {
         return getItemCount() == 0;
     }
 
+    /**
+     * Returns the number of models associated to the group in a particular position
+     * @param position position
+     */
+    public int getModelCount(final int position){
+        if(position >= 0 && !mGroups.isEmpty() && position < mGroups.size()) {
+            final Group group = mGroups.get(position);
+            return mNetwork.getModels(group).size();
+        }
+        return 0;
+    }
+
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final int position, final byte[] address);
+        void onItemClick(final byte[] address);
     }
 
     public final class ViewHolder extends RemovableViewHolder {
-
-        @BindView(R.id.address)
-        TextView address;
+        @BindView(R.id.group_name)
+        TextView groupName;
+        @BindView(R.id.group_address)
+        TextView groupAddress;
+        @BindView(R.id.group_device_count)
+        TextView groupDeviceCount;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            view.findViewById(R.id.removable).setOnClickListener(v -> {
+            view.findViewById(R.id.container).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), mAddresses.get(getAdapterPosition()));
+                    mOnItemClickListener.onItemClick(mGroups.get(getAdapterPosition()).getGroupAddress());
                 }
             });
         }

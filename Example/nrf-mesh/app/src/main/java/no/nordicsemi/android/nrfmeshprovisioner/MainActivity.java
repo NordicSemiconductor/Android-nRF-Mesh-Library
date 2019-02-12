@@ -23,14 +23,12 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -45,14 +43,13 @@ import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
-public class MainActivity extends AppCompatActivity implements Injectable, HasSupportFragmentInjector, BottomNavigationView.OnNavigationItemSelectedListener,
-        BottomNavigationView.OnNavigationItemReselectedListener,
-        ScannerFragment.ScannerFragmentListener, FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends AppCompatActivity implements Injectable,
+        HasSupportFragmentInjector,
+        BottomNavigationView.OnNavigationItemSelectedListener,
+        BottomNavigationView.OnNavigationItemReselectedListener {
 
+    private static final int TAB_COUNT = 3;
     private static final String CURRENT_FRAGMENT = "CURRENT_FRAGMENT";
 
     @Inject
@@ -67,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     private BottomNavigationView mBottomNavigationView;
 
     private NetworkFragment mNetworkFragment;
-    private ScannerFragment mScannerFragment;
+    private GroupsFragment mGroupsFragment;
     private Fragment mSettingsFragment;
 
     @Override
@@ -81,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
         getSupportActionBar().setTitle(R.string.app_name);
 
         mNetworkFragment = (NetworkFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_network);
-        mScannerFragment = (ScannerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_scanner);
+        mGroupsFragment = (GroupsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_groups);
         mSettingsFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_settings);
         mBottomNavigationView = findViewById(R.id.bottom_navigation_view);
 
@@ -96,6 +93,15 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     }
 
     @Override
+    public void onBackPressed() {
+        if(getSupportFragmentManager().getFragments().size() > TAB_COUNT) {
+            getSupportFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
     }
@@ -103,30 +109,6 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Utils.PROVISIONING_SUCCESS) {
-            if (resultCode == RESULT_OK) {
-                final boolean provisioningSuccess = data.getBooleanExtra(Utils.PROVISIONING_COMPLETED, false);
-                if (provisioningSuccess) {
-                    mBottomNavigationView.setSelectedItemId(R.id.action_network);
-                    final boolean compositionDataReceived = data.getBooleanExtra(Utils.COMPOSITION_DATA_COMPLETED, false);
-                    final boolean appKeyAddCompleted = data.getBooleanExtra(Utils.APP_KEY_ADD_COMPLETED, false);
-                    final DialogFragmentConfigError fragmentConfigError;
-                    if(compositionDataReceived){
-                        if(!appKeyAddCompleted){
-                            fragmentConfigError =
-                                    DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                            , getString(R.string.init_config_error_app_key_msg));
-                            fragmentConfigError.show(getSupportFragmentManager(), null);
-                        }
-                    } else {
-                        fragmentConfigError =
-                                DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                        , getString(R.string.init_config_error_all));
-                        fragmentConfigError.show(getSupportFragmentManager(), null);
-                    }
-                }
-            }
-        }
     }
 
     @Override
@@ -135,13 +117,13 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         switch (id) {
             case R.id.action_network:
-                ft.show(mNetworkFragment).hide(mScannerFragment).hide(mSettingsFragment);
+                ft.show(mNetworkFragment).hide(mGroupsFragment).hide(mSettingsFragment);
                 break;
             case R.id.action_scanner:
-                ft.hide(mNetworkFragment).show(mScannerFragment).hide(mSettingsFragment);
+                ft.hide(mNetworkFragment).show(mGroupsFragment).hide(mSettingsFragment);
                 break;
             case R.id.action_settings:
-                ft.hide(mNetworkFragment).hide(mScannerFragment).show(mSettingsFragment);
+                ft.hide(mNetworkFragment).hide(mGroupsFragment).show(mSettingsFragment);
                 break;
         }
         ft.commit();
@@ -151,21 +133,6 @@ public class MainActivity extends AppCompatActivity implements Injectable, HasSu
 
     @Override
     public void onNavigationItemReselected(@NonNull MenuItem item) {
-    }
-
-    @Override
-    public void showProgressBar() {
-        mScanningView.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void hideProgressBar() {
-        mScanningView.setVisibility(View.INVISIBLE);
-    }
-
-    @Override
-    public void onBackStackChanged() {
-
     }
 
     @Override

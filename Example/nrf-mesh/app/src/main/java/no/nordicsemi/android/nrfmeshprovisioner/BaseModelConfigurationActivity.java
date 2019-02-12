@@ -27,6 +27,8 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -48,6 +50,9 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.android.DispatchingAndroidInjector;
+import no.nordicsemi.android.meshprovisioner.Group;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppStatus;
@@ -64,12 +69,12 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDisconnected;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSubscriptionAddress;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGroupSubscription;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
@@ -77,15 +82,16 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelper
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public abstract class BaseModelConfigurationActivity extends AppCompatActivity implements Injectable,
-        DialogFragmentSubscriptionAddress.DialogFragmentSubscriptionAddressListener,
-        AddressAdapter.OnItemClickListener,
+        DialogFragmentGroupSubscription.DialogFragmentSubscriptionAddressListener,
         BoundAppKeysAdapter.OnItemClickListener,
         ItemTouchHelperAdapter,
         DialogFragmentDisconnected.DialogFragmentDisconnectedListener {
 
-    private static final String TAG = BaseModelConfigurationActivity.class.getSimpleName();
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
+
+    @Inject
+    DispatchingAndroidInjector<Fragment> mDispatchingAndroidInjector;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -120,7 +126,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected ModelConfigurationViewModel mViewModel;
     protected List<byte[]> mGroupAddress = new ArrayList<>();
     protected List<Integer> mKeyIndexes = new ArrayList<>();
-    protected AddressAdapter mAddressAdapter;
+    protected GroupAddressAdapter mSubscriptionAdapter;
     protected BoundAppKeysAdapter mBoundAppKeyAdapter;
     protected Button mActionRead;
     private RecyclerView recyclerViewBoundKeys, recyclerViewAddresses;
@@ -133,14 +139,17 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ModelConfigurationViewModel.class);
         mHandler = new Handler();
 
-        final String modelName = mViewModel.getSelectedModel().getMeshModel().getModelName();//intent.getStringExtra(EXTRA_DATA_MODEL_NAME);
+        final MeshModel meshModel = mViewModel.getSelectedModel().getValue();
+        //noinspection ConstantConditions
+        final String modelName = meshModel.getModelName();
 
         // Set up views
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(modelName);
-        final int modelId = mViewModel.getSelectedModel().getMeshModel().getModelId();
+        final int modelId = meshModel.getModelId();
         getSupportActionBar().setSubtitle(getString(R.string.model_id, CompositionDataParser.formatModelIdentifier(modelId, false)));
 
         recyclerViewAddresses = findViewById(R.id.recycler_view_addresses);
@@ -148,9 +157,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerViewAddresses);
-        mAddressAdapter = new AddressAdapter(this, mViewModel.getSelectedModel());
-        recyclerViewAddresses.setAdapter(mAddressAdapter);
-        mAddressAdapter.setOnItemClickListener(this);
+        mSubscriptionAdapter = new GroupAddressAdapter(this, mViewModel.getMeshManagerApi().getMeshNetwork(), mViewModel.getSelectedModel());
+        recyclerViewAddresses.setAdapter(mSubscriptionAdapter);
 
         recyclerViewBoundKeys = findViewById(R.id.recycler_view_bound_keys);
         recyclerViewBoundKeys.setLayoutManager(new LinearLayoutManager(this));
@@ -162,30 +170,34 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mBoundAppKeyAdapter.setOnItemClickListener(this);
 
         mActionBindAppKey.setOnClickListener(v -> {
-            final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, BindAppKeysActivity.class);
-            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) node.getAddedApplicationKeys());
-            startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
+            final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, ManageAppKeysActivity.class);
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+            if(node != null) {
+                bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) node.getAddedApplicationKeys());
+                startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
+            }
         });
 
         mPublishAddressView.setText(R.string.none);
         mActionSetPublication.setOnClickListener(v -> {
-            final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
+            final MeshModel model = mViewModel.getSelectedModel().getValue();
             handleAppKeyBind(model);
         });
 
         mActionClearPublication.setOnClickListener(v -> clearPublication());
 
         mActionSubscribe.setOnClickListener(v -> {
-            final DialogFragmentSubscriptionAddress fragmentSubscriptionAddress = DialogFragmentSubscriptionAddress.newInstance();
+            //noinspection ConstantConditions
+            final ArrayList<Group> groups = new ArrayList<>(mViewModel.getGroups().getValue());
+            final DialogFragmentGroupSubscription fragmentSubscriptionAddress = DialogFragmentGroupSubscription.newInstance(groups);
             fragmentSubscriptionAddress.show(getSupportFragmentManager(), null);
         });
 
-        mViewModel.getSelectedModel().observe(this, meshModel -> {
-            if (meshModel != null) {
-                updateAppStatusUi(meshModel);
-                updatePublicationUi(meshModel);
-                updateSubscriptionUi(meshModel);
+        mViewModel.getSelectedModel().observe(this, model -> {
+            if (model != null) {
+                updateAppStatusUi(model);
+                updatePublicationUi(model);
+                updateSubscriptionUi(model);
             }
         });
 
@@ -242,7 +254,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             case ManageAppKeysActivity.SELECT_APP_KEY:
                 if (resultCode == RESULT_OK) {
                     final ApplicationKey appKey = data.getParcelableExtra(ManageAppKeysActivity.RESULT_APP_KEY);
-                    final int appKeyIndex = data.getIntExtra(ManageAppKeysActivity.RESULT_APP_KEY_INDEX, -1);
                     if (appKey != null) {
                         bindAppKey(appKey.getKeyIndex());
                     }
@@ -265,19 +276,40 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public void setSubscriptionAddress(final byte[] subscriptionAddress) {
-        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-        final byte[] elementAddress = mViewModel.getSelectedElement().getElement().getElementAddress();
-        final int modelIdentifier = mViewModel.getSelectedModel().getMeshModel().getModelId();
-        final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, subscriptionAddress, modelIdentifier);
-        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
-        showProgressbar();
+    public void setGroupSubscription(@NonNull final String name, @NonNull final byte[] address) {
+        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        final Group group = new Group(address, null, network.getMeshUUID());
+        group.setName(name);
+        network.addGroup(group);
+        subscribe(address);
+    }
+
+    @Override
+    public void setGroupSubscription(@NonNull final Group group) {
+        subscribe(group.getGroupAddress());
+    }
+
+    private void subscribe(final byte[] address) {
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if(meshNode != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final byte[] elementAddress = element.getElementAddress();
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    final int modelIdentifier = model.getModelId();
+                    final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, address, modelIdentifier);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
+                    showProgressbar();
+                }
+            }
+        }
     }
 
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         final int position = viewHolder.getAdapterPosition();
-        if (viewHolder instanceof AddressAdapter.ViewHolder) {
+        if (viewHolder instanceof GroupAddressAdapter.ViewHolder) {
             deleteSubscription(position);
         } else if (viewHolder instanceof BoundAppKeysAdapter.ViewHolder) {
             unbindAppKey(position);
@@ -285,7 +317,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public void onItemClick(final int position, final byte[] address) {
+    public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
 
     }
 
@@ -309,84 +341,113 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     private void bindAppKey(final int appKeyIndex) {
-        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getElement();
-        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-        final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(element.getElementAddress(), model.getModelId(), appKeyIndex);
-        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
-        showProgressbar();
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if(meshNode != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(element.getElementAddress(), model.getModelId(), appKeyIndex);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+                    showProgressbar();
+                }
+            }
+        }
     }
 
     private void unbindAppKey(final int position) {
         if (mBoundAppKeyAdapter.getItemCount() != 0) {
             final ApplicationKey appKey = mBoundAppKeyAdapter.getAppKey(position);
             final int keyIndex = appKey.getKeyIndex();//getAppKeyIndex(appKey);
-            final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-            final Element element = mViewModel.getSelectedElement().getElement();
-            final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-            final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(element.getElementAddress(), model.getModelId(), keyIndex);
-            mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
-            showProgressbar();
+            final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+            if(meshNode != null) {
+                final Element element = mViewModel.getSelectedElement().getValue();
+                if (element != null) {
+                    final MeshModel model = mViewModel.getSelectedModel().getValue();
+                    if (model != null) {
+                        final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(element.getElementAddress(), model.getModelId(), keyIndex);
+                        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+                        showProgressbar();
+                    }
+                }
+            }
         }
     }
 
     private void setPublication(final Intent data) {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getElement();
-        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        if(node != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    final byte[] publishAddress = data.getByteArrayExtra(PublicationSettingsActivity.RESULT_PUBLISH_ADDRESS);
+                    final int appKeyIndex = data.getIntExtra(PublicationSettingsActivity.RESULT_APP_KEY_INDEX, -1);
+                    final boolean credentialFlag = data.getBooleanExtra(PublicationSettingsActivity.RESULT_CREDENTIAL_FLAG, false);
+                    final int publishTtl = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_TTL, 0);
+                    final int publicationSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_STEPS, 0);
+                    final int resolution = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_RESOLUTION, 0);
+                    final int publishRetransmitCount = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_COUNT, 0);
+                    final int publishRetransmitIntervalSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS, 0);
+                    if (publishAddress != null && appKeyIndex > -1) {
+                        try {
 
-        final byte[] publishAddress = data.getByteArrayExtra(PublicationSettingsActivity.RESULT_PUBLISH_ADDRESS);
-        final int appKeyIndex = data.getIntExtra(PublicationSettingsActivity.RESULT_APP_KEY_INDEX, -1);
-        final boolean credentialFlag = data.getBooleanExtra(PublicationSettingsActivity.RESULT_CREDENTIAL_FLAG, false);
-        final int publishTtl = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_TTL, 0);
-        final int publicationSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_STEPS, 0);
-        final int resolution = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_RESOLUTION, 0);
-        final int publishRetransmitCount = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_COUNT, 0);
-        final int publishRetransmitIntervalSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS, 0);
-        if (publishAddress != null && appKeyIndex > -1) {
-            try {
-
-                final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), publishAddress,
-                        appKeyIndex, credentialFlag, publishTtl, publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId());
-                if (!model.getBoundAppKeyIndexes().isEmpty()) {
-                    mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configModelPublicationSet);
-                    showProgressbar();
-                } else {
-                    Toast.makeText(this, getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
+                            final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), publishAddress,
+                                    appKeyIndex, credentialFlag, publishTtl, publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId());
+                            if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configModelPublicationSet);
+                                showProgressbar();
+                            } else {
+                                Toast.makeText(this, getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
             }
         }
     }
 
     private void clearPublication() {
-        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getElement();
-        final MeshModel meshModel = mViewModel.getSelectedModel().getMeshModel();
-        if (meshModel != null && !meshModel.getBoundAppKeyIndexes().isEmpty()) {
-            final byte[] address = MeshParserUtils.DISABLED_PUBLICATION_ADDRESS;
-            final int appKeyIndex = meshModel.getPublicationSettings().getAppKeyIndex();
-            final boolean credentialFlag = meshModel.getPublicationSettings().getCredentialFlag();
-            final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), address, appKeyIndex,
-                    credentialFlag, 0, 0, 0, 0, 0, meshModel.getModelId());
-            mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
-            showProgressbar();
-        } else {
-            Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if(meshNode != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                        final byte[] address = MeshParserUtils.DISABLED_PUBLICATION_ADDRESS;
+                        final int appKeyIndex = model.getPublicationSettings().getAppKeyIndex();
+                        final boolean credentialFlag = model.getPublicationSettings().getCredentialFlag();
+                        final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), address, appKeyIndex,
+                                credentialFlag, 0, 0, 0, 0, 0, model.getModelId());
+                        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
+                        showProgressbar();
+                    } else {
+                        Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
         }
     }
 
     private void deleteSubscription(final int position) {
-        if (mAddressAdapter.getItemCount() != 0) {
+        if (mSubscriptionAdapter.getItemCount() != 0) {
             final byte[] address = mGroupAddress.get(position);
-            final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
-            final Element element = mViewModel.getSelectedElement().getElement();
-            final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-            final ConfigModelSubscriptionDelete configModelAppUnbind = new ConfigModelSubscriptionDelete(element.getElementAddress(),
-                    address, model.getModelId());
-            mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
-            showProgressbar();
+            final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+            if (meshNode != null) {
+                final Element element = mViewModel.getSelectedElement().getValue();
+                if (element != null) {
+                    final MeshModel model = mViewModel.getSelectedModel().getValue();
+                    if (model != null) {
+                        final ConfigModelSubscriptionDelete configModelAppUnbind = new ConfigModelSubscriptionDelete(element.getElementAddress(),
+                                address, model.getModelId());
+                        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+                        showProgressbar();
+                    }
+                }
+            }
         }
     }
 

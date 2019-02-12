@@ -13,6 +13,8 @@ import com.google.gson.annotations.SerializedName;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +121,9 @@ abstract class BaseMeshNetwork {
     @Ignore
     protected MeshNetworkCallbacks mCallbacks;
 
+    @Ignore
+    private final Comparator<ApplicationKey> appKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
+
     BaseMeshNetwork(@NonNull final String meshUUID) {
         this.meshUUID = meshUUID;
     }
@@ -159,7 +164,7 @@ abstract class BaseMeshNetwork {
     }
 
     /**
-     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, it will be replaced by the net key.
+     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, an illegal argument exception is thrown.
      *
      * @param keyIndex      index of the key
      * @param newNetworkKey key
@@ -197,7 +202,7 @@ abstract class BaseMeshNetwork {
             throw new IllegalArgumentException("Net key already exists");
 
         for (int i = 0; i < netKeys.size(); i++) {
-            final NetworkKey networkKey = netKeys.get(0);
+            final NetworkKey networkKey = netKeys.get(i);
             if (keyIndex == networkKey.getKeyIndex()) {
                 networkKey.setKey(MeshParserUtils.toByteArray(netKey));
                 notifyNetKeyUpdated(networkKey);
@@ -250,6 +255,7 @@ abstract class BaseMeshNetwork {
         if (appKeys.isEmpty()) {
             return 0;
         } else {
+            Collections.sort(appKeys, appKeyComparator);
             final int index = appKeys.size() - 1;
             return appKeys.get(index).getKeyIndex() + 1;
         }
@@ -280,7 +286,7 @@ abstract class BaseMeshNetwork {
     }
 
     /**
-     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, it will be replaced.
+     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, an illegal argument exception is thrown.
      *
      * @param keyIndex  index of the key
      * @param newAppKey application key
@@ -297,20 +303,19 @@ abstract class BaseMeshNetwork {
         if (isAppKeyExists(newAppKey)) {
             throw new IllegalArgumentException("App key already exists");
         } else {
-            final ApplicationKey applicationKey = new ApplicationKey(keyIndex, MeshParserUtils.toByteArray(newAppKey));//appKeys.get(i);
+            final ApplicationKey applicationKey = new ApplicationKey(keyIndex, MeshParserUtils.toByteArray(newAppKey));
             appKeys.add(keyIndex, applicationKey);
             notifyAppKeyAdded(applicationKey);
         }
     }
 
     /**
-     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, it will be replaced.
+     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, an illegal argument exception is thrown.
      *
-     * @param keyIndex  index of the key
      * @param newAppKey application key
      * @throws IllegalArgumentException if app key already exists
      */
-    public void addAppKey(final int keyIndex, final ApplicationKey newAppKey) {
+    public void addAppKey(final ApplicationKey newAppKey) {
         newAppKey.setMeshUuid(meshUUID);
         if (appKeys.isEmpty()) {
             appKeys.add(newAppKey);
@@ -320,7 +325,7 @@ abstract class BaseMeshNetwork {
         if (isAppKeyExists(MeshParserUtils.bytesToHex(newAppKey.getKey(), false))) {
             throw new IllegalArgumentException("App key already exists");
         } else {
-            appKeys.add(keyIndex, newAppKey);
+            appKeys.add(newAppKey);
             notifyAppKeyAdded(newAppKey);
         }
     }
@@ -336,7 +341,7 @@ abstract class BaseMeshNetwork {
             throw new IllegalArgumentException("App key already exists");
 
         for (int i = 0; i < appKeys.size(); i++) {
-            final ApplicationKey applicationKey = appKeys.get(0);
+            final ApplicationKey applicationKey = appKeys.get(i);
             if (keyIndex == applicationKey.getKeyIndex()) {
                 applicationKey.setKey(MeshParserUtils.toByteArray(appKey));
                 notifyAppKeyUpdated(applicationKey);

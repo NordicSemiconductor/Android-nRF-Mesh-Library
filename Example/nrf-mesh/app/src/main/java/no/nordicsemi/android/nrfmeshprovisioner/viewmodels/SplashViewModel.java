@@ -22,26 +22,35 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.ViewModel;
 
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import javax.inject.Inject;
 
-@SuppressWarnings("WeakerAccess")
-public class ExtendedMeshModel extends LiveData<MeshModel> {
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 
-    private MeshModel mMeshModel;
+public class SplashViewModel extends ViewModel {
 
-    protected ExtendedMeshModel(final MeshModel meshModel) {
-        this.mMeshModel = meshModel;
-        postValue(meshModel);
+    private final NrfMeshRepository mNrfMeshRepository;
+
+    @Inject
+    SplashViewModel(final NrfMeshRepository nrfMeshRepository) {
+        this.mNrfMeshRepository = nrfMeshRepository;
     }
 
-    public MeshModel getMeshModel() {
-        return mMeshModel;
+    @Override
+    protected void onCleared() {
+        super.onCleared();
     }
 
-    public void setMeshModel(final MeshModel meshModel) {
-        this.mMeshModel = meshModel;
-        postValue(meshModel);
+    public NrfMeshRepository getNrfMeshRepository() {
+        return mNrfMeshRepository;
+    }
+
+    public MeshManagerApi getMeshManagerApi() {
+        return mNrfMeshRepository.getMeshManagerApi();
+    }
+
+    public MeshNetworkLiveData getMeshNetworkLiveData(){
+        return mNrfMeshRepository.getMeshNetworkLiveData();
     }
 }

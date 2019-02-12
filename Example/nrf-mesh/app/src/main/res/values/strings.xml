@@ -23,6 +23,10 @@
 <resources>
     <string name="app_name">nRF Mesh</string>
     <string name="feature_name">Mesh Provisioner</string>
+    <string name="title_scanner">Scanner</string>
+    <string name="title_group_controls">Group Controls</string>
+    <string name="sub_title_scanning_nodes">Looking for unprovisioned proxy nodes…</string>
+    <string name="sub_title_scanning_proxy_node">Looking for provisioned proxy nodes…</string>
 
     <string name="title">@string/app_name</string>
 
@@ -194,10 +198,35 @@
     <string name="node_id">Node ID: %d</string>
     <string name="network">Network</string>
     <string name="action_settings">Settings</string>
-    <string name="action_scanner">Scanner</string>
+    <string name="action_groups">Groups</string>
     <string name="no_networks_configured_title">NO NETWORKS CONFIGURED</string>
     <string name="no_networks_configured_rationale">In order to configure a network start by scanning, provisioning and then configuring the device from the scanner tab.</string>
     <string name="error_invalid_unicast_address">Unicast Address must be between 0 and 32767!</string>
+
+    <string name="no_groups_configured_title">NO GROUPS CONFIGURED</string>
+    <string name="no_groups_configured_rationale">Create a group and select which elements to be added to each group.</string>
+    <string name="group_configuration">Group Configuration</string>
+    <string name="group_friendly_name">Friendly Name</string>
+    <string name="group_name">Name</string>
+    <string name="group_address">Address</string>
+    <string name="group_device_count">%d Devices</string>
+    <string name="title_group_info">Group Info</string>
+    <string name="title_create_group">Create Group</string>
+    <string name="title_edit_group_info">Edit Group</string>
+    <string name="select_a_group_rationale">Select an existing group</string>
+    <string name="no_available_groups">No available groups.</string>
+    <string name="create_a_group_rationale">Create a new group to subscribe</string>
+    <string name="title_subscribe_group">Subscribe</string>
+    <string name="dialog_summary_subscribe">Subscribe to a group.</string>
+    <string name="error_empty_group_name">Group name cannot be empty!</string>
+    <string name="error_empty_group_address">Group address cannot be empty!</string>
+    <string name="error_group_address_in_used">Group address already in use!</string>
+    <string name="error_group_unsubscribe_to_delete">Please unsubscribe the models from this group inorder to delete the group!</string>
+    <string name="group_deleted">Group %s deleted!</string>
+    <string name="no_models_configured_title">NO MODELS CONFIGURED</string>
+    <string name="no_models_configured_rationale">No models are subscribed to this group.</string>
+    <string name="no_app_key_configured_title">NO APP KEYS BOUND</string>
+    <string name="no_app_key_configured_rationale">No app keys are bound for models in this group. \nClick edit on the options menu to bind an app key to the models.</string>
 
     <string name="title_manage_app_keys">Manage App Keys</string>
     <string name="title_select_app_key">Select App Key</string>
@@ -229,10 +258,10 @@
     <string name="app_key_item">App key %d</string>
     <string name="app_key_index_item">Key Index: %d</string>
     <string name="error_node_name">Node name cannot be empty!</string>
-    <string name="element_address">Element : %s</string>
+    <string name="element_address">Element: %s</string>
     <string name="model_count">%d Models</string>
     <string name="title_model_configuration">Model Configuration</string>
-    <string name="subtitle_model_configuration">%s %s</string>
+    <string name="subtitle_model_configuration" formatted="false">%s %s</string>
     <string name="format_sig_model_id">SIG Model ID: %s</string>
     <string name="format_vendor_model_id">Vendor Model ID: %s</string>
     <string name="model_id_type_vendor">Vendor Model ID:</string>
@@ -281,7 +310,6 @@
     <string name="message_reset_network">This will clear all the data stored related to this network and will not be recoverable. Would you like to continue?</string>
     <string name="not_subscribed_to_groups">Not subscribed to any group addresses.</string>
     <string name="title_group_address">Group Address</string>
-    <string name="dialog_summary_group_address">Group address this model should subscribe.</string>
     <string name="title_configuration_compete">Configuration Complete</string>
     <string name="configuration_complete_summary">Mesh node has been successfully configured.</string>
     <string name="action_composition_data">GET COMPOSITION DATA</string>
@@ -304,7 +332,7 @@
     <string name="action_network_transmit_get">READ STATE</string>
     <string name="action_network_transmit_set">SET NETWORK TRANSMIT</string>
     <string name="text_network_transmit_count">%d retransmit(s)</string>
-    <string name="summary_network_transmit_count">%d time(s) and total transmissions: %d</string>
+    <string name="summary_network_transmit_count" formatted="false">%d time(s) and total transmissions: %d</string>
     <string name="text_network_transmit_interval_steps">%d ms</string>
 
     <string name="title_relay_retransmit_info">Relay</string>
@@ -341,7 +369,7 @@
     <string name="hint_filter_address">Unicast/Group Address</string>
     <string name="no_addresses_added">No addresses are added to this filter!</string>
     <string name="title_add_address">Add Address</string>
-    <string name="address">Address %d</string>
+    <string name="address">Address</string>
     <string name="dialog_summary_filter_address">Addresses to be added to the %s. Supported addresses are Unicast, Group or Virtual Addresses.</string>
     <string name="invalid_filter_address">Address must be a Unicast, Group or a Virtual Address!</string>
     <string name="error_empty_filter_address">Add at least one address to confirm!</string>
@@ -352,7 +380,7 @@
     <string name="action_generic_read_state">READ STATE</string>
     <string name="action_generic_on">ON</string>
     <string name="action_generic_off">OFF</string>
-    <string name="transition_time_interval">%s %s</string>
+    <string name="transition_time_interval" formatted="false">%s %s</string>
     <string name="hint_unsubscribe">Hint: Swipe address to unsubscribe.</string>
     <string name="hint_step_resolution_ms">Currently on 100 ms step resolution</string>
     <string name="hint_step_resolution_s">Currently on 1 s step resolution</string>
@@ -484,4 +512,12 @@
         Step 3. Click get composition data\n\n
         Step 4. Add app key</string>
     <string name="network_transmit_interval_steps_summary">10 ms step(s)</string>
+    <string name="light_count">%d Light(s)</string>
+    <string name="switch_count">%d Switch(s)</string>
+    <string name="dimmer_count">%d Dimmer(s)</string>
+    <string name="unknown_device_count">%d Device(s)</string>
+    <string name="please_connect_to_network">Please connect to network to control devices!</string>
+    <string name="action_edit">Edit</string>
+    <string name="parent_address">Element Address: %s</string>
+    <string name="or">OR</string>
 </resources>

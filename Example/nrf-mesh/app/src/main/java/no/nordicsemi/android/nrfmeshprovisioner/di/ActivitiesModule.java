@@ -25,24 +25,27 @@ package no.nordicsemi.android.nrfmeshprovisioner.di;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import no.nordicsemi.android.nrfmeshprovisioner.BaseModelConfigurationActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.BindAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.GenericLevelServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.GenericOnOffServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.GroupControlsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MainActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.ManageNodeAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MeshProvisionerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeDetailsActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.ProvisionedNodesScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.PublicationSettingsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ReconnectActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.ScannerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.SplashScreenActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.VendorModelActivity;
 
 @Module
 abstract class ActivitiesModule {
+
+	@ContributesAndroidInjector()
+	abstract SplashScreenActivity contributeSplashScreenActivity();
 
 	@ContributesAndroidInjector(modules = FragmentBuildersModule.class)
 	abstract MainActivity contributeMainActivity();
@@ -60,7 +63,7 @@ abstract class ActivitiesModule {
 	abstract BaseModelConfigurationActivity contributeBaseModelConfigurationActivity();
 
 	@ContributesAndroidInjector()
-	abstract ProvisionedNodesScannerActivity contributeScannerActivity();
+	abstract ScannerActivity contributeScannerActivity();
 
 	@ContributesAndroidInjector()
 	abstract ReconnectActivity contributeReconnectActivity();
@@ -69,10 +72,7 @@ abstract class ActivitiesModule {
 	abstract NodeDetailsActivity contributeNodeDetailsActivity();
 
 	@ContributesAndroidInjector()
-	abstract ManageNodeAppKeysActivity contributeManageNodeAppKeysActivity();
-
-	@ContributesAndroidInjector()
-	abstract BindAppKeysActivity contributeBindAppKeysActivity();
+	abstract GroupControlsActivity contributeGroupControlsActivity();
 
 	@ContributesAndroidInjector()
 	abstract PublicationSettingsActivity contributePublicationSettingsActivity();

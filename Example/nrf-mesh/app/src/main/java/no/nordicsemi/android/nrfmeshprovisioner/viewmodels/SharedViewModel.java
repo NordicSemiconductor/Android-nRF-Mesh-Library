@@ -30,6 +30,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
@@ -45,6 +46,13 @@ public class SharedViewModel extends ViewModel {
         scannerRepository.registerBroadcastReceivers();
     }
 
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        nRFMeshRepository.disconnect();
+        mScannerRepository.unregisterBroadcastReceivers();
+    }
+
     public MeshManagerApi getMeshManagerApi(){
         return nRFMeshRepository.getMeshManagerApi();
     }
@@ -57,19 +65,19 @@ public class SharedViewModel extends ViewModel {
         return nRFMeshRepository.getMeshNetworkLiveData();
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        nRFMeshRepository.disconnect();
-        mScannerRepository.unregisterBroadcastReceivers();
+    public LiveData<List<Group>> getGroups(){
+        return nRFMeshRepository.getGroups();
     }
-
 
     /**
      * Returns an instance of the scanner repository
      */
     public ScannerRepository getScannerRepository() {
         return mScannerRepository;
+    }
+
+    public NrfMeshRepository getnRFMeshRepository() {
+        return nRFMeshRepository;
     }
 
     /**
@@ -129,5 +137,9 @@ public class SharedViewModel extends ViewModel {
 
     public LiveData<Integer> getConnectedMeshNodeAddress(){
         return nRFMeshRepository.getConnectedMeshNodeAddress();
+    }
+
+    public void setSelectedGroup(final byte [] address){
+        nRFMeshRepository.setSelectedGroup(address);
     }
 }

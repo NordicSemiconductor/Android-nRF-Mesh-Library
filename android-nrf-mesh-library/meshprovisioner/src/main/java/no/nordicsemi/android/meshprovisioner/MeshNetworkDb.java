@@ -11,8 +11,6 @@ import android.support.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.data.ApplicationKeyDao;
 import no.nordicsemi.android.meshprovisioner.data.GroupDao;
@@ -27,7 +25,6 @@ import no.nordicsemi.android.meshprovisioner.data.ScenesDao;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("unused")
@@ -122,7 +119,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                        final ApplicationKeyDao appKeyDao,
                        final ProvisionerDao provisionerDao,
                        final ProvisionedMeshNodeDao nodeDao,
-                       final GroupDao groupDao,
+                       final GroupsDao groupsDao,
                        final SceneDao sceneDao,
                        final LoadNetworkCallbacks listener) {
         new LoadNetworkAsyncTask(dao,
@@ -130,7 +127,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 appKeyDao,
                 provisionerDao,
                 nodeDao,
-                groupDao,
+                groupsDao,
                 sceneDao,
                 listener).execute();
     }
@@ -281,7 +278,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         private final ApplicationKeyDao appKeyDao;
         private final ProvisionerDao provisionerDao;
         private final ProvisionedMeshNodeDao nodeDao;
-        private final GroupDao groupDao;
+        private final GroupsDao groupsDao;
         private final SceneDao sceneDao;
 
         LoadNetworkAsyncTask(final MeshNetworkDao meshNetworkDao,
@@ -289,7 +286,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                              final ApplicationKeyDao appKeyDao,
                              final ProvisionerDao provisionerDao,
                              final ProvisionedMeshNodeDao nodeDao,
-                             final GroupDao groupDao,
+                             final GroupsDao groupsDao,
                              final SceneDao sceneDao,
                              final LoadNetworkCallbacks listener) {
             this.meshNetworkDao = meshNetworkDao;
@@ -297,7 +294,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             this.appKeyDao = appKeyDao;
             this.provisionerDao = provisionerDao;
             this.nodeDao = nodeDao;
-            this.groupDao = groupDao;
+            this.groupsDao = groupsDao;
             this.sceneDao = sceneDao;
             this.listener = listener;
         }
@@ -312,6 +309,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 final ArrayList<Provisioner> provisioners = new ArrayList<>();
                 provisioners.add(provisionerDao.getProvisioner(meshNetwork.getMeshUUID(), true));
                 meshNetwork.provisioners = provisioners;
+                meshNetwork.groups = groupsDao.loadGroups(meshNetwork.getMeshUUID());
             }
             return meshNetwork;
         }

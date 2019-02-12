@@ -36,15 +36,77 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.Toast;
 
+import java.util.Comparator;
+import java.util.Locale;
 import java.util.UUID;
 
+import no.nordicsemi.android.meshprovisioner.models.ConfigurationClientModel;
+import no.nordicsemi.android.meshprovisioner.models.ConfigurationServerModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericAdminPropertyServer;
+import no.nordicsemi.android.meshprovisioner.models.GenericBatteryClient;
+import no.nordicsemi.android.meshprovisioner.models.GenericBatteryServer;
+import no.nordicsemi.android.meshprovisioner.models.GenericClientPropertyServer;
+import no.nordicsemi.android.meshprovisioner.models.GenericDefaultTransitionTimeClient;
+import no.nordicsemi.android.meshprovisioner.models.GenericDefaultTransitionTimeServer;
+import no.nordicsemi.android.meshprovisioner.models.GenericLevelClientModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericLocationClient;
+import no.nordicsemi.android.meshprovisioner.models.GenericLocationServer;
+import no.nordicsemi.android.meshprovisioner.models.GenericLocationSetupServer;
+import no.nordicsemi.android.meshprovisioner.models.GenericManufacturerPropertyServer;
+import no.nordicsemi.android.meshprovisioner.models.GenericOnOffClientModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
+import no.nordicsemi.android.meshprovisioner.models.GenericPowerLevelClient;
+import no.nordicsemi.android.meshprovisioner.models.GenericPowerLevelServer;
+import no.nordicsemi.android.meshprovisioner.models.GenericPowerLevelSetupServer;
+import no.nordicsemi.android.meshprovisioner.models.GenericPowerOnOffClient;
+import no.nordicsemi.android.meshprovisioner.models.GenericPowerOnOffServer;
+import no.nordicsemi.android.meshprovisioner.models.GenericPowerOnOffSetupServer;
+import no.nordicsemi.android.meshprovisioner.models.GenericPropertyClient;
+import no.nordicsemi.android.meshprovisioner.models.GenericUserPropertyServer;
+import no.nordicsemi.android.meshprovisioner.models.HealthClientModel;
+import no.nordicsemi.android.meshprovisioner.models.HealthServerModel;
+import no.nordicsemi.android.meshprovisioner.models.LightCtlClient;
+import no.nordicsemi.android.meshprovisioner.models.LightCtlServer;
+import no.nordicsemi.android.meshprovisioner.models.LightCtlSetupServer;
+import no.nordicsemi.android.meshprovisioner.models.LightCtlTemperatureServer;
+import no.nordicsemi.android.meshprovisioner.models.LightHslClient;
+import no.nordicsemi.android.meshprovisioner.models.LightHslHueServer;
+import no.nordicsemi.android.meshprovisioner.models.LightHslSaturationServer;
+import no.nordicsemi.android.meshprovisioner.models.LightHslServer;
+import no.nordicsemi.android.meshprovisioner.models.LightHslSetupServer;
+import no.nordicsemi.android.meshprovisioner.models.LightLcServer;
+import no.nordicsemi.android.meshprovisioner.models.LightLcSetupServer;
+import no.nordicsemi.android.meshprovisioner.models.LightLightnessClient;
+import no.nordicsemi.android.meshprovisioner.models.LightLightnessServer;
+import no.nordicsemi.android.meshprovisioner.models.LightLightnessSetupServer;
+import no.nordicsemi.android.meshprovisioner.models.LightXylClient;
+import no.nordicsemi.android.meshprovisioner.models.LightXylServer;
+import no.nordicsemi.android.meshprovisioner.models.LightXylSetupServer;
+import no.nordicsemi.android.meshprovisioner.models.SceneClient;
+import no.nordicsemi.android.meshprovisioner.models.SceneServer;
+import no.nordicsemi.android.meshprovisioner.models.SceneSetupServer;
+import no.nordicsemi.android.meshprovisioner.models.SchedulerClient;
+import no.nordicsemi.android.meshprovisioner.models.SchedulerServer;
+import no.nordicsemi.android.meshprovisioner.models.SchedulerSetupServer;
+import no.nordicsemi.android.meshprovisioner.models.SensorClient;
+import no.nordicsemi.android.meshprovisioner.models.SensorServer;
+import no.nordicsemi.android.meshprovisioner.models.SensorSetupServer;
+import no.nordicsemi.android.meshprovisioner.models.SigModel;
+import no.nordicsemi.android.meshprovisioner.models.TimeClient;
+import no.nordicsemi.android.meshprovisioner.models.TimeServer;
+import no.nordicsemi.android.meshprovisioner.models.TimeSetupServer;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
 public class Utils {
 
+    public static final String EXTRA_DATA_PROVISIONING_SERVICE = "EXTRA_DATA_PROVISIONING_SERVICE";
     public static final String HEX_PATTERN = "^[0-9a-fA-F]+$";
     public static final String EXTRA_MODEL_ID = "EXTRA_MODEL_ID";
     public static final String EXTRA_ELEMENT_ADDRESS = "EXTRA_ELEMENT_ADDRESS";
@@ -55,12 +117,19 @@ public class Utils {
     public static final String PROVISIONING_COMPLETED = "PROVISIONING_COMPLETED";
     public static final String COMPOSITION_DATA_COMPLETED = "COMPOSITION_DATA_COMPLETED";
     public static final String APP_KEY_ADD_COMPLETED = "APP_KEY_ADD_COMPLETED";
+    public static final String EXTRA_DATA = "EXTRA_DATA";
     private static final String PREFS_LOCATION_NOT_REQUIRED = "location_not_required";
     private static final String PREFS_PERMISSION_REQUESTED = "permission_requested";
     private static final String PREFS_READ_STORAGE_PERMISSION_REQUESTED = "read_storage_permission_requested";
     private static final String PREFS_WRITE_STORAGE_PERMISSION_REQUESTED = "write_storage_permission_requested";
     public static final int PROVISIONING_SUCCESS = 2112;
+    public static final int CONNECT_TO_NETWORK = 2113;
+    public static final String RESULT_APP_KEY = "RESULT_APP_KEY";
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
+
+    public static final Comparator<NetworkKey> netKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
+
+    public static final Comparator<ApplicationKey> appKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
 
     /**
      * Checks whether Bluetooth is enabled.

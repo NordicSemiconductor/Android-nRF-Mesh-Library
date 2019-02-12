@@ -64,11 +64,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ProvisionedNodesScannerActivity"
+            android:name=".ScannerActivity"
             android:launchMode="singleTop"/>
         <activity
             android:name=".ReconnectActivity"
             android:launchMode="singleTop"/>
+        <activity
+            android:name=".GroupControlsActivity"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".ManageAppKeysActivity"
             android:launchMode="singleTop"/>
@@ -83,12 +87,6 @@
             android:launchMode="singleTop"/>
         <activity
             android:name=".NodeDetailsActivity"
-            android:launchMode="singleTop"/>
-        <activity
-            android:name=".ManageNodeAppKeysActivity"
-            android:launchMode="singleTop"/>
-        <activity
-            android:name=".BindAppKeysActivity"
             android:launchMode="singleTop"/>
         <activity
             android:name=".GenericLevelServerActivity"

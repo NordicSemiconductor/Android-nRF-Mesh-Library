@@ -46,17 +46,26 @@ import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 
-public class DialogFragmentSubscriptionAddress extends DialogFragment {
+public class DialogFragmentCreateGroup extends DialogFragment {
 
+    private static final String GROUPS = "GROUPS";
     //UI Bindings
-    @BindView(R.id.text_input_layout)
-    TextInputLayout unicastAddressInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText unicastAddressInput;
+    @BindView(R.id.group_name_layout)
+    TextInputLayout groupNameInputLayout;
+    @BindView(R.id.name_input)
+    TextInputEditText groupNameInput;
+    @BindView(R.id.group_address_layout)
+    TextInputLayout addressInputLayout;
+    @BindView(R.id.address_input)
+    TextInputEditText addressInput;
 
-    public static DialogFragmentSubscriptionAddress newInstance() {
-        DialogFragmentSubscriptionAddress fragmentPublishAddress = new DialogFragmentSubscriptionAddress();
-        return fragmentPublishAddress;
+
+    public interface DialogFragmentCreateGroupListener {
+        boolean createGroup(@NonNull final String name, @NonNull final byte[] address);
+    }
+
+    public static DialogFragmentCreateGroup newInstance() {
+        return new DialogFragmentCreateGroup();
     }
 
     @Override
@@ -67,15 +76,14 @@ public class DialogFragmentSubscriptionAddress extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_address_input, null);
+        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_create_group, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
 
         final KeyListener hexKeyListener = new HexKeyListener();
-        unicastAddressInputLayout.setHint(getString((R.string.hint_publish_address)));
-        unicastAddressInput.setKeyListener(hexKeyListener);
-        unicastAddressInput.addTextChangedListener(new TextWatcher() {
+        addressInput.setKeyListener(hexKeyListener);
+        addressInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -84,9 +92,9 @@ public class DialogFragmentSubscriptionAddress extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    unicastAddressInputLayout.setError(getString(R.string.error_empty_publish_address));
+                    addressInputLayout.setError(getString(R.string.error_empty_group_address));
                 } else {
-                    unicastAddressInputLayout.setError(null);
+                    addressInputLayout.setError(null);
                 }
             }
 
@@ -99,45 +107,48 @@ public class DialogFragmentSubscriptionAddress extends DialogFragment {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
-        alertDialogBuilder.setTitle(R.string.title_group_address);
-        alertDialogBuilder.setMessage(R.string.dialog_summary_group_address);
+        alertDialogBuilder.setIcon(R.drawable.ic_outline_group_work_black_24dp);
+        alertDialogBuilder.setTitle(R.string.title_subscribe_group);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String pubAddress = unicastAddressInput.getText().toString();
-            if (validateInput(pubAddress)) {
-                if (getParentFragment() == null) {
-                    ((DialogFragmentSubscriptionAddressListener) getActivity()).setSubscriptionAddress(MeshParserUtils.toByteArray(pubAddress));
-                } else {
-                    ((DialogFragmentSubscriptionAddressListener) getParentFragment()).setSubscriptionAddress(MeshParserUtils.toByteArray(pubAddress));
+                final String name = groupNameInput.getEditableText().toString();
+                final String address = addressInput.getEditableText().toString();
+                if (validateInput(name, address)) {
+                    if(getParentFragment() != null) {
+                        if(((DialogFragmentCreateGroupListener) getParentFragment()).createGroup(name, MeshParserUtils.toByteArray(address))) {
+                            dismiss();
+                        } else {
+                            addressInputLayout.setError(getString(R.string.error_group_address_in_used));
+                        }
+                    }
                 }
-                dismiss();
-            }
         });
 
         return alertDialog;
     }
 
-    private boolean validateInput(final String input) {
-
+    private boolean validateInput(@NonNull final String name, @NonNull final String address) {
         try {
+            if(TextUtils.isEmpty(name)){
+                groupNameInputLayout.setError(getString(R.string.error_empty_group_name));
+                return false;
+            }
+            if (address.length() % 4 != 0 || !address.matches(Utils.HEX_PATTERN)) {
+                addressInputLayout.setError(getString(R.string.invalid_address_value));
+                return false;
+            }
 
-            if(input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
-                unicastAddressInputLayout.setError(getString(R.string.invalid_address_value));
+            final byte[] groupAddress = MeshParserUtils.toByteArray(address);
+            if(!MeshParserUtils.isValidSubscriptionAddress(groupAddress)){
+                addressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }
         } catch (IllegalArgumentException ex) {
-            unicastAddressInputLayout.setError(ex.getMessage());
+            addressInputLayout.setError(ex.getMessage());
             return false;
         }
 
         return true;
-    }
-
-    public interface DialogFragmentSubscriptionAddressListener {
-
-        void setSubscriptionAddress(final byte[] subscriptionAddress);
-
     }
 }

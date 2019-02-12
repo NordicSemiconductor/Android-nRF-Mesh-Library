@@ -83,7 +83,6 @@
         android:layout_height="wrap_content"
         android:scaleType="center"
         app:layout_constraintBottom_toTopOf="@+id/model_container"
-        app:layout_constraintStart_toEndOf="@id/element_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_round_expand_more_black_alpha_24dp"

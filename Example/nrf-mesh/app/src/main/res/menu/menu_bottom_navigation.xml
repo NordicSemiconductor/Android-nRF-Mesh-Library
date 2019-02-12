@@ -21,26 +21,30 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:tools="http://schemas.android.com/tools"
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_network"
         android:enabled="true"
         android:icon="@drawable/ic_lan_black"
         android:title="@string/network"
-        app:showAsAction="always"/>
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction"/>
 
     <item
         android:id="@+id/action_scanner"
         android:enabled="true"
-        android:icon="@drawable/ic_bluetooth_searching_black"
-        android:title="@string/action_scanner"
-        app:showAsAction="always"/>
+        android:icon="@drawable/ic_outline_group_work_black_24dp"
+        android:title="@string/action_groups"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction"/>
 
     <item
         android:id="@+id/action_settings"
         android:enabled="true"
         android:icon="@drawable/ic_settings_black"
         android:title="@string/action_settings"
-        app:showAsAction="always"/>
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction"/>
 </menu>

@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
+import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -46,7 +47,6 @@ import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ExtendedMeshNode;
 
 public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHolder> {
 
@@ -56,9 +56,9 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     private OnItemClickListener mOnItemClickListener;
     private ProvisionedMeshNode mProvisionedMeshNode;
 
-    public ElementAdapter(final NodeConfigurationActivity nodeConfigurationActivity, final ExtendedMeshNode extendedMeshnode) {
+    public ElementAdapter(final NodeConfigurationActivity nodeConfigurationActivity, final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
         this.mContext = nodeConfigurationActivity.getApplicationContext();
-        extendedMeshnode.observe(nodeConfigurationActivity, meshNode -> {
+        meshNodeLiveData.observe(nodeConfigurationActivity, meshNode -> {
             if (meshNode != null) {
                 mProvisionedMeshNode = meshNode;
                 mElements.clear();
@@ -120,16 +120,12 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        if (mElements == null)
-            return 0;
         return mElements.size();
     }
 
     @Override
     public long getItemId(final int position) {
-        if (mElements != null)
-            mElements.get(position).getElementAddressInt();
-        return super.getItemId(position);
+        return mElements.get(position).getElementAddressInt();
     }
 
     public boolean isEmpty() {

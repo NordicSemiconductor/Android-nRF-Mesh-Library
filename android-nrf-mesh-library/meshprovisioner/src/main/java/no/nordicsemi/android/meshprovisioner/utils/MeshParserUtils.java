@@ -124,7 +124,7 @@ public class MeshParserUtils {
      * @return true if is valid and false otherwise
      */
     public static boolean isValidUnassignedAddress(final byte[] address) {
-        if (address == null|| address.length != 2)
+        if (address == null || address.length != 2)
             return false;
         final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
 
@@ -132,14 +132,20 @@ public class MeshParserUtils {
     }
 
     /**
-     * Validates a given group address
+     * Validates a given address for subscriptions
      *
      * @param address group address
      * @return true if is valid and false otherwise
      */
-    public static boolean isValidGroupAddress(@NonNull final byte[] address) {
-        if (address != null && address.length == 2) {
-            return (address[0] >= 0xC0 && address[0] <= 0xFF) && address[0] != 0xFF || !(address[1] >= 0x00 && address[1] <= 0xFB);
+    public static boolean isValidSubscriptionAddress(@NonNull final byte[] address) {
+        if (address.length == 2) {
+            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
+            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
+
+            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
+            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
+            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
+            return groupRange && !rfu && !allNodes;
         }
         return false;
     }
@@ -150,8 +156,36 @@ public class MeshParserUtils {
      * @param address group address
      * @return true if is valid and false otherwise
      */
-    public static boolean isValidGroupAddress(final int address) {
-        return (address >= 0xC000 && address <= 0xFEFF) || (address >= 0xFFFC && address <= 0xFFFF);
+    public static boolean isValidGroupAddress(@NonNull final byte[] address) {
+        if (address.length == 2) {
+            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
+            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
+
+            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
+            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
+            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
+            return groupRange && !rfu && allNodes;
+        }
+        return false;
+    }
+
+    /**
+     * Validates a given group address
+     *
+     * @param address group address
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidFilterAddress(@NonNull final byte[] address) {
+        if (address.length == 2) {
+            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
+            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
+
+            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
+            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
+            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
+            return groupRange && !rfu && allNodes;
+        }
+        return false;
     }
 
     private static boolean isValidIvIndex(final Integer value) {
@@ -475,7 +509,9 @@ public class MeshParserUtils {
             case 2:
                 return MeshParserUtils.unsignedBytesToInt(accessPayload[1], accessPayload[0]);
             case 3:
-                return ((byte) (accessPayload[0] & 0xFF) | (byte) ((accessPayload[1] << 8) & 0xFF) | (byte) ((accessPayload[2] << 16) & 0xFF));
+                return ((byte) (MeshParserUtils.unsignedByteToInt(accessPayload[1]))
+                        | (byte) ((MeshParserUtils.unsignedByteToInt(accessPayload[0]) << 8)
+                        | (byte) ((MeshParserUtils.unsignedByteToInt(accessPayload[2]) << 16))));
         }
         return -1;
     }
@@ -511,8 +547,6 @@ public class MeshParserUtils {
      */
     public static byte[] createVendorOpCode(final int opCode, final int companyIdentifier) {
         if (companyIdentifier != 0xFFFF) {
-            //TODO nRF Mesh SDK implementation contains a bug related to endianness of the company identifier
-            //In order to get this working with the sdk you may have to switch the company identifier bytes here
             return new byte[]{(byte) (0xC0 | (opCode & 0x3F)), (byte) (companyIdentifier & 0xFF), (byte) ((companyIdentifier >> 8) & 0xFF)};
         }
         return null;
@@ -702,5 +736,23 @@ public class MeshParserUtils {
         calendar.set(TAI_YEAR, TAI_MONTH, TAI_DATE, 0, 0, 0);
         final long millisSinceEpoch = calendar.getTimeInMillis();
         return (currentTime - millisSinceEpoch) / 1000;
+    }
+
+    /**
+     * Returns if the model id is a vendor model
+     *
+     * @param modelId model identifier
+     */
+    public static boolean isVendorModel(final int modelId) {
+        return modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE;
+    }
+
+    public static int getCompanyIdentifier(final int modelId) {
+        if(modelId >= Short.MIN_VALUE && modelId <= Short.MAX_VALUE) {
+            throw new IllegalArgumentException("Not a valid vendor model ID");
+        }
+        final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
+        buffer.putInt(modelId);
+        return (int) buffer.getShort(0);
     }
 }

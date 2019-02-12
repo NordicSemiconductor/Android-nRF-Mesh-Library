@@ -85,6 +85,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFilterAddAd
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProxySet;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
@@ -172,7 +173,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.title_node_configuration);
-        getSupportActionBar().setSubtitle(mViewModel.getSelectedMeshNode().getMeshNode().getNodeName());
+        getSupportActionBar().setSubtitle(mViewModel.getSelectedMeshNode().getValue().getNodeName());
 
         final TextView noElementsFound = findViewById(R.id.no_elements);
         final TextView noAppKeysFound = findViewById(R.id.no_app_keys);
@@ -193,7 +194,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         final RecyclerView recyclerViewAddresses = findViewById(R.id.recycler_view_addresses);
 
         final Integer unicast = mViewModel.getConnectedMeshNodeAddress().getValue();
-        if (unicast != null && unicast == mViewModel.getSelectedMeshNode().getMeshNode().getUnicastAddressInt()) {
+        if (unicast != null && unicast == mViewModel.getSelectedMeshNode().getValue().getUnicastAddressInt()) {
             mProxyFilterCard.setVisibility(View.VISIBLE);
             recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(this));
             recyclerViewAddresses.setItemAnimator(new DefaultItemAnimator());
@@ -243,21 +244,19 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         });
 
         actionGetCompositionData.setOnClickListener(v -> {
-            showProgressbar();
-            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
             mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configCompositionDataGet);
+            showProgressbar();
         });
 
         actionAddAppkey.setOnClickListener(v -> {
-            final List<ApplicationKey> appKeys = mViewModel.getMeshManagerApi().getMeshNetwork().getAppKeys();
-            final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageNodeAppKeysActivity.class);
-            addAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
+            final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageAppKeysActivity.class);
             startActivityForResult(addAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
         actionGetProxyState.setOnClickListener(v -> {
-            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final ConfigProxyGet configProxyGet = new ConfigProxyGet();
             mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configProxyGet);
         });
@@ -285,7 +284,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         });
 
         actionAddFilterAddress.setOnClickListener(v -> {
-            final ProxyFilter filter = mViewModel.getSelectedMeshNode().getMeshNode().getProxyFilter();
+            final ProxyFilter filter = mViewModel.getSelectedMeshNode().getValue().getProxyFilter();
             final ProxyFilterType filterType;
             if (filter == null) {
                 filterType = new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER);
@@ -341,9 +340,10 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ManageAppKeysActivity.SELECT_APP_KEY) {
             if (resultCode == RESULT_OK) {
-                final ApplicationKey appKey = data.getParcelableExtra(ManageNodeAppKeysActivity.RESULT);
+                final ApplicationKey appKey = data.getParcelableExtra(Utils.RESULT_APP_KEY);
                 if (appKey != null) {
-                    final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+                    showProgressbar();
+                    final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
                     final NetworkKey networkKey = mViewModel.getMeshManagerApi().getMeshNetwork().getPrimaryNetworkKey();
                     final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
                     mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configAppKeyAdd);
@@ -394,6 +394,11 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     @Override
+    public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
+
+    }
+
+    @Override
     public void onItemClick(final ApplicationKey appKey) {
 
     }
@@ -401,7 +406,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @Override
     public void onNodeReset() {
         try {
-            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final ConfigNodeReset configNodeReset = new ConfigNodeReset();
             mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configNodeReset);
         } catch (Exception ex) {
@@ -412,7 +417,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @Override
     public void onProxySet(@ConfigProxySet.ProxyState final int state) {
         try {
-            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final ConfigProxySet configProxySet = new ConfigProxySet(state);
             mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configProxySet);
             mRequestedState = state == 1;
@@ -422,7 +427,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     private void updateProxySettingsCardUi() {
-        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getMeshNode();
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
         if (meshNode.getNodeFeatures() != null && meshNode.getNodeFeatures().isProxyFeatureSupported()) {
             mProxyStateCard.setVisibility(View.VISIBLE);
             updateProxySettingsButtonUi();
@@ -528,20 +533,30 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     private void removeAddress(final int position) {
-        showProgressbar();
-        final ProxyFilter proxyFilter = mViewModel.getSelectedMeshNode().getMeshNode().getProxyFilter();
-        final AddressArray addressArr = proxyFilter.getAddresses().get(position);
-        final List<AddressArray> addresses = new ArrayList<>();
-        addresses.add(addressArr);
-        final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = new ProxyConfigRemoveAddressFromFilter(addresses);
-        mViewModel.getMeshManagerApi().sendMeshMessage(new byte[]{0x00, 0x00}, removeAddressFromFilter);
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if(meshNode != null) {
+            final ProxyFilter proxyFilter = meshNode.getProxyFilter();
+            if(proxyFilter != null) {
+                final AddressArray addressArr = proxyFilter.getAddresses().get(position);
+                final List<AddressArray> addresses = new ArrayList<>();
+                addresses.add(addressArr);
+                final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = new ProxyConfigRemoveAddressFromFilter(addresses);
+                mViewModel.getMeshManagerApi().sendMeshMessage(new byte[]{0x00, 0x00}, removeAddressFromFilter);
+                showProgressbar();
+            }
+        }
     }
 
     private void removeAddresses() {
-        final ProxyFilter filter = mViewModel.getSelectedMeshNode().getMeshNode().getProxyFilter();
-        if (filter != null && !filter.getAddresses().isEmpty()) {
-            final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = new ProxyConfigRemoveAddressFromFilter(filter.getAddresses());
-            mViewModel.getMeshManagerApi().sendMeshMessage(new byte[]{0x00, 0x00}, removeAddressFromFilter);
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if (meshNode != null) {
+            final ProxyFilter proxyFilter = meshNode.getProxyFilter();
+            if (proxyFilter != null) {
+                if (!proxyFilter.getAddresses().isEmpty()) {
+                    final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = new ProxyConfigRemoveAddressFromFilter(proxyFilter.getAddresses());
+                    mViewModel.getMeshManagerApi().sendMeshMessage(new byte[]{0x00, 0x00}, removeAddressFromFilter);
+                }
+            }
         }
     }
 
