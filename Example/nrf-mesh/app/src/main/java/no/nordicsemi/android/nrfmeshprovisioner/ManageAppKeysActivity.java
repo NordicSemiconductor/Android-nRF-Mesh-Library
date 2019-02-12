@@ -98,12 +98,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         final FloatingActionButton fab = findViewById(R.id.fab);
-        if(componentName != null && componentName.getShortClassName().equals(CALLING_ACTIVITY)) {
-            getSupportActionBar().setTitle(R.string.title_manage_app_keys);
-        } else {
-            getSupportActionBar().setTitle(R.string.title_select_app_key);
-            fab.setVisibility(View.GONE);
-        }
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         final RecyclerView appKeysRecyclerView = findViewById(R.id.recycler_view_app_keys);
         appKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -114,13 +109,20 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         mAdapter.setOnItemClickListener(this);
         appKeysRecyclerView.setAdapter(mAdapter);
 
+        if(componentName != null && componentName.getShortClassName().equals(CALLING_ACTIVITY)) {
+            getSupportActionBar().setTitle(R.string.title_manage_app_keys);
+            final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
+            final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
+            itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
+        } else {
+            getSupportActionBar().setTitle(R.string.title_select_app_key);
+            fab.setVisibility(View.GONE);
+        }
+
         fab.setOnClickListener(v -> {
             final DialogFragmentAddAppKey dialogFragmentAddAppKey = DialogFragmentAddAppKey.newInstance(null);
             dialogFragmentAddAppKey.show(getSupportFragmentManager(), null);
         });
-        final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
-        final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
 
         mViewModel.getMeshNetworkLiveData().observe(this, networkLiveData -> {
             final List<ApplicationKey> keys = networkLiveData.getAppKeys();
@@ -200,7 +202,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         Snackbar.make(container, getString(R.string.app_key_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
                     mEmptyView.setVisibility(View.INVISIBLE);
-                    mViewModel.getMeshNetworkLiveData().addAppKey(key, appKey);
+                    mViewModel.getMeshNetworkLiveData().addAppKey(appKey);
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
                 .show();

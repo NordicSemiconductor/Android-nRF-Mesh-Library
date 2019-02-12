@@ -228,21 +228,21 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
     /**
      * Adds an application key to the mesh network
      */
-    public void addAppKey(final int position, final ApplicationKey applicationKey) {
+    public void addAppKey(final ApplicationKey applicationKey) {
         if (meshNetwork != null) {
-            meshNetwork.addAppKey(position, applicationKey);
+            meshNetwork.addAppKey(applicationKey);
         }
         postValue(this);
     }
 
     /**
-     * Update the application key
-     * @param position update app key in given position
+     * Update the application key in a particular position
+     * @param keyIndex update app key in given key index
      * @param applicationKey app key
      */
-    public void updateAppKey(final int position, final String applicationKey) {
+    public void updateAppKey(final int keyIndex, final String applicationKey) {
         if (meshNetwork != null) {
-            meshNetwork.updateAppKey(position, applicationKey);
+            meshNetwork.updateAppKey(keyIndex, applicationKey);
         }
         postValue(this);
     }

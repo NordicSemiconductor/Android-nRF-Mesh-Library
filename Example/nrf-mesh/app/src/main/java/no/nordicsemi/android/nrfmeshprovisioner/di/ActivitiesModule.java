@@ -25,14 +25,12 @@ package no.nordicsemi.android.nrfmeshprovisioner.di;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import no.nordicsemi.android.nrfmeshprovisioner.BaseModelConfigurationActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.BindAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.GenericLevelServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.GenericOnOffServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.GroupControlsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MainActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.ManageNodeAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MeshProvisionerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
@@ -75,12 +73,6 @@ abstract class ActivitiesModule {
 
 	@ContributesAndroidInjector()
 	abstract GroupControlsActivity contributeGroupControlsActivity();
-
-	@ContributesAndroidInjector()
-	abstract ManageNodeAppKeysActivity contributeManageNodeAppKeysActivity();
-
-	@ContributesAndroidInjector()
-	abstract BindAppKeysActivity contributeBindAppKeysActivity();
 
 	@ContributesAndroidInjector()
 	abstract PublicationSettingsActivity contributePublicationSettingsActivity();

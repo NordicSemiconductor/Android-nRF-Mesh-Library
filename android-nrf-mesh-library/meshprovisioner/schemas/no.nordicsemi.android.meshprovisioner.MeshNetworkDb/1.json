@@ -323,8 +323,44 @@
       },
       {
         "tableName": "nodes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT, `uuid` TEXT NOT NULL, `security` INTEGER NOT NULL, `unicast_address` BLOB, `name` TEXT, `configured` INTEGER NOT NULL, `device_key` BLOB, `ttl` INTEGER, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `timestamp` INTEGER NOT NULL, `mAddedNetworkKeys` TEXT, `mElements` TEXT, `mAddedApplicationKeys` TEXT, `blacklisted` INTEGER NOT NULL, `secureNetworkBeacon` INTEGER, `friend` INTEGER, `lowPower` INTEGER, `proxy` INTEGER, `relay` INTEGER, `networkTransmitCount` INTEGER, `networkIntervalSteps` INTEGER, `relayTransmitCount` INTEGER, `relayIntervalSteps` INTEGER, PRIMARY KEY(`uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`timestamp` INTEGER NOT NULL, `mAddedNetworkKeys` TEXT, `name` TEXT, `ttl` INTEGER, `blacklisted` INTEGER NOT NULL, `secureNetworkBeacon` INTEGER, `mesh_uuid` TEXT, `uuid` TEXT NOT NULL, `security` INTEGER NOT NULL, `unicast_address` BLOB, `configured` INTEGER NOT NULL, `device_key` BLOB, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `mElements` TEXT, `mAddedApplicationKeys` TEXT, `networkTransmitCount` INTEGER, `networkIntervalSteps` INTEGER, `relayTransmitCount` INTEGER, `relayIntervalSteps` INTEGER, `friend` INTEGER, `lowPower` INTEGER, `proxy` INTEGER, `relay` INTEGER, PRIMARY KEY(`uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
+          {
+            "fieldPath": "mTimeStampInMillis",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mAddedNetworkKeys",
+            "columnName": "mAddedNetworkKeys",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nodeName",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ttl",
+            "columnName": "ttl",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackListed",
+            "columnName": "blacklisted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "secureNetworkBeaconSupported",
+            "columnName": "secureNetworkBeacon",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
           {
             "fieldPath": "meshUuid",
             "columnName": "mesh_uuid",
@@ -350,12 +386,6 @@
             "notNull": false
           },
           {
-            "fieldPath": "nodeName",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
             "fieldPath": "isConfigured",
             "columnName": "configured",
             "affinity": "INTEGER",
@@ -365,12 +395,6 @@
             "fieldPath": "deviceKey",
             "columnName": "device_key",
             "affinity": "BLOB",
-            "notNull": false
-          },
-          {
-            "fieldPath": "ttl",
-            "columnName": "ttl",
-            "affinity": "INTEGER",
             "notNull": false
           },
           {
@@ -404,18 +428,6 @@
             "notNull": false
           },
           {
-            "fieldPath": "mTimeStampInMillis",
-            "columnName": "timestamp",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "mAddedNetworkKeys",
-            "columnName": "mAddedNetworkKeys",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
             "fieldPath": "mElements",
             "columnName": "mElements",
             "affinity": "TEXT",
@@ -428,14 +440,26 @@
             "notNull": false
           },
           {
-            "fieldPath": "blackListed",
-            "columnName": "blacklisted",
+            "fieldPath": "networkTransmitSettings.networkTransmitCount",
+            "columnName": "networkTransmitCount",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
-            "fieldPath": "secureNetworkBeaconSupported",
-            "columnName": "secureNetworkBeacon",
+            "fieldPath": "networkTransmitSettings.networkIntervalSteps",
+            "columnName": "networkIntervalSteps",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "relaySettings.relayTransmitCount",
+            "columnName": "relayTransmitCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "relaySettings.relayIntervalSteps",
+            "columnName": "relayIntervalSteps",
             "affinity": "INTEGER",
             "notNull": false
           },
@@ -460,30 +484,6 @@
           {
             "fieldPath": "nodeFeatures.relay",
             "columnName": "relay",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "networkTransmitSettings.networkTransmitCount",
-            "columnName": "networkTransmitCount",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "networkTransmitSettings.networkIntervalSteps",
-            "columnName": "networkIntervalSteps",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "relaySettings.relayTransmitCount",
-            "columnName": "relayTransmitCount",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "relaySettings.relayIntervalSteps",
-            "columnName": "relayIntervalSteps",
             "affinity": "INTEGER",
             "notNull": false
           }

@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -41,6 +42,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.ViewHolder> {
@@ -55,6 +57,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
             if (meshNode != null) {
                 appKeys.clear();
                 appKeys.addAll(meshNode.getAddedApplicationKeys().values());
+                Collections.sort(appKeys, Utils.appKeyComparator);
                 notifyDataSetChanged();
             }
         });
@@ -74,8 +77,9 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     @Override
     public void onBindViewHolder(@NonNull final AddedAppKeyAdapter.ViewHolder holder, final int position) {
         if (appKeys.size() > 0) {
-            holder.appKeyId.setText(mContext.getString(R.string.app_key_item, position + 1));
-            final String appKey = MeshParserUtils.bytesToHex(appKeys.get(position).getKey(), false);
+            final ApplicationKey key = appKeys.get(position);
+            holder.appKeyId.setText(mContext.getString(R.string.app_key_item, key.getKeyIndex()));
+            final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
             holder.appKey.setText(appKey.toUpperCase());
         }
     }

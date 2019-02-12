@@ -85,6 +85,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFilterAddAd
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProxySet;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
@@ -250,9 +251,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         });
 
         actionAddAppkey.setOnClickListener(v -> {
-            final List<ApplicationKey> appKeys = mViewModel.getMeshManagerApi().getMeshNetwork().getAppKeys();
-            final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageNodeAppKeysActivity.class);
-            addAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
+            final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageAppKeysActivity.class);
             startActivityForResult(addAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
@@ -341,7 +340,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ManageAppKeysActivity.SELECT_APP_KEY) {
             if (resultCode == RESULT_OK) {
-                final ApplicationKey appKey = data.getParcelableExtra(ManageNodeAppKeysActivity.RESULT);
+                final ApplicationKey appKey = data.getParcelableExtra(Utils.RESULT_APP_KEY);
                 if (appKey != null) {
                     showProgressbar();
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();

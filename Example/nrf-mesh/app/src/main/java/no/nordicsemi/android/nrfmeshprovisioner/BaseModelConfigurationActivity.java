@@ -170,7 +170,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mBoundAppKeyAdapter.setOnItemClickListener(this);
 
         mActionBindAppKey.setOnClickListener(v -> {
-            final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, BindAppKeysActivity.class);
+            final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, ManageAppKeysActivity.class);
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             if(node != null) {
                 bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) node.getAddedApplicationKeys());

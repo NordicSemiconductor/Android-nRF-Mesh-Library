@@ -89,12 +89,6 @@
             android:name=".NodeDetailsActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".ManageNodeAppKeysActivity"
-            android:launchMode="singleTop"/>
-        <activity
-            android:name=".BindAppKeysActivity"
-            android:launchMode="singleTop"/>
-        <activity
             android:name=".GenericLevelServerActivity"
             android:launchMode="singleTop"/>
         <activity

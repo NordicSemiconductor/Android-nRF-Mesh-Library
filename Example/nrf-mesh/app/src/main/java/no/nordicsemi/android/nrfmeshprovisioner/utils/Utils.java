@@ -39,6 +39,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -98,6 +99,8 @@ import no.nordicsemi.android.meshprovisioner.models.SigModel;
 import no.nordicsemi.android.meshprovisioner.models.TimeClient;
 import no.nordicsemi.android.meshprovisioner.models.TimeServer;
 import no.nordicsemi.android.meshprovisioner.models.TimeSetupServer;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
@@ -121,7 +124,12 @@ public class Utils {
     private static final String PREFS_WRITE_STORAGE_PERMISSION_REQUESTED = "write_storage_permission_requested";
     public static final int PROVISIONING_SUCCESS = 2112;
     public static final int CONNECT_TO_NETWORK = 2113;
+    public static final String RESULT_APP_KEY = "RESULT_APP_KEY";
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
+
+    public static final Comparator<NetworkKey> netKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
+
+    public static final Comparator<ApplicationKey> appKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
 
     /**
      * Checks whether Bluetooth is enabled.
