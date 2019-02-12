@@ -64,11 +64,6 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
         });
     }
 
-    public FilterAddressAdapter(@NonNull final Context context, final ArrayList<AddressArray> addresses) {
-        this.mContext = context;
-        this.mAddresses = addresses;
-    }
-
     public void setOnItemClickListener(final FilterAddressAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
