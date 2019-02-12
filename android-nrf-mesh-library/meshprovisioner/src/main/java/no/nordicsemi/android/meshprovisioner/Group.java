@@ -5,6 +5,8 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -13,6 +15,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Arrays;
+
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
@@ -26,7 +30,7 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
                 childColumns = "mesh_uuid",
                 onUpdate = CASCADE, onDelete = CASCADE),
         indices = {@Index("mesh_uuid")})
-public class Group {
+public class Group implements Parcelable {
 
     @ColumnInfo(name = "mesh_uuid")
     @Expose
@@ -56,13 +60,34 @@ public class Group {
      * @param parentAddress parent address
      */
     public Group(@NonNull final byte[] groupAddress, @Nullable final byte[] parentAddress, @NonNull final String meshUuid) {
-        this.groupAddress = groupAddress;
-        if (Arrays.equals(groupAddress, parentAddress)) {
-            throw new IllegalArgumentException("Address cannot match parent adddress");
+        if(!MeshParserUtils.isValidSubscriptionAddress(groupAddress)) {
+            throw new IllegalArgumentException("Address cannot be an unassigned address, unicast address, all-nodes address or virtual address");
+        } else if (Arrays.equals(groupAddress, parentAddress)) {
+            throw new IllegalArgumentException("Address cannot match parent address");
         }
+        this.groupAddress = groupAddress;
         this.parentAddress = parentAddress;
         this.meshUuid = meshUuid;
     }
+
+    protected Group(Parcel in) {
+        groupAddress = in.createByteArray();
+        parentAddress = in.createByteArray();
+        meshUuid = in.readString();
+        name = in.readString();
+    }
+
+    public static final Creator<Group> CREATOR = new Creator<Group>() {
+        @Override
+        public Group createFromParcel(Parcel in) {
+            return new Group(in);
+        }
+
+        @Override
+        public Group[] newArray(int size) {
+            return new Group[size];
+        }
+    };
 
     /**
      * Returns the provisionerUuid of the network
@@ -129,7 +154,20 @@ public class Group {
     /**
      * Sets a name to a mesh group
      */
-    public void setName(final String name) {
+    public void setName(@NonNull final String name) {
         this.name = name;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeByteArray(groupAddress);
+        dest.writeByteArray(parentAddress);
+        dest.writeString(meshUuid);
+        dest.writeString(name);
     }
 }

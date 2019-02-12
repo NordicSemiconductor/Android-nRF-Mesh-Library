@@ -29,7 +29,9 @@ import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 
 /**
@@ -44,7 +46,7 @@ public class NodeConfigurationViewModel extends ViewModel {
         this.mNrfMeshRepository = nrfMeshRepository;
     }
 
-    public ExtendedMeshNode getSelectedMeshNode() {
+    public LiveData<ProvisionedMeshNode> getSelectedMeshNode() {
         return mNrfMeshRepository.getSelectedMeshNode();
     }
 
@@ -74,7 +76,7 @@ public class NodeConfigurationViewModel extends ViewModel {
         return mNrfMeshRepository.isConnected();
     }
 
-    public MeshMessageLiveData getMeshMessageLiveData() {
+    public LiveData<MeshMessage> getMeshMessageLiveData() {
         return mNrfMeshRepository.getMeshMessageLiveData();
     }
 

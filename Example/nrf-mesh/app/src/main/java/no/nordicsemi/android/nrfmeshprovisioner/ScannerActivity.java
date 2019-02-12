@@ -23,25 +23,24 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.Manifest;
+import android.app.Activity;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 
 import javax.inject.Inject;
@@ -55,17 +54,16 @@ import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerLiveData;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerViewModel;
 
-public class ScannerFragment extends Fragment implements Injectable, DevicesAdapter.OnItemClickListener {
-    private static final String TAG = ScannerFragment.class.getSimpleName();
+public class ScannerActivity extends AppCompatActivity implements Injectable, DevicesAdapter.OnItemClickListener {
     private static final int REQUEST_ACCESS_COARSE_LOCATION = 1022; // random number
-
-    SharedViewModel mSharedViewModel;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
+    @BindView(R.id.state_scanning)
+    View mScanningView;
     @BindView(R.id.no_devices)
     View mEmptyView;
     @BindView(R.id.no_location_permission)
@@ -79,81 +77,98 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
     @BindView(R.id.bluetooth_off)
     View mNoBluetoothView;
 
-    private ScannerFragmentListener mScannerFragmentListener;
-
-    interface ScannerFragmentListener {
-        void showProgressBar();
-        void hideProgressBar();
-    }
-
+    private ScannerViewModel mViewModel;
+    private boolean mScanWithProxyService;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
+        setContentView(R.layout.activity_scanner);
+        ButterKnife.bind(this);
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_scanner, null);
-        ButterKnife.bind(this, rootView);
+        // Create view model containing utility methods for scanning
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ScannerViewModel.class);
+        mViewModel.getScannerRepository().getScannerState().startScanning();
+        mViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
 
-        mSharedViewModel = ViewModelProviders.of(getActivity(), mViewModelFactory).get(SharedViewModel.class);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.title_scanner);
+
+        if (getIntent() != null) {
+            mScanWithProxyService = getIntent().getBooleanExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, true);
+            if(mScanWithProxyService) {
+                getSupportActionBar().setSubtitle(R.string.sub_title_scanning_nodes);
+            } else {
+                getSupportActionBar().setSubtitle(R.string.sub_title_scanning_proxy_node);
+            }
+        }
 
         // Configure the recycler view
-        final RecyclerView recyclerView = rootView.findViewById(R.id.recycler_view_ble_devices);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
-        recyclerView.addItemDecoration(dividerItemDecoration);
-        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
-        final DevicesAdapter adapter = new DevicesAdapter(this, mSharedViewModel.getScannerRepository().getScannerState());
+        final RecyclerView recyclerViewDevices = findViewById(R.id.recycler_view_ble_devices);
+        recyclerViewDevices.setLayoutManager(new LinearLayoutManager(this));
+        final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewDevices.getContext(), DividerItemDecoration.VERTICAL);
+        recyclerViewDevices.addItemDecoration(dividerItemDecoration);
+        final DevicesAdapter adapter = new DevicesAdapter(this, mViewModel.getScannerRepository().getScannerState());
         adapter.setOnItemClickListener(this);
-        recyclerView.setAdapter(adapter);
-        return rootView;
+        recyclerViewDevices.setAdapter(adapter);
+
 
     }
 
     @Override
-    public void onAttach(final Context context) {
-        super.onAttach(context);
-        mScannerFragmentListener = (ScannerFragmentListener) context;
-    }
-
-    @Override
-    public void onHiddenChanged(final boolean hidden) {
-        super.onHiddenChanged(hidden);
-        if(hidden){
-            stopScan();
-        } else {
-            startScanning();
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        if(isVisible()){
-            startScanning();
-        }
-    }
-
-    @Override
-    public void onStop() {
+    protected void onStop() {
         super.onStop();
         stopScan();
     }
 
     @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ReconnectActivity.REQUEST_DEVICE_READY) {
+            if (resultCode == RESULT_OK) {
+                final boolean isDeviceReady = data.getBooleanExtra(Utils.ACTIVITY_RESULT, false);
+                if (isDeviceReady) {
+                    finish();
+                }
+            }
+        } else if (requestCode == Utils.PROVISIONING_SUCCESS) {
+            if (resultCode == RESULT_OK) {
+                setResultIntent(data);
+            }
+        } else if (requestCode == Utils.CONNECT_TO_NETWORK) {
+            if (resultCode == RESULT_OK) {
+                finish();
+            }
+        }
     }
 
     @Override
     public void onItemClick(final ExtendedBluetoothDevice device) {
-        mSharedViewModel.disconnect();
-        final Intent meshProvisionerIntent = new Intent(getActivity(), MeshProvisionerActivity.class);
-        meshProvisionerIntent.putExtra(Utils.EXTRA_DEVICE, device);
-        getActivity().startActivityForResult(meshProvisionerIntent, Utils.PROVISIONING_SUCCESS);
+        //We must disconnect from any nodes that we are connected to before we start scanning.
+        mViewModel.disconnect();
+        final Intent intent;
+        stopScan();
+        if (mScanWithProxyService) {
+            intent = new Intent(this, MeshProvisionerActivity.class);
+            intent.putExtra(Utils.EXTRA_DEVICE, device);
+            startActivityForResult(intent, Utils.PROVISIONING_SUCCESS);
+        } else {
+            intent = new Intent(this, ReconnectActivity.class);
+            intent.putExtra(Utils.EXTRA_DEVICE, device);
+            startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
+        }
     }
 
     @Override
@@ -161,7 +176,7 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST_ACCESS_COARSE_LOCATION:
-                mSharedViewModel.getScannerRepository().getScannerState().refresh();
+                mViewModel.getScannerRepository().getScannerState().refresh();
                 break;
         }
     }
@@ -180,21 +195,15 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
 
     @OnClick(R.id.action_grant_location_permission)
     public void onGrantLocationPermissionClicked() {
-        Utils.markLocationPermissionRequested(getContext());
-        requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION);
+        Utils.markLocationPermissionRequested(this);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION);
     }
 
     @OnClick(R.id.action_permission_settings)
     public void onPermissionSettingsClicked() {
         final Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        intent.setData(Uri.fromParts("package", getContext().getPackageName(), null));
+        intent.setData(Uri.fromParts("package", getPackageName(), null));
         startActivity(intent);
-    }
-
-    private void startScanning(){
-        mSharedViewModel.getScannerRepository().getScannerState().startScanning();
-        // Create view model containing utility methods for scanning
-        mSharedViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
     }
 
     /**
@@ -202,26 +211,25 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
      */
     private void startScan(final ScannerLiveData state) {
         // First, check the Location permission. This is required on Marshmallow onwards in order to scan for Bluetooth LE devices.
-        if (Utils.isLocationPermissionsGranted(getContext())) {
+        if (Utils.isLocationPermissionsGranted(this)) {
             mNoLocationPermissionView.setVisibility(View.GONE);
 
             // Bluetooth must be enabled
             if (state.isBluetoothEnabled()) {
                 mNoBluetoothView.setVisibility(View.GONE);
-                // We are now OK to start scanning
-                if(state.isScanRequested())
-                    if(!state.isScanning()) {
-                        Log.v(TAG, "scan started");
-                        mSharedViewModel.getScannerRepository().startScan(BleMeshManager.MESH_PROVISIONING_UUID);
-                    }
 
-                if(isVisible())
-                    mScannerFragmentListener.showProgressBar();
+                // We are now OK to start scanning
+                if (mScanWithProxyService) {
+                    mViewModel.getScannerRepository().startScan(BleMeshManager.MESH_PROVISIONING_UUID);
+                } else {
+                    mViewModel.getScannerRepository().startScan(BleMeshManager.MESH_PROXY_UUID);
+                }
+                mScanningView.setVisibility(View.VISIBLE);
 
                 if (state.isEmpty()) {
                     mEmptyView.setVisibility(View.VISIBLE);
 
-                    if (!Utils.isLocationRequired(getContext()) || Utils.isLocationEnabled(getContext())) {
+                    if (!Utils.isLocationRequired(this) || Utils.isLocationEnabled(this)) {
                         mNoLocationView.setVisibility(View.INVISIBLE);
                     } else {
                         mNoLocationView.setVisibility(View.VISIBLE);
@@ -231,16 +239,16 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
                 }
             } else {
                 mNoBluetoothView.setVisibility(View.VISIBLE);
-                mScannerFragmentListener.hideProgressBar();
+                mScanningView.setVisibility(View.INVISIBLE);
                 mEmptyView.setVisibility(View.GONE);
             }
         } else {
             mNoLocationPermissionView.setVisibility(View.VISIBLE);
             mNoBluetoothView.setVisibility(View.GONE);
-            mScannerFragmentListener.hideProgressBar();
+            mScanningView.setVisibility(View.INVISIBLE);
             mEmptyView.setVisibility(View.GONE);
 
-            final boolean deniedForever = Utils.isLocationPermissionDeniedForever(getActivity());
+            final boolean deniedForever = Utils.isLocationPermissionDeniedForever(this);
             mGrantPermissionButton.setVisibility(deniedForever ? View.GONE : View.VISIBLE);
             mPermissionSettingsButton.setVisibility(deniedForever ? View.VISIBLE : View.GONE);
         }
@@ -250,9 +258,11 @@ public class ScannerFragment extends Fragment implements Injectable, DevicesAdap
      * stop scanning for bluetooth devices.
      */
     private void stopScan() {
-        mSharedViewModel.getScannerRepository().getScannerState().stopScanning();
-        mSharedViewModel.getScannerRepository().stopScan();
-        mScannerFragmentListener.hideProgressBar();
-        Log.v(TAG, "stopping scan");
+        mViewModel.getScannerRepository().stopScan();
+    }
+
+    private void setResultIntent(final Intent data) {
+        setResult(Activity.RESULT_OK, data);
+        finish();
     }
 }

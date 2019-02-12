@@ -23,96 +23,134 @@
 package no.nordicsemi.android.nrfmeshprovisioner.widgets;
 
 import android.graphics.Canvas;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAdapter;
 
 /**
  * This callback works with {@link RemovableViewHolder}. Only view holders that inherit from this class may be removed.
  */
 public class RemovableItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
-	private final ItemTouchHelperAdapter mAdapter;
-	private float mPreviousDx;
+    private final ItemTouchHelperAdapter mAdapter;
+    private float mPreviousDx;
+    private boolean swipeBack;
 
-	public RemovableItemTouchHelperCallback(ItemTouchHelperAdapter adapter) {
-		mAdapter = adapter;
-	}
+    public RemovableItemTouchHelperCallback(ItemTouchHelperAdapter adapter) {
+        mAdapter = adapter;
+    }
 
-	@Override
-	public boolean isLongPressDragEnabled() {
-		return false;
-	}
+    @Override
+    public boolean isLongPressDragEnabled() {
+        return false;
+    }
 
-	@Override
-	public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-		if (viewHolder instanceof RemovableViewHolder) {
-			final RemovableViewHolder vHolder = ((RemovableViewHolder)viewHolder);
-			if (!(vHolder).isRemovable())
-				return 0;
-			int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
-			return makeMovementFlags(0, swipeFlags);
-		} else
-			return 0;
-	}
+    @Override
+    public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+        if (viewHolder instanceof RemovableViewHolder) {
+            final RemovableViewHolder vHolder = ((RemovableViewHolder) viewHolder);
+            if (!(vHolder).isRemovable())
+                return 0;
+            int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+            return makeMovementFlags(0, swipeFlags);
+        } else
+            return 0;
+    }
 
-	@Override
-	public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
-						  RecyclerView.ViewHolder target) {
-		// do nothing, moving not allowed
-		return true;
-	}
+    @Override
+    public float getSwipeThreshold(@NonNull final RecyclerView.ViewHolder viewHolder) {
+        return super.getSwipeThreshold(viewHolder);
+    }
 
-	@Override
-	public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-		mAdapter.onItemDismiss((RemovableViewHolder) viewHolder);
-	}
+    @Override
+    public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder,
+                          @NonNull RecyclerView.ViewHolder target) {
+        // do nothing, moving not allowed
+        return true;
+    }
 
-	@Override
-	public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-		getDefaultUIUtil().clearView(((RemovableViewHolder) viewHolder).getSwipeableView());
-	}
+    @Override
+    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+        mAdapter.onItemDismiss((RemovableViewHolder) viewHolder);
+    }
 
-	@Override
-	public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
-		if (viewHolder != null) {
-			getDefaultUIUtil().onSelected(((RemovableViewHolder) viewHolder).getSwipeableView());
-		}
-	}
+    @Override
+    public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+        getDefaultUIUtil().clearView(((RemovableViewHolder) viewHolder).getSwipeableView());
+    }
 
-	public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-		getDefaultUIUtil().onDraw(c, recyclerView, ((RemovableViewHolder) viewHolder).getSwipeableView(), dX, dY, actionState, isCurrentlyActive);
+    @Override
+    public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+        if (viewHolder != null) {
+            getDefaultUIUtil().onSelected(((RemovableViewHolder) viewHolder).getSwipeableView());
+        }
+    }
 
-		final RemovableViewHolder vHolder = ((RemovableViewHolder)viewHolder);
-		final ImageView view = vHolder.getDeleteView();
-		final FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(view.getLayoutParams());
-		final int margin = (int) recyclerView.getContext().getResources().getDimension(R.dimen.activity_horizontal_margin);
-		if (mPreviousDx <= 0 && dX > 0) {
-			// swiping from left to right
-			if(layoutParams.gravity != (Gravity.CENTER_VERTICAL | Gravity.START)) {
-				layoutParams.gravity = Gravity.CENTER_VERTICAL | Gravity.START;
-				layoutParams.setMarginStart(margin);
-				layoutParams.setMarginEnd(margin);
-				view.setLayoutParams(layoutParams);
-			}
-		}
-		else if (mPreviousDx >= 0 && dX < 0) {
-			// swiping from right to left
-			if(layoutParams.gravity != (Gravity.CENTER_VERTICAL | Gravity.START)) {
-				layoutParams.gravity = Gravity.CENTER_VERTICAL | Gravity.END;
-				layoutParams.setMarginStart(margin);
-				layoutParams.setMarginEnd(margin);
-				view.setLayoutParams(layoutParams);
-			}
-		}
-		mPreviousDx = dX;
-	}
+    public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        if (recyclerView.getId() == R.id.recycler_view_groups) {
+            final GroupAdapter adapter = (GroupAdapter) recyclerView.getAdapter();
+            if (adapter != null) {
+                final int count = adapter.getModelCount(viewHolder.getAdapterPosition());
+                if (count > 0) {
+                    if (dX > -1100.0f && dX < 1100.0f && dX != 0) {
+                        getDefaultUIUtil().onDraw(c, recyclerView, ((RemovableViewHolder) viewHolder).getSwipeableView(), dX, dY, actionState, isCurrentlyActive);
+                        swipeBack = true;
+                    } else {
+                        if (dX == 0 && !swipeBack) {
+                            Log.v("DX", "DX" + dX);
+                            mAdapter.onItemDismissFailed((RemovableViewHolder) viewHolder);
+                        }
+                    }
+                } else {
+                    getDefaultUIUtil().onDraw(c, recyclerView, ((RemovableViewHolder) viewHolder).getSwipeableView(), dX, dY, actionState, isCurrentlyActive);
+                }
+            }
+        } else {
+            getDefaultUIUtil().onDraw(c, recyclerView, ((RemovableViewHolder) viewHolder).getSwipeableView(), dX, dY, actionState, isCurrentlyActive);
+        }
 
-	public void onChildDrawOver(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-		getDefaultUIUtil().onDrawOver(c, recyclerView, ((RemovableViewHolder) viewHolder).getSwipeableView(), dX, dY, actionState, isCurrentlyActive);
-	}
+        final RemovableViewHolder vHolder = ((RemovableViewHolder) viewHolder);
+        final ImageView view = vHolder.getDeleteView();
+        final FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(view.getLayoutParams());
+        final int margin = (int) recyclerView.getContext().getResources().getDimension(R.dimen.activity_horizontal_margin);
+        if (mPreviousDx <= 0 && dX > 0) {
+            // swiping from left to right
+            if (layoutParams.gravity != (Gravity.CENTER_VERTICAL | Gravity.START)) {
+                layoutParams.gravity = Gravity.CENTER_VERTICAL | Gravity.START;
+                layoutParams.setMarginStart(margin);
+                layoutParams.setMarginEnd(margin);
+                view.setLayoutParams(layoutParams);
+            }
+        } else if (mPreviousDx >= 0 && dX < 0) {
+            // swiping from right to left
+            if (layoutParams.gravity != (Gravity.CENTER_VERTICAL | Gravity.START)) {
+                layoutParams.gravity = Gravity.CENTER_VERTICAL | Gravity.END;
+                layoutParams.setMarginStart(margin);
+                layoutParams.setMarginEnd(margin);
+                view.setLayoutParams(layoutParams);
+            }
+        }
+        mPreviousDx = dX;
+    }
+
+    public void onChildDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        getDefaultUIUtil().onDrawOver(c, recyclerView, ((RemovableViewHolder) viewHolder).getSwipeableView(), dX, dY, actionState, isCurrentlyActive);
+    }
+
+    @Override
+    public int convertToAbsoluteDirection(final int flags, final int layoutDirection) {
+        if (swipeBack) {
+            swipeBack = false;
+            return 0;
+        } else {
+            return super.convertToAbsoluteDirection(flags, layoutDirection);
+        }
+    }
 }

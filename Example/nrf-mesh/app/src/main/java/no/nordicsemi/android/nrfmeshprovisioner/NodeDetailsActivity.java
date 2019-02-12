@@ -37,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Features;
@@ -156,7 +157,7 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
             mRecyclerView.setVisibility(View.VISIBLE);
             final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
             mRecyclerView.setLayoutManager(linearLayoutManager);
-            final ElementAdapterDetails adapter = new ElementAdapterDetails(this, node);
+            final ElementAdapterDetails adapter = new ElementAdapterDetails(this, new ArrayList<>(node.getElements().values()));
             adapter.setOnItemClickListener(this);
             mRecyclerView.setAdapter(adapter);
         }

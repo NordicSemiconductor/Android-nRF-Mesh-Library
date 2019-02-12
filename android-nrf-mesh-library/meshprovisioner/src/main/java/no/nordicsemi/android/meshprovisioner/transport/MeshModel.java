@@ -75,12 +75,8 @@ public abstract class MeshModel implements Parcelable {
         }
         in.readList(mBoundAppKeyIndexes, Integer.class.getClassLoader());
         sortAppKeys(in.readHashMap(ApplicationKey.class.getClassLoader()));
-        try {
-            mPublicationSettings = (PublicationSettings) in.readValue(PublicationSettings.class.getClassLoader());
-            in.readList(mSubscriptionAddress, byte[].class.getClassLoader());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        mPublicationSettings = (PublicationSettings) in.readValue(PublicationSettings.class.getClassLoader());
+        in.readList(mSubscriptionAddress, byte[].class.getClassLoader());
     }
 
     /**
@@ -191,7 +187,7 @@ public abstract class MeshModel implements Parcelable {
      */
     public boolean hasGroupAddresses() {
         for (byte[] address : mSubscriptionAddress) {
-            if (MeshParserUtils.isValidGroupAddress(address)) {
+            if (MeshParserUtils.isValidSubscriptionAddress(address)) {
                 return true;
             }
         }
@@ -204,7 +200,7 @@ public abstract class MeshModel implements Parcelable {
     public List<byte[]> getGroupAddresses() {
         final List<byte[]> addresses = new ArrayList<>();
         for (byte[] address : mSubscriptionAddress) {
-            if (MeshParserUtils.isValidGroupAddress(address)) {
+            if (MeshParserUtils.isValidSubscriptionAddress(address)) {
                 addresses.add(address);
             }
         }
@@ -217,7 +213,7 @@ public abstract class MeshModel implements Parcelable {
     public List<byte[]> getNonGroupAddresses() {
         final List<byte[]> addresses = new ArrayList<>();
         for (byte[] address : mSubscriptionAddress) {
-            if (!MeshParserUtils.isValidGroupAddress(address)) {
+            if (!MeshParserUtils.isValidSubscriptionAddress(address)) {
                 addresses.add(address);
             }
         }

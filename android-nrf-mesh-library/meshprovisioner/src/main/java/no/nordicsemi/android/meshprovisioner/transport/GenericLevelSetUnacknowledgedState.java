@@ -34,7 +34,7 @@ class GenericLevelSetUnacknowledgedState extends GenericMessageState {
 
     @Override
     public MessageState getState() {
-        return MessageState.GENERIC_LEVEL_SET_STATE;
+        return MessageState.GENERIC_LEVEL_SET_UNACKNOWLEDGED_STATE;
     }
 
     /**

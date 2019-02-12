@@ -103,7 +103,7 @@ public class ProxyFilter implements Parcelable {
      * @param address Unicast, Group address
      */
     public final boolean contains(@NonNull final byte[] address) {
-        if (MeshParserUtils.isValidUnicastAddress(address) || MeshParserUtils.isValidGroupAddress(address)) {
+        if (MeshParserUtils.isValidUnicastAddress(address) || MeshParserUtils.isValidSubscriptionAddress(address)) {
             final AddressArray addressArray = new AddressArray(address[0], address[1]);
             for (AddressArray arr : addresses) {
                 if (Arrays.equals(addressArray.getAddress(), arr.getAddress())) {

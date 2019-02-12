@@ -93,9 +93,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
         final PublicationViewModel viewModel = ViewModelProviders.of(this, mViewModelFactory).get(PublicationViewModel.class);
 
-        //final Intent intent = getIntent();
-        //intent.getParcelableExtra(EXTRA_DEVICE);
-        final MeshModel meshModel = mMeshModel = viewModel.getSelectedModel().getMeshModel();
+        final MeshModel meshModel = mMeshModel = viewModel.getSelectedModel().getValue();
         if(meshModel == null)
             finish();
 
@@ -143,8 +141,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         });
 
         actionKeyIndex.setOnClickListener(v -> {
-            final Intent bindAppKeysIntent = new Intent(this, BindAppKeysActivity.class);
-            bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) meshModel.getBoundApplicationKeys());
+            final Intent bindAppKeysIntent = new Intent(this, ManageAppKeysActivity.class);
             startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
@@ -294,6 +291,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
             if(!model.getBoundAppKeyIndexes().isEmpty()) {
                 mAppKeyIndex = publicationSettings.getAppKeyIndex();
             }
+            updateUi(publicationSettings.getCredentialFlag());
         }
         final int ttl = mPublishTtl;
         updateTtlUi(ttl);

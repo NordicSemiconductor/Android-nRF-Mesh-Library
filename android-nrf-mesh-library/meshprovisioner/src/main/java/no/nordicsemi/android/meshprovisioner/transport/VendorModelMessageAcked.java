@@ -21,8 +21,8 @@ public class VendorModelMessageAcked extends GenericMessage {
      * Constructs VendorModelMessageAcked message.
      *
      * @param appKey            Application key for this message
-     * @param modelId           model identifier
-     * @param companyIdentifier Company identifier of the vendor model
+     * @param modelId           32-bit Model identifier
+     * @param companyIdentifier 16-bit Company identifier of the vendor model
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public VendorModelMessageAcked(@NonNull final byte[] appKey,
