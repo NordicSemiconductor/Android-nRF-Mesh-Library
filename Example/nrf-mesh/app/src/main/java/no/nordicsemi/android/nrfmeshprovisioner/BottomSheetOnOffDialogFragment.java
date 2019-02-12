@@ -16,7 +16,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public class BottomSheetOnOffDialogFragment extends BottomSheetDialogFragment {
     private static final String KEY_INDEX = "KEY_INDEX";
-    private static final String MODEL_ID = "MODEL_ID";
     private int mKeyIndex;
     protected int mTransitionStepResolution;
     protected int mTransitionSteps;

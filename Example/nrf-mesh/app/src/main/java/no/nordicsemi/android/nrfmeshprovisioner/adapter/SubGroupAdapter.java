@@ -50,6 +50,8 @@ import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
+import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
@@ -130,8 +132,13 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         final Button off = view.findViewById(R.id.action_off);
         if (MeshParserUtils.isVendorModel(modelId)) {
             icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_nordic_medium_gray_48dp));
-            on.setVisibility(View.GONE);
-            off.setVisibility(View.GONE);
+            view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
+            view.findViewById(R.id.container_vendor).setVisibility(View.VISIBLE);
+            final TextView modelIdView = view.findViewById(R.id.model_id);
+            modelIdView.setText(CompositionDataParser.formatModelIdentifier(modelId, true));
+            final TextView companyIdView = view.findViewById(R.id.company_id);
+            final int companyIdentifier = MeshParserUtils.getCompanyIdentifier(modelId);
+            companyIdView.setText(String.valueOf(CompanyIdentifiers.getCompanyName((short) companyIdentifier)));
             groupSummary.setText(mContext.getString(R.string.unknown_device_count, modelCount));
         } else {
             switch (modelId) {
@@ -140,8 +147,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
                     break;
                 case SigModelParser.GENERIC_ON_OFF_CLIENT:
                     icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_light_switch_nordic_medium_grey_48dp));
-                    on.setVisibility(View.GONE);
-                    off.setVisibility(View.GONE);
+                    view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
                     groupSummary.setText(mContext.getString(R.string.switch_count, modelCount));
                     break;
                 case SigModelParser.GENERIC_LEVEL_SERVER:
@@ -150,14 +156,15 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
                     break;
                 default:
                     icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_nordic_medium_grey_48dp));
-                    on.setVisibility(View.GONE);
-                    off.setVisibility(View.GONE);
+                    view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
                     groupSummary.setText(mContext.getString(R.string.unknown_device_count, modelCount));
                     break;
             }
         }
 
-        groupContainerCard.setOnClickListener(v -> onSubGroupItemClicked(keyIndex, modelId));
+        groupContainerCard.setOnClickListener(v -> {
+            onSubGroupItemClicked(keyIndex, modelId);
+        });
 
         on.setOnClickListener(v -> toggleState(keyIndex, modelId, true));
         off.setOnClickListener(v -> toggleState(keyIndex, modelId, false));
@@ -194,8 +201,12 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         return super.getItemId(position);
     }
 
-    public int getModels(){
+    public int getModelCount(){
         return mModels.size();
+    }
+
+    public List<MeshModel> getModels(){
+        return mModels;
     }
 
     private SparseArray<SparseIntArray> groupModelsBasedOnAppKeys() {

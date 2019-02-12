@@ -38,10 +38,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
@@ -57,6 +57,9 @@ import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSetUnacknowle
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageAcked;
+import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
+import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageUnacked;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.SubGroupAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -67,10 +70,12 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         SubGroupAdapter.OnItemClickListener,
         BottomSheetOnOffDialogFragment.BottomSheetOnOffListener,
         BottomSheetLevelDialogFragment.BottomSheetLevelListener,
+        BottomSheetVendorDialogFragment.BottomSheetVendorModelControlsListener,
         BottomSheetDetailsDialogFragment.BottomSheetDetailsListener {
 
     private static final String ON_OFF_FRAGMENT = "ON_OFF_FRAGMENT";
     private static final String LEVEL_FRAGMENT = "LEVEL_FRAGMENT";
+    private static final String VENDOR_FRAGMENT = "VENDOR_FRAGMENT";
     private static final String DETAILS_FRAGMENT = "DETAILS_FRAGMENT";
 
     @Inject
@@ -110,9 +115,9 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         });
 
         mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
-            if(groupAdapter.getModels() > 0){
+            if (groupAdapter.getModelCount() > 0) {
                 noModelsConfigured.setVisibility(View.INVISIBLE);
-                if(groupAdapter.getItemCount() > 0) {
+                if (groupAdapter.getItemCount() > 0) {
                     noAppKeysBound.setVisibility(View.INVISIBLE);
                 } else {
                     noAppKeysBound.setVisibility(View.VISIBLE);
@@ -132,6 +137,15 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
                 final MeshNetwork meshNetwork = mViewModel.getMeshManagerApi().getMeshNetwork();
                 final ArrayList<Element> elements = new ArrayList<>(meshNetwork.getElements(group));
                 fragment.updateAdapter(group, elements);
+            }
+        });
+
+        mViewModel.getNrfMeshRepository().getMeshMessageLiveData().observe(this, meshMessage -> {
+            if (meshMessage instanceof VendorModelMessageStatus) {
+                final VendorModelMessageStatus status = (VendorModelMessageStatus) meshMessage;
+                final BottomSheetVendorDialogFragment fragment = (BottomSheetVendorDialogFragment) getSupportFragmentManager().findFragmentByTag(VENDOR_FRAGMENT);
+                if (fragment != null)
+                    fragment.setReceivedMessage(status.getAccessPayload());
             }
         });
 
@@ -180,15 +194,20 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     @Override
     public void onSubGroupItemClick(final int appKeyIndex, final int modelId) {
-        switch (modelId) {
-            case SigModelParser.GENERIC_ON_OFF_SERVER:
-                final BottomSheetOnOffDialogFragment onOffFragment = BottomSheetOnOffDialogFragment.getInstance(appKeyIndex);
-                onOffFragment.show(getSupportFragmentManager(), ON_OFF_FRAGMENT);
-                break;
-            case SigModelParser.GENERIC_LEVEL_SERVER:
-                final BottomSheetLevelDialogFragment levelFragment = BottomSheetLevelDialogFragment.getInstance(appKeyIndex);
-                levelFragment.show(getSupportFragmentManager(), LEVEL_FRAGMENT);
-                break;
+        if (MeshParserUtils.isVendorModel(modelId)) {
+            final BottomSheetVendorDialogFragment onOffFragment = BottomSheetVendorDialogFragment.getInstance(modelId, appKeyIndex);
+            onOffFragment.show(getSupportFragmentManager(), VENDOR_FRAGMENT);
+        } else {
+            switch (modelId) {
+                case SigModelParser.GENERIC_ON_OFF_SERVER:
+                    final BottomSheetOnOffDialogFragment onOffFragment = BottomSheetOnOffDialogFragment.getInstance(appKeyIndex);
+                    onOffFragment.show(getSupportFragmentManager(), ON_OFF_FRAGMENT);
+                    break;
+                case SigModelParser.GENERIC_LEVEL_SERVER:
+                    final BottomSheetLevelDialogFragment levelFragment = BottomSheetLevelDialogFragment.getInstance(appKeyIndex);
+                    levelFragment.show(getSupportFragmentManager(), LEVEL_FRAGMENT);
+                    break;
+            }
         }
     }
 
@@ -288,5 +307,38 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             intent = new Intent(this, ModelConfigurationActivity.class);
         }
         startActivity(intent);
+    }
+
+    @Override
+    public void sendVendorModelMessage(final int modelId, final int keyIndex, final int opCode, final byte[] parameters, final boolean acknowledged) {
+        final Group group = mViewModel.getSelectedGroup().getValue();
+        if (group == null)
+            return;
+
+        final VendorModel model = getModel(modelId, keyIndex);
+        if (model == null)
+            return;
+
+        final ApplicationKey appKey = mViewModel.getMeshManagerApi().getMeshNetwork().getAppKey(keyIndex);
+        final MeshMessage message;
+        if (acknowledged) {
+            message = new VendorModelMessageAcked(appKey.getKey(), modelId, model.getCompanyIdentifier(), opCode, parameters);
+        } else {
+            message = new VendorModelMessageUnacked(appKey.getKey(), modelId, model.getCompanyIdentifier(), opCode, parameters);
+        }
+        mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), message);
+    }
+
+    private VendorModel getModel(final int modelId, final int appKeyIndex) {
+        final List<MeshModel> models = groupAdapter.getModels();
+        for (MeshModel model : models) {
+            if (modelId == model.getModelId()) {
+                if (model.getBoundAppKeyIndexes().contains(appKeyIndex)) {
+                    return (VendorModel) model;
+                }
+            }
+        }
+        return null;
+
     }
 }

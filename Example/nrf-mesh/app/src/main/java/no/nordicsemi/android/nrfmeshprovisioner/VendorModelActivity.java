@@ -97,6 +97,7 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
 
             actionSend.setOnClickListener(v -> {
                 messageContainer.setVisibility(View.GONE);
+                receivedMessage.setText("");
                 final String opCode = opCodeEditText.getText().toString().trim();
                 final String parameters = parametersEditText.getText().toString().trim();
 
@@ -217,23 +218,10 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
                 final MeshMessage message;
                 if (acknowledged) {
                     message = new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
-                    final List<byte[]> addresses = model.getNonGroupAddresses();
-                    for (byte[] address : addresses) {
-                        mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
-                    }
-                    mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
                 } else {
                     message = new VendorModelMessageUnacked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
-                    final List<byte[]> addresses = model.getSubscriptionAddresses();
-                    //Send to unicast if empty
-                    if (addresses.isEmpty()) {
-                        mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
-                    } else {
-                        for (byte[] address : addresses) {
-                            mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
-                        }
-                    }
                 }
+                mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
             }
         }
     }

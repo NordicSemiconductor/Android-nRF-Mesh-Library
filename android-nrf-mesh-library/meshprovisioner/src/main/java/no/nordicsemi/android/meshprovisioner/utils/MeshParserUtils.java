@@ -744,6 +744,15 @@ public class MeshParserUtils {
      * @param modelId model identifier
      */
     public static boolean isVendorModel(final int modelId) {
-        return modelId > Short.MAX_VALUE;
+        return modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE;
+    }
+
+    public static int getCompanyIdentifier(final int modelId) {
+        if(modelId >= Short.MIN_VALUE && modelId <= Short.MAX_VALUE) {
+            throw new IllegalArgumentException("Not a valid vendor model ID");
+        }
+        final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
+        buffer.putInt(modelId);
+        return (int) buffer.getShort(0);
     }
 }

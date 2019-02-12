@@ -301,7 +301,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Returns the {@link MeshMessageLiveData} live data object containing the mesh message
      */
-    LiveData<MeshMessage> getMeshMessageLiveData() {
+    public LiveData<MeshMessage> getMeshMessageLiveData() {
         return mMeshMessageLiveData;
     }
 

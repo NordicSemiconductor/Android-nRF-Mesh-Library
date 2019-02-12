@@ -70,27 +70,70 @@
                 android:text="2 Lights"
                 tools:ignore="HardcodedText"/>
 
-            <Button
-                android:id="@+id/action_on"
-                android:gravity="center"
-                android:layout_width="50dp"
+            <LinearLayout
+                android:id="@+id/container_buttons"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/action_generic_on"
+                android:orientation="horizontal"
                 app:layout_constraintTop_toBottomOf="@id/group_summary"
                 app:layout_constraintStart_toStartOf="@id/icon"
-                app:layout_constraintEnd_toStartOf="@id/action_off"
-                style="@style/BlueTextButton"/>
+                app:layout_constraintEnd_toEndOf="@id/icon">
+                <Button
+                    android:id="@+id/action_on"
+                    android:gravity="center"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/action_generic_on"
+                    style="@style/BlueTextButton"/>
 
 
-            <Button
-                android:id="@+id/action_off"
-                android:layout_width="50dp"
+                <Button
+                    android:id="@+id/action_off"
+                    android:gravity="center"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/action_generic_off"
+                    style="@style/BlueTextButton"/>
+
+            </LinearLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/container_vendor"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/action_generic_off"
-                app:layout_constraintTop_toBottomOf="@id/group_summary"
-                app:layout_constraintEnd_toEndOf="@id/icon"
-                app:layout_constraintStart_toEndOf="@id/action_on"
-                style="@style/BlueTextButton"/>
+                android:orientation="vertical"
+                android:paddingStart="@dimen/activity_horizontal_margin"
+                android:paddingEnd="@dimen/activity_horizontal_margin"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="@id/container_buttons"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/model_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="00001234"
+                    android:gravity="center"
+                    android:ellipsize="marquee"
+                    android:singleLine="true"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="HardcodedText"/>
+
+                <TextView
+                    android:id="@+id/company_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/nordic_semiconductor_asa"
+                    android:gravity="center"
+                    android:ellipsize="marquee"
+                    android:singleLine="true"
+                    app:layout_constraintTop_toBottomOf="@id/model_id"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+            </android.support.constraint.ConstraintLayout>
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>
 </RelativeLayout>
