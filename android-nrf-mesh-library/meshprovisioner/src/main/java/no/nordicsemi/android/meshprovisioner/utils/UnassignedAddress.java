@@ -20,7 +20,7 @@ public class UnassignedAddress extends Address {
         if (!isValidAddress(address)) {
             throw new IllegalArgumentException("Invalid unassigned address, unassigned address must be a 16-bit value, and must be 0x0000");
         }
-        this.address = address;
+        this.address = MeshParserUtils.bytesToInt(address);
     }
 
     /**
@@ -32,7 +32,7 @@ public class UnassignedAddress extends Address {
         if (!isValidAddress(address)) {
             throw new IllegalArgumentException("Invalid unassigned address, unassigned address must be a 16-bit value, and must be 0x0000");
         }
-        this.address = MeshParserUtils.intToBytes(address);
+        this.address = address;
     }
 
     /**
@@ -73,7 +73,7 @@ public class UnassignedAddress extends Address {
         @SuppressWarnings("ConstantConditions")
         @Override
         public UnassignedAddress createFromParcel(Parcel in) {
-            return new UnassignedAddress(in.createByteArray());
+            return new UnassignedAddress(in.readInt());
         }
 
         @Override
@@ -89,6 +89,6 @@ public class UnassignedAddress extends Address {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeByteArray(address);
+        dest.writeInt(address);
     }
 }

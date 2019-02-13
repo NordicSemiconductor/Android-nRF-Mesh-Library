@@ -21,7 +21,7 @@ public class VirtualAddress extends Address {
         if (!isValidAddress(address)) {
             throw new IllegalArgumentException("Invalid virtual address, a virtual address must be a 16-bit value, and must range from 0x8000 to 0xBFFF");
         }
-        this.address = address;
+        this.address = MeshParserUtils.bytesToInt(address);
     }
 
     /**
@@ -33,7 +33,7 @@ public class VirtualAddress extends Address {
         if (!isValidAddress(address)) {
             throw new IllegalArgumentException("Invalid virtual address, virtual address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         }
-        this.address = MeshParserUtils.intToBytes(address);
+        this.address = address;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class VirtualAddress extends Address {
         @SuppressWarnings("ConstantConditions")
         @Override
         public VirtualAddress createFromParcel(Parcel in) {
-            return new VirtualAddress(in.createByteArray());
+            return new VirtualAddress(in.readInt());
         }
 
         @Override
@@ -83,6 +83,6 @@ public class VirtualAddress extends Address {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeByteArray(address);
+        dest.writeInt(address);
     }
 }

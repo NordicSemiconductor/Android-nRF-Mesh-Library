@@ -28,7 +28,7 @@ public class GroupAddress extends Address {
         if (!isValidAddress(address)) {
             throw new IllegalArgumentException("Invalid group address, group address must be a 16-bit value, and must range from 0xC000 to 0xFEFF");
         }
-        this.address = address;
+        this.address = MeshParserUtils.bytesToInt(address);
     }
 
     /**
@@ -40,7 +40,7 @@ public class GroupAddress extends Address {
         if (!isValidAddress(address)) {
             throw new IllegalArgumentException("Invalid group address, group address must be a 16-bit value, and must range from 0xC000 to 0xFEFF");
         }
-        this.address = MeshParserUtils.intToBytes(address);
+        this.address = address;
     }
 
     @Override
@@ -172,7 +172,7 @@ public class GroupAddress extends Address {
         @SuppressWarnings("ConstantConditions")
         @Override
         public GroupAddress createFromParcel(Parcel in) {
-            return new GroupAddress(in.createByteArray());
+            return new GroupAddress(in.readInt());
         }
 
         @Override
@@ -188,6 +188,6 @@ public class GroupAddress extends Address {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeByteArray(address);
+        dest.writeInt(address);
     }
 }

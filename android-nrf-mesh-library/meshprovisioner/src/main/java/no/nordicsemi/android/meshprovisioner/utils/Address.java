@@ -9,12 +9,12 @@ import android.support.annotation.NonNull;
 @SuppressWarnings({"WeakerAccess", "BooleanMethodIsAlwaysInverted"})
 public abstract class Address implements Parcelable {
 
-    protected byte[] address;
+    protected int address;
 
     /**
      * Returns the address
      */
-    public byte[] getAddress() {
+    public int getAddress() {
         return address;
     }
 

@@ -21,7 +21,7 @@ public class UnicastAddress extends Address {
         if (!isValidAddress(address)) {
             throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
         }
-        this.address = address;
+        this.address = MeshParserUtils.bytesToInt(address);
     }
 
     /**
@@ -33,7 +33,7 @@ public class UnicastAddress extends Address {
         if (!isValidAddress(address)) {
             throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         }
-        this.address = MeshParserUtils.intToBytes(address);
+        this.address = address;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class UnicastAddress extends Address {
         @SuppressWarnings("ConstantConditions")
         @Override
         public UnicastAddress createFromParcel(Parcel in) {
-            return new UnicastAddress(in.createByteArray());
+            return new UnicastAddress(in.readInt());
         }
 
         @Override
@@ -76,6 +76,6 @@ public class UnicastAddress extends Address {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeByteArray(address);
+        dest.writeInt(address);
     }
 }
