@@ -84,8 +84,8 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
 
         mReconnectViewModel.getConnectionState().observe(this, connectionState::setText);
 
-		mReconnectViewModel.isDeviceReady().observe(this, deviceReady -> {
-		    if(mReconnectViewModel.getBleMeshManager().isReady()) {
+        mReconnectViewModel.isDeviceReady().observe(this, deviceReady -> {
+            if (mReconnectViewModel.getBleMeshManager().isReady()) {
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra(Utils.EXTRA_DATA, true);
                 setResult(Activity.RESULT_OK, returnIntent);
