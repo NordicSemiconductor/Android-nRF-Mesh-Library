@@ -706,6 +706,10 @@ public class MeshParserUtils {
         return b.length == 4 ? ByteBuffer.wrap(b).getInt() : ByteBuffer.wrap(b).getShort();
     }
 
+    public static int hexToInt(String hex) {
+        return MeshParserUtils.bytesToInt(MeshParserUtils.toByteArray(hex));
+    }
+
     public static byte[] intToBytes(int i) {
         ByteBuffer b = ByteBuffer.allocate(4);
         b.putInt(i);
