@@ -92,6 +92,10 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     final ConfigModelAppUnbindState appUnbindState = (ConfigModelAppUnbindState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, appUnbindState.getMeshMessage(), mMeshTransport, this));
                     break;
+                case CONFIG_MODEL_PUBLICATION_GET_STATE:
+                    final ConfigModelPublicationGetState publicationGetState = (ConfigModelPublicationGetState) mMeshMessageState;
+                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, publicationGetState.getMeshMessage(), mMeshTransport, this));
+                    break;
                 case CONFIG_MODEL_PUBLICATION_SET_STATE:
                     final ConfigModelPublicationSetState publicationSetState = (ConfigModelPublicationSetState) mMeshMessageState;
                     switchToNoOperationState(new DefaultNoOperationMessageState(mContext, publicationSetState.getMeshMessage(), mMeshTransport, this));
@@ -363,6 +367,13 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             modelAppUnbindState.setStatusCallbacks(mStatusCallbacks);
             mMeshMessageState = modelAppUnbindState;
             modelAppUnbindState.executeSend();
+        } else if (configurationMessage instanceof ConfigModelPublicationGet) {
+            final ConfigModelPublicationGetState configModelPublicationGetState = new ConfigModelPublicationGetState(mContext, src, dst, node.getDeviceKey(),
+                    (ConfigModelPublicationGet) configurationMessage, mMeshTransport, this);
+            configModelPublicationGetState.setTransportCallbacks(mInternalTransportCallbacks);
+            configModelPublicationGetState.setStatusCallbacks(mStatusCallbacks);
+            mMeshMessageState = configModelPublicationGetState;
+            configModelPublicationGetState.executeSend();
         } else if (configurationMessage instanceof ConfigModelPublicationSet) {
             final ConfigModelPublicationSetState configModelPublicationSetState = new ConfigModelPublicationSetState(mContext, src, dst, node.getDeviceKey(),
                     (ConfigModelPublicationSet) configurationMessage, mMeshTransport, this);

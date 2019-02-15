@@ -23,11 +23,13 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -106,6 +108,15 @@ public class ConfigModelPublicationSet extends ConfigMessage {
     void assembleMessageParameters() {
         final ByteBuffer paramsBuffer;
         final byte[] applicationKeyIndex = MeshParserUtils.addKeyIndexPadding(appKeyIndex);
+        Log.v(TAG, "AppKeyIndex: " + appKeyIndex);
+        Log.v(TAG, "Element address: " + MeshParserUtils.bytesToHex(elementAddress, true));
+        Log.v(TAG, "Publish address: " + MeshParserUtils.bytesToHex(publishAddress, true));
+        Log.v(TAG, "Publish ttl: " + publishTtl);
+        Log.v(TAG, "Publish steps: " + publicationSteps);
+        Log.v(TAG, "Publish resolution: " + publicationResolution);
+        Log.v(TAG, "Retransmission count: " + publishRetransmitCount);
+        Log.v(TAG, "Retransmission interval: " + publishRetransmitIntervalSteps);
+        Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(modelIdentifier), false));
 
         final int rfu = 0; // We ignore the rfu here
         final int octet5 = ((applicationKeyIndex[0] << 4)) | (credentialFlag ? 1 : 0);
