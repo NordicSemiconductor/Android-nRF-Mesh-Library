@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import no.nordicsemi.android.ble.data.Data;
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
 import no.nordicsemi.android.meshprovisioner.Group;
@@ -329,7 +331,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mIsAppKeyAddCompleted = false;
         clearExtendedMeshNode();
         final LogSession logSession = Logger.newSession(context, null, device.getAddress(), device.getName());
-        mBleMeshManager.setLogger(logSession);
+        //mBleMeshManager.setLogger(logSession);
         final BluetoothDevice bluetoothDevice = device.getDevice();
         initIsConnectedLiveData(connectToNetwork);
         //Added a 1 second delay for connection, mostly to wait for a disconnection to complete before connecting.
@@ -474,13 +476,13 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     @Override
-    public void onDataReceived(final BluetoothDevice bluetoothDevice, final int mtu, final byte[] pdu) {
-        mMeshManagerApi.handleNotifications(mtu, pdu);
+    public void onDataReceived(final BluetoothDevice bluetoothDevice, Data pdu) {
+        mMeshManagerApi.handleNotifications(pdu.size(), pdu.getValue());
     }
 
     @Override
-    public void onDataSent(final BluetoothDevice device, final int mtu, final byte[] pdu) {
-        mMeshManagerApi.handleWriteCallbacks(mtu, pdu);
+    public void onDataSent(final BluetoothDevice device, Data pdu) {
+        mMeshManagerApi.handleWriteCallbacks(pdu.size(), pdu.getValue());
     }
 
     @Override
@@ -526,7 +528,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     @Override
-    public void onLinklossOccur(final BluetoothDevice device) {
+    public void onLinkLossOccurred(@NonNull BluetoothDevice device) {
         Log.v(TAG, "Link loss occurred");
         mIsConnected.postValue(false);
     }
@@ -568,6 +570,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onBonded(final BluetoothDevice device) {
+
+    }
+
+    @Override
+    public void onBondingFailed(@NonNull BluetoothDevice device) {
 
     }
 
