@@ -561,8 +561,23 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
+    public void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final String randomInput) throws IllegalArgumentException {
+        mMeshProvisioningHandler.startProvisioningWithInputOOB(unprovisionedMeshNode, randomInput);
+    }
+
+    @Override
+    public void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] confirmationInputs) throws IllegalArgumentException {
+        mMeshProvisioningHandler.startProvisioningWithStaticOOB(unprovisionedMeshNode, confirmationInputs);
+    }
+
+    @Override
     public final void setProvisioningConfirmation(@NonNull final String pin) {
         mMeshProvisioningHandler.setProvisioningConfirmation(pin);
+    }
+
+    @Override
+    public void setProvisioningStaticConfirmation(@NonNull byte[] authenticationValue) {
+        mMeshProvisioningHandler.setProvisioningStaticConfirmation(authenticationValue);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -699,7 +714,11 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public boolean networkIdMatches(@NonNull final String networkId, @Nullable final byte[] serviceData) {
         final byte[] advertisedNetworkId = getAdvertisedNetworkId(serviceData);
-        return advertisedNetworkId != null && networkId.equals(MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase());
+        if (advertisedNetworkId != null) {
+            final  String advertisedNetworkIdString = MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase();
+            return networkId.equals(advertisedNetworkIdString);
+        }
+        return false;
     }
 
     @Override

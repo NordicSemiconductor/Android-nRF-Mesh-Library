@@ -44,11 +44,38 @@ interface MeshMngrApi {
     void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
 
     /**
+     * Starts provisioning an unprovisioned mesh node
+     * <p>
+     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
+     * </p>
+     *
+     * @param unprovisionedMeshNode Bluetooth address of the node
+     */
+    void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final String randomInput) throws IllegalArgumentException;
+
+    /**
+     * Starts provisioning an unprovisioned mesh node
+     * <p>
+     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
+     * </p>
+     *
+     * @param unprovisionedMeshNode Bluetooth address of the node
+     */
+    public void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] confirmationInputs) throws IllegalArgumentException;
+
+        /**
+         * Set the provisioning confirmation
+         *
+         * @param pin confirmation pin
+         */
+    void setProvisioningConfirmation(@NonNull final String pin);
+
+    /**
      * Set the provisioning confirmation
      *
-     * @param pin confirmation pin
+     * @param authenticationValue confirmation pin
      */
-    void setProvisioningConfirmation(@NonNull final String pin);
+    void setProvisioningStaticConfirmation(@NonNull byte[] authenticationValue);
 
     /**
      * Returns the device uuid of an unprovisioned node

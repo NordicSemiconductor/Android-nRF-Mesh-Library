@@ -44,6 +44,8 @@ public class ProvisioningConfirmationState extends ProvisioningState {
     private final MeshProvisioningStatusCallbacks mStatusCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
     private String pin;
+    private byte[] authenticationValue;
+    private boolean usePin = true;
 
     public ProvisioningConfirmationState(final InternalProvisioningCallbacks callbacks, final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
@@ -55,6 +57,12 @@ public class ProvisioningConfirmationState extends ProvisioningState {
 
     public void setPin(final String pin) {
         this.pin = pin;
+        this.usePin = true;
+    }
+
+    public void setStaticAuthenticationValue(final byte[] authenticationValue) {
+        this.authenticationValue = authenticationValue;
+        this.usePin = false;
     }
 
     @Override
@@ -103,7 +111,7 @@ public class ProvisioningConfirmationState extends ProvisioningState {
         Log.v(TAG, "Provisioner random: " + MeshParserUtils.bytesToHex(provisionerRandom, false));
 
         //Generate authentication value from the user input pin
-        final byte[] authenticationValue = generateAuthenticationValue(userInput);
+        final byte[] authenticationValue = this.usePin ? generateAuthenticationValue(userInput) : this.authenticationValue;
         mUnprovisionedMeshNode.setAuthenticationValue(authenticationValue);
         Log.v(TAG, "Authentication value: " + MeshParserUtils.bytesToHex(authenticationValue, false));
 

@@ -24,6 +24,8 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+
 public class ParseInputOOBActions {
     private static final String TAG = ParseInputOOBActions.class.getSimpleName();
 
@@ -56,13 +58,16 @@ public class ParseInputOOBActions {
         }
     }
 
-    public static void parseInputActionsFromBitMask(final int inputAction) {
+    public static ArrayList<Byte> parseInputActionsFromBitMask(final int inputAction) {
         final byte[] inputActions = {PUSH, TWIST, INPUT_NUMBER, INPUT_ALPHA_NUMBERIC};
+        final ArrayList<Byte> supportedActionValues = new ArrayList<>();
         for(byte action : inputActions){
             if((inputAction & action) == action){
+                supportedActionValues.add(action);
                 Log.v(TAG, "Input oob action type value: " + getInputOOBActionDescription(action));
             }
         }
+        return supportedActionValues;
     }
 
     /**
@@ -106,6 +111,29 @@ public class ParseInputOOBActions {
                 return 3;
             default:
                 return -1;
+        }
+    }
+
+    /**
+     * Selects the output oob action value
+     *
+     * @param outputAction type of output action
+     * @return selected output action type
+     */
+    public static short selectInputActionsFromBitMask(final int outputAction) {
+        final byte[] outputActions = {PUSH, TWIST, INPUT_NUMBER, INPUT_ALPHA_NUMBERIC};
+        final ArrayList<Byte> suppportedActionValues = new ArrayList<>();
+        for(byte action : outputActions){
+            if((outputAction & action) == action){
+                suppportedActionValues.add(action);
+                Log.v(TAG, "Supported output oob action type: " + getInputOOBActionDescription(action));
+            }
+        }
+
+        if(!suppportedActionValues.isEmpty()) {
+            return suppportedActionValues.get(0);
+        } else {
+            return NO_INPUT;
         }
     }
 }
