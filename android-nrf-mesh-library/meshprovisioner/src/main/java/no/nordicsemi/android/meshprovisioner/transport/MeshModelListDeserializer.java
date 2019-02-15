@@ -30,7 +30,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         final JsonArray jsonArray = json.getAsJsonArray();
         for (int i = 0; i < jsonArray.size(); i++) {
             final JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-            final int modelId = Integer.parseInt(jsonObject.get("modelId").getAsString(), 16);
+            final int modelId = MeshParserUtils.hexToInt(jsonObject.get("modelId").getAsString());
 
             final PublicationSettings publicationSettings = getPublicationSettings(jsonObject);
             final List<byte[]> subscriptionAddresses = getSubscriptionAddresses(jsonObject);
