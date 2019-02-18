@@ -7,16 +7,8 @@ import android.support.annotation.Nullable;
 import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.transport.GenericLevelGet;
-import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSet;
-import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSetUnacknowledged;
-import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffGet;
-import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSet;
-import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSetUnacknowledged;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageAcked;
-import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageUnacked;
 
 @SuppressWarnings("unused")
 interface MeshMngrApi {
@@ -123,10 +115,19 @@ interface MeshMngrApi {
 
     /**
      * Sends the specified  mesh message specified within the {@link MeshMessage} object
-     * @param dst
+     * @param dst destination address
+     * @param meshMessage {@link MeshMessage} Mesh message containing the message opcode and message parameters
+     * @deprecated This method has been deprecated in favour of {@link #sendMeshMessage(int, MeshMessage)}
+     */
+    @Deprecated
+    void sendMeshMessage(@NonNull final byte[] dst, @NonNull final MeshMessage meshMessage);
+
+    /**
+     * Sends the specified  mesh message specified within the {@link MeshMessage} object
+     * @param dst destination address
      * @param meshMessage {@link MeshMessage} Mesh message containing the message opcode and message parameters
      */
-    void sendMeshMessage(@NonNull final byte[] dst, @NonNull final MeshMessage meshMessage);
+    void sendMeshMessage(final int dst, @NonNull final MeshMessage meshMessage) throws IllegalArgumentException;
 
     /**
      * Exports mesh network to a json file

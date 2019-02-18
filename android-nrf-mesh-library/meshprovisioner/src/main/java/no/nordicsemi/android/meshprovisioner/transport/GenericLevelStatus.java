@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -42,6 +43,11 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
     private static final String TAG = GenericLevelStatus.class.getSimpleName();
     private static final int GENERIC_LEVEL_STATUS_MANDATORY_LENGTH = 2;
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS;
+    private int mPresentLevel;
+    private Integer mTargetLevel;
+    private int mTransitionSteps;
+    private int mTransitionResolution;
+
     private static final Creator<GenericLevelStatus> CREATOR = new Creator<GenericLevelStatus>() {
         @Override
         public GenericLevelStatus createFromParcel(Parcel in) {
@@ -54,11 +60,11 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
             return new GenericLevelStatus[size];
         }
     };
-    private int mPresentLevel;
-    private Integer mTargetLevel;
-    private int mTransitionSteps;
-    private int mTransitionResolution;
 
+    /**
+     * Constructs GenericLevelStatus message
+     * @param message access message
+     */
     public GenericLevelStatus(@NonNull final AccessMessage message) {
         super(message);
         this.mMessage = message;
@@ -68,7 +74,7 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received generic level status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
+        Log.v(TAG, "Received generic level status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         mPresentLevel = (int) (buffer.getShort());
         Log.v(TAG, "Present level: " + mPresentLevel);

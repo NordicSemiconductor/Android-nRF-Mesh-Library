@@ -39,6 +39,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigSetFilterType;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -92,7 +93,7 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
                 finish();
                 //We send a proxy whitelist filter message to identify the node we are connected to when reconnecting to the network
                 final ProxyConfigSetFilterType setFilterType = new ProxyConfigSetFilterType(new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER));
-                mReconnectViewModel.getMeshManagerApi().sendMeshMessage(new byte[]{0x00, 0x00}, setFilterType);
+                mReconnectViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, setFilterType);
             }
         });
 

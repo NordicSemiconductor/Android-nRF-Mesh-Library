@@ -4,9 +4,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * State class for handling SceneStoreUnacknowledgedState messages.
  */
+@SuppressWarnings("WeakerAccess")
 class SceneStoreUnacknowledgedState extends GenericMessageState implements LowerTransportLayerCallbacks {
 
     private static final String TAG = SceneStoreUnacknowledgedState.class.getSimpleName();
@@ -20,10 +23,31 @@ class SceneStoreUnacknowledgedState extends GenericMessageState implements Lower
      * @param sceneStoreUnacknowledged Wrapper class {@link SceneStoreUnacknowledged} containing the opcode and parameters for {@link SceneStoreUnacknowledged} message
      * @param callbacks                {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
+     * @deprecated in favour of {@link #SceneStoreUnacknowledgedState(Context, int, int, SceneStoreUnacknowledged, MeshTransport, InternalMeshMsgHandlerCallbacks)}
      */
+    @Deprecated
     SceneStoreUnacknowledgedState(@NonNull final Context context,
                                   @NonNull final byte[] src,
                                   @NonNull final byte[] dst,
+                                  @NonNull final SceneStoreUnacknowledged sceneStoreUnacknowledged,
+                                  @NonNull final MeshTransport meshTransport,
+                                  @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), sceneStoreUnacknowledged, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs {@link SceneStoreUnacknowledgedState}
+     *
+     * @param context                  Context of the application
+     * @param src                      Source address
+     * @param dst                      Destination address to which the message must be sent to
+     * @param sceneStoreUnacknowledged Wrapper class {@link SceneStoreUnacknowledged} containing the opcode and parameters for {@link SceneStoreUnacknowledged} message
+     * @param callbacks                {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException for any illegal arguments provided.
+     */
+    SceneStoreUnacknowledgedState(@NonNull final Context context,
+                                  final int src,
+                                  final int dst,
                                   @NonNull final SceneStoreUnacknowledged sceneStoreUnacknowledged,
                                   @NonNull final MeshTransport meshTransport,
                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {

@@ -16,8 +16,6 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;

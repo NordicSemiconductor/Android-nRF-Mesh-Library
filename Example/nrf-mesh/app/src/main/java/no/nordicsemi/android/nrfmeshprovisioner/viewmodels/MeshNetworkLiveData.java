@@ -136,7 +136,7 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      * @return 16-bit unicast address
      */
     public int getUnicastAddress() {
-        final byte[] unicast = meshNetwork.getUnicastAddress();
+        final byte[] unicast = AddressUtils.getUnicastAddressBytes(meshNetwork.getUnicastAddress());
         return AddressUtils.getUnicastAddressInt(unicast);
     }
 
@@ -146,12 +146,12 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      * @param unicastAddress 16-bit unicast address
      */
     public void setUnicastAddress(final int unicastAddress) {
-        meshNetwork.setUnicastAddress(unicastAddress);
+        meshNetwork.assignUnicastAddress(unicastAddress);
         postValue(this);
     }
 
     public byte[] getProvisionerAddress() {
-        return meshNetwork.getProvisionerAddress();
+        return AddressUtils.getUnicastAddressBytes(meshNetwork.getProvisionerAddress());
     }
 
     public boolean setProvisionerAddress(final int address) {

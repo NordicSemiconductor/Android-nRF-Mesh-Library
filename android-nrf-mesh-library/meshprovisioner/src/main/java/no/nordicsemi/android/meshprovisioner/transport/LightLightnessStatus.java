@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -42,6 +43,11 @@ public final class LightLightnessStatus extends GenericStatusMessage implements 
     private static final String TAG = LightLightnessStatus.class.getSimpleName();
     private static final int LIGHT_LIGHTNESS_STATUS_MANDATORY_LENGTH = 2;
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LIGHTNESS_STATUS;
+    private int mPresentLightness;
+    private Integer mTargetLightness;
+    private int mTransitionSteps;
+    private int mTransitionResolution;
+
     private static final Creator<LightLightnessStatus> CREATOR = new Creator<LightLightnessStatus>() {
         @Override
         public LightLightnessStatus createFromParcel(Parcel in) {
@@ -54,11 +60,12 @@ public final class LightLightnessStatus extends GenericStatusMessage implements 
             return new LightLightnessStatus[size];
         }
     };
-    private int mPresentLightness;
-    private Integer mTargetLightness;
-    private int mTransitionSteps;
-    private int mTransitionResolution;
 
+    /**
+     * Constructs LightLightnessStatus message
+     *
+     * @param message access message
+     */
     public LightLightnessStatus(@NonNull final AccessMessage message) {
         super(message);
         this.mMessage = message;
@@ -68,7 +75,7 @@ public final class LightLightnessStatus extends GenericStatusMessage implements 
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received light lightness status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
+        Log.v(TAG, "Received light lightness status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         mPresentLightness = buffer.getShort() & 0xFFFF;
         Log.v(TAG, "Present level: " + mPresentLightness);

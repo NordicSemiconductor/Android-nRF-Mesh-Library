@@ -174,13 +174,11 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         super.updateMeshMessage(meshMessage);
         if (meshMessage instanceof ConfigNetworkTransmitStatus) {
             final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
-            final byte[] address = status.getSrc();
-            final ProvisionedMeshNode meshNode = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(address);
+            final ProvisionedMeshNode meshNode = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(status.getSrc());
             updateNetworkTransmitUi(meshNode);
         } else if (meshMessage instanceof ConfigRelayStatus) {
             final ConfigRelayStatus status = (ConfigRelayStatus) meshMessage;
-            final byte[] address = status.getSrc();
-            final ProvisionedMeshNode meshNode = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(address);
+            final ProvisionedMeshNode meshNode = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(status.getSrc());
             updateRelayUi(meshNode);
         }
     }

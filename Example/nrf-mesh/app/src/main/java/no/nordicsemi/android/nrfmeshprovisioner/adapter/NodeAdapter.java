@@ -25,7 +25,6 @@ package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +40,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -77,7 +77,7 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final ProvisionedMeshNode node = mNodes.get(position);
         holder.name.setText(node.getNodeName());
-        holder.unicastAddress.setText(MeshParserUtils.bytesToHex(node.getUnicastAddress(), false));
+        holder.unicastAddress.setText(MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(node.getUnicastAddress()), false));
         final Map<Integer, Element> elements = node.getElements();
         if (!elements.isEmpty()) {
             holder.notConfiguredView.setVisibility(View.GONE);
@@ -123,7 +123,7 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
 
     private int getMeshNodeIndex(final int unicastAddress) {
         for (int i = 0; i < mNodes.size(); i++) {
-            if (unicastAddress == mNodes.get(i).getUnicastAddressInt()) {
+            if (unicastAddress == mNodes.get(i).getUnicastAddress()) {
                 return i;
             }
         }

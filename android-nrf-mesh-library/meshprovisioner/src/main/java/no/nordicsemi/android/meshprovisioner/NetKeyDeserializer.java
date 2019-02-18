@@ -1,7 +1,5 @@
 package no.nordicsemi.android.meshprovisioner;
 
-import android.net.Network;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

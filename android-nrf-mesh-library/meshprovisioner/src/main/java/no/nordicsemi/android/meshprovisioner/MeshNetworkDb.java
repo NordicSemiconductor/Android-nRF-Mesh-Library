@@ -4,7 +4,11 @@ import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
+import android.arch.persistence.room.migration.Migration;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -25,6 +29,9 @@ import no.nordicsemi.android.meshprovisioner.data.ScenesDao;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.GroupAddress;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("unused")
@@ -36,7 +43,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
         ProvisionedMeshNode.class,
         Group.class,
         Scene.class},
-        version = 1)
+        version = 2)
 abstract class MeshNetworkDb extends RoomDatabase {
 
     abstract MeshNetworkDao meshNetworkDao();
@@ -72,6 +79,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             MeshNetworkDb.class, "mesh_network_database.db")
                             .addCallback(sRoomDatabaseCallback)
+                            .addMigrations(MIGRATION_1_2)
                             .build();
                 }
 
@@ -115,13 +123,13 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     void loadNetwork(final MeshNetworkDao dao,
-                       final NetworkKeyDao netKeyDao,
-                       final ApplicationKeyDao appKeyDao,
-                       final ProvisionerDao provisionerDao,
-                       final ProvisionedMeshNodeDao nodeDao,
-                       final GroupsDao groupsDao,
-                       final SceneDao sceneDao,
-                       final LoadNetworkCallbacks listener) {
+                     final NetworkKeyDao netKeyDao,
+                     final ApplicationKeyDao appKeyDao,
+                     final ProvisionerDao provisionerDao,
+                     final ProvisionedMeshNodeDao nodeDao,
+                     final GroupsDao groupsDao,
+                     final SceneDao sceneDao,
+                     final LoadNetworkCallbacks listener) {
         new LoadNetworkAsyncTask(dao,
                 netKeyDao,
                 appKeyDao,
@@ -255,15 +263,15 @@ abstract class MeshNetworkDb extends RoomDatabase {
             netKeyDao.insert(meshNetwork.netKeys);
             appKeyDao.insert(meshNetwork.appKeys);
             provisionerDao.insert(meshNetwork.provisioners);
-            if(!meshNetwork.nodes.isEmpty()) {
+            if (!meshNetwork.nodes.isEmpty()) {
                 nodeDao.insert(meshNetwork.nodes);
             }
 
-            if(meshNetwork.groups != null) {
+            if (meshNetwork.groups != null) {
                 groupDao.insert(meshNetwork.groups);
             }
 
-            if(meshNetwork.scenes != null) {
+            if (meshNetwork.scenes != null) {
                 sceneDao.insert(meshNetwork.scenes);
             }
             return null;
@@ -302,7 +310,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         @Override
         protected MeshNetwork doInBackground(final Void... params) {
             final MeshNetwork meshNetwork = meshNetworkDao.getMeshNetwork(true);
-            if(meshNetwork != null) {
+            if (meshNetwork != null) {
                 meshNetwork.netKeys = netKeyDao.loadNetworkKeys(meshNetwork.getMeshUUID());
                 meshNetwork.appKeys = appKeyDao.loadApplicationKeys(meshNetwork.getMeshUUID());
                 meshNetwork.nodes = nodeDao.getNodes(meshNetwork.getMeshUUID());
@@ -654,4 +662,186 @@ abstract class MeshNetworkDb extends RoomDatabase {
             return null;
         }
     }
+
+    private static final Migration MIGRATION_1_12 = new Migration(1, 2) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE mesh_network "
+                    + " ADD COLUMN address INTEGER NOT NULL DEFAULT 1");
+            database.execSQL("ALTER TABLE provisioner "
+                    + " ADD COLUMN address INTEGER NOT NULL DEFAULT " + 0x7FFF);
+            database.execSQL("ALTER TABLE groups "
+                    + " ADD COLUMN grp_address INTEGER NOT NULL DEFAULT " + GroupAddress.START_GROUP_ADDRESS);
+        }
+    };
+
+    private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            migrateMeshNetwork(database);
+            migrateNodes(database);
+            migrateProvisioner(database);
+            migrateGroup(database);
+        }
+    };
+
+    private static void migrateMeshNetwork(final SupportSQLiteDatabase database) {
+        database.execSQL("CREATE TABLE `mesh_network_temp` " +
+                "(`mesh_uuid` TEXT NOT NULL, " +
+                "`mesh_name` TEXT, " +
+                "`timestamp` INTEGER NOT NULL, " +
+                "`iv_index` INTEGER NOT NULL, " +
+                "`iv_update_state` INTEGER NOT NULL, " +
+                "`unicast_address` INTEGER NOT NULL DEFAULT 0x0001, " +
+                "`last_selected` INTEGER NOT NULL, " +
+                "PRIMARY KEY(`mesh_uuid`))");
+
+        database.execSQL(
+                "INSERT INTO mesh_network_temp (mesh_uuid, mesh_name, timestamp, iv_index, iv_update_state, last_selected) " +
+                        "SELECT mesh_uuid, mesh_name, timestamp, iv_index, iv_update_state, last_selected FROM mesh_network");
+        final Cursor cursor = database.query("SELECT * FROM mesh_network");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                final String uuid = cursor.getString(cursor.getColumnIndex("mesh_uuid"));
+                final byte[] unicast = cursor.getBlob(cursor.getColumnIndex("unicast_address"));
+                final int address = AddressUtils.getUnicastAddressInt(unicast);
+                final ContentValues values = new ContentValues();
+                values.put("unicast_address", address);
+                database.update("mesh_network_temp", SQLiteDatabase.CONFLICT_REPLACE, values, "mesh_uuid = ?", new String[]{uuid});
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        database.execSQL("DROP TABLE mesh_network");
+        database.execSQL("ALTER TABLE mesh_network_temp RENAME TO mesh_network");
+    }
+
+    private static void migrateNodes(final SupportSQLiteDatabase database) {
+        database.execSQL("CREATE TABLE `nodes_temp` " +
+                "(`timestamp` INTEGER NOT NULL, " +
+                "`mAddedNetworkKeys` TEXT, " +
+                "`name` TEXT, `ttl` INTEGER, " +
+                "`blacklisted` INTEGER NOT NULL, " +
+                "`secureNetworkBeacon` INTEGER, " +
+                "`mesh_uuid` TEXT, `uuid` TEXT NOT NULL, " +
+                "`security` INTEGER NOT NULL, " +
+                "`unicast_address` INTEGER NOT NULL DEFAULT 1, " +
+                "`configured` INTEGER NOT NULL, " +
+                "`device_key` BLOB, " +
+                "`seq_number` INTEGER NOT NULL, " +
+                "`cid` INTEGER, " +
+                "`pid` INTEGER, " +
+                "`vid` INTEGER, " +
+                "`crpl` INTEGER, " +
+                "`mElements` TEXT, " +
+                "`mAddedApplicationKeys` TEXT, " +
+                "`networkTransmitCount` INTEGER, " +
+                "`networkIntervalSteps` INTEGER, " +
+                "`relayTransmitCount` INTEGER, " +
+                "`relayIntervalSteps` INTEGER, " +
+                "`friend` INTEGER, " +
+                "`lowPower` INTEGER, " +
+                "`proxy` INTEGER, " +
+                "`relay` INTEGER, " +
+                "PRIMARY KEY(`uuid`), " +
+                "FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )");
+
+        database.execSQL(
+                "INSERT INTO nodes_temp (timestamp, mAddedNetworkKeys, name, blacklisted, secureNetworkBeacon, mesh_uuid, " +
+                        "security, configured, device_key, seq_number, cid, pid, vid, crpl, mElements, " +
+                        "mAddedApplicationKeys, networkTransmitCount, networkIntervalSteps, relayTransmitCount, relayIntervalSteps, " +
+                        "friend, lowPower, proxy, relay, uuid, mesh_uuid) " +
+                        "SELECT timestamp, mAddedNetworkKeys, name, blacklisted, secureNetworkBeacon, mesh_uuid, " +
+                        "security, configured, device_key, seq_number, cid, pid, vid, crpl, mElements, " +
+                        "mAddedApplicationKeys, networkTransmitCount, networkIntervalSteps, relayTransmitCount, relayIntervalSteps," +
+                        "friend, lowPower, proxy, relay, uuid, mesh_uuid FROM nodes");
+
+        final Cursor cursor = database.query("SELECT * FROM nodes");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                final String uuid = cursor.getString(cursor.getColumnIndex("uuid"));
+                final byte[] unicast = cursor.getBlob(cursor.getColumnIndex("unicast_address"));
+                final int address = AddressUtils.getUnicastAddressInt(unicast);
+                final ContentValues values = new ContentValues();
+                values.put("unicast_address", address);
+                database.update("nodes_temp", SQLiteDatabase.CONFLICT_REPLACE, values, "uuid = ?", new String[]{uuid});
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        database.execSQL("DROP TABLE nodes");
+        database.execSQL("ALTER TABLE nodes_temp RENAME TO nodes");
+        database.execSQL("CREATE INDEX index_nodes_mesh_uuid ON `nodes` (mesh_uuid)");
+    }
+
+    private static void migrateProvisioner(final SupportSQLiteDatabase database) {
+        database.execSQL("CREATE TABLE `provisioner_temp` " +
+                "(`mesh_uuid` TEXT NOT NULL, " +
+                "`provisioner_uuid` TEXT NOT NULL, " +
+                "`name` TEXT, " +
+                "`allocatedGroupRanges` TEXT, " +
+                "`allocatedUnicastRanges` TEXT, " +
+                "`allocatedSceneRanges` TEXT, " +
+                "`sequence_number` INTEGER NOT NULL, " +
+                "`provisioner_address` INTEGER NOT NULL DEFAULT 32767," +
+                "`global_ttl` INTEGER NOT NULL, " +
+                "`last_selected` INTEGER NOT NULL, PRIMARY KEY(`provisioner_uuid`), " +
+                "FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )");
+
+        database.execSQL(
+                "INSERT INTO provisioner_temp (mesh_uuid, provisioner_uuid, name, allocatedGroupRanges, allocatedUnicastRanges, allocatedSceneRanges, sequence_number, global_ttl, last_selected) " +
+                        "SELECT mesh_uuid, provisioner_uuid, name, allocatedGroupRanges, allocatedUnicastRanges, allocatedSceneRanges, sequence_number, global_ttl, last_selected FROM provisioner");
+
+        final Cursor cursor = database.query("SELECT * FROM provisioner");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                final String uuid = cursor.getString(cursor.getColumnIndex("provisioner_uuid"));
+                final byte[] unicast = cursor.getBlob(cursor.getColumnIndex("provisioner_address"));
+                final int address = AddressUtils.getUnicastAddressInt(unicast);
+                final ContentValues values = new ContentValues();
+                values.put("provisioner_address", address);
+                database.update("provisioner_temp", SQLiteDatabase.CONFLICT_REPLACE, values, "provisioner_uuid = ?", new String[]{uuid});
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        database.execSQL("DROP TABLE provisioner");
+        database.execSQL("ALTER TABLE provisioner_temp RENAME TO provisioner");
+        database.execSQL("CREATE INDEX index_provisioner_mesh_uuid ON `provisioner` (mesh_uuid)");
+    }
+
+    private static void migrateGroup(final SupportSQLiteDatabase database) {
+        database.execSQL("CREATE TABLE `groups_temp` " +
+                "(`id` INTEGER," +
+                "`mesh_uuid` TEXT, " +
+                "`group_address` INTEGER, " +
+                "`name` TEXT, " +
+                "`parent_address` INTEGER, " +
+                "PRIMARY KEY(`id`), " +
+                "FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )");
+
+        database.execSQL(
+                "INSERT INTO groups_temp (mesh_uuid, name, parent_address) " +
+                        "SELECT mesh_uuid, name, parent_address FROM groups");
+
+        final Cursor cursor = database.query("SELECT * FROM groups");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                final String uuid = cursor.getString(cursor.getColumnIndex("mesh_uuid"));
+                final byte[] grpAddress = cursor.getBlob(cursor.getColumnIndex("group_address"));
+                final byte[] pAddress = cursor.getBlob(cursor.getColumnIndex("parent_address"));
+                final int groupAddress = MeshParserUtils.unsignedBytesToInt(grpAddress[1], grpAddress[0]);
+                final ContentValues values = new ContentValues();
+                values.put("group_address", groupAddress);
+                if (pAddress != null) {
+                    final int parentAddress = MeshParserUtils.unsignedBytesToInt(pAddress[1], pAddress[0]);
+                    values.put("parent_address", parentAddress);
+                }
+                database.update("groups_temp", SQLiteDatabase.CONFLICT_REPLACE, values, "mesh_uuid = ?", new String[]{uuid});
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        database.execSQL("DROP TABLE groups");
+        database.execSQL("ALTER TABLE groups_temp RENAME TO groups");
+        database.execSQL("CREATE INDEX index_groups_mesh_uuid ON `groups` (mesh_uuid)");
+    }
+
 }

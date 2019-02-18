@@ -22,10 +22,14 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.support.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -40,7 +44,7 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
     private static final int SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 6;
     private static final int VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 8;
 
-    private final byte[] mElementAddress;
+    private final int mElementAddress;
     private final int mModelIdentifier;
     private final int mAppKeyIndex;
 
@@ -51,12 +55,28 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
      * @param modelIdentifier Model from which the key must be unbound from
      * @param appKeyIndex     Global app key index of the key to be unbound
      * @throws IllegalArgumentException if any illegal arguments are passed
+     * @deprecated in favour of {@link #ConfigModelAppUnbind(int, int, int)}
      */
-    public ConfigModelAppUnbind(final byte[] elementAddress,
+    @Deprecated
+    public ConfigModelAppUnbind(@NonNull final byte[] elementAddress,
                                 final int modelIdentifier,
                                 final int appKeyIndex) throws IllegalArgumentException {
-        if (elementAddress.length != 2)
-            throw new IllegalArgumentException("Element address cannot be cannot be greater than 2 octets");
+        this(AddressUtils.getUnicastAddressInt(elementAddress), modelIdentifier, appKeyIndex);
+    }
+
+    /**
+     * Constructs ConfigModelAppUnbind message.
+     *
+     * @param elementAddress  Address of the element to which the model belongs to
+     * @param modelIdentifier Model from which the key must be unbound from
+     * @param appKeyIndex     Global app key index of the key to be unbound
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    public ConfigModelAppUnbind(final int elementAddress,
+                                final int modelIdentifier,
+                                final int appKeyIndex) throws IllegalArgumentException {
+        if (!MeshAddress.isValidUnicastAddress(elementAddress))
+            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
         this.mElementAddress = elementAddress;
         this.mModelIdentifier = modelIdentifier;
         this.mAppKeyIndex = appKeyIndex;
@@ -75,16 +95,14 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
         if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(mElementAddress[1]);
-            paramsBuffer.put(mElementAddress[0]);
+            paramsBuffer.putShort((short) mElementAddress);
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put(applicationKeyIndex[0]);
             paramsBuffer.putShort((short) mModelIdentifier);
             mParameters = paramsBuffer.array();
         } else {
             paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(mElementAddress[1]);
-            paramsBuffer.put(mElementAddress[0]);
+            paramsBuffer.putShort((short) mElementAddress);
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put(applicationKeyIndex[0]);
             final byte[] modelIdentifier = new byte[]{(byte) ((mModelIdentifier >> 24) & 0xFF), (byte) ((mModelIdentifier >> 16) & 0xFF), (byte) ((mModelIdentifier >> 8) & 0xFF), (byte) (mModelIdentifier & 0xFF)};
@@ -101,7 +119,7 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
      *
      * @return element address
      */
-    public byte[] getElementAddress() {
+    public int getElementAddress() {
         return mElementAddress;
     }
 

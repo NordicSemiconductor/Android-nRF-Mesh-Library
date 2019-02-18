@@ -4,9 +4,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * State class for handling {@link ConfigProxySet} messages.
  */
+@SuppressWarnings("WeakerAccess")
 class ConfigProxySetState extends ConfigMessageState {
 
     private static final String TAG = ConfigProxySetState.class.getSimpleName();
@@ -22,10 +25,33 @@ class ConfigProxySetState extends ConfigMessageState {
      * @param configProxySet Wrapper class {@link ConfigProxySet} containing the opcode and parameters for {@link ConfigProxySet} message
      * @param callbacks      {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
+     * @deprecated in favour of {@link @ConfigProxySetState}
      */
+    @Deprecated
     ConfigProxySetState(@NonNull final Context context,
                         @NonNull final byte[] src,
                         @NonNull final byte[] dst,
+                        @NonNull final byte[] deviceKey,
+                        @NonNull final ConfigProxySet configProxySet,
+                        @NonNull final MeshTransport meshTransport,
+                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), deviceKey, configProxySet, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs {@link ConfigProxySetState}
+     *
+     * @param context        Context of the application
+     * @param src            source address
+     * @param dst            destination address
+     * @param deviceKey      device key
+     * @param configProxySet Wrapper class {@link ConfigProxySet} containing the opcode and parameters for {@link ConfigProxySet} message
+     * @param callbacks      {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException for any illegal arguments provided.
+     */
+    ConfigProxySetState(@NonNull final Context context,
+                        final int src,
+                        final int dst,
                         @NonNull final byte[] deviceKey,
                         @NonNull final ConfigProxySet configProxySet,
                         @NonNull final MeshTransport meshTransport,

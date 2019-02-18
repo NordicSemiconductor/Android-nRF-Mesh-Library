@@ -33,6 +33,7 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
 public class Provisioner {
 
     @ColumnInfo(name = "mesh_uuid")
+    @NonNull
     @Expose
     private String meshUuid;
 
@@ -64,7 +65,7 @@ public class Provisioner {
 
     @ColumnInfo(name = "provisioner_address")
     @Expose
-    private byte[] provisionerAddress = {0x7F, (byte) 0xFF};
+    private int provisionerAddress = 0x7FFF;
 
     @ColumnInfo(name = "global_ttl")
     @Expose
@@ -109,7 +110,7 @@ public class Provisioner {
      *
      * @param uuid mesh network provisionerUuid
      */
-    public void setMeshUuid(final String uuid) {
+    public void setMeshUuid(@NonNull final String uuid) {
         meshUuid = uuid;
     }
 
@@ -208,12 +209,12 @@ public class Provisioner {
         this.sequenceNumber = sequenceNumber;
     }
 
-    public byte[] getProvisionerAddress() {
+    public int getProvisionerAddress() {
         return provisionerAddress;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setProvisionerAddress(final byte[] provisionerAddress) {
+    public void setProvisionerAddress(final int provisionerAddress) {
         this.provisionerAddress = provisionerAddress;
     }
 

@@ -27,8 +27,8 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     final MeshTransport mMeshTransport;
     private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
     protected MeshMessage mMeshMessage;
-    protected byte[] mSrc;
-    protected byte[] mDst;
+    protected int mSrc;
+    protected int mDst;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     protected MeshStatusCallbacks mMeshStatusCallbacks;
     protected Message message;
@@ -142,7 +142,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         //We don't send acks here
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendMeshPdu(mDst, message.getNetworkPdu().get(0));
+        mInternalTransportCallbacks.sendMeshPdu(message.getDst(), message.getNetworkPdu().get(0));
         mMeshStatusCallbacks.onBlockAcknowledgementSent(message.getDst());
     }
 

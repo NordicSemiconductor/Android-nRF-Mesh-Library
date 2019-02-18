@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -42,6 +43,12 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
     private static final String TAG = LightHslStatus.class.getSimpleName();
     private static final int LIGHT_CTL_STATUS_MANDATORY_LENGTH = 6;
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_HSL_STATUS;
+    private int mPresentHslLightness;
+    private int mPresentHslHue;
+    private int mPresentHslSaturation;
+    private int mTransitionSteps;
+    private int mTransitionResolution;
+
     private static final Creator<LightHslStatus> CREATOR = new Creator<LightHslStatus>() {
         @Override
         public LightHslStatus createFromParcel(Parcel in) {
@@ -54,12 +61,11 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
             return new LightHslStatus[size];
         }
     };
-    private int mPresentHslLightness;
-    private int mPresentHslHue;
-    private int mPresentHslSaturation;
-    private int mTransitionSteps;
-    private int mTransitionResolution;
 
+    /**
+     * Constructs LightHslStatus message
+     * @param message access message
+     */
     public LightHslStatus(@NonNull final AccessMessage message) {
         super(message);
         this.mMessage = message;
@@ -69,7 +75,7 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received light hsl status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
+        Log.v(TAG, "Received light hsl status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         mPresentHslLightness = buffer.getShort() & 0xFFFF;
         mPresentHslHue = buffer.getShort() & 0xFFFF;

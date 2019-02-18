@@ -22,7 +22,6 @@ import java.util.Map;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
@@ -109,7 +108,7 @@ abstract class BaseMeshNetwork {
     //Library related attributes
     @ColumnInfo(name = "unicast_address")
     @Expose
-    byte[] unicastAddress = {0x00, (byte) 0x01};
+    int unicastAddress = 0x0001;
 
     @ColumnInfo(name = "last_selected")
     @Expose
@@ -375,7 +374,7 @@ abstract class BaseMeshNetwork {
         }
     }
 
-    public byte[] getProvisionerAddress() {
+    public int getProvisionerAddress() {
         return getSelectedProvisioner().getProvisionerAddress();
     }
 
@@ -388,20 +387,12 @@ abstract class BaseMeshNetwork {
     public boolean setProvisionerAddress(final int address) {
         if (!isAddressInUse(address)) {
             final Provisioner provisioner = getSelectedProvisioner();
-            provisioner.setProvisionerAddress(AddressUtils.getUnicastAddressBytes(address));
+            provisioner.setProvisionerAddress(address);
             notifyProvisionerUpdated(provisioner);
-            updateNodeProvisionerAddress(AddressUtils.getUnicastAddressBytes(address));
             return true;
         } else {
             return false;
         }
-    }
-
-    private void updateNodeProvisionerAddress(final byte[] address){
-        for(ProvisionedMeshNode node : nodes) {
-            node.setConfigurationSrc(address);
-        }
-        notifyNodesUpdated();
     }
 
     /**
@@ -409,12 +400,12 @@ abstract class BaseMeshNetwork {
      *
      * @return unicast address
      */
-    public byte[] getUnicastAddress() {
+    public int getUnicastAddress() {
         return unicastAddress;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setUnicastAddress(final byte[] address) {
+    public void setUnicastAddress(final int address) {
         this.unicastAddress = address;
     }
 
@@ -424,18 +415,18 @@ abstract class BaseMeshNetwork {
      * @param unicastAddress unicast address
      * @return true if success, false if the address is in use by another device
      */
-    public boolean setUnicastAddress(final int unicastAddress) {
+    public boolean assignUnicastAddress(final int unicastAddress) {
         if(isAddressInUse(unicastAddress))
             return false;
 
-        this.unicastAddress = AddressUtils.getUnicastAddressBytes(unicastAddress);
+        this.unicastAddress = unicastAddress;
         notifyNetworkUpdated();
         return true;
     }
 
     private boolean isAddressInUse(final int address) {
         for (ProvisionedMeshNode node : nodes) {
-            if (address == node.getUnicastAddressInt()) {
+            if (address == node.getUnicastAddress()) {
                 return true;
             }
         }

@@ -4,10 +4,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * State that handles the ConfigRelayGet message
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class ConfigRelayGetState extends ConfigMessageState {
 
     private static final String TAG = ConfigRelayGetState.class.getSimpleName();
@@ -24,9 +26,31 @@ public final class ConfigRelayGetState extends ConfigMessageState {
      * @param meshTransport  {@link MeshTransport}
      * @param callbacks      {@link InternalMeshMsgHandlerCallbacks} Internal mesh handler callbacks
      */
+    @Deprecated
     ConfigRelayGetState(@NonNull final Context context,
                         @NonNull final byte[] src,
                         @NonNull final byte[] dst,
+                        @NonNull final byte[] deviceKey,
+                        @NonNull final ConfigRelayGet configRelayGet,
+                        @NonNull final MeshTransport meshTransport,
+                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), deviceKey, configRelayGet, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs the state for {@link ConfigRelayGet} message
+     *
+     * @param context        context
+     * @param src            source address
+     * @param dst            destination address
+     * @param deviceKey      device key
+     * @param configRelayGet {@link ConfigRelayGet} message
+     * @param meshTransport  {@link MeshTransport}
+     * @param callbacks      {@link InternalMeshMsgHandlerCallbacks} Internal mesh handler callbacks
+     */
+    ConfigRelayGetState(@NonNull final Context context,
+                        final int src,
+                        final int dst,
                         @NonNull final byte[] deviceKey,
                         @NonNull final ConfigRelayGet configRelayGet,
                         @NonNull final MeshTransport meshTransport,

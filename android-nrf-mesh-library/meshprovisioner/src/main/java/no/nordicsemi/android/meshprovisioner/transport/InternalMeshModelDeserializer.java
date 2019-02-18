@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
@@ -57,7 +58,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
             for (int j = 0; j < jsonArray.size(); j++) {
                 subscriptionAddress[j] = jsonArray.get(j).getAsByte();
             }
-            meshModel.addSubscriptionAddress(subscriptionAddress);
+            meshModel.addSubscriptionAddress(AddressUtils.getUnicastAddressInt(subscriptionAddress));
         }
 
         if (jsonObject.getAsJsonObject().has("mPublicationSettings")) {
@@ -68,43 +69,76 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                 final int publicationResolution = jsonPublicationSettings.get("publicationResolution").getAsInt();
                 final int publicationSteps = jsonPublicationSettings.get("publicationSteps").getAsInt();
 
-                final JsonArray jsonPublishAddress = jsonPublicationSettings.get("publishAddress").getAsJsonArray();
-                final byte[] publishAddress = new byte[jsonPublishAddress.size()];
-                for (int i = 0; i < jsonPublishAddress.size(); i++) {
-                    publishAddress[i] = jsonPublishAddress.get(i).getAsByte();
+                //final JsonArray jsonPublishAddress = jsonPublicationSettings.get("publishAddress").getAsJsonArray();
+
+                if (jsonPublicationSettings.has("publishAddress")) {
+                    final int publishAddress;
+                    final JsonElement jsonElement = jsonPublicationSettings.get("publishAddress");
+                    if (jsonElement.isJsonArray()) {
+                        final JsonArray jsonPublishAddress = jsonElement.getAsJsonArray();
+                        final byte[] address = new byte[jsonPublishAddress.size()];
+                        for (int i = 0; i < jsonPublishAddress.size(); i++) {
+                            address[i] = jsonPublishAddress.get(i).getAsByte();
+                        }
+                        publishAddress = MeshParserUtils.unsignedBytesToInt(address[0], address[1]);
+                    } else {
+                        publishAddress = jsonElement.getAsInt();
+                    }
+
+                    /*final byte[] publishAddress = new byte[jsonPublishAddress.size()];
+                    for (int i = 0; i < jsonPublishAddress.size(); i++) {
+                        publishAddress[i] = jsonPublishAddress.get(i).getAsByte();
+                    }*/
+
+                    final int publishRetransmitCount = jsonPublicationSettings.get("publishRetransmitCount").getAsInt();
+                    final int publishRetransmitIntervalSteps = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsInt();
+                    final int publishTtl = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsByte();
+
+                    meshModel.mPublicationSettings = new PublicationSettings(publishAddress,
+                            appKeyIndex, credentialFlag, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
                 }
-
-                final int publishRetransmitCount = jsonPublicationSettings.get("publishRetransmitCount").getAsInt();
-                final int publishRetransmitIntervalSteps = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsInt();
-                final int publishTtl = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsByte();
-
-                meshModel.mPublicationSettings = new PublicationSettings(publishAddress,
-                        appKeyIndex, credentialFlag, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
             }
         } else {
             final byte[] publishKeyAppIndex = new byte[2];
-            if (jsonObject.getAsJsonObject().has("publishAppKeyIndex")) {
+            final JsonObject jsonPublicationSettings = jsonObject.getAsJsonObject();
+            if (jsonPublicationSettings.has("publishAppKeyIndex")) {
                 final JsonArray jsonPublishKeyIndex = jsonObject.getAsJsonObject().get("publishAppKeyIndex").getAsJsonArray();
                 for (int i = 0; i < jsonPublishKeyIndex.size(); i++) {
                     publishKeyAppIndex[i] = jsonPublishKeyIndex.get(i).getAsByte();
                 }
             }
 
-            final byte[] publishAddress = new byte[2];
-            if (jsonObject.getAsJsonObject().has("publishAddress")) {
-                final JsonArray jsonPublishAddress = jsonObject.getAsJsonObject().get("publishAddress").getAsJsonArray();
-                for (int i = 0; i < jsonPublishAddress.size(); i++) {
-                    publishAddress[i] = jsonPublishAddress.get(i).getAsByte();
+            if (jsonPublicationSettings.has("publishAddress")) {
+                final int publishAddress;
+                final JsonElement jsonElement = jsonPublicationSettings.get("publishAddress");
+                if (jsonElement.isJsonArray()) {
+                    final JsonArray jsonPublishAddress = jsonElement.getAsJsonArray();
+                    final byte[] address = new byte[jsonPublishAddress.size()];
+                    for (int i = 0; i < jsonPublishAddress.size(); i++) {
+                        address[i] = jsonPublishAddress.get(i).getAsByte();
+                    }
+                    publishAddress = MeshParserUtils.unsignedBytesToInt(address[0], address[1]);
+                } else {
+                    publishAddress = jsonElement.getAsInt();
                 }
+
+                /*final byte[] publishAddress = new byte[2];
+                if (jsonPublicationSettings.has("publishAddress")) {
+                    final JsonArray jsonPublishAddress = jsonPublicationSettings.get("publishAddress").getAsJsonArray();
+                    for (int i = 0; i < jsonPublishAddress.size(); i++) {
+                        publishAddress[i] = jsonPublishAddress.get(i).getAsByte();
+                    }
+                }*/
+                final int publicationResolution = jsonPublicationSettings.get("publicationResolution").getAsInt();
+                final int publicationSteps = jsonPublicationSettings.get("publicationSteps").getAsInt();
+                final int publishPeriod = jsonPublicationSettings.get("publishPeriod").getAsInt();
+                final int publishRetransmitCount = jsonPublicationSettings.get("publishRetransmitCount").getAsInt();
+                final int publishRetransmitIntervalSteps = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsInt();
+                final int publishTtl = jsonPublicationSettings.get("publishTtl").getAsInt();
+                meshModel.mPublicationSettings = new PublicationSettings(publishAddress,
+                        MeshParserUtils.removeKeyIndexPadding(publishKeyAppIndex), false,
+                        publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
             }
-            final int publicationResolution = jsonObject.getAsJsonObject().get("publicationResolution").getAsInt();
-            final int publicationSteps = jsonObject.getAsJsonObject().get("publicationSteps").getAsInt();
-            final int publishPeriod = jsonObject.getAsJsonObject().get("publishPeriod").getAsInt();
-            final int publishRetransmitCount = jsonObject.getAsJsonObject().get("publishRetransmitCount").getAsInt();
-            final int publishRetransmitIntervalSteps = jsonObject.getAsJsonObject().get("publishRetransmitIntervalSteps").getAsInt();
-            final int publishTtl = jsonObject.getAsJsonObject().get("publishTtl").getAsInt();
-            meshModel.mPublicationSettings = new PublicationSettings(publishAddress,
-                    MeshParserUtils.removeKeyIndexPadding(publishKeyAppIndex), false, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
         }
         return meshModel;
     }
@@ -136,7 +170,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
             for (int j = 0; j < jsonArray.size(); j++) {
                 subscriptionAddress[j] = jsonArray.get(j).getAsByte();
             }
-            meshModel.addSubscriptionAddress(subscriptionAddress);
+            meshModel.addSubscriptionAddress(AddressUtils.getUnicastAddressInt(subscriptionAddress));
         }
 
         if (jsonObject.getAsJsonObject().has("mPublicationSettings")) {
@@ -147,18 +181,27 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                 final int publicationResolution = jsonPublicationSettings.get("publicationResolution").getAsInt();
                 final int publicationSteps = jsonPublicationSettings.get("publicationSteps").getAsInt();
 
-                final JsonArray jsonPublishAddress = jsonPublicationSettings.getAsJsonArray("publishAddress");
-                final byte[] publishAddress = new byte[jsonPublishAddress.size()];
-                for (int i = 0; i < jsonPublishAddress.size(); i++) {
-                    publishAddress[i] = jsonPublishAddress.get(i).getAsByte();
+                if (jsonPublicationSettings.has("publishAddress")) {
+                    final int publishAddress;
+                    final JsonElement jsonElement = jsonPublicationSettings.get("publishAddress");
+                    if (jsonElement.isJsonArray()) {
+                        final JsonArray jsonPublishAddress = jsonElement.getAsJsonArray();
+                        final byte[] address = new byte[jsonPublishAddress.size()];
+                        for (int i = 0; i < jsonPublishAddress.size(); i++) {
+                            address[i] = jsonPublishAddress.get(i).getAsByte();
+                        }
+                        publishAddress = MeshParserUtils.unsignedBytesToInt(address[0], address[1]);
+                    } else {
+                        publishAddress = jsonElement.getAsInt();
+                    }
+                    final int publishRetransmitCount = jsonPublicationSettings.get("publishRetransmitCount").getAsInt();
+                    final int publishRetransmitIntervalSteps = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsInt();
+                    final int publishTtl = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsByte();
+                    meshModel.mPublicationSettings = new PublicationSettings(publishAddress,
+                            appKeyIndex, credentialFlag, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
+
+
                 }
-
-                final int publishRetransmitCount = jsonPublicationSettings.get("publishRetransmitCount").getAsInt();
-                final int publishRetransmitIntervalSteps = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsInt();
-                final int publishTtl = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsByte();
-
-                meshModel.mPublicationSettings = new PublicationSettings(publishAddress,
-                        appKeyIndex, credentialFlag, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
             }
         }
 

@@ -60,6 +60,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageAcked;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageUnacked;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.SubGroupAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -110,7 +111,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         mViewModel.getSelectedGroup().observe(this, group -> {
             if (group != null) {
                 getSupportActionBar().setTitle(group.getName());
-                getSupportActionBar().setSubtitle(MeshParserUtils.bytesToHex(group.getGroupAddress(), true));
+                getSupportActionBar().setSubtitle(MeshAddress.formatAddress(group.getGroupAddress(), true));
             }
         });
 

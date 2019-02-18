@@ -24,7 +24,6 @@ import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork>, JsonDeserializer<MeshNetwork> {
@@ -260,9 +259,10 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             for (int i = 0; i < jsonGroups.size(); i++) {
                 final JsonObject jsonGroup = jsonGroups.get(i).getAsJsonObject();
                 final String name = jsonGroup.get("name").getAsString();
-                final byte[] address = MeshParserUtils.toByteArray(jsonGroup.get("address").getAsString());
-                final byte[] parentAddress = MeshParserUtils.toByteArray(jsonGroup.get("parentAddress").getAsString());
-                final Group group = new Group(address, parentAddress, meshUuid);
+                final int address = jsonGroup.get("address").getAsInt();
+                final int parentAddress = jsonGroup.get("parentAddress").getAsInt();
+                final Group group = new Group(address, meshUuid);
+                group.setParentAddress(parentAddress);
                 group.setName(name);
                 groups.add(group);
             }
@@ -324,7 +324,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
      *
      * @param nodes provisioned nodes
      */
-    private byte[] getNextAvailableAddress(final List<ProvisionedMeshNode> nodes) {
+    private int getNextAvailableAddress(final List<ProvisionedMeshNode> nodes) {
         //We set the next available unicast address here, this is a library attribute
         int unicast = 1;
         if (nodes != null && !nodes.isEmpty()) {
@@ -332,12 +332,12 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             final ProvisionedMeshNode node = nodes.get(index);
             Map<Integer, Element> elements = node.getElements();
             if (elements != null && !elements.isEmpty()) {
-                unicast = node.getUnicastAddressInt() + elements.size();
+                unicast = node.getUnicastAddress() + elements.size();
             } else {
-                unicast = node.getUnicastAddressInt() + 1;
+                unicast = node.getUnicastAddress() + 1;
             }
         }
-        return AddressUtils.getUnicastAddressBytes(unicast);
+        return unicast;
     }
 
     /**

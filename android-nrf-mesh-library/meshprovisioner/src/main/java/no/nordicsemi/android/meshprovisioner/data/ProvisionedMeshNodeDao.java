@@ -10,7 +10,6 @@ import android.support.annotation.RestrictTo;
 
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)

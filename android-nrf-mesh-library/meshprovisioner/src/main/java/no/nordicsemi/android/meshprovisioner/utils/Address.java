@@ -3,6 +3,8 @@ package no.nordicsemi.android.meshprovisioner.utils;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import java.util.Locale;
+
 /**
  * Abstract class for bluetooth mesh addresses
  */
@@ -35,7 +37,7 @@ public abstract class Address implements Parcelable {
      * @return true if is in range or false otherwise
      */
     public static boolean isAddressInRange(final int address) {
-        return address >= Short.MIN_VALUE && address <= Short.MAX_VALUE;
+        return address == (address & 0xFFFF);
     }
 
     /**
@@ -53,4 +55,9 @@ public abstract class Address implements Parcelable {
      * @return true if valid and false otherwise
      */
     protected abstract boolean isValidAddress(final int address);
+
+    public static String formatAddress(final int address, final boolean add0x) {
+        return add0x ? "0x" + String.format(Locale.US, "%04X", address) : String.format(Locale.US, "%04X", address);
+    }
+
 }

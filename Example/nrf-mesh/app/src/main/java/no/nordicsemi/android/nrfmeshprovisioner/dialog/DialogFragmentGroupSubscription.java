@@ -42,12 +42,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.GroupAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAdapterSpinner;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
@@ -80,7 +79,7 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
 
     public interface DialogFragmentSubscriptionAddressListener {
 
-        void setGroupSubscription(@NonNull final String name, @NonNull final byte[] address);
+        void setGroupSubscription(@NonNull final String name, final int address);
         void setGroupSubscription(@NonNull final Group group);
 
     }
@@ -174,7 +173,7 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
                 final String name = groupNameInput.getEditableText().toString();
                 final String address = addressInput.getEditableText().toString();
                 if (validateInput(name, address)) {
-                    ((DialogFragmentSubscriptionAddressListener) requireActivity()).setGroupSubscription(name, MeshParserUtils.toByteArray(address));
+                    ((DialogFragmentSubscriptionAddressListener) requireActivity()).setGroupSubscription(name, Integer.valueOf(address, 16));
                     dismiss();
                 }
             } else {
@@ -198,14 +197,14 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
                 return false;
             }
 
-            final byte[] groupAddress = MeshParserUtils.toByteArray(address);
-            if(!MeshParserUtils.isValidSubscriptionAddress(groupAddress)){
+            final int groupAddress = Integer.valueOf(address, 16);
+            if(!GroupAddress.isValidGroupAddress(groupAddress)){
                 addressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }
 
             for(Group group : mGroups) {
-                if(Arrays.equals(groupAddress, group.getGroupAddress())){
+                if(groupAddress == group.getGroupAddress()){
                     addressInputLayout.setError(getString(R.string.error_group_address_in_used));
                     return false;
                 }

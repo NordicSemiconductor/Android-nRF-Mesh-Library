@@ -35,7 +35,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +44,7 @@ import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
@@ -101,12 +101,12 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
     }
 
     private void updateGroupItemViewHolder(final ViewHolder holder, final Element element) {
-        holder.elementTitle.setText(mContext.getString(R.string.element_address, MeshParserUtils.bytesToHex(element.getElementAddress(), true)));
+        holder.elementTitle.setText(MeshAddress.formatAddress(element.getElementAddress(), true));
         holder.mModelContainer.removeAllViews();
         for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
             final MeshModel model = modelEntry.getValue();
-            for (byte[] address : model.getSubscriptionAddresses()) {
-                if (Arrays.equals(mGroup.getGroupAddress(), address)) {
+            for (Integer address : model.getSubscribedAddresses()) {
+                if (mGroup.getGroupAddress() == address) {
                     final View view = LayoutInflater.from(mContext).inflate(R.layout.group_model_item, holder.mModelContainer, false);
                     final ConstraintLayout container = view.findViewById(R.id.container);
                     final ImageView modelIcon = view.findViewById(R.id.icon);

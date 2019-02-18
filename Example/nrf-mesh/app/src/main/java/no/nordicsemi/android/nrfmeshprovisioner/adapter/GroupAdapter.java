@@ -25,15 +25,11 @@ package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -44,7 +40,6 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
@@ -85,7 +80,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             if (group != null) {
                 final List<MeshModel> models = mNetwork.getModels(group);
                 holder.groupName.setText(group.getName());
-                final String addressSummary = "Address: " + MeshParserUtils.bytesToHex(group.getGroupAddress(), true);
+                final String addressSummary = "Address: " + Integer.toHexString(group.getGroupAddress());
                 holder.groupAddress.setText(addressSummary);
                 holder.groupDeviceCount.setText(mContext.getString(R.string.group_device_count, models.size()));
             }
@@ -120,7 +115,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final byte[] address);
+        void onItemClick(final int address);
     }
 
     public final class ViewHolder extends RemovableViewHolder {

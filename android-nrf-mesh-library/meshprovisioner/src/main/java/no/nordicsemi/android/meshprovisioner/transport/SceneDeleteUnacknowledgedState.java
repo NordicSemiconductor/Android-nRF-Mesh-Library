@@ -4,9 +4,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * State class for handling SceneDeleteUnacknowledgedState messages.
  */
+@SuppressWarnings("WeakerAccess")
 class SceneDeleteUnacknowledgedState extends GenericMessageState implements LowerTransportLayerCallbacks {
 
     private static final String TAG = SceneDeleteUnacknowledgedState.class.getSimpleName();
@@ -21,9 +24,29 @@ class SceneDeleteUnacknowledgedState extends GenericMessageState implements Lowe
      * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
+    @Deprecated
     SceneDeleteUnacknowledgedState(@NonNull final Context context,
                                    @NonNull final byte[] src,
                                    @NonNull final byte[] dst,
+                                   @NonNull final SceneDeleteUnacknowledged sceneDeleteUnacknowledged,
+                                   @NonNull final MeshTransport meshTransport,
+                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), sceneDeleteUnacknowledged, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs {@link SceneDeleteUnacknowledgedState}
+     *
+     * @param context                   Context of the application
+     * @param src                       Source address
+     * @param dst                       Destination address to which the message must be sent to
+     * @param sceneDeleteUnacknowledged Wrapper class {@link SceneDeleteUnacknowledged} containing the opcode and parameters for {@link SceneDeleteUnacknowledged} message
+     * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException for any illegal arguments provided.
+     */
+    SceneDeleteUnacknowledgedState(@NonNull final Context context,
+                                   final int src,
+                                   final int dst,
                                    @NonNull final SceneDeleteUnacknowledged sceneDeleteUnacknowledged,
                                    @NonNull final MeshTransport meshTransport,
                                    @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {

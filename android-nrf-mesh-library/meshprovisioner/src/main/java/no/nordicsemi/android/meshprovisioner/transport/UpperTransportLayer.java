@@ -37,7 +37,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 abstract class UpperTransportLayer extends AccessLayer {
-    static final int PROXY_CONFIG_OPCODE_LENGTH = 1;
+    private static final int PROXY_CONFIG_OPCODE_LENGTH = 1;
     static final int MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH = 12;
     static final int MAX_UNSEGMENTED_CONTROL_PAYLOAD_LENGTH = 11;
     static final int MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH = 8;
@@ -204,8 +204,8 @@ abstract class UpperTransportLayer extends AccessLayer {
         final int aszmic = message.getAszmic(); // upper transport layer will alaways have the aszmic as 0 because the mic is always 32bit
 
         final byte[] sequenceNumber = message.getSequenceNumber();
-        final byte[] src = message.getSrc();
-        final byte[] dst = message.getDst();
+        final int src = message.getSrc();
+        final int dst = message.getDst();
         final byte[] ivIndex = message.getIvIndex();
         final byte[] key = message.getKey();
 
@@ -281,13 +281,13 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @param dst            destination address
      * @return Application nonce
      */
-    private byte[] createApplicationNonce(final int aszmic, final byte[] sequenceNumber, final byte[] src, final byte[] dst, final byte[] ivIndex) {
+    private byte[] createApplicationNonce(final int aszmic, final byte[] sequenceNumber, final int src, final int dst, final byte[] ivIndex) {
         final ByteBuffer applicationNonceBuffer = ByteBuffer.allocate(13);
         applicationNonceBuffer.put((byte) NONCE_TYPE_APPLICATION); //Nonce type
         applicationNonceBuffer.put((byte) ((aszmic << 7) | PAD_APPLICATION_DEVICE_NONCE)); //ASZMIC (SZMIC if a segmented access message) and PAD
         applicationNonceBuffer.put(sequenceNumber);
-        applicationNonceBuffer.put(src);
-        applicationNonceBuffer.put(dst);
+        applicationNonceBuffer.putShort((short) src);
+        applicationNonceBuffer.putShort((short) dst);
         applicationNonceBuffer.put(ivIndex);
         return applicationNonceBuffer.array();
     }
@@ -301,13 +301,13 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @param dst            destination address
      * @return Device  nonce
      */
-    private byte[] createDeviceNonce(final int aszmic, final byte[] sequenceNumber, final byte[] src, final byte[] dst, final byte[] ivIndex) {
+    private byte[] createDeviceNonce(final int aszmic, final byte[] sequenceNumber, final int src, final int dst, final byte[] ivIndex) {
         final ByteBuffer deviceNonceBuffer = ByteBuffer.allocate(13);
         deviceNonceBuffer.put((byte) NONCE_TYPE_DEVICE); //Nonce type
         deviceNonceBuffer.put((byte) ((aszmic << 7) | PAD_APPLICATION_DEVICE_NONCE)); //ASZMIC (SZMIC if a segmented access message) and PAD
         deviceNonceBuffer.put(sequenceNumber);
-        deviceNonceBuffer.put(src);
-        deviceNonceBuffer.put(dst);
+        deviceNonceBuffer.putShort((short) src);
+        deviceNonceBuffer.putShort((short) dst);
         deviceNonceBuffer.put(ivIndex);
         return deviceNonceBuffer.array();
     }

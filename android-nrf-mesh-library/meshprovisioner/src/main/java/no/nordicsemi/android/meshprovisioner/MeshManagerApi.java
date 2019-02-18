@@ -58,6 +58,7 @@ import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -284,13 +285,12 @@ public class MeshManagerApi implements MeshMngrApi {
         //Since we know the number of elements this node contains we can predict the next available address for the next node.
         final int unicastAdd = currentAddress + elementCount;
         //We check if the incremented unicast address is already taken by the app/configurator
-        final byte[] provisionerAddress = mMeshNetwork.getProvisionerAddress();
-        final int tempSrc = (provisionerAddress[0] & 0xFF) << 8 | (provisionerAddress[1] & 0xFF);
+        final int tempSrc = mMeshNetwork.getProvisionerAddress();
 
         if (unicastAdd == tempSrc) {
-            mMeshNetwork.setUnicastAddress(unicastAdd + 1);
+            mMeshNetwork.assignUnicastAddress(unicastAdd + 1);
         } else {
-            mMeshNetwork.setUnicastAddress(unicastAdd);
+            mMeshNetwork.assignUnicastAddress(unicastAdd);
         }
     }
 
@@ -656,7 +656,7 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         //if generated hash is null return false
-        final byte[] generatedHash = SecureUtils.calculateHash(meshNode.getIdentityKey(), random, meshNode.getUnicastAddress());
+        final byte[] generatedHash = SecureUtils.calculateHash(meshNode.getIdentityKey(), random, AddressUtils.getUnicastAddressBytes(meshNode.getUnicastAddress()));
 
         return Arrays.equals(advertisedHash, generatedHash);
     }
@@ -792,8 +792,15 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public final void sendMeshMessage(@NonNull final byte[] dst, @NonNull final MeshMessage meshMessage) {
-        final byte[] src = mMeshNetwork.getSelectedProvisioner().getProvisionerAddress();
-        mMeshMessageHandler.sendMeshMessage(src, dst, meshMessage);
+        mMeshMessageHandler.sendMeshMessage(mMeshNetwork.getSelectedProvisioner().getProvisionerAddress(), AddressUtils.getUnicastAddressInt(dst), meshMessage);
+    }
+
+    @Override
+    public void sendMeshMessage(final int dst, @NonNull final MeshMessage meshMessage) {
+        if(!MeshAddress.isAddressInRange(dst)){
+            throw new IllegalArgumentException("Invalid address, destination address must be a valid 16-bit value!");
+        }
+        mMeshMessageHandler.sendMeshMessage(mMeshNetwork.getSelectedProvisioner().getProvisionerAddress(), dst, meshMessage);
     }
 
     @Override
@@ -826,6 +833,11 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         @Override
+        public ProvisionedMeshNode getProvisionedNode(final int unicast) {
+            return getMeshNode(unicast);
+        }
+
+        @Override
         public void sendProvisioningPdu(final UnprovisionedMeshNode meshNode, final byte[] pdu) {
             final int mtu = mTransportCallbacks.getMtu();
             mTransportCallbacks.sendProvisioningPdu(meshNode, applySegmentation(mtu, pdu));
@@ -835,6 +847,15 @@ public class MeshManagerApi implements MeshMngrApi {
         public void sendMeshPdu(final byte[] dst, final byte[] pdu) {
             //We must save the mesh network state for every message that is being sent out.
             //This will specifically save the sequence number for every message sent.
+            final int dstAddress = AddressUtils.getUnicastAddressInt(dst);
+            final ProvisionedMeshNode meshNode = mMeshNetwork.getProvisionedNode(dstAddress);
+            updateNetwork(meshNode);
+            final int mtu = mTransportCallbacks.getMtu();
+            mTransportCallbacks.sendMeshPdu(applySegmentation(mtu, pdu));
+        }
+
+        @Override
+        public void sendMeshPdu(final int dst, final byte[] pdu) {
             final ProvisionedMeshNode meshNode = mMeshNetwork.getProvisionedNode(dst);
             updateNetwork(meshNode);
             final int mtu = mTransportCallbacks.getMtu();
@@ -843,8 +864,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
         @Override
         public void updateMeshNetwork(final MeshMessage message) {
-            final byte[] address = message.getSrc();
-            final ProvisionedMeshNode meshNode = mMeshNetwork.getProvisionedNode(address);
+            final ProvisionedMeshNode meshNode = mMeshNetwork.getProvisionedNode(message.getSrc());
             updateNetwork(meshNode);
         }
 
@@ -861,7 +881,7 @@ public class MeshManagerApi implements MeshMngrApi {
         private void updateNetwork(final ProvisionedMeshNode meshNode) {
             if (meshNode != null) {
                 for (int i = 0; i < mMeshNetwork.nodes.size(); i++) {
-                    if (meshNode.getUnicastAddressInt() == mMeshNetwork.nodes.get(i).getUnicastAddressInt()) {
+                    if (meshNode.getUnicastAddress() == mMeshNetwork.nodes.get(i).getUnicastAddress()) {
                         mMeshNetwork.nodes.set(i, meshNode);
                         mMeshNetworkDb.updateNode(mProvisionedNodeDao, meshNode);
                         break;
@@ -880,7 +900,7 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
             updateProvisionedNodeList(meshNode);
-            incrementUnicastAddress(meshNode.getUnicastAddressInt(), meshNode.getNumberOfElements());
+            incrementUnicastAddress(meshNode.getUnicastAddress(), meshNode.getNumberOfElements());
             //Set the mesh network uuid to the node so we can identify nodes belonging to a network
             meshNode.setMeshUuid(mMeshNetwork.getMeshUUID());
             mMeshNetworkDb.insertNode(mProvisionedNodeDao, meshNode);
@@ -919,7 +939,7 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         @Override
-        public Provisioner getProvisioner(final byte[] unicastAddress) {
+        public Provisioner getProvisioner(final int unicastAddress) {
             for (Provisioner provisioner : mMeshNetwork.getProvisioners()) {
                 if (provisioner.isLastSelected())
                     return provisioner;

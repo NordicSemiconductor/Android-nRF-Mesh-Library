@@ -31,7 +31,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 /**
  * To be used as a wrapper class for when creating the GenericOnOffStatus Message.
@@ -71,7 +71,7 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received scene register status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
+        Log.v(TAG, "Received scene register status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         buffer.position(0);
         mStatus = buffer.get() & 0xFF;

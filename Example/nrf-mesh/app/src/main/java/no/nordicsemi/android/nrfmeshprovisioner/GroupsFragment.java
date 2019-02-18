@@ -167,7 +167,7 @@ public class GroupsFragment extends Fragment implements Injectable,
     }
 
     @Override
-    public void onItemClick(final byte[] address) {
+    public void onItemClick(final int address) {
         mViewModel.setSelectedGroup(address);
         startActivity(new Intent(requireContext(), GroupControlsActivity.class));
     }
@@ -198,7 +198,7 @@ public class GroupsFragment extends Fragment implements Injectable,
     }
 
     @Override
-    public boolean createGroup(@NonNull final String name, @NonNull final byte[] address) {
+    public boolean createGroup(@NonNull final String name, final int address) {
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         return network.addGroup(address, name);
     }

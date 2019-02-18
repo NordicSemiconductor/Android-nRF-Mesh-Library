@@ -2,8 +2,6 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.support.annotation.NonNull;
 
-import java.nio.ByteBuffer;
-
 public abstract class GenericStatusMessage extends MeshMessage {
 
 
@@ -35,6 +33,6 @@ public abstract class GenericStatusMessage extends MeshMessage {
      * Returns the address where the message was originated from
      */
     public int getSrcAddress() {
-        return ByteBuffer.wrap(mMessage.getSrc()).getShort();
+        return mMessage.getSrc();
     }
 }

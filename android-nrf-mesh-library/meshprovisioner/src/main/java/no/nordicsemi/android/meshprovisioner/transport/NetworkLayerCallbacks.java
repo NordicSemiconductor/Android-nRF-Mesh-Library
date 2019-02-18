@@ -35,7 +35,7 @@ public interface NetworkLayerCallbacks {
 
     Provisioner getProvisioner();
 
-    Provisioner getProvisioner(final byte[] unicastAddress);
+    Provisioner getProvisioner(final int unicastAddress);
 
     NetworkKey getPrimaryNetworkKey();
 }

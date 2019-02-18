@@ -26,10 +26,13 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * This class handles binding application keys to a specific model where the mode could be,
  * a 16-bit Bluetooth SigModel or a 32-bit Vendor Model
  */
+@SuppressWarnings("WeakerAccess")
 final class ConfigModelAppBindState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppBindState.class.getSimpleName();
@@ -45,10 +48,32 @@ final class ConfigModelAppBindState extends ConfigMessageState {
      * @param configModelAppBind {@link ConfigModelAppBind}
      * @param meshTransport      {@link MeshTransport}
      * @param callbacks          {@link InternalMeshMsgHandlerCallbacks}
+     * @deprecated in favor of {@link #ConfigModelAppBindState(Context, int, int, byte[], ConfigModelAppBind, MeshTransport, InternalMeshMsgHandlerCallbacks)}
      */
     ConfigModelAppBindState(@NonNull final Context context,
-                            @NonNull final byte[] src,
-                            @NonNull final byte[] dst,
+                              @NonNull final byte[] src,
+                              @NonNull final byte[] dst,
+                              @NonNull final byte[] deviceKey,
+                              @NonNull final ConfigModelAppBind configModelAppBind,
+                              @NonNull final MeshTransport meshTransport,
+                              @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), deviceKey, configModelAppBind, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs the state for creating ConfigModelAppBind message
+     *
+     * @param context            context
+     * @param src                source address
+     * @param dst                destination address
+     * @param deviceKey          device key
+     * @param configModelAppBind {@link ConfigModelAppBind}
+     * @param meshTransport      {@link MeshTransport}
+     * @param callbacks          {@link InternalMeshMsgHandlerCallbacks}
+     */
+    ConfigModelAppBindState(@NonNull final Context context,
+                            final int src,
+                            final int dst,
                             @NonNull final byte[] deviceKey,
                             @NonNull final ConfigModelAppBind configModelAppBind,
                             @NonNull final MeshTransport meshTransport,

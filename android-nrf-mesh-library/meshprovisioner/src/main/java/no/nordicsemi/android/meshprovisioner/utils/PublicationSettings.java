@@ -21,7 +21,7 @@ public class PublicationSettings implements Parcelable {
     private static final int DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS = 0;
 
     @Expose
-    private byte[] publishAddress;
+    private int publishAddress;
 
     @Expose
     private int appKeyIndex;
@@ -44,7 +44,7 @@ public class PublicationSettings implements Parcelable {
     @Expose
     private int publishRetransmitIntervalSteps = DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS;
 
-    public PublicationSettings(){
+    public PublicationSettings() {
 
     }
 
@@ -56,8 +56,32 @@ public class PublicationSettings implements Parcelable {
      * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false for master credentials. Currently supports only master credentials
      * @param publishRetransmitCount         Number of publication retransmits
      * @param publishRetransmitIntervalSteps Publish retransmit interval steps
+     * @deprecated in favour of {@link #PublicationSettings(int, int, boolean, int, int)}
      */
+    @Deprecated
     public PublicationSettings(final byte[] publishAddress,
+                               final int appKeyIndex,
+                               final boolean credentialFlag,
+                               final int publishRetransmitCount,
+                               final int publishRetransmitIntervalSteps) {
+        this(AddressUtils.getUnicastAddressInt(publishAddress), appKeyIndex, credentialFlag,
+                DEFAULT_PUBLISH_TTL,
+                DEFAULT_PUBLICATION_STEPS,
+                DEFAULT_PUBLICATION_RESOLUTION,
+                DEFAULT_PUBLICATION_RETRANSMIT_COUNT,
+                DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS);
+    }
+
+    /**
+     * Constructs a ConfigModelPublicationSet message
+     *
+     * @param publishAddress                 Address to which the element must publish
+     * @param appKeyIndex                    Index of the application key
+     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false for master credentials. Currently supports only master credentials
+     * @param publishRetransmitCount         Number of publication retransmits
+     * @param publishRetransmitIntervalSteps Publish retransmit interval steps
+     */
+    public PublicationSettings(final int publishAddress,
                                final int appKeyIndex,
                                final boolean credentialFlag,
                                final int publishRetransmitCount,
@@ -81,8 +105,34 @@ public class PublicationSettings implements Parcelable {
      * @param publicationResolution          Publication resolution of the publication period
      * @param publishRetransmitCount         Number of publication retransmits
      * @param publishRetransmitIntervalSteps Publish retransmit interval steps
+     * @deprecated in favour of {@link #PublicationSettings(int, int, boolean, int, int, int, int, int)}
      */
+    @Deprecated
     public PublicationSettings(final byte[] publishAddress,
+                               final int appKeyIndex,
+                               final boolean credentialFlag,
+                               final int publishTtl,
+                               final int publicationSteps,
+                               final int publicationResolution,
+                               final int publishRetransmitCount,
+                               final int publishRetransmitIntervalSteps) {
+        this(AddressUtils.getUnicastAddressInt(publishAddress), appKeyIndex, credentialFlag,
+                publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
+    }
+
+    /**
+     * Constructs a ConfigModelPublicationSet message
+     *
+     * @param publishAddress                 Address to which the element must publish
+     * @param appKeyIndex                    Index of the application key
+     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false for master credentials. Currently supports only master credentials
+     * @param publishTtl                     Publication ttl
+     * @param publicationSteps               Publication steps for the publication period
+     * @param publicationResolution          Publication resolution of the publication period
+     * @param publishRetransmitCount         Number of publication retransmits
+     * @param publishRetransmitIntervalSteps Publish retransmit interval steps
+     */
+    public PublicationSettings(final int publishAddress,
                                final int appKeyIndex,
                                final boolean credentialFlag,
                                final int publishTtl,
@@ -111,8 +161,34 @@ public class PublicationSettings implements Parcelable {
      * @param publicationResolution          Publication resolution of the publication period
      * @param publishRetransmitCount         Number of publication retransmits
      * @param publishRetransmitIntervalSteps Publish retransmit interval steps
+     * @deprecated in favour of {@link #PublicationSettings(int, byte[], int, int, int, int, int, int)}
      */
+    @Deprecated
     public PublicationSettings(final byte[] publishAddress,
+                               final byte[] appKeyIndex,
+                               final int credentialFlag,
+                               final int publishTtl,
+                               final int publicationSteps,
+                               final int publicationResolution,
+                               final int publishRetransmitCount,
+                               final int publishRetransmitIntervalSteps) {
+        this(AddressUtils.getUnicastAddressInt(publishAddress), appKeyIndex, credentialFlag,
+                publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
+    }
+
+    /**
+     * Constructs a ConfigModelPublicationSet message
+     *
+     * @param publishAddress                 Address to which the element must publish
+     * @param appKeyIndex                    Index of the application key
+     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false for master credentials. Currently supports only master credentials
+     * @param publishTtl                     Publication ttl
+     * @param publicationSteps               Publication steps for the publication period
+     * @param publicationResolution          Publication resolution of the publication period
+     * @param publishRetransmitCount         Number of publication retransmits
+     * @param publishRetransmitIntervalSteps Publish retransmit interval steps
+     */
+    public PublicationSettings(final int publishAddress,
                                final byte[] appKeyIndex,
                                final int credentialFlag,
                                final int publishTtl,
@@ -131,7 +207,7 @@ public class PublicationSettings implements Parcelable {
     }
 
     private PublicationSettings(Parcel in) {
-        publishAddress = in.createByteArray();
+        publishAddress = in.readInt();
         appKeyIndex = in.readInt();
         credentialFlag = in.readInt() == 1;
         publishTtl = in.readInt();
@@ -158,7 +234,7 @@ public class PublicationSettings implements Parcelable {
      *
      * @return publish address
      */
-    public byte[] getPublishAddress() {
+    public int getPublishAddress() {
         return publishAddress;
     }
 
@@ -167,7 +243,7 @@ public class PublicationSettings implements Parcelable {
      *
      * @param publishAddress publish address
      */
-    public void setPublishAddress(final byte[] publishAddress) {
+    public void setPublishAddress(final int publishAddress) {
         this.publishAddress = publishAddress;
     }
 
@@ -282,7 +358,7 @@ public class PublicationSettings implements Parcelable {
     /**
      * Returns the publication period
      */
-    public int calculatePublicationPeriod(){
+    public int calculatePublicationPeriod() {
         return ((publicationSteps << 6) | publicationResolution);
     }
 
@@ -293,7 +369,7 @@ public class PublicationSettings implements Parcelable {
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeByteArray(publishAddress);
+        dest.writeInt(publishAddress);
         dest.writeInt(appKeyIndex);
         dest.writeInt(credentialFlag ? 1 : 0);
         dest.writeInt(publishTtl);

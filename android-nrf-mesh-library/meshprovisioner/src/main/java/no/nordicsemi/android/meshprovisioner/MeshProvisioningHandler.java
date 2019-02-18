@@ -176,20 +176,20 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     /**
      * Initializes a mesh node object to be provisioned
      *
-     * @param uuid           Device UUID of unprovisioned node
-     * @param nodeName       Friendly node name
-     * @param networkKey     Network key
-     * @param flags          Flag containing the key refresh or the iv update operations
-     * @param ivIndex        32-bit value shared across the network
-     * @param unicastAddress Unicast address to be assigned to the node
-     * @param globalTtl      Global ttl which is also the number of hops to be used for a message
-     * @param srcAddress     Address of the provisioner
+     * @param uuid               Device UUID of unprovisioned node
+     * @param nodeName           Friendly node name
+     * @param networkKey         Network key
+     * @param flags              Flag containing the key refresh or the iv update operations
+     * @param ivIndex            32-bit value shared across the network
+     * @param unicastAddress     Unicast address to be assigned to the node
+     * @param globalTtl          Global ttl which is also the number of hops to be used for a message
+     * @param provisionerAddress Address of the provisioner
      * @return {@link MeshModel} to be provisioned
      */
     private UnprovisionedMeshNode initializeMeshNode(@NonNull final UUID uuid,
                                                      final String nodeName, @NonNull final NetworkKey networkKey,
                                                      final int flags, final int ivIndex,
-                                                     final byte[] unicastAddress, final int globalTtl, final byte[] srcAddress) throws IllegalArgumentException {
+                                                     final int unicastAddress, final int globalTtl, final int provisionerAddress) throws IllegalArgumentException {
         UnprovisionedMeshNode unprovisionedMeshNode = null;
 
         if (validateProvisioningDataInput(networkKey, flags, ivIndex)) {
@@ -208,7 +208,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
             unprovisionedMeshNode.setIvIndex(ivIndexBytes);
             unprovisionedMeshNode.setUnicastAddress(unicastAddress);
             unprovisionedMeshNode.setTtl(globalTtl);
-            unprovisionedMeshNode.setConfigurationSrc(srcAddress);
+            unprovisionedMeshNode.setConfigurationSrc(provisionerAddress);
             mUnprovisionedMeshNode = unprovisionedMeshNode;
         }
         return unprovisionedMeshNode;
@@ -254,27 +254,27 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
      * This method must be invoked before calling {@link #startProvisioning(UnprovisionedMeshNode)}
      * </p
      *
-     * @param uuid            Device UUID of unprovisioned node
-     * @param nodeName        Friendly node name
-     * @param networkKey      Network key
-     * @param flags           Flag containing the key refresh or the iv update operations
-     * @param ivIndex         32-bit value shared across the network
-     * @param unicastAddress  Unicast address to be assigned to the node
-     * @param globalTtl       Global ttl which is also the number of hops to be used for a message
-     * @param configuratorSrc Source address of the configurator
+     * @param uuid               Device UUID of unprovisioned node
+     * @param nodeName           Friendly node name
+     * @param networkKey         Network key
+     * @param flags              Flag containing the key refresh or the iv update operations
+     * @param ivIndex            32-bit value shared across the network
+     * @param unicastAddress     Unicast address to be assigned to the node
+     * @param globalTtl          Global ttl which is also the number of hops to be used for a message
+     * @param provisionerAddress Address of the provisioner
      */
     void identify(@NonNull final UUID uuid, final String nodeName, @NonNull final NetworkKey networkKey,
-                  final int flags, final int ivIndex, final byte[] unicastAddress,
-                  final int globalTtl, final byte[] configuratorSrc) throws IllegalArgumentException {
+                  final int flags, final int ivIndex, final int unicastAddress,
+                  final int globalTtl, final int provisionerAddress) throws IllegalArgumentException {
         confirmationInputs = null;
-        final UnprovisionedMeshNode unprovisionedMeshNode = initializeMeshNode(uuid, nodeName, networkKey, flags, ivIndex, unicastAddress, globalTtl, configuratorSrc);
+        final UnprovisionedMeshNode unprovisionedMeshNode = initializeMeshNode(uuid, nodeName, networkKey, flags, ivIndex, unicastAddress, globalTtl, provisionerAddress);
         sendProvisioningInvite(unprovisionedMeshNode);
     }
 
     /**
      * Starts provisioning an unprovisioned mesh node
      * <p>
-     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, byte[], int, byte[])}.
+     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int, int)}.
      * </p>
      *
      * @param unprovisionedMeshNode Bluetooth address of the node
@@ -393,7 +393,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     public final byte[] generateConfirmationInputs(final byte[] provisionerKeyXY, final byte[] provisioneeKeyXY) {
         //invite: 1 bytes, capabilities: 11 bytes, start: 5 bytes, provisionerKey: 64 bytes, deviceKey: 64 bytes
         //Append all the raw data together
-        if(confirmationInputs != null){
+        if (confirmationInputs != null) {
             return confirmationInputs;
         }
 
@@ -418,20 +418,20 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     }
 
     private byte[] generateCapabilities() {
-            final byte[] capabilities = new byte[11];
+        final byte[] capabilities = new byte[11];
 
-            capabilities[0] = (byte) numberOfElements;
-            capabilities[1] = (byte) ((algorithm >> 8) & 0xFF);
-            capabilities[2] = (byte) (algorithm & 0xFF);
-            capabilities[3] = (byte) publicKeyType;
-            capabilities[4] = (byte) staticOOBType;
-            capabilities[5] = (byte) outputOOBSize;
-            capabilities[6] = (byte) ((outputOOBAction >> 8) & 0xFF);
-            capabilities[7] = (byte) (outputOOBAction & 0xFF);
-            capabilities[8] = (byte) inputOOBSize;
-            capabilities[9] = (byte) ((inputOOBAction >> 8) & 0xFF);
-            capabilities[10] = (byte) (inputOOBAction & 0xFF);
-            return capabilities;
+        capabilities[0] = (byte) numberOfElements;
+        capabilities[1] = (byte) ((algorithm >> 8) & 0xFF);
+        capabilities[2] = (byte) (algorithm & 0xFF);
+        capabilities[3] = (byte) publicKeyType;
+        capabilities[4] = (byte) staticOOBType;
+        capabilities[5] = (byte) outputOOBSize;
+        capabilities[6] = (byte) ((outputOOBAction >> 8) & 0xFF);
+        capabilities[7] = (byte) (outputOOBAction & 0xFF);
+        capabilities[8] = (byte) inputOOBSize;
+        capabilities[9] = (byte) ((inputOOBAction >> 8) & 0xFF);
+        capabilities[10] = (byte) (inputOOBAction & 0xFF);
+        return capabilities;
     }
 
 

@@ -28,6 +28,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -43,10 +45,9 @@ public final class ConfigModelAppBind extends ConfigMessage {
     private static final int VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 8;
 
 
-    private final byte[] mElementAddress;
+    private final int mElementAddress;
     private final int mModelIdentifier;
     private final int mAppKeyIndex;
-
 
     /**
      * Constructs ConfigModelAppBind message.
@@ -55,12 +56,27 @@ public final class ConfigModelAppBind extends ConfigMessage {
      * @param modelIdentifier model id
      * @param appKeyIndex     Application key index of this message
      * @throws IllegalArgumentException if any illegal arguments are passed
+     * @deprecated in favour of {@link #ConfigModelAppBind(int, int, int)}
      */
+    @Deprecated
     public ConfigModelAppBind(@NonNull final byte[] elementAddress,
                               final int modelIdentifier,
                               final int appKeyIndex) throws IllegalArgumentException {
-        if (elementAddress.length != 2)
-            throw new IllegalArgumentException("Element address cannot be cannot be greater than 2 octets");
+        this(AddressUtils.getUnicastAddressInt(elementAddress), modelIdentifier, appKeyIndex);
+    }
+    /**
+     * Constructs ConfigModelAppBind message.
+     *
+     * @param elementAddress  element address
+     * @param modelIdentifier model id
+     * @param appKeyIndex     Application key index of this message
+     * @throws IllegalArgumentException if any illegal arguments are passed
+     */
+    public ConfigModelAppBind(final int elementAddress,
+                              final int modelIdentifier,
+                              final int appKeyIndex) throws IllegalArgumentException {
+        if (!MeshAddress.isValidUnicastAddress(elementAddress))
+            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
         this.mElementAddress = elementAddress;
         this.mModelIdentifier = modelIdentifier;
         this.mAppKeyIndex = appKeyIndex;
@@ -78,19 +94,18 @@ public final class ConfigModelAppBind extends ConfigMessage {
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
         if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(mElementAddress[1]);
-            paramsBuffer.put(mElementAddress[0]);
+            paramsBuffer.putShort((short) mElementAddress);
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put(applicationKeyIndex[0]);
             paramsBuffer.putShort((short) mModelIdentifier);
             mParameters = paramsBuffer.array();
         } else {
             paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(mElementAddress[1]);
-            paramsBuffer.put(mElementAddress[0]);
+            paramsBuffer.putShort((short) mElementAddress);
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put(applicationKeyIndex[0]);
-            final byte[] modelIdentifier = new byte[]{(byte) ((mModelIdentifier >> 24) & 0xFF), (byte) ((mModelIdentifier >> 16) & 0xFF), (byte) ((mModelIdentifier >> 8) & 0xFF), (byte) (mModelIdentifier & 0xFF)};
+            final byte[] modelIdentifier = new byte[]{(byte) ((mModelIdentifier >> 24) & 0xFF),
+                    (byte) ((mModelIdentifier >> 16) & 0xFF), (byte) ((mModelIdentifier >> 8) & 0xFF), (byte) (mModelIdentifier & 0xFF)};
             paramsBuffer.put(modelIdentifier[1]);
             paramsBuffer.put(modelIdentifier[0]);
             paramsBuffer.put(modelIdentifier[3]);
@@ -104,7 +119,7 @@ public final class ConfigModelAppBind extends ConfigMessage {
      *
      * @return element address
      */
-    public byte[] getElementAddress() {
+    public int getElementAddress() {
         return mElementAddress;
     }
 

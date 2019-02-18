@@ -43,11 +43,11 @@ abstract class Message {
     /**
      * src, source address
      **/
-    private byte[] src;
+    private int src;
     /**
      * mDst, destination address
      **/
-    private byte[] dst;
+    private int dst;
     /**
      * sequence number, which is unique 24-bit value for each message
      **/
@@ -106,19 +106,19 @@ abstract class Message {
         this.ttl = ttl;
     }
 
-    public final byte[] getSrc() {
+    public final int getSrc() {
         return src;
     }
 
-    public final void setSrc(final byte[] src) {
+    public final void setSrc(final int src) {
         this.src = src;
     }
 
-    public final byte[] getDst() {
+    public final int getDst() {
         return dst;
     }
 
-    public final void setDst(final byte[] dst) {
+    public final void setDst(final int dst) {
         this.dst = dst;
     }
 

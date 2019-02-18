@@ -61,7 +61,7 @@ public class DialogFragmentCreateGroup extends DialogFragment {
 
 
     public interface DialogFragmentCreateGroupListener {
-        boolean createGroup(@NonNull final String name, @NonNull final byte[] address);
+        boolean createGroup(@NonNull final String name, final int address);
     }
 
     public static DialogFragmentCreateGroup newInstance() {
@@ -116,7 +116,7 @@ public class DialogFragmentCreateGroup extends DialogFragment {
                 final String address = addressInput.getEditableText().toString();
                 if (validateInput(name, address)) {
                     if(getParentFragment() != null) {
-                        if(((DialogFragmentCreateGroupListener) getParentFragment()).createGroup(name, MeshParserUtils.toByteArray(address))) {
+                        if(((DialogFragmentCreateGroupListener) getParentFragment()).createGroup(name, Integer.valueOf(address, 16))) {
                             dismiss();
                         } else {
                             addressInputLayout.setError(getString(R.string.error_group_address_in_used));

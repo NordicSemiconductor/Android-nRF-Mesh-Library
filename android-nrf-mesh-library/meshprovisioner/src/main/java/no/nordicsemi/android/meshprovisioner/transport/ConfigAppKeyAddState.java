@@ -26,17 +26,54 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * This class handles adding a application keys to a specific a mesh node.
  */
+@SuppressWarnings("WeakerAccess")
 class ConfigAppKeyAddState extends ConfigMessageState {
 
     private final String TAG = ConfigAppKeyAddState.class.getSimpleName();
     private final byte[] mDeviceKey;
 
+    /**
+     * Constructs ConfigCompositionDataGet message
+     *
+     * @param context       context
+     * @param src           source address
+     * @param dst           destination address
+     * @param deviceKey     device key
+     * @param appKeyAdd     {@link ConfigAppKeyAdd}
+     * @param meshTransport {@link MeshTransport}
+     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks}
+     * @deprecated in favour of {@link ConfigModelAppUnbindState}
+     */
+    @Deprecated
     ConfigAppKeyAddState(@NonNull final Context context,
                          @NonNull final byte[] src,
                          @NonNull final byte[] dst,
+                         @NonNull final byte[] deviceKey,
+                         @NonNull ConfigAppKeyAdd appKeyAdd,
+                         @NonNull final MeshTransport meshTransport,
+                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        this(context, MeshParserUtils.bytesToInt(src),  MeshParserUtils.bytesToInt(dst), deviceKey, appKeyAdd, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs ConfigCompositionDataGet message
+     *
+     * @param context       context
+     * @param src           source address
+     * @param dst           destination address
+     * @param deviceKey     device key
+     * @param appKeyAdd     {@link ConfigAppKeyAdd}
+     * @param meshTransport {@link MeshTransport}
+     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks}
+     */
+    ConfigAppKeyAddState(@NonNull final Context context,
+                         final int src,
+                         final int dst,
                          @NonNull final byte[] deviceKey,
                          @NonNull ConfigAppKeyAdd appKeyAdd,
                          @NonNull final MeshTransport meshTransport,

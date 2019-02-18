@@ -24,12 +24,9 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -60,9 +57,9 @@ public final class Element implements Parcelable {
     @Expose
     final Map<Integer, MeshModel> meshModels;
     @Expose
-    byte[] elementAddress;
+    int elementAddress;
 
-    Element(@NonNull final byte[] elementAddress, final int locationDescriptor, final Map<Integer, MeshModel> models) {
+    Element(final int elementAddress, final int locationDescriptor, final Map<Integer, MeshModel> models) {
         this.elementAddress = elementAddress;
         this.locationDescriptor = locationDescriptor;
         this.meshModels = models;
@@ -75,7 +72,7 @@ public final class Element implements Parcelable {
     }
 
     protected Element(Parcel in) {
-        elementAddress = in.createByteArray();
+        elementAddress = in.readInt();
         locationDescriptor = in.readInt();
         meshModels = new LinkedHashMap<>();
         sortModels(in.readHashMap(MeshModel.class.getClassLoader()));
@@ -83,7 +80,7 @@ public final class Element implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByteArray(elementAddress);
+        dest.writeInt(elementAddress);
         dest.writeInt(locationDescriptor);
         dest.writeMap(meshModels);
     }
@@ -103,7 +100,7 @@ public final class Element implements Parcelable {
         return 0;
     }
 
-    public byte[] getElementAddress() {
+    public int getElementAddress() {
         return elementAddress;
     }
 
@@ -138,9 +135,5 @@ public final class Element implements Parcelable {
      */
     public Map<Integer, MeshModel> getMeshModels() {
         return Collections.unmodifiableMap(meshModels);
-    }
-
-    public int getElementAddressInt() {
-        return ByteBuffer.wrap(elementAddress).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 }

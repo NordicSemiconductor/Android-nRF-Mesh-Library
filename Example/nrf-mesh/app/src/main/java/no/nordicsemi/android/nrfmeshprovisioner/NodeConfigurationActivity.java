@@ -74,6 +74,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigRemoveAddressFromFilter;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigSetFilterType;
 import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddedAppKeyAdapter;
@@ -194,7 +195,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         final RecyclerView recyclerViewAddresses = findViewById(R.id.recycler_view_addresses);
 
         final Integer unicast = mViewModel.getConnectedMeshNodeAddress().getValue();
-        if (unicast != null && unicast == mViewModel.getSelectedMeshNode().getValue().getUnicastAddressInt()) {
+        if (unicast != null && unicast == mViewModel.getSelectedMeshNode().getValue().getUnicastAddress()) {
             mProxyFilterCard.setVisibility(View.VISIBLE);
             recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(this));
             recyclerViewAddresses.setItemAnimator(new DefaultItemAnimator());
@@ -529,7 +530,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @Override
     public void addAddresses(final List<AddressArray> addresses) {
         final ProxyConfigAddAddressToFilter addAddressToFilter = new ProxyConfigAddAddressToFilter(addresses);
-        mViewModel.getMeshManagerApi().sendMeshMessage(new byte[]{0x00, 0x00}, addAddressToFilter);
+        mViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, addAddressToFilter);
     }
 
     private void removeAddress(final int position) {
@@ -541,7 +542,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 final List<AddressArray> addresses = new ArrayList<>();
                 addresses.add(addressArr);
                 final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = new ProxyConfigRemoveAddressFromFilter(addresses);
-                mViewModel.getMeshManagerApi().sendMeshMessage(new byte[]{0x00, 0x00}, removeAddressFromFilter);
+                mViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, removeAddressFromFilter);
                 showProgressbar();
             }
         }
@@ -554,7 +555,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             if (proxyFilter != null) {
                 if (!proxyFilter.getAddresses().isEmpty()) {
                     final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = new ProxyConfigRemoveAddressFromFilter(proxyFilter.getAddresses());
-                    mViewModel.getMeshManagerApi().sendMeshMessage(new byte[]{0x00, 0x00}, removeAddressFromFilter);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, removeAddressFromFilter);
                 }
             }
         }
@@ -563,6 +564,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     private void setFilter(final ProxyFilterType filterType) {
         showProgressbar();
         final ProxyConfigSetFilterType setFilterType = new ProxyConfigSetFilterType(filterType);
-        mViewModel.getMeshManagerApi().sendMeshMessage(new byte[]{0x00, 0x00}, setFilterType);
+        mViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, setFilterType);
     }
 }

@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -41,6 +42,13 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
     private static final int SCENE_STATUS_MANDATORY_LENGTH = 3;
     private static final String TAG = SceneStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_STATUS;
+    private int mStatusCode;
+    private int mCurrentScene;
+    private Integer mTargetScene;
+    private int mRemainingTime;
+    private int mTransitionSteps;
+    private int mTransitionResolution;
+
     private static final Creator<SceneStatus> CREATOR = new Creator<SceneStatus>() {
         @Override
         public SceneStatus createFromParcel(Parcel in) {
@@ -53,12 +61,6 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
             return new SceneStatus[size];
         }
     };
-    private int mStatusCode;
-    private int mCurrentScene;
-    private Integer mTargetScene;
-    private int mRemainingTime;
-    private int mTransitionSteps;
-    private int mTransitionResolution;
 
     /**
      * Constructs the GenericOnOffStatus mMessage.
@@ -74,7 +76,7 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received scene status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
+        Log.v(TAG, "Received scene status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         buffer.position(0);
         mStatusCode = buffer.get() & 0xFF;

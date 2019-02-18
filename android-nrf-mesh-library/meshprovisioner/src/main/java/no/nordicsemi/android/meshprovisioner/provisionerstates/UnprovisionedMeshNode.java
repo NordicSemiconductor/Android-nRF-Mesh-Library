@@ -52,11 +52,12 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         keyIndex = in.readInt();
         mFlags = in.createByteArray();
         ivIndex = in.createByteArray();
-        unicastAddress = in.createByteArray();
+        unicastAddress = in.readInt();
         deviceKey = in.createByteArray();
         ttl = in.readInt();
         provisioningCapabilities = in.readParcelable(ProvisioningCapabilities.class.getClassLoader());
-        numberOfElements = provisioningCapabilities.getNumberOfElements();
+        if (provisioningCapabilities != null)
+            numberOfElements = provisioningCapabilities.getNumberOfElements();
     }
 
     @Override
@@ -77,7 +78,7 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         dest.writeInt(keyIndex);
         dest.writeByteArray(mFlags);
         dest.writeByteArray(ivIndex);
-        dest.writeByteArray(unicastAddress);
+        dest.writeInt(unicastAddress);
         dest.writeByteArray(deviceKey);
         dest.writeInt(ttl);
         dest.writeParcelable(provisioningCapabilities, flags);
@@ -180,7 +181,7 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
 
     final void setIsProvisioned(final boolean isProvisioned) {
         this.isProvisioned = isProvisioned;
-        if(isProvisioned) {
+        if (isProvisioned) {
             identityKey = SecureUtils.calculateIdentityKey(networkKey);
         }
     }

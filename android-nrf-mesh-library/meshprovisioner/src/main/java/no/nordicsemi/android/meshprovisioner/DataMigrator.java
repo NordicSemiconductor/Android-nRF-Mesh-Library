@@ -98,7 +98,7 @@ class DataMigrator {
                 meshNetwork.nodes = tempNodes;
                 meshNetwork.netKeys = migrateNetKeys(meshNetwork, provisioningSettings);
                 meshNetwork.appKeys = migrateAppKeys(meshNetwork, provisioningSettings);
-                meshNetwork.unicastAddress = AddressUtils.getUnicastAddressBytes(provisioningSettings.getUnicastAddress());
+                meshNetwork.unicastAddress = provisioningSettings.getUnicastAddress();
                 meshNetwork.provisioners = migrateProvisioner(meshNetwork, srcAddress, sequenceNumber, provisioningSettings);
 
             }
@@ -167,7 +167,7 @@ class DataMigrator {
         if (meshNetwork.provisioners == null || meshNetwork.provisioners.isEmpty()) {
 
             final Provisioner provisioner = new Provisioner();
-            provisioner.setProvisionerAddress(srcAddress);
+            provisioner.setProvisionerAddress(AddressUtils.getUnicastAddressInt(srcAddress));
             provisioner.setSequenceNumber(sequenceNumber);
             provisioner.setGlobalTtl(settings.getGlobalTtl());
             if (TextUtils.isEmpty(provisioner.getProvisionerUuid())) {

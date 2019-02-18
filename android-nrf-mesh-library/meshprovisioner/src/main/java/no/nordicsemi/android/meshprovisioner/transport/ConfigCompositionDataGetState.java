@@ -26,13 +26,39 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
+@SuppressWarnings("WeakerAccess")
 class ConfigCompositionDataGetState extends ConfigMessageState {
 
     private static final String TAG = ConfigCompositionDataGetState.class.getSimpleName();
     private final byte[] mDeviceKey;
 
     /**
-     * Constructs the state for creating ConfigCompositionDataGet message
+     * Constructs the state for ConfigCompositionDataGet message
+     *
+     * @param context            context
+     * @param src                source address
+     * @param dst                destination address
+     * @param deviceKey          device key
+     * @param compositionDataGet {@link ConfigCompositionDataGet}
+     * @param meshTransport      {@link MeshTransport}
+     * @param callbacks          {@link InternalMeshMsgHandlerCallbacks}
+     * @deprecated in favour of {@link #ConfigCompositionDataGetState(Context, int, int, byte[], ConfigCompositionDataGet, MeshTransport, InternalMeshMsgHandlerCallbacks)}
+     */
+    @Deprecated
+    ConfigCompositionDataGetState(@NonNull final Context context,
+                                  @NonNull final byte[] src,
+                                  @NonNull final byte[] dst,
+                                  @NonNull final byte[] deviceKey,
+                                  @NonNull final ConfigCompositionDataGet compositionDataGet,
+                                  @NonNull final MeshTransport meshTransport,
+                                  @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), deviceKey, compositionDataGet, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs the state for ConfigCompositionDataGet message
      *
      * @param context            context
      * @param src                source address
@@ -43,8 +69,8 @@ class ConfigCompositionDataGetState extends ConfigMessageState {
      * @param callbacks          {@link InternalMeshMsgHandlerCallbacks}
      */
     ConfigCompositionDataGetState(@NonNull final Context context,
-                                  @NonNull final byte[] src,
-                                  @NonNull final byte[] dst,
+                                  final int src,
+                                  final int dst,
                                   @NonNull final byte[] deviceKey,
                                   @NonNull final ConfigCompositionDataGet compositionDataGet,
                                   @NonNull final MeshTransport meshTransport,
