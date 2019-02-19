@@ -22,8 +22,10 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
 
@@ -33,12 +35,22 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import no.nordicsemi.android.meshprovisioner.models.SigModel;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public final class Element implements Parcelable {
+
+    @Expose
+    int locationDescriptor;
+
+    @Expose
+    final Map<Integer, MeshModel> meshModels;
+    @Expose
+    int elementAddress;
 
     public static final Creator<Element> CREATOR = new Creator<Element>() {
         @Override
@@ -51,20 +63,26 @@ public final class Element implements Parcelable {
             return new Element[size];
         }
     };
-    @Expose
-    final int locationDescriptor;
 
-    @Expose
-    final Map<Integer, MeshModel> meshModels;
-    @Expose
-    int elementAddress;
+    /**
+     * Constructs an element within a node
+     * @param elementAddress element address
+     * @param locationDescriptor location descriptor
+     * @param models models belonging to this element
+     * @deprecated in favour of {@link #Element(int, int, Map)}
+     */
+    @Deprecated
+    Element(@NonNull final byte[] elementAddress, final int locationDescriptor, final Map<Integer, MeshModel> models) {
+        this.elementAddress = AddressUtils.getUnicastAddressInt(elementAddress);
+        this.locationDescriptor = locationDescriptor;
+        this.meshModels = models;
+    }
 
     Element(final int elementAddress, final int locationDescriptor, final Map<Integer, MeshModel> models) {
         this.elementAddress = elementAddress;
         this.locationDescriptor = locationDescriptor;
         this.meshModels = models;
     }
-
 
     Element(final int locationDescriptor, final Map<Integer, MeshModel> models) {
         this.locationDescriptor = locationDescriptor;
@@ -104,8 +122,16 @@ public final class Element implements Parcelable {
         return elementAddress;
     }
 
+    public void setElementAddress(final int elementAddress) {
+        this.elementAddress = elementAddress;
+    }
+
     public int getLocationDescriptor() {
         return locationDescriptor;
+    }
+
+    public void setLocationDescriptor(final int locationDescriptor){
+        this.locationDescriptor = locationDescriptor;
     }
 
     public int getSigModelCount() {

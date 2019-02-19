@@ -809,32 +809,30 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
     private static void migrateGroup(final SupportSQLiteDatabase database) {
         database.execSQL("CREATE TABLE `groups_temp` " +
-                "(`id` INTEGER," +
+                "(`id` INTEGER PRIMARY KEY NOT NULL," +
                 "`mesh_uuid` TEXT, " +
-                "`group_address` INTEGER, " +
                 "`name` TEXT, " +
-                "`parent_address` INTEGER, " +
-                "PRIMARY KEY(`id`), " +
+                "`group_address` INTEGER NOT NULL DEFAULT 49152, " +
+                "`parent_address` INTEGER NOT NULL DEFAULT 49152, " +
                 "FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )");
-
-        database.execSQL(
-                "INSERT INTO groups_temp (mesh_uuid, name, parent_address) " +
-                        "SELECT mesh_uuid, name, parent_address FROM groups");
 
         final Cursor cursor = database.query("SELECT * FROM groups");
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 final String uuid = cursor.getString(cursor.getColumnIndex("mesh_uuid"));
+                final String name = cursor.getString(cursor.getColumnIndex("name"));
                 final byte[] grpAddress = cursor.getBlob(cursor.getColumnIndex("group_address"));
                 final byte[] pAddress = cursor.getBlob(cursor.getColumnIndex("parent_address"));
                 final int groupAddress = MeshParserUtils.unsignedBytesToInt(grpAddress[1], grpAddress[0]);
                 final ContentValues values = new ContentValues();
+                values.put("mesh_uuid", uuid);
+                values.put("name", name);
                 values.put("group_address", groupAddress);
                 if (pAddress != null) {
                     final int parentAddress = MeshParserUtils.unsignedBytesToInt(pAddress[1], pAddress[0]);
                     values.put("parent_address", parentAddress);
                 }
-                database.update("groups_temp", SQLiteDatabase.CONFLICT_REPLACE, values, "mesh_uuid = ?", new String[]{uuid});
+                database.insert("groups_temp", SQLiteDatabase.CONFLICT_REPLACE, values);
             } while (cursor.moveToNext());
             cursor.close();
         }
@@ -843,5 +841,4 @@ abstract class MeshNetworkDb extends RoomDatabase {
         database.execSQL("ALTER TABLE groups_temp RENAME TO groups");
         database.execSQL("CREATE INDEX index_groups_mesh_uuid ON `groups` (mesh_uuid)");
     }
-
 }

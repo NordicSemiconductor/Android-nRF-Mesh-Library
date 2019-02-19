@@ -20,19 +20,21 @@ import java.util.Map;
 /**
  * Class for de-serializing a list of elements stored in the Mesh Configuration Database
  */
-public final class ElementListDeserializer implements JsonSerializer<List<Element>>, JsonDeserializer<List<Element>>, Type {
+public final class InternalElementListDeserializer implements JsonSerializer<List<Element>>, JsonDeserializer<List<Element>>, Type {
     @Override
     public List<Element> deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
         final List<Element> elements = new ArrayList<>();
-        final JsonArray jsonArray = json.getAsJsonArray();
-        for (int i = 0; i < jsonArray.size(); i++) {
-            final JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-            final int index = jsonObject.get("index").getAsInt();
-            final int location = Integer.parseInt(jsonObject.get("location").getAsString(), 16);
-            final List<MeshModel> models = deserializeModels(context, jsonObject);
-            final Element element = new Element(location, populateModels(models));
+        if(json.isJsonArray()) {
+            final JsonArray jsonArray = json.getAsJsonArray();
+            for (int i = 0; i < jsonArray.size(); i++) {
+                final JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+                final int index = jsonObject.get("index").getAsInt();
+                final int location = Integer.parseInt(jsonObject.get("location").getAsString(), 16);
+                final List<MeshModel> models = deserializeModels(context, jsonObject);
+                final Element element = new Element(location, populateModels(models));
 
-            elements.add(element);
+                elements.add(element);
+            }
         }
         return elements;
     }

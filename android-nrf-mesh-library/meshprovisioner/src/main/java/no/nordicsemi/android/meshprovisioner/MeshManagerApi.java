@@ -771,7 +771,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
     private List<Provisioner> generateProvisioners(final String meshUuid) {
         final String provisionerUuid = UUID.randomUUID().toString().toUpperCase(Locale.US);
-        final AllocatedUnicastRange unicastRange = new AllocatedUnicastRange(new byte[]{0x00, 0x00}, new byte[]{0x7F, 0x7E});
+        final AllocatedUnicastRange unicastRange = new AllocatedUnicastRange(0x0001, 0x7FFF);
         final List<AllocatedUnicastRange> ranges = new ArrayList<>();
         ranges.add(unicastRange);
         final Provisioner provisioner = new Provisioner(provisionerUuid, ranges, null, null, meshUuid);

@@ -9,6 +9,8 @@ import android.arch.persistence.room.PrimaryKey;
 
 import com.google.gson.annotations.Expose;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 /**
@@ -33,11 +35,11 @@ public class AllocatedUnicastRange {
 
     @ColumnInfo(name = "low_address")
     @Expose
-    private byte[] lowAddress;
+    private int lowAddress;
 
     @ColumnInfo(name = "high_address")
     @Expose
-    private byte[] highAddress;
+    private int highAddress;
 
     @Ignore
     public AllocatedUnicastRange() {
@@ -50,7 +52,20 @@ public class AllocatedUnicastRange {
      * @param lowAddress  low address of unicast range
      * @param highAddress high address of unicast range
      */
+    @Deprecated
+    @Ignore
     public AllocatedUnicastRange(final byte[] lowAddress, final byte[] highAddress) {
+        this.lowAddress = MeshParserUtils.unsignedBytesToInt(lowAddress[1], lowAddress[0]);
+        this.highAddress = MeshParserUtils.unsignedBytesToInt(highAddress[1], highAddress[0]);
+    }
+
+    /**
+     * Constructs {@link AllocatedUnicastRange} for provisioner
+     *
+     * @param lowAddress  low address of unicast range
+     * @param highAddress high address of unicast range
+     */
+    public AllocatedUnicastRange(final int lowAddress, final int highAddress) {
         this.lowAddress = lowAddress;
         this.highAddress = highAddress;
     }
@@ -84,7 +99,7 @@ public class AllocatedUnicastRange {
      *
      * @return low address
      */
-    public byte[] getLowAddress() {
+    public int getLowAddress() {
         return lowAddress;
     }
 
@@ -93,7 +108,7 @@ public class AllocatedUnicastRange {
      *
      * @param lowAddress of the unicast range
      */
-    public void setLowAddress(final byte[] lowAddress) {
+    public void setLowAddress(final int lowAddress) {
         this.lowAddress = lowAddress;
     }
 
@@ -102,7 +117,7 @@ public class AllocatedUnicastRange {
      *
      * @return highAddress of the group range
      */
-    public byte[] getHighAddress() {
+    public int getHighAddress() {
         return highAddress;
     }
 
@@ -111,7 +126,7 @@ public class AllocatedUnicastRange {
      *
      * @param highAddress of the group range
      */
-    public void setHighAddress(final byte[] highAddress) {
+    public void setHighAddress(final int highAddress) {
         this.highAddress = highAddress;
     }
 }

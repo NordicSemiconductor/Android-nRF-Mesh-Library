@@ -15,7 +15,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 final class AllocatedUnicastRangeDeserializer implements JsonSerializer<List<AllocatedUnicastRange>>, JsonDeserializer<List<AllocatedUnicastRange>> {
     private static final String TAG = AllocatedUnicastRangeDeserializer.class.getSimpleName();
@@ -26,9 +26,9 @@ final class AllocatedUnicastRangeDeserializer implements JsonSerializer<List<All
         try {
             final JsonArray jsonObject = json.getAsJsonArray();
             for (int i = 0; i < jsonObject.size(); i++) {
-                final JsonObject unicastRangeJson = jsonObject.get(i).getAsJsonObject();
-                final byte[] lowAddress = MeshParserUtils.toByteArray(unicastRangeJson.get("lowAddress").getAsString());
-                final byte[] highAddress = MeshParserUtils.toByteArray(unicastRangeJson.get("highAddress").getAsString());
+                final JsonObject unicastRangeJson = json.getAsJsonObject();
+                final int lowAddress = unicastRangeJson.get("lowAddress").getAsInt();
+                final int highAddress = unicastRangeJson.get("highAddress").getAsInt();
                 unicastRanges.add(new AllocatedUnicastRange(lowAddress, highAddress));
             }
         } catch (Exception ex) {
@@ -40,10 +40,10 @@ final class AllocatedUnicastRangeDeserializer implements JsonSerializer<List<All
     @Override
     public JsonElement serialize(final List<AllocatedUnicastRange> ranges, final Type typeOfSrc, final JsonSerializationContext context) {
         final JsonArray jsonArray = new JsonArray();
-        for(AllocatedUnicastRange range :  ranges){
+        for (AllocatedUnicastRange range : ranges) {
             final JsonObject rangeJson = new JsonObject();
-            rangeJson.addProperty("lowAddress", MeshParserUtils.bytesToHex(range.getLowAddress(), false));
-            rangeJson.addProperty("highAddress", MeshParserUtils.bytesToHex(range.getHighAddress(), false));
+            rangeJson.addProperty("lowAddress", MeshAddress.formatAddress(range.getLowAddress(), false));
+            rangeJson.addProperty("highAddress", MeshAddress.formatAddress(range.getHighAddress(), false));
             jsonArray.add(rangeJson);
         }
         return jsonArray;

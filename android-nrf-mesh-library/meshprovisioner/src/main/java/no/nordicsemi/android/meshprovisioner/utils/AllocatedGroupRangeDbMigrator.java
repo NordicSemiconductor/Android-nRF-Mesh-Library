@@ -1,4 +1,4 @@
-package no.nordicsemi.android.meshprovisioner;
+package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.util.Log;
 
@@ -8,18 +8,18 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.AllocatedGroupRange;
 
-final class AllocatedGroupRangeDeserializer implements JsonSerializer<List<AllocatedGroupRange>>, JsonDeserializer<List<AllocatedGroupRange>> {
-    private static final String TAG = AllocatedGroupRangeDeserializer.class.getSimpleName();
+/**
+ * Migrator class to migrate allocated group range data
+ */
+final class AllocatedGroupRangeDbMigrator implements JsonDeserializer<List<AllocatedGroupRange>> {
+    private static final String TAG = AllocatedGroupRangeDbMigrator.class.getSimpleName();
 
     @Override
     public List<AllocatedGroupRange> deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
@@ -38,17 +38,5 @@ final class AllocatedGroupRangeDeserializer implements JsonSerializer<List<Alloc
             Log.e(TAG, "Error while de-serializing Allocated group range: " + ex.getMessage());
         }
         return groupRanges;
-    }
-
-    @Override
-    public JsonElement serialize(final List<AllocatedGroupRange> ranges, final Type typeOfSrc, final JsonSerializationContext context) {
-        final JsonArray jsonArray = new JsonArray();
-        for(AllocatedGroupRange range :  ranges){
-            final JsonObject rangeJson = new JsonObject();
-            rangeJson.addProperty("lowAddress", MeshAddress.formatAddress(range.getLowAddress(), false));
-            rangeJson.addProperty("highAddress", MeshAddress.formatAddress(range.getHighAddress(), false));
-            jsonArray.add(rangeJson);
-        }
-        return jsonArray;
     }
 }
