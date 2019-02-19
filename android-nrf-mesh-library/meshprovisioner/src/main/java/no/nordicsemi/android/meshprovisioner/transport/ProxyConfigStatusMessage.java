@@ -1,10 +1,6 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-
-import no.nordicsemi.android.meshprovisioner.opcodes.ProxyConfigMessageOpCodes;
-
-import static no.nordicsemi.android.meshprovisioner.transport.ConfigStatusMessage.StatusCodeNames.fromStatusCode;
+import androidx.annotation.NonNull;
 
 /**
  * Abstract wrapper class for mesh message.

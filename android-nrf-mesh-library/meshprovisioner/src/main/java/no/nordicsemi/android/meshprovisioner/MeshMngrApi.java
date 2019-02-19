@@ -1,22 +1,14 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.transport.GenericLevelGet;
-import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSet;
-import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSetUnacknowledged;
-import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffGet;
-import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSet;
-import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSetUnacknowledged;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageAcked;
-import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageUnacked;
 
 @SuppressWarnings("unused")
 interface MeshMngrApi {

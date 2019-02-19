@@ -2,12 +2,11 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import no.nordicsemi.android.meshprovisioner.transport.ConfigRelaySet;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 /**

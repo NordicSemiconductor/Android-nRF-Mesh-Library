@@ -1,10 +1,9 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import android.arch.persistence.room.Entity;
-import android.support.annotation.RestrictTo;
+import androidx.room.Entity;
+import androidx.annotation.RestrictTo;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

@@ -22,14 +22,14 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.Index;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Ignore;
+import androidx.room.Index;
 import android.os.Parcel;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.gson.annotations.Expose;
 
@@ -51,7 +51,7 @@ import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
-import static android.arch.persistence.room.ForeignKey.CASCADE;
+import static androidx.room.ForeignKey.CASCADE;
 
 @SuppressWarnings({"WeakerAccess", "unused", "deprecation"})
 @Entity(tableName = "nodes",

@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;

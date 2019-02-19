@@ -1,18 +1,16 @@
 package no.nordicsemi.android.meshprovisioner;
 
-import android.arch.persistence.db.SupportSQLiteDatabase;
-import android.arch.persistence.room.Database;
-import android.arch.persistence.room.Room;
-import android.arch.persistence.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.data.ApplicationKeyDao;
 import no.nordicsemi.android.meshprovisioner.data.GroupDao;
@@ -27,7 +25,6 @@ import no.nordicsemi.android.meshprovisioner.data.ScenesDao;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("unused")

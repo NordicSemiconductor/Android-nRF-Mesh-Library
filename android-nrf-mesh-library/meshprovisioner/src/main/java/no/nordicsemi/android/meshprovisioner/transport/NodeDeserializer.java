@@ -1,6 +1,6 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
