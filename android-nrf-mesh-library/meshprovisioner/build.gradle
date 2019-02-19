@@ -60,15 +60,15 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.6.3'
     androidTestImplementation 'org.mockito:mockito-android:2.6.3'
-    implementation 'com.android.support:support-annotations:28.0.0'
+    implementation 'androidx.annotation:annotation:1.0.0-beta01'
     api 'no.nordicsemi.android:log:2.1.1'
     // Spongycastle - Android implementation of Bouncy Castle
     implementation 'com.madgag.spongycastle:core:1.56.0.0'
     implementation 'com.madgag.spongycastle:prov:1.56.0.0'
     implementation 'com.google.code.gson:gson:2.8.5'
 
-    implementation "android.arch.persistence.room:runtime:1.1.1"
-    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
-    androidTestImplementation "android.arch.persistence.room:testing:1.1.1"
+    implementation 'androidx.room:room-runtime:2.0.0-beta01'
+    annotationProcessor 'androidx.room:room-compiler:2.0.0-beta01'
+    androidTestImplementation 'androidx.room:room-testing:2.0.0-beta01'
 
 }

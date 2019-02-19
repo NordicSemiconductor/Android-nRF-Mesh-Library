@@ -24,7 +24,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
 import android.os.Handler;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.nio.ByteBuffer;

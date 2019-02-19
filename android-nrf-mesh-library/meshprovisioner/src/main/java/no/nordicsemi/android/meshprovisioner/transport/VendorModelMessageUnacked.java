@@ -1,7 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
