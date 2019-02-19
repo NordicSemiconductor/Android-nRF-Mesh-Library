@@ -26,9 +26,9 @@ final class AllocatedUnicastRangeDeserializer implements JsonSerializer<List<All
         try {
             final JsonArray jsonObject = json.getAsJsonArray();
             for (int i = 0; i < jsonObject.size(); i++) {
-                final JsonObject unicastRangeJson = json.getAsJsonObject();
-                final int lowAddress = unicastRangeJson.get("lowAddress").getAsInt();
-                final int highAddress = unicastRangeJson.get("highAddress").getAsInt();
+                final JsonObject unicastRangeJson = jsonObject.get(i).getAsJsonObject();
+                final int lowAddress = Integer.parseInt(unicastRangeJson.get("lowAddress").getAsString(), 16);
+                final int highAddress = Integer.parseInt(unicastRangeJson.get("highAddress").getAsString(), 16);
                 unicastRanges.add(new AllocatedUnicastRange(lowAddress, highAddress));
             }
         } catch (Exception ex) {

@@ -14,7 +14,7 @@ import android.support.annotation.RestrictTo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import no.nordicsemi.android.meshprovisioner.utils.GroupAddress;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
@@ -31,7 +31,6 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
 public class Group implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
-    @NonNull
     public int id = 0;
 
     @ColumnInfo(name = "name")
@@ -64,7 +63,7 @@ public class Group implements Parcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public Group(final int id, final int groupAddress, @NonNull final String meshUuid) {
         this.id = id;
-        if (!GroupAddress.isValidGroupAddress(groupAddress)) {
+        if (!MeshAddress.isValidGroupAddress(groupAddress)) {
             throw new IllegalArgumentException("Address cannot be an unassigned address, unicast address, all-nodes address or virtual address");
         }
         this.groupAddress = groupAddress;
@@ -81,7 +80,7 @@ public class Group implements Parcelable {
      */
     @Ignore
     public Group(final int groupAddress, @NonNull final String meshUuid) {
-        if (!GroupAddress.isValidGroupAddress(groupAddress)) {
+        if (!MeshAddress.isValidGroupAddress(groupAddress)) {
             throw new IllegalArgumentException("Address cannot be an unassigned address, unicast address, all-nodes address or virtual address");
         }
         this.groupAddress = groupAddress;

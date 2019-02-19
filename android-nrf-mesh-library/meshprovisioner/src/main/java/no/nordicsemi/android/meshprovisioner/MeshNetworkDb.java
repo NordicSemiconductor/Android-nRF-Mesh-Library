@@ -30,7 +30,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.GroupAddress;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -671,7 +671,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             database.execSQL("ALTER TABLE provisioner "
                     + " ADD COLUMN address INTEGER NOT NULL DEFAULT " + 0x7FFF);
             database.execSQL("ALTER TABLE groups "
-                    + " ADD COLUMN grp_address INTEGER NOT NULL DEFAULT " + GroupAddress.START_GROUP_ADDRESS);
+                    + " ADD COLUMN grp_address INTEGER NOT NULL DEFAULT " + MeshAddress.START_GROUP_ADDRESS);
         }
     };
 

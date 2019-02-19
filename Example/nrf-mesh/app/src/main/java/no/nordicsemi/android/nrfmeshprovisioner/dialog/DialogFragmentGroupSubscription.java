@@ -46,7 +46,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
-import no.nordicsemi.android.meshprovisioner.utils.GroupAddress;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAdapterSpinner;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
@@ -198,7 +198,7 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
             }
 
             final int groupAddress = Integer.valueOf(address, 16);
-            if(!GroupAddress.isValidGroupAddress(groupAddress)){
+            if(!MeshAddress.isValidGroupAddress(groupAddress)){
                 addressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }

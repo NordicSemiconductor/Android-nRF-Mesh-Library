@@ -256,7 +256,8 @@ public final class MeshNetwork extends BaseMeshNetwork {
                         final List<Integer> subscriptionAddresses = model.getSubscribedAddresses();
                         for (Integer subscriptionAddress : subscriptionAddresses) {
                             if (group.getGroupAddress() == subscriptionAddress) {
-                                models.add(model);
+                                if(!models.contains(model))
+                                    models.add(model);
                             }
                         }
                     }

@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -40,6 +41,7 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
@@ -50,16 +52,16 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     private OnItemClickListener mOnItemClickListener;
     private MeshNetwork mNetwork;
 
-    public GroupAdapter(final FragmentActivity context, final MeshNetwork meshNetwork, final LiveData<List<Group>> groupLiveData) {
+    public GroupAdapter(final Context context/*, final MeshNetwork meshNetwork, final List<Group> groupLiveData*/) {
         this.mContext = context;
+    }
+
+    public void updateAdapter(final MeshNetwork meshNetwork, final List<Group> groups){
+
         mNetwork = meshNetwork;
-        groupLiveData.observe(context, groups -> {
-            if(groups != null) {
-                mGroups.clear();
-                mGroups.addAll(groups);
-                notifyDataSetChanged();
-            }
-        });
+        mGroups.clear();
+        mGroups.addAll(groups);
+        notifyDataSetChanged();
     }
 
     public void setOnItemClickListener(final OnItemClickListener listener) {
@@ -80,7 +82,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             if (group != null) {
                 final List<MeshModel> models = mNetwork.getModels(group);
                 holder.groupName.setText(group.getName());
-                final String addressSummary = "Address: " + Integer.toHexString(group.getGroupAddress());
+                final String addressSummary = "Address: " + MeshAddress.formatAddress(group.getGroupAddress(), true);
                 holder.groupAddress.setText(addressSummary);
                 holder.groupDeviceCount.setText(mContext.getString(R.string.group_device_count, models.size()));
             }

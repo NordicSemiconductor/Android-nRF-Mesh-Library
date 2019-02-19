@@ -82,8 +82,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             return null;
 
         final JsonObject publish = jsonObject.get("publish").getAsJsonObject();
-        //final int address = Integer.parseInt(publish.get("address").getAsString(), 16);
-        final int publishAddress = publish.get("address").getAsInt();
+        final int publishAddress = Integer.parseInt(publish.get("address").getAsString(), 16);
 
         final int index = publish.get("index").getAsInt();
         final int ttl = publish.get("ttl").getAsByte();

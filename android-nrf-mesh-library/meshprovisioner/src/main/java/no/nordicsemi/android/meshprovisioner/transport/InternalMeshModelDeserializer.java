@@ -153,15 +153,21 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
         //We check if subscription address is a byte[] or not inorder to migrate the data without losing
         if (jsonObject.has("mSubscriptionAddress")) {
             final JsonArray addresses = jsonObject.getAsJsonArray("mSubscriptionAddress");
-            for (int i = 0; i < addresses.size(); i++) {
-                final JsonArray jsonArray = addresses.get(i).getAsJsonArray();
-                final int address = MeshParserUtils.unsignedBytesToInt(jsonArray.get(1).getAsByte(), jsonArray.get(0).getAsByte());
-                meshModel.addSubscriptionAddress(address);
+            if(addresses.size() > 0) {
+                for (int i = 0; i < addresses.size(); i++) {
+                    final JsonArray jsonArray = addresses.get(i).getAsJsonArray();
+                    final int address = MeshParserUtils.unsignedBytesToInt(jsonArray.get(1).getAsByte(), jsonArray.get(0).getAsByte());
+                    meshModel.addSubscriptionAddress(address);
+                }
             }
-        } else if (jsonObject.has("subscriptionAddresses"))  {
-            final JsonArray addresses = jsonObject.getAsJsonArray("subscriptionAddress");
-            for (int i = 0; i < addresses.size(); i++) {
-                meshModel.addSubscriptionAddress(addresses.get(i).getAsInt());
+        }
+
+        if (jsonObject.has("subscriptionAddresses"))  {
+            final JsonArray addresses = jsonObject.get("subscriptionAddresses").getAsJsonArray();
+            if(addresses != null) {
+                for (int i = 0; i < addresses.size(); i++) {
+                    meshModel.addSubscriptionAddress(addresses.get(i).getAsInt());
+                }
             }
         }
 

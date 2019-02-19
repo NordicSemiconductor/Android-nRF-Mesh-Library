@@ -29,8 +29,8 @@ final class AllocatedGroupRangeDeserializer implements JsonSerializer<List<Alloc
                 final JsonArray jsonObject = json.getAsJsonArray();
                 for (int i = 0; i < jsonObject.size(); i++) {
                     final JsonObject unicastRangeJson = jsonObject.get(i).getAsJsonObject();
-                    final int lowAddress = unicastRangeJson.get("lowAddress").getAsInt();
-                    final int highAddress = unicastRangeJson.get("highAddress").getAsInt();
+                    final int lowAddress = Integer.parseInt(unicastRangeJson.get("lowAddress").getAsString(), 16);
+                    final int highAddress = Integer.parseInt(unicastRangeJson.get("highAddress").getAsString(), 16);
                     groupRanges.add(new AllocatedGroupRange(lowAddress, highAddress));
                 }
             }
