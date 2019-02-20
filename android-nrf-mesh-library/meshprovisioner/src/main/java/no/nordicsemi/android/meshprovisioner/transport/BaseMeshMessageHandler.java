@@ -513,7 +513,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             mMeshMessageState = lightLightnessSetState;
             lightLightnessSetState.executeSend();
         } else if (genericMessage instanceof LightLightnessSetUnacknowledged) {
-            final LightLightnessSetUnacknowledgedState lightLightnessSetUnacknowledgedState = new LightLightnessSetUnacknowledgedState(mContext, dst, src,
+            final LightLightnessSetUnacknowledgedState lightLightnessSetUnacknowledgedState = new LightLightnessSetUnacknowledgedState(mContext, src, dst,
                     (LightLightnessSetUnacknowledged) genericMessage, mMeshTransport, this);
             lightLightnessSetUnacknowledgedState.setTransportCallbacks(mInternalTransportCallbacks);
             lightLightnessSetUnacknowledgedState.setStatusCallbacks(mStatusCallbacks);
