@@ -52,7 +52,8 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
     private static final Creator<LightHslStatus> CREATOR = new Creator<LightHslStatus>() {
         @Override
         public LightHslStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new LightHslStatus(message);
         }
 
@@ -151,6 +152,7 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

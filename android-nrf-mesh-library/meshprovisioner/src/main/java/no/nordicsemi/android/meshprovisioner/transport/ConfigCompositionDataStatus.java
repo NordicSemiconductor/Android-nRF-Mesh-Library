@@ -62,7 +62,8 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
     private static final Creator<ConfigCompositionDataStatus> CREATOR = new Creator<ConfigCompositionDataStatus>() {
         @Override
         public ConfigCompositionDataStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new ConfigCompositionDataStatus(message);
         }
 
@@ -317,6 +318,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

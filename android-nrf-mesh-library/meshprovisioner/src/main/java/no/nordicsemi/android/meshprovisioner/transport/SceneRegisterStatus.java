@@ -41,10 +41,15 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
     private static final int SCENE_REGISTER_STATUS_MANDATORY_LENGTH = 3;
     private static final String TAG = SceneRegisterStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_REGISTER_STATUS;
+    private int mStatus;
+    private int mCurrentScene;
+    private int[] mSceneList;
+
     private static final Creator<SceneRegisterStatus> CREATOR = new Creator<SceneRegisterStatus>() {
         @Override
         public SceneRegisterStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new SceneRegisterStatus(message);
         }
 
@@ -53,9 +58,6 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
             return new SceneRegisterStatus[size];
         }
     };
-    private int mStatus;
-    private int mCurrentScene;
-    private int[] mSceneList;
 
     /**
      * Constructs the GenericOnOffStatus mMessage.
@@ -127,6 +129,7 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

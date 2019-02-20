@@ -35,11 +35,15 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class VendorModelMessageStatus extends GenericStatusMessage implements Parcelable {
 
+    private static final String TAG = VendorModelMessageStatus.class.getSimpleName();
+    private final int mModelIdentifier;
+
     public static final Creator<VendorModelMessageStatus> CREATOR = new Creator<VendorModelMessageStatus>() {
         @Override
         public VendorModelMessageStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
             final int modelIdentifier = in.readInt();
+            //noinspection ConstantConditions
             return new VendorModelMessageStatus(message, modelIdentifier);
         }
 
@@ -48,8 +52,6 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
             return new VendorModelMessageStatus[size];
         }
     };
-    private static final String TAG = VendorModelMessageStatus.class.getSimpleName();
-    private final int mModelIdentifier;
 
     /**
      * Constructs the VendorModelMessageStatus mMessage.
@@ -82,7 +84,8 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
         dest.writeInt(mModelIdentifier);
     }
 

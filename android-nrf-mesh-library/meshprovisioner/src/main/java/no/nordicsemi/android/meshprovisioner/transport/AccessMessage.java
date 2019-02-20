@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.os.Parcel;
 import android.util.SparseArray;
 
 @SuppressWarnings("WeakerAccess")
@@ -31,8 +32,40 @@ public final class AccessMessage extends Message {
     private byte[] accessPdu;
     private byte[] transportPdu;
 
+    public static final Creator<AccessMessage> CREATOR = new Creator<AccessMessage>() {
+        @Override
+        public AccessMessage createFromParcel(final Parcel source) {
+            return new AccessMessage(source);
+        }
+
+        @Override
+        public AccessMessage[] newArray(final int size) {
+            return new AccessMessage[size];
+        }
+    };
+
     public AccessMessage() {
         this.ctl = 0;
+    }
+
+    protected AccessMessage(final Parcel source) {
+        super(source);
+        lowerTransportAccessPdu = readSparseArrayToParcelable(source);
+        accessPdu = source.createByteArray();
+        transportPdu = source.createByteArray();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        super.writeToParcel(dest, flags);
+        writeSparseArrayToParcelable(dest, lowerTransportAccessPdu);
+        dest.writeByteArray(accessPdu);
+        dest.writeByteArray(transportPdu);
     }
 
     @Override

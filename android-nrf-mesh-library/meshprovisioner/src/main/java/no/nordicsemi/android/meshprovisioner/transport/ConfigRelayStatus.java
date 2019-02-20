@@ -39,10 +39,15 @@ public final class ConfigRelayStatus extends ConfigStatusMessage implements Parc
 
     private static final String TAG = ConfigRelayStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS;
+    private int mRelay;
+    private int mRelayRetransmitCount;
+    private int mRelayRetransmitIntervalSteps;
+
     private static final Creator<ConfigRelayStatus> CREATOR = new Creator<ConfigRelayStatus>() {
         @Override
         public ConfigRelayStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new ConfigRelayStatus(message);
         }
 
@@ -51,9 +56,6 @@ public final class ConfigRelayStatus extends ConfigStatusMessage implements Parc
             return new ConfigRelayStatus[size];
         }
     };
-    private int mRelay;
-    private int mRelayRetransmitCount;
-    private int mRelayRetransmitIntervalSteps;
 
     /**
      * Constructs a ConfigRelayStatus message.
@@ -117,6 +119,7 @@ public final class ConfigRelayStatus extends ConfigStatusMessage implements Parc
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

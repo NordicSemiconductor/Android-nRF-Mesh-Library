@@ -51,7 +51,8 @@ public final class LightLightnessStatus extends GenericStatusMessage implements 
     private static final Creator<LightLightnessStatus> CREATOR = new Creator<LightLightnessStatus>() {
         @Override
         public LightLightnessStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new LightLightnessStatus(message);
         }
 
@@ -139,6 +140,7 @@ public final class LightLightnessStatus extends GenericStatusMessage implements 
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

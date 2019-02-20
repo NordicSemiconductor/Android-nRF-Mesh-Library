@@ -51,7 +51,8 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
     private static final Creator<GenericLevelStatus> CREATOR = new Creator<GenericLevelStatus>() {
         @Override
         public GenericLevelStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new GenericLevelStatus(message);
         }
 
@@ -138,6 +139,7 @@ public final class GenericLevelStatus extends GenericStatusMessage implements Pa
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

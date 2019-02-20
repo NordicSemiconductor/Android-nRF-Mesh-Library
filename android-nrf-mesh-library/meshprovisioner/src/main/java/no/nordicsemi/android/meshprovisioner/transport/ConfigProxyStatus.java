@@ -37,10 +37,13 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
 
     private static final String TAG = ConfigProxyStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS;
+    private int mProxyState;
+
     private static final Creator<ConfigProxyStatus> CREATOR = new Creator<ConfigProxyStatus>() {
         @Override
         public ConfigProxyStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new ConfigProxyStatus(message);
         }
 
@@ -49,7 +52,6 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
             return new ConfigProxyStatus[size];
         }
     };
-    private int mProxyState;
 
     /**
      * Constructs a ConfigRelayStatus message.
@@ -97,6 +99,7 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }
