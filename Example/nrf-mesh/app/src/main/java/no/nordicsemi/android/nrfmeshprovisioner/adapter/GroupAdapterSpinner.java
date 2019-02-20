@@ -37,7 +37,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class GroupAdapterSpinner extends BaseAdapter {
@@ -89,7 +89,7 @@ public class GroupAdapterSpinner extends BaseAdapter {
 
             final Group group = mGroups.get(position);
             viewHolder.groupName.setText(group.getName());
-            viewHolder.address.setText(MeshParserUtils.bytesToHex(group.getGroupAddress(), true));
+            viewHolder.address.setText(MeshAddress.formatAddress(group.getGroupAddress(), true));
             return view;
         } else {
             view = LayoutInflater.from(mContext).inflate(R.layout.no_groups_layout, parent, false);

@@ -25,8 +25,6 @@ package no.nordicsemi.android.meshprovisioner.provisionerstates;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.UUID;
 
 
@@ -34,7 +32,7 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
 
     protected static final String TAG = UnprovisionedBaseMeshNode.class.getSimpleName();
 
-    private byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
+    private int mConfigurationSrc;
     protected byte[] ivIndex;
     boolean isProvisioned;
     boolean isConfigured;
@@ -50,7 +48,7 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
     byte[] identityKey;
     protected int keyIndex;
     byte[] mFlags;
-    protected byte[] unicastAddress;
+    protected int unicastAddress;
     byte[] deviceKey;
     protected int ttl = 5;
     private String bluetoothDeviceAddress;
@@ -89,15 +87,11 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
             this.nodeName = nodeName;
     }
 
-    public final byte[] getUnicastAddress() {
+    public final int getUnicastAddress() {
         return unicastAddress;
     }
 
-    public final int getUnicastAddressInt() {
-        return ByteBuffer.wrap(unicastAddress).order(ByteOrder.BIG_ENDIAN).getShort();
-    }
-
-    public final void setUnicastAddress(final byte[] unicastAddress) {
+    public final void setUnicastAddress(final int unicastAddress) {
         this.unicastAddress = unicastAddress;
     }
 
@@ -145,11 +139,11 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
         return mTimeStampInMillis;
     }
 
-    public final byte[] getConfigurationSrc() {
+    public final int getConfigurationSrc() {
         return mConfigurationSrc;
     }
 
-    public final void setConfigurationSrc(final byte[] src) {
+    public final void setConfigurationSrc(final int src) {
         mConfigurationSrc = src;
     }
 

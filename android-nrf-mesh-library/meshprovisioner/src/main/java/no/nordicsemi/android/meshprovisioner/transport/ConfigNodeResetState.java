@@ -4,9 +4,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * State class for handling ConfigNodeReset messages.
  */
+@SuppressWarnings("WeakerAccess")
 class ConfigNodeResetState extends ConfigMessageState {
 
     private static final String TAG = ConfigNodeResetState.class.getSimpleName();
@@ -22,10 +25,33 @@ class ConfigNodeResetState extends ConfigMessageState {
      * @param configNodeReset Wrapper class {@link ConfigNodeReset} containing the opcode and parameters for {@link ConfigNodeReset} message
      * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
+     * @deprecated in favour of {@link ConfigNodeResetState}
      */
+    @Deprecated
     ConfigNodeResetState(@NonNull final Context context,
                          @NonNull final byte[] src,
                          @NonNull final byte[] dst,
+                         @NonNull final byte[] deviceKey,
+                         @NonNull final ConfigNodeReset configNodeReset,
+                         @NonNull final MeshTransport meshTransport,
+                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), deviceKey, configNodeReset, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs {@link ConfigNodeResetState}
+     *
+     * @param context         Context of the application
+     * @param src             source address
+     * @param dst             destination address
+     * @param deviceKey       device key
+     * @param configNodeReset Wrapper class {@link ConfigNodeReset} containing the opcode and parameters for {@link ConfigNodeReset} message
+     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException for any illegal arguments provided.
+     */
+    ConfigNodeResetState(@NonNull final Context context,
+                         final int src,
+                         final int dst,
                          @NonNull final byte[] deviceKey,
                          @NonNull final ConfigNodeReset configNodeReset,
                          @NonNull final MeshTransport meshTransport,

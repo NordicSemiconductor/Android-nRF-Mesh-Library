@@ -26,9 +26,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * This class handles subscribing a model to subscription address.
  */
+@SuppressWarnings("WeakerAccess")
 final class ConfigModelSubscriptionAddState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelSubscriptionAddState.class.getSimpleName();
@@ -44,10 +47,33 @@ final class ConfigModelSubscriptionAddState extends ConfigMessageState {
      * @param configModelSubscriptionAdd {@link ConfigModelSubscriptionAdd}
      * @param meshTransport              {@link MeshTransport}
      * @param callbacks                  {@link InternalMeshMsgHandlerCallbacks}
+     * @deprecated in favour of {@link #ConfigModelSubscriptionAddState(Context, int, int, byte[], ConfigModelSubscriptionAdd, MeshTransport, InternalMeshMsgHandlerCallbacks)}
      */
+    @Deprecated
     ConfigModelSubscriptionAddState(@NonNull final Context context,
                                     @NonNull final byte[] src,
                                     @NonNull final byte[] dst,
+                                    @NonNull final byte[] deviceKey,
+                                    @NonNull final ConfigModelSubscriptionAdd configModelSubscriptionAdd,
+                                    @NonNull final MeshTransport meshTransport,
+                                    @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), deviceKey, configModelSubscriptionAdd, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs the state for creating ConfigModelSubscriptionAdd message
+     *
+     * @param context                    context
+     * @param src                        source address
+     * @param dst                        destination address
+     * @param deviceKey                  device key
+     * @param configModelSubscriptionAdd {@link ConfigModelSubscriptionAdd}
+     * @param meshTransport              {@link MeshTransport}
+     * @param callbacks                  {@link InternalMeshMsgHandlerCallbacks}
+     */
+    ConfigModelSubscriptionAddState(@NonNull final Context context,
+                                    final int src,
+                                    final int dst,
                                     @NonNull final byte[] deviceKey,
                                     @NonNull final ConfigModelSubscriptionAdd configModelSubscriptionAdd,
                                     @NonNull final MeshTransport meshTransport,

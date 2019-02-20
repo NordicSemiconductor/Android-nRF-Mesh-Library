@@ -5,8 +5,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import org.spongycastle.crypto.InvalidCipherTextException;
-
 import java.util.ArrayList;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
@@ -92,7 +90,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     if (status.isSuccessful()) {
                         if (mMeshMessage instanceof ConfigAppKeyAdd) {
                             final ConfigAppKeyAdd configAppKeyAdd = (ConfigAppKeyAdd) mMeshMessage;
-                            node.setAddedAppKey(status.getAppKeyIndex(), configAppKeyAdd.getAppKey());//MeshParserUtils.bytesToHex(configAppKeyAdd.getAppKey(), false));
+                            node.setAddedAppKey(status.getAppKeyIndex(), configAppKeyAdd.getAppKey());
                         }
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
@@ -113,8 +111,12 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigModelPublicationStatus status = new ConfigModelPublicationStatus(message);
                     if (status.isSuccessful()) {
                         final Element element = node.getElements().get(status.getElementAddress());
-                        final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-                        model.setPublicationStatus(status);
+                        if(element != null) {
+                            final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+                            if(model != null) {
+                                model.setPublicationStatus(status);
+                            }
+                        }
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
@@ -124,12 +126,15 @@ class DefaultNoOperationMessageState extends MeshMessageState {
 
                     if (status.isSuccessful()) {
                         final Element element = node.getElements().get(status.getElementAddress());
-                        final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-
-                        if (mMeshMessage instanceof ConfigModelSubscriptionAdd) {
-                            model.addSubscriptionAddress(status.getSubscriptionAddress());
-                        } else if (mMeshMessage instanceof ConfigModelSubscriptionDelete) {
-                            model.removeSubscriptionAddress(status.getSubscriptionAddress());
+                        if(element != null) {
+                            final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+                            if(model != null) {
+                                if (mMeshMessage instanceof ConfigModelSubscriptionAdd) {
+                                    model.addSubscriptionAddress(status.getSubscriptionAddress());
+                                } else if (mMeshMessage instanceof ConfigModelSubscriptionDelete) {
+                                    model.removeSubscriptionAddress(status.getSubscriptionAddress());
+                                }
+                            }
                         }
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);

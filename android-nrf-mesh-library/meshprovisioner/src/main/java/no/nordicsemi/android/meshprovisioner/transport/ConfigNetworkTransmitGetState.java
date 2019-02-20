@@ -4,6 +4,9 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
+@SuppressWarnings("WeakerAccess")
 public final class ConfigNetworkTransmitGetState extends ConfigMessageState {
 
     private static final String TAG = ConfigNetworkTransmitGetState.class.getSimpleName();
@@ -19,10 +22,33 @@ public final class ConfigNetworkTransmitGetState extends ConfigMessageState {
      * @param configNetworkTransmitGet {@link ConfigNetworkTransmitGet}
      * @param meshTransport            {@link MeshTransport}
      * @param callbacks                {@link InternalMeshMsgHandlerCallbacks}
+     * @deprecated in favour of {@link ConfigNetworkTransmitGetState}
      */
+    @Deprecated
     ConfigNetworkTransmitGetState(@NonNull final Context context,
                                   @NonNull final byte[] src,
                                   @NonNull final byte[] dst,
+                                  @NonNull final byte[] deviceKey,
+                                  @NonNull final ConfigNetworkTransmitGet configNetworkTransmitGet,
+                                  @NonNull final MeshTransport meshTransport,
+                                  @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), deviceKey, configNetworkTransmitGet, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs the state for creating ConfigNetworkTransmitGet message
+     *
+     * @param context                  context
+     * @param src                      source address
+     * @param dst                      destination address
+     * @param deviceKey                device key
+     * @param configNetworkTransmitGet {@link ConfigNetworkTransmitGet}
+     * @param meshTransport            {@link MeshTransport}
+     * @param callbacks                {@link InternalMeshMsgHandlerCallbacks}
+     */
+    ConfigNetworkTransmitGetState(@NonNull final Context context,
+                                  final int src,
+                                  final int dst,
                                   @NonNull final byte[] deviceKey,
                                   @NonNull final ConfigNetworkTransmitGet configNetworkTransmitGet,
                                   @NonNull final MeshTransport meshTransport,

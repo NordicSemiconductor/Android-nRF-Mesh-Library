@@ -29,7 +29,7 @@ public class ProvisionerDeserializer implements JsonSerializer<List<Provisioner>
                 groupRanges = deserializeAllocatedGroupRange(context, jsonProvisioner.get("allocatedGroupRange").getAsJsonArray());
 
             List<AllocatedSceneRange> sceneRanges = null;
-            if (jsonProvisioner.has("allocatedGroupRange"))
+            if (jsonProvisioner.has("allocatedSceneRange"))
                 sceneRanges = deserializeAllocatedSceneRange(context, jsonProvisioner);
 
             final Provisioner provisioner = new Provisioner(provisionerUuid, unicastRanges, groupRanges, sceneRanges, "");

@@ -16,7 +16,7 @@ import java.util.Locale;
 
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
 /**
@@ -33,12 +33,12 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             final int modelId = Integer.parseInt(jsonObject.get("modelId").getAsString(), 16);
 
             final PublicationSettings publicationSettings = getPublicationSettings(jsonObject);
-            final List<byte[]> subscriptionAddresses = getSubscriptionAddresses(jsonObject);
+            final List<Integer> subscriptionAddresses = getSubscriptionAddresses(jsonObject);
             final List<Integer> boundKeyIndexes = getBoundAppKeyIndexes(jsonObject);
             final MeshModel meshModel = getMeshModel(modelId);
             if (meshModel != null) {
                 meshModel.mPublicationSettings = publicationSettings;
-                meshModel.mSubscriptionAddress.addAll(subscriptionAddresses);
+                meshModel.subscriptionAddresses.addAll(subscriptionAddresses);
                 meshModel.mBoundAppKeyIndexes.addAll(boundKeyIndexes);
                 meshModels.add(meshModel);
             }
@@ -56,8 +56,8 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             } else {
                 meshModelJson.addProperty("modelId", String.format(Locale.US, "%04X", model.getModelId()));
             }
-            if (!model.getSubscriptionAddresses().isEmpty()) {
-                meshModelJson.add("subscribe", serializeSubscriptionAddresses(model.getSubscriptionAddresses()));
+            if (!model.getSubscribedAddresses().isEmpty()) {
+                meshModelJson.add("subscribe", serializeSubscriptionAddresses(model.getSubscribedAddresses()));
             }
             if (model.getPublicationSettings() != null) {
                 meshModelJson.add("publish", serializePublicationSettings(model.getPublicationSettings()));
@@ -82,8 +82,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             return null;
 
         final JsonObject publish = jsonObject.get("publish").getAsJsonObject();
-        //final int address = Integer.parseInt(publish.get("address").getAsString(), 16);
-        final byte[] publishAddress = MeshParserUtils.toByteArray(publish.get("address").getAsString());//AddressUtils.getUnicastAddressBytes(address);
+        final int publishAddress = Integer.parseInt(publish.get("address").getAsString(), 16);
 
         final int index = publish.get("index").getAsInt();
         final int ttl = publish.get("ttl").getAsByte();
@@ -117,16 +116,15 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
      * @param jsonObject json
      * @return list of subscription addresses
      */
-    private List<byte[]> getSubscriptionAddresses(final JsonObject jsonObject) {
-        final List<byte[]> subscriptions = new ArrayList<>();
+    private List<Integer> getSubscriptionAddresses(final JsonObject jsonObject) {
+        final List<Integer> subscriptions = new ArrayList<>();
         if (!(jsonObject.has("subscribe")))
             return subscriptions;
 
         final JsonArray jsonArray = jsonObject.get("subscribe").getAsJsonArray();
         for (int i = 0; i < jsonArray.size(); i++) {
-            //final int address = Integer.parseInt(jsonArray.get(i).getAsString(), 16);
-            final byte[] publishAddress = MeshParserUtils.toByteArray(jsonArray.get(i).getAsString());
-            subscriptions.add(publishAddress);
+            final int address = Integer.parseInt(jsonArray.get(i).getAsString(), 16);
+            subscriptions.add(address);
         }
         return subscriptions;
     }
@@ -149,10 +147,10 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
      *
      * @param subscriptions subscriptions list
      */
-    private JsonArray serializeSubscriptionAddresses(final List<byte[]> subscriptions) {
+    private JsonArray serializeSubscriptionAddresses(final List<Integer> subscriptions) {
         final JsonArray subscriptionsJson = new JsonArray();
-        for (byte[] address : subscriptions) {
-            subscriptionsJson.add(MeshParserUtils.bytesToHex(address, false));
+        for (Integer address : subscriptions) {
+            subscriptionsJson.add(MeshAddress.formatAddress(address, false));
         }
         return subscriptionsJson;
     }
@@ -164,7 +162,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
      */
     private JsonObject serializePublicationSettings(final PublicationSettings publicationSettings) {
         final JsonObject publicationJson = new JsonObject();
-        publicationJson.addProperty("address", MeshParserUtils.bytesToHex(publicationSettings.getPublishAddress(), false));
+        publicationJson.addProperty("address", MeshAddress.formatAddress(publicationSettings.getPublishAddress(), false));
         publicationJson.addProperty("index", String.format(Locale.US, "%04X", publicationSettings.getAppKeyIndex()));
         publicationJson.addProperty("ttl", publicationSettings.getPublishTtl());
         publicationJson.addProperty("period", publicationSettings.calculatePublicationPeriod());

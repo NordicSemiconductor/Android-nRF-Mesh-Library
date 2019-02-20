@@ -11,7 +11,6 @@ import android.support.annotation.RestrictTo;
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.Provisioner;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("unused")

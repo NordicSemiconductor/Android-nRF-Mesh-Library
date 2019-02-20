@@ -44,7 +44,7 @@ import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
@@ -83,9 +83,9 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Element element = mElements.get(position);
-        holder.mElementContainer.setTag(element.getElementAddressInt());
+        holder.mElementContainer.setTag(element.getElementAddress());
         final int modelCount = element.getMeshModels().size();
-        holder.mElementTitle.setText(mContext.getString(R.string.element_address, MeshParserUtils.bytesToHex(element.getElementAddress(), false)));
+        holder.mElementTitle.setText(mContext.getString(R.string.element_address, MeshAddress.formatAddress(element.getElementAddress(), true)));
         holder.mElementSubtitle.setText(mContext.getString(R.string.model_count, modelCount));
 
         final List<MeshModel> models = new ArrayList<>(element.getMeshModels().values());
@@ -125,7 +125,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
 
     @Override
     public long getItemId(final int position) {
-        return mElements.get(position).getElementAddressInt();
+        return mElements.get(position).getElementAddress();
     }
 
     public boolean isEmpty() {

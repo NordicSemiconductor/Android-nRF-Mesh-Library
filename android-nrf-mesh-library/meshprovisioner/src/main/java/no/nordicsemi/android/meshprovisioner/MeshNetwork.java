@@ -7,7 +7,6 @@ import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +16,7 @@ import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 
 @SuppressWarnings({"WeakerAccess", "unused", "UnusedReturnValue"})
 @Entity(tableName = "mesh_network")
@@ -133,8 +133,8 @@ public final class MeshNetwork extends BaseMeshNetwork {
      * @param name Friendly name of the group
      * @return true if the group was successfully added and false otherwise since a group may already exist with the same group address
      */
-    public boolean addGroup(@NonNull final byte[] address, @NonNull final String name) {
-        final Group group = new Group(address, null, meshUUID);
+    public boolean addGroup(final int address, @NonNull final String name) {
+        final Group group = new Group(address, meshUUID);
         if(!TextUtils.isEmpty(name))
             group.setName(name);
 
@@ -148,9 +148,9 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return false;
     }
 
-    public Group getGroup(@NonNull final byte[] address) {
+    public Group getGroup(final int address) {
         for (final Group group : groups) {
-            if (Arrays.equals(group.getGroupAddress(), address)) {
+            if (address == group.getGroupAddress()) {
                 return group;
             }
         }
@@ -190,9 +190,9 @@ public final class MeshNetwork extends BaseMeshNetwork {
      *
      * @param address Group address
      */
-    public boolean isGroupExist(@NonNull final byte[] address) {
+    public boolean isGroupExist(final int address) {
         for (final Group group : groups) {
-            if (Arrays.equals(group.getGroupAddress(), address)) {
+            if (address == group.getGroupAddress()) {
                 return true;
             }
         }
@@ -206,7 +206,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public boolean isGroupExist(@NonNull final Group group) {
         for (final Group grp : groups) {
-            if (Arrays.equals(grp.getGroupAddress(), group.getGroupAddress())) {
+            if (group.getGroupAddress() == grp.getGroupAddress()) {
                 return true;
             }
         }
@@ -226,9 +226,9 @@ public final class MeshNetwork extends BaseMeshNetwork {
                 for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
                     final MeshModel model = modelEntry.getValue();
                     if (model != null) {
-                        final List<byte[]> subscriptionAddresses = model.getSubscriptionAddresses();
-                        for (byte[] subscriptionAddress : subscriptionAddresses) {
-                            if (Arrays.equals(group.getGroupAddress(), subscriptionAddress)) {
+                        final List<Integer> subscriptionAddresses = model.getSubscribedAddresses();
+                        for (Integer subscriptionAddress : subscriptionAddresses) {
+                            if (group.getGroupAddress() == subscriptionAddress) {
                                 if (!elements.contains(element))
                                     elements.add(element);
                             }
@@ -253,10 +253,11 @@ public final class MeshNetwork extends BaseMeshNetwork {
                 for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
                     final MeshModel model = modelEntry.getValue();
                     if (model != null) {
-                        final List<byte[]> subscriptionAddresses = model.getSubscriptionAddresses();
-                        for (byte[] subscriptionAddress : subscriptionAddresses) {
-                            if (Arrays.equals(group.getGroupAddress(), subscriptionAddress)) {
-                                models.add(model);
+                        final List<Integer> subscriptionAddresses = model.getSubscribedAddresses();
+                        for (Integer subscriptionAddress : subscriptionAddresses) {
+                            if (group.getGroupAddress() == subscriptionAddress) {
+                                if(!models.contains(model))
+                                    models.add(model);
                             }
                         }
                     }
@@ -317,9 +318,9 @@ public final class MeshNetwork extends BaseMeshNetwork {
      *
      * @param unicastAddress unicast address of the node
      */
-    public ProvisionedMeshNode getProvisionedNode(final byte[] unicastAddress) {
+    public ProvisionedMeshNode getProvisionedNode(@NonNull final byte[] unicastAddress) {
         for (ProvisionedMeshNode node : nodes) {
-            if (node.hasUnicastAddress(unicastAddress)) {
+            if (node.hasUnicastAddress(AddressUtils.getUnicastAddressInt(unicastAddress))) {
                 return node;
             }
         }
@@ -354,7 +355,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public boolean deleteNode(final ProvisionedMeshNode meshNode) {
         for (ProvisionedMeshNode node : nodes) {
-            if (meshNode.getUnicastAddressInt() == node.getUnicastAddressInt()) {
+            if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
                 nodes.remove(node);
                 notifyNodeDeleted(meshNode);
                 return true;
@@ -365,7 +366,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     boolean deleteResetNode(final ProvisionedMeshNode meshNode) {
         for (ProvisionedMeshNode node : nodes) {
-            if (meshNode.getUnicastAddressInt() == node.getUnicastAddressInt()) {
+            if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
                 nodes.remove(node);
                 return true;
             }

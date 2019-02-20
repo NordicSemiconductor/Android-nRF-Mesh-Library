@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -86,7 +87,7 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         final View containerUnicastAddress = findViewById(R.id.container_supported_algorithm);
         containerUnicastAddress.setClickable(false);
         final TextView unicastAddress = containerUnicastAddress.findViewById(R.id.text);
-        unicastAddress.setText(MeshParserUtils.bytesToHex(node.getUnicastAddress(), false));
+        unicastAddress.setText(MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(node.getUnicastAddress()), false));
 
         final View containerDeviceKey = findViewById(R.id.container_device_key);
         containerDeviceKey.setClickable(false);

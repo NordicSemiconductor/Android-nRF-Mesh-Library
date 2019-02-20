@@ -22,6 +22,7 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
@@ -207,8 +208,8 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                     final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
                     final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
 
-                    final byte[] address = element.getElementAddress();
-                    Log.v(TAG, "Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
+                    final int address = element.getElementAddress();
+                    Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
 
                     final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey);
                     mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
@@ -236,9 +237,9 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                     if (!model.getBoundAppKeyIndexes().isEmpty()) {
                         final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
                         final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-                        final byte[] address = element.getElementAddress();
+                        final int address = element.getElementAddress();
                         Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                                + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
+                                + ". Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
                         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state, node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
                         mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
                         showProgressbar();

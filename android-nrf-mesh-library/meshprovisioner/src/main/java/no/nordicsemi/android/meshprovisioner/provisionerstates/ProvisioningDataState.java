@@ -30,6 +30,7 @@ import no.nordicsemi.android.meshprovisioner.InternalProvisioningCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -108,7 +109,7 @@ public class ProvisioningDataState extends ProvisioningState {
         Log.v(TAG, "IV index: " + MeshParserUtils.bytesToHex(ivIndex, false));
 
         /* Generate random 2 byte unicast address*/
-        final byte[] unicastAddress = mUnprovisionedMeshNode.getUnicastAddress();
+        final byte[] unicastAddress = AddressUtils.getUnicastAddressBytes(mUnprovisionedMeshNode.getUnicastAddress());
 
         Log.v(TAG, "Unicast address: " + MeshParserUtils.bytesToHex(unicastAddress, false));
         ByteBuffer buffer = ByteBuffer.allocate(networkKey.length + keyIndex.length + flags.length + ivIndex.length + unicastAddress.length);

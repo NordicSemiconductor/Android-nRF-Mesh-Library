@@ -5,9 +5,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * State class for handling GenericLevelGet messages.
  */
+@SuppressWarnings("WeakerAccess")
 class GenericLevelGetState extends GenericMessageState {
 
     private static final String TAG = GenericLevelGetState.class.getSimpleName();
@@ -22,9 +25,29 @@ class GenericLevelGetState extends GenericMessageState {
      * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
+    @Deprecated
     GenericLevelGetState(@NonNull final Context context,
                          @NonNull final byte[] src,
                          @NonNull final byte[] dst,
+                         @NonNull final GenericLevelGet genericLevelGet,
+                         @NonNull final MeshTransport meshTransport,
+                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), genericLevelGet, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs GenericLevelGetState
+     *
+     * @param context         Context of the application
+     * @param src             Source address
+     * @param dst             Destination address to which the message must be sent to
+     * @param genericLevelGet Wrapper class {@link GenericLevelGet} containing the opcode and parameters for {@link GenericLevelGet} message
+     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException for any illegal arguments provided.
+     */
+    GenericLevelGetState(@NonNull final Context context,
+                         final int src,
+                         final int dst,
                          @NonNull final GenericLevelGet genericLevelGet,
                          @NonNull final MeshTransport meshTransport,
                          @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {

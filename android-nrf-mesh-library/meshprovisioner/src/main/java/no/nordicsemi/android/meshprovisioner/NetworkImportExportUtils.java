@@ -22,7 +22,7 @@ import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
-import no.nordicsemi.android.meshprovisioner.transport.ElementListDeserializer;
+import no.nordicsemi.android.meshprovisioner.transport.InternalElementListDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModelListDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
@@ -136,7 +136,7 @@ class NetworkImportExportUtils {
                 gsonBuilder.registerTypeAdapter(allocatedGroupRange, new AllocatedGroupRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(allocatedSceneRange, new AllocatedSceneRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(nodeList, new NodeDeserializer());
-                gsonBuilder.registerTypeAdapter(elementList, new ElementListDeserializer());
+                gsonBuilder.registerTypeAdapter(elementList, new InternalElementListDeserializer());
                 gsonBuilder.registerTypeAdapter(meshModelList, new MeshModelListDeserializer());
                 final Gson gson = gsonBuilder.create();
 
@@ -257,7 +257,7 @@ class NetworkImportExportUtils {
                 gsonBuilder.registerTypeAdapter(allocatedGroupRange, new AllocatedGroupRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(allocatedSceneRange, new AllocatedSceneRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(nodeList, new NodeDeserializer());
-                gsonBuilder.registerTypeAdapter(elementList, new ElementListDeserializer());
+                gsonBuilder.registerTypeAdapter(elementList, new InternalElementListDeserializer());
                 gsonBuilder.registerTypeAdapter(meshModelList, new MeshModelListDeserializer());
                 gsonBuilder.registerTypeAdapter(MeshNetwork.class, new MeshNetworkDeserializer());
 

@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -43,6 +44,17 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS;
     private static final int CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH = 12;
     private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL_PDU_LENGTH = 14;
+    private int mElementAddress;
+    private int publishAddress;
+    private int mAppKeyIndex;
+    private boolean credentialFlag;
+    private int publishTtl;
+    private int publicationSteps;
+    private int publicationResolution;
+    private int publishRetransmitCount;
+    private int publishRetransmitIntervalSteps;
+    private int mModelIdentifier; //16-bit SIG Model or 32-bit Vendor Model identifier
+
     private static final Creator<ConfigModelPublicationStatus> CREATOR = new Creator<ConfigModelPublicationStatus>() {
         @Override
         public ConfigModelPublicationStatus createFromParcel(Parcel in) {
@@ -55,16 +67,6 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
             return new ConfigModelPublicationStatus[size];
         }
     };
-    private int mElementAddress;
-    private byte[] publishAddress;
-    private int mAppKeyIndex;
-    private boolean credentialFlag;
-    private int publishTtl;
-    private int publicationSteps;
-    private int publicationResolution;
-    private int publishRetransmitCount;
-    private int publishRetransmitIntervalSteps;
-    private int mModelIdentifier; //16-bit SIG Model or 32-bit Vendor Model identifier
 
     /**
      * Constructs the ConfigModelAppStatus mMessage.
@@ -84,8 +86,8 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
         mStatusCode = mParameters[0];
         mStatusCodeName = getStatusCodeName(mStatusCode);
         final byte[] elementAddress = new byte[]{mParameters[2], mParameters[1]};
-        mElementAddress = ByteBuffer.wrap(elementAddress).order(ByteOrder.BIG_ENDIAN).getShort();
-        publishAddress = new byte[]{mParameters[4], mParameters[3]};
+        mElementAddress = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
+        publishAddress = MeshParserUtils.unsignedBytesToInt(mParameters[3], mParameters[4]);
         final byte[] appKeyIndex = new byte[]{(byte) (mParameters[6] & 0x0F), mParameters[5]};
         mAppKeyIndex = ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
         credentialFlag = (mParameters[6] & 0xF0) >> 4 == 1;
@@ -98,8 +100,7 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
 
         final byte[] modelIdentifier;
         if (mParameters.length == CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH) {
-            modelIdentifier = new byte[]{mParameters[11], mParameters[10]};
-            mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getShort();
+            mModelIdentifier = MeshParserUtils.unsignedBytesToInt(mParameters[10], mParameters[11]);
         } else {
             modelIdentifier = new byte[]{mParameters[11], mParameters[10], mParameters[13], mParameters[12]};
             mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getInt();
@@ -108,14 +109,14 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
         Log.v(TAG, "Element address: " + MeshParserUtils.bytesToHex(elementAddress, false));
-        Log.v(TAG, "Publish Address: " + MeshParserUtils.bytesToHex(publishAddress, false));
+        Log.v(TAG, "Publish Address: " + MeshAddress.formatAddress(publishAddress, false));
         Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
         Log.v(TAG, "Credential Flag: " + credentialFlag);
         Log.v(TAG, "Publish TTL: " + publishTtl);
         Log.v(TAG, "Publish Period: " + publishPeriod);
         Log.v(TAG, "Publish Retransmit Count: " + publishRetransmitCount);
         Log.v(TAG, "Publish Publish Interval Steps: " + publishRetransmitIntervalSteps);
-        Log.v(TAG, "Model Identifier: " + MeshParserUtils.bytesToHex(modelIdentifier, false));
+        Log.v(TAG, "Model Identifier: " + Integer.toHexString(mModelIdentifier));
     }
 
     @Override
@@ -153,7 +154,7 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
     /**
      * Returns the publish address to which the model must publish to
      */
-    public byte[] getPublishAddress() {
+    public int getPublishAddress() {
         return publishAddress;
     }
 

@@ -60,7 +60,7 @@ public class MeshParserUtils {
     public static final int RESOLUTION_10_S = 0b10;
     public static final int RESOLUTION_10_M = 0b11;
 
-    public static final byte[] DISABLED_PUBLICATION_ADDRESS = new byte[]{0x00, 0x00};
+    public static final int DISABLED_PUBLICATION_ADDRESS = 0x0000;
     public static final int GENERIC_ON_OFF_5_MS = 5;
 
     public static String bytesToHex(final byte[] bytes, final boolean add0x) {
@@ -462,7 +462,7 @@ public class MeshParserUtils {
     }
 
     public static int getSequenceNumberFromPDU(final byte[] pdu) {
-        return (((pdu[3] & 0xFF) << 16) | ((pdu[4] & 0xFF) << 8) | (pdu[5] & 0xFF)); // get sequence number array from pdu
+        return (((pdu[3] & 0xFF) << 16) | ((pdu[4] & 0xFF) << 8) | (pdu[5] & 0xFF)); // get sequence number array from pduge
     }
 
     public static int calculateSeqZero(final byte[] sequenceNumber) {
@@ -702,8 +702,8 @@ public class MeshParserUtils {
         return (unsignedByteToInt(b0) + (unsignedByteToInt(b1) << 8));
     }
 
-    public static int bytesToInt(byte[] b) {
-        return b.length == 4 ? ByteBuffer.wrap(b).getInt() : ByteBuffer.wrap(b).getShort();
+    public static int bytesToInt(@NonNull byte[] b) {
+        return b.length == 4 ? ByteBuffer.wrap(b).order(ByteOrder.BIG_ENDIAN).getInt() : ByteBuffer.wrap(b).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 
     public static byte[] intToBytes(int i) {

@@ -4,9 +4,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * State class for handling LightCtlSetState messages.
  */
+@SuppressWarnings("unused")
 class LightHslSetState extends GenericMessageState implements LowerTransportLayerCallbacks {
 
     private static final String TAG = LightHslSetState.class.getSimpleName();
@@ -21,9 +24,29 @@ class LightHslSetState extends GenericMessageState implements LowerTransportLaye
      * @param callbacks   {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
+    @Deprecated
     LightHslSetState(@NonNull final Context context,
                      @NonNull final byte[] src,
                      @NonNull final byte[] dst,
+                     @NonNull final LightHslSet lightHslSet,
+                     @NonNull final MeshTransport meshTransport,
+                     @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), lightHslSet, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs {@link LightHslSetState}
+     *
+     * @param context     Context of the application
+     * @param src         Source address
+     * @param dst         Destination address to which the message must be sent to
+     * @param lightHslSet Wrapper class {@link LightLightnessSet} containing the opcode and parameters for {@link GenericLevelSet} message
+     * @param callbacks   {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException for any illegal arguments provided.
+     */
+    LightHslSetState(@NonNull final Context context,
+                     final int src,
+                     final int dst,
                      @NonNull final LightHslSet lightHslSet,
                      @NonNull final MeshTransport meshTransport,
                      @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {

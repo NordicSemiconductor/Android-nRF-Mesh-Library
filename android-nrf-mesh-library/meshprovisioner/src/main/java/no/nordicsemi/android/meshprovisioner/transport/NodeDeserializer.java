@@ -39,7 +39,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             node.uuid = jsonObject.get("UUID").getAsString();
             node.deviceKey = MeshParserUtils.toByteArray(jsonObject.get("deviceKey").getAsString());
             final int unicastAddress = Integer.parseInt(jsonObject.get("unicastAddress").getAsString(), 16);
-            node.unicastAddress = AddressUtils.getUnicastAddressBytes(unicastAddress);
+            node.unicastAddress = unicastAddress;
             final boolean security = jsonObject.get("security").getAsString().equals("high");
             node.security = security ? 1 : 0;
             node.mAddedNetworkKeyIndexes = deserializeNetKeyIndexes(jsonObject.get("netKeys").getAsJsonArray());
@@ -116,7 +116,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             final JsonObject nodeJson = new JsonObject();
             nodeJson.addProperty("UUID", node.getUuid());
             nodeJson.addProperty("deviceKey", MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
-            nodeJson.addProperty("unicastAddress", MeshParserUtils.bytesToHex(node.getUnicastAddress(), false));
+            nodeJson.addProperty("unicastAddress", MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(node.getUnicastAddress()), false));
             nodeJson.addProperty("security", (node.getSecurity() == ProvisionedBaseMeshNode.HIGH) ? "high" : "low");
             nodeJson.add("netKeys", serializeNetKeyIndexes(node.getAddedNetworkKeys()));
             nodeJson.addProperty("configComplete", node.isConfigured());
@@ -267,12 +267,12 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             final Element element = elementsList.get(i);
             if (i == 0) {
                 address = unicastAddress;
-                element.elementAddress = AddressUtils.getUnicastAddressBytes(address);
+                element.elementAddress = address;
             } else {
                 address = address + 1;
-                element.elementAddress = AddressUtils.getUnicastAddressBytes(address);
+                element.elementAddress = address;
             }
-            elements.put(element.getElementAddressInt(), element);
+            elements.put(element.getElementAddress(), element);
         }
         return elements;
     }

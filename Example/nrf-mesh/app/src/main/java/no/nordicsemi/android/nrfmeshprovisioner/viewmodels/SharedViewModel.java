@@ -139,7 +139,7 @@ public class SharedViewModel extends ViewModel {
         return nRFMeshRepository.getConnectedMeshNodeAddress();
     }
 
-    public void setSelectedGroup(final byte [] address){
+    public void setSelectedGroup(final int address){
         nRFMeshRepository.setSelectedGroup(address);
     }
 }

@@ -28,6 +28,7 @@ import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 
 public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandlerCallbacks {
 
@@ -282,6 +283,19 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
 
     @Override
     public void sendMeshMessage(@NonNull final byte[] src, @NonNull final byte[] dst, @NonNull final MeshMessage meshMessage) {
+        final int srcAddress = AddressUtils.getUnicastAddressInt(src);
+        final int dstAddress = AddressUtils.getUnicastAddressInt(dst);
+        if (meshMessage instanceof ProxyConfigMessage) {
+            sendProxyConfigMeshMessage(srcAddress, dstAddress, (ProxyConfigMessage) meshMessage);
+        } else if (meshMessage instanceof ConfigMessage) {
+            sendConfigMeshMessage(srcAddress, dstAddress, (ConfigMessage) meshMessage);
+        } else if (meshMessage instanceof GenericMessage) {
+            sendAppMeshMessage(srcAddress, dstAddress, (GenericMessage) meshMessage);
+        }
+    }
+
+    @Override
+    public void sendMeshMessage(final int src, final int dst, @NonNull final MeshMessage meshMessage) {
         if (meshMessage instanceof ProxyConfigMessage) {
             sendProxyConfigMeshMessage(src, dst, (ProxyConfigMessage) meshMessage);
         } else if (meshMessage instanceof ConfigMessage) {
@@ -291,13 +305,12 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         }
     }
 
-
     /**
      * Sends a mesh message specified within the {@link MeshMessage} object
      *
      * @param configurationMessage {@link ProxyConfigMessage} Mesh message containing the message opcode and message parameters
      */
-    private void sendProxyConfigMeshMessage(@NonNull final byte[] src, @NonNull final byte[] dst, @NonNull final ProxyConfigMessage configurationMessage) {
+    private void sendProxyConfigMeshMessage(final int src, final int dst, @NonNull final ProxyConfigMessage configurationMessage) {
 
         if (configurationMessage instanceof ProxyConfigSetFilterType) {
             final ProxyConfigSetFilterTypeState proxyConfigSetFilterTypeState = new ProxyConfigSetFilterTypeState(mContext, src, dst,
@@ -328,7 +341,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      *
      * @param configurationMessage {@link ConfigMessage} Mesh message containing the message opcode and message parameters
      */
-    private void sendConfigMeshMessage(@NonNull final byte[] src, @NonNull final byte[] dst, @NonNull final ConfigMessage configurationMessage) {
+    private void sendConfigMeshMessage(final int src, final int dst, @NonNull final ConfigMessage configurationMessage) {
         final ProvisionedMeshNode node = mInternalTransportCallbacks.getProvisionedNode(dst);
         if (node == null) {
             return;
@@ -448,7 +461,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param dst            Destination to which the message must be sent to, this could be a unicast address or a group address.
      * @param genericMessage Mesh message containing the message opcode and message parameters.
      */
-    private void sendAppMeshMessage(@NonNull final byte[] src, @NonNull final byte[] dst, @NonNull final GenericMessage genericMessage) {
+    private void sendAppMeshMessage(final int src, final int dst, @NonNull final GenericMessage genericMessage) {
         if (genericMessage instanceof GenericOnOffGet) {
             final GenericOnOffGetState genericOnOffGetState = new GenericOnOffGetState(mContext, src, dst, (GenericOnOffGet) genericMessage, mMeshTransport, this);
             genericOnOffGetState.setTransportCallbacks(mInternalTransportCallbacks);

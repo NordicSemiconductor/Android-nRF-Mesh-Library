@@ -23,14 +23,11 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshRepository;
 
 public class DialogFragmentMeshExportMsg extends DialogFragmentMessage {
     private int resId = R.drawable.ic_info_outline_black_alpha;

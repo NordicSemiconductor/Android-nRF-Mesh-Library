@@ -3,20 +3,18 @@ package no.nordicsemi.android.meshprovisioner;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Arrays;
-
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
@@ -32,49 +30,85 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
         indices = {@Index("mesh_uuid")})
 public class Group implements Parcelable {
 
-    @ColumnInfo(name = "mesh_uuid")
-    @Expose
-    private String meshUuid;
+    @PrimaryKey(autoGenerate = true)
+    public int id = 0;
 
-    @SerializedName("name")
     @ColumnInfo(name = "name")
     @Expose
+    @SerializedName("name")
     private String name = "Mesh Group";
 
-    @PrimaryKey
-    @NonNull
     @ColumnInfo(name = "group_address")
     @Expose
     @SerializedName("address")
-    private byte[] groupAddress;
+    private int groupAddress;
 
     @ColumnInfo(name = "parent_address")
     @Expose
     @SerializedName("parentAddress")
-    private byte[] parentAddress;
+    private int parentAddress;
+
+    @ColumnInfo(name = "mesh_uuid")
+    @Expose
+    @SerializedName("meshUuid")
+    private String meshUuid;
+
 
     /**
      * Constructs a mesh group
      *
-     * @param groupAddress  groupAddress of the group
-     * @param parentAddress parent address
+     * @param groupAddress groupAddress of the group
+     * @param meshUuid     uuid of the mesh network
      */
-    public Group(@NonNull final byte[] groupAddress, @Nullable final byte[] parentAddress, @NonNull final String meshUuid) {
-        if(!MeshParserUtils.isValidSubscriptionAddress(groupAddress)) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public Group(final int id, final int groupAddress, @NonNull final String meshUuid) {
+        this.id = id;
+        if (!MeshAddress.isValidGroupAddress(groupAddress)) {
             throw new IllegalArgumentException("Address cannot be an unassigned address, unicast address, all-nodes address or virtual address");
-        } else if (Arrays.equals(groupAddress, parentAddress)) {
-            throw new IllegalArgumentException("Address cannot match parent address");
         }
         this.groupAddress = groupAddress;
-        this.parentAddress = parentAddress;
+        //by default parent address is set to same as the group address
+        this.parentAddress = groupAddress;
+        this.meshUuid = meshUuid;
+    }
+
+    /**
+     * Constructs a mesh group
+     *
+     * @param groupAddress groupAddress of the group
+     * @param meshUuid     uuid of the mesh network
+     */
+    @Ignore
+    public Group(final int groupAddress, @NonNull final String meshUuid) {
+        if (!MeshAddress.isValidGroupAddress(groupAddress)) {
+            throw new IllegalArgumentException("Address cannot be an unassigned address, unicast address, all-nodes address or virtual address");
+        }
+        this.groupAddress = groupAddress;
+        //by default parent address is set to same as the group address
+        this.parentAddress = groupAddress;
         this.meshUuid = meshUuid;
     }
 
     protected Group(Parcel in) {
-        groupAddress = in.createByteArray();
-        parentAddress = in.createByteArray();
-        meshUuid = in.readString();
+        id = in.readInt();
         name = in.readString();
+        groupAddress = in.readInt();
+        parentAddress = in.readInt();
+        meshUuid = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeInt(groupAddress);
+        dest.writeInt(parentAddress);
+        dest.writeString(meshUuid);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<Group> CREATOR = new Creator<Group>() {
@@ -113,7 +147,7 @@ public class Group implements Parcelable {
      *
      * @return 2 byte group address
      */
-    public byte[] getGroupAddress() {
+    public int getGroupAddress() {
         return groupAddress;
     }
 
@@ -122,7 +156,7 @@ public class Group implements Parcelable {
      *
      * @param groupAddress 2 byte group address
      */
-    public void setGroupAddress(@NonNull final byte[] groupAddress) {
+    public void setGroupAddress(final int groupAddress) {
         this.groupAddress = groupAddress;
     }
 
@@ -131,7 +165,7 @@ public class Group implements Parcelable {
      *
      * @return parent address
      */
-    public byte[] getParentAddress() {
+    public int getParentAddress() {
         return parentAddress;
     }
 
@@ -140,7 +174,7 @@ public class Group implements Parcelable {
      *
      * @param parentAddress address of the parent group
      */
-    public void setParentAddress(final byte[] parentAddress) {
+    public void setParentAddress(final int parentAddress) {
         this.parentAddress = parentAddress;
     }
 
@@ -158,16 +192,4 @@ public class Group implements Parcelable {
         this.name = name;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeByteArray(groupAddress);
-        dest.writeByteArray(parentAddress);
-        dest.writeString(meshUuid);
-        dest.writeString(name);
-    }
 }

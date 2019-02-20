@@ -99,8 +99,8 @@ public class GroupsFragment extends Fragment implements Injectable,
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerViewGroups);
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        final GroupAdapter adapter = new GroupAdapter(requireActivity(), network, mViewModel.getGroups());
+        //final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final GroupAdapter adapter = new GroupAdapter(requireContext());//,  network, mViewModel.getGroups().getValue());
         adapter.setOnItemClickListener(this);
         recyclerViewGroups.setAdapter(adapter);
 
@@ -112,6 +112,11 @@ public class GroupsFragment extends Fragment implements Injectable,
                     noGroupsConfiguredView.setVisibility(View.INVISIBLE);
                 }
             }
+        });
+
+        mViewModel.getGroups().observe(this, groups -> {
+            final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+            adapter.updateAdapter(network, groups);
         });
 
         fab.setOnClickListener(v -> {
@@ -167,7 +172,7 @@ public class GroupsFragment extends Fragment implements Injectable,
     }
 
     @Override
-    public void onItemClick(final byte[] address) {
+    public void onItemClick(final int address) {
         mViewModel.setSelectedGroup(address);
         startActivity(new Intent(requireContext(), GroupControlsActivity.class));
     }
@@ -198,7 +203,7 @@ public class GroupsFragment extends Fragment implements Injectable,
     }
 
     @Override
-    public boolean createGroup(@NonNull final String name, @NonNull final byte[] address) {
+    public boolean createGroup(@NonNull final String name, final int address) {
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         return network.addGroup(address, name);
     }

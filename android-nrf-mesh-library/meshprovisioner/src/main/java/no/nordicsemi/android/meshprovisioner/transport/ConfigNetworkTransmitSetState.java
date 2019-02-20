@@ -7,6 +7,7 @@ import android.util.Log;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 
+@SuppressWarnings("WeakerAccess")
 public final class ConfigNetworkTransmitSetState extends ConfigMessageState {
 
     private static final String TAG = ConfigNetworkTransmitSetState.class.getSimpleName();
@@ -23,9 +24,31 @@ public final class ConfigNetworkTransmitSetState extends ConfigMessageState {
      * @param meshTransport            {@link MeshTransport}
      * @param callbacks                {@link InternalMeshMsgHandlerCallbacks}
      */
+    @Deprecated
     ConfigNetworkTransmitSetState(@NonNull final Context context,
                                   @NonNull final byte[] src,
                                   @NonNull final byte[] dst,
+                                  @NonNull final byte[] deviceKey,
+                                  @NonNull final ConfigNetworkTransmitSet configNetworkTransmitSet,
+                                  @NonNull final MeshTransport meshTransport,
+                                  @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), deviceKey, configNetworkTransmitSet, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs the state for creating ConfigNetworkTransmitSet message
+     *
+     * @param context                  context
+     * @param src                      source address
+     * @param dst                      destination address
+     * @param deviceKey                device key
+     * @param configNetworkTransmitSet {@link ConfigNetworkTransmitSet}
+     * @param meshTransport            {@link MeshTransport}
+     * @param callbacks                {@link InternalMeshMsgHandlerCallbacks}
+     */
+    ConfigNetworkTransmitSetState(@NonNull final Context context,
+                                  final int src,
+                                  final int dst,
                                   @NonNull final byte[] deviceKey,
                                   @NonNull final ConfigNetworkTransmitSet configNetworkTransmitSet,
                                   @NonNull final MeshTransport meshTransport,

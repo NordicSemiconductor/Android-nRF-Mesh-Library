@@ -42,7 +42,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -119,7 +119,7 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String unicast = unicastAddressInput.getText().toString();
+            final String unicast = unicastAddressInput.getEditableText().toString();
             if (validateInput(unicast)) {
                 if (getParentFragment() == null) {
                     ((DialogFragmentUnicastAddressListener) getActivity()).setUnicastAddress(Integer.parseInt(unicast, 16));
@@ -142,14 +142,16 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
                 return false;
             }
 
-            if(MeshParserUtils.validateUnicastAddressInput(getContext(), input)) {
-                return true;
+            final int unicastAddress = Integer.parseInt(input, 16);
+            if(!MeshAddress.isValidUnicastAddress(unicastAddress)) {
+                unicastAddressInputLayout.setError("Unicast address must range from 0x0001 - 0x7FFFF");
+                return false;
             }
         } catch (IllegalArgumentException ex) {
             unicastAddressInputLayout.setError(ex.getMessage());
         }
 
-        return false;
+        return true;
     }
 
     public interface DialogFragmentUnicastAddressListener {

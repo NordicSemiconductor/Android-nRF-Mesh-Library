@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -42,6 +43,12 @@ public final class GenericOnOffStatus extends GenericStatusMessage implements Pa
     private static final String TAG = GenericOnOffStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS;
     private static final int GENERIC_ON_OFF_STATE_ON = 0x01;
+    private boolean mPresentOn;
+    private Boolean mTargetOn;
+    private int mRemainingTime;
+    private int mTransitionSteps;
+    private int mTransitionResolution;
+
     private static final Creator<GenericOnOffStatus> CREATOR = new Creator<GenericOnOffStatus>() {
         @Override
         public GenericOnOffStatus createFromParcel(Parcel in) {
@@ -54,11 +61,6 @@ public final class GenericOnOffStatus extends GenericStatusMessage implements Pa
             return new GenericOnOffStatus[size];
         }
     };
-    private boolean mPresentOn;
-    private Boolean mTargetOn;
-    private int mRemainingTime;
-    private int mTransitionSteps;
-    private int mTransitionResolution;
 
     /**
      * Constructs the GenericOnOffStatus mMessage.
@@ -73,7 +75,7 @@ public final class GenericOnOffStatus extends GenericStatusMessage implements Pa
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received generic on off status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
+        Log.v(TAG, "Received generic on off status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         buffer.position(0);
         mPresentOn = buffer.get() == GENERIC_ON_OFF_STATE_ON;

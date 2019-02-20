@@ -301,6 +301,7 @@
     <string name="title_publlish_address_status">Publish Address Status</string>
     <string name="title_subscription_status">Subscription Status</string>
     <string name="hex_format">0x%s</string>
+    <string name="hex_format1">0x%d</string>
     <string name="hex_prefix">0x</string>
     <string name="invalid_hex_value">Invalid hex value</string>
     <string name="invalid_address_value">Invalid address</string>

@@ -26,10 +26,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * This state class handles setting up the filter type on a proxy server
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 class ProxyConfigSetFilterTypeState extends ProxyConfigMessageState {
 
     private final String TAG = ProxyConfigSetFilterTypeState.class.getSimpleName();
@@ -44,9 +46,29 @@ class ProxyConfigSetFilterTypeState extends ProxyConfigMessageState {
      * @param meshTransport MeshTransport
      * @param callbacks     Internal mesh message handler callbacks
      */
+    @Deprecated
     ProxyConfigSetFilterTypeState(@NonNull final Context context,
                                   @NonNull final byte[] src,
                                   @NonNull final byte[] dst,
+                                  @NonNull ProxyConfigSetFilterType setFilterType,
+                                  @NonNull final MeshTransport meshTransport,
+                                  @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), setFilterType, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs the state class for sending {@link ProxyConfigSetFilterType}
+     *
+     * @param context       Context
+     * @param src           Source address
+     * @param dst           Destination address
+     * @param setFilterType {@link ProxyConfigSetFilterType} mesh message
+     * @param meshTransport MeshTransport
+     * @param callbacks     Internal mesh message handler callbacks
+     */
+    ProxyConfigSetFilterTypeState(@NonNull final Context context,
+                                  final int src,
+                                  final int dst,
                                   @NonNull ProxyConfigSetFilterType setFilterType,
                                   @NonNull final MeshTransport meshTransport,
                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {

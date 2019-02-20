@@ -41,7 +41,7 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.BaseModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
@@ -50,7 +50,7 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
 
     private final Context mContext;
     private final MeshNetwork network;
-    private final ArrayList<byte[]> mAddresses = new ArrayList<>();
+    private final ArrayList<Integer> mAddresses = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
 
     public GroupAddressAdapter(final BaseModelConfigurationActivity context, final MeshNetwork network, final LiveData<MeshModel> meshModelLiveData) {
@@ -58,7 +58,7 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
         this.network = network;
         meshModelLiveData.observe(context, meshModel -> {
             if(meshModel != null) {
-                final List<byte[]> tempAddresses = meshModel.getSubscriptionAddresses();
+                final List<Integer> tempAddresses = meshModel.getSubscribedAddresses();
                 if (tempAddresses != null) {
                     mAddresses.clear();
                     mAddresses.addAll(tempAddresses);
@@ -82,14 +82,14 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
     @Override
     public void onBindViewHolder(@NonNull final GroupAddressAdapter.ViewHolder holder, final int position) {
         if(mAddresses.size() > 0) {
-            final byte[] address = mAddresses.get(position);
+            final int address = mAddresses.get(position);
             final Group group = network.getGroup(address);
             if(group != null) {
                 holder.icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_outline_group_work_black_alpha_24dp));
                 holder.name.setText(group.getName());
-                holder.address.setText(MeshParserUtils.bytesToHex(group.getGroupAddress(), true));
+                holder.address.setText(MeshAddress.formatAddress(address, true));
             } else {
-                holder.address.setText(MeshParserUtils.bytesToHex(address, true));
+                holder.address.setText(MeshAddress.formatAddress(address, true));
             }
         }
     }
@@ -110,7 +110,7 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final int position, final byte[] address);
+        void onItemClick(final int position, final int address);
     }
 
     public final class ViewHolder extends RemovableViewHolder {
