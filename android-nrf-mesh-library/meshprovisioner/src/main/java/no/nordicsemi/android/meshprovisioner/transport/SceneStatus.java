@@ -52,7 +52,8 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
     private static final Creator<SceneStatus> CREATOR = new Creator<SceneStatus>() {
         @Override
         public SceneStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new SceneStatus(message);
         }
 
@@ -152,6 +153,7 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

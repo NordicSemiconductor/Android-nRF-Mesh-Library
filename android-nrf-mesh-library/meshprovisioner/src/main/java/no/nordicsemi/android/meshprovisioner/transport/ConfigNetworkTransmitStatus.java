@@ -37,10 +37,14 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
 
     private static final String TAG = ConfigNetworkTransmitStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS;
+    private int mNetworkTransmitCount;
+    private int mNetworkTransmitIntervalSteps;
+
     private static final Creator<ConfigNetworkTransmitStatus> CREATOR = new Creator<ConfigNetworkTransmitStatus>() {
         @Override
         public ConfigNetworkTransmitStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new ConfigNetworkTransmitStatus(message);
         }
 
@@ -49,8 +53,6 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
             return new ConfigNetworkTransmitStatus[size];
         }
     };
-    private int mNetworkTransmitCount;
-    private int mNetworkTransmitIntervalSteps;
 
     /**
      * Constructs a ConfigNetworkTransmitStatus message.
@@ -101,6 +103,7 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

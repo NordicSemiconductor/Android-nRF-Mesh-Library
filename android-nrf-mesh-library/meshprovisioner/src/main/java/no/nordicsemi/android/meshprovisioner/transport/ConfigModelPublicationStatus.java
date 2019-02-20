@@ -58,7 +58,8 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
     private static final Creator<ConfigModelPublicationStatus> CREATOR = new Creator<ConfigModelPublicationStatus>() {
         @Override
         public ConfigModelPublicationStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new ConfigModelPublicationStatus(message);
         }
 
@@ -228,6 +229,7 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

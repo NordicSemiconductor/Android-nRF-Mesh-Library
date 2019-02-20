@@ -51,7 +51,8 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
     private static final Creator<ConfigModelAppStatus> CREATOR = new Creator<ConfigModelAppStatus>() {
         @Override
         public ConfigModelAppStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new ConfigModelAppStatus(message);
         }
 
@@ -137,7 +138,8 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 
     /**

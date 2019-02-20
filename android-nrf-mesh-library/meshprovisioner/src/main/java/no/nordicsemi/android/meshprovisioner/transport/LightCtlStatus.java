@@ -53,7 +53,8 @@ public final class LightCtlStatus extends GenericStatusMessage implements Parcel
     private static final Creator<LightCtlStatus> CREATOR = new Creator<LightCtlStatus>() {
         @Override
         public LightCtlStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new LightCtlStatus(message);
         }
 
@@ -163,6 +164,7 @@ public final class LightCtlStatus extends GenericStatusMessage implements Parcel
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

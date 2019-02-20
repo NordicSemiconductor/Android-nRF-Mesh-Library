@@ -39,10 +39,16 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelable {
 
+    private static final String TAG = ConfigAppKeyStatus.class.getSimpleName();
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_APPKEY_STATUS;
+    private int mNetKeyIndex;
+    private int mAppKeyIndex;
+
     public static final Creator<ConfigAppKeyStatus> CREATOR = new Creator<ConfigAppKeyStatus>() {
         @Override
         public ConfigAppKeyStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new ConfigAppKeyStatus(message);
         }
 
@@ -51,10 +57,6 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelabl
             return new ConfigAppKeyStatus[size];
         }
     };
-    private static final String TAG = ConfigAppKeyStatus.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_APPKEY_STATUS;
-    private int mNetKeyIndex;
-    private int mAppKeyIndex;
 
     /**
      * Constructs the ConfigAppKeyStatus mMessage.
@@ -123,6 +125,7 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelabl
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }
