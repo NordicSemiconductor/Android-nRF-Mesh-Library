@@ -622,6 +622,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     @Override
+    public void onNetworkExportedJson(MeshNetwork meshNetwork, String networkJson) {
+
+    }
+
+    @Override
     public void onNetworkExportFailed(final String error) {
         mNetworkExportState.postValue(error);
 

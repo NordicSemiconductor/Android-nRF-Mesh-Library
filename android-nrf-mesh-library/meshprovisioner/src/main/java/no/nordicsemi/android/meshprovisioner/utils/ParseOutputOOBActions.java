@@ -29,6 +29,7 @@ import java.util.ArrayList;
 public class ParseOutputOOBActions {
     private static final String TAG = ParseOutputOOBActions.class.getSimpleName();
 
+
     /**
      * Input OOB Actions
      */
@@ -95,15 +96,16 @@ public class ParseOutputOOBActions {
      * @param outputAction type of output action
      * @return selected output action type
      */
-    public static void parseOutputActionsFromBitMask(final int outputAction) {
+    public static ArrayList<Byte> parseOutputActionsFromBitMask(final int outputAction) {
         final byte[] outputActions = {BLINK, BEEP, VIBRATE, OUTPUT_NUMERIC, OUTPUT_ALPHA_NUMERIC};
-        final ArrayList<Byte> suppportedActionValues = new ArrayList<>();
+        final ArrayList<Byte> supportedActionValues = new ArrayList<>();
         for(byte action : outputActions){
             if((outputAction & action) == action){
-                suppportedActionValues.add(action);
+                supportedActionValues.add(action);
                 Log.v(TAG, "Supported output oob action type: " + getOuputOOBActionDescription(action));
             }
         }
+        return supportedActionValues;
     }
 
     /**

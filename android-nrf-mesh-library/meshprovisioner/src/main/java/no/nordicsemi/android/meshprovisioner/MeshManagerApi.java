@@ -561,8 +561,23 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
+    public void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final String randomInput) throws IllegalArgumentException {
+        mMeshProvisioningHandler.startProvisioningWithInputOOB(unprovisionedMeshNode, randomInput);
+    }
+
+    @Override
+    public void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] confirmationInputs) throws IllegalArgumentException {
+        mMeshProvisioningHandler.startProvisioningWithStaticOOB(unprovisionedMeshNode, confirmationInputs);
+    }
+
+    @Override
     public final void setProvisioningConfirmation(@NonNull final String pin) {
         mMeshProvisioningHandler.setProvisioningConfirmation(pin);
+    }
+
+    @Override
+    public void setProvisioningStaticConfirmation(@NonNull byte[] authenticationValue) {
+        mMeshProvisioningHandler.setProvisioningStaticConfirmation(authenticationValue);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -699,7 +714,11 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public boolean networkIdMatches(@NonNull final String networkId, @Nullable final byte[] serviceData) {
         final byte[] advertisedNetworkId = getAdvertisedNetworkId(serviceData);
-        return advertisedNetworkId != null && networkId.equals(MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase());
+        if (advertisedNetworkId != null) {
+            final  String advertisedNetworkIdString = MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase();
+            return networkId.equals(advertisedNetworkIdString);
+        }
+        return false;
     }
 
     @Override
@@ -804,7 +823,7 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
-    public void exportMeshNetwork(@NonNull final String path) {
+    public void exportMeshNetwork(final String path) {
         final MeshNetwork meshNetwork = mMeshNetwork;
         if (meshNetwork != null) {
             NetworkImportExportUtils.exportMeshNetwork(meshNetwork, path, networkLoadCallbacks);
@@ -822,6 +841,15 @@ public class MeshManagerApi implements MeshMngrApi {
             }
         } else {
             mTransportCallbacks.onNetworkImportFailed("URI getPath() returned null!");
+        }
+    }
+
+    @Override
+    public void importMeshNetworkJson(@NonNull String networkJson) {
+        if (networkJson != null) {
+            NetworkImportExportUtils.importMeshNetworkFromJson(mContext, networkJson, networkLoadCallbacks);
+        } else {
+            mTransportCallbacks.onNetworkImportFailed("networkString is null!");
         }
     }
 
@@ -1009,6 +1037,11 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onNetworkImportFailed(final String error) {
             mTransportCallbacks.onNetworkImportFailed(error);
+        }
+
+        @Override
+        public void onNetworkExportedJson(MeshNetwork meshNetwork, String meshNetworkJson) {
+            mTransportCallbacks.onNetworkExportedJson(meshNetwork, meshNetworkJson);
         }
 
         @Override
