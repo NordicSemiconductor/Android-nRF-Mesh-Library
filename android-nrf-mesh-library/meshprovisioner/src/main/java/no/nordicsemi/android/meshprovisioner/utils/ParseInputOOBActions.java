@@ -24,6 +24,8 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.util.Log;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class ParseInputOOBActions {
@@ -61,8 +63,8 @@ public class ParseInputOOBActions {
     public static ArrayList<Byte> parseInputActionsFromBitMask(final int inputAction) {
         final byte[] inputActions = {PUSH, TWIST, INPUT_NUMBER, INPUT_ALPHA_NUMBERIC};
         final ArrayList<Byte> supportedActionValues = new ArrayList<>();
-        for(byte action : inputActions){
-            if((inputAction & action) == action){
+        for (byte action : inputActions) {
+            if ((inputAction & action) == action) {
                 supportedActionValues.add(action);
                 Log.v(TAG, "Input oob action type value: " + getInputOOBActionDescription(action));
             }
@@ -99,7 +101,7 @@ public class ParseInputOOBActions {
      * @param type input OOB type
      * @return Output OOB type description
      */
-    public static int getOuputOOBActionValue(final short type) {
+    public static int getIntputOOBActionValue(final short type) {
         switch (type) {
             case PUSH:
                 return 0;
@@ -122,16 +124,16 @@ public class ParseInputOOBActions {
      */
     public static short selectInputActionsFromBitMask(final int outputAction) {
         final byte[] outputActions = {PUSH, TWIST, INPUT_NUMBER, INPUT_ALPHA_NUMBERIC};
-        final ArrayList<Byte> suppportedActionValues = new ArrayList<>();
-        for(byte action : outputActions){
-            if((outputAction & action) == action){
-                suppportedActionValues.add(action);
+        final ArrayList<Byte> supportedActionValues = new ArrayList<>();
+        for (byte action : outputActions) {
+            if ((outputAction & action) == action) {
+                supportedActionValues.add(action);
                 Log.v(TAG, "Supported output oob action type: " + getInputOOBActionDescription(action));
             }
         }
 
-        if(!suppportedActionValues.isEmpty()) {
-            return suppportedActionValues.get(0);
+        if (!supportedActionValues.isEmpty()) {
+            return supportedActionValues.get(0);
         } else {
             return NO_INPUT;
         }

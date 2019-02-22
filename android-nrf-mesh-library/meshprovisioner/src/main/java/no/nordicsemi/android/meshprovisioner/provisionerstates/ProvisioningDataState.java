@@ -52,7 +52,7 @@ public class ProvisioningDataState extends ProvisioningState {
 
     @Override
     public State getState() {
-        return State.PROVISINING_DATA;
+        return State.PROVISIONING_DATA;
     }
 
     @Override

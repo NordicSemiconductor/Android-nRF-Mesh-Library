@@ -56,6 +56,11 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
     ProvisioningCapabilities provisioningCapabilities;
     int numberOfElements;
     UUID deviceUuid;
+    byte[] provisioningInvitePdu;
+    //capabilties pdu received by the provisioner
+    byte[] provisioningCapabilitiesPdu;
+    //provisioning start pdu sent by the provisioner
+    byte[] provisioningStartPdu;
 
     UnprovisionedBaseMeshNode(final UUID uuid) {
         deviceUuid = uuid;
@@ -157,5 +162,29 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
 
     public UUID getDeviceUuid(){
         return deviceUuid;
+    }
+
+    public byte[] getProvisioningInvitePdu() {
+        return provisioningInvitePdu;
+    }
+
+    void setProvisioningInvitePdu(final byte[] provisioningInvitePdu) {
+        this.provisioningInvitePdu = provisioningInvitePdu;
+    }
+
+    public byte[] getProvisioningStartPdu() {
+        return provisioningStartPdu;
+    }
+
+    void setProvisioningStartPdu(final byte[] provisioningStartPdu) {
+        this.provisioningStartPdu = provisioningStartPdu;
+    }
+
+    public byte[] getProvisioningCapabilitiesPdu() {
+        return provisioningCapabilitiesPdu;
+    }
+
+    void setProvisioningCapabilitiesPdu(final byte[] provisioningCapabilitiesPdu) {
+        this.provisioningCapabilitiesPdu = provisioningCapabilitiesPdu;
     }
 }

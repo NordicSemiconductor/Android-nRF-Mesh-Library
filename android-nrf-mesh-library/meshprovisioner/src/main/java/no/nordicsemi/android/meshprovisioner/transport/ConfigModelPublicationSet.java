@@ -164,8 +164,6 @@ public class ConfigModelPublicationSet extends ConfigMessage {
         final int octet5 = ((applicationKeyIndex[0] << 4)) | (credentialFlag ? 1 : 0);
         final int octet8 = (publishRetransmitCount << 5) | (publishRetransmitIntervalSteps & 0x1F);
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        final byte[] elementAddress = AddressUtils.getUnicastAddressBytes(this.elementAddress);
-        final byte[] publishAddress = AddressUtils.getUnicastAddressBytes(this.publishAddress);
         if (modelIdentifier >= Short.MIN_VALUE && modelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_PUBLISH_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) this.elementAddress);

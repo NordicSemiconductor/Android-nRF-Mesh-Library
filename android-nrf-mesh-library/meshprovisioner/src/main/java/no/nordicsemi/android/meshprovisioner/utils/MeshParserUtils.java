@@ -752,11 +752,44 @@ public class MeshParserUtils {
     }
 
     public static int getCompanyIdentifier(final int modelId) {
-        if(modelId >= Short.MIN_VALUE && modelId <= Short.MAX_VALUE) {
+        if (modelId >= Short.MIN_VALUE && modelId <= Short.MAX_VALUE) {
             throw new IllegalArgumentException("Not a valid vendor model ID");
         }
         final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
         buffer.putInt(modelId);
         return (int) buffer.getShort(0);
+    }
+
+    /**
+     * Creates 128-bit authentication value
+     *
+     * @param prePadded add the padding before or after based on the data type
+     * @param input     input
+     */
+    public static byte[] createAuthenticationValue(final boolean prePadded, final byte[] input) {
+        final int authLength = 16;
+        final byte[] auth = new byte[16];
+        int counter = 0;
+        if (prePadded) {
+            for (int i = authLength; i >= 0; i--) {
+                if (counter < input.length) {
+                    auth[i] = input[counter];
+                } else {
+                    auth[i] = 0;
+                }
+                counter++;
+            }
+            return auth;
+        } else {
+            for (int i = 0; i < authLength; i++) {
+                if (counter < input.length) {
+                    auth[i] = input[counter];
+                } else {
+                    auth[i] = 0;
+                }
+                counter++;
+            }
+            return auth;
+        }
     }
 }

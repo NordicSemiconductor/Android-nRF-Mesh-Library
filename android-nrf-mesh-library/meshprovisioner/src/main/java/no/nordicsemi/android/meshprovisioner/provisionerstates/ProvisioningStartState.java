@@ -29,6 +29,7 @@ import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseProvisioningAlgorithm;
 
@@ -49,11 +50,9 @@ public class ProvisioningStartState extends ProvisioningState {
     private int inputOOBSize;
     private int inputOOBAction;
 
-    private AuthenticationOOBMethods usedAuthenticationMethod;
-    private short outputActionType;
-    private short inputActionType;
-
-    public ProvisioningStartState(final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    public ProvisioningStartState(final UnprovisionedMeshNode unprovisionedMeshNode,
+                                  final InternalTransportCallbacks mInternalTransportCallbacks,
+                                  final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
         this.mInternalTransportCallbacks = mInternalTransportCallbacks;
@@ -69,6 +68,8 @@ public class ProvisioningStartState extends ProvisioningState {
     @Override
     public void executeSend() {
         final byte[] provisioningStartPDU = createProvisioningStartPDU();
+        //We store the provisioning start pdu to be used when generating confirmation inputs
+        mUnprovisionedMeshNode.setProvisioningStartPdu(provisioningStartPDU);
         mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_START, provisioningStartPDU);
         mInternalTransportCallbacks.sendProvisioningPdu(mUnprovisionedMeshNode, provisioningStartPDU);
     }
@@ -87,19 +88,16 @@ public class ProvisioningStartState extends ProvisioningState {
         provisioningPDU[4] = (byte) this.usedAuthenticationMethod.ordinal();
         switch (this.usedAuthenticationMethod) {
             case NO_OOB_AUTHENTICATION:
-                provisioningPDU[5] = 0;
-                provisioningPDU[6] = 0;
-                break;
             case STATIC_OOB_AUTHENTICATION:
                 provisioningPDU[5] = 0;
                 provisioningPDU[6] = 0;
                 break;
             case INPUT_OOB_AUTHENTICATION:
-                provisioningPDU[5] = (byte) ParseOutputOOBActions.getOuputOOBActionValue(this.inputActionType);
+                provisioningPDU[5] = (byte) ParseInputOOBActions.getIntputOOBActionValue(this.inputActionType);
                 provisioningPDU[6] = (byte) inputOOBSize;
                 break;
             case OUTPUT_OOB_AUTHENTICATION:
-                provisioningPDU[5] = (byte) ParseOutputOOBActions.getOuputOOBActionValue(this.outputActionType);
+                provisioningPDU[5] = (byte) ParseOutputOOBActions.getOutputOOBActionValue(this.outputActionType);
                 provisioningPDU[6] = (byte) outputOOBSize;
                 break;
 
@@ -118,19 +116,5 @@ public class ProvisioningStartState extends ProvisioningState {
         this.outputOOBAction = outputOOBAction;
         this.inputOOBSize = inputOOBSize;
         this.inputOOBAction = inputOOBAction;
-    }
-
-    public void setUseOutputOOB(short outputActionType) {
-        this.usedAuthenticationMethod = AuthenticationOOBMethods.OUTPUT_OOB_AUTHENTICATION;
-        this.outputActionType = outputActionType;
-    }
-
-    public void setUseInputOOB(short inputActionType) {
-        this.usedAuthenticationMethod = AuthenticationOOBMethods.INPUT_OOB_AUTHENTICATION;
-        this.inputActionType = inputActionType;
-    }
-
-    public void setUseStaticOOB() {
-        this.usedAuthenticationMethod = AuthenticationOOBMethods.STATIC_OOB_AUTHENTICATION;
     }
 }

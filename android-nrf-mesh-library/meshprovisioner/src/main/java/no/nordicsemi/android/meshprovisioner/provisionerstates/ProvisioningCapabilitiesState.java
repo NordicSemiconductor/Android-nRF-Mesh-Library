@@ -62,6 +62,8 @@ public class ProvisioningCapabilitiesState extends ProvisioningState {
     @Override
     public boolean parseData(final byte[] data) {
         final boolean flag = parseProvisioningCapabilities(data);
+        //We store the provisioning capabilities pdu to be used when generating confirmation inputs
+        mUnprovisionedMeshNode.setProvisioningCapabilitiesPdu(data);
         mUnprovisionedMeshNode.setProvisioningCapabilities(capabilities);
         mCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CAPABILITIES, data);
         return flag;

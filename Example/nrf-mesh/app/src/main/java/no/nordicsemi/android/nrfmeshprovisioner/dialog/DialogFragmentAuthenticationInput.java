@@ -71,7 +71,7 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         final View rootView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_fragment_auth_input, null);
         ButterKnife.bind(this, rootView);
-        pinInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        pinInput.setInputType(InputType.TYPE_CLASS_TEXT);
         pinInputLayout.setHint(getString((R.string.hint_pin)));
         pinInput.addTextChangedListener(new TextWatcher() {
             @Override

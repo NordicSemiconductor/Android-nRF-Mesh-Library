@@ -75,11 +75,38 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     private InternalMeshManagerCallbacks mInternalMeshManagerCallbacks;
     private String randomOOBInput;
     private byte[] confirmationInputs;
+    private byte[] staticOOBValue;
 
+    /**
+     * Constructs the mesh provisioning handler
+     * <p>
+     * This will handle the provisioning process through each step
+     * </p>
+     *
+     * @param context                      context
+     * @param mInternalTransportCallbacks  {@link InternalTransportCallbacks} callbacks
+     * @param internalMeshManagerCallbacks {@link InternalMeshManagerCallbacks} callbacks
+     */
     MeshProvisioningHandler(final Context context, final InternalTransportCallbacks mInternalTransportCallbacks, final InternalMeshManagerCallbacks internalMeshManagerCallbacks) {
         this.mContext = context;
         this.mInternalTransportCallbacks = mInternalTransportCallbacks;
         this.mInternalMeshManagerCallbacks = internalMeshManagerCallbacks;
+    }
+
+    /**
+     * Returns the unprovisioned mesh node
+     */
+    public UnprovisionedMeshNode getMeshNode() {
+        return mUnprovisionedMeshNode;
+    }
+
+    /**
+     * Sets the provisioning callbacks
+     *
+     * @param provisioningCallbacks {@link MeshProvisioningStatusCallbacks} callbacks
+     */
+    void setProvisioningCallbacks(MeshProvisioningStatusCallbacks provisioningCallbacks) {
+        this.mStatusCallbacks = provisioningCallbacks;
     }
 
     void parseProvisioningNotifications(final byte[] data) {
@@ -105,7 +132,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                     parseProvisioningState(unprovisionedMeshNode, data);
                 }
                 break;
-            case PROVISINING_INPUT_COMPLETE:
+            case PROVISIONING_INPUT_COMPLETE:
                 if (validateMessage(data)) {
                     provisioningState = new ProvisioningConfirmationState(this, unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
                     setProvisioningConfirmation(this.randomOOBInput);
@@ -125,7 +152,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                     parseProvisioningState(unprovisionedMeshNode, data);
                 }
                 break;
-            case PROVISINING_RANDOM:
+            case PROVISIONING_RANDOM:
                 if (validateMessage(data)) {
                     if (parseProvisioneeRandom(data)) {
                         sendProvisioningData(unprovisionedMeshNode);
@@ -134,9 +161,9 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                     parseProvisioningState(unprovisionedMeshNode, data);
                 }
                 break;
-            case PROVISINING_DATA:
-            case PROVISINING_COMPLETE:
-            case PROVISINING_FAILED:
+            case PROVISIONING_DATA:
+            case PROVISIONING_COMPLETE:
+            case PROVISIONING_FAILED:
                 parseProvisioningState(unprovisionedMeshNode, data);
                 break;
 
@@ -156,19 +183,19 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                 //Devices with lower mtu have to send the key in multiple segments
                 sendProvisionerPublicKey(unprovisionedMeshNode);
                 break;
-            case PROVISINING_INPUT_COMPLETE:
+            case PROVISIONING_INPUT_COMPLETE:
                 break;
             case PROVISIONING_CONFIRMATION:
                 break;
-            case PROVISINING_RANDOM:
+            case PROVISIONING_RANDOM:
                 break;
-            case PROVISINING_DATA:
+            case PROVISIONING_DATA:
                 break;
         }
     }
 
     private void parseProvisioningState(final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] data) {
-        if (data[1] == ProvisioningState.State.PROVISINING_COMPLETE.getState()) {
+        if (data[1] == ProvisioningState.State.PROVISIONING_COMPLETE.getState()) {
             provisioningState = new ProvisioningCompleteState(unprovisionedMeshNode);
             isProvisioningPublicKeySent = false;
             isProvisioneePublicKeyReceived = false;
@@ -265,7 +292,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
      * Identifies the node that is to be provisioned.
      * <p>
      * This method will send a provisioning invite to the connected peripheral. This will help users to identify a particular node before starting the provisioning process.
-     * This method must be invoked before calling {@link #startProvisioning(UnprovisionedMeshNode)}
+     * This method must be invoked before calling {@link #startProvisioningNoOOB(UnprovisionedMeshNode)}
      * </p
      *
      * @param uuid               Device UUID of unprovisioned node
@@ -281,24 +308,47 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                   final int flags, final int ivIndex, final int unicastAddress,
                   final int globalTtl, final int provisionerAddress) throws IllegalArgumentException {
         confirmationInputs = null;
+        staticOOBValue = null;
         final UnprovisionedMeshNode unprovisionedMeshNode = initializeMeshNode(uuid, nodeName, networkKey, flags, ivIndex, unicastAddress, globalTtl, provisionerAddress);
         sendProvisioningInvite(unprovisionedMeshNode);
     }
 
     /**
-     * Starts provisioning an unprovisioned mesh node
+     * Starts provisioning an unprovisioned mesh node using No OOB
      * <p>
      * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int, int)}.
      * </p>
      *
-     * @param unprovisionedMeshNode Bluetooth address of the node
+     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
      */
-    void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
+    void startProvisioningNoOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
         this.attentionTimer = 0x05;
-        this.usedAuthenticationOOBType = AuthenticationOOBMethods.OUTPUT_OOB_AUTHENTICATION;
+        this.usedAuthenticationOOBType = AuthenticationOOBMethods.NO_OOB_AUTHENTICATION;
         sendProvisioningStart(unprovisionedMeshNode);
     }
 
+    /**
+     * Starts provisioning an unprovisioned mesh node using Output OOB
+     * <p>
+     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int, int)}.
+     * </p>
+     *
+     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
+     */
+    void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
+        this.attentionTimer = 0x05;
+        this.usedAuthenticationOOBType = AuthenticationOOBMethods.OUTPUT_OOB_AUTHENTICATION;
+        sendProvisioningStartWithOutputOOB(unprovisionedMeshNode);
+    }
+
+    /**
+     * Starts provisioning an unprovisioned mesh node using Input OOB
+     * <p>
+     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int, int)}.
+     * </p>
+     *
+     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
+     */
     void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final String randomInput) throws IllegalArgumentException {
         this.attentionTimer = 0x05;
         this.usedAuthenticationOOBType = AuthenticationOOBMethods.INPUT_OOB_AUTHENTICATION;
@@ -306,10 +356,18 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
         sendProvisioningStartWithInputOOB(unprovisionedMeshNode, randomInput);
     }
 
-    void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final byte[] confirmationInputs) throws IllegalArgumentException {
+    /**
+     * Starts provisioning an unprovisioned mesh node usign Static OOB
+     * <p>
+     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int, int)}.
+     * </p>
+     *
+     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
+     */
+    void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
         this.attentionTimer = 0x05;
         this.usedAuthenticationOOBType = AuthenticationOOBMethods.STATIC_OOB_AUTHENTICATION;
-        this.confirmationInputs = confirmationInputs;
+        //this.staticOOBValue = staticOOB;
         sendProvisioningStartWithStaticOOB(unprovisionedMeshNode);
     }
 
@@ -336,6 +394,26 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     }
 
     private void sendProvisioningStart(final UnprovisionedMeshNode unprovisionedMeshNode) {
+        final ProvisioningCapabilitiesState capabilitiesState = (ProvisioningCapabilitiesState) provisioningState;
+        final ProvisioningCapabilities capabilities = capabilitiesState.getCapabilities();
+        numberOfElements = capabilities.getNumberOfElements();
+        algorithm = capabilities.getSupportedAlgorithm();
+        publicKeyType = capabilities.getPublicKeyType();
+        staticOOBType = capabilities.getStaticOOBType();
+        outputOOBSize = capabilities.getOutputOOBSize();
+        outputOOBAction = capabilities.getOutputOOBAction();
+        inputOOBSize = capabilities.getInputOOBSize();
+        inputOOBAction = capabilities.getInputOOBAction();
+
+        final ProvisioningStartState startProvisioning = new ProvisioningStartState(unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
+        startProvisioning.setProvisioningCapabilities(numberOfElements, algorithm, publicKeyType, staticOOBType, outputOOBSize, outputOOBAction, inputOOBSize, inputOOBAction);
+        //final short outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
+        //startProvisioning.setUseOutputOOB(outputOobActionType);
+        provisioningState = startProvisioning;
+        startProvisioning.executeSend();
+    }
+
+    private void sendProvisioningStartWithOutputOOB(final UnprovisionedMeshNode unprovisionedMeshNode) {
         final ProvisioningCapabilitiesState capabilitiesState = (ProvisioningCapabilitiesState) provisioningState;
         final ProvisioningCapabilities capabilities = capabilitiesState.getCapabilities();
         numberOfElements = capabilities.getNumberOfElements();
@@ -416,15 +494,16 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                 switch (this.usedAuthenticationOOBType) {
                     case INPUT_OOB_AUTHENTICATION:
                         provisioningState = new ProvisioningInputCompleteState(unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
-                        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, ProvisioningState.States.PROVISIONING_AUTHENTICATION_INPUT_WAITING, data);
+                        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, ProvisioningState.States.PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING, data);
                         break;
                     case OUTPUT_OOB_AUTHENTICATION:
                         provisioningState = new ProvisioningConfirmationState(this, unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
-                        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, ProvisioningState.States.PROVISIONING_AUTHENTICATION_INPUT_WAITING, data);
+                        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, ProvisioningState.States.PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING, data);
                         break;
                     case STATIC_OOB_AUTHENTICATION:
                         provisioningState = new ProvisioningConfirmationState(this, unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
-                        setProvisioningStaticConfirmation(confirmationInputs);
+                        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, ProvisioningState.States.PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING, data);
+                        //setProvisioningStaticConfirmation(staticOOBValue);
                         break;
                     default:
                         provisioningState = new ProvisioningConfirmationState(this, unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
@@ -479,6 +558,12 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
 
     }
 
+    /**
+     * Generates the confirmation inputs for a provisionee
+     *
+     * @param provisionerKeyXY xy components of the provisioner public key
+     * @param provisioneeKeyXY xy components of the provisionee public key
+     */
     public final byte[] generateConfirmationInputs(final byte[] provisionerKeyXY, final byte[] provisioneeKeyXY) {
         //invite: 1 bytes, capabilities: 11 bytes, start: 5 bytes, provisionerKey: 64 bytes, deviceKey: 64 bytes
         //Append all the raw data together
@@ -486,9 +571,24 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
             return confirmationInputs;
         }
 
-        final byte[] invite = new byte[]{(byte) attentionTimer};
-        final byte[] capabilities = generateCapabilities();
-        final byte[] startData = generateStartData();
+        //We must remove the first two bytes which is the pdu type and the provisioning pdu type
+        final int offset = 2;
+        final int inviteLength = mUnprovisionedMeshNode.getProvisioningInvitePdu().length - offset;
+        final ByteBuffer inviteBuffer = ByteBuffer.allocate(inviteLength).
+                put(mUnprovisionedMeshNode.getProvisioningInvitePdu(), offset, inviteLength);
+        final byte[] invite = inviteBuffer.array();
+
+        //We must remove the first two bytes which is the pdu type and the provisioning pdu type
+        final int capabilitiesLength = mUnprovisionedMeshNode.getProvisioningCapabilitiesPdu().length - offset;
+        final ByteBuffer capabilitiesBuffer = ByteBuffer.allocate(capabilitiesLength)
+                .put(mUnprovisionedMeshNode.getProvisioningCapabilitiesPdu(), offset, capabilitiesLength);
+        final byte[] capabilities = capabilitiesBuffer.array();
+
+        //We must remove the first two bytes which is the pdu type and the provisioning pdu type
+        final int startDataLength = mUnprovisionedMeshNode.getProvisioningStartPdu().length - offset;
+        final ByteBuffer startDataBuffer = ByteBuffer.allocate(startDataLength).
+                put(mUnprovisionedMeshNode.getProvisioningStartPdu(), offset, startDataLength);
+        final byte[] startData = startDataBuffer.array();//get(startData, 2, startDataLength);
 
         final int length = invite.length +
                 capabilities.length +
@@ -536,18 +636,10 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
             startData[4] = 0;
         } else {
             startData[2] = 0x02;
-            startData[3] = (byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOobActionType);//(byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOOBAction);
+            startData[3] = (byte) ParseOutputOOBActions.getOutputOOBActionValue(outputOobActionType);//(byte) ParseOutputOOBActions.getOutputOOBActionValue(outputOOBAction);
             startData[4] = (byte) outputOOBSize;
         }
 
         return startData;
-    }
-
-    public UnprovisionedMeshNode getMeshNode() {
-        return mUnprovisionedMeshNode;
-    }
-
-    void setProvisioningCallbacks(MeshProvisioningStatusCallbacks provisioningCallbacks) {
-        this.mStatusCallbacks = provisioningCallbacks;
     }
 }

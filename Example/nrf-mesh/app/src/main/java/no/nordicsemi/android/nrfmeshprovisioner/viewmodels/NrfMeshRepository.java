@@ -99,8 +99,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      **/
     private final SingleLiveEvent<Boolean> mIsReconnecting = new SingleLiveEvent<>();
 
-    private final MutableLiveData<ProvisioningCapabilities> capabilitiesMutableLiveData = new MutableLiveData<>();
-
     private final MutableLiveData<UnprovisionedMeshNode> mUnprovisionedMeshNodeLiveData = new MutableLiveData<>();
 
     private final MutableLiveData<ProvisionedMeshNode> mProvisionedMeshNodeLiveData = new MutableLiveData<>();
@@ -265,10 +263,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     NetworkInformationLiveData getNetworkInformationLiveData() {
         return mNetworkInformationLiveData;
-    }
-
-    public LiveData<ProvisioningCapabilities> getCapabilitiesMutableLiveData() {
-        return capabilitiesMutableLiveData;
     }
 
     ProvisioningStatusLiveData getProvisioningState() {

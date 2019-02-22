@@ -31,29 +31,39 @@ interface MeshMngrApi {
      * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
      * </p>
      *
-     * @param unprovisionedMeshNode Bluetooth address of the node
+     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
      */
     void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
 
     /**
-     * Starts provisioning an unprovisioned mesh node
+     * Starts provisioning an unprovisioned mesh node output oob
      * <p>
      * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
      * </p>
      *
-     * @param unprovisionedMeshNode Bluetooth address of the node
+     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
+     */
+    void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
+
+    /**
+     * Starts provisioning an unprovisioned mesh node input OOB
+     * <p>
+     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
+     * </p>
+     *
+     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
      */
     void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final String randomInput) throws IllegalArgumentException;
 
     /**
-     * Starts provisioning an unprovisioned mesh node
+     * Starts provisioning an unprovisioned mesh node with static oob
      * <p>
      * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
      * </p>
      *
-     * @param unprovisionedMeshNode Bluetooth address of the node
+     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
      */
-    public void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] confirmationInputs) throws IllegalArgumentException;
+    void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] confirmationInputs) throws IllegalArgumentException;
 
         /**
          * Set the provisioning confirmation

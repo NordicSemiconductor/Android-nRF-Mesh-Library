@@ -59,11 +59,7 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
         SENDING_BLOCK_ACKNOWLEDGEMENT(17),
         SENDING_APP_KEY_ADD(18),
         BLOCK_ACKNOWLEDGEMENT_RECEIVED(19),
-        APP_KEY_STATUS_RECEIVED(20),
-        APP_BIND_SENT(21),
-        APP_BIND_STATUS_RECEIVED(22),
-        PUBLISH_ADDRESS_SET_SENT(23),
-        PUBLISH_ADDRESS_STATUS_RECEIVED(24);
+        APP_KEY_STATUS_RECEIVED(20);
 
         private final int state;
 
@@ -120,7 +116,9 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
                 provisioningProgress = new ProvisionerProgress(state, "Provisioning public key received...", R.drawable.ic_arrow_back_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
-            case PROVISIONING_AUTHENTICATION_INPUT_WAITING:
+            case PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING:
+            case PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING:
+            case PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING:
                 provisioningProgress = new ProvisionerProgress(state, "Waiting for user authentication input...", R.drawable.ic_arrow_forward_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;

@@ -3,6 +3,7 @@ package no.nordicsemi.android.meshprovisioner;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -88,7 +89,7 @@ class NetworkImportExportUtils {
          * @param uri       file path
          * @param callbacks internal callbacks to notify network import
          */
-        NetworkImportAsyncTask(final Context context, final Uri uri, final LoadNetworkCallbacks callbacks) {
+        NetworkImportAsyncTask(@NonNull final Context context, @NonNull final Uri uri, @NonNull final LoadNetworkCallbacks callbacks) {
             this.context = new WeakReference<>(context);
             this.uri = uri;
             this.networkJson = null;
@@ -306,8 +307,7 @@ class NetworkImportExportUtils {
                     br.flush();
                     br.close();
                 } else {
-                    final String networkJson = gson.toJson(network);
-                    this.networkJson = networkJson;
+                    this.networkJson = gson.toJson(network);
                 }
                 return true;
             } catch (final com.google.gson.JsonSyntaxException ex) {

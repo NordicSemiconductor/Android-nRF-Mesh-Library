@@ -22,17 +22,19 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 import no.nordicsemi.android.meshprovisioner.InternalProvisioningCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
+import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 public class ProvisioningConfirmationState extends ProvisioningState {
@@ -47,12 +49,15 @@ public class ProvisioningConfirmationState extends ProvisioningState {
     private byte[] authenticationValue;
     private boolean usePin = true;
 
-    public ProvisioningConfirmationState(final InternalProvisioningCallbacks callbacks, final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    public ProvisioningConfirmationState(final InternalProvisioningCallbacks callbacks,
+                                         final UnprovisionedMeshNode unprovisionedMeshNode,
+                                         final InternalTransportCallbacks internalTransportCallbacks,
+                                         final MeshProvisioningStatusCallbacks provisioningStatusCallbacks) {
         super();
         this.provisioningCallbacks = callbacks;
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
-        this.mInternalTransportCallbacks = mInternalTransportCallbacks;
-        this.mStatusCallbacks = meshProvisioningStatusCallbacks;
+        this.mInternalTransportCallbacks = internalTransportCallbacks;
+        this.mStatusCallbacks = provisioningStatusCallbacks;
     }
 
     public void setPin(final String pin) {
@@ -131,14 +136,14 @@ public class ProvisioningConfirmationState extends ProvisioningState {
         return provisioningConfirmationPDU;
     }
 
-    private byte[] generateAuthenticationValue(final byte[] pin) {
-        ByteBuffer buffer = ByteBuffer.allocate(16);
-        if (pin != null) {
-            final Integer authValue = Integer.valueOf(new String(pin, Charset.forName("UTF-8")));
-            buffer.position(12);
-            buffer.putInt(authValue);
+    private byte[] generateAuthenticationValue(@NonNull final byte[] pin) {
+        switch (usedAuthenticationMethod) {
+            case STATIC_OOB_AUTHENTICATION:
+                return pin;
+            case OUTPUT_OOB_AUTHENTICATION:
+                return ParseOutputOOBActions.generateOutputOOBAuthenticationValue(outputActionType, pin);
         }
-        return buffer.array();
+        return null;
     }
 
     private void parseProvisioneeConfirmation(final byte[] provisioneeConfirmation) {

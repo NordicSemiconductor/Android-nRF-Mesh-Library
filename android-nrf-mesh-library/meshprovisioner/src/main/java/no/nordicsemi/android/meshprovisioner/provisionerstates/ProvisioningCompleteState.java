@@ -35,7 +35,7 @@ public class ProvisioningCompleteState extends ProvisioningState {
 
     @Override
     public State getState() {
-        return State.PROVISINING_COMPLETE;
+        return State.PROVISIONING_COMPLETE;
     }
 
     @Override

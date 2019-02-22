@@ -137,7 +137,7 @@ public class ParseOutputOOBActions {
      * @param type output OOB type
      * @return Output OOB type descrption
      */
-    public static int getOuputOOBActionValue(final short type) {
+    public static int getOutputOOBActionValue(final short type) {
         switch (type) {
             case BLINK:
                 return 0;
@@ -151,6 +151,20 @@ public class ParseOutputOOBActions {
                 return 4;
             default:
                 return 0;
+        }
+    }
+
+    public static byte[] generateOutputOOBAuthenticationValue(final int outputActionType, final byte[] input){
+        switch (outputActionType) {
+            case BLINK:
+            case BEEP:
+            case VIBRATE:
+            case OUTPUT_NUMERIC:
+                return MeshParserUtils.createAuthenticationValue(false, input);
+            case OUTPUT_ALPHA_NUMERIC:
+                return MeshParserUtils.createAuthenticationValue(true, input);
+            default:
+                return null;
         }
     }
 }

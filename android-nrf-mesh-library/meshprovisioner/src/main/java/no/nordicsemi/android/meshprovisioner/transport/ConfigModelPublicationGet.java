@@ -30,12 +30,14 @@ import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
  * To be used as a wrapper class to create a ConfigModelPublicationSet message.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ConfigModelPublicationGet extends ConfigMessage {
 
     private static final String TAG = ConfigModelPublicationGet.class.getSimpleName();
@@ -44,7 +46,7 @@ public class ConfigModelPublicationGet extends ConfigMessage {
     private static final int SIG_MODEL_PUBLISH_GET_PARAMS_LENGTH = 4;
     private static final int VENDOR_MODEL_PUBLISH_GET_PARAMS_LENGTH = 6;
 
-    private final byte[] elementAddress;
+    private final int elementAddress;
     private final int modelIdentifier;
 
     /**
@@ -54,10 +56,23 @@ public class ConfigModelPublicationGet extends ConfigMessage {
      * @param modelIdentifier                identifier for this model that will do publication
      * @throws IllegalArgumentException for invalid arguments
      */
+    @Deprecated
     public ConfigModelPublicationGet(@NonNull final byte[] elementAddress,
                                      final int modelIdentifier) throws IllegalArgumentException {
-        if (elementAddress.length != 2)
-            throw new IllegalArgumentException("Element address must be 2 bytes");
+        this(MeshParserUtils.bytesToInt(elementAddress), modelIdentifier);
+    }
+
+    /**
+     * Constructs a ConfigModelPublicationGet message
+     *
+     * @param elementAddress                 Element address that should publish
+     * @param modelIdentifier                identifier for this model that will do publication
+     * @throws IllegalArgumentException for invalid arguments
+     */
+    public ConfigModelPublicationGet(final int elementAddress,
+                                     final int modelIdentifier) throws IllegalArgumentException {
+        if (!MeshAddress.isValidUnicastAddress(elementAddress))
+            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
         this.elementAddress = elementAddress;
         this.modelIdentifier = modelIdentifier;
         assembleMessageParameters();
@@ -72,20 +87,18 @@ public class ConfigModelPublicationGet extends ConfigMessage {
     @Override
     void assembleMessageParameters() {
         final ByteBuffer paramsBuffer;
-        Log.v(TAG, "Element address: " + MeshParserUtils.bytesToHex(elementAddress, true));
-        Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(modelIdentifier), false));
+        Log.v(TAG, "Element address: " + MeshAddress.formatAddress(elementAddress, true));
+        Log.v(TAG, "Model: " + CompositionDataParser.formatModelIdentifier(modelIdentifier, false));
 
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
         if (modelIdentifier >= Short.MIN_VALUE && modelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_PUBLISH_GET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(elementAddress[1]);
-            paramsBuffer.put(elementAddress[0]);
+            paramsBuffer.putShort((short) elementAddress);
             paramsBuffer.putShort((short) modelIdentifier);
             mParameters = paramsBuffer.array();
         } else {
             paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_PUBLISH_GET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(elementAddress[1]);
-            paramsBuffer.put(elementAddress[0]);
+            paramsBuffer.putShort((short) elementAddress);
             final byte[] modelIdentifier = new byte[]{(byte) ((this.modelIdentifier >> 24) & 0xFF), (byte) ((this.modelIdentifier >> 16) & 0xFF), (byte) ((this.modelIdentifier >> 8) & 0xFF), (byte) (this.modelIdentifier & 0xFF)};
             paramsBuffer.put(modelIdentifier[1]);
             paramsBuffer.put(modelIdentifier[0]);
@@ -100,7 +113,7 @@ public class ConfigModelPublicationGet extends ConfigMessage {
      *
      * @return element address
      */
-    public byte[] getElementAddress() {
+    public int getElementAddress() {
         return elementAddress;
     }
 

@@ -557,17 +557,22 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
-        mMeshProvisioningHandler.startProvisioning(unprovisionedMeshNode);
+        mMeshProvisioningHandler.startProvisioningNoOOB(unprovisionedMeshNode);
     }
 
     @Override
-    public void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final String randomInput) throws IllegalArgumentException {
+    public void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
+        mMeshProvisioningHandler.startProvisioningWithOutputOOB(unprovisionedMeshNode);
+    }
+
+    @Override
+    public void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final String randomInput) throws IllegalArgumentException {
         mMeshProvisioningHandler.startProvisioningWithInputOOB(unprovisionedMeshNode, randomInput);
     }
 
     @Override
     public void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] confirmationInputs) throws IllegalArgumentException {
-        mMeshProvisioningHandler.startProvisioningWithStaticOOB(unprovisionedMeshNode, confirmationInputs);
+        mMeshProvisioningHandler.startProvisioningWithStaticOOB(unprovisionedMeshNode);
     }
 
     @Override
@@ -823,7 +828,7 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
-    public void exportMeshNetwork(final String path) {
+    public void exportMeshNetwork(@NonNull final String path) {
         final MeshNetwork meshNetwork = mMeshNetwork;
         if (meshNetwork != null) {
             NetworkImportExportUtils.exportMeshNetwork(meshNetwork, path, networkLoadCallbacks);

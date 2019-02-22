@@ -40,7 +40,7 @@ public class ProvisioningFailedState extends ProvisioningState {
 
     @Override
     public State getState() {
-        return State.PROVISINING_FAILED;
+        return State.PROVISIONING_FAILED;
     }
 
     @Override

@@ -52,7 +52,7 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
 
     @Override
     public State getState() {
-        return State.PROVISINING_RANDOM;
+        return State.PROVISIONING_RANDOM;
     }
 
     @Override

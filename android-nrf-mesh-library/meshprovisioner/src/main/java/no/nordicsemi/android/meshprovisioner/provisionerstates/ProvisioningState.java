@@ -22,9 +22,12 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
+import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
+
 @SuppressWarnings("unused")
 public abstract class ProvisioningState {
 
+    AuthenticationOOBMethods usedAuthenticationMethod;
     static final byte TYPE_PROVISIONING_INVITE = 0x00;
     static final byte TYPE_PROVISIONING_CAPABILITIES = 0x01;
     static final byte TYPE_PROVISIONING_START = 0x02;
@@ -34,6 +37,8 @@ public abstract class ProvisioningState {
     static final byte TYPE_PROVISIONING_RANDOM_CONFIRMATION = 0x06;
     static final byte TYPE_PROVISIONING_DATA = 0x07;
     static final byte TYPE_PROVISIONING_COMPLETE = 0x08;
+    short outputActionType;
+    short inputActionType;
 
     public ProvisioningState() {
     }
@@ -44,10 +49,24 @@ public abstract class ProvisioningState {
 
     public abstract boolean parseData(final byte[] data);
 
+    public void setUseOutputOOB(final short outputActionType) {
+        this.usedAuthenticationMethod = AuthenticationOOBMethods.OUTPUT_OOB_AUTHENTICATION;
+        this.outputActionType = outputActionType;
+    }
+
+    public void setUseInputOOB(final short inputActionType) {
+        this.usedAuthenticationMethod = AuthenticationOOBMethods.INPUT_OOB_AUTHENTICATION;
+        this.inputActionType = inputActionType;
+    }
+
+    public void setUseStaticOOB() {
+        this.usedAuthenticationMethod = AuthenticationOOBMethods.STATIC_OOB_AUTHENTICATION;
+    }
+
     public enum State {
         PROVISIONING_INVITE(0), PROVISIONING_CAPABILITIES(1), PROVISIONING_START(2), PROVISIONING_PUBLIC_KEY(3),
-        PROVISINING_INPUT_COMPLETE(4), PROVISIONING_CONFIRMATION(5), PROVISINING_RANDOM(6),
-        PROVISINING_DATA(7), PROVISINING_COMPLETE(8), PROVISINING_FAILED(9);
+        PROVISIONING_INPUT_COMPLETE(4), PROVISIONING_CONFIRMATION(5), PROVISIONING_RANDOM(6),
+        PROVISIONING_DATA(7), PROVISIONING_COMPLETE(8), PROVISIONING_FAILED(9);
 
         private int state;
 
@@ -67,22 +86,24 @@ public abstract class ProvisioningState {
         PROVISIONING_START(2),
         PROVISIONING_PUBLIC_KEY_SENT(3),
         PROVISIONING_PUBLIC_KEY_RECEIVED(4),
-        PROVISIONING_AUTHENTICATION_INPUT_WAITING(5),
-        PROVISIONING_AUTHENTICATION_INPUT_ENTERED(6),
-        PROVISIONING_INPUT_COMPLETE(7),
-        PROVISIONING_CONFIRMATION_SENT(8),
-        PROVISIONING_CONFIRMATION_RECEIVED(9),
-        PROVISIONING_RANDOM_SENT(10),
-        PROVISIONING_RANDOM_RECEIVED(11),
-        PROVISIONING_DATA_SENT(12),
-        PROVISIONING_COMPLETE(13),
-        PROVISIONING_FAILED(14),
-        COMPOSITION_DATA_GET_SENT(15),
-        COMPOSITION_DATA_STATUS_RECEIVED(16),
-        SENDING_BLOCK_ACKNOWLEDGEMENT(17),
-        SENDING_APP_KEY_ADD(18),
-        BLOCK_ACKNOWLEDGEMENT_RECEIVED(19),
-        APP_KEY_STATUS_RECEIVED(20);
+        PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING(5),
+        PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING(6),
+        PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING(7),
+        PROVISIONING_AUTHENTICATION_INPUT_ENTERED(8),
+        PROVISIONING_INPUT_COMPLETE(9),
+        PROVISIONING_CONFIRMATION_SENT(10),
+        PROVISIONING_CONFIRMATION_RECEIVED(11),
+        PROVISIONING_RANDOM_SENT(12),
+        PROVISIONING_RANDOM_RECEIVED(13),
+        PROVISIONING_DATA_SENT(14),
+        PROVISIONING_COMPLETE(15),
+        PROVISIONING_FAILED(16),
+        COMPOSITION_DATA_GET_SENT(17),
+        COMPOSITION_DATA_STATUS_RECEIVED(18),
+        SENDING_BLOCK_ACKNOWLEDGEMENT(19),
+        SENDING_APP_KEY_ADD(20),
+        BLOCK_ACKNOWLEDGEMENT_RECEIVED(21),
+        APP_KEY_STATUS_RECEIVED(22);
 
         private int state;
 

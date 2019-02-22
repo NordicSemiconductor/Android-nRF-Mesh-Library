@@ -42,7 +42,7 @@ public class ProvisioningInputCompleteState extends ProvisioningState {
 
     @Override
     public State getState() {
-        return State.PROVISINING_INPUT_COMPLETE;
+        return State.PROVISIONING_INPUT_COMPLETE;
     }
 
     @Override

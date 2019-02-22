@@ -26,13 +26,37 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * State class handling the publication get messages and its status message.
  */
+@SuppressWarnings("unused")
 class ConfigModelPublicationGetState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelPublicationGetState.class.getSimpleName();
     private final byte[] mDeviceKey;
+    /**
+     * Constructs the state for creating ConfigModelPublicationGet message
+     *
+     * @param context                   context
+     * @param src                       source address
+     * @param dst                       destination address
+     * @param deviceKey                 device key
+     * @param configModelPublicationGet {@link ConfigModelPublicationGet}
+     * @param meshTransport             {@link MeshTransport}
+     * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks}
+     */
+    @Deprecated
+    ConfigModelPublicationGetState(@NonNull final Context context,
+                                   @NonNull final byte[] src,
+                                   @NonNull final byte[] dst,
+                                   @NonNull final byte[] deviceKey,
+                                   @NonNull final ConfigModelPublicationGet configModelPublicationGet,
+                                   @NonNull final MeshTransport meshTransport,
+                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), deviceKey, configModelPublicationGet, meshTransport, callbacks);
+    }
 
     /**
      * Constructs the state for creating ConfigModelPublicationGet message
@@ -46,8 +70,8 @@ class ConfigModelPublicationGetState extends ConfigMessageState {
      * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks}
      */
     ConfigModelPublicationGetState(@NonNull final Context context,
-                                   @NonNull final byte[] src,
-                                   @NonNull final byte[] dst,
+                                   final int src,
+                                   final int dst,
                                    @NonNull final byte[] deviceKey,
                                    @NonNull final ConfigModelPublicationGet configModelPublicationGet,
                                    @NonNull final MeshTransport meshTransport,
