@@ -1,2 +1,8 @@
-  language: java
-  
+language: java
+dist: xenial  
+
+install: gradle assemble
+
+script:
+ - gradle check
+ - gradle build
