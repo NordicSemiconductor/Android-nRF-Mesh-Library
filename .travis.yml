@@ -10,8 +10,8 @@ script:
 jobs:
   include:
    # Example build job
-   - name: Build
+   - name: Build Example
      before_install: cd Example/nrf-mesh
    # Library build job
-   - name: macOS build
+   - name: Build Library
      before_install: cd android-nrf-mesh-library
