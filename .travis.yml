@@ -6,3 +6,12 @@ install: gradle assemble
 script:
  - gradle check
  - gradle build
+
+jobs:
+  include:
+   # Example build job
+   - name: Build
+     before_install: cd Example/nrf-mesh
+   # Library build job
+   - name: macOS build
+     before_install: cd android-nrf-mesh-library
