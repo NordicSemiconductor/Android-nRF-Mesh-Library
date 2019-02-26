@@ -52,14 +52,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningFailedState;
+import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
-import no.nordicsemi.android.meshprovisioner.utils.AlgorithmInformationParser;
+import no.nordicsemi.android.meshprovisioner.utils.AlgorithmType;
+import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
-import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
-import no.nordicsemi.android.meshprovisioner.utils.ParsePublicKeyInformation;
-import no.nordicsemi.android.meshprovisioner.utils.ParseStaticOutputOOBInformation;
+import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
+import no.nordicsemi.android.meshprovisioner.utils.StaticOOBType;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ProvisioningProgressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -71,6 +71,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentKeyIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisioningFailedError;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSelectOOBType;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
@@ -79,6 +80,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionerProgress;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningStatusLiveData;
 
 public class MeshProvisionerActivity extends AppCompatActivity implements Injectable,
+        DialogFragmentSelectOOBType.DialogFragmentSelectOOBTypeListener,
         DialogFragmentAuthenticationInput.ProvisionerInputFragmentListener,
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
         DialogFragmentNetworkKey.DialogFragmentNetworkKeyListener,
@@ -235,7 +237,8 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             if (node.getProvisioningCapabilities() != null) {
                 setupProvisionerStateObservers(provisioningStatusContainer);
                 mProvisioningProgressBar.setVisibility(View.VISIBLE);
-                mViewModel.startProvisioning(node);
+                //mViewModel.startProvisioning(node);
+                startProvisioningProcess(node);
             }
         });
     }
@@ -358,7 +361,19 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                             message.show(getSupportFragmentManager(), DIALOG_FRAGMENT_PROVISIONING_FAILED);
                         }
                         break;
-                    case PROVISIONING_AUTHENTICATION_INPUT_WAITING:
+                    case PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING://_OOB_WAITING:
+                        if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
+                            DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.newInstance();
+                            dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
+                        }
+                        break;
+                    case PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING:
+                        if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
+                            DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.newInstance();
+                            dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
+                        }
+                        break;
+                    case PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING:
                         if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
                             DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.newInstance();
                             dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
@@ -402,27 +417,133 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         mCapabilitiesContainer.setVisibility(View.VISIBLE);
 
         final String numberOfElements = String.valueOf(capabilities.getNumberOfElements());
-        ((TextView) mCapabilitiesContainer.findViewById(R.id.container_element_count).findViewById(R.id.text)).setText(numberOfElements);
+        ((TextView) mCapabilitiesContainer.
+                findViewById(R.id.container_element_count).
+                findViewById(R.id.text)).setText(numberOfElements);
 
-        final String algorithm = AlgorithmInformationParser.parseAlgorithm(capabilities.getSupportedAlgorithm());
-        ((TextView) mCapabilitiesContainer.findViewById(R.id.container_supported_algorithm).findViewById(R.id.text)).setText(algorithm);
+        ((TextView) mCapabilitiesContainer.
+                findViewById(R.id.container_supported_algorithm).
+                findViewById(R.id.text)).
+                setText(parseAlgorithms(capabilities));
 
-        final String publicKeyType = ParsePublicKeyInformation.parsePublicKeyInformation(capabilities.getPublicKeyType());
-        ((TextView) mCapabilitiesContainer.findViewById(R.id.container_public_key_type).findViewById(R.id.text)).setText(publicKeyType);
+        ((TextView) mCapabilitiesContainer.
+                findViewById(R.id.container_public_key_type).
+                findViewById(R.id.text)).
+                setText(capabilities.isPublicKeyInformationAvailable() ? R.string.public_key_information_available : R.string.public_key_information_unavailable);
 
-        final String oobType = ParseStaticOutputOOBInformation.parseStaticOOBActionInformation(capabilities.getStaticOOBType());
-        ((TextView) mCapabilitiesContainer.findViewById(R.id.container_static_oob_type).findViewById(R.id.text)).setText(oobType);
+        ((TextView) mCapabilitiesContainer.
+                findViewById(R.id.container_static_oob_type).
+                findViewById(R.id.text)).
+                setText(capabilities.isStaticOOBInformationAvailable() ? R.string.static_oob_information_available : R.string.static_oob_information_unavailable);
 
-        final String outputOobSize = String.valueOf(capabilities.getOutputOOBSize());
-        ((TextView) mCapabilitiesContainer.findViewById(R.id.container_output_oob_size).findViewById(R.id.text)).setText(outputOobSize);
+        ((TextView) mCapabilitiesContainer.
+                findViewById(R.id.container_output_oob_size)
+                .findViewById(R.id.text))
+                .setText(String.valueOf(capabilities.getOutputOOBSize()));
 
-        final String outputAction = ParseOutputOOBActions.getOuputOOBActionDescription(capabilities.getOutputOOBAction());
-        ((TextView) mCapabilitiesContainer.findViewById(R.id.container_output_actions).findViewById(R.id.text)).setText(outputAction);
+        ((TextView) mCapabilitiesContainer.
+                findViewById(R.id.container_output_actions).
+                findViewById(R.id.text)).
+                setText(parseOutputOOBActions(capabilities));
 
-        final String inputOobSize = String.valueOf(capabilities.getInputOOBSize());
-        ((TextView) mCapabilitiesContainer.findViewById(R.id.container_input_oob_size).findViewById(R.id.text)).setText(inputOobSize);
+        ((TextView) mCapabilitiesContainer.
+                findViewById(R.id.container_input_oob_size).
+                findViewById(R.id.text)).
+                setText(String.valueOf(capabilities.getInputOOBSize()));
 
-        final String inputAction = ParseInputOOBActions.getInputOOBActionDescription(capabilities.getOutputOOBAction());
-        ((TextView) mCapabilitiesContainer.findViewById(R.id.container_input_actions).findViewById(R.id.text)).setText(inputAction);
+        ((TextView) mCapabilitiesContainer.
+                findViewById(R.id.container_input_actions)
+                .findViewById(R.id.text))
+                .setText(parseInputOOBActions(capabilities));
+    }
+
+    private String parseAlgorithms(final ProvisioningCapabilities capabilities) {
+        final StringBuilder algorithmTypes = new StringBuilder();
+        int count = 0;
+        for (AlgorithmType algorithmType : capabilities.getSupportedAlgorithmTypes()) {
+            if (count == 0) {
+                algorithmTypes.append(AlgorithmType.getAlgorithmTypeDescription(algorithmType));
+            } else {
+                algorithmTypes.append(", ").append(AlgorithmType.getAlgorithmTypeDescription(algorithmType));
+            }
+            count++;
+        }
+        return algorithmTypes.toString();
+    }
+
+    private String parseOutputOOBActions(final ProvisioningCapabilities capabilities) {
+        if(capabilities.getSupportedOutputOOBActions().isEmpty())
+            return getString(R.string.output_oob_actions_unavailable);
+
+        final StringBuilder outputOOBActions = new StringBuilder();
+        int count = 0;
+        for (OutputOOBAction outputOOBAction : capabilities.getSupportedOutputOOBActions()) {
+            if (count == 0) {
+                outputOOBActions.append(OutputOOBAction.getOutputOOBActionDescription(outputOOBAction));
+            } else {
+                outputOOBActions.append(", ").append(OutputOOBAction.getOutputOOBActionDescription(outputOOBAction));
+            }
+            count++;
+        }
+        return outputOOBActions.toString();
+    }
+
+    private String parseInputOOBActions(final ProvisioningCapabilities capabilities) {
+        if(capabilities.getSupportedInputOOBActions().isEmpty())
+            return getString(R.string.input_oob_actions_unavailable);
+
+        final StringBuilder inputOOBActions = new StringBuilder();
+        int count = 0;
+        for (InputOOBAction inputOOBAction : capabilities.getSupportedInputOOBActions()) {
+            if (count == 0) {
+                inputOOBActions.append(InputOOBAction.getInputOOBActionDescription(inputOOBAction));
+            } else {
+                inputOOBActions.append(", ").append(InputOOBAction.getInputOOBActionDescription(inputOOBAction));
+            }
+            count++;
+        }
+        return inputOOBActions.toString();
+    }
+
+    private void startProvisioningProcess(final UnprovisionedMeshNode node) {
+        final DialogFragmentSelectOOBType fragmentSelectOOBType = DialogFragmentSelectOOBType.newInstance(node.getProvisioningCapabilities());
+        fragmentSelectOOBType.show(getSupportFragmentManager(), null);
+    }
+
+    @Override
+    public void onNoOOBSelected() {
+        final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
+        if(node != null) {
+            mViewModel.getMeshManagerApi().startProvisioning(node);
+        }
+    }
+
+    @Override
+    public void onStaticOOBSelected(final StaticOOBType staticOOBType) {
+        final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
+        if(node != null) {
+            mViewModel.getMeshManagerApi().startProvisioningWithStaticOOB(node);
+        }
+    }
+
+    @Override
+    public void onOutputOOBActionSelected(final OutputOOBAction action) {
+        final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
+        if(node != null) {
+            mViewModel.getMeshManagerApi().startProvisioningWithOutputOOB(node, action);
+        }
+    }
+
+    @Override
+    public void onInputOOBActionSelected(final InputOOBAction action) {
+        final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
+        if(node != null) {
+            mViewModel.getMeshManagerApi().startProvisioningWithInputOOB(node, action);
+        }
+    }
+
+    @Override
+    public void onOOBSelectionCanceled() {
+        mViewModel.disconnect();
     }
 }

@@ -22,12 +22,13 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
-import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
+import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
+import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
+import no.nordicsemi.android.meshprovisioner.utils.StaticOOBType;
 
 @SuppressWarnings("unused")
 public abstract class ProvisioningState {
 
-    AuthenticationOOBMethods usedAuthenticationMethod;
     static final byte TYPE_PROVISIONING_INVITE = 0x00;
     static final byte TYPE_PROVISIONING_CAPABILITIES = 0x01;
     static final byte TYPE_PROVISIONING_START = 0x02;
@@ -37,8 +38,6 @@ public abstract class ProvisioningState {
     static final byte TYPE_PROVISIONING_RANDOM_CONFIRMATION = 0x06;
     static final byte TYPE_PROVISIONING_DATA = 0x07;
     static final byte TYPE_PROVISIONING_COMPLETE = 0x08;
-    short outputActionType;
-    short inputActionType;
 
     public ProvisioningState() {
     }
@@ -48,20 +47,6 @@ public abstract class ProvisioningState {
     public abstract void executeSend();
 
     public abstract boolean parseData(final byte[] data);
-
-    public void setUseOutputOOB(final short outputActionType) {
-        this.usedAuthenticationMethod = AuthenticationOOBMethods.OUTPUT_OOB_AUTHENTICATION;
-        this.outputActionType = outputActionType;
-    }
-
-    public void setUseInputOOB(final short inputActionType) {
-        this.usedAuthenticationMethod = AuthenticationOOBMethods.INPUT_OOB_AUTHENTICATION;
-        this.inputActionType = inputActionType;
-    }
-
-    public void setUseStaticOOB() {
-        this.usedAuthenticationMethod = AuthenticationOOBMethods.STATIC_OOB_AUTHENTICATION;
-    }
 
     public enum State {
         PROVISIONING_INVITE(0), PROVISIONING_CAPABILITIES(1), PROVISIONING_START(2), PROVISIONING_PUBLIC_KEY(3),

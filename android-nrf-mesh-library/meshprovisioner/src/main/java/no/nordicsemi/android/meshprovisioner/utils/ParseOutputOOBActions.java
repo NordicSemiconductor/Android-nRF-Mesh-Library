@@ -31,7 +31,7 @@ public class ParseOutputOOBActions {
 
 
     /**
-     * Input OOB Actions
+     * Output OOB Actions
      */
     public static final short NO_OUTPUT = 0x0000;
     private static final short BLINK = 0x0001;
@@ -46,7 +46,7 @@ public class ParseOutputOOBActions {
      * @param type Output OOB type
      * @return Input OOB type descrption
      */
-    public static String getOuputOOBActionDescription(final short type) {
+    public static String getOutputOOBActionDescription(final short type) {
         switch (type) {
             case NO_OUTPUT:
                 return "Not Supported";
@@ -71,7 +71,7 @@ public class ParseOutputOOBActions {
      * @param type output OOB type
      * @return Output OOB type descrption
      */
-    public static int parseOuputOOBActionValue(final int type) {
+    public static int parseOutputOOBActionValue(final int type) {
         switch (type) {
             case NO_OUTPUT:
                 return 0;
@@ -102,7 +102,7 @@ public class ParseOutputOOBActions {
         for(byte action : outputActions){
             if((outputAction & action) == action){
                 supportedActionValues.add(action);
-                Log.v(TAG, "Supported output oob action type: " + getOuputOOBActionDescription(action));
+                Log.v(TAG, "Supported output oob action type: " + getOutputOOBActionDescription(action));
             }
         }
         return supportedActionValues;
@@ -116,16 +116,16 @@ public class ParseOutputOOBActions {
      */
     public static short selectOutputActionsFromBitMask(final int outputAction) {
         final byte[] outputActions = {BLINK, BEEP, VIBRATE, OUTPUT_NUMERIC, OUTPUT_ALPHA_NUMERIC};
-        final ArrayList<Byte> suppportedActionValues = new ArrayList<>();
+        final ArrayList<Byte> supportedActionValues = new ArrayList<>();
         for(byte action : outputActions){
             if((outputAction & action) == action){
-                suppportedActionValues.add(action);
-                Log.v(TAG, "Supported output oob action type: " + getOuputOOBActionDescription(action));
+                supportedActionValues.add(action);
+                Log.v(TAG, "Supported output oob action type: " + getOutputOOBActionDescription(action));
             }
         }
 
-        if(!suppportedActionValues.isEmpty()) {
-            return suppportedActionValues.get(0);
+        if(!supportedActionValues.isEmpty()) {
+            return supportedActionValues.get(0);
         } else {
             return NO_OUTPUT;
         }
@@ -154,15 +154,15 @@ public class ParseOutputOOBActions {
         }
     }
 
-    public static byte[] generateOutputOOBAuthenticationValue(final int outputActionType, final byte[] input){
+    public static byte[] generateOutputOOBAuthenticationValue(final int outputActionType, final byte[] input, final int size){
         switch (outputActionType) {
             case BLINK:
             case BEEP:
             case VIBRATE:
             case OUTPUT_NUMERIC:
-                return MeshParserUtils.createAuthenticationValue(false, input);
+                return MeshParserUtils.createAuthenticationValue(false, input, size);
             case OUTPUT_ALPHA_NUMERIC:
-                return MeshParserUtils.createAuthenticationValue(true, input);
+                return MeshParserUtils.createAuthenticationValue(true, input, size);
             default:
                 return null;
         }

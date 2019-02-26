@@ -9,6 +9,8 @@ import java.util.UUID;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
+import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
 
 @SuppressWarnings("unused")
 interface MeshMngrApi {
@@ -36,14 +38,25 @@ interface MeshMngrApi {
     void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
 
     /**
+     * Starts provisioning an unprovisioned mesh node with static oob
+     * <p>
+     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
+     * </p>
+     *  @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
+     *
+     */
+    void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
+
+    /**
      * Starts provisioning an unprovisioned mesh node output oob
      * <p>
      * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
+     * @param oobAction
      */
-    void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
+    void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final OutputOOBAction oobAction) throws IllegalArgumentException;
 
     /**
      * Starts provisioning an unprovisioned mesh node input OOB
@@ -52,18 +65,9 @@ interface MeshMngrApi {
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
+     * @param oobAction
      */
-    void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final String randomInput) throws IllegalArgumentException;
-
-    /**
-     * Starts provisioning an unprovisioned mesh node with static oob
-     * <p>
-     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
-     * </p>
-     *
-     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
-     */
-    void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] confirmationInputs) throws IllegalArgumentException;
+    void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final InputOOBAction oobAction) throws IllegalArgumentException;
 
         /**
          * Set the provisioning confirmation

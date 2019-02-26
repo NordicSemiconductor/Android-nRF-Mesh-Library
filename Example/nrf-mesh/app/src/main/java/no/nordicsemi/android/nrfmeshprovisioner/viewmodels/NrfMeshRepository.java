@@ -451,21 +451,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mSelectedModel.postValue(model);
     }
 
-    void sendGetCompositionData() {
-        final ProvisionedMeshNode node = mExtendedMeshNode.getValue();
-        if (node != null) {
-            final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
-            mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), configCompositionDataGet);
-        }
-    }
-
-    void sendAppKeyAdd(final ConfigAppKeyAdd configAppKeyAdd) {
-        final ProvisionedMeshNode node = mExtendedMeshNode.getValue();
-        if (node != null) {
-            mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), configAppKeyAdd);
-        }
-    }
-
     @Override
     public void onDataReceived(final BluetoothDevice bluetoothDevice, final int mtu, final byte[] pdu) {
         mMeshManagerApi.handleNotifications(mtu, pdu);

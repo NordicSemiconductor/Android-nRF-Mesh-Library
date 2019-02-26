@@ -28,10 +28,13 @@ import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
+import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.ParseProvisioningAlgorithm;
+import no.nordicsemi.android.meshprovisioner.utils.StaticOOBType;
 
 
 public class ProvisioningStartState extends ProvisioningState {
@@ -49,6 +52,8 @@ public class ProvisioningStartState extends ProvisioningState {
     private int outputOOBAction;
     private int inputOOBSize;
     private int inputOOBAction;
+    private short outputActionType;
+    private short inputActionType;
 
     public ProvisioningStartState(final UnprovisionedMeshNode unprovisionedMeshNode,
                                   final InternalTransportCallbacks mInternalTransportCallbacks,
@@ -57,7 +62,23 @@ public class ProvisioningStartState extends ProvisioningState {
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
         this.mInternalTransportCallbacks = mInternalTransportCallbacks;
         this.mMeshProvisioningStatusCallbacks = meshProvisioningStatusCallbacks;
-        this.usedAuthenticationMethod = AuthenticationOOBMethods.NO_OOB_AUTHENTICATION;
+    }
+
+    public void setUseStaticOOB(final StaticOOBType actionType) {
+        mUnprovisionedMeshNode.setAuthMethodUsed(AuthenticationOOBMethods.STATIC_OOB_AUTHENTICATION);
+        mUnprovisionedMeshNode.setAuthActionUsed(actionType.getStaticOobType());
+    }
+
+    public void setUseOutputOOB(final OutputOOBAction actionType) {
+        mUnprovisionedMeshNode.setAuthMethodUsed(AuthenticationOOBMethods.OUTPUT_OOB_AUTHENTICATION);
+        this.outputActionType = actionType.getOutputOOBAction();
+        mUnprovisionedMeshNode.setAuthActionUsed(actionType.getOutputOOBAction());
+    }
+
+    public void setUseInputOOB(final InputOOBAction actionType) {
+        mUnprovisionedMeshNode.setAuthMethodUsed(AuthenticationOOBMethods.INPUT_OOB_AUTHENTICATION);
+        this.inputActionType = actionType.getInputOOBAction();
+        mUnprovisionedMeshNode.setAuthActionUsed(actionType.getInputOOBAction());
     }
 
     @Override
@@ -85,20 +106,24 @@ public class ProvisioningStartState extends ProvisioningState {
         provisioningPDU[1] = TYPE_PROVISIONING_START;
         provisioningPDU[2] = ParseProvisioningAlgorithm.getAlgorithmValue(algorithm);
         provisioningPDU[3] = 0; // (byte) publicKeyType;
-        provisioningPDU[4] = (byte) this.usedAuthenticationMethod.ordinal();
-        switch (this.usedAuthenticationMethod) {
+        provisioningPDU[4] = (byte) mUnprovisionedMeshNode.getAuthMethodUsed().ordinal();
+        switch (mUnprovisionedMeshNode.getAuthMethodUsed()) {
             case NO_OOB_AUTHENTICATION:
+                provisioningPDU[5] = 0;
+                provisioningPDU[6] = 0;
+                break;
             case STATIC_OOB_AUTHENTICATION:
                 provisioningPDU[5] = 0;
                 provisioningPDU[6] = 0;
                 break;
+            case OUTPUT_OOB_AUTHENTICATION:
+                //OutputOOBAction.getOutputOOBActionValue(outputActionType);//getOutputOOBActionValue(outputOOBAction);//byte)
+                provisioningPDU[5] = (byte) ParseOutputOOBActions.getOutputOOBActionValue(this.outputActionType);
+                provisioningPDU[6] = (byte) outputOOBSize;
+                break;
             case INPUT_OOB_AUTHENTICATION:
                 provisioningPDU[5] = (byte) ParseInputOOBActions.getIntputOOBActionValue(this.inputActionType);
                 provisioningPDU[6] = (byte) inputOOBSize;
-                break;
-            case OUTPUT_OOB_AUTHENTICATION:
-                provisioningPDU[5] = (byte) ParseOutputOOBActions.getOutputOOBActionValue(this.outputActionType);
-                provisioningPDU[6] = (byte) outputOOBSize;
                 break;
 
         }

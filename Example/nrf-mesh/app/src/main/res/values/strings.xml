@@ -521,4 +521,31 @@
     <string name="action_edit">Edit</string>
     <string name="parent_address">Element Address: %s</string>
     <string name="or">OR</string>
+
+
+    <string name="output_oob">Output OOB</string>
+
+    <!--Output oob actions-->
+    <string name="beep">Beep</string>
+    <string name="blink">Blink</string>
+    <string name="vibrate">Vibrate</string>
+    <string name="output_numeric">Output Numeric</string>
+    <string name="output_alphanumeric">Output Alphanumeric</string>
+
+    <!--Input oob actions-->
+    <string name="push">Push</string>
+    <string name="twist">Twist</string>
+    <string name="input_number">Input Number</string>
+    <string name="input_alphanumeric">Input Alphanumeric</string>
+    <string name="title_select_output_oob">Select Output OOB Action</string>
+    <string name="title_select_input_oob">Select Input OOB Action</string>
+    <string name="hint_static_oob">16-byte Static OOB value</string>
+
+    <string name="title_select_oob">Select OOB Type</string>
+    <string name="public_key_information_available">Public Key information available</string>
+    <string name="public_key_information_unavailable">Public Key information unavailable</string>
+    <string name="static_oob_information_available">Static OOB information available</string>
+    <string name="static_oob_information_unavailable">Static OOB information unavailable</string>
+    <string name="output_oob_actions_unavailable">Output OOB actions unavailable</string>
+    <string name="input_oob_actions_unavailable">Input OOB actions unavailable</string>
 </resources>

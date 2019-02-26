@@ -24,8 +24,6 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.util.Log;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class ParseInputOOBActions {
@@ -35,7 +33,7 @@ public class ParseInputOOBActions {
     private static final short PUSH = 0x0001;
     private static final short TWIST = 0x0002;
     private static final short INPUT_NUMBER = 0x0004;
-    private static final short INPUT_ALPHA_NUMBERIC = 0x0008;
+    private static final short INPUT_ALPHA_NUMERIC = 0x0008;
 
     /**
      * Returns the Input OOB Action description
@@ -53,7 +51,7 @@ public class ParseInputOOBActions {
                 return "Twist";
             case INPUT_NUMBER:
                 return "Input Number";
-            case INPUT_ALPHA_NUMBERIC:
+            case INPUT_ALPHA_NUMERIC:
                 return "Input Alpha Numeric";
             default:
                 return "Unknown";
@@ -61,7 +59,7 @@ public class ParseInputOOBActions {
     }
 
     public static ArrayList<Byte> parseInputActionsFromBitMask(final int inputAction) {
-        final byte[] inputActions = {PUSH, TWIST, INPUT_NUMBER, INPUT_ALPHA_NUMBERIC};
+        final byte[] inputActions = {PUSH, TWIST, INPUT_NUMBER, INPUT_ALPHA_NUMERIC};
         final ArrayList<Byte> supportedActionValues = new ArrayList<>();
         for (byte action : inputActions) {
             if ((inputAction & action) == action) {
@@ -88,7 +86,7 @@ public class ParseInputOOBActions {
                 return 2;
             case INPUT_NUMBER:
                 return 4;
-            case INPUT_ALPHA_NUMBERIC:
+            case INPUT_ALPHA_NUMERIC:
                 return 8;
             default:
                 return -1;
@@ -109,7 +107,7 @@ public class ParseInputOOBActions {
                 return 1;
             case INPUT_NUMBER:
                 return 2;
-            case INPUT_ALPHA_NUMBERIC:
+            case INPUT_ALPHA_NUMERIC:
                 return 3;
             default:
                 return -1;
@@ -123,7 +121,7 @@ public class ParseInputOOBActions {
      * @return selected output action type
      */
     public static short selectInputActionsFromBitMask(final int outputAction) {
-        final byte[] outputActions = {PUSH, TWIST, INPUT_NUMBER, INPUT_ALPHA_NUMBERIC};
+        final byte[] outputActions = {PUSH, TWIST, INPUT_NUMBER, INPUT_ALPHA_NUMERIC};
         final ArrayList<Byte> supportedActionValues = new ArrayList<>();
         for (byte action : outputActions) {
             if ((outputAction & action) == action) {

@@ -28,6 +28,7 @@ import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.util.Calendar;
 
 import no.nordicsemi.android.meshprovisioner.R;
@@ -766,30 +767,16 @@ public class MeshParserUtils {
      * @param prePadded add the padding before or after based on the data type
      * @param input     input
      */
-    public static byte[] createAuthenticationValue(final boolean prePadded, final byte[] input) {
+    public static byte[] createAuthenticationValue(final boolean prePadded, final byte[] input, final int oobSize) {
+        final ByteBuffer buffer = ByteBuffer.allocate(16).order(ByteOrder.BIG_ENDIAN);
         final int authLength = 16;
-        final byte[] auth = new byte[16];
-        int counter = 0;
         if (prePadded) {
-            for (int i = authLength; i >= 0; i--) {
-                if (counter < input.length) {
-                    auth[i] = input[counter];
-                } else {
-                    auth[i] = 0;
-                }
-                counter++;
-            }
-            return auth;
+            buffer.position(authLength - oobSize);
+            buffer.putInt(Integer.valueOf(new String(input, Charset.forName("UTF-8"))));
+            return buffer.array();
         } else {
-            for (int i = 0; i < authLength; i++) {
-                if (counter < input.length) {
-                    auth[i] = input[counter];
-                } else {
-                    auth[i] = 0;
-                }
-                counter++;
-            }
-            return auth;
+            buffer.put(input);
+            return buffer.array();
         }
     }
 }

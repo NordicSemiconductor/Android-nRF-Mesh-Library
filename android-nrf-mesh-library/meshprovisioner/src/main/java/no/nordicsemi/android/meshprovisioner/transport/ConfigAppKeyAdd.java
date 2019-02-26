@@ -49,10 +49,10 @@ public class ConfigAppKeyAdd extends ConfigMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public ConfigAppKeyAdd(@NonNull final NetworkKey networkKey, @NonNull final ApplicationKey appKey) throws IllegalArgumentException {
-        if (networkKey != null && networkKey.getKey().length != 16)
+        if (networkKey.getKey().length != 16)
             throw new IllegalArgumentException("Network key must be 16 bytes");
 
-        if (appKey != null && appKey.getKey().length != 16)
+        if (appKey.getKey().length != 16)
             throw new IllegalArgumentException("App key must be 16 bytes");
 
         this.mNetKey = networkKey;

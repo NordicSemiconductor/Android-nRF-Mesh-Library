@@ -30,18 +30,38 @@ public enum AuthenticationOOBMethods {
     }
 
     /**
+     * Returns the oob method used for authentication
+     *
+     * @param method auth method used
+     */
+    public static AuthenticationOOBMethods fromValue(final int method) {
+        switch (method) {
+            case 0:
+                return NO_OOB_AUTHENTICATION;
+            case 1:
+                return STATIC_OOB_AUTHENTICATION;
+            case 2:
+                return OUTPUT_OOB_AUTHENTICATION;
+            case 3:
+                return INPUT_OOB_AUTHENTICATION;
+            default:
+                return null;
+        }
+    }
+
+    /**
      * Parses the authentication method used.
      */
-    public static String parseStaticOOBMethodInformation(final AuthenticationOOBMethods type) {
+    public static String getAuthenticationMethodName(final AuthenticationOOBMethods type) {
         switch (type) {
             case NO_OOB_AUTHENTICATION:
-                return "No OOB authentication is used";
+                return "No OOB";
             case STATIC_OOB_AUTHENTICATION:
-                return "Static OOB authentication is used";
+                return "Static OOB";
             case OUTPUT_OOB_AUTHENTICATION:
-                return "Output OOB authentication is used";
+                return "Output OOB";
             case INPUT_OOB_AUTHENTICATION:
-                return "Input OOB authentication is used";
+                return "Input OOB";
             default:
                 return "Prohibited";
         }

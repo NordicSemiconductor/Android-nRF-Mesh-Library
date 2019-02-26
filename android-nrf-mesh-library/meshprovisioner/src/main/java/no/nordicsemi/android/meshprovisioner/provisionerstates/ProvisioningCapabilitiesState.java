@@ -71,10 +71,7 @@ public class ProvisioningCapabilitiesState extends ProvisioningState {
 
     private boolean parseProvisioningCapabilities(final byte[] provisioningCapabilities) {
 
-        final ProvisioningCapabilities capabilities = new ProvisioningCapabilities();
-        capabilities.setRawCapabilities(provisioningCapabilities);
-
-        if (provisioningCapabilities[2] == 0) {
+        /*if (provisioningCapabilities[2] == 0) {
             throw new IllegalArgumentException("Number of elements cannot be zero");
         }
 
@@ -84,15 +81,15 @@ public class ProvisioningCapabilitiesState extends ProvisioningState {
 
         final short algorithm = (short) (((provisioningCapabilities[3] & 0xff) << 8) | (provisioningCapabilities[4] & 0xff));
         Log.v(TAG, "Algorithm: " + AlgorithmInformationParser.parseAlgorithm(algorithm));
-        capabilities.setSupportedAlgorithm(algorithm);
+        capabilities.setRawAlgorithm(algorithm);
 
         final byte publicKeyType = (provisioningCapabilities[5]); // 0 is unavailable and 1 is available
         Log.v(TAG, "Public key type: " + ParsePublicKeyInformation.parsePublicKeyInformation(publicKeyType));
-        capabilities.setPublicKeyType(publicKeyType);
+        capabilities.setRawPublicKeyType(publicKeyType);
 
         final byte staticOOBType = (provisioningCapabilities[6]); // 0 is unavailable and 1 is available
         Log.v(TAG, "Static OOB type: " + ParseStaticOutputOOBInformation.parseStaticOOBActionInformation(staticOOBType));
-        capabilities.setStaticOOBType(staticOOBType);
+        capabilities.setRawStaticOOBType(staticOOBType);
 
         final byte outputOOBSize = (provisioningCapabilities[7]);
         Log.v(TAG, "Output OOB size: " + outputOOBSize);
@@ -100,7 +97,7 @@ public class ProvisioningCapabilitiesState extends ProvisioningState {
 
         final short outputOOBAction = (short) (((provisioningCapabilities[8] & 0xff) << 8) | (provisioningCapabilities[9] & 0xff));
         ParseOutputOOBActions.parseOutputActionsFromBitMask(outputOOBAction);
-        capabilities.setOutputOOBAction(outputOOBAction);
+        capabilities.setRawOutputOOBAction(outputOOBAction);
 
         final byte inputOOBSize = (provisioningCapabilities[10]);
         Log.v(TAG, "Input OOB size: " + inputOOBSize);
@@ -108,8 +105,9 @@ public class ProvisioningCapabilitiesState extends ProvisioningState {
 
         final short inputOOBAction = (short) (((provisioningCapabilities[11] & 0xff) << 8) | (provisioningCapabilities[12] & 0xff));
         ParseInputOOBActions.parseInputActionsFromBitMask(inputOOBAction);
-        capabilities.setInputOOBAction(inputOOBAction);
-        this.capabilities = capabilities;
+        capabilities.setRawInputOOBAction(inputOOBAction);*/
+
+        this.capabilities = new ProvisioningCapabilities(provisioningCapabilities);
 
         return true;
     }

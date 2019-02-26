@@ -26,6 +26,7 @@ import android.os.Parcel;
 
 import java.util.UUID;
 
+import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 @SuppressWarnings("WeakerAccess")
@@ -62,6 +63,9 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
             numberOfElements = provisioningCapabilities.getNumberOfElements();
         }
         provisioningStartPdu = in.createByteArray();
+        authMethodUsed = AuthenticationOOBMethods.fromValue(in.readInt());
+        authActionUsed = (short) in.readInt();
+
     }
 
     @Override
@@ -89,6 +93,8 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         dest.writeByteArray(provisioningCapabilitiesPdu);
         dest.writeParcelable(provisioningCapabilities, flags);
         dest.writeByteArray(provisioningStartPdu);
+        dest.writeInt(authMethodUsed.ordinal());
+        dest.writeInt(authActionUsed);
     }
 
 

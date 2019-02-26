@@ -32,9 +32,9 @@ import no.nordicsemi.android.meshprovisioner.InternalProvisioningCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
-import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
+import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 public class ProvisioningConfirmationState extends ProvisioningState {
@@ -42,7 +42,7 @@ public class ProvisioningConfirmationState extends ProvisioningState {
     private final String TAG = ProvisioningConfirmationState.class.getSimpleName();
 
     private final InternalProvisioningCallbacks provisioningCallbacks;
-    private final UnprovisionedMeshNode mUnprovisionedMeshNode;
+    private final UnprovisionedMeshNode mNode;
     private final MeshProvisioningStatusCallbacks mStatusCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
     private String pin;
@@ -50,12 +50,12 @@ public class ProvisioningConfirmationState extends ProvisioningState {
     private boolean usePin = true;
 
     public ProvisioningConfirmationState(final InternalProvisioningCallbacks callbacks,
-                                         final UnprovisionedMeshNode unprovisionedMeshNode,
+                                         final UnprovisionedMeshNode node,
                                          final InternalTransportCallbacks internalTransportCallbacks,
                                          final MeshProvisioningStatusCallbacks provisioningStatusCallbacks) {
         super();
         this.provisioningCallbacks = callbacks;
-        this.mUnprovisionedMeshNode = unprovisionedMeshNode;
+        this.mNode = node;
         this.mInternalTransportCallbacks = internalTransportCallbacks;
         this.mStatusCallbacks = provisioningStatusCallbacks;
     }
@@ -84,27 +84,27 @@ public class ProvisioningConfirmationState extends ProvisioningState {
         } else {
             provisioningConfirmationPDU = createProvisioningConfirmation(null);
         }
-        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CONFIRMATION_SENT, provisioningConfirmationPDU);
-        mInternalTransportCallbacks.sendProvisioningPdu(mUnprovisionedMeshNode, provisioningConfirmationPDU);
+        mStatusCallbacks.onProvisioningStateChanged(mNode, States.PROVISIONING_CONFIRMATION_SENT, provisioningConfirmationPDU);
+        mInternalTransportCallbacks.sendProvisioningPdu(mNode, provisioningConfirmationPDU);
     }
 
     @Override
     public boolean parseData(final byte[] data) {
-        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CONFIRMATION_RECEIVED, data);
+        mStatusCallbacks.onProvisioningStateChanged(mNode, States.PROVISIONING_CONFIRMATION_RECEIVED, data);
         parseProvisioneeConfirmation(data);
         return true;
     }
 
     private byte[] createProvisioningConfirmation(final byte[] userInput) {
 
-        final byte[] confirmationInputs = provisioningCallbacks.generateConfirmationInputs(mUnprovisionedMeshNode.getProvisionerPublicKeyXY(), mUnprovisionedMeshNode.getProvisioneePublicKeyXY());
+        final byte[] confirmationInputs = provisioningCallbacks.generateConfirmationInputs(mNode.getProvisionerPublicKeyXY(), mNode.getProvisioneePublicKeyXY());
         Log.v(TAG, "Confirmation inputs: " + MeshParserUtils.bytesToHex(confirmationInputs, false));
 
         //Generate a confirmation salt of the confirmation inputs
         final byte[] confirmationSalt = SecureUtils.calculateSalt(confirmationInputs);
         Log.v(TAG, "Confirmation salt: " + MeshParserUtils.bytesToHex(confirmationSalt, false));
 
-        final byte[] ecdhSecret = mUnprovisionedMeshNode.getSharedECDHSecret();
+        final byte[] ecdhSecret = mNode.getSharedECDHSecret();
 
         //Generate the confirmationKey by calculating the K1 of ECDH, confirmationSalt and ASCII value of "prck".
         final byte[] confirmationKey = SecureUtils.calculateK1(ecdhSecret, confirmationSalt, SecureUtils.PRCK);
@@ -112,12 +112,12 @@ public class ProvisioningConfirmationState extends ProvisioningState {
 
         //Generate provisioner random number
         final byte[] provisionerRandom = SecureUtils.generateRandomNumber();
-        mUnprovisionedMeshNode.setProvisionerRandom(provisionerRandom);
+        mNode.setProvisionerRandom(provisionerRandom);
         Log.v(TAG, "Provisioner random: " + MeshParserUtils.bytesToHex(provisionerRandom, false));
 
         //Generate authentication value from the user input pin
         final byte[] authenticationValue = this.usePin ? generateAuthenticationValue(userInput) : this.authenticationValue;
-        mUnprovisionedMeshNode.setAuthenticationValue(authenticationValue);
+        mNode.setAuthenticationValue(authenticationValue);
         Log.v(TAG, "Authentication value: " + MeshParserUtils.bytesToHex(authenticationValue, false));
 
         ByteBuffer buffer = ByteBuffer.allocate(provisionerRandom.length + authenticationValue.length);
@@ -137,11 +137,15 @@ public class ProvisioningConfirmationState extends ProvisioningState {
     }
 
     private byte[] generateAuthenticationValue(@NonNull final byte[] pin) {
-        switch (usedAuthenticationMethod) {
+        switch (mNode.authMethodUsed) {
             case STATIC_OOB_AUTHENTICATION:
                 return pin;
             case OUTPUT_OOB_AUTHENTICATION:
-                return ParseOutputOOBActions.generateOutputOOBAuthenticationValue(outputActionType, pin);
+                final OutputOOBAction action = OutputOOBAction.fromValue(mNode.getAuthActionUsed());
+                return OutputOOBAction.generateOutputOOBAuthenticationValue(action, pin, mNode.getProvisioningCapabilities().getOutputOOBSize());
+            case INPUT_OOB_AUTHENTICATION:
+                final InputOOBAction inputOOBAction = InputOOBAction.fromValue(mNode.getAuthActionUsed());
+                return InputOOBAction.generateInputOOBAuthenticationValue(inputOOBAction, pin, mNode.getProvisioningCapabilities().getOutputOOBSize());
         }
         return null;
     }
@@ -149,6 +153,6 @@ public class ProvisioningConfirmationState extends ProvisioningState {
     private void parseProvisioneeConfirmation(final byte[] provisioneeConfirmation) {
         final ByteBuffer buffer = ByteBuffer.allocate(provisioneeConfirmation.length - 2);
         buffer.put(provisioneeConfirmation, 2, buffer.limit());
-        mUnprovisionedMeshNode.setProvisioneeConfirmation(buffer.array());
+        mNode.setProvisioneeConfirmation(buffer.array());
     }
 }
