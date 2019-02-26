@@ -117,7 +117,6 @@ public class ProvisioningStartState extends ProvisioningState {
                 provisioningPDU[6] = 0;
                 break;
             case OUTPUT_OOB_AUTHENTICATION:
-                //OutputOOBAction.getOutputOOBActionValue(outputActionType);//getOutputOOBActionValue(outputOOBAction);//byte)
                 provisioningPDU[5] = (byte) ParseOutputOOBActions.getOutputOOBActionValue(this.outputActionType);
                 provisioningPDU[6] = (byte) outputOOBSize;
                 break;

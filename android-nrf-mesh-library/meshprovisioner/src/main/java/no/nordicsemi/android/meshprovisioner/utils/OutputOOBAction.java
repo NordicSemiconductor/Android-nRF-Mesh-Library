@@ -80,31 +80,6 @@ public enum OutputOOBAction {
     }
 
     /**
-     * Parses the Output OOB Action
-     *
-     * @param type output OOB type
-     * @return Output OOB type descrption
-     */
-    public static int parseOutputOOBActionValue(final OutputOOBAction type) {
-        switch (type) {
-            case NO_OUTPUT:
-                return 0;
-            case BLINK:
-                return 1;
-            case BEEP:
-                return 2;
-            case VIBRATE:
-                return 3;
-            case OUTPUT_NUMERIC:
-                return 4;
-            case OUTPUT_ALPHA_NUMERIC:
-                return 10;
-            default:
-                return -1;
-        }
-    }
-
-    /**
      * Parses the output oob action value
      *
      * @param outputAction type of output action
@@ -114,37 +89,13 @@ public enum OutputOOBAction {
         //final byte[] outputActions = {(byte) BLINK.ordinal(), (byte) BEEP.ordinal(), (byte) VIBRATE.ordinal(), (byte) OUTPUT_NUMERIC.ordinal(), (byte) OUTPUT_ALPHA_NUMERIC.ordinal()};
         final OutputOOBAction[] outputActions = {BLINK, BEEP, VIBRATE, OUTPUT_NUMERIC, OUTPUT_ALPHA_NUMERIC};
         final ArrayList<OutputOOBAction> supportedActionValues = new ArrayList<>();
-        for(OutputOOBAction action : outputActions){
-            if((outputAction & action.outputOOBAction) == action.outputOOBAction){
+        for (OutputOOBAction action : outputActions) {
+            if ((outputAction & action.outputOOBAction) == action.outputOOBAction) {
                 supportedActionValues.add(action);
                 Log.v(TAG, "Supported output oob action type: " + getOutputOOBActionDescription(action));
             }
         }
         return supportedActionValues;
-    }
-
-    /**
-     * Selects the output oob action value
-     *
-     * @param outputAction type of output action
-     * @return selected output action type
-     */
-    public static OutputOOBAction selectOutputActionsFromBitMask(final OutputOOBAction outputAction) {
-        //final byte[] outputActions = {BLINK, BEEP, VIBRATE, OUTPUT_NUMERIC, OUTPUT_ALPHA_NUMERIC};
-        final OutputOOBAction[] outputActions = {BLINK, BEEP, VIBRATE, OUTPUT_NUMERIC, OUTPUT_ALPHA_NUMERIC};
-        final ArrayList<OutputOOBAction> supportedActionValues = new ArrayList<>();
-        for(OutputOOBAction action : outputActions){
-            if((outputAction.ordinal() & action.outputOOBAction) == action.outputOOBAction){
-                supportedActionValues.add(action);
-                Log.v(TAG, "Supported output oob action type: " + getOutputOOBActionDescription(action));
-            }
-        }
-
-        if(!supportedActionValues.isEmpty()) {
-            return supportedActionValues.get(0);
-        } else {
-            return NO_OUTPUT;
-        }
     }
 
     /**
@@ -165,12 +116,13 @@ public enum OutputOOBAction {
                 return 3;
             case OUTPUT_ALPHA_NUMERIC:
                 return 4;
+            case NO_OUTPUT:
             default:
                 return 0;
         }
     }
 
-    public static byte[] generateOutputOOBAuthenticationValue(final OutputOOBAction outputActionType, final byte[] input, final byte outputOOBSize){
+    public static byte[] generateOutputOOBAuthenticationValue(final OutputOOBAction outputActionType, final byte[] input, final byte outputOOBSize) {
         switch (outputActionType) {
             case BLINK:
             case BEEP:

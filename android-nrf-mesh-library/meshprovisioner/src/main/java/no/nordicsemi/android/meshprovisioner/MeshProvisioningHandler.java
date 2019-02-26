@@ -52,20 +52,13 @@ import no.nordicsemi.android.meshprovisioner.utils.StaticOOBType;
 class MeshProvisioningHandler implements InternalProvisioningCallbacks {
 
     private static final String TAG = MeshProvisioningHandler.class.getSimpleName();
+    private static final int ATTENTION_TIMER = 0x05;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
     private final Context mContext;
     private MeshProvisioningStatusCallbacks mStatusCallbacks;
     private UnprovisionedMeshNode mUnprovisionedMeshNode;
 
-    private int attentionTimer;
-    private int numberOfElements;
-    private int algorithm;
-    private int publicKeyType;
-    private int staticOOBType;
-    private int outputOOBSize;
-    private int outputOOBAction;
-    private int inputOOBSize;
-    private int inputOOBAction;
+    private int attentionTimer = ATTENTION_TIMER;
 
     private ProvisioningState provisioningState;
     private boolean isProvisioningPublicKeySent;
@@ -320,9 +313,6 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
      */
     void startProvisioningNoOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
-        this.attentionTimer = 0x05;
-        //this.usedAuthenticationOOBType = AuthenticationOOBMethods.NO_OOB_AUTHENTICATION;
-        //unprovisionedMeshNode.setAuthMethodUsed(AuthenticationOOBMethods.NO_OOB_AUTHENTICATION);
         sendProvisioningStart(unprovisionedMeshNode);
     }
 
@@ -335,7 +325,6 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
      */
     void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
-        this.attentionTimer = 0x05;
         sendProvisioningStartWithStaticOOB(unprovisionedMeshNode);
     }
 
@@ -346,10 +335,9 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
-     * @param action Selected {@link OutputOOBAction}
+     * @param action                Selected {@link OutputOOBAction}
      */
     void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final OutputOOBAction action) throws IllegalArgumentException {
-        this.attentionTimer = 0x05;
         sendProvisioningStartWithOutputOOB(unprovisionedMeshNode, action);
     }
 
@@ -360,19 +348,15 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
-     * @param action Selected {@link InputOOBAction}
+     * @param action                Selected {@link InputOOBAction}
      */
     void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final InputOOBAction action) throws IllegalArgumentException {
-        this.attentionTimer = 0x05;
-        //unprovisionedMeshNode.setAuthMethodUsed(AuthenticationOOBMethods.INPUT_OOB_AUTHENTICATION);
-        //this.randomOOBInput = oobAction;
         sendProvisioningStartWithInputOOB(unprovisionedMeshNode, action);
     }
 
     private void sendProvisioningInvite(final UnprovisionedMeshNode unprovisionedMeshNode) {
         isProvisioningPublicKeySent = false;
         isProvisioneePublicKeyReceived = false;
-        attentionTimer = 0x05;//0x0A;
         final ProvisioningInviteState invite = new ProvisioningInviteState(unprovisionedMeshNode, attentionTimer, mInternalTransportCallbacks, mStatusCallbacks);
         provisioningState = invite;
         invite.executeSend();
@@ -394,19 +378,15 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     private void sendProvisioningStart(final UnprovisionedMeshNode unprovisionedMeshNode) {
         final ProvisioningCapabilitiesState capabilitiesState = (ProvisioningCapabilitiesState) provisioningState;
         final ProvisioningCapabilities capabilities = capabilitiesState.getCapabilities();
-        numberOfElements = capabilities.getNumberOfElements();
-        algorithm = capabilities.getRawAlgorithm();
-        publicKeyType = capabilities.getRawPublicKeyType();
-        staticOOBType = capabilities.getRawStaticOOBType();
-        outputOOBSize = capabilities.getOutputOOBSize();
-        outputOOBAction = capabilities.getRawOutputOOBAction();
-        inputOOBSize = capabilities.getInputOOBSize();
-        inputOOBAction = capabilities.getRawInputOOBAction();
-
         final ProvisioningStartState startProvisioning = new ProvisioningStartState(unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
-        startProvisioning.setProvisioningCapabilities(numberOfElements, algorithm, publicKeyType, staticOOBType, outputOOBSize, outputOOBAction, inputOOBSize, inputOOBAction);
-        //final short outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
-        //startProvisioning.setUseOutputOOB(outputOobActionType);
+        startProvisioning.setProvisioningCapabilities(capabilities.getNumberOfElements(),
+                capabilities.getRawAlgorithm(),
+                capabilities.getRawPublicKeyType(),
+                capabilities.getRawStaticOOBType(),
+                capabilities.getOutputOOBSize(),
+                capabilities.getRawOutputOOBAction(),
+                capabilities.getInputOOBSize(),
+                capabilities.getRawInputOOBAction());
         provisioningState = startProvisioning;
         startProvisioning.executeSend();
     }
@@ -414,17 +394,16 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     private void sendProvisioningStartWithStaticOOB(final UnprovisionedMeshNode unprovisionedMeshNode) {
         final ProvisioningCapabilitiesState capabilitiesState = (ProvisioningCapabilitiesState) provisioningState;
         final ProvisioningCapabilities capabilities = capabilitiesState.getCapabilities();
-        numberOfElements = capabilities.getNumberOfElements();
-        algorithm = capabilities.getRawAlgorithm();
-        publicKeyType = capabilities.getRawPublicKeyType();
-        staticOOBType = capabilities.getRawStaticOOBType();
-        outputOOBSize = capabilities.getOutputOOBSize();
-        outputOOBAction = capabilities.getRawOutputOOBAction();
-        inputOOBSize = capabilities.getInputOOBSize();
-        inputOOBAction = capabilities.getRawInputOOBAction();
 
         final ProvisioningStartState startProvisioning = new ProvisioningStartState(unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
-        startProvisioning.setProvisioningCapabilities(numberOfElements, algorithm, publicKeyType, staticOOBType, outputOOBSize, outputOOBAction, inputOOBSize, inputOOBAction);
+        startProvisioning.setProvisioningCapabilities(capabilities.getNumberOfElements(),
+                capabilities.getRawAlgorithm(),
+                capabilities.getRawPublicKeyType(),
+                capabilities.getRawStaticOOBType(),
+                capabilities.getOutputOOBSize(),
+                capabilities.getRawOutputOOBAction(),
+                capabilities.getInputOOBSize(),
+                capabilities.getRawInputOOBAction());
         startProvisioning.setUseStaticOOB(StaticOOBType.STATIC_OOB_AVAILABLE);
         provisioningState = startProvisioning;
         startProvisioning.executeSend();
@@ -433,17 +412,16 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     private void sendProvisioningStartWithOutputOOB(final UnprovisionedMeshNode unprovisionedMeshNode, final OutputOOBAction action) {
         final ProvisioningCapabilitiesState capabilitiesState = (ProvisioningCapabilitiesState) provisioningState;
         final ProvisioningCapabilities capabilities = capabilitiesState.getCapabilities();
-        numberOfElements = capabilities.getNumberOfElements();
-        algorithm = capabilities.getRawAlgorithm();
-        publicKeyType = capabilities.getRawPublicKeyType();
-        staticOOBType = capabilities.getRawStaticOOBType();
-        outputOOBSize = capabilities.getOutputOOBSize();
-        outputOOBAction = action.getOutputOOBAction();//getRawOutputOOBAction(); //Set the selected output oob action
-        inputOOBSize = capabilities.getInputOOBSize();
-        inputOOBAction = capabilities.getRawInputOOBAction();
 
         final ProvisioningStartState startProvisioning = new ProvisioningStartState(unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
-        startProvisioning.setProvisioningCapabilities(numberOfElements, algorithm, publicKeyType, staticOOBType, outputOOBSize, outputOOBAction, inputOOBSize, inputOOBAction);
+        startProvisioning.setProvisioningCapabilities(capabilities.getNumberOfElements(),
+                capabilities.getRawAlgorithm(),
+                capabilities.getRawPublicKeyType(),
+                capabilities.getRawStaticOOBType(),
+                capabilities.getOutputOOBSize(),
+                capabilities.getRawOutputOOBAction(),
+                capabilities.getInputOOBSize(),
+                capabilities.getRawInputOOBAction());
         //final short outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
         startProvisioning.setUseOutputOOB(action);
         provisioningState = startProvisioning;
@@ -453,17 +431,16 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     private void sendProvisioningStartWithInputOOB(final UnprovisionedMeshNode unprovisionedMeshNode, final InputOOBAction action) {
         final ProvisioningCapabilitiesState capabilitiesState = (ProvisioningCapabilitiesState) provisioningState;
         final ProvisioningCapabilities capabilities = capabilitiesState.getCapabilities();
-        numberOfElements = capabilities.getNumberOfElements();
-        algorithm = capabilities.getRawAlgorithm();
-        publicKeyType = capabilities.getRawPublicKeyType();
-        staticOOBType = capabilities.getRawStaticOOBType();
-        outputOOBSize = capabilities.getOutputOOBSize();
-        outputOOBAction = capabilities.getRawOutputOOBAction();
-        inputOOBSize = capabilities.getInputOOBSize();
-        inputOOBAction = action.getInputOOBAction();//capabilities.getRawInputOOBAction();
 
         final ProvisioningStartState startProvisioning = new ProvisioningStartState(unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
-        startProvisioning.setProvisioningCapabilities(numberOfElements, algorithm, publicKeyType, staticOOBType, outputOOBSize, outputOOBAction, inputOOBSize, inputOOBAction);
+        startProvisioning.setProvisioningCapabilities(capabilities.getNumberOfElements(),
+                capabilities.getRawAlgorithm(),
+                capabilities.getRawPublicKeyType(),
+                capabilities.getRawStaticOOBType(),
+                capabilities.getOutputOOBSize(),
+                capabilities.getRawOutputOOBAction(),
+                capabilities.getInputOOBSize(),
+                capabilities.getRawInputOOBAction());
         startProvisioning.setUseInputOOB(action);
         provisioningState = startProvisioning;
         startProvisioning.executeSend();
