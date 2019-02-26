@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.utils.AlgorithmType;
+import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
 import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
 
@@ -36,6 +37,8 @@ public final class ProvisioningCapabilities implements Parcelable {
     private byte inputOOBSize;
     private short rawInputOOBAction;
     private List<InputOOBAction> supportedInputOOBActions;
+    private AuthenticationOOBMethods supportedOOBMethods;
+    private final List<AuthenticationOOBMethods> availableOOBTypes = new ArrayList<>();
 
     /**
      * Constructs the provisioning capabilities received from a mesh node
@@ -69,7 +72,7 @@ public final class ProvisioningCapabilities implements Parcelable {
 
         final short outputOOBAction = (short) (((capabilities[8] & 0xff) << 8) | (capabilities[9] & 0xff));
         this.rawOutputOOBAction = outputOOBAction;
-        this.supportedOutputOOBActions = OutputOOBAction.parseOutputActionsFromBitMask(outputOOBAction);
+        this.supportedOutputOOBActions = outputOOBSize == 0 ? new ArrayList<>() : OutputOOBAction.parseOutputActionsFromBitMask(outputOOBAction);
 
         final byte inputOOBSize = capabilities[10];
         this.inputOOBSize = inputOOBSize;
@@ -77,8 +80,23 @@ public final class ProvisioningCapabilities implements Parcelable {
 
         final short inputOOBAction = (short) (((capabilities[11] & 0xff) << 8) | (capabilities[12] & 0xff));
         this.rawInputOOBAction = inputOOBAction;
-        this.supportedInputOOBActions = InputOOBAction.parseInputActionsFromBitMask(inputOOBAction);
+        this.supportedInputOOBActions = inputOOBSize == 0 ? new ArrayList<>() : InputOOBAction.parseInputActionsFromBitMask(inputOOBAction);
+        generateAvailableOOBTypes();
+    }
 
+    private void generateAvailableOOBTypes() {
+        availableOOBTypes.clear();
+        availableOOBTypes.add(AuthenticationOOBMethods.NO_OOB_AUTHENTICATION);
+        if (isStaticOOBInformationAvailable()) {
+            availableOOBTypes.add(AuthenticationOOBMethods.STATIC_OOB_AUTHENTICATION);
+        }
+
+        if (!supportedOutputOOBActions.isEmpty()) {
+            availableOOBTypes.add(AuthenticationOOBMethods.OUTPUT_OOB_AUTHENTICATION);
+        }
+        if (!supportedInputOOBActions.isEmpty()) {
+            availableOOBTypes.add(AuthenticationOOBMethods.INPUT_OOB_AUTHENTICATION);
+        }
     }
 
     private ProvisioningCapabilities(Parcel in) {
@@ -95,6 +113,7 @@ public final class ProvisioningCapabilities implements Parcelable {
         inputOOBSize = in.readByte();
         rawInputOOBAction = (short) in.readInt();
         this.supportedInputOOBActions = new ArrayList<>(InputOOBAction.parseInputActionsFromBitMask(rawInputOOBAction));
+        generateAvailableOOBTypes();
 
     }
 
@@ -220,7 +239,7 @@ public final class ProvisioningCapabilities implements Parcelable {
     }
 
     /**
-     * Returns the list of {@link InputOOBAction} actions
+     * Returns the list of supported {@link OutputOOBAction} actions or an empty list if no oob is supported
      */
     public List<OutputOOBAction> getSupportedOutputOOBActions() {
         return Collections.unmodifiableList(supportedOutputOOBActions);
@@ -249,9 +268,16 @@ public final class ProvisioningCapabilities implements Parcelable {
     }
 
     /**
-     * Returns the list of {@link InputOOBAction} actions
+     * Returns the list of supported {@link InputOOBAction} actions or an empty list if no oob is supported
      */
     public List<InputOOBAction> getSupportedInputOOBActions() {
         return Collections.unmodifiableList(supportedInputOOBActions);
+    }
+
+    /**
+     * Returns a list of available OOB methods that can be used during provisioning
+     */
+    public List<AuthenticationOOBMethods> getAvailableOOBTypes() {
+        return Collections.unmodifiableList(availableOOBTypes);
     }
 }

@@ -42,8 +42,8 @@ interface MeshMngrApi {
      * <p>
      * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
      * </p>
-     *  @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
      *
+     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
      */
     void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
 
@@ -69,22 +69,25 @@ interface MeshMngrApi {
      */
     void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final InputOOBAction oobAction) throws IllegalArgumentException;
 
-        /**
-         * Set the provisioning confirmation
-         *
-         * @param pin confirmation pin
-         */
-    void setProvisioningConfirmation(@NonNull final String pin);
+    /**
+     * Set the provisioning confirmation
+     *
+     * @param authentication confirmation pin
+     * @deprecated in favour of {@link #setProvisioningAuthentication(String)}
+     */
+    @Deprecated
+    void setProvisioningConfirmation(@NonNull final String authentication);
 
     /**
      * Set the provisioning confirmation
      *
-     * @param authenticationValue confirmation pin
+     * @param authentication confirmation pin
      */
-    void setProvisioningStaticConfirmation(@NonNull byte[] authenticationValue);
+    void setProvisioningAuthentication(@NonNull final String authentication);
 
     /**
      * Returns the device uuid of an unprovisioned node
+     *
      * @param serviceData service data in the adv packet
      */
     @NonNull
@@ -92,6 +95,7 @@ interface MeshMngrApi {
 
     /**
      * Checks if the advertisement packet is a mesh beacon packet
+     *
      * @param advertisementData data advertised by the mesh beacon
      * @return true if its a mesh beacon packet or false otherwise
      */
@@ -99,6 +103,7 @@ interface MeshMngrApi {
 
     /**
      * Returns the beacon information advertised by a mesh beaco packet
+     *
      * @param advertisementData data advertised by the mesh beacon
      * @return the data advertised by a beacon packet or null otherwise
      */
@@ -156,7 +161,8 @@ interface MeshMngrApi {
 
     /**
      * Sends the specified  mesh message specified within the {@link MeshMessage} object
-     * @param dst destination address
+     *
+     * @param dst         destination address
      * @param meshMessage {@link MeshMessage} Mesh message containing the message opcode and message parameters
      * @deprecated This method has been deprecated in favour of {@link #sendMeshMessage(int, MeshMessage)}
      */
@@ -165,7 +171,8 @@ interface MeshMngrApi {
 
     /**
      * Sends the specified  mesh message specified within the {@link MeshMessage} object
-     * @param dst destination address
+     *
+     * @param dst         destination address
      * @param meshMessage {@link MeshMessage} Mesh message containing the message opcode and message parameters
      */
     void sendMeshMessage(final int dst, @NonNull final MeshMessage meshMessage) throws IllegalArgumentException;
@@ -179,6 +186,7 @@ interface MeshMngrApi {
     /**
      * Starts an asynchronous task that imports a network from the mesh configuration db json
      * <p>Af</p>
+     *
      * @param uri path to the mesh configuration database json file.
      */
     void importMeshNetwork(@NonNull final Uri uri);
@@ -186,6 +194,7 @@ interface MeshMngrApi {
     /**
      * Starts an asynchronous task that imports a network from the mesh configuration db json
      * <p>Af</p>
+     *
      * @param networkJson configuration database json.
      */
     void importMeshNetworkJson(@NonNull final String networkJson);

@@ -38,6 +38,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
@@ -61,21 +62,34 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
     //UI Bindings
     @BindView(R.id.oob_types)
     Spinner oobTypesSpinner;
-    @BindView(R.id.static_oob_input_layout)
-    TextInputLayout staticOobInputLayout;
-    @BindView(R.id.static_oob_input)
-    TextInputEditText staticOobTextInput;
     @BindView(R.id.output_oob_container)
     LinearLayout containerOutputOOB;
     @BindView(R.id.input_oob_container)
     LinearLayout containerInputOOB;
     @BindView(R.id.radio_group_output_oob)
     RadioGroup rgOutputOob;
+    @BindView(R.id.radio_blink)
+    RadioButton rbBlink;
+    @BindView(R.id.radio_beep)
+    RadioButton rbBeep;
+    @BindView(R.id.radio_vibrate)
+    RadioButton rbVibrate;
+    @BindView(R.id.radio_output_numeric)
+    RadioButton rbOutputNumberic;
+    @BindView(R.id.radio_output_alpha_numeric)
+    RadioButton rbOuputAlphaNumeric;
     @BindView(R.id.radio_group_input_oob)
     RadioGroup rgInputOob;
+    @BindView(R.id.radio_push)
+    RadioButton rbPush;
+    @BindView(R.id.radio_twist)
+    RadioButton rbTwist;
+    @BindView(R.id.radio_input_numeric)
+    RadioButton rbInputNumberic;
+    @BindView(R.id.radio_input_alpha_numeric)
+    RadioButton rbInputAlphaNumeric;
 
     private ProvisioningCapabilities capabilities;
-    private List<AuthenticationOOBMethods> availableOOBTypes = new ArrayList<>();
     private AuthenticationOOBMethodsAdapter authenticationOobMethodsAdapter;
 
     public interface DialogFragmentSelectOOBTypeListener {
@@ -114,7 +128,7 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
 
         //Bind ui
         ButterKnife.bind(this, rootView);
-        populateOOBTypes();
+        final List<AuthenticationOOBMethods> availableOOBTypes = capabilities.getAvailableOOBTypes();
         authenticationOobMethodsAdapter = new AuthenticationOOBMethodsAdapter(requireContext(), availableOOBTypes);
         oobTypesSpinner.setAdapter(authenticationOobMethodsAdapter);
 
@@ -126,29 +140,6 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
 
             @Override
             public void onNothingSelected(final AdapterView<?> parent) {
-
-            }
-        });
-
-        final KeyListener hexKeyListener = new HexKeyListener();
-        staticOobTextInput.setKeyListener(hexKeyListener);
-        staticOobTextInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                if (TextUtils.isEmpty(s.toString())) {
-                    staticOobInputLayout.setError(getString(R.string.error_empty_group_address));
-                } else {
-                    staticOobInputLayout.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(final Editable s) {
 
             }
         });
@@ -209,45 +200,50 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
         return alertDialogBuilder.show();
     }
 
-    private void populateOOBTypes() {
-        availableOOBTypes.clear();
-        availableOOBTypes.add(AuthenticationOOBMethods.NO_OOB_AUTHENTICATION);
-
-        if (capabilities.isStaticOOBInformationAvailable()) {
-            availableOOBTypes.add(AuthenticationOOBMethods.STATIC_OOB_AUTHENTICATION);
-        }
-
-        if (!capabilities.getSupportedOutputOOBActions().isEmpty()) {
-            availableOOBTypes.add(AuthenticationOOBMethods.OUTPUT_OOB_AUTHENTICATION);
-        }
-
-        if (!capabilities.getSupportedInputOOBActions().isEmpty()) {
-            availableOOBTypes.add(AuthenticationOOBMethods.INPUT_OOB_AUTHENTICATION);
-        }
-    }
-
     private void updateOOBUI(final int position) {
         final AuthenticationOOBMethods oobType = authenticationOobMethodsAdapter.getItem(position);
         switch (oobType) {
             case NO_OOB_AUTHENTICATION:
-                staticOobInputLayout.setVisibility(View.GONE);
                 containerOutputOOB.setVisibility(View.GONE);
                 containerInputOOB.setVisibility(View.GONE);
                 break;
             case STATIC_OOB_AUTHENTICATION:
-                staticOobInputLayout.setVisibility(View.VISIBLE);
                 containerOutputOOB.setVisibility(View.GONE);
                 containerInputOOB.setVisibility(View.GONE);
                 break;
             case OUTPUT_OOB_AUTHENTICATION:
-                staticOobInputLayout.setVisibility(View.GONE);
+                final List<OutputOOBAction> outputOOBActions = capabilities.getSupportedOutputOOBActions();
                 containerOutputOOB.setVisibility(View.VISIBLE);
                 containerInputOOB.setVisibility(View.GONE);
+                for(OutputOOBAction outputOOBAction : outputOOBActions) {
+                    if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.BLINK.getOutputOOBAction()){
+                        rbBlink.setEnabled(true);
+                    } else if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.BEEP.getOutputOOBAction()){
+                        rbBeep.setEnabled(true);
+                    } else if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.VIBRATE.getOutputOOBAction()){
+                        rbVibrate.setEnabled(true);
+                    } else if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.OUTPUT_NUMERIC.getOutputOOBAction()){
+                        rbOutputNumberic.setEnabled(true);
+                    } else if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.OUTPUT_ALPHA_NUMERIC.getOutputOOBAction()){
+                        rbOuputAlphaNumeric.setEnabled(true);
+                    }
+                }
                 break;
             case INPUT_OOB_AUTHENTICATION:
-                staticOobInputLayout.setVisibility(View.GONE);
                 containerOutputOOB.setVisibility(View.GONE);
                 containerInputOOB.setVisibility(View.VISIBLE);
+                final List<InputOOBAction> inputOOBActions = capabilities.getSupportedInputOOBActions();
+                for(InputOOBAction inputOOBAction : inputOOBActions) {
+                    if(inputOOBAction.getInputOOBAction() == InputOOBAction.PUSH.getInputOOBAction()){
+                        rbPush.setEnabled(true);
+                    } else if(inputOOBAction.getInputOOBAction() == InputOOBAction.TWIST.getInputOOBAction()){
+                        rbTwist.setEnabled(true);
+                    } else if(inputOOBAction.getInputOOBAction() == InputOOBAction.INPUT_NUMERIC.getInputOOBAction()){
+                        rbInputNumberic.setEnabled(true);
+                    } else if(inputOOBAction.getInputOOBAction() == InputOOBAction.INPUT_ALPHA_NUMERIC.getInputOOBAction()){
+                        rbInputAlphaNumeric.setEnabled(true);
+                    }
+                }
                 break;
         }
     }

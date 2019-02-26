@@ -38,23 +38,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/static_oob_input_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/item_padding_top"
-            android:visibility="gone">
-
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/static_oob_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:maxLines="1"
-                android:hint="@string/hint_static_oob"/>
-
-        </android.support.design.widget.TextInputLayout>
-
         <LinearLayout
             android:id="@+id/output_oob_container"
             android:layout_width="match_parent"
@@ -82,31 +65,36 @@
                     android:id="@+id/radio_blink"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/blink"/>
+                    android:text="@string/blink"
+                    android:enabled="false"/>
 
                 <RadioButton
                     android:id="@+id/radio_beep"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/beep"/>
+                    android:text="@string/beep"
+                    android:enabled="false"/>
 
                 <RadioButton
                     android:id="@+id/radio_vibrate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/vibrate"/>
+                    android:text="@string/vibrate"
+                    android:enabled="false"/>
 
                 <RadioButton
                     android:id="@+id/radio_output_numeric"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/output_numeric"/>
+                    android:text="@string/output_numeric"
+                    android:enabled="false"/>
 
                 <RadioButton
                     android:id="@+id/radio_output_alpha_numeric"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/output_alphanumeric"/>
+                    android:text="@string/output_alphanumeric"
+                    android:enabled="false"/>
             </RadioGroup>
         </LinearLayout>
 
@@ -135,25 +123,29 @@
                     android:id="@+id/radio_push"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/blink"/>
+                    android:text="@string/blink"
+                    android:enabled="false"/>
 
                 <RadioButton
                     android:id="@+id/radio_twist"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/beep"/>
+                    android:text="@string/beep"
+                    android:enabled="false"/>
 
                 <RadioButton
                     android:id="@+id/radio_input_numeric"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/output_numeric"/>
+                    android:text="@string/output_numeric"
+                    android:enabled="false"/>
 
                 <RadioButton
                     android:id="@+id/radio_input_alpha_numeric"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/output_alphanumeric"/>
+                    android:text="@string/output_alphanumeric"
+                    android:enabled="false"/>
             </RadioGroup>
         </LinearLayout>
     </LinearLayout>

@@ -578,13 +578,13 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
-    public final void setProvisioningConfirmation(@NonNull final String pin) {
-        mMeshProvisioningHandler.setProvisioningConfirmation(pin);
+    public final void setProvisioningConfirmation(@NonNull final String authentication) {
+        setProvisioningAuthentication(authentication);
     }
 
     @Override
-    public void setProvisioningStaticConfirmation(@NonNull byte[] authenticationValue) {
-        mMeshProvisioningHandler.setProvisioningStaticConfirmation(authenticationValue);
+    public void setProvisioningAuthentication(@NonNull final String authentication) {
+        mMeshProvisioningHandler.setProvisioningAuthentication(authentication);
     }
 
     @SuppressWarnings("ConstantConditions")

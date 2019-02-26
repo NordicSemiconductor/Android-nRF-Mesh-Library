@@ -44,12 +44,9 @@ import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMesh
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
 import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
-import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
-import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
 import no.nordicsemi.android.meshprovisioner.utils.StaticOOBType;
 
 class MeshProvisioningHandler implements InternalProvisioningCallbacks {
@@ -136,7 +133,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
             case PROVISIONING_INPUT_COMPLETE:
                 if (validateMessage(data)) {
                     provisioningState = new ProvisioningConfirmationState(this, unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
-                    setProvisioningConfirmation(this.randomOOBInput);
+                    setProvisioningAuthentication(this.randomOOBInput);
 //                    if (parseProvisioneeConfirmation(data)) {
 //                        sendRandomConfirmationPDU(unprovisionedMeshNode);
 //                    }
@@ -507,27 +504,17 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                         break;
                     default:
                         provisioningState = new ProvisioningConfirmationState(this, unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
-                        setProvisioningConfirmation("");
+                        setProvisioningAuthentication("");
                         break;
                 }
             }
         }
     }
 
-    void setProvisioningConfirmation(final String pin) {
-        if (pin != null /*&& pin.length() > 0*/) {
-            final ProvisioningConfirmationState provisioningConfirmationState = (ProvisioningConfirmationState) provisioningState;
-            provisioningConfirmationState.setPin(pin);
-            provisioningConfirmationState.executeSend();
-        }
-    }
-
-    void setProvisioningStaticConfirmation(final byte[] authenticationValue) {
-        if (authenticationValue != null /*&& pin.length() > 0*/) {
-            final ProvisioningConfirmationState provisioningConfirmationState = (ProvisioningConfirmationState) provisioningState;
-            provisioningConfirmationState.setStaticAuthenticationValue(authenticationValue);
-            provisioningConfirmationState.executeSend();
-        }
+    void setProvisioningAuthentication(@NonNull final String authentication) {
+        final ProvisioningConfirmationState provisioningConfirmationState = (ProvisioningConfirmationState) provisioningState;
+        provisioningConfirmationState.setProvisioningAuthentication(authentication);
+        provisioningConfirmationState.executeSend();
     }
 
     private boolean parseProvisioneeConfirmation(final byte[] data) {
