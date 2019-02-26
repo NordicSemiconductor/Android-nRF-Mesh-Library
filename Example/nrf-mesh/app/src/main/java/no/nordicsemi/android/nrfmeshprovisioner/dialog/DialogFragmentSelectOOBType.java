@@ -27,13 +27,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.method.KeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -42,7 +36,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -54,7 +47,6 @@ import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.StaticOOBType;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AuthenticationOOBMethodsAdapter;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 
 public class DialogFragmentSelectOOBType extends DialogFragment {
 
@@ -75,7 +67,7 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
     @BindView(R.id.radio_vibrate)
     RadioButton rbVibrate;
     @BindView(R.id.radio_output_numeric)
-    RadioButton rbOutputNumberic;
+    RadioButton rbOutputNumeric;
     @BindView(R.id.radio_output_alpha_numeric)
     RadioButton rbOuputAlphaNumeric;
     @BindView(R.id.radio_group_input_oob)
@@ -85,7 +77,7 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
     @BindView(R.id.radio_twist)
     RadioButton rbTwist;
     @BindView(R.id.radio_input_numeric)
-    RadioButton rbInputNumberic;
+    RadioButton rbInputNumeric;
     @BindView(R.id.radio_input_alpha_numeric)
     RadioButton rbInputAlphaNumeric;
 
@@ -101,8 +93,6 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
         void onOutputOOBActionSelected(final OutputOOBAction outputOOBType);
 
         void onInputOOBActionSelected(final InputOOBAction inputOOBType);
-
-        void onOOBSelectionCanceled();
     }
 
     public static DialogFragmentSelectOOBType newInstance(final ProvisioningCapabilities capabilities) {
@@ -159,7 +149,6 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
             }
         });
 
-
         rgInputOob.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
                 case R.id.radio_push:
@@ -194,7 +183,7 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
                             break;
                     }
                 }).
-                setNegativeButton(R.string.cancel, (dialog, which) -> ((DialogFragmentSelectOOBTypeListener) requireContext()).onOOBSelectionCanceled());
+                setNegativeButton(R.string.cancel, null);
 
 
         return alertDialogBuilder.show();
@@ -218,14 +207,19 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
                 for(OutputOOBAction outputOOBAction : outputOOBActions) {
                     if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.BLINK.getOutputOOBAction()){
                         rbBlink.setEnabled(true);
+                        rbBlink.setChecked(outputOOBActions.size() == 1);
                     } else if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.BEEP.getOutputOOBAction()){
                         rbBeep.setEnabled(true);
+                        rbBeep.setChecked(outputOOBActions.size() == 1);
                     } else if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.VIBRATE.getOutputOOBAction()){
                         rbVibrate.setEnabled(true);
+                        rbVibrate.setChecked(outputOOBActions.size() == 1);
                     } else if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.OUTPUT_NUMERIC.getOutputOOBAction()){
-                        rbOutputNumberic.setEnabled(true);
+                        rbOutputNumeric.setEnabled(true);
+                        rbOutputNumeric.setChecked(outputOOBActions.size() == 1);
                     } else if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.OUTPUT_ALPHA_NUMERIC.getOutputOOBAction()){
                         rbOuputAlphaNumeric.setEnabled(true);
+                        rbOuputAlphaNumeric.setChecked(outputOOBActions.size() == 1);
                     }
                 }
                 break;
@@ -236,12 +230,16 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
                 for(InputOOBAction inputOOBAction : inputOOBActions) {
                     if(inputOOBAction.getInputOOBAction() == InputOOBAction.PUSH.getInputOOBAction()){
                         rbPush.setEnabled(true);
+                        rbPush.setChecked(inputOOBActions.size() == 1);
                     } else if(inputOOBAction.getInputOOBAction() == InputOOBAction.TWIST.getInputOOBAction()){
                         rbTwist.setEnabled(true);
+                        rbTwist.setChecked(inputOOBActions.size() == 1);
                     } else if(inputOOBAction.getInputOOBAction() == InputOOBAction.INPUT_NUMERIC.getInputOOBAction()){
-                        rbInputNumberic.setEnabled(true);
+                        rbInputNumeric.setEnabled(true);
+                        rbInputNumeric.setChecked(inputOOBActions.size() == 1);
                     } else if(inputOOBAction.getInputOOBAction() == InputOOBAction.INPUT_ALPHA_NUMERIC.getInputOOBAction()){
                         rbInputAlphaNumeric.setEnabled(true);
+                        rbInputAlphaNumeric.setChecked(inputOOBActions.size() == 1);
                     }
                 }
                 break;

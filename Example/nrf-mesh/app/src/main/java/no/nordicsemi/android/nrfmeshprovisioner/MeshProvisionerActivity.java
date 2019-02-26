@@ -52,10 +52,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningFailedState;
-import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.AlgorithmType;
+import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
 import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
@@ -103,6 +103,8 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     ScrollView container;
     @BindView(R.id.capabilities_container)
     View mCapabilitiesContainer;
+    @BindView(R.id.info_provisioning_status_container)
+    View provisioningStatusContainer;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -134,7 +136,6 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         final LinearLayout connectivityProgressContainer = findViewById(R.id.connectivity_progress_container);
         final TextView connectionState = findViewById(R.id.connection_state);
         final Button provisioner = findViewById(R.id.action_provision_device);
-        final View provisioningStatusContainer = findViewById(R.id.info_provisioning_status_container);
 
         final View containerName = findViewById(R.id.container_element_count);
         containerName.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
@@ -235,10 +236,13 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             }
 
             if (node.getProvisioningCapabilities() != null) {
-                setupProvisionerStateObservers(provisioningStatusContainer);
-                mProvisioningProgressBar.setVisibility(View.VISIBLE);
-                //mViewModel.startProvisioning(node);
-                startProvisioningProcess(node);
+                if (node.getProvisioningCapabilities().getAvailableOOBTypes().size() == 1 &&
+                        node.getProvisioningCapabilities().getAvailableOOBTypes().get(0) == AuthenticationOOBMethods.NO_OOB_AUTHENTICATION) {
+                    onNoOOBSelected();
+                } else {
+                    final DialogFragmentSelectOOBType fragmentSelectOOBType = DialogFragmentSelectOOBType.newInstance(node.getProvisioningCapabilities());
+                    fragmentSelectOOBType.show(getSupportFragmentManager(), null);
+                }
             }
         });
     }
@@ -363,19 +367,22 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                         break;
                     case PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING://_OOB_WAITING:
                         if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
-                            DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.newInstance();
+                            DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
+                                    newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
                             dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
                         }
                         break;
                     case PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING:
                         if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
-                            DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.newInstance();
+                            DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
+                                    newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
                             dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
                         }
                         break;
                     case PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING:
                         if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
-                            DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.newInstance();
+                            DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
+                                    newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
                             dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
                         }
                         break;
@@ -472,7 +479,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     }
 
     private String parseOutputOOBActions(final ProvisioningCapabilities capabilities) {
-        if(capabilities.getSupportedOutputOOBActions().isEmpty())
+        if (capabilities.getSupportedOutputOOBActions().isEmpty())
             return getString(R.string.output_oob_actions_unavailable);
 
         final StringBuilder outputOOBActions = new StringBuilder();
@@ -489,7 +496,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     }
 
     private String parseInputOOBActions(final ProvisioningCapabilities capabilities) {
-        if(capabilities.getSupportedInputOOBActions().isEmpty())
+        if (capabilities.getSupportedInputOOBActions().isEmpty())
             return getString(R.string.input_oob_actions_unavailable);
 
         final StringBuilder inputOOBActions = new StringBuilder();
@@ -505,15 +512,12 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         return inputOOBActions.toString();
     }
 
-    private void startProvisioningProcess(final UnprovisionedMeshNode node) {
-        final DialogFragmentSelectOOBType fragmentSelectOOBType = DialogFragmentSelectOOBType.newInstance(node.getProvisioningCapabilities());
-        fragmentSelectOOBType.show(getSupportFragmentManager(), null);
-    }
-
     @Override
     public void onNoOOBSelected() {
         final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
-        if(node != null) {
+        if (node != null) {
+            setupProvisionerStateObservers(provisioningStatusContainer);
+            mProvisioningProgressBar.setVisibility(View.VISIBLE);
             mViewModel.getMeshManagerApi().startProvisioning(node);
         }
     }
@@ -521,7 +525,9 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     @Override
     public void onStaticOOBSelected(final StaticOOBType staticOOBType) {
         final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
-        if(node != null) {
+        if (node != null) {
+            setupProvisionerStateObservers(provisioningStatusContainer);
+            mProvisioningProgressBar.setVisibility(View.VISIBLE);
             mViewModel.getMeshManagerApi().startProvisioningWithStaticOOB(node);
         }
     }
@@ -529,7 +535,9 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     @Override
     public void onOutputOOBActionSelected(final OutputOOBAction action) {
         final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
-        if(node != null) {
+        if (node != null) {
+            setupProvisionerStateObservers(provisioningStatusContainer);
+            mProvisioningProgressBar.setVisibility(View.VISIBLE);
             mViewModel.getMeshManagerApi().startProvisioningWithOutputOOB(node, action);
         }
     }
@@ -537,13 +545,10 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     @Override
     public void onInputOOBActionSelected(final InputOOBAction action) {
         final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
-        if(node != null) {
+        if (node != null) {
+            setupProvisionerStateObservers(provisioningStatusContainer);
+            mProvisioningProgressBar.setVisibility(View.VISIBLE);
             mViewModel.getMeshManagerApi().startProvisioningWithInputOOB(node, action);
         }
-    }
-
-    @Override
-    public void onOOBSelectionCanceled() {
-        mViewModel.disconnect();
     }
 }

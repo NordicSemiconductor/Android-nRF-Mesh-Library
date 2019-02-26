@@ -45,7 +45,9 @@
             android:orientation="vertical"
             android:layout_marginTop="@dimen/item_padding_top"
             android:visibility="gone"
-            tools:visibility="visible">
+            tools:visibility="visible"
+            android:paddingStart="@dimen/item_padding_start"
+            android:paddingEnd="@dimen/item_padding_end">
 
             <TextView
                 android:layout_width="match_parent"
@@ -105,7 +107,9 @@
             android:orientation="vertical"
             android:layout_marginTop="@dimen/item_padding_top"
             android:visibility="gone"
-            tools:visibility="visible">
+            tools:visibility="visible"
+            android:paddingStart="@dimen/item_padding_start"
+            android:paddingEnd="@dimen/item_padding_end">
 
             <TextView
                 android:layout_width="match_parent"
@@ -117,7 +121,9 @@
             <RadioGroup
                 android:id="@+id/radio_group_input_oob"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/item_padding_top"
+                android:paddingBottom="@dimen/item_padding_bottom">
 
                 <RadioButton
                     android:id="@+id/radio_push"

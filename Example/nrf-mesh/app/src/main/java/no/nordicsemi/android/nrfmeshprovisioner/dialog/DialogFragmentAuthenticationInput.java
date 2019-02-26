@@ -31,32 +31,48 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningConfirmationState;
+import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
+import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 public class DialogFragmentAuthenticationInput extends DialogFragment {
 
     //UI Bindings
+    @BindView(R.id.summary)
+    TextView dialogSummary;
     @BindView(R.id.text_input_layout)
     TextInputLayout pinInputLayout;
+    @BindView(R.id.hex_prefix)
+    TextView hexPrefix;
     @BindView(R.id.text_input)
     TextInputEditText pinInput;
 
+    private UnprovisionedMeshNode mNode;
+
     public interface ProvisionerInputFragmentListener {
         void onPinInputComplete(final String pin);
+
         void onPinInputCanceled();
     }
 
-    public static DialogFragmentAuthenticationInput newInstance() {
+    public static DialogFragmentAuthenticationInput newInstance(final UnprovisionedMeshNode node) {
         Bundle args = new Bundle();
         DialogFragmentAuthenticationInput fragment = new DialogFragmentAuthenticationInput();
+        args.putParcelable(Utils.EXTRA_DATA, node);
         fragment.setArguments(args);
         return fragment;
     }
@@ -64,6 +80,9 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mNode = getArguments().getParcelable(Utils.EXTRA_DATA);
+        }
     }
 
     @NonNull
@@ -71,8 +90,48 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         final View rootView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_fragment_auth_input, null);
         ButterKnife.bind(this, rootView);
-        pinInput.setInputType(InputType.TYPE_CLASS_TEXT);
-        pinInputLayout.setHint(getString((R.string.hint_pin)));
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext());
+        alertDialogBuilder.setIcon(R.drawable.ic_lock_open);
+        alertDialogBuilder.setTitle(getString(R.string.provisioner_authentication_title));
+        updateAuthUI();
+
+        alertDialogBuilder.setView(rootView).
+                setPositiveButton(getString(R.string.confirm), (dialog, which) -> {
+                    final String pin = pinInput.getEditableText().toString().trim();
+                    if (validateInput(pin)) {
+                        ((ProvisionerInputFragmentListener) requireActivity()).onPinInputComplete(pin);
+                    }
+                }).
+                setNegativeButton(getString(R.string.cancel), (dialog, which) -> ((ProvisionerInputFragmentListener) requireActivity()).onPinInputCanceled());
+        final AlertDialog alertDialog = alertDialogBuilder.show();
+        alertDialog.setCancelable(false);
+        alertDialog.setCanceledOnTouchOutside(false);
+        return alertDialog;
+    }
+
+    private boolean validateInput(final String input) {
+        if (TextUtils.isEmpty(input)) {
+            pinInputLayout.setError(getString(R.string.error_empty_pin));
+            return false;
+        }
+
+        return true;
+    }
+
+    private void updateAuthUI() {
+        switch (mNode.getAuthMethodUsed()) {
+            case STATIC_OOB_AUTHENTICATION:
+                updateStaticOOBUI();
+                break;
+            case OUTPUT_OOB_AUTHENTICATION:
+                updateOutputOOBUI();
+                break;
+            case INPUT_OOB_AUTHENTICATION:
+                updateInputOOBUI();
+                break;
+        }
+
         pinInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
@@ -93,32 +152,69 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
 
             }
         });
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_lock_open);
-        alertDialogBuilder.setTitle(getString(R.string.provisioner_input_title));
-        alertDialogBuilder.setMessage(getString(R.string.provisioner_input_summary));
-
-        alertDialogBuilder.setView(rootView).
-                setPositiveButton(getString(R.string.confirm), (dialog, which) -> {
-                    final String pin = pinInput.getText().toString().trim();
-                    if (validateInput(pin)) {
-                        ((ProvisionerInputFragmentListener) getActivity()).onPinInputComplete(pin);
-                    }
-                }).
-                setNegativeButton(getString(R.string.cancel), (dialog, which) -> ((ProvisionerInputFragmentListener) getActivity()).onPinInputCanceled());
-        final AlertDialog alertDialog = alertDialogBuilder.show();
-        alertDialog.setCancelable(false);
-        alertDialog.setCanceledOnTouchOutside(false);
-        return alertDialog;
     }
 
-    private boolean validateInput(final String input) {
-        if (TextUtils.isEmpty(input)) {
-            pinInputLayout.setError(getString(R.string.error_empty_pin));
-            return false;
-        }
+    private void updateStaticOOBUI() {
+        dialogSummary.setText(R.string.provisioner_input_static_oob);
+        hexPrefix.setVisibility(View.VISIBLE);
+        pinInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        pinInput.setHint(getString((R.string.hint_static_oob)));
+        pinInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ProvisioningConfirmationState.AUTH_VALUE_LENGTH * 2)});
+        pinInput.setKeyListener(new HexKeyListener());
+    }
 
-        return true;
+    private void updateOutputOOBUI() {
+        final OutputOOBAction outputOOBAction = OutputOOBAction.fromValue(mNode.getAuthActionUsed());
+        if (outputOOBAction == OutputOOBAction.BLINK ||
+                outputOOBAction == OutputOOBAction.BEEP ||
+                outputOOBAction == OutputOOBAction.VIBRATE) {
+            pinInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            pinInput.setHint(getString((R.string.hint_numeric_action)));
+            pinInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mNode.getProvisioningCapabilities().getOutputOOBSize())});
+            if (outputOOBAction == OutputOOBAction.BLINK) {
+                dialogSummary.setText(R.string.provisioner_input_blinks);
+            } else if (outputOOBAction == OutputOOBAction.BEEP) {
+                dialogSummary.setText(R.string.provisioner_input_beeps);
+            } else {
+                dialogSummary.setText(R.string.provisioner_input_vibrations);
+            }
+
+        } else if (outputOOBAction == OutputOOBAction.OUTPUT_NUMERIC) {
+            pinInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            pinInput.setHint(getString((R.string.hint_numeric)));
+            pinInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mNode.getProvisioningCapabilities().getOutputOOBSize())});
+            dialogSummary.setText(R.string.provisioner_input_numeric);
+        } else {
+            pinInput.setInputType(InputType.TYPE_CLASS_TEXT);
+            pinInput.setHint(getString((R.string.hint_alpha_numeric)));
+            pinInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mNode.getProvisioningCapabilities().getOutputOOBSize())});
+            dialogSummary.setText(R.string.provisioner_input_numeric);
+        }
+        hexPrefix.setVisibility(View.GONE);
+    }
+
+    private void updateInputOOBUI() {
+        final InputOOBAction inputOOBAction = InputOOBAction.fromValue(mNode.getAuthActionUsed());
+        if (inputOOBAction == InputOOBAction.PUSH || inputOOBAction == InputOOBAction.TWIST) {
+            pinInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            pinInput.setHint(getString((R.string.hint_numeric_action)));
+            pinInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mNode.getProvisioningCapabilities().getInputOOBSize())});
+            if (inputOOBAction == InputOOBAction.PUSH) {
+                dialogSummary.setText(R.string.provisioner_input_beeps);
+            } else {
+                dialogSummary.setText(R.string.provisioner_input_twist);
+            }
+        } else if (inputOOBAction == InputOOBAction.INPUT_NUMERIC) {
+            pinInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            pinInput.setHint(getString((R.string.hint_numeric)));
+            pinInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mNode.getProvisioningCapabilities().getInputOOBSize())});
+            dialogSummary.setText(R.string.provisioner_input_numeric_device);
+        } else {
+            pinInput.setInputType(InputType.TYPE_CLASS_TEXT);
+            pinInput.setHint(getString((R.string.hint_alpha_numeric)));
+            pinInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mNode.getProvisioningCapabilities().getInputOOBSize())});
+            dialogSummary.setText(R.string.provisioner_input_numeric_device);
+        }
+        hexPrefix.setVisibility(View.GONE);
     }
 }

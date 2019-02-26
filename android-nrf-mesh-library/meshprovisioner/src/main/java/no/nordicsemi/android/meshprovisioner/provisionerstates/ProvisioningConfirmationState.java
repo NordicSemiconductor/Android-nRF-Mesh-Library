@@ -40,7 +40,7 @@ public class ProvisioningConfirmationState extends ProvisioningState {
 
     private final String TAG = ProvisioningConfirmationState.class.getSimpleName();
     private static final byte[] NO_OOB_AUTH = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    private static final int AUTH_VALUE_LENGTH = 16;
+    public static final int AUTH_VALUE_LENGTH = 16;
     private final InternalProvisioningCallbacks provisioningCallbacks;
     private final UnprovisionedMeshNode mNode;
     private final MeshProvisioningStatusCallbacks mStatusCallbacks;
@@ -61,7 +61,8 @@ public class ProvisioningConfirmationState extends ProvisioningState {
 
     /**
      * Sets the provisioning confirmation
-     * @param authentication
+     *
+     * @param authentication authentication value
      */
     public void setProvisioningAuthentication(@NonNull final String authentication) {
         this.authentication = authentication;

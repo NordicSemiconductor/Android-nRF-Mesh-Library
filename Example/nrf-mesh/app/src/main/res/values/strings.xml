@@ -73,13 +73,50 @@
     <string name="yes">YES</string>
     <string name="no">NO</string>
 
-    <string name="provisioner_input_title">Input PIN</string>
+    <string name="provisioner_authentication_title">Authentication</string>
+    <string name="provisioner_input_static_oob">Input the 128-bit Static OOB value provided with the device.</string>
+    <string name="provisioner_input_blinks">Input the number of times the device blinked.</string>
+    <string name="provisioner_input_beeps">Input the number of times the device beeped.</string>
+    <string name="provisioner_input_vibrations">Input the number of times the device vibrated.</string>
+    <string name="provisioner_input_pushes">Push the button on the device %d times.</string>
+    <string name="provisioner_input_twist">Twist the device %d times.</string>
+    <string name="provisioner_input_numeric">Input the code displayed on the device.</string>
+    <string name="provisioner_input_numeric_device">Key in %s on the device.</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
     <string name="pin">pin</string>
     <string name="provisioner_input_summary">Please enter the code.</string>
     <string name="provisioning_complete">Provisioning Complete!</string>
     <string name="invalid_provisioning_capabilities">Invalid provisioning capabilities</string>
+    <string name="output_oob">Output OOB</string>
+
+    <!--Output oob actions-->
+    <string name="beep">Beep</string>
+    <string name="blink">Blink</string>
+    <string name="vibrate">Vibrate</string>
+    <string name="output_numeric">Output Numeric</string>
+    <string name="output_alphanumeric">Output Alphanumeric</string>
+
+    <!--Input oob actions-->
+    <string name="push">Push</string>
+    <string name="twist">Twist</string>
+    <string name="input_number">Input Number</string>
+    <string name="input_alphanumeric">Input Alphanumeric</string>
+    <string name="title_select_output_oob">Select an Output OOB Action</string>
+    <string name="title_select_input_oob">Select an Input OOB Action</string>
+    <string name="hint_static_oob">e.g. 00112233445566778899001122334455</string>
+    <string name="hint_numeric_action">e.g. 5</string>
+    <string name="hint_numeric">e.g. 019655</string>
+    <string name="hint_alpha_numeric">e.g. 123ABC</string>
+    <string name="error_empty_pin">Error, authentication value cannot be empty!</string>
+
+    <string name="title_select_oob">Select OOB Type</string>
+    <string name="public_key_information_available">Public Key information available</string>
+    <string name="public_key_information_unavailable">Public Key information unavailable</string>
+    <string name="static_oob_information_available">Static OOB information available</string>
+    <string name="static_oob_information_unavailable">Static OOB information unavailable</string>
+    <string name="output_oob_actions_unavailable">Output OOB actions unavailable</string>
+    <string name="input_oob_actions_unavailable">Input OOB actions unavailable</string>
 
     <string name="sending_prov_invite">Sending provisioning invite…</string>
     <string name="prov_capabilities_received">Provisioning capabilities received…</string>
@@ -150,10 +187,6 @@
     <string name="summary_index">Key Index</string>
     <string name="summary_iv_index">IV Index</string>
     <string name="summary_unicast_address">Unicast Address</string>
-
-    <string name="hint_pin">Pin</string>
-    <string name="error_empty_pin">Error, pin cannot be empty!</string>
-
 
     <string name="title_node_name">Node name</string>
     <string name="summary_name">Name</string>
@@ -521,31 +554,4 @@
     <string name="action_edit">Edit</string>
     <string name="parent_address">Element Address: %s</string>
     <string name="or">OR</string>
-
-
-    <string name="output_oob">Output OOB</string>
-
-    <!--Output oob actions-->
-    <string name="beep">Beep</string>
-    <string name="blink">Blink</string>
-    <string name="vibrate">Vibrate</string>
-    <string name="output_numeric">Output Numeric</string>
-    <string name="output_alphanumeric">Output Alphanumeric</string>
-
-    <!--Input oob actions-->
-    <string name="push">Push</string>
-    <string name="twist">Twist</string>
-    <string name="input_number">Input Number</string>
-    <string name="input_alphanumeric">Input Alphanumeric</string>
-    <string name="title_select_output_oob">Select Output OOB Action</string>
-    <string name="title_select_input_oob">Select Input OOB Action</string>
-    <string name="hint_static_oob">16-byte Static OOB value</string>
-
-    <string name="title_select_oob">Select OOB Type</string>
-    <string name="public_key_information_available">Public Key information available</string>
-    <string name="public_key_information_unavailable">Public Key information unavailable</string>
-    <string name="static_oob_information_available">Static OOB information available</string>
-    <string name="static_oob_information_unavailable">Static OOB information unavailable</string>
-    <string name="output_oob_actions_unavailable">Output OOB actions unavailable</string>
-    <string name="input_oob_actions_unavailable">Input OOB actions unavailable</string>
 </resources>

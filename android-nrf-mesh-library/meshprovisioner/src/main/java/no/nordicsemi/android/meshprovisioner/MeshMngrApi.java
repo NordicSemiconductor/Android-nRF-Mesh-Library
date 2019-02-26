@@ -54,7 +54,7 @@ interface MeshMngrApi {
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
-     * @param oobAction
+     * @param oobAction selected {@link OutputOOBAction}
      */
     void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final OutputOOBAction oobAction) throws IllegalArgumentException;
 
@@ -65,7 +65,7 @@ interface MeshMngrApi {
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
-     * @param oobAction
+     * @param oobAction selected {@link InputOOBAction}
      */
     void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final InputOOBAction oobAction) throws IllegalArgumentException;
 
@@ -126,7 +126,7 @@ interface MeshMngrApi {
     String generateNetworkId(@NonNull final byte[] networkKey);
 
     /**
-     * Checks if the hashes match
+     * Checks if the node identity matches
      *
      * @param meshNode    mesh node to match with
      * @param serviceData advertised service data
