@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;
@@ -51,22 +52,17 @@ import no.nordicsemi.android.meshprovisioner.utils.StaticOOBType;
 
 class MeshProvisioningHandler implements InternalProvisioningCallbacks {
 
-    private static final String TAG = MeshProvisioningHandler.class.getSimpleName();
     private static final int ATTENTION_TIMER = 0x05;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
     private final Context mContext;
     private MeshProvisioningStatusCallbacks mStatusCallbacks;
     private UnprovisionedMeshNode mUnprovisionedMeshNode;
 
-    private int attentionTimer = ATTENTION_TIMER;
-
     private ProvisioningState provisioningState;
     private boolean isProvisioningPublicKeySent;
     private boolean isProvisioneePublicKeyReceived;
     private InternalMeshManagerCallbacks mInternalMeshManagerCallbacks;
-    private String randomOOBInput;
     private byte[] confirmationInputs;
-    private byte[] staticOOBValue;
 
     /**
      * Constructs the mesh provisioning handler
@@ -107,8 +103,8 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                 break;
             case PROVISIONING_CAPABILITIES:
                 if (validateMessage(data)) {
-                    if (validateProvisioningCapabilitiesMessage(unprovisionedMeshNode, data)) {
-                        //TODO
+                    if (!parseProvisioningCapabilitiesMessage(unprovisionedMeshNode, data)) {
+                        parseProvisioningState(unprovisionedMeshNode, data);
                     }
                 } else {
                     parseProvisioningState(unprovisionedMeshNode, data);
@@ -125,11 +121,9 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                 break;
             case PROVISIONING_INPUT_COMPLETE:
                 if (validateMessage(data)) {
-                    provisioningState = new ProvisioningConfirmationState(this, unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
-                    setProvisioningAuthentication(this.randomOOBInput);
-//                    if (parseProvisioneeConfirmation(data)) {
-//                        sendRandomConfirmationPDU(unprovisionedMeshNode);
-//                    }
+                    if (parseProvisioningInputCompleteState(data)) {
+                        sendProvisioningConfirmation(null);
+                    }
                 } else {
                     parseProvisioningState(unprovisionedMeshNode, data);
                 }
@@ -246,13 +240,6 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
         return unprovisionedMeshNode;
     }
 
-    private UUID getDeviceUuid(final byte[] serviceData) {
-        if (serviceData != null && serviceData.length == 23) {
-
-        }
-        return null;
-    }
-
     private boolean validateProvisioningDataInput(final NetworkKey networkKey, final Integer flags, final Integer ivIndex) {
         String error;
 
@@ -261,7 +248,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
             throw new IllegalArgumentException(error);
         }
 
-        if (networkKey.getKey() == null && networkKey.getKey().length != 16) {
+        if (networkKey.getKey() == null || networkKey.getKey().length != 16) {
             error = "Network key length must be 16 octets!";
             throw new IllegalArgumentException(error);
         }
@@ -299,7 +286,6 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                   final int flags, final int ivIndex, final int unicastAddress,
                   final int globalTtl, final int provisionerAddress) throws IllegalArgumentException {
         confirmationInputs = null;
-        staticOOBValue = null;
         final UnprovisionedMeshNode unprovisionedMeshNode = initializeMeshNode(uuid, nodeName, networkKey, flags, ivIndex, unicastAddress, globalTtl, provisionerAddress);
         sendProvisioningInvite(unprovisionedMeshNode);
     }
@@ -357,7 +343,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     private void sendProvisioningInvite(final UnprovisionedMeshNode unprovisionedMeshNode) {
         isProvisioningPublicKeySent = false;
         isProvisioneePublicKeyReceived = false;
-        final ProvisioningInviteState invite = new ProvisioningInviteState(unprovisionedMeshNode, attentionTimer, mInternalTransportCallbacks, mStatusCallbacks);
+        final ProvisioningInviteState invite = new ProvisioningInviteState(unprovisionedMeshNode, ATTENTION_TIMER, mInternalTransportCallbacks, mStatusCallbacks);
         provisioningState = invite;
         invite.executeSend();
     }
@@ -368,11 +354,10 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
      * @param capabilities provisioning capabilities of the node
      * @return true if the message is valid
      */
-    private boolean validateProvisioningCapabilitiesMessage(final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] capabilities) {
+    private boolean parseProvisioningCapabilitiesMessage(final UnprovisionedMeshNode unprovisionedMeshNode, final byte[] capabilities) {
         final ProvisioningCapabilitiesState provisioningCapabilitiesState = new ProvisioningCapabilitiesState(unprovisionedMeshNode, mStatusCallbacks);
         provisioningState = provisioningCapabilitiesState;
-        provisioningCapabilitiesState.parseData(capabilities);
-        return true;
+        return provisioningCapabilitiesState.parseData(capabilities);
     }
 
     private void sendProvisioningStart(final UnprovisionedMeshNode unprovisionedMeshNode) {
@@ -422,7 +407,6 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                 capabilities.getRawOutputOOBAction(),
                 capabilities.getInputOOBSize(),
                 capabilities.getRawInputOOBAction());
-        //final short outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
         startProvisioning.setUseOutputOOB(action);
         provisioningState = startProvisioning;
         startProvisioning.executeSend();
@@ -481,17 +465,34 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                         break;
                     default:
                         provisioningState = new ProvisioningConfirmationState(this, unprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
-                        setProvisioningAuthentication("");
+                        sendProvisioningConfirmation("");
                         break;
                 }
             }
         }
     }
 
-    void setProvisioningAuthentication(@NonNull final String authentication) {
-        final ProvisioningConfirmationState provisioningConfirmationState = (ProvisioningConfirmationState) provisioningState;
-        provisioningConfirmationState.setProvisioningAuthentication(authentication);
+    /**
+     * Sends the provisioning confirmation
+     *
+     * @param authentication authentication value input by the user this may be nullable depending on the OOB type selected by the user
+     */
+    void sendProvisioningConfirmation(@Nullable final String authentication) {
+        final ProvisioningConfirmationState provisioningConfirmationState;
+        // Check if the current provisioning state, if the user had selected InputOOBAction the state will be ProvisioningInputCompleteState
+        if (provisioningState instanceof ProvisioningInputCompleteState) {
+            provisioningConfirmationState = new ProvisioningConfirmationState(this, mUnprovisionedMeshNode, mInternalTransportCallbacks, mStatusCallbacks);
+            provisioningState = provisioningConfirmationState;
+        } else {
+            provisioningConfirmationState = (ProvisioningConfirmationState) provisioningState;
+            provisioningConfirmationState.setProvisioningAuthentication(authentication);
+        }
         provisioningConfirmationState.executeSend();
+    }
+
+    private boolean parseProvisioningInputCompleteState(@NonNull final byte[] data) {
+        final ProvisioningInputCompleteState inputCompleteState = (ProvisioningInputCompleteState) provisioningState;
+        return inputCompleteState.parseData(data);
     }
 
     private boolean parseProvisioneeConfirmation(final byte[] data) {
@@ -569,41 +570,4 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
         confirmationInputs = buffer.array();
         return confirmationInputs;
     }
-
-/*    private byte[] generateCapabilities() {
-        final byte[] capabilities = new byte[11];
-
-        capabilities[0] = (byte) numberOfElements;
-        capabilities[1] = (byte) ((algorithm >> 8) & 0xFF);
-        capabilities[2] = (byte) (algorithm & 0xFF);
-        capabilities[3] = (byte) publicKeyType;
-        capabilities[4] = (byte) staticOOBType;
-        capabilities[5] = (byte) outputOOBSize;
-        capabilities[6] = (byte) ((outputOOBAction >> 8) & 0xFF);
-        capabilities[7] = (byte) (outputOOBAction & 0xFF);
-        capabilities[8] = (byte) inputOOBSize;
-        capabilities[9] = (byte) ((inputOOBAction >> 8) & 0xFF);
-        capabilities[10] = (byte) (inputOOBAction & 0xFF);
-        return capabilities;
-    }
-
-
-    private byte[] generateStartData() {
-        final byte[] startData = new byte[5];
-        startData[0] = ParseProvisioningAlgorithm.getAlgorithmValue(algorithm);
-        startData[1] = 0;//(byte) publicKeyType;
-        final short outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
-        if (outputOobActionType == ParseOutputOOBActions.NO_OUTPUT) {
-            startData[2] = 0;
-            //prefer no oob
-            startData[3] = 0;
-            startData[4] = 0;
-        } else {
-            startData[2] = 0x02;
-            startData[3] = (byte) ParseOutputOOBActions.getOutputOOBActionValue(outputOobActionType);//(byte) ParseOutputOOBActions.getOutputOOBActionValue(outputOOBAction);
-            startData[4] = (byte) outputOOBSize;
-        }
-
-        return startData;
-    }*/
 }

@@ -65,7 +65,7 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         provisioningStartPdu = in.createByteArray();
         authMethodUsed = AuthenticationOOBMethods.fromValue(in.readInt());
         authActionUsed = (short) in.readInt();
-
+        authenticationValue = in.createByteArray();
     }
 
     @Override
@@ -95,6 +95,8 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         dest.writeByteArray(provisioningStartPdu);
         dest.writeInt(authMethodUsed.ordinal());
         dest.writeInt(authActionUsed);
+        dest.writeByteArray(authenticationValue);
+        dest.writeByteArray(inputAuthentication);
     }
 
 
@@ -155,10 +157,17 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         this.provisioneeConfirmation = provisioneeConfirmation;
     }
 
+    /**
+     * Returns the 128-bit authentication value generated based on the user selected OOB type
+     */
     public final byte[] getAuthenticationValue() {
         return authenticationValue;
     }
 
+    /**
+     * Sets the 128-bit authentication value generated based on the user input if the user input was selected
+     * @param authenticationValue 128-bit auth value
+     */
     final void setAuthenticationValue(final byte[] authenticationValue) {
         this.authenticationValue = authenticationValue;
     }

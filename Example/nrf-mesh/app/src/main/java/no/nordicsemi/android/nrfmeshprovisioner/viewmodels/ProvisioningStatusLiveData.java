@@ -73,9 +73,9 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
             return state;
         }
 
-        static ProvisioningLiveDataState fromStatusCode(final int statusCode){
-            for(ProvisioningLiveDataState state : ProvisioningLiveDataState.values()){
-                if(state.getState() == statusCode){
+        static ProvisioningLiveDataState fromStatusCode(final int statusCode) {
+            for (ProvisioningLiveDataState state : ProvisioningLiveDataState.values()) {
+                if (state.getState() == statusCode) {
                     return state;
                 }
             }
@@ -83,13 +83,13 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
         }
     }
 
-    public ArrayList<ProvisionerProgress> getStateList(){
+    public ArrayList<ProvisionerProgress> getStateList() {
         return mProvisioningProgress;
     }
 
 
-    public ProvisionerProgress getProvisionerProgress(){
-        if(mProvisioningProgress.size() == 0)
+    public ProvisionerProgress getProvisionerProgress() {
+        if (mProvisioningProgress.size() == 0)
             return null;
         return mProvisioningProgress.get(mProvisioningProgress.size() - 1);
     }
@@ -97,7 +97,7 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
     void onMeshNodeStateUpdated(final ProvisioningState.States provisionerState) {
         final ProvisionerProgress provisioningProgress;
         final ProvisioningLiveDataState state = ProvisioningLiveDataState.fromStatusCode(provisionerState.getState());
-        switch (provisionerState){
+        switch (provisionerState) {
             case PROVISIONING_INVITE:
                 provisioningProgress = new ProvisionerProgress(state, "Sending provisioning invite...", R.drawable.ic_arrow_forward_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
@@ -125,9 +125,11 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
                 mProvisioningProgress.add(provisioningProgress);
                 break;
             case PROVISIONING_AUTHENTICATION_INPUT_ENTERED:
+                provisioningProgress = new ProvisionerProgress(state, "OOB authentication entered...", R.drawable.ic_arrow_forward_black_alpha);
+                mProvisioningProgress.add(provisioningProgress);
                 break;
             case PROVISIONING_INPUT_COMPLETE:
-                provisioningProgress = new ProvisionerProgress(state, "Sending provisioning input complete...", R.drawable.ic_arrow_forward_black_alpha);
+                provisioningProgress = new ProvisionerProgress(state, "Provisioning input complete received...", R.drawable.ic_arrow_back_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
             case PROVISIONING_CONFIRMATION_SENT:

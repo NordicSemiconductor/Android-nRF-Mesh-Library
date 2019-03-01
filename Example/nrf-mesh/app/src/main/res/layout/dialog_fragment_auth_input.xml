@@ -32,7 +32,9 @@
         android:id="@+id/summary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hint_static_oob"/>
+        android:text="@string/hint_static_oob"
+        android:paddingStart="@dimen/item_padding_start"
+        android:paddingEnd="@dimen/item_padding_end"/>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/text_input_layout"

@@ -584,7 +584,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public void setProvisioningAuthentication(@NonNull final String authentication) {
-        mMeshProvisioningHandler.setProvisioningAuthentication(authentication);
+        mMeshProvisioningHandler.sendProvisioningConfirmation(authentication);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -853,11 +853,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public void importMeshNetworkJson(@NonNull String networkJson) {
-        if (networkJson != null) {
-            NetworkImportExportUtils.importMeshNetworkFromJson(mContext, networkJson, networkLoadCallbacks);
-        } else {
-            mTransportCallbacks.onNetworkImportFailed("networkString is null!");
-        }
+        NetworkImportExportUtils.importMeshNetworkFromJson(mContext, networkJson, networkLoadCallbacks);
     }
 
     @SuppressWarnings("FieldCanBeLocal")

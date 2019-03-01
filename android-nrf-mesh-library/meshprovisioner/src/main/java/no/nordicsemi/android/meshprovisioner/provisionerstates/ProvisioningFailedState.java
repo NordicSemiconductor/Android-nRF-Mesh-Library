@@ -23,6 +23,7 @@
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
@@ -49,7 +50,7 @@ public class ProvisioningFailedState extends ProvisioningState {
     }
 
     @Override
-    public boolean parseData(final byte[] data) {
+    public boolean parseData(@NonNull final byte[] data) {
         error = data[2];
 
         return true;

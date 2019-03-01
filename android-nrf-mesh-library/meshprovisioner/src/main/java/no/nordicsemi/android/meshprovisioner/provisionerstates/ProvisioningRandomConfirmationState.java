@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -63,7 +64,7 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
     }
 
     @Override
-    public boolean parseData(final byte[] data) {
+    public boolean parseData(@NonNull final byte[] data) {
         mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_RANDOM_RECEIVED, data);
         parseProvisioneeRandom(data);
         return provisioneeMatches();

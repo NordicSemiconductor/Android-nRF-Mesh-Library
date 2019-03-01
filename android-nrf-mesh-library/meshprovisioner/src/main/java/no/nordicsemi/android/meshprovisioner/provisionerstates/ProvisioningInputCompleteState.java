@@ -22,22 +22,32 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
+import android.support.annotation.NonNull;
+
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 
 public class ProvisioningInputCompleteState extends ProvisioningState {
 
-    private final UnprovisionedMeshNode mUnprovisionedMeshNode;
+    private final UnprovisionedMeshNode mNode;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
     private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
 
-
-    public ProvisioningInputCompleteState(final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    /**
+     * Constructs the provisioning input complete state
+     *
+     * @param node                        {@link UnprovisionedMeshNode} node
+     * @param internalTransportCallbacks  {@link InternalTransportCallbacks} callbacks
+     * @param provisioningStatusCallbacks {@link MeshProvisioningStatusCallbacks} callbacks
+     */
+    public ProvisioningInputCompleteState(@NonNull final UnprovisionedMeshNode node,
+                                          @NonNull final InternalTransportCallbacks internalTransportCallbacks,
+                                          @NonNull final MeshProvisioningStatusCallbacks provisioningStatusCallbacks) {
         super();
-        this.mUnprovisionedMeshNode = unprovisionedMeshNode;
-        this.mInternalTransportCallbacks = mInternalTransportCallbacks;
-        this.mMeshProvisioningStatusCallbacks = meshProvisioningStatusCallbacks;
+        this.mNode = node;
+        this.mInternalTransportCallbacks = internalTransportCallbacks;
+        this.mMeshProvisioningStatusCallbacks = provisioningStatusCallbacks;
     }
 
     @Override
@@ -47,20 +57,17 @@ public class ProvisioningInputCompleteState extends ProvisioningState {
 
     @Override
     public void executeSend() {
-        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_AUTHENTICATION_INPUT_ENTERED, null);
-        mInternalTransportCallbacks.sendProvisioningPdu(mUnprovisionedMeshNode, createProvisioningInputComplete());
+        //Do nothing here
     }
 
     @Override
-    public boolean parseData(final byte[] data) {
-        return true;
+    public boolean parseData(@NonNull final byte[] data) {
+        if (data.length == 2 &&
+                data[0] == MeshManagerApi.PDU_TYPE_PROVISIONING &&
+                data[1] == TYPE_PROVISIONING_INPUT_COMPLETE) {
+            mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mNode, States.PROVISIONING_AUTHENTICATION_INPUT_ENTERED, null);
+            return true;
+        }
+        return false;
     }
-
-    private byte[] createProvisioningInputComplete() {
-        final byte[] provisioningPDU = new byte[2];
-        provisioningPDU[0] = MeshManagerApi.PDU_TYPE_PROVISIONING;
-        provisioningPDU[1] = TYPE_PROVISIONING_INPUT_COMPLETE;
-        return provisioningPDU;
-    }
-
 }

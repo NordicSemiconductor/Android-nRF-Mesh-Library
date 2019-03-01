@@ -124,6 +124,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //noinspection ConstantConditions
         getSupportActionBar().setTitle(deviceName);
         getSupportActionBar().setSubtitle(deviceAddress);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -178,7 +179,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 return;
             }
 
-            if (!connected)
+            if (connected != null && !connected)
                 finish();
         });
 
@@ -197,7 +198,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         });
 
         mViewModel.isReconnecting().observe(this, isReconnecting -> {
-            if (isReconnecting) {
+            if (isReconnecting != null && isReconnecting) {
                 mViewModel.getUnProvisionedMeshNode().removeObservers(this);
                 provisioningStatusContainer.setVisibility(View.GONE);
                 container.setVisibility(View.GONE);
@@ -365,7 +366,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                             message.show(getSupportFragmentManager(), DIALOG_FRAGMENT_PROVISIONING_FAILED);
                         }
                         break;
-                    case PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING://_OOB_WAITING:
+                    case PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING:
                         if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
                             DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
                                     newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
@@ -386,9 +387,16 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                             dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
                         }
                         break;
+                    case PROVISIONING_AUTHENTICATION_INPUT_ENTERED:
+                        final DialogFragmentAuthenticationInput fragment = (DialogFragmentAuthenticationInput) getSupportFragmentManager().
+                                findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG);
+                        if (fragment != null)
+                            fragment.dismiss();
+                        break;
                     case APP_KEY_STATUS_RECEIVED:
                         if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_APP_KEY_STATUS) == null) {
-                            DialogFragmentAppKeyAddStatus fragmentAppKeyAddStatus = DialogFragmentAppKeyAddStatus.newInstance(getString(R.string.title_configuration_compete), getString(R.string.configuration_complete_summary));
+                            DialogFragmentAppKeyAddStatus fragmentAppKeyAddStatus = DialogFragmentAppKeyAddStatus.
+                                    newInstance(getString(R.string.title_configuration_compete), getString(R.string.configuration_complete_summary));
                             fragmentAppKeyAddStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_APP_KEY_STATUS);
                         }
                         break;

@@ -22,9 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
-import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
-import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
-import no.nordicsemi.android.meshprovisioner.utils.StaticOOBType;
+import android.support.annotation.NonNull;
 
 @SuppressWarnings("unused")
 public abstract class ProvisioningState {
@@ -46,7 +44,7 @@ public abstract class ProvisioningState {
 
     public abstract void executeSend();
 
-    public abstract boolean parseData(final byte[] data);
+    public abstract boolean parseData(@NonNull final byte[] data);
 
     public enum State {
         PROVISIONING_INVITE(0), PROVISIONING_CAPABILITIES(1), PROVISIONING_START(2), PROVISIONING_PUBLIC_KEY(3),

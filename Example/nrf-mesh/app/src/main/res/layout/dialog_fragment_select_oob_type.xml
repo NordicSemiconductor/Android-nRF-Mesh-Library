@@ -129,28 +129,28 @@
                     android:id="@+id/radio_push"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/blink"
+                    android:text="@string/push"
                     android:enabled="false"/>
 
                 <RadioButton
                     android:id="@+id/radio_twist"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/beep"
+                    android:text="@string/vibrate"
                     android:enabled="false"/>
 
                 <RadioButton
                     android:id="@+id/radio_input_numeric"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/output_numeric"
+                    android:text="@string/input_numeric"
                     android:enabled="false"/>
 
                 <RadioButton
                     android:id="@+id/radio_input_alpha_numeric"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/output_alphanumeric"
+                    android:text="@string/input_alphanumeric"
                     android:enabled="false"/>
             </RadioGroup>
         </LinearLayout>

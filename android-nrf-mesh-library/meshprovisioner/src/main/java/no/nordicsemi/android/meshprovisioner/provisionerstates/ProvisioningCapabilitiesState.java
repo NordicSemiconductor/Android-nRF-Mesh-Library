@@ -22,14 +22,9 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
-import android.util.Log;
+import android.support.annotation.NonNull;
 
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
-import no.nordicsemi.android.meshprovisioner.utils.AlgorithmInformationParser;
-import no.nordicsemi.android.meshprovisioner.utils.ParseInputOOBActions;
-import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
-import no.nordicsemi.android.meshprovisioner.utils.ParsePublicKeyInformation;
-import no.nordicsemi.android.meshprovisioner.utils.ParseStaticOutputOOBInformation;
 
 public class ProvisioningCapabilitiesState extends ProvisioningState {
     private static final String TAG = ProvisioningInviteState.class.getSimpleName();
@@ -60,7 +55,7 @@ public class ProvisioningCapabilitiesState extends ProvisioningState {
     }
 
     @Override
-    public boolean parseData(final byte[] data) {
+    public boolean parseData(@NonNull final byte[] data) {
         final boolean flag = parseProvisioningCapabilities(data);
         //We store the provisioning capabilities pdu to be used when generating confirmation inputs
         mUnprovisionedMeshNode.setProvisioningCapabilitiesPdu(data);
@@ -70,45 +65,7 @@ public class ProvisioningCapabilitiesState extends ProvisioningState {
     }
 
     private boolean parseProvisioningCapabilities(final byte[] provisioningCapabilities) {
-
-        /*if (provisioningCapabilities[2] == 0) {
-            throw new IllegalArgumentException("Number of elements cannot be zero");
-        }
-
-        final byte numberOfElements = (provisioningCapabilities[2]);
-        Log.v(TAG, "Number of elements: " + numberOfElements);
-        capabilities.setNumberOfElements(numberOfElements);
-
-        final short algorithm = (short) (((provisioningCapabilities[3] & 0xff) << 8) | (provisioningCapabilities[4] & 0xff));
-        Log.v(TAG, "Algorithm: " + AlgorithmInformationParser.parseAlgorithm(algorithm));
-        capabilities.setRawAlgorithm(algorithm);
-
-        final byte publicKeyType = (provisioningCapabilities[5]); // 0 is unavailable and 1 is available
-        Log.v(TAG, "Public key type: " + ParsePublicKeyInformation.parsePublicKeyInformation(publicKeyType));
-        capabilities.setRawPublicKeyType(publicKeyType);
-
-        final byte staticOOBType = (provisioningCapabilities[6]); // 0 is unavailable and 1 is available
-        Log.v(TAG, "Static OOB type: " + ParseStaticOutputOOBInformation.parseStaticOOBActionInformation(staticOOBType));
-        capabilities.setRawStaticOOBType(staticOOBType);
-
-        final byte outputOOBSize = (provisioningCapabilities[7]);
-        Log.v(TAG, "Output OOB size: " + outputOOBSize);
-        capabilities.setOutputOOBSize(outputOOBSize);
-
-        final short outputOOBAction = (short) (((provisioningCapabilities[8] & 0xff) << 8) | (provisioningCapabilities[9] & 0xff));
-        ParseOutputOOBActions.parseOutputActionsFromBitMask(outputOOBAction);
-        capabilities.setRawOutputOOBAction(outputOOBAction);
-
-        final byte inputOOBSize = (provisioningCapabilities[10]);
-        Log.v(TAG, "Input OOB size: " + inputOOBSize);
-        capabilities.setInputOOBSize(inputOOBSize);
-
-        final short inputOOBAction = (short) (((provisioningCapabilities[11] & 0xff) << 8) | (provisioningCapabilities[12] & 0xff));
-        ParseInputOOBActions.parseInputActionsFromBitMask(inputOOBAction);
-        capabilities.setRawInputOOBAction(inputOOBAction);*/
-
         this.capabilities = new ProvisioningCapabilities(provisioningCapabilities);
-
         return true;
     }
 }

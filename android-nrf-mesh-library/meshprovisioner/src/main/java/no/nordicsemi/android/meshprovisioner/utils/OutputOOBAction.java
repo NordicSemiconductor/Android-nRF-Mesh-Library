@@ -2,7 +2,10 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.util.Log;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Output OOB Actions
@@ -86,7 +89,6 @@ public enum OutputOOBAction {
      * @return selected output action type
      */
     public static ArrayList<OutputOOBAction> parseOutputActionsFromBitMask(final int outputAction) {
-        //final byte[] outputActions = {(byte) BLINK.ordinal(), (byte) BEEP.ordinal(), (byte) VIBRATE.ordinal(), (byte) OUTPUT_NUMERIC.ordinal(), (byte) OUTPUT_ALPHA_NUMERIC.ordinal()};
         final OutputOOBAction[] outputActions = {BLINK, BEEP, VIBRATE, OUTPUT_NUMERIC, OUTPUT_ALPHA_NUMERIC};
         final ArrayList<OutputOOBAction> supportedActionValues = new ArrayList<>();
         for (OutputOOBAction action : outputActions) {
@@ -99,10 +101,9 @@ public enum OutputOOBAction {
     }
 
     /**
-     * Returns the Output OOB Action
+     * Returns the Output OOB Action value
      *
      * @param type output OOB type
-     * @return Output OOB type descrption
      */
     public static int getOutputOOBActionValue(final OutputOOBAction type) {
         switch (type) {
@@ -122,15 +123,50 @@ public enum OutputOOBAction {
         }
     }
 
-    public static byte[] generateOutputOOBAuthenticationValue(final OutputOOBAction outputActionType, final byte[] input, final byte outputOOBSize) {
+    /**
+     * Returns the Output OOB Action value
+     *
+     * @param actionType output OOB action type
+     */
+    public static int getOutputOOBActionValue(final short actionType) {
+        switch (fromValue(actionType)) {
+            case BLINK:
+                return 0;
+            case BEEP:
+                return 1;
+            case VIBRATE:
+                return 2;
+            case OUTPUT_NUMERIC:
+                return 3;
+            case OUTPUT_ALPHA_NUMERIC:
+                return 4;
+            case NO_OUTPUT:
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * Creates 128-bit authentication value
+     *
+     * @param outputActionType selected {@link OutputOOBAction}
+     * @param input            input
+     */
+    public static byte[] generateOutputOOBAuthenticationValue(final OutputOOBAction outputActionType, final String input) {
+        final int authLength = 16;
+        final ByteBuffer buffer = ByteBuffer.allocate(authLength).order(ByteOrder.BIG_ENDIAN);
         switch (outputActionType) {
             case BLINK:
             case BEEP:
             case VIBRATE:
             case OUTPUT_NUMERIC:
-                return MeshParserUtils.createAuthenticationValue(true, input, outputOOBSize);
+                buffer.position(8);
+                final long intValue = Long.valueOf(input);
+                buffer.putLong(intValue);
+                return buffer.array();
             case OUTPUT_ALPHA_NUMERIC:
-                return MeshParserUtils.createAuthenticationValue(false, input, outputOOBSize);
+                buffer.put(input.toUpperCase(Locale.US).getBytes());
+                return buffer.array();
             default:
                 return null;
         }

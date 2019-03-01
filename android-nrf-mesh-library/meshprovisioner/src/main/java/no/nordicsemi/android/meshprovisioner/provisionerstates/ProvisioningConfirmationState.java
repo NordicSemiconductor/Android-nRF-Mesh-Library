@@ -23,6 +23,7 @@
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -64,7 +65,7 @@ public class ProvisioningConfirmationState extends ProvisioningState {
      *
      * @param authentication authentication value
      */
-    public void setProvisioningAuthentication(@NonNull final String authentication) {
+    public void setProvisioningAuthentication(@Nullable final String authentication) {
         this.authentication = authentication;
     }
 
@@ -82,7 +83,7 @@ public class ProvisioningConfirmationState extends ProvisioningState {
     }
 
     @Override
-    public boolean parseData(final byte[] data) {
+    public boolean parseData(@NonNull final byte[] data) {
         mStatusCallbacks.onProvisioningStateChanged(mNode, States.PROVISIONING_CONFIRMATION_RECEIVED, data);
         parseProvisioneeConfirmation(data);
         return true;
@@ -137,10 +138,11 @@ public class ProvisioningConfirmationState extends ProvisioningState {
                 return MeshParserUtils.toByteArray(authentication);
             case OUTPUT_OOB_AUTHENTICATION:
                 final OutputOOBAction action = OutputOOBAction.fromValue(mNode.getAuthActionUsed());
-                return OutputOOBAction.generateOutputOOBAuthenticationValue(action, authentication.getBytes(), mNode.getProvisioningCapabilities().getOutputOOBSize());
+                return OutputOOBAction.generateOutputOOBAuthenticationValue(action, authentication);
             case INPUT_OOB_AUTHENTICATION:
                 final InputOOBAction inputOOBAction = InputOOBAction.fromValue(mNode.getAuthActionUsed());
-                return InputOOBAction.generateInputOOBAuthenticationValue(inputOOBAction, authentication.getBytes(), mNode.getProvisioningCapabilities().getOutputOOBSize());
+                //noinspection ConstantConditions
+                return InputOOBAction.generateInputOOBAuthenticationValue(inputOOBAction, mNode.getInputAuthentication());
         }
         return null;
     }

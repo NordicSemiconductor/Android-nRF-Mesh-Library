@@ -78,10 +78,10 @@
     <string name="provisioner_input_blinks">Input the number of times the device blinked.</string>
     <string name="provisioner_input_beeps">Input the number of times the device beeped.</string>
     <string name="provisioner_input_vibrations">Input the number of times the device vibrated.</string>
-    <string name="provisioner_input_pushes">Push the button on the device %d times.</string>
+    <string name="provisioner_input_pushes">Push the button on the device %d time(s).</string>
     <string name="provisioner_input_twist">Twist the device %d times.</string>
     <string name="provisioner_input_numeric">Input the code displayed on the device.</string>
-    <string name="provisioner_input_numeric_device">Key in %s on the device.</string>
+    <string name="provisioner_input_numeric_device">Key in the following code %s on the device.</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
     <string name="pin">pin</string>
@@ -100,7 +100,7 @@
     <!--Input oob actions-->
     <string name="push">Push</string>
     <string name="twist">Twist</string>
-    <string name="input_number">Input Number</string>
+    <string name="input_numeric">Input Number</string>
     <string name="input_alphanumeric">Input Alphanumeric</string>
     <string name="title_select_output_oob">Select an Output OOB Action</string>
     <string name="title_select_input_oob">Select an Input OOB Action</string>

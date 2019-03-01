@@ -2,6 +2,8 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.util.Log;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 
 /**
@@ -87,10 +89,9 @@ public enum InputOOBAction {
     }
 
     /**
-     * Returns the Input OOB Action
+     * Returns the Input OOB Action value
      *
      * @param type input OOB type
-     * @return Output OOB type description
      */
     public static int getInputOOBActionValue(final InputOOBAction type) {
         switch (type) {
@@ -109,21 +110,68 @@ public enum InputOOBAction {
     }
 
     /**
+     * Returns the Input OOB Action value
+     *
+     * @param type input OOB type
+     */
+    public static int getInputOOBActionValue(final short type) {
+        switch (fromValue(type)) {
+            case PUSH:
+                return 0;
+            case TWIST:
+                return 1;
+            case INPUT_NUMERIC:
+                return 2;
+            case INPUT_ALPHA_NUMERIC:
+                return 3;
+            case NO_INPUT:
+            default:
+                return -1;
+        }
+    }
+
+    /**
      * Generates the Input OOB Authentication value
      *
-     * @param inputActionType selected {@link InputOOBAction}
-     * @param input           Input authentication
-     * @param inputOOBSize    Input OOB size
+     * @param inputOOBAction selected {@link InputOOBAction}
+     * @param input          Input authentication
      * @return 128-bit authentication value
      */
-    public static byte[] generateInputOOBAuthenticationValue(final InputOOBAction inputActionType, final byte[] input, final byte inputOOBSize) {
-        switch (inputActionType) {
+    public static byte[] generateInputOOBAuthenticationValue(final InputOOBAction inputOOBAction, final byte[] input) {
+        final int authLength = 16;
+        final ByteBuffer buffer = ByteBuffer.allocate(authLength).order(ByteOrder.BIG_ENDIAN);
+        switch (inputOOBAction) {
             case PUSH:
             case TWIST:
             case INPUT_NUMERIC:
-                return MeshParserUtils.createAuthenticationValue(true, input, inputOOBSize);
+                buffer.position(8);
+                final long longValue = Long.valueOf(MeshParserUtils.bytesToHex(input, false), 16);
+                buffer.putLong(longValue);
+                return buffer.array();
             case INPUT_ALPHA_NUMERIC:
-                return MeshParserUtils.createAuthenticationValue(false, input, inputOOBSize);
+                buffer.put(input);
+                return buffer.array();
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Returns a randomly generated Input OOB Authentication value to be input by the user
+     *
+     * @param inputOOBAction selected {@link InputOOBAction}
+     * @param size           oob size
+     */
+    public static byte[] getInputOOOBAuthenticationValue(final short inputOOBAction, final byte size) {
+        switch (fromValue(inputOOBAction)) {
+            case PUSH:
+            case TWIST:
+                //We override the value here to 1 so we generate a 1 digit value for presses.
+                return MeshParserUtils.generateOOBCount(1);
+            case INPUT_NUMERIC:
+                return MeshParserUtils.generateOOBNumeric(size);
+            case INPUT_ALPHA_NUMERIC:
+                return MeshParserUtils.generateOOBAlphaNumeric(size);
             default:
                 return null;
         }

@@ -23,6 +23,7 @@
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.util.UUID;
@@ -69,6 +70,7 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
     byte[] provisioningStartPdu;
     AuthenticationOOBMethods authMethodUsed = AuthenticationOOBMethods.NO_OOB_AUTHENTICATION;
     short authActionUsed;
+    byte[] inputAuthentication;
 
     UnprovisionedBaseMeshNode(final UUID uuid) {
         deviceUuid = uuid;
@@ -229,5 +231,21 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
      */
     void setAuthActionUsed(final short authActionUsed) {
         this.authActionUsed = authActionUsed;
+    }
+
+    /**
+     * Returns the input authentication value to be input by the provisioner if Input OOB was selected
+     */
+    @Nullable
+    public byte[] getInputAuthentication() {
+        return inputAuthentication;
+    }
+
+    /**
+     * Sets the input authentication value to be input by the provisioner if Input OOB was selected
+     * @param inputAuthentication generated input authentication
+     */
+    void setInputAuthentication(final byte[] inputAuthentication) {
+        this.inputAuthentication = inputAuthentication;
     }
 }

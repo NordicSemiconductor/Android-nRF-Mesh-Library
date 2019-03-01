@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -35,7 +34,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import no.nordicsemi.android.meshprovisioner.models.SigModel;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;

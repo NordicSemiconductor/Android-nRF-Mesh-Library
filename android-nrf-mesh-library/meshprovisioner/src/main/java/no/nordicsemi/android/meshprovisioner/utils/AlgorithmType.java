@@ -30,6 +30,22 @@ public enum AlgorithmType {
         return algorithmType;
     }
 
+
+    /**
+     * Returns the oob method used for authentication
+     *
+     * @param method auth method used
+     */
+    public static AlgorithmType fromValue(final short method) {
+        switch (method) {
+            default:
+            case 0x0000:
+                return NONE;
+            case 0x0001:
+                return FIPS_P_256_ELLIPTIC_CURVE;
+        }
+    }
+
     /**
      * Parses the output oob action value
      *
@@ -52,7 +68,7 @@ public enum AlgorithmType {
      * Returns the algorithm description
      *
      * @param type {@link AlgorithmType} type
-     * @return Input OOB type descrption
+     * @return Input OOB type description
      */
     public static String getAlgorithmTypeDescription(final AlgorithmType type) {
         switch (type) {
@@ -60,6 +76,15 @@ public enum AlgorithmType {
                 return "FIPS P-256 Elliptic Curve";
             default:
                 return "Unknown";
+        }
+    }
+
+    public static byte getAlgorithmValue(final short type) {
+        switch (fromValue(type)) {
+            case FIPS_P_256_ELLIPTIC_CURVE:
+                return 0;
+            default:
+                return 1;
         }
     }
 }

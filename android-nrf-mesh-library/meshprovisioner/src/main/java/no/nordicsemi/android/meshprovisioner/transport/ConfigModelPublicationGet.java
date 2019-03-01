@@ -29,7 +29,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;

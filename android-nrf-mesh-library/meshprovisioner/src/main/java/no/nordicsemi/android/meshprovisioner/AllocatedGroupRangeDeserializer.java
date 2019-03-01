@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 final class AllocatedGroupRangeDeserializer implements JsonSerializer<List<AllocatedGroupRange>>, JsonDeserializer<List<AllocatedGroupRange>> {
     private static final String TAG = AllocatedGroupRangeDeserializer.class.getSimpleName();
