@@ -24,6 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
@@ -40,6 +41,7 @@ import android.text.TextWatcher;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.nio.ByteBuffer;
@@ -109,6 +111,17 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.setCancelable(false);
 
+        final Button button = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        if(button != null) {
+            button.setOnClickListener(v -> {
+                final String pin = pinInput.getEditableText().toString().trim();
+                if (validateInput(pin)) {
+                    ((ProvisionerInputFragmentListener) requireActivity()).onPinInputComplete(pin);
+                    dismiss();
+                }
+            });
+        }
+
         return alertDialog;
     }
 
@@ -126,24 +139,14 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
             case STATIC_OOB_AUTHENTICATION:
                 updateStaticOOBUI();
                 alertDialogBuilder.
-                        setPositiveButton(getString(R.string.confirm), (dialog, which) -> {
-                            final String pin = pinInput.getEditableText().toString().trim();
-                            if (validateInput(pin)) {
-                                ((ProvisionerInputFragmentListener) requireActivity()).onPinInputComplete(pin);
-                            }
-                        }).
+                        setPositiveButton(getString(R.string.confirm), null).
                         setNegativeButton(getString(R.string.cancel),
                                 (dialog, which) -> ((ProvisionerInputFragmentListener) requireActivity()).onPinInputCanceled());
                 break;
             case OUTPUT_OOB_AUTHENTICATION:
                 updateOutputOOBUI();
                 alertDialogBuilder.
-                        setPositiveButton(getString(R.string.confirm), (dialog, which) -> {
-                            final String pin = pinInput.getEditableText().toString().trim();
-                            if (validateInput(pin)) {
-                                ((ProvisionerInputFragmentListener) requireActivity()).onPinInputComplete(pin);
-                            }
-                        }).
+                        setPositiveButton(getString(R.string.confirm), null).
                         setNegativeButton(getString(R.string.cancel),
                                 (dialog, which) -> ((ProvisionerInputFragmentListener) requireActivity()).onPinInputCanceled());
                 break;
