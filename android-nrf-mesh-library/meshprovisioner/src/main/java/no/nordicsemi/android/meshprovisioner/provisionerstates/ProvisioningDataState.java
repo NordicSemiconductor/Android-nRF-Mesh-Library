@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -52,7 +53,7 @@ public class ProvisioningDataState extends ProvisioningState {
 
     @Override
     public State getState() {
-        return State.PROVISINING_DATA;
+        return State.PROVISIONING_DATA;
     }
 
     @Override
@@ -61,7 +62,7 @@ public class ProvisioningDataState extends ProvisioningState {
     }
 
     @Override
-    public boolean parseData(final byte[] data) {
+    public boolean parseData(@NonNull final byte[] data) {
         return true;
     }
 

@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
+import android.support.annotation.NonNull;
+
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
@@ -50,12 +52,14 @@ public class ProvisioningInviteState extends ProvisioningState {
     @Override
     public void executeSend() {
         final byte[] invitePDU = createInvitePDU();
+        //We store the provisioning invite pdu to be used when generating confirmation inputs
+        mUnprovisionedMeshNode.setProvisioningInvitePdu(invitePDU);
         mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_INVITE, invitePDU);
         mInternalTransportCallbacks.sendProvisioningPdu(mUnprovisionedMeshNode, invitePDU);
     }
 
     @Override
-    public boolean parseData(final byte[] data) {
+    public boolean parseData(@NonNull final byte[] data) {
         return true;
     }
 
@@ -66,6 +70,7 @@ public class ProvisioningInviteState extends ProvisioningState {
 
         final byte[] data = new byte[3];
         data[0] = MeshManagerApi.PDU_TYPE_PROVISIONING; //Provisioning Opcode;
+        //noinspection ConstantConditions
         data[1] = TYPE_PROVISIONING_INVITE; //PDU type in
         data[2] = (byte) attentionTimer;
         return data;

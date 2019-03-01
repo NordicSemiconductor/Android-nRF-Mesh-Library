@@ -24,17 +24,20 @@ package no.nordicsemi.android.meshprovisioner.utils;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Calendar;
+import java.util.Random;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
 @SuppressWarnings("WeakerAccess")
 public class MeshParserUtils {
 
+    private static final String TAG = MeshParserUtils.class.getSimpleName();
     private static final String PATTERN_NETWORK_KEY = "[0-9a-fA-F]{32}";
     private static final int TAI_YEAR = 2000;
     private static final int TAI_MONTH = 1;
@@ -54,6 +57,10 @@ public class MeshParserUtils {
     private static final int IV_ADDRESS_MAX = 4096;
     private static final int UNICAST_ADDRESS_MIN = 0;
     private static final char[] HEX_ARRAY = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    private static final byte[] ALPHANUMERIC = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+            'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+
+    private static final int[] M_NUMERIC_MAX = {0, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
 
     public static final int RESOLUTION_100_MS = 0b00;
     public static final int RESOLUTION_1_S = 0b01;
@@ -365,63 +372,6 @@ public class MeshParserUtils {
     }
 
     /**
-     * Validates the Unicast Address input
-     *
-     * @param context context
-     * @param input   Unicast Address input
-     * @return true if the the value is valid
-     * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
-     */
-    public static boolean validateUnicastAddressInput(final Context context, final String input) throws IllegalArgumentException {
-
-        if (TextUtils.isEmpty(input)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_empty_unicast_address));
-        }
-
-        final Integer unicastAddress;
-        try {
-            unicastAddress = Integer.parseInt(input, 16);
-        } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_unicast_address));
-        }
-
-        if (!isValidUnicastAddress(unicastAddress)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_unicast_address));
-        }
-
-        if (unicastAddress == UNICAST_ADDRESS_MIN) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_unicast_address));
-        }
-
-        return true;
-    }
-
-    /**
-     * Validates the Unicast Address input
-     *
-     * @param context        context
-     * @param unicastAddress Unicast Address input
-     * @return true if the the value is valid
-     * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
-     */
-    public static boolean validateUnicastAddressInput(final Context context, final Integer unicastAddress) throws IllegalArgumentException {
-
-        if (unicastAddress == null) {
-            throw new IllegalArgumentException(context.getString(R.string.error_empty_unicast_address));
-        }
-
-        if (!isValidUnicastAddress(unicastAddress)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_unicast_address));
-        }
-
-        if (unicastAddress == UNICAST_ADDRESS_MIN) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_unicast_address));
-        }
-
-        return true;
-    }
-
-    /**
      * Validates the app key input
      *
      * @param context context
@@ -706,6 +656,10 @@ public class MeshParserUtils {
         return b.length == 4 ? ByteBuffer.wrap(b).order(ByteOrder.BIG_ENDIAN).getInt() : ByteBuffer.wrap(b).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 
+    public static int hexToInt(String hex) {
+        return MeshParserUtils.bytesToInt(MeshParserUtils.toByteArray(hex));
+    }
+
     public static byte[] intToBytes(int i) {
         ByteBuffer b = ByteBuffer.allocate(4);
         b.putInt(i);
@@ -748,11 +702,65 @@ public class MeshParserUtils {
     }
 
     public static int getCompanyIdentifier(final int modelId) {
-        if(modelId >= Short.MIN_VALUE && modelId <= Short.MAX_VALUE) {
+        if (modelId >= Short.MIN_VALUE && modelId <= Short.MAX_VALUE) {
             throw new IllegalArgumentException("Not a valid vendor model ID");
         }
         final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
         buffer.putInt(modelId);
         return (int) buffer.getShort(0);
     }
+
+    /**
+     * Generates an oob count to be entered on the device when blink,beep,vibrate,push or twist action is selected
+     *
+     * <p>
+     * Based on mesh profile specification v1.0.1 section 5.4.2.4 page 254
+     * </p>
+     *
+     * @param oobSize oob size
+     */
+    static byte[] generateOOBCount(final int oobSize) {
+        final Random random = new Random();
+        final int bound = (int) Math.pow(10, oobSize) - 1;
+        final byte randomByte = (byte) (random.nextInt(bound) + 1);
+        Log.v(TAG, "Random OOB count: " + randomByte);
+        return new byte[]{randomByte};
+    }
+
+    /**
+     * Generates a random number to be entered on the device
+     *
+     * <p>
+     * Based on mesh profile specification v1.0.1 section 5.4.2.4 page 254
+     * </p>
+     *
+     * @param oobSize oob size
+     */
+    static byte[] generateOOBNumeric(final int oobSize) {
+        final Random random = new Random();
+        final int value = random.nextInt((int) Math.pow(10, oobSize));
+        Log.v(TAG, "Random OOB numeric: " + value);
+        return intToBytes(value);
+    }
+
+    /**
+     * Generates a random alphanumeric code to be entered on the device
+     *
+     * <p>
+     * Based on mesh profile specification v1.0.1 section 5.4.2.4 page 254
+     * </p>
+     *
+     * @param oobSize oob size
+     */
+    static byte[] generateOOBAlphaNumeric(final int oobSize) {
+        final Random random = new Random();
+        final byte[] value = new byte[oobSize];
+        for (int i = 0; i < oobSize; i++) {
+            final int index = random.nextInt(ALPHANUMERIC.length);
+            value[i] = ALPHANUMERIC[index];
+        }
+        Log.v(TAG, "Random OOB alpha numeric: " + new String(value));
+        return value;
+    }
+
 }

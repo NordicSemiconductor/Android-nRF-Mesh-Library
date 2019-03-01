@@ -99,8 +99,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      **/
     private final SingleLiveEvent<Boolean> mIsReconnecting = new SingleLiveEvent<>();
 
-    private final MutableLiveData<ProvisioningCapabilities> capabilitiesMutableLiveData = new MutableLiveData<>();
-
     private final MutableLiveData<UnprovisionedMeshNode> mUnprovisionedMeshNodeLiveData = new MutableLiveData<>();
 
     private final MutableLiveData<ProvisionedMeshNode> mProvisionedMeshNodeLiveData = new MutableLiveData<>();
@@ -265,10 +263,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     NetworkInformationLiveData getNetworkInformationLiveData() {
         return mNetworkInformationLiveData;
-    }
-
-    public LiveData<ProvisioningCapabilities> getCapabilitiesMutableLiveData() {
-        return capabilitiesMutableLiveData;
     }
 
     ProvisioningStatusLiveData getProvisioningState() {
@@ -457,21 +451,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mSelectedModel.postValue(model);
     }
 
-    void sendGetCompositionData() {
-        final ProvisionedMeshNode node = mExtendedMeshNode.getValue();
-        if (node != null) {
-            final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
-            mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), configCompositionDataGet);
-        }
-    }
-
-    void sendAppKeyAdd(final ConfigAppKeyAdd configAppKeyAdd) {
-        final ProvisionedMeshNode node = mExtendedMeshNode.getValue();
-        if (node != null) {
-            mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), configAppKeyAdd);
-        }
-    }
-
     @Override
     public void onDataReceived(final BluetoothDevice bluetoothDevice, final int mtu, final byte[] pdu) {
         mMeshManagerApi.handleNotifications(mtu, pdu);
@@ -619,6 +598,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void onNetworkExported(final MeshNetwork meshNetwork) {
         mNetworkExportState.postValue(meshNetwork.getMeshName() + " has been successfully exported. " +
                 "You can find the exported network information in the following path. " + EXPORTED_PATH);
+    }
+
+    @Override
+    public void onNetworkExportedJson(MeshNetwork meshNetwork, String networkJson) {
+
     }
 
     @Override

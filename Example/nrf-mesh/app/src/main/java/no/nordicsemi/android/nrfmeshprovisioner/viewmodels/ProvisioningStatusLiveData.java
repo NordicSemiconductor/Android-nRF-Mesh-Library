@@ -44,26 +44,24 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
         PROVISIONING_START(2),
         PROVISIONING_PUBLIC_KEY_SENT(3),
         PROVISIONING_PUBLIC_KEY_RECEIVED(4),
-        PROVISIONING_AUTHENTICATION_INPUT_WAITING(5),
-        PROVISIONING_AUTHENTICATION_INPUT_ENTERED(6),
-        PROVISIONING_INPUT_COMPLETE(7),
-        PROVISIONING_CONFIRMATION_SENT(8),
-        PROVISIONING_CONFIRMATION_RECEIVED(9),
-        PROVISIONING_RANDOM_SENT(10),
-        PROVISIONING_RANDOM_RECEIVED(11),
-        PROVISIONING_DATA_SENT(12),
-        PROVISIONING_COMPLETE(13),
-        PROVISIONING_FAILED(14),
-        COMPOSITION_DATA_GET_SENT(15),
-        COMPOSITION_DATA_STATUS_RECEIVED(16),
-        SENDING_BLOCK_ACKNOWLEDGEMENT(17),
-        SENDING_APP_KEY_ADD(18),
-        BLOCK_ACKNOWLEDGEMENT_RECEIVED(19),
-        APP_KEY_STATUS_RECEIVED(20),
-        APP_BIND_SENT(21),
-        APP_BIND_STATUS_RECEIVED(22),
-        PUBLISH_ADDRESS_SET_SENT(23),
-        PUBLISH_ADDRESS_STATUS_RECEIVED(24);
+        PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING(5),
+        PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING(6),
+        PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING(7),
+        PROVISIONING_AUTHENTICATION_INPUT_ENTERED(8),
+        PROVISIONING_INPUT_COMPLETE(9),
+        PROVISIONING_CONFIRMATION_SENT(10),
+        PROVISIONING_CONFIRMATION_RECEIVED(11),
+        PROVISIONING_RANDOM_SENT(12),
+        PROVISIONING_RANDOM_RECEIVED(13),
+        PROVISIONING_DATA_SENT(14),
+        PROVISIONING_COMPLETE(15),
+        PROVISIONING_FAILED(16),
+        COMPOSITION_DATA_GET_SENT(17),
+        COMPOSITION_DATA_STATUS_RECEIVED(18),
+        SENDING_BLOCK_ACKNOWLEDGEMENT(19),
+        SENDING_APP_KEY_ADD(20),
+        BLOCK_ACKNOWLEDGEMENT_RECEIVED(21),
+        APP_KEY_STATUS_RECEIVED(22);
 
         private final int state;
 
@@ -75,9 +73,9 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
             return state;
         }
 
-        static ProvisioningLiveDataState fromStatusCode(final int statusCode){
-            for(ProvisioningLiveDataState state : ProvisioningLiveDataState.values()){
-                if(state.getState() == statusCode){
+        static ProvisioningLiveDataState fromStatusCode(final int statusCode) {
+            for (ProvisioningLiveDataState state : ProvisioningLiveDataState.values()) {
+                if (state.getState() == statusCode) {
                     return state;
                 }
             }
@@ -85,13 +83,13 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
         }
     }
 
-    public ArrayList<ProvisionerProgress> getStateList(){
+    public ArrayList<ProvisionerProgress> getStateList() {
         return mProvisioningProgress;
     }
 
 
-    public ProvisionerProgress getProvisionerProgress(){
-        if(mProvisioningProgress.size() == 0)
+    public ProvisionerProgress getProvisionerProgress() {
+        if (mProvisioningProgress.size() == 0)
             return null;
         return mProvisioningProgress.get(mProvisioningProgress.size() - 1);
     }
@@ -99,7 +97,7 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
     void onMeshNodeStateUpdated(final ProvisioningState.States provisionerState) {
         final ProvisionerProgress provisioningProgress;
         final ProvisioningLiveDataState state = ProvisioningLiveDataState.fromStatusCode(provisionerState.getState());
-        switch (provisionerState){
+        switch (provisionerState) {
             case PROVISIONING_INVITE:
                 provisioningProgress = new ProvisionerProgress(state, "Sending provisioning invite...", R.drawable.ic_arrow_forward_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
@@ -120,14 +118,18 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
                 provisioningProgress = new ProvisionerProgress(state, "Provisioning public key received...", R.drawable.ic_arrow_back_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
-            case PROVISIONING_AUTHENTICATION_INPUT_WAITING:
+            case PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING:
+            case PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING:
+            case PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING:
                 provisioningProgress = new ProvisionerProgress(state, "Waiting for user authentication input...", R.drawable.ic_arrow_forward_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
             case PROVISIONING_AUTHENTICATION_INPUT_ENTERED:
+                provisioningProgress = new ProvisionerProgress(state, "OOB authentication entered...", R.drawable.ic_arrow_forward_black_alpha);
+                mProvisioningProgress.add(provisioningProgress);
                 break;
             case PROVISIONING_INPUT_COMPLETE:
-                provisioningProgress = new ProvisionerProgress(state, "Sending provisioning input complete...", R.drawable.ic_arrow_forward_black_alpha);
+                provisioningProgress = new ProvisionerProgress(state, "Provisioning input complete received...", R.drawable.ic_arrow_back_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
             case PROVISIONING_CONFIRMATION_SENT:

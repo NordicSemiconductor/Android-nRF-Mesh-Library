@@ -23,11 +23,18 @@
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.util.UUID;
 
+import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
+import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
+import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
+import no.nordicsemi.android.meshprovisioner.utils.StaticOOBType;
 
+
+@SuppressWarnings("WeakerAccess")
 abstract class UnprovisionedBaseMeshNode implements Parcelable {
 
     protected static final String TAG = UnprovisionedBaseMeshNode.class.getSimpleName();
@@ -56,6 +63,14 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
     ProvisioningCapabilities provisioningCapabilities;
     int numberOfElements;
     UUID deviceUuid;
+    byte[] provisioningInvitePdu;
+    //capabilties pdu received by the provisioner
+    byte[] provisioningCapabilitiesPdu;
+    //provisioning start pdu sent by the provisioner
+    byte[] provisioningStartPdu;
+    AuthenticationOOBMethods authMethodUsed = AuthenticationOOBMethods.NO_OOB_AUTHENTICATION;
+    short authActionUsed;
+    byte[] inputAuthentication;
 
     UnprovisionedBaseMeshNode(final UUID uuid) {
         deviceUuid = uuid;
@@ -155,7 +170,82 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
         return numberOfElements;
     }
 
-    public UUID getDeviceUuid(){
+    public UUID getDeviceUuid() {
         return deviceUuid;
+    }
+
+    public byte[] getProvisioningInvitePdu() {
+        return provisioningInvitePdu;
+    }
+
+    void setProvisioningInvitePdu(final byte[] provisioningInvitePdu) {
+        this.provisioningInvitePdu = provisioningInvitePdu;
+    }
+
+    public byte[] getProvisioningStartPdu() {
+        return provisioningStartPdu;
+    }
+
+    void setProvisioningStartPdu(final byte[] provisioningStartPdu) {
+        this.provisioningStartPdu = provisioningStartPdu;
+    }
+
+    public byte[] getProvisioningCapabilitiesPdu() {
+        return provisioningCapabilitiesPdu;
+    }
+
+    void setProvisioningCapabilitiesPdu(final byte[] provisioningCapabilitiesPdu) {
+        this.provisioningCapabilitiesPdu = provisioningCapabilitiesPdu;
+    }
+
+    /**
+     * Returns the authentication method used during the provisioning process
+     */
+    public AuthenticationOOBMethods getAuthMethodUsed() {
+        return authMethodUsed;
+    }
+
+    /**
+     * Sets the authentication method used during the provisioning process
+     *
+     * @param authMethodUsed {@link AuthenticationOOBMethods} authentication methods
+     */
+    void setAuthMethodUsed(final AuthenticationOOBMethods authMethodUsed) {
+        this.authMethodUsed = authMethodUsed;
+    }
+
+    /**
+     * Returns the auth action value and this depends on the {@link AuthenticationOOBMethods} used and the possible values are
+     * {@link StaticOOBType}
+     * {@link OutputOOBAction}
+     * {@link InputOOBAction}
+     */
+    public short getAuthActionUsed() {
+        return authActionUsed;
+    }
+
+    /**
+     * Sets the authentication action used when sending the provisioning invite.
+     *
+     * @param authActionUsed auth action used
+     */
+    void setAuthActionUsed(final short authActionUsed) {
+        this.authActionUsed = authActionUsed;
+    }
+
+    /**
+     * Returns the input authentication value to be input by the provisioner if Input OOB was selected
+     */
+    @Nullable
+    public byte[] getInputAuthentication() {
+        return inputAuthentication;
+    }
+
+    /**
+     * Sets the input authentication value to be input by the provisioner if Input OOB was selected
+     * @param inputAuthentication generated input authentication
+     */
+    void setInputAuthentication(final byte[] inputAuthentication) {
+        this.inputAuthentication = inputAuthentication;
     }
 }

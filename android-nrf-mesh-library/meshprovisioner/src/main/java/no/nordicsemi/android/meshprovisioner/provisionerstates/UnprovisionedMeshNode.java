@@ -26,6 +26,7 @@ import android.os.Parcel;
 
 import java.util.UUID;
 
+import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 @SuppressWarnings("WeakerAccess")
@@ -55,9 +56,16 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         unicastAddress = in.readInt();
         deviceKey = in.createByteArray();
         ttl = in.readInt();
+        provisioningInvitePdu = in.createByteArray();
+        provisioningCapabilitiesPdu = in.createByteArray();
         provisioningCapabilities = in.readParcelable(ProvisioningCapabilities.class.getClassLoader());
-        if (provisioningCapabilities != null)
+        if (provisioningCapabilities != null) {
             numberOfElements = provisioningCapabilities.getNumberOfElements();
+        }
+        provisioningStartPdu = in.createByteArray();
+        authMethodUsed = AuthenticationOOBMethods.fromValue(in.readInt());
+        authActionUsed = (short) in.readInt();
+        authenticationValue = in.createByteArray();
     }
 
     @Override
@@ -81,7 +89,14 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         dest.writeInt(unicastAddress);
         dest.writeByteArray(deviceKey);
         dest.writeInt(ttl);
+        dest.writeByteArray(provisioningInvitePdu);
+        dest.writeByteArray(provisioningCapabilitiesPdu);
         dest.writeParcelable(provisioningCapabilities, flags);
+        dest.writeByteArray(provisioningStartPdu);
+        dest.writeInt(authMethodUsed.ordinal());
+        dest.writeInt(authActionUsed);
+        dest.writeByteArray(authenticationValue);
+        dest.writeByteArray(inputAuthentication);
     }
 
 
@@ -142,10 +157,17 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         this.provisioneeConfirmation = provisioneeConfirmation;
     }
 
+    /**
+     * Returns the 128-bit authentication value generated based on the user selected OOB type
+     */
     public final byte[] getAuthenticationValue() {
         return authenticationValue;
     }
 
+    /**
+     * Sets the 128-bit authentication value generated based on the user input if the user input was selected
+     * @param authenticationValue 128-bit auth value
+     */
     final void setAuthenticationValue(final byte[] authenticationValue) {
         this.authenticationValue = authenticationValue;
     }

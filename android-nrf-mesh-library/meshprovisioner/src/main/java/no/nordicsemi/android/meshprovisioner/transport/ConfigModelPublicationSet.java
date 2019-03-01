@@ -23,6 +23,7 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -149,19 +150,24 @@ public class ConfigModelPublicationSet extends ConfigMessage {
     void assembleMessageParameters() {
         final ByteBuffer paramsBuffer;
         final byte[] applicationKeyIndex = MeshParserUtils.addKeyIndexPadding(appKeyIndex);
+        Log.v(TAG, "AppKeyIndex: " + appKeyIndex);
+        Log.v(TAG, "Element address: " + MeshAddress.formatAddress(elementAddress, true));
+        Log.v(TAG, "Publish address: " + MeshAddress.formatAddress(publishAddress, true));
+        Log.v(TAG, "Publish ttl: " + publishTtl);
+        Log.v(TAG, "Publish steps: " + publicationSteps);
+        Log.v(TAG, "Publish resolution: " + publicationResolution);
+        Log.v(TAG, "Retransmission count: " + publishRetransmitCount);
+        Log.v(TAG, "Retransmission interval: " + publishRetransmitIntervalSteps);
+        Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(modelIdentifier), false));
 
         final int rfu = 0; // We ignore the rfu here
         final int octet5 = ((applicationKeyIndex[0] << 4)) | (credentialFlag ? 1 : 0);
         final int octet8 = (publishRetransmitCount << 5) | (publishRetransmitIntervalSteps & 0x1F);
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        final byte[] elementAddress = AddressUtils.getUnicastAddressBytes(this.elementAddress);
-        final byte[] publishAddress = AddressUtils.getUnicastAddressBytes(this.publishAddress);
         if (modelIdentifier >= Short.MIN_VALUE && modelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_PUBLISH_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(elementAddress[1]);
-            paramsBuffer.put(elementAddress[0]);
-            paramsBuffer.put(publishAddress[1]);
-            paramsBuffer.put(publishAddress[0]);
+            paramsBuffer.putShort((short) this.elementAddress);
+            paramsBuffer.putShort((short) this.publishAddress);
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);
@@ -171,10 +177,8 @@ public class ConfigModelPublicationSet extends ConfigMessage {
             mParameters = paramsBuffer.array();
         } else {
             paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_PUBLISH_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.put(elementAddress[1]);
-            paramsBuffer.put(elementAddress[0]);
-            paramsBuffer.put(publishAddress[1]);
-            paramsBuffer.put(publishAddress[0]);
+            paramsBuffer.putShort((short) this.elementAddress);
+            paramsBuffer.putShort((short) this.publishAddress);
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);

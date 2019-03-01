@@ -17,6 +17,7 @@ import java.util.Locale;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
 /**
@@ -30,7 +31,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         final JsonArray jsonArray = json.getAsJsonArray();
         for (int i = 0; i < jsonArray.size(); i++) {
             final JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-            final int modelId = Integer.parseInt(jsonObject.get("modelId").getAsString(), 16);
+            final int modelId = MeshParserUtils.hexToInt(jsonObject.get("modelId").getAsString());
 
             final PublicationSettings publicationSettings = getPublicationSettings(jsonObject);
             final List<Integer> subscriptionAddresses = getSubscriptionAddresses(jsonObject);

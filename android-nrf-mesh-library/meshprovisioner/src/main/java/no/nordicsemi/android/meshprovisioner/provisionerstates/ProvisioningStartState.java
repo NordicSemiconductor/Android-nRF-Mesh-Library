@@ -22,19 +22,24 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.utils.AlgorithmType;
+import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
+import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.ParseOutputOOBActions;
-import no.nordicsemi.android.meshprovisioner.utils.ParseProvisioningAlgorithm;
+import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
+import no.nordicsemi.android.meshprovisioner.utils.StaticOOBType;
+
 
 public class ProvisioningStartState extends ProvisioningState {
 
     private final String TAG = ProvisioningStartState.class.getSimpleName();
-    private final UnprovisionedMeshNode mUnprovisionedMeshNode;
+    private final UnprovisionedMeshNode mNode;
     private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
@@ -46,12 +51,33 @@ public class ProvisioningStartState extends ProvisioningState {
     private int outputOOBAction;
     private int inputOOBSize;
     private int inputOOBAction;
+    private short outputActionType;
+    private short inputActionType;
 
-    public ProvisioningStartState(final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    public ProvisioningStartState(final UnprovisionedMeshNode node,
+                                  final InternalTransportCallbacks internalTransportCallbacks,
+                                  final MeshProvisioningStatusCallbacks provisioningStatusCallbacks) {
         super();
-        this.mUnprovisionedMeshNode = unprovisionedMeshNode;
-        this.mInternalTransportCallbacks = mInternalTransportCallbacks;
-        this.mMeshProvisioningStatusCallbacks = meshProvisioningStatusCallbacks;
+        this.mNode = node;
+        this.mInternalTransportCallbacks = internalTransportCallbacks;
+        this.mMeshProvisioningStatusCallbacks = provisioningStatusCallbacks;
+    }
+
+    public void setUseStaticOOB(final StaticOOBType actionType) {
+        mNode.setAuthMethodUsed(AuthenticationOOBMethods.STATIC_OOB_AUTHENTICATION);
+        mNode.setAuthActionUsed(actionType.getStaticOobType());
+    }
+
+    public void setUseOutputOOB(final OutputOOBAction actionType) {
+        mNode.setAuthMethodUsed(AuthenticationOOBMethods.OUTPUT_OOB_AUTHENTICATION);
+        this.outputActionType = actionType.getOutputOOBAction();
+        mNode.setAuthActionUsed(actionType.getOutputOOBAction());
+    }
+
+    public void setUseInputOOB(final InputOOBAction actionType) {
+        mNode.setAuthMethodUsed(AuthenticationOOBMethods.INPUT_OOB_AUTHENTICATION);
+        this.inputActionType = actionType.getInputOOBAction();
+        mNode.setAuthActionUsed(actionType.getInputOOBAction());
     }
 
     @Override
@@ -62,12 +88,14 @@ public class ProvisioningStartState extends ProvisioningState {
     @Override
     public void executeSend() {
         final byte[] provisioningStartPDU = createProvisioningStartPDU();
-        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_START, provisioningStartPDU);
-        mInternalTransportCallbacks.sendProvisioningPdu(mUnprovisionedMeshNode, provisioningStartPDU);
+        //We store the provisioning start pdu to be used when generating confirmation inputs
+        mNode.setProvisioningStartPdu(provisioningStartPDU);
+        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mNode, States.PROVISIONING_START, provisioningStartPDU);
+        mInternalTransportCallbacks.sendProvisioningPdu(mNode, provisioningStartPDU);
     }
 
     @Override
-    public boolean parseData(final byte[] data) {
+    public boolean parseData(@NonNull final byte[] data) {
         return true;
     }
 
@@ -75,25 +103,42 @@ public class ProvisioningStartState extends ProvisioningState {
         final byte[] provisioningPDU = new byte[7];
         provisioningPDU[0] = MeshManagerApi.PDU_TYPE_PROVISIONING;
         provisioningPDU[1] = TYPE_PROVISIONING_START;
-        provisioningPDU[2] = ParseProvisioningAlgorithm.getAlgorithmValue(algorithm);
-        provisioningPDU[3] = 0;//(byte) publicKeyType;
-        final short outputOobActionType = (byte) ParseOutputOOBActions.selectOutputActionsFromBitMask(outputOOBAction);
-        if(outputOobActionType == ParseOutputOOBActions.NO_OUTPUT){
-            provisioningPDU[4] = 0;
-            //prefer no oob
-            provisioningPDU[5] = 0;
-            provisioningPDU[6] = 0;
-        } else {
-            provisioningPDU[4] = 0x02;
-            provisioningPDU[5] = (byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOobActionType);//(byte) ParseOutputOOBActions.getOuputOOBActionValue(outputOOBAction);
-            provisioningPDU[6] = (byte) outputOOBSize;
+        provisioningPDU[2] = AlgorithmType.getAlgorithmValue((short) algorithm);
+        provisioningPDU[3] = 0; // (byte) publicKeyType;
+        provisioningPDU[4] = (byte) mNode.getAuthMethodUsed().ordinal();
+        switch (mNode.getAuthMethodUsed()) {
+            case NO_OOB_AUTHENTICATION:
+                provisioningPDU[5] = 0;
+                provisioningPDU[6] = 0;
+                break;
+            case STATIC_OOB_AUTHENTICATION:
+                provisioningPDU[5] = 0;
+                provisioningPDU[6] = 0;
+                break;
+            case OUTPUT_OOB_AUTHENTICATION:
+                provisioningPDU[5] = (byte) OutputOOBAction.getOutputOOBActionValue(this.outputActionType);
+                provisioningPDU[6] = (byte) outputOOBSize;
+                break;
+            case INPUT_OOB_AUTHENTICATION:
+                provisioningPDU[5] = (byte) InputOOBAction.getInputOOBActionValue(this.inputActionType);
+                provisioningPDU[6] = (byte) inputOOBSize;
+                mNode.setInputAuthentication(InputOOBAction.getInputOOOBAuthenticationValue(inputActionType, (byte) inputOOBSize));
+                break;
+
         }
         Log.v(TAG, "Provisioning start PDU: " + MeshParserUtils.bytesToHex(provisioningPDU, true));
 
         return provisioningPDU;
     }
 
-    public void setProvisioningCapabilities(final int numberOfElements, final int algorithm, final int publicKeyType, final int staticOOBType, final int outputOOBSize, final int outputOOBAction, final int inputOOBSize, final int inputOOBAction) {
+    public void setProvisioningCapabilities(final int numberOfElements,
+                                            final int algorithm,
+                                            final int publicKeyType,
+                                            final int staticOOBType,
+                                            final int outputOOBSize,
+                                            final int outputOOBAction,
+                                            final int inputOOBSize,
+                                            final int inputOOBAction) {
         this.numberOfElements = numberOfElements;
         this.algorithm = algorithm;
         this.publicKeyType = publicKeyType;

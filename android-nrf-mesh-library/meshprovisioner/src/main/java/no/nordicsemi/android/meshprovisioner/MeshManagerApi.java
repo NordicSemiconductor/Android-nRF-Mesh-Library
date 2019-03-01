@@ -58,8 +58,10 @@ import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 
@@ -557,12 +559,32 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
-        mMeshProvisioningHandler.startProvisioning(unprovisionedMeshNode);
+        mMeshProvisioningHandler.startProvisioningNoOOB(unprovisionedMeshNode);
     }
 
     @Override
-    public final void setProvisioningConfirmation(@NonNull final String pin) {
-        mMeshProvisioningHandler.setProvisioningConfirmation(pin);
+    public void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
+        mMeshProvisioningHandler.startProvisioningWithStaticOOB(unprovisionedMeshNode);
+    }
+
+    @Override
+    public void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final OutputOOBAction oobAction) throws IllegalArgumentException {
+        mMeshProvisioningHandler.startProvisioningWithOutputOOB(unprovisionedMeshNode, oobAction);
+    }
+
+    @Override
+    public void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final InputOOBAction oobAction) throws IllegalArgumentException {
+        mMeshProvisioningHandler.startProvisioningWithInputOOB(unprovisionedMeshNode, oobAction);
+    }
+
+    @Override
+    public final void setProvisioningConfirmation(@NonNull final String authentication) {
+        setProvisioningAuthentication(authentication);
+    }
+
+    @Override
+    public void setProvisioningAuthentication(@NonNull final String authentication) {
+        mMeshProvisioningHandler.sendProvisioningConfirmation(authentication);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -699,7 +721,11 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public boolean networkIdMatches(@NonNull final String networkId, @Nullable final byte[] serviceData) {
         final byte[] advertisedNetworkId = getAdvertisedNetworkId(serviceData);
-        return advertisedNetworkId != null && networkId.equals(MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase());
+        if (advertisedNetworkId != null) {
+            final String advertisedNetworkIdString = MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase();
+            return networkId.equals(advertisedNetworkIdString);
+        }
+        return false;
     }
 
     @Override
@@ -797,7 +823,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public void sendMeshMessage(final int dst, @NonNull final MeshMessage meshMessage) {
-        if(!MeshAddress.isAddressInRange(dst)){
+        if (!MeshAddress.isAddressInRange(dst)) {
             throw new IllegalArgumentException("Invalid address, destination address must be a valid 16-bit value!");
         }
         mMeshMessageHandler.sendMeshMessage(mMeshNetwork.getSelectedProvisioner().getProvisionerAddress(), dst, meshMessage);
@@ -823,6 +849,11 @@ public class MeshManagerApi implements MeshMngrApi {
         } else {
             mTransportCallbacks.onNetworkImportFailed("URI getPath() returned null!");
         }
+    }
+
+    @Override
+    public void importMeshNetworkJson(@NonNull String networkJson) {
+        NetworkImportExportUtils.importMeshNetworkFromJson(mContext, networkJson, networkLoadCallbacks);
     }
 
     @SuppressWarnings("FieldCanBeLocal")
@@ -1009,6 +1040,11 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onNetworkImportFailed(final String error) {
             mTransportCallbacks.onNetworkImportFailed(error);
+        }
+
+        @Override
+        public void onNetworkExportedJson(MeshNetwork meshNetwork, String meshNetworkJson) {
+            mTransportCallbacks.onNetworkExportedJson(meshNetwork, meshNetworkJson);
         }
 
         @Override
