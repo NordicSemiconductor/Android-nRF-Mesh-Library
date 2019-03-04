@@ -22,7 +22,7 @@
 
 <resources>
     <string name="app_name">nRF Mesh</string>
-    <string name="feature_name">Mesh Provisioner</string>
+    <string name="feature_name">Mesh</string>
     <string name="title_scanner">Scanner</string>
     <string name="title_group_controls">Group Controls</string>
     <string name="sub_title_scanning_nodes">Looking for unprovisioned proxy nodes…</string>
@@ -510,7 +510,7 @@
     <string name="hint_publication_steps">Publication steps</string>
     <string name="model_id">Model ID: %s</string>
     <string name="title_disconnected_error">Error</string>
-    <string name="disconnected_network_rationale">You are no longer connected your proxy node, please reconnect in order to continue.</string>
+    <string name="disconnected_network_rationale">Connect to proxy node to continue.</string>
     <string name="provisioned_device_not_found">Unable to find provisioned device</string>
     <string name="remaining_time">Rem. Time: %s</string>
     <string name="generic_level">Level</string>
