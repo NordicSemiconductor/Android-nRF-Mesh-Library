@@ -45,20 +45,6 @@
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
-        <ProgressBar
-            android:id="@+id/state_scanning"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="-7dp"
-            android:layout_marginTop="-8dp"
-            android:indeterminate="true"
-            android:indeterminateTint="@color/white"
-            android:visibility="invisible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
     </android.support.design.widget.AppBarLayout>
 
     <fragment

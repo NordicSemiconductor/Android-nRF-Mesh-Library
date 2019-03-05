@@ -58,9 +58,6 @@ public class MainActivity extends AppCompatActivity implements Injectable,
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
-    @BindView(R.id.state_scanning)
-    View mScanningView;
-
     private BottomNavigationView mBottomNavigationView;
 
     private NetworkFragment mNetworkFragment;
