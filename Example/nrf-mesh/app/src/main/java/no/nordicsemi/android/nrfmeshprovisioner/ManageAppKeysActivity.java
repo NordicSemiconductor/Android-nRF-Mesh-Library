@@ -25,7 +25,6 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 import android.app.Activity;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -40,6 +39,7 @@ import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,6 +105,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         appKeysRecyclerView.addItemDecoration(dividerItemDecoration);
         appKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
+        //noinspection ConstantConditions
         switch (getIntent().getExtras().getInt(Utils.EXTRA_DATA)) {
             case Utils.MANAGE_APP_KEY:
                 getSupportActionBar().setTitle(R.string.title_manage_app_keys);
@@ -112,11 +113,17 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
                 final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
                 itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
                 mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
+                mAdapter.setOnItemClickListener(this);
+                appKeysRecyclerView.setAdapter(mAdapter);
+                setUpObserver();
                 break;
             case Utils.ADD_APP_KEY:
                 getSupportActionBar().setTitle(R.string.title_select_app_key);
                 fab.hide();
                 mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
+                mAdapter.setOnItemClickListener(this);
+                appKeysRecyclerView.setAdapter(mAdapter);
+                setUpObserver();
                 break;
             case Utils.BIND_APP_KEY:
             case Utils.PUBLICATION_APP_KEY:
@@ -125,24 +132,23 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
                 //Get selected mesh node
                 final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
                 if (node != null) {
-                    mAdapter = new ManageAppKeyAdapter(this, new ArrayList<>(node.getAddedApplicationKeys().values()));
+                    final List<ApplicationKey> applicationKeys = new ArrayList<>(node.getAddedApplicationKeys().values());
+                    if (!applicationKeys.isEmpty()) {
+                        mAdapter = new ManageAppKeyAdapter(this, applicationKeys);
+                        mAdapter.setOnItemClickListener(this);
+                        appKeysRecyclerView.setAdapter(mAdapter);
+                    } else {
+                        final TextView textView = mEmptyView.findViewById(R.id.rationale);
+                        textView.setText(R.string.no_added_app_keys_rationale);
+                        mEmptyView.setVisibility(View.VISIBLE);
+                    }
                 }
                 break;
         }
 
-        mAdapter.setOnItemClickListener(this);
-        appKeysRecyclerView.setAdapter(mAdapter);
-
         fab.setOnClickListener(v -> {
             final DialogFragmentAddAppKey dialogFragmentAddAppKey = DialogFragmentAddAppKey.newInstance(null);
             dialogFragmentAddAppKey.show(getSupportFragmentManager(), null);
-        });
-
-        mViewModel.getMeshNetworkLiveData().observe(this, networkLiveData -> {
-            final List<ApplicationKey> keys = networkLiveData.getAppKeys();
-            if (keys != null) {
-                mEmptyView.setVisibility(keys.isEmpty() ? View.VISIBLE : View.GONE);
-            }
         });
     }
 
@@ -215,6 +221,17 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
     @Override
     public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
 
+    }
+
+    private void setUpObserver() {
+        mViewModel.getMeshNetworkLiveData().observe(this, networkLiveData -> {
+            if (networkLiveData != null) {
+                final List<ApplicationKey> keys = networkLiveData.getAppKeys();
+                if (keys != null) {
+                    mEmptyView.setVisibility(keys.isEmpty() ? View.VISIBLE : View.GONE);
+                }
+            }
+        });
     }
 
     private void displaySnackBar(final int key, final ApplicationKey appKey) {

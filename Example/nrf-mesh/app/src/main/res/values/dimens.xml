@@ -24,7 +24,6 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="device_icon_size">36dp</dimen>
     <dimen name="item_padding_top">8dp</dimen>
     <dimen name="item_padding_start">8dp</dimen>
     <dimen name="item_padding_end">8dp</dimen>
@@ -33,7 +32,6 @@
     <dimen name="activity_vertical_margin_top">50dp</dimen>
     <dimen name="toolbar_title_margin">32dp</dimen>
     <dimen name="fab_elevation">6dp</dimen>
-    <dimen name="swipe_background_delete_margin">56dp</dimen>
     <dimen name="network_recycler_view_bottom_padding">72dp</dimen>
     <dimen name="mesh_list_icon_padding">3dp</dimen>
 </resources>
