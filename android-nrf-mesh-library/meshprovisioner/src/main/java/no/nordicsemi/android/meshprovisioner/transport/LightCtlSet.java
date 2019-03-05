@@ -33,7 +33,6 @@ public class LightCtlSet extends GenericMessage {
     /**
      * Constructs LightCtlSet message.
      *
-     * @param node             Mesh node this message is to be sent to
      * @param appKey           application key for this message
      * @param lightLightness   lightLightness of the LightCtlModel
      * @param lightTemperature temperature of the LightCtlModel
@@ -41,19 +40,17 @@ public class LightCtlSet extends GenericMessage {
      * @param tId              transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightCtlSet(@NonNull final ProvisionedMeshNode node,
-                       @NonNull final byte[] appKey,
+    public LightCtlSet(@NonNull final byte[] appKey,
                        final int lightLightness,
                        final int lightTemperature,
                        final int lightDeltaUv,
                        final int tId) throws IllegalArgumentException {
-        this(node, appKey, null, null, null, lightLightness, lightTemperature, lightDeltaUv, tId);
+        this(appKey, null, null, null, lightLightness, lightTemperature, lightDeltaUv, tId);
     }
 
     /**
      * Constructs LightCtlSet message.
      *
-     * @param node                 Mesh node this message is to be sent to
      * @param appKey               application key for this message
      * @param transitionSteps      transition steps for the lightLightness
      * @param transitionResolution transition resolution for the lightLightness
@@ -65,8 +62,7 @@ public class LightCtlSet extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public LightCtlSet(@NonNull final ProvisionedMeshNode node,
-                       @NonNull final byte[] appKey,
+    public LightCtlSet(@NonNull final byte[] appKey,
                        @Nullable final Integer transitionSteps,
                        @Nullable final Integer transitionResolution,
                        @Nullable final Integer delay,

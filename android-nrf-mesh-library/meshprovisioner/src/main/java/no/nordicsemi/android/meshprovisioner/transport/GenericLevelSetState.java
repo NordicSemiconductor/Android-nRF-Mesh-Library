@@ -4,9 +4,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * State class for handling GenericLevelSet messages.
  */
+@SuppressWarnings("WeakerAccess")
 class GenericLevelSetState extends GenericMessageState implements LowerTransportLayerCallbacks {
 
     private static final String TAG = GenericLevelSetState.class.getSimpleName();
@@ -20,10 +23,31 @@ class GenericLevelSetState extends GenericMessageState implements LowerTransport
      * @param genericLevelSet Wrapper class {@link GenericLevelSet} containing the opcode and parameters for {@link GenericLevelSet} message
      * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
+     * @deprecated in favour of {@link GenericLevelSet}
      */
+    @Deprecated
     GenericLevelSetState(@NonNull final Context context,
                          @NonNull final byte[] src,
                          @NonNull final byte[] dst,
+                         @NonNull final GenericLevelSet genericLevelSet,
+                         @NonNull final MeshTransport meshTransport,
+                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), genericLevelSet, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs {@link GenericLevelSetState}
+     *
+     * @param context         Context of the application
+     * @param src             Source address
+     * @param dst             Destination address to which the message must be sent to
+     * @param genericLevelSet Wrapper class {@link GenericLevelSet} containing the opcode and parameters for {@link GenericLevelSet} message
+     * @param callbacks       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException for any illegal arguments provided.
+     */
+    GenericLevelSetState(@NonNull final Context context,
+                         final int src,
+                         final int dst,
                          @NonNull final GenericLevelSet genericLevelSet,
                          @NonNull final MeshTransport meshTransport,
                          @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {

@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -42,10 +43,18 @@ public final class LightCtlStatus extends GenericStatusMessage implements Parcel
     private static final String TAG = LightCtlStatus.class.getSimpleName();
     private static final int LIGHT_CTL_STATUS_MANDATORY_LENGTH = 4;
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_CTL_STATUS;
+    private int mPresentCtlLightness;
+    private int mPresentCtlTemperature;
+    private Integer mTargetCtlLightness;
+    private Integer mTargetCtlTemperature;
+    private int mTransitionSteps;
+    private int mTransitionResolution;
+
     private static final Creator<LightCtlStatus> CREATOR = new Creator<LightCtlStatus>() {
         @Override
         public LightCtlStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new LightCtlStatus(message);
         }
 
@@ -54,13 +63,12 @@ public final class LightCtlStatus extends GenericStatusMessage implements Parcel
             return new LightCtlStatus[size];
         }
     };
-    private int mPresentCtlLightness;
-    private int mPresentCtlTemperature;
-    private Integer mTargetCtlLightness;
-    private Integer mTargetCtlTemperature;
-    private int mTransitionSteps;
-    private int mTransitionResolution;
 
+    /**
+     * Constructs LightCtlStatus message
+     *
+     * @param message access message
+     */
     public LightCtlStatus(@NonNull final AccessMessage message) {
         super(message);
         this.mMessage = message;
@@ -70,7 +78,7 @@ public final class LightCtlStatus extends GenericStatusMessage implements Parcel
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received light ctl status from: " + MeshParserUtils.bytesToHex(mMessage.getSrc(), true));
+        Log.v(TAG, "Received light ctl status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         mPresentCtlLightness = buffer.getShort() & 0xFFFF;
         mPresentCtlTemperature = buffer.getShort() & 0xFFFF;
@@ -156,6 +164,7 @@ public final class LightCtlStatus extends GenericStatusMessage implements Parcel
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

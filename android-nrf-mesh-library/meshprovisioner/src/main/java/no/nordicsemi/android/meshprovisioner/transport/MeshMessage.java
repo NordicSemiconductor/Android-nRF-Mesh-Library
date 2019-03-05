@@ -67,14 +67,14 @@ public abstract class MeshMessage {
     /**
      * Returns the source address of the message
      */
-    public byte[] getSrc() {
+    public int getSrc() {
         return mMessage.getSrc();
     }
 
     /**
      * Returns the destination address of the message
      */
-    public byte[] getDst() {
+    public int getDst() {
         return mMessage.getDst();
     }
 

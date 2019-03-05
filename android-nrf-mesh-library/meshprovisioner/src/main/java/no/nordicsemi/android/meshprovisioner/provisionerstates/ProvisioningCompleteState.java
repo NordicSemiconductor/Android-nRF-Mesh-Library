@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
+import android.support.annotation.NonNull;
+
 public class ProvisioningCompleteState extends ProvisioningState {
 
     private final UnprovisionedMeshNode unprovisionedMeshNode;
@@ -35,7 +37,7 @@ public class ProvisioningCompleteState extends ProvisioningState {
 
     @Override
     public State getState() {
-        return State.PROVISINING_COMPLETE;
+        return State.PROVISIONING_COMPLETE;
     }
 
     @Override
@@ -44,7 +46,7 @@ public class ProvisioningCompleteState extends ProvisioningState {
     }
 
     @Override
-    public boolean parseData(final byte[] data) {
+    public boolean parseData(@NonNull final byte[] data) {
         return true;
     }
 

@@ -4,9 +4,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * State class for handling GenericLevelSet messages.
  */
+@SuppressWarnings("WeakerAccess")
 class LightLightnessSetUnacknowledgedState extends GenericMessageState implements LowerTransportLayerCallbacks {
 
     private static final String TAG = LightLightnessSetUnacknowledgedState.class.getSimpleName();
@@ -21,9 +24,29 @@ class LightLightnessSetUnacknowledgedState extends GenericMessageState implement
      * @param callbacks                       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
+    @Deprecated
     LightLightnessSetUnacknowledgedState(@NonNull final Context context,
                                          @NonNull final byte[] src,
                                          @NonNull final byte[] dst,
+                                         @NonNull final LightLightnessSetUnacknowledged lightLightnessSetUnacknowledged,
+                                         @NonNull final MeshTransport meshTransport,
+                                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), lightLightnessSetUnacknowledged, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs {@link LightLightnessSetUnacknowledgedState}
+     *
+     * @param context                         Context of the application
+     * @param src                             Source address
+     * @param dst                             Destination address to which the message must be sent to
+     * @param lightLightnessSetUnacknowledged Wrapper class {@link LightLightnessSetUnacknowledged} containing the opcode and parameters for {@link GenericLevelSet} message
+     * @param callbacks                       {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException for any illegal arguments provided.
+     */
+    LightLightnessSetUnacknowledgedState(@NonNull final Context context,
+                                         final int src,
+                                         final int dst,
                                          @NonNull final LightLightnessSetUnacknowledged lightLightnessSetUnacknowledged,
                                          @NonNull final MeshTransport meshTransport,
                                          @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {

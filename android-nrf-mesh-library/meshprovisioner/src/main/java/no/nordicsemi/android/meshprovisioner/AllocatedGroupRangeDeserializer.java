@@ -15,7 +15,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 final class AllocatedGroupRangeDeserializer implements JsonSerializer<List<AllocatedGroupRange>>, JsonDeserializer<List<AllocatedGroupRange>> {
     private static final String TAG = AllocatedGroupRangeDeserializer.class.getSimpleName();
@@ -24,12 +24,14 @@ final class AllocatedGroupRangeDeserializer implements JsonSerializer<List<Alloc
     public List<AllocatedGroupRange> deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
         final List<AllocatedGroupRange> groupRanges = new ArrayList<>();
         try {
-            final JsonArray jsonObject = json.getAsJsonArray();
-            for (int i = 0; i < jsonObject.size(); i++) {
-                final JsonObject unicastRangeJson = jsonObject.get(i).getAsJsonObject();
-                final byte[] lowAddress = MeshParserUtils.toByteArray(unicastRangeJson.get("lowAddress").getAsString());
-                final byte[] highAddress = MeshParserUtils.toByteArray(unicastRangeJson.get("highAddress").getAsString());
-                groupRanges.add(new AllocatedGroupRange(lowAddress, highAddress));
+            if(json.isJsonArray()) {
+                final JsonArray jsonObject = json.getAsJsonArray();
+                for (int i = 0; i < jsonObject.size(); i++) {
+                    final JsonObject unicastRangeJson = jsonObject.get(i).getAsJsonObject();
+                    final int lowAddress = Integer.parseInt(unicastRangeJson.get("lowAddress").getAsString(), 16);
+                    final int highAddress = Integer.parseInt(unicastRangeJson.get("highAddress").getAsString(), 16);
+                    groupRanges.add(new AllocatedGroupRange(lowAddress, highAddress));
+                }
             }
         } catch (Exception ex) {
             Log.e(TAG, "Error while de-serializing Allocated group range: " + ex.getMessage());
@@ -42,8 +44,8 @@ final class AllocatedGroupRangeDeserializer implements JsonSerializer<List<Alloc
         final JsonArray jsonArray = new JsonArray();
         for(AllocatedGroupRange range :  ranges){
             final JsonObject rangeJson = new JsonObject();
-            rangeJson.addProperty("lowAddress", MeshParserUtils.bytesToHex(range.getLowAddress(), false));
-            rangeJson.addProperty("highAddress", MeshParserUtils.bytesToHex(range.getHighAddress(), false));
+            rangeJson.addProperty("lowAddress", MeshAddress.formatAddress(range.getLowAddress(), false));
+            rangeJson.addProperty("highAddress", MeshAddress.formatAddress(range.getHighAddress(), false));
             jsonArray.add(rangeJson);
         }
         return jsonArray;

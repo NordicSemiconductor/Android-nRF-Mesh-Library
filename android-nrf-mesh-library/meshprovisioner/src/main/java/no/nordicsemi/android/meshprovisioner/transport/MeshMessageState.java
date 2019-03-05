@@ -27,8 +27,8 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     final MeshTransport mMeshTransport;
     private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
     protected MeshMessage mMeshMessage;
-    protected byte[] mSrc;
-    protected byte[] mDst;
+    protected int mSrc;
+    protected int mDst;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     protected MeshStatusCallbacks mMeshStatusCallbacks;
     protected Message message;
@@ -142,8 +142,8 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         //We don't send acks here
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendMeshPdu(mDst, message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(mDst);
+        mInternalTransportCallbacks.sendMeshPdu(message.getDst(), message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementSent(message.getDst());
     }
 
     public enum MessageState {
@@ -158,6 +158,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         APP_KEY_ADD_STATE(1),
         CONFIG_MODEL_APP_BIND_STATE(2),
         CONFIG_MODEL_APP_UNBIND_STATE(3),
+        CONFIG_MODEL_PUBLICATION_GET_STATE(40),
         CONFIG_MODEL_PUBLICATION_SET_STATE(4),
         CONFIG_MODEL_SUBSCRIPTION_ADD_STATE(5),
         CONFIG_MODEL_SUBSCRIPTION_DELETE_STATE(6),

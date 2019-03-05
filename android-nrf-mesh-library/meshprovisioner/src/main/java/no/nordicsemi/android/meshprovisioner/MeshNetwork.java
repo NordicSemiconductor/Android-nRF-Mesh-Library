@@ -2,17 +2,25 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.arch.persistence.room.Entity;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.text.TextUtils;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess", "unused", "UnusedReturnValue"})
 @Entity(tableName = "mesh_network")
 public final class MeshNetwork extends BaseMeshNetwork {
 
@@ -99,8 +107,166 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return Collections.unmodifiableList(groups);
     }
 
-    void setGroups(List<Group> groups) {
+    void setGroups(final List<Group> groups) {
         this.groups = groups;
+    }
+
+    /**
+     * Adds a group to the existing group list within the network
+     *
+     * @param group to be added
+     * @return true if the group was successfully added and false otherwise since a group may already exist with the same group address
+     */
+    public boolean addGroup(@NonNull final Group group) {
+        if (!isGroupExist(group)) {
+            this.groups.add(group);
+            if (mCallbacks != null) {
+                mCallbacks.onGroupAdded(group);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Adds a group to the existing group list within the network
+     *
+     * @param address Address of the group
+     * @param name Friendly name of the group
+     * @return true if the group was successfully added and false otherwise since a group may already exist with the same group address
+     */
+    public boolean addGroup(final int address, @NonNull final String name) {
+        final Group group = new Group(address, meshUUID);
+        if(!TextUtils.isEmpty(name))
+            group.setName(name);
+
+        if (!isGroupExist(group)) {
+            this.groups.add(group);
+            if (mCallbacks != null) {
+                mCallbacks.onGroupAdded(group);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public Group getGroup(final int address) {
+        for (final Group group : groups) {
+            if (address == group.getGroupAddress()) {
+                return group;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Updates a group in the mesh network
+     * @param group group to be updated
+     */
+    public boolean updateGroup(@NonNull final Group group){
+        if (isGroupExist(group)) {
+            if (mCallbacks != null) {
+                mCallbacks.onGroupUpdated(group);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Removes a group from the mesh network
+     * @param group group to be removed
+     */
+    public boolean removeGroup(@NonNull final Group group){
+        if(groups.remove(group)){
+            if(mCallbacks != null) {
+                mCallbacks.onGroupDeleted(group);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if a group exists with the same address
+     *
+     * @param address Group address
+     */
+    public boolean isGroupExist(final int address) {
+        for (final Group group : groups) {
+            if (address == group.getGroupAddress()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if a group exists with the given group. This is checked against the group address.
+     *
+     * @param group Group to check
+     */
+    public boolean isGroupExist(@NonNull final Group group) {
+        for (final Group grp : groups) {
+            if (group.getGroupAddress() == grp.getGroupAddress()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns a list of elements assigned to a particular group
+     *
+     * @param group group
+     */
+    public List<Element> getElements(final Group group) {
+        final List<Element> elements = new ArrayList<>();
+        for (final ProvisionedMeshNode node : nodes) {
+            for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
+                final Element element = elementEntry.getValue();
+                for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                    final MeshModel model = modelEntry.getValue();
+                    if (model != null) {
+                        final List<Integer> subscriptionAddresses = model.getSubscribedAddresses();
+                        for (Integer subscriptionAddress : subscriptionAddresses) {
+                            if (group.getGroupAddress() == subscriptionAddress) {
+                                if (!elements.contains(element))
+                                    elements.add(element);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return elements;
+    }
+
+    /**
+     * Returns a list of models assigned to a particular group
+     *
+     * @param group group
+     */
+    public List<MeshModel> getModels(final Group group) {
+        final List<MeshModel> models = new ArrayList<>();
+        for (final ProvisionedMeshNode node : nodes) {
+            for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
+                final Element element = elementEntry.getValue();
+                for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                    final MeshModel model = modelEntry.getValue();
+                    if (model != null) {
+                        final List<Integer> subscriptionAddresses = model.getSubscribedAddresses();
+                        for (Integer subscriptionAddress : subscriptionAddresses) {
+                            if (group.getGroupAddress() == subscriptionAddress) {
+                                if(!models.contains(model))
+                                    models.add(model);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return models;
     }
 
     public List<Scene> getScenes() {
@@ -134,7 +300,9 @@ public final class MeshNetwork extends BaseMeshNetwork {
             }
         }
 
-        return null;
+        final NetworkKey networkKey = new NetworkKey(0, MeshParserUtils.toByteArray(SecureUtils.generateRandomNetworkKey()));
+        netKeys.add(networkKey);
+        return networkKey;
     }
 
     void setNetKeys(List<NetworkKey> netKeys) {
@@ -154,9 +322,9 @@ public final class MeshNetwork extends BaseMeshNetwork {
      *
      * @param unicastAddress unicast address of the node
      */
-    public ProvisionedMeshNode getProvisionedNode(final byte[] unicastAddress) {
+    public ProvisionedMeshNode getProvisionedNode(@NonNull final byte[] unicastAddress) {
         for (ProvisionedMeshNode node : nodes) {
-            if (node.hasUnicastAddress(unicastAddress)) {
+            if (node.hasUnicastAddress(AddressUtils.getUnicastAddressInt(unicastAddress))) {
                 return node;
             }
         }
@@ -191,7 +359,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public boolean deleteNode(final ProvisionedMeshNode meshNode) {
         for (ProvisionedMeshNode node : nodes) {
-            if (meshNode.getUnicastAddressInt() == node.getUnicastAddressInt()) {
+            if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
                 nodes.remove(node);
                 notifyNodeDeleted(meshNode);
                 return true;
@@ -202,7 +370,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     boolean deleteResetNode(final ProvisionedMeshNode meshNode) {
         for (ProvisionedMeshNode node : nodes) {
-            if (meshNode.getUnicastAddressInt() == node.getUnicastAddressInt()) {
+            if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
                 nodes.remove(node);
                 return true;
             }

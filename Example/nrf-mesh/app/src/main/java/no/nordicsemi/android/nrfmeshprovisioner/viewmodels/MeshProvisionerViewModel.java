@@ -109,7 +109,7 @@ public class MeshProvisionerViewModel extends ViewModel {
     }
 
     public void startProvisioning(final UnprovisionedMeshNode node) {
-        mNrfMeshRepository.getMeshManagerApi().startProvisioning(node);
+        mNrfMeshRepository.getMeshManagerApi().startProvisioningWithStaticOOB(node);
     }
 
     public MeshNetworkLiveData getMeshNetworkLiveData(){

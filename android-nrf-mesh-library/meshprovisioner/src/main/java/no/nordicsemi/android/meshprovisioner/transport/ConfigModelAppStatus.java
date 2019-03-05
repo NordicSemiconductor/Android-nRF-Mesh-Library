@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -43,10 +44,15 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS;
     private static final int CONFIG_MODEL_APP_BIND_STATUS_SIG_MODEL = 7;
     private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL = 9;
+    private int mElementAddress;
+    private int mAppKeyIndex;
+    private int mModelIdentifier;
+
     private static final Creator<ConfigModelAppStatus> CREATOR = new Creator<ConfigModelAppStatus>() {
         @Override
         public ConfigModelAppStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new ConfigModelAppStatus(message);
         }
 
@@ -55,9 +61,6 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
             return new ConfigModelAppStatus[size];
         }
     };
-    private int mElementAddress;
-    private int mAppKeyIndex;
-    private int mModelIdentifier;
 
     /**
      * Constructs the ConfigModelAppStatus mMessage.
@@ -77,15 +80,13 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
         buffer.position(0);
         mStatusCode = buffer.get();
         mStatusCodeName = getStatusCodeName(mStatusCode);
-        final byte[] elementAddress = new byte[]{mParameters[2], mParameters[1]};
-        mElementAddress = ByteBuffer.wrap(elementAddress).order(ByteOrder.BIG_ENDIAN).getShort();
+        mElementAddress = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
         final byte[] appKeyIndex = new byte[]{(byte) (mParameters[4] & 0x0F), mParameters[3]};
         mAppKeyIndex = ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
 
         final byte[] modelIdentifier;
         if (mParameters.length == CONFIG_MODEL_APP_BIND_STATUS_SIG_MODEL) {
-            modelIdentifier = new byte[]{mParameters[6], mParameters[5]};
-            mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getShort();
+            mModelIdentifier = MeshParserUtils.unsignedBytesToInt(mParameters[5], mParameters[6]);
         } else {
             modelIdentifier = new byte[]{mParameters[6], mParameters[5], mParameters[8], mParameters[7]};
             mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getInt();
@@ -93,9 +94,9 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
 
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Element address: " + MeshParserUtils.bytesToHex(elementAddress, false));
+        Log.v(TAG, "Element address: " + MeshAddress.formatAddress(mElementAddress, false));
         Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
-        Log.v(TAG, "Model identifier: " + MeshParserUtils.bytesToHex(modelIdentifier, false));
+        Log.v(TAG, "Model identifier: " + Integer.toHexString(mModelIdentifier));
     }
 
     @Override
@@ -137,7 +138,8 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 
     /**

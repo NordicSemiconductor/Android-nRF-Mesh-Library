@@ -22,21 +22,14 @@
 
 <resources>
     <string name="app_name">nRF Mesh</string>
-    <string name="feature_name">Mesh Provisioner</string>
-
-    <string name="title">@string/app_name</string>
+    <string name="feature_name">Mesh</string>
+    <string name="title_scanner">Scanner</string>
+    <string name="sub_title_scanning_nodes">Looking for unprovisioned proxy nodes…</string>
+    <string name="sub_title_scanning_proxy_node">Looking for provisioned proxy nodes…</string>
 
     <string name="unknown_device">Unknown Device</string>
-    <string name="turn_on">On</string>
-    <string name="turn_off">Off</string>
-    <string name="title_led_state">LED</string>
-    <string name="title_button_state">Button</string>
     <string name="state">On Off State:</string>
-    <string name="button_pressed">PRESSED</string>
-    <string name="button_released">RELEASED</string>
     <string name="button_unknown">UNKNOWN</string>
-    <string name="led_summary">Toggle the switch to turn the LED 3 on or off.</string>
-    <string name="button_summary">Press Button 1 on the dev kit.</string>
 
     <string name="location_permission_title">LOCATION PERMISSION REQUIRED</string>
     <string name="location_permission_info">From Android 6.0 Marshmallow onwards the application requires Location permission in order to scan for Bluetooth Low Energy devices.
@@ -55,50 +48,50 @@
 		If you are sure your Blinky is advertising and it doesn\'t show up here, click the button below to enable Location.</string>
     <string name="blinky_guide_location_action">Enable</string>
 
-    <string name="state_scanning">Scanning…</string>
     <string name="state_connecting">Connecting…</string>
-    <string name="state_discovering_services">Discovering services…</string>
-    <string name="state_initializing">Initializing…</string>
-    <string name="state_discovering_services_completed">%s ready</string>
-    <string name="state_disconnecting">Disconnecting…</string>
-    <string name="state_disconnected">Disconnected</string>
-
-    <string name="state_scanning_provisioned_node">Scanning for provisioned node %s…</string>
-    <string name="state_scanning_provisioned_node_found">Provisioned node %s found…</string>
 
     <string name="yes">YES</string>
     <string name="no">NO</string>
 
-    <string name="provisioner_input_title">Input PIN</string>
+    <string name="provisioner_authentication_title">Authentication</string>
+    <string name="provisioner_input_static_oob">Input the 128-bit Static OOB value provided with the device.</string>
+    <string name="provisioner_input_blinks">Input the number of times the device blinked.</string>
+    <string name="provisioner_input_beeps">Input the number of times the device beeped.</string>
+    <string name="provisioner_input_vibrations">Input the number of times the device vibrated.</string>
+    <string name="provisioner_input_pushes">Push the button on the device %d time(s).</string>
+    <string name="provisioner_input_numeric">Input the code displayed on the device.</string>
+    <string name="provisioner_input_numeric_device">Key in the following code %s on the device.</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
-    <string name="pin">pin</string>
-    <string name="provisioner_input_summary">Please enter the code.</string>
-    <string name="provisioning_complete">Provisioning Complete!</string>
-    <string name="invalid_provisioning_capabilities">Invalid provisioning capabilities</string>
+
+    <!--Output oob actions-->
+    <string name="beep">Beep</string>
+    <string name="blink">Blink</string>
+    <string name="vibrate">Vibrate</string>
+    <string name="output_numeric">Output Numeric</string>
+    <string name="output_alphanumeric">Output Alphanumeric</string>
+
+    <!--Input oob actions-->
+    <string name="push">Push</string>
+    <string name="input_numeric">Input Number</string>
+    <string name="input_alphanumeric">Input Alphanumeric</string>
+    <string name="title_select_output_oob">Select an Output OOB Action</string>
+    <string name="title_select_input_oob">Select an Input OOB Action</string>
+    <string name="hint_static_oob">e.g. 00112233445566778899001122334455</string>
+    <string name="hint_numeric_action">e.g. 5</string>
+    <string name="hint_numeric">e.g. 019655</string>
+    <string name="hint_alpha_numeric">e.g. 123ABC</string>
+    <string name="error_empty_pin">Error, authentication value cannot be empty!</string>
+
+    <string name="title_select_oob">Select OOB Type</string>
+    <string name="public_key_information_available">Public Key information available</string>
+    <string name="public_key_information_unavailable">Public Key information unavailable</string>
+    <string name="static_oob_information_available">Static OOB information available</string>
+    <string name="static_oob_information_unavailable">Static OOB information unavailable</string>
+    <string name="output_oob_actions_unavailable">Output OOB actions unavailable</string>
+    <string name="input_oob_actions_unavailable">Input OOB actions unavailable</string>
 
     <string name="sending_prov_invite">Sending provisioning invite…</string>
-    <string name="prov_capabilities_received">Provisioning capabilities received…</string>
-    <string name="sending_prov_start">Sending provisioning start…</string>
-    <string name="sending_prov_public_key">Sending provisioning public key…</string>
-    <string name="prov_public_key_received">Provisioning public key received…</string>
-    <string name="prov_user_authentication_waiting">Waiting for user authentication input…</string>
-    <string name="prov_user_authentication_entered">User authentication input entered</string>
-    <string name="sending_prov_input_complete">Sending provisioning input complete…</string>
-    <string name="sending_prov_confirmation">Sending provisioning confirmation…</string>
-    <string name="prov_confirmation_received">Provisioning confirmation received…</string>
-    <string name="sending_prov_random">Sending provisioning random…</string>
-    <string name="prov_random_received">Provisioning random received…</string>
-    <string name="sending_prov_data">Sending provisioning data…</string>
-    <string name="prov_complete_received">Provisioning complete received…</string>
-    <string name="prov_failed_received">Provisioning failed received…</string>
-    <string name="sending_prov_composition_data_get">Sending composition data get…</string>
-    <string name="prov_composition_data_status_received">Composition data status received…</string>
-    <string name="prov_sending_app_key_add">Sending app key add</string>
-    <string name="prov_app_key_status_received">App key status received…</string>
-    <string name="prov_sending_block_acknowledgement">Sending block acknowledgement…</string>
-    <string name="prov_block_acknowledgement_received">Block acknowledgement received…</string>
-    <string name="prov_app_key_bind_status_received">App key bind status received…</string>
 
     <string name="provision_action">Provision</string>
     <string name="identify_action">Identify</string>
@@ -115,14 +108,12 @@
     <string name="node_company_identifier">Company Identifier</string>
     <string name="node_product_identifier">Product Identifier</string>
     <string name="node_product_version">Product Version</string>
-    <string name="node_vendor_identifier">Vendor Identifier</string>
     <string name="node_replay_protection_count">Replay Protection Count</string>
     <string name="node_features">Node Features</string>
 
     <string name="title_elements">Elements</string>
     <string name="title_node_element_details">Element Details</string>
 
-    <string name="title_node_app_keys">Application Keys</string>
     <string name="generate_app_key">Generate app key</string>
 
     <string name="title_network_name">Network Name</string>
@@ -144,12 +135,7 @@
     <string name="summary_flags">Flags</string>
     <string name="summary_key">Key</string>
     <string name="summary_index">Key Index</string>
-    <string name="summary_iv_index">IV Index</string>
     <string name="summary_unicast_address">Unicast Address</string>
-
-    <string name="hint_pin">Pin</string>
-    <string name="error_empty_pin">Error, pin cannot be empty!</string>
-
 
     <string name="title_node_name">Node name</string>
     <string name="summary_name">Name</string>
@@ -166,10 +152,8 @@
     <string name="title_key_index">Key Index</string>
     <string name="dialog_summary_key_index">Enter the network key index.</string>
     <string name="hint_key_index">Key index</string>
-    <string name="generate_key_index">Generate key index</string>
     <string name="error_empty_key_index">Key index cannot be empty!</string>
     <string name="error_invalid_key_index">Key index must be 0 to 4095!</string>
-    <string name="error_invalid_uint8">Error, value must be UINT8!</string>
 
     <string name="title_flags">Flags</string>
     <string name="dialog_summary_flags">Select flag types.</string>
@@ -190,33 +174,50 @@
     <string name="dialog_summary_unicast_address">Enter a unicast address for the node.</string>
     <string name="hint_unicast_address">Unicast address</string>
     <string name="error_empty_unicast_address">Unicast Address cannot be empty!</string>
-    <string name="configure">Configure</string>
-    <string name="node_id">Node ID: %d</string>
     <string name="network">Network</string>
     <string name="action_settings">Settings</string>
-    <string name="action_scanner">Scanner</string>
-    <string name="no_networks_configured_title">NO NETWORKS CONFIGURED</string>
-    <string name="no_networks_configured_rationale">In order to configure a network start by scanning, provisioning and then configuring the device from the scanner tab.</string>
-    <string name="error_invalid_unicast_address">Unicast Address must be between 0 and 32767!</string>
+    <string name="action_groups">Groups</string>
+    <string name="no_nodes_provisioned_title">NO NODES PROVISIONED</string>
+    <string name="no_nodes_provisioned_rationale">Add a mesh node by scanning and provisioning the device.</string>
+
+    <string name="no_groups_configured_title">NO GROUPS CONFIGURED</string>
+    <string name="no_groups_configured_rationale">Create a group to control your devices. All groups listed here can be subscribed to from a model.</string>
+    <string name="group_friendly_name">Friendly Name</string>
+    <string name="group_name">Name</string>
+    <string name="group_address">Address</string>
+    <string name="group_device_count">%d Device(s)</string>
+    <string name="title_edit_group_info">Edit Group</string>
+    <string name="select_a_group_rationale">Select an existing group</string>
+    <string name="no_available_groups">No available groups.</string>
+    <string name="create_a_group_rationale">Create a new group to subscribe</string>
+    <string name="title_create_group">Create Group</string>
+    <string name="title_subscribe_group">Subscribe</string>
+    <string name="error_empty_group_name">Group name cannot be empty!</string>
+    <string name="error_empty_group_address">Group address cannot be empty!</string>
+    <string name="error_group_address_in_used">Group address already in use!</string>
+    <string name="error_group_unsubscribe_to_delete">Please unsubscribe the models from this group inorder to delete the group!</string>
+    <string name="group_deleted">Group %s deleted!</string>
+    <string name="no_models_configured_title">NO MODELS CONFIGURED</string>
+    <string name="no_models_configured_rationale">No models are subscribed to this group.</string>
+    <string name="no_app_key_configured_title">NO APP KEYS BOUND</string>
+    <string name="no_app_key_configured_rationale">No app keys are bound for models in this group. \nClick edit on the options menu to bind an app key to the models.</string>
 
     <string name="title_manage_app_keys">Manage App Keys</string>
     <string name="title_select_app_key">Select App Key</string>
-    <string name="title_app_key">App Key</string>
-    <string name="summary_app_key">App Key</string>
     <string name="summary_app_keys">App Keys</string>
     <string name="app_key_count">%d keys</string>
     <string name="hint_app_key">App key</string>
-    <string name="no_app_keys_title">NO ADDED APP KEYS</string>
-    <string name="no_app_keys_rationale">App keys are required in order to configure a UnprovisionedMeshNode after provisioning has been completed. Please click on the add button to add an app key </string>
+    <string name="no_app_keys_title">NO APP KEYS AVAILABLE</string>
+    <string name="no_app_keys_settings_rationale">App keys are required to configure a mesh node.
+        Please click on the add button to add an app key </string>
+    <string name="no_app_keys_rationale">App keys are required to configure a mesh node.
+        Please add an app key in the network settings.</string>
+    <string name="no_added_app_keys_rationale">Binding an app key to a model requires it to be added to a provisioned mesh node.
+        Navigate back to the node configuration view add a new app key</string>
     <string name="app_key_deleted">App key deleted.</string>
     <string name="undo">Undo</string>
     <string name="title_error_provisioning_failed">Provisioning Failed</string>
     <string name="provisioning_cancelled">Provisioning canceled!</string>
-    <string name="details">Details</string>
-    <string name="node_status">Node status:</string>
-    <string name="provisioned_not_configured">Provisioned, not configured.</string>
-    <string name="configuration_state">Configuration status:</string>
-    <string name="configured">Configured</string>
 
     <string name="nrf_mesh_node">nRF Mesh Node</string>
     <string name="company">Company:</string>
@@ -224,29 +225,18 @@
     <string name="elements">Elements:</string>
     <string name="models">Models:</string>
 
-    <string name="get_composition_data_action">Get Composition Data</string>
     <string name="title_appkey_status">AppKey Status</string>
     <string name="app_key_item">App key %d</string>
     <string name="app_key_index_item">Key Index: %d</string>
     <string name="error_node_name">Node name cannot be empty!</string>
-    <string name="element_address">Element : %s</string>
+    <string name="element_address">Element: %s</string>
     <string name="model_count">%d Models</string>
-    <string name="title_model_configuration">Model Configuration</string>
-    <string name="subtitle_model_configuration">%s %s</string>
     <string name="format_sig_model_id">SIG Model ID: %s</string>
     <string name="format_vendor_model_id">Vendor Model ID: %s</string>
-    <string name="model_id_type_vendor">Vendor Model ID:</string>
 
     <string name="title_publish_address">Publish Address</string>
-    <string name="title_subscription_addresses">Subscription Addresses</string>
     <string name="none">None</string>
     <string name="no_app_keys_bound">No app keys are bound to this model.</string>
-    <string name="app_keys_bound">%d app keys bound</string>
-    <string name="no_publish_addresses">Publish address not set</string>
-    <string name="no_subscription_addresses">No subscription address</string>
-    <string name="subscription_address_format">%d addresses</string>
-    <string name="summary_app_key_index">App Key Index</string>
-    <string name="title_app_key_configuration">App Key Configuration</string>
     <string name="title_publish_address_configuration">Publish</string>
     <string name="title_subscription_addresses_configuration">Subscribe</string>
     <string name="action_bind_app_key">Bind Key</string>
@@ -254,47 +244,37 @@
     <string name="action_set_publish_address">Set Publication</string>
     <string name="action_clear_publication">Clear Publication</string>
     <string name="action_subscribe_address">Subscribe</string>
-    <string name="action_unsubscribe_address">Unsubscribe</string>
     <string name="title_app_key_index">Key Index</string>
     <string name="title_bound_app_keys">Bound App Keys</string>
 
-    <string name="no_elements_found">NO ELEMENTS FOUND</string>
     <string name="no_elements_guide_info">No elements were found! \n\nTry configuring the node again to see what elements are available on this node. You may do this by going back to the main screen and connecting to the node.</string>
     <string name="no_elements_guide_composition_data">No elements were found! \nGet composition data to see what elements are on this node.</string>
     <string name="action_connect">CONNECT</string>
     <string name="action_disconnect">Disconnect</string>
 
-    <string name="title_publlish_address">Publish Address</string>
     <string name="dialog_summary_publish_address">Publish address for this model.</string>
     <string name="hint_publish_address">Publish Address</string>
     <string name="error_empty_publish_address">Publish Address cannot be empty!</string>
-    <string name="error_invalid_publish_address">Publish Address must be between 0 and 32767!</string>
     <string name="title_publlish_address_status">Publish Address Status</string>
-    <string name="title_subscription_status">Subscription Status</string>
     <string name="hex_format">0x%s</string>
     <string name="hex_prefix">0x</string>
     <string name="invalid_hex_value">Invalid hex value</string>
     <string name="invalid_address_value">Invalid address</string>
-    <string name="mesh_provioner_service_running">Mesh provisioner service is running in background.</string>
     <string name="action_reset_network">Reset</string>
     <string name="title_reset_network">Reset Mesh Network</string>
     <string name="message_reset_network">This will clear all the data stored related to this network and will not be recoverable. Would you like to continue?</string>
     <string name="not_subscribed_to_groups">Not subscribed to any group addresses.</string>
     <string name="title_group_address">Group Address</string>
-    <string name="dialog_summary_group_address">Group address this model should subscribe.</string>
     <string name="title_configuration_compete">Configuration Complete</string>
     <string name="configuration_complete_summary">Mesh node has been successfully configured.</string>
     <string name="action_composition_data">GET COMPOSITION DATA</string>
 
     <string name="action_add">ADD</string>
-    <string name="action_remove">REMOVE</string>
     <string name="action_clear">CLEAR</string>
-    <string name="action_view">VIEW</string>
     <string name="title_about">About</string>
     <string name="summary_verion">App Version</string>
     <string name="title_node_configuration">Node Configuration</string>
     <string name="title_added_app_keys">Added App Keys</string>
-    <string name="action_view_added_keys">VIEW</string>
 
     <string name="title_network_transmit_info">Network Transmit</string>
     <string name="title_network_transmit">Network Transmit Settings</string>
@@ -304,7 +284,7 @@
     <string name="action_network_transmit_get">READ STATE</string>
     <string name="action_network_transmit_set">SET NETWORK TRANSMIT</string>
     <string name="text_network_transmit_count">%d retransmit(s)</string>
-    <string name="summary_network_transmit_count">%d time(s) and total transmissions: %d</string>
+    <string name="summary_network_transmit_count" formatted="false">%d time(s) and total transmissions: %d</string>
     <string name="text_network_transmit_interval_steps">%d ms</string>
 
     <string name="title_relay_retransmit_info">Relay</string>
@@ -313,15 +293,9 @@
     <string name="title_relay_retransmit_count">Retransmit Count</string>
     <string name="title_relay_retransmit_interval">Retransmit Interval</string>
     <string name="title_relay_retransmit_interval_steps">Retransmit Interval</string>
-    <string name="action_relay_retransmit_get">READ STATE</string>
     <string name="action_relay_retransmit_set">SET RELAY</string>
-    <string name="text_action_relay_retransmit_count">%d time(s)</string>
-    <string name="text_action_relay_retransmit_interval_steps">%d ms</string>
 
-    <string name="title_proxy_state_info">Proxy</string>
     <string name="title_proxy_state_settings">Proxy State</string>
-    <string name="title_proxy_state">Proxy</string>
-    <string name="proxy_state">STATE</string>
     <string name="action_proxy_state_set_on">ON</string>
     <string name="action_proxy_state_set_off">OFF</string>
     <string name="action_proxy_state_get">READ STATE</string>
@@ -332,32 +306,25 @@
     <string name="proxy_set_off_rationale_summary">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.
         However, you will still be able to continue sending messages via the other proxy nodes in the network. Do you wish to continue?</string>
 
-    <string name="title_proxy_filter_info">Proxy</string>
     <string name="title_proxy_filter">Proxy Filter</string>
     <string name="white_list_filter">Whitelist Filter</string>
     <string name="black_list_filter">Blacklist Filter</string>
-    <string name="action_proxy_set_black_list_filter">Set blacklist</string>
     <string name="hint_remove">Hint: Swipe address to remove.</string>
     <string name="hint_filter_address">Unicast/Group Address</string>
     <string name="no_addresses_added">No addresses are added to this filter!</string>
     <string name="title_add_address">Add Address</string>
-    <string name="address">Address %d</string>
+    <string name="address">Address</string>
     <string name="dialog_summary_filter_address">Addresses to be added to the %s. Supported addresses are Unicast, Group or Virtual Addresses.</string>
     <string name="invalid_filter_address">Address must be a Unicast, Group or a Virtual Address!</string>
     <string name="error_empty_filter_address">Add at least one address to confirm!</string>
 
     <string name="no_app_keys_added">No app keys are added to this node!</string>
-    <string name="app_keys_added">%d app keys added</string>
     <string name="error_no_app_keys_bound">No app keys are bound for this model. Please bind an app key first!</string>
     <string name="action_generic_read_state">READ STATE</string>
     <string name="action_generic_on">ON</string>
     <string name="action_generic_off">OFF</string>
-    <string name="transition_time_interval">%s %s</string>
+    <string name="transition_time_interval" formatted="false">%s %s</string>
     <string name="hint_unsubscribe">Hint: Swipe address to unsubscribe.</string>
-    <string name="hint_step_resolution_ms">Currently on 100 ms step resolution</string>
-    <string name="hint_step_resolution_s">Currently on 1 s step resolution</string>
-    <string name="hint_step_resolution_ten_s">Currently on 10 s step resolution</string>
-    <string name="hint_step_resolution_min">Currently on 10 min step resolution</string>
     <string name="title_generic_on_off_controls">Generic On Off Controls</string>
     <string name="transition_time">Transition time</string>
     <string name="generic_on_off_step_delay">Delay (5ms steps)</string>
@@ -396,8 +363,6 @@
     <string name="error_empty_value">Value cannot be empty</string>
     <string name="message_type">Acknowledged Message</string>
     <string name="enforce_vendor_op_code">0xC0 | 0x</string>
-    <string name="title_publication_parameters">Publication Parameters</string>
-    <string name="hint_address">CEEF</string>
     <string name="title_address">Address</string>
     <string name="title_retransmission">Retransmission</string>
     <string name="title_retransmit_count">Retransmit Count</string>
@@ -443,13 +408,11 @@
         <item>10 minutes</item>
     </string-array>
 
-    <string name="dialog_summary_publication_resolution">Select desired resolution for publish period</string>
     <string name="hint_publish_ttl">TTL ranges from 0 to 127</string>
     <string name="hint_publication_steps">Publication steps</string>
     <string name="model_id">Model ID: %s</string>
     <string name="title_disconnected_error">Error</string>
-    <string name="disconnected_network_rationale">You are no longer connected your proxy node, please reconnect in order to continue.</string>
-    <string name="provisioned_device_not_found">Unable to find provisioned device</string>
+    <string name="disconnected_network_rationale">Connect to proxy node to continue.</string>
     <string name="remaining_time">Rem. Time: %s</string>
     <string name="generic_level">Level</string>
     <string name="generic_level_percent">%d%%</string>
@@ -463,8 +426,6 @@
     <string name="title_network_export">Export Network</string>
     <string name="network_import_rationale">Importing new mesh network information will delete the existing network information from the application.
         Would you like to proceed? \n\nNote: You can also export the existing network information before importing.</string>
-    <string name="export_existing_network">Export Network</string>
-    <string name="view_files">View files</string>
     <string name="title_permission_required">Permission Required</string>
     <string name="external_storage_permission_required">Exporting mesh network information to a file in the external storage directory requires permission
         to access the external storage.</string>
@@ -484,4 +445,10 @@
         Step 3. Click get composition data\n\n
         Step 4. Add app key</string>
     <string name="network_transmit_interval_steps_summary">10 ms step(s)</string>
+    <string name="light_count">%d Light(s)</string>
+    <string name="switch_count">%d Switch(s)</string>
+    <string name="dimmer_count">%d Dimmer(s)</string>
+    <string name="unknown_device_count">%d Device(s)</string>
+    <string name="please_connect_to_network">Please connect to network to control devices!</string>
+    <string name="action_edit">Edit</string>
 </resources>

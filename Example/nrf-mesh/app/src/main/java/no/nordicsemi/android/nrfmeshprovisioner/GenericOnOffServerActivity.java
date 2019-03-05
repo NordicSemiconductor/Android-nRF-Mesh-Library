@@ -13,15 +13,16 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffGet;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSet;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
@@ -40,7 +41,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof GenericOnOffServerModel) {
             final ConstraintLayout container = findViewById(R.id.node_controls_container);
             final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, container);
@@ -57,7 +58,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             delaySeekBar.setMax(255);
             final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
 
-            mActionOnOff = nodeControlsContainer.findViewById(R.id.action_on_off);
+            mActionOnOff = nodeControlsContainer.findViewById(R.id.action_on);
             mActionOnOff.setOnClickListener(v -> {
                 try {
                     if (mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on))) {
@@ -109,7 +110,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                         if (progress >= lastValue) {
                             mTransitionSteps = progress - 168;
                             lastValue = progress;
-                        } else if (progress < lastValue) {
+                        } else {
                             mTransitionSteps = -(168 - progress);
                         }
                         mTransitionStepResolution = 3;
@@ -199,22 +200,24 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
      * Send generic on off get to mesh node
      */
     public void sendGenericOnOffGet() {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getElement();
-        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
+        final Element element = mViewModel.getSelectedElement().getValue();
+        if(element != null) {
+            final MeshModel model = mViewModel.getSelectedModel().getValue();
+            if (model != null) {
+                if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                    final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+                    final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
 
-        if (!model.getBoundAppKeyIndexes().isEmpty()) {
-            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-            final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
+                    final int address = element.getElementAddress();
+                    Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
 
-            final byte[] address = element.getElementAddress();
-            Log.v(TAG, "Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
-
-            final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey);
-            mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
-            showProgressbar();
-        } else {
-            Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+                    final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
+                    showProgressbar();
+                } else {
+                    Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     }
 
@@ -225,31 +228,26 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
      * @param delay message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      */
     public void sendGenericOnOff(final boolean state, final Integer delay) {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getElement();
-        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-
-        if (!model.getBoundAppKeyIndexes().isEmpty()) {
-            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-            final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-            if (!model.getSubscriptionAddresses().isEmpty()) {
-                for (byte[] address : model.getSubscriptionAddresses()) {
-                    final MeshMessage message;
-                    Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                            + ". Sending acknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
-                    message = new GenericOnOffSet(appKey, state, delay,node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution);
-                    mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
-                    showProgressbar();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        if(node != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                        final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+                        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
+                        final int address = element.getElementAddress();
+                        Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                                + ". Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
+                        final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state, node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
+                        mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
+                        showProgressbar();
+                    } else {
+                        Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+                    }
                 }
-            } else {
-                final byte[] address = element.getElementAddress();
-                Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                        + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
-                final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state, node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
-                mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
             }
-        } else {
-            Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
         }
     }
 }

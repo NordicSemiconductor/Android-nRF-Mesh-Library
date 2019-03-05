@@ -40,8 +40,6 @@ import com.google.gson.annotations.SerializedName;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -114,12 +112,9 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @ColumnInfo(name = "security")
     @Expose
     int security = LOW;
-    @Ignore
-    @Expose
-    boolean isProvisioned;
     @ColumnInfo(name = "unicast_address")
     @Expose
-    byte[] unicastAddress;
+    int unicastAddress;
     @ColumnInfo(name = "configured")
     @Expose
     boolean isConfigured;
@@ -218,9 +213,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Expose
     int numberOfElements;
     @Ignore
-    @Expose
-    byte[] mConfigurationSrc = {0x7F, (byte) 0xFF};
-    @Ignore
     @Expose(deserialize = false)
     protected String bluetoothDeviceAddress;
 
@@ -249,10 +241,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         this.uuid = uuid;
     }
 
-    public boolean isProvisioned() {
-        return isProvisioned;
-    }
-
     public final boolean isConfigured() {
         return isConfigured;
     }
@@ -271,16 +259,12 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
             this.nodeName = nodeName;
     }
 
-    public final byte[] getUnicastAddress() {
+    public final int getUnicastAddress() {
         return unicastAddress;
     }
 
-    public final void setUnicastAddress(final byte[] unicastAddress) {
+    public final void setUnicastAddress(final int unicastAddress) {
         this.unicastAddress = unicastAddress;
-    }
-
-    public final int getUnicastAddressInt() {
-        return ByteBuffer.wrap(unicastAddress).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 
     public final Integer getTtl() {
@@ -338,14 +322,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     public void setTimeStamp(final long timestamp) {
         mTimeStampInMillis = timestamp;
-    }
-
-    public final byte[] getConfigurationSrc() {
-        return mConfigurationSrc;
-    }
-
-    public final void setConfigurationSrc(final byte[] src) {
-        mConfigurationSrc = src;
     }
 
     /**

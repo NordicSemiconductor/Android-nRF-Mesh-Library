@@ -50,15 +50,16 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
-    <style name="CustomAlertDialogLight" parent="Theme.MaterialComponents.Light.Dialog.Alert">
-        <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button.TextButton.Dialog</item>
-    </style>
-
     <style name="Widget"/>
 
     <style name="Widget.InfoWarningTitles">
         <item name="android:textColor">?android:textColorSecondary</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widget.GroupTitle">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
     <style name="BlueTextButton" parent="Widget.AppCompat.Button.Borderless.Colored">
@@ -68,4 +69,9 @@
         <item name="android:textColor">@drawable/red_button_states</item>
     </style>
 
+    <style name="CustomBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 </resources>

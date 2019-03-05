@@ -26,10 +26,13 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * This class handles binding application keys to a specific model where the mode could be,
  * a 16-bit Bluetooth SigModel or a 32-bit Vendor Model
  */
+@SuppressWarnings("WeakerAccess")
 final class ConfigModelAppUnbindState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppUnbindState.class.getSimpleName();
@@ -45,10 +48,33 @@ final class ConfigModelAppUnbindState extends ConfigMessageState {
      * @param configModelAppUnbind {@link ConfigModelAppUnbind}
      * @param meshTransport        {@link MeshTransport}
      * @param callbacks            {@link InternalMeshMsgHandlerCallbacks}
+     * @deprecated in favour of {@link ConfigModelAppUnbindState}
      */
+    @Deprecated
     ConfigModelAppUnbindState(@NonNull final Context context,
                               @NonNull final byte[] src,
                               @NonNull final byte[] dst,
+                              @NonNull final byte[] deviceKey,
+                              @NonNull final ConfigModelAppUnbind configModelAppUnbind,
+                              @NonNull final MeshTransport meshTransport,
+                              @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), deviceKey, configModelAppUnbind, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs the state for creating ConfigModelAppBind message
+     *
+     * @param context              context
+     * @param src                  source address
+     * @param dst                  destination address
+     * @param deviceKey            device key
+     * @param configModelAppUnbind {@link ConfigModelAppUnbind}
+     * @param meshTransport        {@link MeshTransport}
+     * @param callbacks            {@link InternalMeshMsgHandlerCallbacks}
+     */
+    ConfigModelAppUnbindState(@NonNull final Context context,
+                              final int src,
+                              final int dst,
                               @NonNull final byte[] deviceKey,
                               @NonNull final ConfigModelAppUnbind configModelAppUnbind,
                               @NonNull final MeshTransport meshTransport,

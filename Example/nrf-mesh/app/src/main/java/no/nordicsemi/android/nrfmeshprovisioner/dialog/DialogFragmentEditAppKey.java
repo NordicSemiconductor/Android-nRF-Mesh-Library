@@ -23,7 +23,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.AlertDialog;
-import android.app.Application;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;

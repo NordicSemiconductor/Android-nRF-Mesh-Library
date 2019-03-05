@@ -23,14 +23,16 @@
 package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import dagger.Subcomponent;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.GroupControlsViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ManageAppKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionedNodesScannerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ReconnectViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SplashViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ViewModelFactory;
 
 /**
@@ -44,12 +46,14 @@ public interface ViewModelSubComponent {
 	interface Builder {
 		ViewModelSubComponent build();
 	}
+	SplashViewModel splashViewModel();
 	SharedViewModel commonViewModel();
+	ScannerViewModel scannerViewModel();
+	GroupControlsViewModel groupControlsViewModel();
 	ManageAppKeysViewModel manageAppKeysViewModel();
 	MeshProvisionerViewModel meshProvisionerViewModel();
 	NodeConfigurationViewModel meshConfigurationViewModel();
 	ModelConfigurationViewModel modelConfigurationViewModel();
 	PublicationViewModel publicationViewModel();
-	ProvisionedNodesScannerViewModel scannerViewModel();
 	ReconnectViewModel reconnectViewModule();
 }

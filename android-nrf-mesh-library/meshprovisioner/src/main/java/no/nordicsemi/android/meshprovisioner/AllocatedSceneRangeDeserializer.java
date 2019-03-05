@@ -15,8 +15,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-
 final class AllocatedSceneRangeDeserializer implements JsonSerializer<List<AllocatedSceneRange>>, JsonDeserializer<List<AllocatedSceneRange>> {
     private static final String TAG = AllocatedSceneRangeDeserializer.class.getSimpleName();
 

@@ -42,7 +42,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -149,14 +149,16 @@ public class DialogFragmentSourceAddress extends DialogFragment {
                 return false;
             }
 
-            if(MeshParserUtils.validateUnicastAddressInput(getContext(), input)) {
-                return true;
+            final int unicastAddress = Integer.parseInt(input, 16);
+            if(!MeshAddress.isValidUnicastAddress(unicastAddress)) {
+                unicastAddressInputLayout.setError("Unicast address must range from 0x0001 - 0x7FFFF");
+                return false;
             }
         } catch (IllegalArgumentException ex) {
             unicastAddressInputLayout.setError(ex.getMessage());
         }
 
-        return false;
+        return true;
     }
 
 

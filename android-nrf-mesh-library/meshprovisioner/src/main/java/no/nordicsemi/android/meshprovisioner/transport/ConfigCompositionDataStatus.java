@@ -36,7 +36,6 @@ import java.util.Map;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.DeviceFeatureUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -49,18 +48,6 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
     private static final String TAG = ConfigCompositionDataStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS;
     private static final int ELEMENTS_OFFSET = 12;
-    private static final Creator<ConfigCompositionDataStatus> CREATOR = new Creator<ConfigCompositionDataStatus>() {
-        @Override
-        public ConfigCompositionDataStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
-            return new ConfigCompositionDataStatus(message);
-        }
-
-        @Override
-        public ConfigCompositionDataStatus[] newArray(int size) {
-            return new ConfigCompositionDataStatus[size];
-        }
-    };
     private int companyIdentifier;
     private int productIdentifier;
     private int versionIdentifier;
@@ -71,6 +58,20 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
     private boolean friendFeatureSupported;
     private boolean lowPowerFeatureSupported;
     private Map<Integer, Element> mElements = new LinkedHashMap<>();
+
+    private static final Creator<ConfigCompositionDataStatus> CREATOR = new Creator<ConfigCompositionDataStatus>() {
+        @Override
+        public ConfigCompositionDataStatus createFromParcel(Parcel in) {
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
+            return new ConfigCompositionDataStatus(message);
+        }
+
+        @Override
+        public ConfigCompositionDataStatus[] newArray(int size) {
+            return new ConfigCompositionDataStatus[size];
+        }
+    };
 
     /**
      * Constructs the ConfigCompositionDataStatus mMessage.
@@ -144,21 +145,21 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
      * @param accessPayload underlying payload containing the elements
      * @param src           source address
      */
-    private void parseElements(final byte[] accessPayload, final byte[] src) {
+    private void parseElements(final byte[] accessPayload, final int src) {
         int tempOffset = ELEMENTS_OFFSET;
         int counter = 0;
-        byte[] elementAddress = null;
+        int elementAddress = 0;
         while (tempOffset < accessPayload.length) {
             final Map<Integer, MeshModel> models = new LinkedHashMap<>();
             final int locationDescriptor = accessPayload[tempOffset + 1] << 8 | accessPayload[tempOffset];
             Log.v(TAG, "Location identifier: " + String.format(Locale.US, "%04X", locationDescriptor));
 
             tempOffset = tempOffset + 2;
-            final int numSigModelIds = accessPayload[tempOffset];//buffer.get();
+            final int numSigModelIds = accessPayload[tempOffset];
             Log.v(TAG, "Number of sig models: " + String.format(Locale.US, "%04X", numSigModelIds));
 
             tempOffset = tempOffset + 1;
-            final int numVendorModelIds = accessPayload[tempOffset];//buffer.get();
+            final int numVendorModelIds = accessPayload[tempOffset];
             Log.v(TAG, "Number of vendor models: " + String.format(Locale.US, "%04X", numVendorModelIds));
 
             tempOffset = tempOffset + 1;
@@ -186,11 +187,11 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
             if (counter == 0) {
                 elementAddress = src;
             } else {
-                elementAddress = AddressUtils.incrementUnicastAddress(elementAddress);
+                elementAddress++;
             }
             counter++;
             final Element element = new Element(elementAddress, locationDescriptor, models);
-            final int unicastAddress = AddressUtils.getUnicastAddressInt(elementAddress);
+            final int unicastAddress = elementAddress;
             mElements.put(unicastAddress, element);
         }
     }
@@ -317,6 +318,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

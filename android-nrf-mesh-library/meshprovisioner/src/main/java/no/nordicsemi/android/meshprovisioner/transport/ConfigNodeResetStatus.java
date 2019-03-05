@@ -36,10 +36,12 @@ public class ConfigNodeResetStatus extends ConfigStatusMessage implements Parcel
 
     private static final String TAG = ConfigNodeResetStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS;
+
     private static final Creator<ConfigNodeResetStatus> CREATOR = new Creator<ConfigNodeResetStatus>() {
         @Override
         public ConfigNodeResetStatus createFromParcel(Parcel in) {
-            final AccessMessage message = (AccessMessage) in.readValue(AccessMessage.class.getClassLoader());
+            final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
+            //noinspection ConstantConditions
             return new ConfigNodeResetStatus(message);
         }
 
@@ -77,6 +79,7 @@ public class ConfigNodeResetStatus extends ConfigStatusMessage implements Parcel
 
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeValue(mMessage);
+        final AccessMessage message = (AccessMessage) mMessage;
+        dest.writeParcelable(message, flags);
     }
 }

@@ -3,6 +3,8 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
+
 /**
  * Abstract state class that handles Generic Message States
  */
@@ -12,17 +14,17 @@ abstract class GenericMessageState extends MeshMessageState {
 
 
     GenericMessageState(@NonNull final Context context,
-                        @NonNull final byte[] src,
-                        @NonNull final byte[] dst,
+                        final int src,
+                        final int dst,
                         @NonNull final MeshMessage meshMessage,
                         @NonNull final MeshTransport meshTransport,
                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
         super(context, meshMessage, meshTransport, callbacks);
-        if (src.length != 2)
-            throw new IllegalArgumentException("Source address must be a unicast address with 2 bytes!");
+        if (!MeshAddress.isAddressInRange(src))
+            throw new IllegalArgumentException("Invalid address, a source address must be a valid 16-bit value!");
         this.mSrc = src;
-        if (dst.length != 2)
-            throw new IllegalArgumentException("Destination address must be 2 bytes!");
+        if (!MeshAddress.isAddressInRange(dst))
+            throw new IllegalArgumentException("Invalid address, a destination address must be a valid 16-bit value");
         this.mDst = dst;
     }
 }

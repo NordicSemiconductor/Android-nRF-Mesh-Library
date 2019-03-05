@@ -75,6 +75,14 @@ public interface MeshManagerCallbacks {
     void onNetworkExported(final MeshNetwork meshNetwork);
 
     /**
+     * Notifies when the mesh network is exported
+     *
+     * @param meshNetwork exported mesh network
+     * @param networkJson exported json string
+     */
+    void onNetworkExportedJson(final MeshNetwork meshNetwork, final String networkJson);
+
+    /**
      * Notifies when the mesh network import fails
      *
      * @param error error

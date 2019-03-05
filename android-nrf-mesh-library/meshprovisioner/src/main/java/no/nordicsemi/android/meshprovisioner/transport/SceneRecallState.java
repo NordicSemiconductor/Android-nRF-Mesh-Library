@@ -4,9 +4,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * State class for handling SceneStoreState messages.
  */
+@SuppressWarnings("WeakerAccess")
 class SceneRecallState extends GenericMessageState implements LowerTransportLayerCallbacks {
 
     private static final String TAG = SceneRecallState.class.getSimpleName();
@@ -21,9 +24,29 @@ class SceneRecallState extends GenericMessageState implements LowerTransportLaye
      * @param callbacks   {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException for any illegal arguments provided.
      */
+    @Deprecated
     SceneRecallState(@NonNull final Context context,
                      @NonNull final byte[] src,
                      @NonNull final byte[] dst,
+                     @NonNull final SceneRecall sceneRecall,
+                     @NonNull final MeshTransport meshTransport,
+                     @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), sceneRecall, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs {@link SceneRecallState}
+     *
+     * @param context     Context of the application
+     * @param src         Source address
+     * @param dst         Destination address to which the message must be sent to
+     * @param sceneRecall Wrapper class {@link SceneStore} containing the opcode and parameters for {@link SceneStore} message
+     * @param callbacks   {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException for any illegal arguments provided.
+     */
+    SceneRecallState(@NonNull final Context context,
+                     final int src,
+                     final int dst,
                      @NonNull final SceneRecall sceneRecall,
                      @NonNull final MeshTransport meshTransport,
                      @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {

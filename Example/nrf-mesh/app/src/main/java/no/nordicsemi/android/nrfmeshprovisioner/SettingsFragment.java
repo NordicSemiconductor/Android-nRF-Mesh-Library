@@ -209,8 +209,7 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
         manageAppKeysView = containerManageAppKeys.findViewById(R.id.text);
         containerManageAppKeys.setOnClickListener(v -> {
             final Intent intent = new Intent(getActivity(), ManageAppKeysActivity.class);
-            final List<ApplicationKey> appKeys = mViewModel.getMeshNetworkLiveData().getAppKeys();
-            intent.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
+            intent.putExtra(Utils.EXTRA_DATA, Utils.MANAGE_APP_KEY);
             startActivityForResult(intent, ManageAppKeysActivity.MANAGE_APP_KEYS);
         });
 

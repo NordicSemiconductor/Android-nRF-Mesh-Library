@@ -12,15 +12,16 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelGet;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSet;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
@@ -43,7 +44,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof GenericLevelServerModel) {
             final ConstraintLayout container = findViewById(R.id.node_controls_container);
             final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_level, container);
@@ -106,7 +107,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                         if (progress >= lastValue) {
                             mTransitionSteps = progress - 168;
                             lastValue = progress;
-                        } else if (progress < lastValue) {
+                        } else {
                             mTransitionSteps = -(168 - progress);
                         }
                         mTransitionStepResolution = 3;
@@ -184,7 +185,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
     @Override
     protected void updateMeshMessage(final MeshMessage meshMessage) {
         super.updateMeshMessage(meshMessage);
-        if(meshMessage instanceof GenericLevelStatus){
+        if (meshMessage instanceof GenericLevelStatus) {
             final GenericLevelStatus status = (GenericLevelStatus) meshMessage;
             hideProgressBar();
             final int presentLevel = status.getPresentLevel();
@@ -211,64 +212,53 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
      * Send generic on off get to mesh node
      */
     public void sendGenericLevelGet() {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getElement();
-        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
+        final Element element = mViewModel.getSelectedElement().getValue();
+        if (element != null) {
+            final MeshModel model = mViewModel.getSelectedModel().getValue();
+            if (model != null) {
+                if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                    final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+                    final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
 
-        if (!model.getBoundAppKeyIndexes().isEmpty()) {
-            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-            final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
+                    final int address = element.getElementAddress();
+                    Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
 
-            final byte[] address = element.getElementAddress();
-            Log.v(TAG, "Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
-
-            final GenericLevelGet genericLevelGet = new GenericLevelGet(appKey);
-            mViewModel.getMeshManagerApi().sendMeshMessage(address, genericLevelGet);
-        } else {
-            Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+                    final GenericLevelGet genericLevelGet = new GenericLevelGet(appKey);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(address, genericLevelGet);
+                } else {
+                    Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     }
 
     /**
      * Send generic level set to mesh node
      *
-     * @param level                level
-     * @param delay                message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
+     * @param level level
+     * @param delay message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      */
     public void sendGenericLevel(final int level, final Integer delay) {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getMeshNode();
-        final Element element = mViewModel.getSelectedElement().getElement();
-        final MeshModel model = mViewModel.getSelectedModel().getMeshModel();
-
-        if (!model.getBoundAppKeyIndexes().isEmpty()) {
-            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-            final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
-            if (!model.getSubscriptionAddresses().isEmpty()) {
-                for(byte[] address : model.getSubscriptionAddresses()) {
-                    final MeshMessage message;
-                    if(!MeshParserUtils.isValidGroupAddress(address)) {
-                        Log.v(TAG, "Subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                                + ". Sending acknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
-                        message = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level, node.getReceivedSequenceNumber());
-                        mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        if (node != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                        final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+                        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
+                        final int address = element.getElementAddress();
+                        Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
+                                + ". Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
+                        final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level, node.getReceivedSequenceNumber());
+                        mViewModel.getMeshManagerApi().sendMeshMessage(address, genericLevelSet);
                         showProgressbar();
                     } else {
-                        Log.v(TAG, "Group subscription address found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                                + ". Sending unacknowledged message to subscription address: " + MeshParserUtils.bytesToHex(address, true));
-                        message = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level,node.getReceivedSequenceNumber());
-                        mViewModel.getMeshManagerApi().sendMeshMessage(address, message);
+                        Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
                     }
                 }
-            } else {
-                final byte[] address = element.getElementAddress();
-                Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                        + ". Sending message to element's unicast address: " + MeshParserUtils.bytesToHex(address, true));
-                final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level,node.getReceivedSequenceNumber());
-                mViewModel.getMeshManagerApi().sendMeshMessage(address, genericLevelSet);
             }
-            showProgressbar();
-        } else {
-            Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -34,7 +34,6 @@ import android.support.annotation.VisibleForTesting;
 import com.google.gson.annotations.Expose;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +43,6 @@ import java.util.Set;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
@@ -87,7 +85,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedMeshNode(final UnprovisionedMeshNode unprovisionedMeshNode) {
         uuid = unprovisionedMeshNode.getDeviceUuid().toString();
-        isProvisioned = unprovisionedMeshNode.isProvisioned();
         isConfigured = unprovisionedMeshNode.isConfigured();
         nodeName = unprovisionedMeshNode.getNodeName();
         networkKey = unprovisionedMeshNode.getNetworkKey();
@@ -100,20 +97,18 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         ttl = unprovisionedMeshNode.getTtl();
         k2Output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
         mTimeStampInMillis = unprovisionedMeshNode.getTimeStamp();
-        mConfigurationSrc = unprovisionedMeshNode.getConfigurationSrc();
         numberOfElements = unprovisionedMeshNode.getNumberOfElements();
     }
 
     @Ignore
     protected ProvisionedMeshNode(Parcel in) {
         uuid = in.readString();
-        isProvisioned = in.readByte() != 1;
         isConfigured = in.readByte() != 1;
         nodeName = in.readString();
         mAddedNetworkKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mAddedNetworkKeys = in.readArrayList(NetworkKey.class.getClassLoader());
         mFlags = in.createByteArray();
-        unicastAddress = in.createByteArray();
+        unicastAddress = in.readInt();
         deviceKey = in.createByteArray();
         ttl = (Integer) in.readValue(Integer.class.getClassLoader());
         numberOfElements = in.readInt();
@@ -129,25 +124,23 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         mAddedApplicationKeys = in.readHashMap(ApplicationKey.class.getClassLoader());
         mAddedAppKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mTimeStampInMillis = in.readLong();
-        mConfigurationSrc = in.createByteArray();
         mSeqAuth = in.readParcelable(SparseIntArrayParcelable.class.getClassLoader());
         secureNetworkBeaconSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
         networkTransmitSettings = in.readParcelable(NetworkTransmitSettings.class.getClassLoader());
         relaySettings = in.readParcelable(RelaySettings.class.getClassLoader());
-        blackListed = in.readByte() != 1;
+        blackListed = in.readInt() != 1;
 
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(uuid);
-        dest.writeByte((byte) (isProvisioned ? 1 : 0));
         dest.writeByte((byte) (isConfigured ? 1 : 0));
         dest.writeString(nodeName);
         dest.writeList(mAddedNetworkKeyIndexes);
         dest.writeList(mAddedNetworkKeys);
         dest.writeByteArray(mFlags);
-        dest.writeByteArray(unicastAddress);
+        dest.writeInt(unicastAddress);
         dest.writeByteArray(deviceKey);
         dest.writeValue(ttl);
         dest.writeInt(numberOfElements);
@@ -163,12 +156,11 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeMap(mAddedApplicationKeys);
         dest.writeList(mAddedAppKeyIndexes);
         dest.writeLong(mTimeStampInMillis);
-        dest.writeByteArray(mConfigurationSrc);
         dest.writeParcelable(mSeqAuth, flags);
         dest.writeValue(secureNetworkBeaconSupported);
         dest.writeParcelable(networkTransmitSettings, flags);
         dest.writeParcelable(relaySettings, flags);
-        dest.writeValue((byte) (blackListed ? 1 : 0));
+        dest.writeInt((blackListed ? 1 : 0));
     }
 
     @Override
@@ -183,30 +175,14 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     /**
      * Check if an unicast address is the address of an element
      *
-     * @param unicastAddress    the address to check
-     * @return if this address is the address of an element
-     */
-    public final boolean hasUnicastAddress(final byte [] unicastAddress) {
-        if (Arrays.equals(unicastAddress, this.unicastAddress))
-            return true;
-        for (Element element:  mElements.values()) {
-            if (Arrays.equals(unicastAddress, element.getElementAddress()))
-                return true;
-        }
-        return false;
-    }
-
-    /**
-     * Check if an unicast address is the address of an element
-     *
-     * @param unicastAddress    the address to check
+     * @param unicastAddress the address to check
      * @return if this address is the address of an element
      */
     public final boolean hasUnicastAddress(final int unicastAddress) {
-        if (unicastAddress == getUnicastAddressInt())
+        if (unicastAddress == getUnicastAddress())
             return true;
-        for (Element element:  mElements.values()) {
-            if (element.getElementAddressInt() == unicastAddress)
+        for (Element element : mElements.values()) {
+            if (element.getElementAddress() == unicastAddress)
                 return true;
         }
         return false;
@@ -452,18 +428,16 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    void setSeqAuth(final byte[] src, final int seqAuth) {
-        final int srcAddress = AddressUtils.getUnicastAddressInt(src);
-        mSeqAuth.put(srcAddress, seqAuth);
+    void setSeqAuth(final int src, final int seqAuth) {
+        mSeqAuth.put(src, seqAuth);
     }
 
-    public Integer getSeqAuth(final byte[] src) {
+    public Integer getSeqAuth(final int src) {
         if (mSeqAuth.size() == 0) {
             return null;
         }
 
-        final int srcAddress = AddressUtils.getUnicastAddressInt(src);
-        return mSeqAuth.get(srcAddress);
+        return mSeqAuth.get(src);
     }
 
     /**

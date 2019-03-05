@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.os.Parcel;
 import android.util.SparseArray;
 
 import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
@@ -33,8 +34,27 @@ public final class ControlMessage extends Message {
     private byte[] transportControlPdu;
     private TransportControlMessage transportControlMessage;
 
+    public static final Creator<ControlMessage> CREATOR = new Creator<ControlMessage>() {
+        @Override
+        public ControlMessage createFromParcel(final Parcel source) {
+            return new ControlMessage(source);
+        }
+
+        @Override
+        public ControlMessage[] newArray(final int size) {
+            return new ControlMessage[size];
+        }
+    };
+
     public ControlMessage() {
         this.ctl = 1;
+    }
+
+    public ControlMessage(final Parcel source) {
+        super(source);
+        lowerTransportControlPdu = readSparseArrayToParcelable(source);
+        transportControlPdu = source.createByteArray();
+        transportControlMessage = (TransportControlMessage) source.readValue(TransportControlMessage.class.getClassLoader());
     }
 
     @Override
@@ -64,5 +84,18 @@ public final class ControlMessage extends Message {
 
     public void setTransportControlMessage(final TransportControlMessage transportControlMessage) {
         this.transportControlMessage = transportControlMessage;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        super.writeToParcel(dest, flags);
+        writeSparseArrayToParcelable(dest, lowerTransportControlPdu);
+        dest.writeByteArray(transportControlPdu);
+        dest.writeValue(transportControlMessage);
     }
 }

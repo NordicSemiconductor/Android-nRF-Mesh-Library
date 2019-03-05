@@ -38,13 +38,17 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
+import java.util.Comparator;
 import java.util.UUID;
 
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
 public class Utils {
 
+    public static final String EXTRA_DATA_PROVISIONING_SERVICE = "EXTRA_DATA_PROVISIONING_SERVICE";
     public static final String HEX_PATTERN = "^[0-9a-fA-F]+$";
     public static final String EXTRA_MODEL_ID = "EXTRA_MODEL_ID";
     public static final String EXTRA_ELEMENT_ADDRESS = "EXTRA_ELEMENT_ADDRESS";
@@ -55,12 +59,25 @@ public class Utils {
     public static final String PROVISIONING_COMPLETED = "PROVISIONING_COMPLETED";
     public static final String COMPOSITION_DATA_COMPLETED = "COMPOSITION_DATA_COMPLETED";
     public static final String APP_KEY_ADD_COMPLETED = "APP_KEY_ADD_COMPLETED";
+    public static final String EXTRA_DATA = "EXTRA_DATA";
     private static final String PREFS_LOCATION_NOT_REQUIRED = "location_not_required";
     private static final String PREFS_PERMISSION_REQUESTED = "permission_requested";
     private static final String PREFS_READ_STORAGE_PERMISSION_REQUESTED = "read_storage_permission_requested";
     private static final String PREFS_WRITE_STORAGE_PERMISSION_REQUESTED = "write_storage_permission_requested";
     public static final int PROVISIONING_SUCCESS = 2112;
+    public static final int CONNECT_TO_NETWORK = 2113;
+    public static final String RESULT_APP_KEY = "RESULT_APP_KEY";
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
+
+    //Manage app keys
+    public static final int MANAGE_APP_KEY = 0;
+    public static final int ADD_APP_KEY = 1;
+    public static final int BIND_APP_KEY = 2;
+    public static final int PUBLICATION_APP_KEY = 3;
+
+    public static final Comparator<NetworkKey> netKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
+
+    public static final Comparator<ApplicationKey> appKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
 
     /**
      * Checks whether Bluetooth is enabled.

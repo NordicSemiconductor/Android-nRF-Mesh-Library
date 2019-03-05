@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -38,6 +40,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
@@ -50,30 +53,40 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
     public ManageAppKeyAdapter(final ManageAppKeysActivity activity, final MeshNetworkLiveData meshNetworkLiveData) {
         this.mContext = activity;
         meshNetworkLiveData.observe(activity, networkData -> {
+            //noinspection ConstantConditions
             final List<ApplicationKey> keys = networkData.getAppKeys();
-            if(keys != null){
+            if (keys != null) {
                 appKeys.clear();
                 appKeys.addAll(keys);
+                Collections.sort(appKeys, Utils.appKeyComparator);
             }
             notifyDataSetChanged();
         });
+    }
+
+    public ManageAppKeyAdapter(final ManageAppKeysActivity activity, final List<ApplicationKey> appKeys) {
+        this.mContext = activity;
+        this.appKeys.addAll(appKeys);
+        Collections.sort(appKeys, Utils.appKeyComparator);
+        notifyDataSetChanged();
     }
 
     public void setOnItemClickListener(final ManageAppKeyAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
+    @NonNull
     @Override
-    public ManageAppKeyAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public ManageAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.app_key_item, parent, false);
         return new ManageAppKeyAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final ManageAppKeyAdapter.ViewHolder holder, final int position) {
-        if(appKeys.size() > 0) {
+    public void onBindViewHolder(@NonNull final ManageAppKeyAdapter.ViewHolder holder, final int position) {
+        if (appKeys.size() > 0) {
             final ApplicationKey appKey = appKeys.get(position);
-            holder.appKeyId.setText(mContext.getString(R.string.app_key_item , appKey.getKeyIndex()));
+            holder.appKeyId.setText(mContext.getString(R.string.app_key_item, appKey.getKeyIndex()));
             final String key = MeshParserUtils.bytesToHex(appKey.getKey(), false);
             holder.appKey.setText(key.toUpperCase());
             holder.getSwipeableView().setTag(appKey);

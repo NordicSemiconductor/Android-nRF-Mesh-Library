@@ -2,22 +2,13 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,12 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
-import no.nordicsemi.android.meshprovisioner.transport.ElementListDeserializer;
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.transport.MeshModelListDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
-import no.nordicsemi.android.meshprovisioner.transport.NodeDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -112,7 +98,7 @@ class DataMigrator {
                 meshNetwork.nodes = tempNodes;
                 meshNetwork.netKeys = migrateNetKeys(meshNetwork, provisioningSettings);
                 meshNetwork.appKeys = migrateAppKeys(meshNetwork, provisioningSettings);
-                meshNetwork.unicastAddress = AddressUtils.getUnicastAddressBytes(provisioningSettings.getUnicastAddress());
+                meshNetwork.unicastAddress = provisioningSettings.getUnicastAddress();
                 meshNetwork.provisioners = migrateProvisioner(meshNetwork, srcAddress, sequenceNumber, provisioningSettings);
 
             }
@@ -181,7 +167,7 @@ class DataMigrator {
         if (meshNetwork.provisioners == null || meshNetwork.provisioners.isEmpty()) {
 
             final Provisioner provisioner = new Provisioner();
-            provisioner.setProvisionerAddress(srcAddress);
+            provisioner.setProvisionerAddress(AddressUtils.getUnicastAddressInt(srcAddress));
             provisioner.setSequenceNumber(sequenceNumber);
             provisioner.setGlobalTtl(settings.getGlobalTtl());
             if (TextUtils.isEmpty(provisioner.getProvisionerUuid())) {

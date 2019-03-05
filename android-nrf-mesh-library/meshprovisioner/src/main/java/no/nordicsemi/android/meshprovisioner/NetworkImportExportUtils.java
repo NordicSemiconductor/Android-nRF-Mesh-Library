@@ -3,6 +3,8 @@ package no.nordicsemi.android.meshprovisioner;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -22,7 +24,7 @@ import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
-import no.nordicsemi.android.meshprovisioner.transport.ElementListDeserializer;
+import no.nordicsemi.android.meshprovisioner.transport.InternalElementListDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModelListDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
@@ -43,6 +45,17 @@ class NetworkImportExportUtils {
      */
     static void importMeshNetwork(final Context context, final Uri uri, final LoadNetworkCallbacks callbacks) {
         new NetworkImportAsyncTask(context, uri, callbacks).execute();
+    }
+
+    /**
+     * Creates an AsyncTask to import the a mesh network
+     *
+     * @param context   context
+     * @param networkJson       network json
+     * @param callbacks internal callbacks to notify network import
+     */
+    static void importMeshNetworkFromJson(final Context context, final String networkJson, final LoadNetworkCallbacks callbacks) {
+        new NetworkImportAsyncTask(context, networkJson, callbacks).execute();
     }
 
     /**
@@ -67,6 +80,7 @@ class NetworkImportExportUtils {
         private final LoadNetworkCallbacks callbacks;
         private MeshNetwork network;
         private String error;
+        private final String networkJson;
 
         /**
          * Creates an AsyncTask to import the a m
@@ -75,9 +89,24 @@ class NetworkImportExportUtils {
          * @param uri       file path
          * @param callbacks internal callbacks to notify network import
          */
-        NetworkImportAsyncTask(final Context context, final Uri uri, final LoadNetworkCallbacks callbacks) {
+        NetworkImportAsyncTask(@NonNull final Context context, @NonNull final Uri uri, @NonNull final LoadNetworkCallbacks callbacks) {
             this.context = new WeakReference<>(context);
             this.uri = uri;
+            this.networkJson = null;
+            this.callbacks = callbacks;
+        }
+
+        /**
+         * Creates an AsyncTask to import the a m
+         *
+         * @param context   context
+         * @param networkJson  network json
+         * @param callbacks internal callbacks to notify network import
+         */
+        NetworkImportAsyncTask(final Context context, final String networkJson, final LoadNetworkCallbacks callbacks) {
+            this.context = new WeakReference<>(context);
+            this.networkJson = networkJson;
+            this.uri = null;
             this.callbacks = callbacks;
         }
 
@@ -136,11 +165,11 @@ class NetworkImportExportUtils {
                 gsonBuilder.registerTypeAdapter(allocatedGroupRange, new AllocatedGroupRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(allocatedSceneRange, new AllocatedSceneRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(nodeList, new NodeDeserializer());
-                gsonBuilder.registerTypeAdapter(elementList, new ElementListDeserializer());
+                gsonBuilder.registerTypeAdapter(elementList, new InternalElementListDeserializer());
                 gsonBuilder.registerTypeAdapter(meshModelList, new MeshModelListDeserializer());
                 final Gson gson = gsonBuilder.create();
 
-                final String json = readJsonStringFromUri();
+                final String json = this.networkJson != null ? this.networkJson : readJsonStringFromUri();
                 final MeshNetwork network = gson.fromJson(json, MeshNetwork.class);
                 if (network != null) {
                     this.network = network;
@@ -188,6 +217,7 @@ class NetworkImportExportUtils {
         private final LoadNetworkCallbacks callbacks;
         private MeshNetwork network;
         private String error;
+        private String networkJson;
 
         /**
          * Creates an AsyncTask to import the a m
@@ -196,7 +226,7 @@ class NetworkImportExportUtils {
          * @param path      final string path
          * @param callbacks internal callbacks to notify network import
          */
-        NetworkExportAsyncTask(final MeshNetwork network, final String path, final LoadNetworkCallbacks callbacks) {
+        NetworkExportAsyncTask(final MeshNetwork network, @Nullable final String path, final LoadNetworkCallbacks callbacks) {
             this.network = network;
             this.path = path;
             this.callbacks = callbacks;
@@ -216,7 +246,11 @@ class NetworkImportExportUtils {
         protected void onPostExecute(final Boolean aVoid) {
             super.onPostExecute(aVoid);
             if (aVoid) {
-                callbacks.onNetworkExported(network);
+                if (this.path == null) {
+                    callbacks.onNetworkExportedJson(network, this.networkJson);
+                } else {
+                    callbacks.onNetworkExported(network);
+                }
             } else {
                 callbacks.onNetworkExportFailed(error);
             }
@@ -257,20 +291,24 @@ class NetworkImportExportUtils {
                 gsonBuilder.registerTypeAdapter(allocatedGroupRange, new AllocatedGroupRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(allocatedSceneRange, new AllocatedSceneRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(nodeList, new NodeDeserializer());
-                gsonBuilder.registerTypeAdapter(elementList, new ElementListDeserializer());
+                gsonBuilder.registerTypeAdapter(elementList, new InternalElementListDeserializer());
                 gsonBuilder.registerTypeAdapter(meshModelList, new MeshModelListDeserializer());
                 gsonBuilder.registerTypeAdapter(MeshNetwork.class, new MeshNetworkDeserializer());
 
-                gsonBuilder.setPrettyPrinting();
                 final Gson gson = gsonBuilder.create();
-                final String networkJson = gson.toJson(network);
 
-                final String fileName = network.getMeshUUID() + ".json";
-                final File f = new File(path, fileName);
-                br = new BufferedWriter(new FileWriter(f));
-                br.write(networkJson);
-                br.flush();
-                br.close();
+                if (this.path != null) {
+                    gsonBuilder.setPrettyPrinting();
+                    final String networkJson = gson.toJson(network);
+                    final String fileName = network.getMeshUUID() + ".json";
+                    final File f = new File(path, fileName);
+                    br = new BufferedWriter(new FileWriter(f));
+                    br.write(networkJson);
+                    br.flush();
+                    br.close();
+                } else {
+                    this.networkJson = gson.toJson(network);
+                }
                 return true;
             } catch (final com.google.gson.JsonSyntaxException ex) {
                 error = ex.getMessage();

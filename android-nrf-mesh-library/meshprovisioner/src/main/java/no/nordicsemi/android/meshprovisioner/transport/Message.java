@@ -22,10 +22,12 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.SparseArray;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
-abstract class Message {
+abstract class Message implements Parcelable {
 
     /**
      * ctl, if ctl = 0 access message and ctl = 1 control message
@@ -43,11 +45,11 @@ abstract class Message {
     /**
      * src, source address
      **/
-    private byte[] src;
+    private int src;
     /**
      * mDst, destination address
      **/
-    private byte[] dst;
+    private int dst;
     /**
      * sequence number, which is unique 24-bit value for each message
      **/
@@ -88,6 +90,51 @@ abstract class Message {
     private byte[] ivIndex;
     private boolean segmented;
 
+    Message(){}
+
+    protected Message(final Parcel source) {
+        ctl = source.readInt();
+        networkPdu = readSparseArrayToParcelable(source);
+        pduType = source.readInt();
+        ttl = source.readInt();
+        src = source.readInt();
+        dst = source.readInt();
+        mSequenceNumber = source.createByteArray();
+        key = source.createByteArray();
+        encryptionKey = source.createByteArray();
+        privacyKey = source.createByteArray();
+        akf = source.readInt();
+        aid = source.readInt();
+        aszmic = source.readInt();
+        opCode = source.readInt();
+        parameters = source.createByteArray();
+        companyIdentifier = source.readInt();
+        ivIndex = source.createByteArray();
+        segmented = source.readInt() == 1;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeInt(ctl);
+        writeSparseArrayToParcelable(dest, networkPdu);
+        dest.writeInt(pduType);
+        dest.writeInt(ttl);
+        dest.writeInt(src);
+        dest.writeInt(dst);
+        dest.writeByteArray(mSequenceNumber);
+        dest.writeByteArray(key);
+        dest.writeByteArray(encryptionKey);
+        dest.writeByteArray(privacyKey);
+        dest.writeInt(akf);
+        dest.writeInt(aid);
+        dest.writeInt(aszmic);
+        dest.writeInt(opCode);
+        dest.writeByteArray(parameters);
+        dest.writeInt(companyIdentifier);
+        dest.writeByteArray(ivIndex);
+        dest.writeInt(segmented ? 1 : 0);
+    }
+
     public abstract int getCtl();
 
     int getPduType() {
@@ -106,19 +153,19 @@ abstract class Message {
         this.ttl = ttl;
     }
 
-    public final byte[] getSrc() {
+    public final int getSrc() {
         return src;
     }
 
-    public final void setSrc(final byte[] src) {
+    public final void setSrc(final int src) {
         this.src = src;
     }
 
-    public final byte[] getDst() {
+    public final int getDst() {
         return dst;
     }
 
-    public final void setDst(final byte[] dst) {
+    public final void setDst(final int dst) {
         this.dst = dst;
     }
 
@@ -224,5 +271,22 @@ abstract class Message {
 
     final void setNetworkPdu(final SparseArray<byte[]> pdu) {
         networkPdu = pdu;
+    }
+
+    protected final void writeSparseArrayToParcelable(final Parcel dest, final SparseArray<byte[]> array){
+        final int size = array.size();
+        dest.writeInt(size);
+        for(int i = 0; i < size; i++) {
+            dest.writeByteArray(array.valueAt(i));
+        }
+    }
+
+    protected final SparseArray<byte[]> readSparseArrayToParcelable(final Parcel src){
+        final SparseArray<byte[]> array = new SparseArray<>();
+        final int size = src.readInt();
+        for(int i = 0; i < size; i++) {
+            array.put(i, src.createByteArray());
+        }
+        return array;
     }
 }

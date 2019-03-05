@@ -47,6 +47,7 @@
         android:text="@string/no_app_keys_title"/>
 
     <TextView
+        android:id="@+id/rationale"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_vertical_margin"

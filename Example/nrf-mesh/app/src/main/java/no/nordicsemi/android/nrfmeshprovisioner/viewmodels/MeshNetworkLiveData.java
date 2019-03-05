@@ -52,8 +52,11 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      */
     void loadNetworkInformation(@NonNull final MeshNetwork meshNetwork) {
         this.meshNetwork = meshNetwork;
-        this.selectedAppKey = null;
         postValue(this);
+    }
+
+    public MeshNetwork getMeshNetwork() {
+        return meshNetwork;
     }
 
     /**
@@ -132,7 +135,7 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      * @return 16-bit unicast address
      */
     public int getUnicastAddress() {
-        final byte[] unicast = meshNetwork.getUnicastAddress();
+        final byte[] unicast = AddressUtils.getUnicastAddressBytes(meshNetwork.getUnicastAddress());
         return AddressUtils.getUnicastAddressInt(unicast);
     }
 
@@ -142,12 +145,12 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      * @param unicastAddress 16-bit unicast address
      */
     public void setUnicastAddress(final int unicastAddress) {
-        meshNetwork.setUnicastAddress(unicastAddress);
+        meshNetwork.assignUnicastAddress(unicastAddress);
         postValue(this);
     }
 
     public byte[] getProvisionerAddress() {
-        return meshNetwork.getProvisionerAddress();
+        return AddressUtils.getUnicastAddressBytes(meshNetwork.getProvisionerAddress());
     }
 
     public boolean setProvisionerAddress(final int address) {
@@ -210,6 +213,10 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
         postValue(this);
     }
 
+    public void resetSelectedAppKey(){
+        this.selectedAppKey = null;
+    }
+
     /**
      * Adds an application key to the next available index in the global app key list
      * @param applicationKey key {@link ApplicationKey}
@@ -224,21 +231,21 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
     /**
      * Adds an application key to the mesh network
      */
-    public void addAppKey(final int position, final ApplicationKey applicationKey) {
+    public void addAppKey(final ApplicationKey applicationKey) {
         if (meshNetwork != null) {
-            meshNetwork.addAppKey(position, applicationKey);
+            meshNetwork.addAppKey(applicationKey);
         }
         postValue(this);
     }
 
     /**
-     * Update the application key
-     * @param position update app key in given position
+     * Update the application key in a particular position
+     * @param keyIndex update app key in given key index
      * @param applicationKey app key
      */
-    public void updateAppKey(final int position, final String applicationKey) {
+    public void updateAppKey(final int keyIndex, final String applicationKey) {
         if (meshNetwork != null) {
-            meshNetwork.updateAppKey(position, applicationKey);
+            meshNetwork.updateAppKey(keyIndex, applicationKey);
         }
         postValue(this);
     }

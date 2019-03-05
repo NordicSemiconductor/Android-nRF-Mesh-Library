@@ -16,6 +16,7 @@ import no.nordicsemi.android.meshprovisioner.AllocatedSceneRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedUnicastRange;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.transport.ElementDbMigrator;
 import no.nordicsemi.android.meshprovisioner.transport.InternalMeshModelDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
@@ -58,6 +59,7 @@ public class MeshTypeConverters {
         }.getType();
         return new GsonBuilder().
                 excludeFieldsWithoutExposeAnnotation().
+                registerTypeAdapter(Element.class, new ElementDbMigrator()).
                 registerTypeAdapter(MeshModel.class, new InternalMeshModelDeserializer()).
                 create().fromJson(elementsJson, elements);
     }
@@ -71,7 +73,10 @@ public class MeshTypeConverters {
     public List<AllocatedGroupRange> fromJsonToAllocatedGroupRanges(final String rangesJson){
         Type ranges = new TypeToken<List<AllocatedGroupRange>>() {
         }.getType();
-        return new Gson().fromJson(rangesJson, ranges);
+        return new GsonBuilder().
+                registerTypeAdapter(AllocatedGroupRange.class, new AllocatedGroupRangeDbMigrator()).
+                create().
+                fromJson(rangesJson, ranges);
     }
 
     @TypeConverter
@@ -93,9 +98,12 @@ public class MeshTypeConverters {
 
     @TypeConverter
     public List<AllocatedUnicastRange> fromJsonToAllocatedUnicastRanges(final String rangesJson){
-        Type ranges = new TypeToken<List<AllocatedUnicastRange>>() {
+        Type ranges = new TypeToken<AllocatedUnicastRange>() {
         }.getType();
-        return new Gson().fromJson(rangesJson, ranges);
+        return new GsonBuilder().
+                registerTypeAdapter(AllocatedUnicastRange.class, new AllocatedUnicastRangeDbMigrator()).
+                create().
+                fromJson(rangesJson, ranges);
     }
 
     @TypeConverter
