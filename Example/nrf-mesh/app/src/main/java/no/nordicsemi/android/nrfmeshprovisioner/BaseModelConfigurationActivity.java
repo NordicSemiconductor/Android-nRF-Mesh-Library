@@ -41,7 +41,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,6 +75,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatu
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDisconnected;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGroupSubscription;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
@@ -171,11 +171,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
         mActionBindAppKey.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, ManageAppKeysActivity.class);
-            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
-            if (node != null) {
-                bindAppKeysIntent.putExtra(ManageAppKeysActivity.APP_KEYS, (Serializable) node.getAddedApplicationKeys());
-                startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
-            }
+            bindAppKeysIntent.putExtra(Utils.EXTRA_DATA, Utils.BIND_APP_KEY);
+            startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
         mPublishAddressView.setText(R.string.none);

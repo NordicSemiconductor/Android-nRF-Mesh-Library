@@ -17,6 +17,8 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 @SuppressWarnings({"WeakerAccess", "unused", "UnusedReturnValue"})
 @Entity(tableName = "mesh_network")
@@ -298,7 +300,9 @@ public final class MeshNetwork extends BaseMeshNetwork {
             }
         }
 
-        return null;
+        final NetworkKey networkKey = new NetworkKey(0, MeshParserUtils.toByteArray(SecureUtils.generateRandomNetworkKey()));
+        netKeys.add(networkKey);
+        return networkKey;
     }
 
     void setNetKeys(List<NetworkKey> netKeys) {

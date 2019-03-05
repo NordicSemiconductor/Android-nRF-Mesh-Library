@@ -28,7 +28,6 @@ import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.UnprovisionedBeacon;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
-import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
@@ -70,6 +69,7 @@ import static no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager.MESH_P
 public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshStatusCallbacks, MeshManagerCallbacks, BleMeshManagerCallbacks {
 
     private static final String TAG = NrfMeshRepository.class.getSimpleName();
+    private static final int ATTENTION_TIMER = 5;
     public static final String EXPORT_PATH = Environment.getExternalStorageDirectory() + File.separator +
             "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
     private static final String EXPORTED_PATH = "sdcard" + File.separator + "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
@@ -364,12 +364,12 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void identifyNode(final ExtendedBluetoothDevice device) {
         final UnprovisionedBeacon beacon = (UnprovisionedBeacon) device.getBeacon();
         if (beacon != null) {
-            mMeshManagerApi.identifyNode(beacon.getUuid(), device.getName());
+            mMeshManagerApi.identifyNode(beacon.getUuid(), device.getName(), ATTENTION_TIMER);
         } else {
             final byte[] serviceData = Utils.getServiceData(device.getScanResult(), BleMeshManager.MESH_PROVISIONING_UUID);
             if (serviceData != null) {
                 final UUID uuid = mMeshManagerApi.getDeviceUuid(serviceData);
-                mMeshManagerApi.identifyNode(uuid, device.getName());
+                mMeshManagerApi.identifyNode(uuid, device.getName(), ATTENTION_TIMER);
             }
         }
     }

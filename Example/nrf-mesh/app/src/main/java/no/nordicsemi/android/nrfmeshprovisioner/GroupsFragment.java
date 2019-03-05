@@ -99,8 +99,7 @@ public class GroupsFragment extends Fragment implements Injectable,
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerViewGroups);
-        //final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        final GroupAdapter adapter = new GroupAdapter(requireContext());//,  network, mViewModel.getGroups().getValue());
+        final GroupAdapter adapter = new GroupAdapter(requireContext());
         adapter.setOnItemClickListener(this);
         recyclerViewGroups.setAdapter(adapter);
 
@@ -154,16 +153,6 @@ public class GroupsFragment extends Fragment implements Injectable,
                 return true;
         }
         return false;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
     }
 
     @Override

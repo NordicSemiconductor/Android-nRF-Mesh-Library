@@ -1,0 +1,111 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="100.0"
+    android:viewportHeight="100.0">
+
+    <path
+        android:name="line_0"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M50,15L80,34Z"/>
+    <path
+        android:name="line_1"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M80,34L80,66Z"/>
+    <path
+        android:name="line_2"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M80,66L50,85Z"/>
+    <path
+        android:name="line_3"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M20,66L50,85Z"/>
+    <path
+        android:name="line_4"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M20,34L20,66Z"/>
+    <path
+        android:name="line_5"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M50,15L20,34Z"/>
+
+    <path
+        android:name="line_vertical"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M50,15L50,80Z"/>
+    <path
+        android:name="line_horizontal_1"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M20,34L80,34Z"/>
+    <path
+        android:name="line_horizontal_2"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M20,66L80,66Z"/>
+
+    <path
+        android:name="line_0_2"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M50,15L80,66Z"/>
+    <path
+        android:name="line_0_4"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M50,15L20,66Z"/>
+
+    <path
+        android:name="line_3_1"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M50,85L80,34Z"/>
+    <path
+        android:name="line_3_5"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M50,85L20,34Z"/>
+
+    <path
+        android:name="line_1_4"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M80,33L20,66Z"/>
+    <path
+        android:name="line_2_5"
+        android:strokeColor="@color/white"
+        android:strokeWidth="3"
+        android:pathData="M80,66L20,34Z"/>
+
+    <path
+        android:name="circle_0"
+        android:fillColor="@color/white"
+        android:pathData="M50,15m0,10a10,10 0,1 1,1 0"/>
+    <path
+        android:name="circle_1"
+        android:fillColor="@color/white"
+        android:pathData="M80,34m0,10a10,10 0,1 1,1 0"/>
+    <path
+        android:name="circle_2"
+        android:fillColor="@color/white"
+        android:pathData="M80,66m0,10a10,10 0,1 1,1 0"/>
+    <path
+        android:name="circle_3"
+        android:fillColor="@color/white"
+        android:pathData="M50,85m0,10a10,10 0,1 1,1 0"/>
+    <path
+        android:name="circle_4"
+        android:fillColor="@color/white"
+        android:pathData="M20,66m0,10a10,10 0,1 1,1 0"/>
+    <path
+        android:name="circle_1"
+        android:fillColor="@color/white"
+        android:pathData="M20,34m0,10a10,10 0,1 1,1 0"/>
+</vector>

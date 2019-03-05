@@ -84,6 +84,7 @@
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:text="@string/action_generic_on"
+                    android:background="?selectableItemBackgroundBorderless"
                     style="@style/BlueTextButton"/>
 
 
@@ -93,6 +94,7 @@
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:text="@string/action_generic_off"
+                    android:background="?selectableItemBackgroundBorderless"
                     style="@style/BlueTextButton"/>
 
             </LinearLayout>

@@ -32,6 +32,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublication
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentRetransmitCount;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
 
 public class PublicationSettingsActivity extends AppCompatActivity implements Injectable,
@@ -147,6 +148,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
         actionKeyIndex.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(this, ManageAppKeysActivity.class);
+            bindAppKeysIntent.putExtra(Utils.EXTRA_DATA, Utils.PUBLICATION_APP_KEY);
             startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 

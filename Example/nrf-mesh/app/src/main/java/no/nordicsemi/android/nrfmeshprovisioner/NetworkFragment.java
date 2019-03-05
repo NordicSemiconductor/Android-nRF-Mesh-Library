@@ -29,8 +29,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -39,10 +40,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.NodeAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -61,7 +63,11 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
-    private RecyclerView mRecyclerViewNodes;
+    @BindView(R.id.main_content)
+    View container;
+    @BindView(R.id.recycler_view_provisioned_nodes)
+    RecyclerView mRecyclerViewNodes;
+
     private NodeAdapter mAdapter;
 
     @Override
@@ -74,23 +80,19 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_network, null);
-        // Configure the recycler view
-        mRecyclerViewNodes = rootView.findViewById(R.id.recycler_view_provisioned_nodes);
+        ButterKnife.bind(this, rootView);
+
         final FloatingActionButton fab = rootView.findViewById(R.id.fab_add_node);
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
 
         mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
 
-        boolean isTablet = getResources().getBoolean(R.bool.isTablet);
-        if (isTablet) {
-            mRecyclerViewNodes.setLayoutManager(new GridLayoutManager(getContext(), 2)); //If its a tablet we use a grid layout with 2 columns
-        } else {
-            mRecyclerViewNodes.setLayoutManager(new LinearLayoutManager(getContext()));
-        }
-
-
+        // Configure the recycler view
         mAdapter = new NodeAdapter(getActivity(), mViewModel.getProvisionedNodes());
         mAdapter.setOnItemClickListener(this);
+        mRecyclerViewNodes.setLayoutManager(new LinearLayoutManager(getContext()));
+        final DividerItemDecoration decoration = new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
+        mRecyclerViewNodes.addItemDecoration(decoration);
         mRecyclerViewNodes.setAdapter(mAdapter);
 
         // Create view model containing utility methods for scanning
@@ -121,11 +123,6 @@ public class NetworkFragment extends Fragment implements Injectable,
 
         return rootView;
 
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -192,7 +189,7 @@ public class NetworkFragment extends Fragment implements Injectable,
             final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
             requireActivity().startActivity(meshConfigurationIntent);
         } else {
-            Toast.makeText(getActivity(), R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();
+            displaySnackBar(getString(R.string.disconnected_network_rationale));
         }
     }
 
@@ -201,5 +198,12 @@ public class NetworkFragment extends Fragment implements Injectable,
         final Intent meshConfigurationIntent = new Intent(getActivity(), NodeDetailsActivity.class);
         meshConfigurationIntent.putExtra(Utils.EXTRA_DEVICE, node);
         requireActivity().startActivity(meshConfigurationIntent);
+    }
+
+
+    private void displaySnackBar(final String message){
+        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
+                .show();
     }
 }

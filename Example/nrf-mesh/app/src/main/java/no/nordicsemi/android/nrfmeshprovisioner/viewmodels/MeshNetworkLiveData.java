@@ -52,7 +52,6 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      */
     void loadNetworkInformation(@NonNull final MeshNetwork meshNetwork) {
         this.meshNetwork = meshNetwork;
-        this.selectedAppKey = null;
         postValue(this);
     }
 
@@ -212,6 +211,10 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
     public void setSelectedAppKey(final ApplicationKey appKey) {
         this.selectedAppKey = appKey;
         postValue(this);
+    }
+
+    public void resetSelectedAppKey(){
+        this.selectedAppKey = null;
     }
 
     /**

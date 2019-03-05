@@ -26,6 +26,6 @@
     <solid android:color="@color/colorPrimary"/>
 
     <size
-        android:width="@dimen/device_icon_size"
-        android:height="@dimen/device_icon_size"/>
+        android:width="48dp"
+        android:height="48dp"/>
 </shape>

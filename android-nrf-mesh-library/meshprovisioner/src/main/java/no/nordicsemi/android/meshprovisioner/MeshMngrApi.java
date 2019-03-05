@@ -28,9 +28,22 @@ interface MeshMngrApi {
     void identifyNode(@NonNull final UUID deviceUUID, @Nullable final String nodeName) throws IllegalArgumentException;
 
     /**
+     * Identifies the node that is to be provisioned.
+     * <p>
+     * This method will send a provisioning invite to the connected peripheral. This will help users to identify a particular node before starting the provisioning process.
+     * This method must be invoked before calling {@link #startProvisioning(UnprovisionedMeshNode)}
+     * </p
+     *
+     * @param deviceUUID     Device uuid of the unprovisioned mesh node. This could be obtain by calling {{@link #getMeshBeacon(byte[])}}
+     * @param nodeName       Friendly node name
+     * @param attentionTimer Attention timer in seconds
+     */
+    void identifyNode(@NonNull final UUID deviceUUID, @Nullable final String nodeName, final int attentionTimer) throws IllegalArgumentException;
+
+    /**
      * Starts provisioning an unprovisioned mesh node
      * <p>
-     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
+     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String, int)}.
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
@@ -40,7 +53,7 @@ interface MeshMngrApi {
     /**
      * Starts provisioning an unprovisioned mesh node with static oob
      * <p>
-     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
+     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String, int)}.
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
@@ -50,22 +63,22 @@ interface MeshMngrApi {
     /**
      * Starts provisioning an unprovisioned mesh node output oob
      * <p>
-     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
+     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String, int)}.
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
-     * @param oobAction selected {@link OutputOOBAction}
+     * @param oobAction             selected {@link OutputOOBAction}
      */
     void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final OutputOOBAction oobAction) throws IllegalArgumentException;
 
     /**
      * Starts provisioning an unprovisioned mesh node input OOB
      * <p>
-     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String)}.
+     * This method will continue the provisioning process that was started by invoking {@link #identifyNode(UUID, String, int)}.
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode} node
-     * @param oobAction selected {@link InputOOBAction}
+     * @param oobAction             selected {@link InputOOBAction}
      */
     void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final InputOOBAction oobAction) throws IllegalArgumentException;
 

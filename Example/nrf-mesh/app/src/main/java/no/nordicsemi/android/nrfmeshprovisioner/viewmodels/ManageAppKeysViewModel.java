@@ -1,9 +1,11 @@
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
 
 /**
@@ -23,5 +25,9 @@ public class ManageAppKeysViewModel extends ViewModel {
      */
     public MeshNetworkLiveData getMeshNetworkLiveData() {
         return mNrfMeshRepository.getMeshNetworkLiveData();
+    }
+
+    public LiveData<ProvisionedMeshNode> getSelectedMeshNode() {
+        return mNrfMeshRepository.getSelectedMeshNode();
     }
 }

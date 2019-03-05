@@ -34,6 +34,7 @@ import com.google.gson.GsonBuilder;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -167,6 +168,7 @@ public class MeshManagerApi implements MeshMngrApi {
         mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(networkLayerCallbacks);
         mMeshMessageHandler.getMeshTransport().setUpperTransportLayerCallbacks(upperTransportLayerCallbacks);
 
+        initBouncyCastle();
         //Init database
         initDb(context);
         initGson();
@@ -225,6 +227,10 @@ public class MeshManagerApi implements MeshMngrApi {
      */
     public MeshNetwork getMeshNetwork() {
         return mMeshNetwork;
+    }
+
+    private void initBouncyCastle(){
+        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
     }
 
     private void initDb(final Context context) {
@@ -547,14 +553,25 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
-    public void identifyNode(@NonNull final UUID deviceUuid, final String nodeName) throws IllegalArgumentException {
-        //We must save all the provisioning data here so that they could be reused when provisioning the next devices
+    public void identifyNode(@NonNull final UUID deviceUUID, @Nullable final String nodeName) throws IllegalArgumentException {
+        mMeshProvisioningHandler.identify(deviceUUID, nodeName,
+                mMeshNetwork.getPrimaryNetworkKey(),
+                mMeshNetwork.getProvisioningFlags(),
+                mMeshNetwork.getIvIndex(),
+                mMeshNetwork.getUnicastAddress(),
+                mMeshNetwork.getGlobalTtl(), mMeshNetwork.getProvisionerAddress(), MeshProvisioningHandler.ATTENTION_TIMER);
+    }
+
+    @Override
+    public void identifyNode(@NonNull final UUID deviceUuid,
+                             final String nodeName,
+                             final int attentionTimer) throws IllegalArgumentException {
         mMeshProvisioningHandler.identify(deviceUuid, nodeName,
                 mMeshNetwork.getPrimaryNetworkKey(),
                 mMeshNetwork.getProvisioningFlags(),
                 mMeshNetwork.getIvIndex(),
                 mMeshNetwork.getUnicastAddress(),
-                mMeshNetwork.getGlobalTtl(), mMeshNetwork.getProvisionerAddress());
+                mMeshNetwork.getGlobalTtl(), mMeshNetwork.getProvisionerAddress(), attentionTimer);
     }
 
     @Override

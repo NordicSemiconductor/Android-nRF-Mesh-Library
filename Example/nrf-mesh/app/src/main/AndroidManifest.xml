@@ -55,7 +55,7 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:icon="@drawable/ic_blinky_feature"
+            android:icon="@drawable/ic_feature_mesh"
             android:label="@string/feature_name"
             android:launchMode="singleTop">
             <intent-filter>

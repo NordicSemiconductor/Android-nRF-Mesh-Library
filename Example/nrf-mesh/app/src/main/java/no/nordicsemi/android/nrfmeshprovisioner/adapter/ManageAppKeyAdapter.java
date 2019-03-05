@@ -55,13 +55,20 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
         meshNetworkLiveData.observe(activity, networkData -> {
             //noinspection ConstantConditions
             final List<ApplicationKey> keys = networkData.getAppKeys();
-            if(keys != null){
+            if (keys != null) {
                 appKeys.clear();
                 appKeys.addAll(keys);
                 Collections.sort(appKeys, Utils.appKeyComparator);
             }
             notifyDataSetChanged();
         });
+    }
+
+    public ManageAppKeyAdapter(final ManageAppKeysActivity activity, final List<ApplicationKey> appKeys) {
+        this.mContext = activity;
+        this.appKeys.addAll(appKeys);
+        Collections.sort(appKeys, Utils.appKeyComparator);
+        notifyDataSetChanged();
     }
 
     public void setOnItemClickListener(final ManageAppKeyAdapter.OnItemClickListener listener) {
@@ -77,9 +84,9 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
 
     @Override
     public void onBindViewHolder(@NonNull final ManageAppKeyAdapter.ViewHolder holder, final int position) {
-        if(appKeys.size() > 0) {
+        if (appKeys.size() > 0) {
             final ApplicationKey appKey = appKeys.get(position);
-            holder.appKeyId.setText(mContext.getString(R.string.app_key_item , appKey.getKeyIndex()));
+            holder.appKeyId.setText(mContext.getString(R.string.app_key_item, appKey.getKeyIndex()));
             final String key = MeshParserUtils.bytesToHex(appKey.getKey(), false);
             holder.appKey.setText(key.toUpperCase());
             holder.getSwipeableView().setTag(appKey);

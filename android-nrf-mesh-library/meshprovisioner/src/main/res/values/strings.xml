@@ -23,11 +23,6 @@
 <resources>
     <string name="app_name">Android-Mesh-Provisioner-Library</string>
 
-    <string name="provisioning_complete">Provisioning complete!</string>
-    <string name="provisioning_failed">Provisioning failed!</string>
-
-    <string name="invalid_provisioning_capabilities">Invalid provisioning capabilities</string>
-
     <string name="error_empty_pin">Error, pin cannot be empty!</string>
 
     <string name="error_empty_network_name">Network name cannot be empty!</string>
@@ -40,85 +35,22 @@
 
     <string name="error_empty_key_index">Key index cannot be empty!</string>
     <string name="error_invalid_key_index">Key index must be 0 to 4095!</string>
-    <string name="error_invalid_uint8">Error, value must be UINT8!</string>
 
     <string name="error_empty_iv_index">IV Index cannot be empty!</string>
     <string name="error_invalid_iv_index">IV Index must be 0 to 4294967295!</string>
 
     <string name="error_empty_unicast_address">Unicast Address cannot be empty!</string>
-    <string name="error_invalid_unicast_address">Unicast Address must be between 0 and 32767!</string>
-
-    <string name="sending_provisioning_invite">Sending provisioning invite PDU</string>
-    <string name="provisioning_invite_sent">Provisioning invite PDU sent</string>
-
-    <string name="provisionee_capabilities_received">Provisionee capabilities received</string>
-
-    <string name="sending_start_provisioning_pdu">Sending start provisioning PDU</string>
-    <string name="start_provisioning_pdu_sent">Start provisioning PDU sent</string>
-
-    <string name="sending_provisioner_public_key_xy">Sending provisioner public key xy PDU</string>
-    <string name="sending_provisioner_public_key_xy_parts">Sending part %d of provisioner public key xy</string>
-    <string name="provisioner_public_key_xy_sent">Provisioner public key xy sent</string>
-
-    <string name="provisionee_public_key_xy_parts">Part %d of provisioneeManager public key xy received</string>
-    <string name="provisionee_public_key_xy">Provisionee public key xy received</string>
-
-    <string name="provisionee_confirmation_received">Provisionee confirmation received.</string>
-
-    <string name="sending_provision_confirmation">Sending provisioneeManager confirmation PDU</string>
-
-    <string name="provisionee_random_received">Provisionee random received</string>
-
-    <string name="success_confirmations_match">Confirmation values match</string>
-    <string name="error_confirmations_dont_match">Confirmation values do not match</string>
-
-    <string name="sending_provisioning_random">Sending provisioning random PDU</string>
-
-    <string name="sending_provisioning_data_parts">Sending part %d of provisioning data PDU</string>
-    <string name="sending_provisioning_data">Sending provisioning data</string>
-
-    <string name="default_network_name">My Network</string>
 
     <string name="error_empty_app_key">App key cannot be empty!</string>
     <string name="error_invalid_app_key">App key must be 16 bytes long and must be a valid hex value!</string>
-    <string name="error_invalid_key">Key must be a hex value!</string>
-    <string name="error_null_key">App key cannot be null!</string>
 
     <string name="error_prohibited">Prohibited!</string>
     <string name="error_invalid_pdu">The provisioning protocol PDU is not recognized by the device!</string>
     <string name="error_invalid_format">The arguments of the protocol PDUs are outside expected values or the length of the PDU is different than expected!</string>
-    <string name="error_unexpected_pdu">The PDU received was not expected at this moment of the procedure!</string>
     <string name="error_confirmation_failed">The computed confirmation value was not successfully verified!</string>
-    <string name="error_out_of_resources">The provisioning protocol cannot be continued due to insufficient resources in the device!</string>
     <string name="error_decryption_failed">The Data block was not successfully decrypted!</string>
     <string name="error_unexpected_error">An unexpected error occurred that may not be recoverable!</string>
     <string name="error_cannot_assign_addresses">The device cannot assign consecutive unicast addresses to all elements!</string>
     <string name="error_rfu">Reserved for Future Use!</string>
 
-    <string name="status_success">App key was added successfully</string>
-    <string name="status_invalid_address">Invalid Address</string>
-    <string name="status_invalid_model">Invalid Model</string>
-    <string name="status_invalid_appkey_index">Invalid AppKey Index</string>
-    <string name="status_invalid_netkey_index">Invalid NetKey Index</string>
-    <string name="status_insufficient_resources">Insufficient Resources</string>
-    <string name="status_key_index_already_stored">Key Index Already Stored</string>
-    <string name="status_invalid_publish_parameters">Invalid Publish Parameters</string>
-    <string name="status_not_a_subscribe_model">Not a Subscribe Model</string>
-    <string name="status_storage_failure">Storage Failure</string>
-    <string name="status_feature_not_supported">Feature Not Supported</string>
-    <string name="status_cannot_update">Cannot Update</string>
-    <string name="status_cannot_remove">Cannot Remove</string>
-    <string name="status_cannot_bind">Cannot Bind</string>
-    <string name="status_temporarily_unable_to_change_state">Temporarily Unable to Change state</string>
-    <string name="status_cannot_set">Cannot Set</string>
-    <string name="status_unspecified_error">Unspecified Error</string>
-    <string name="status_success_invalid_binding">Invalid Binding</string>
-    <string name="app_key_status_rfu">RFU</string>
-
-    <string name="app_key_bind_status_success">App key was successfully bound</string>
-    <string name="publish_address_status_success">Publish address was successfully set</string>
-    <string name="success">Success</string>
-
-    <string name="error_mesh_node_null">Mesh node cannot be null!</string>
-    <string name="invalid_bluetooth_address">Invalid bluetooth address</string>
 </resources>
