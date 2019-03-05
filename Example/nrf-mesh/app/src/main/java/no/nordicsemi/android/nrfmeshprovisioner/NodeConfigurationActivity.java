@@ -253,6 +253,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
         actionAddAppkey.setOnClickListener(v -> {
             final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageAppKeysActivity.class);
+            addAppKeys.putExtra(Utils.EXTRA_DATA, Utils.ADD_APP_KEY);
             startActivityForResult(addAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 

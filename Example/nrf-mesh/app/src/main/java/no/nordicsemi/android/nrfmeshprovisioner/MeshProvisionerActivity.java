@@ -154,7 +154,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         unicastAddressTitle.setText(R.string.summary_unicast_address);
         final TextView unicastAddressView = containerUnicastAddress.findViewById(R.id.text);
         containerUnicastAddress.setOnClickListener(v -> {
-            final int unicastAddress = mViewModel.getMeshNetworkLiveData().getValue().getUnicastAddress();
+            final int unicastAddress = mViewModel.getMeshNetworkLiveData().getUnicastAddress();
             final DialogFragmentUnicastAddress dialogFragmentFlags = DialogFragmentUnicastAddress.newInstance(unicastAddress);
             dialogFragmentFlags.show(getSupportFragmentManager(), null);
         });
@@ -165,9 +165,8 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         appKeyTitle.setText(R.string.summary_app_keys);
         final TextView appKeyView = containerAppKey.findViewById(R.id.text);
         containerAppKey.setOnClickListener(v -> {
-            final List<ApplicationKey> appKeys = mViewModel.getMeshNetworkLiveData().getValue().getAppKeys();
             final Intent manageAppKeys = new Intent(MeshProvisionerActivity.this, ManageAppKeysActivity.class);
-            manageAppKeys.putExtra(ManageAppKeysActivity.APP_KEYS, new ArrayList<>(appKeys));
+            manageAppKeys.putExtra(Utils.EXTRA_DATA, Utils.ADD_APP_KEY);
             startActivityForResult(manageAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
         });
 
@@ -212,10 +211,8 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
             nameView.setText(meshNetworkLiveData.getNodeName());
             unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", meshNetworkLiveData.getUnicastAddress())));
-            if (meshNetworkLiveData != null) {
-                final ApplicationKey applicationKey = meshNetworkLiveData.getSelectedAppKey();
-                appKeyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
-            }
+            final ApplicationKey applicationKey = meshNetworkLiveData.getSelectedAppKey();
+            appKeyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
         });
 
         mViewModel.getUnProvisionedMeshNode().observe(this, meshNode -> {
@@ -231,7 +228,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         provisioner.setOnClickListener(v -> {
             final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
             if (node == null) {
-                device.setName(mViewModel.getMeshNetworkLiveData().getValue().getNodeName());
+                device.setName(mViewModel.getMeshNetworkLiveData().getNodeName());
                 mViewModel.getNrfMeshRepository().identifyNode(device);
                 return;
             }
@@ -246,6 +243,9 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 }
             }
         });
+
+        if(savedInstanceState == null)
+            mViewModel.getMeshNetworkLiveData().resetSelectedAppKey();
     }
 
     @Override
@@ -277,8 +277,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             if (resultCode == RESULT_OK) {
                 final ApplicationKey appKey = data.getParcelableExtra(ManageAppKeysActivity.RESULT_APP_KEY);
                 if (appKey != null) {
-                    final MeshNetworkLiveData provisioningSettings = mViewModel.getMeshNetworkLiveData().getValue();
-                    provisioningSettings.setSelectedAppKey(appKey);
+                    mViewModel.getMeshNetworkLiveData().setSelectedAppKey(appKey);
                 }
             }
         }
@@ -299,38 +298,32 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
     @Override
     public void onNodeNameUpdated(final String nodeName) {
-        final MeshNetworkLiveData networkLiveData = mViewModel.getMeshNetworkLiveData().getValue();
-        networkLiveData.setNodeName(nodeName);
+        mViewModel.getMeshNetworkLiveData().setNodeName(nodeName);
     }
 
     @Override
     public void onNetworkKeyGenerated(final String networkKey) {
-        final MeshNetworkLiveData networkLiveData = mViewModel.getMeshNetworkLiveData().getValue();
-        networkLiveData.setPrimaryNetworkKey(networkKey);
+        mViewModel.getMeshNetworkLiveData().setPrimaryNetworkKey(networkKey);
     }
 
     @Override
     public void onKeyIndexGenerated(final int keyIndex) {
-        final MeshNetworkLiveData networkLiveData = mViewModel.getMeshNetworkLiveData().getValue();
-        networkLiveData.setKeyIndex(keyIndex);
+        mViewModel.getMeshNetworkLiveData().setKeyIndex(keyIndex);
     }
 
     @Override
     public void onFlagsSelected(final int keyRefreshFlag, final int ivUpdateFlag) {
-        final MeshNetworkLiveData networkLiveData = mViewModel.getMeshNetworkLiveData().getValue();
-        networkLiveData.setFlags(MeshParserUtils.parseUpdateFlags(keyRefreshFlag, ivUpdateFlag));
+        mViewModel.getMeshNetworkLiveData().setFlags(MeshParserUtils.parseUpdateFlags(keyRefreshFlag, ivUpdateFlag));
     }
 
     @Override
     public void setIvIndex(final int ivIndex) {
-        final MeshNetworkLiveData networkLiveData = mViewModel.getMeshNetworkLiveData().getValue();
-        networkLiveData.setIvIndex(ivIndex);
+        mViewModel.getMeshNetworkLiveData().setIvIndex(ivIndex);
     }
 
     @Override
     public void setUnicastAddress(final int unicastAddress) {
-        final MeshNetworkLiveData networkLiveData = mViewModel.getMeshNetworkLiveData().getValue();
-        networkLiveData.setUnicastAddress(unicastAddress);
+        mViewModel.getMeshNetworkLiveData().setUnicastAddress(unicastAddress);
     }
 
     @Override
@@ -354,56 +347,58 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         recyclerView.setAdapter(adapter);
 
         mViewModel.getProvisioningStatus().observe(this, provisioningStateLiveData -> {
-            final ProvisionerProgress provisionerProgress = provisioningStateLiveData.getProvisionerProgress();
-            adapter.refresh(provisioningStateLiveData.getStateList());
-            if (provisionerProgress != null) {
-                final ProvisioningStatusLiveData.ProvisioningLiveDataState state = provisionerProgress.getState();
-                switch (state) {
-                    case PROVISIONING_FAILED:
-                        if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_PROVISIONING_FAILED) == null) {
-                            final String statusMessage = ProvisioningFailedState.parseProvisioningFailure(getApplicationContext(), provisionerProgress.getStatusReceived());
-                            DialogFragmentProvisioningFailedError message = DialogFragmentProvisioningFailedError.newInstance(getString(R.string.title_error_provisioning_failed), statusMessage);
-                            message.show(getSupportFragmentManager(), DIALOG_FRAGMENT_PROVISIONING_FAILED);
-                        }
-                        break;
-                    case PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING:
-                        if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
-                            DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
-                                    newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
-                            dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
-                        }
-                        break;
-                    case PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING:
-                        if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
-                            DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
-                                    newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
-                            dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
-                        }
-                        break;
-                    case PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING:
-                        if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
-                            DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
-                                    newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
-                            dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
-                        }
-                        break;
-                    case PROVISIONING_AUTHENTICATION_INPUT_ENTERED:
-                        final DialogFragmentAuthenticationInput fragment = (DialogFragmentAuthenticationInput) getSupportFragmentManager().
-                                findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG);
-                        if (fragment != null)
-                            fragment.dismiss();
-                        break;
-                    case APP_KEY_STATUS_RECEIVED:
-                        if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_APP_KEY_STATUS) == null) {
-                            DialogFragmentAppKeyAddStatus fragmentAppKeyAddStatus = DialogFragmentAppKeyAddStatus.
-                                    newInstance(getString(R.string.title_configuration_compete), getString(R.string.configuration_complete_summary));
-                            fragmentAppKeyAddStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_APP_KEY_STATUS);
-                        }
-                        break;
-                }
+            if(provisioningStateLiveData != null) {
+                final ProvisionerProgress provisionerProgress = provisioningStateLiveData.getProvisionerProgress();
+                adapter.refresh(provisioningStateLiveData.getStateList());
+                if (provisionerProgress != null) {
+                    final ProvisioningStatusLiveData.ProvisioningLiveDataState state = provisionerProgress.getState();
+                    switch (state) {
+                        case PROVISIONING_FAILED:
+                            if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_PROVISIONING_FAILED) == null) {
+                                final String statusMessage = ProvisioningFailedState.parseProvisioningFailure(getApplicationContext(), provisionerProgress.getStatusReceived());
+                                DialogFragmentProvisioningFailedError message = DialogFragmentProvisioningFailedError.newInstance(getString(R.string.title_error_provisioning_failed), statusMessage);
+                                message.show(getSupportFragmentManager(), DIALOG_FRAGMENT_PROVISIONING_FAILED);
+                            }
+                            break;
+                        case PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING:
+                            if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
+                                DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
+                                        newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
+                                dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
+                            }
+                            break;
+                        case PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING:
+                            if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
+                                DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
+                                        newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
+                                dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
+                            }
+                            break;
+                        case PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING:
+                            if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
+                                DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
+                                        newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
+                                dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
+                            }
+                            break;
+                        case PROVISIONING_AUTHENTICATION_INPUT_ENTERED:
+                            final DialogFragmentAuthenticationInput fragment = (DialogFragmentAuthenticationInput) getSupportFragmentManager().
+                                    findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG);
+                            if (fragment != null)
+                                fragment.dismiss();
+                            break;
+                        case APP_KEY_STATUS_RECEIVED:
+                            if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_APP_KEY_STATUS) == null) {
+                                DialogFragmentAppKeyAddStatus fragmentAppKeyAddStatus = DialogFragmentAppKeyAddStatus.
+                                        newInstance(getString(R.string.title_configuration_compete), getString(R.string.configuration_complete_summary));
+                                fragmentAppKeyAddStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_APP_KEY_STATUS);
+                            }
+                            break;
+                    }
 
+                }
+                container.setVisibility(View.GONE);
             }
-            container.setVisibility(View.GONE);
         });
 
     }

@@ -69,6 +69,12 @@ public class Utils {
     public static final String RESULT_APP_KEY = "RESULT_APP_KEY";
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
 
+    //Manage app keys
+    public static final int MANAGE_APP_KEY = 0;
+    public static final int ADD_APP_KEY = 1;
+    public static final int BIND_APP_KEY = 2;
+    public static final int PUBLICATION_APP_KEY = 3;
+
     public static final Comparator<NetworkKey> netKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
 
     public static final Comparator<ApplicationKey> appKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());

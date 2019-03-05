@@ -41,6 +41,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -48,10 +49,12 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ManageAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAddAppKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentEditAppKey;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ManageAppKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
@@ -68,7 +71,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
     public static final String APP_KEYS = "APP_KEYS";
     public static final int SELECT_APP_KEY = 2011; //Random number
     public static final int MANAGE_APP_KEYS = 2012; //Random number
-    private static final String CALLING_ACTIVITY = ".MainActivity";
+    private static final String MAIN_ACTIVITY = ".MainActivity";
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -88,9 +91,6 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         setContentView(R.layout.activity_manage_app_keys);
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ManageAppKeysViewModel.class);
 
-        //If the component name is not null then we know that the activity requested a result
-        final ComponentName componentName = getCallingActivity();
-
         //Bind ui
         ButterKnife.bind(this);
 
@@ -104,19 +104,34 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(appKeysRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
         appKeysRecyclerView.addItemDecoration(dividerItemDecoration);
         appKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
+
+        switch (getIntent().getExtras().getInt(Utils.EXTRA_DATA)) {
+            case Utils.MANAGE_APP_KEY:
+                getSupportActionBar().setTitle(R.string.title_manage_app_keys);
+                final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
+                final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
+                itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
+                mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
+                break;
+            case Utils.ADD_APP_KEY:
+                getSupportActionBar().setTitle(R.string.title_select_app_key);
+                fab.hide();
+                mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
+                break;
+            case Utils.BIND_APP_KEY:
+            case Utils.PUBLICATION_APP_KEY:
+                getSupportActionBar().setTitle(R.string.title_select_app_key);
+                fab.hide();
+                //Get selected mesh node
+                final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+                if (node != null) {
+                    mAdapter = new ManageAppKeyAdapter(this, new ArrayList<>(node.getAddedApplicationKeys().values()));
+                }
+                break;
+        }
+
         mAdapter.setOnItemClickListener(this);
         appKeysRecyclerView.setAdapter(mAdapter);
-
-        if(componentName != null && componentName.getShortClassName().equals(CALLING_ACTIVITY)) {
-            getSupportActionBar().setTitle(R.string.title_manage_app_keys);
-            final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
-            final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-            itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
-        } else {
-            getSupportActionBar().setTitle(R.string.title_select_app_key);
-            fab.setVisibility(View.GONE);
-        }
 
         fab.setOnClickListener(v -> {
             final DialogFragmentAddAppKey dialogFragmentAddAppKey = DialogFragmentAddAppKey.newInstance(null);
@@ -125,7 +140,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
 
         mViewModel.getMeshNetworkLiveData().observe(this, networkLiveData -> {
             final List<ApplicationKey> keys = networkLiveData.getAppKeys();
-            if(keys != null) {
+            if (keys != null) {
                 mEmptyView.setVisibility(keys.isEmpty() ? View.VISIBLE : View.GONE);
             }
         });
@@ -143,29 +158,35 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
 
     @Override
     public void onBackPressed() {
-        final ComponentName componentName = getCallingActivity();
-        if(componentName != null && componentName.getShortClassName().equals(CALLING_ACTIVITY)) {
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra(RESULT_APP_KEY_LIST_SIZE, mAdapter.getItemCount());
-            setResult(Activity.RESULT_OK, returnIntent);
-            finish();
-        } else {
-            super.onBackPressed();
+        final int extras = getIntent().getExtras().getInt(Utils.EXTRA_DATA);
+        switch (extras) {
+            case Utils.MANAGE_APP_KEY:
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(RESULT_APP_KEY_LIST_SIZE, mAdapter.getItemCount());
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+                break;
+            default:
+                super.onBackPressed();
+                break;
         }
     }
 
     @Override
     public void onItemClick(final int position, final ApplicationKey appKey) {
-        final ComponentName componentName = getCallingActivity();
-        if(componentName != null && componentName.getShortClassName().equals(CALLING_ACTIVITY)) {
-            final DialogFragmentEditAppKey dialogFragmentEditAppKey = DialogFragmentEditAppKey.newInstance(position, appKey);
-            dialogFragmentEditAppKey.show(getSupportFragmentManager(), null);
-        } else {
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra(RESULT_APP_KEY_INDEX, position);
-            returnIntent.putExtra(RESULT_APP_KEY, appKey);
-            setResult(Activity.RESULT_OK, returnIntent);
-            finish();
+        final int extras = getIntent().getExtras().getInt(Utils.EXTRA_DATA);
+        switch (extras) {
+            case Utils.MANAGE_APP_KEY:
+                final DialogFragmentEditAppKey dialogFragmentEditAppKey = DialogFragmentEditAppKey.newInstance(position, appKey);
+                dialogFragmentEditAppKey.show(getSupportFragmentManager(), null);
+                break;
+            default:
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(RESULT_APP_KEY_INDEX, position);
+                returnIntent.putExtra(RESULT_APP_KEY, appKey);
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+                break;
         }
     }
 
@@ -196,14 +217,14 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
 
     }
 
-    private void displaySnackBar(final int key, final ApplicationKey appKey){
+    private void displaySnackBar(final int key, final ApplicationKey appKey) {
 
         Snackbar.make(container, getString(R.string.app_key_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
                     mEmptyView.setVisibility(View.INVISIBLE);
                     mViewModel.getMeshNetworkLiveData().addAppKey(appKey);
                 })
-                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();
     }
 }
