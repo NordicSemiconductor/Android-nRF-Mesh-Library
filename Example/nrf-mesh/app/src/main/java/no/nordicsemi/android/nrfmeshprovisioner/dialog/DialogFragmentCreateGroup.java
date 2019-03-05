@@ -107,8 +107,8 @@ public class DialogFragmentCreateGroup extends DialogFragment {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_outline_group_work_black_24dp);
-        alertDialogBuilder.setTitle(R.string.title_subscribe_group);
+        alertDialogBuilder.setIcon(R.drawable.ic_outline_group_work_black_alpha_24dp);
+        alertDialogBuilder.setTitle(R.string.title_create_group);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {

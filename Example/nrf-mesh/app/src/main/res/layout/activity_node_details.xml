@@ -150,7 +150,7 @@
                             android:paddingStart="@dimen/activity_horizontal_margin"
                             android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                            android:background="?selectableItemBackground"
+                            android:background="?selectableItemBackgroundBorderless"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/container_device_key"
                             app:layout_constraintTop_toTopOf="@id/container_device_key"

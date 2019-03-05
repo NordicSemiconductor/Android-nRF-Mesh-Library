@@ -47,7 +47,7 @@
 
         <include
             android:id="@+id/no_networks_configured"
-            layout="@layout/info_no_networks_configured"
+            layout="@layout/info_no_nodes_provisioned"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="visible"

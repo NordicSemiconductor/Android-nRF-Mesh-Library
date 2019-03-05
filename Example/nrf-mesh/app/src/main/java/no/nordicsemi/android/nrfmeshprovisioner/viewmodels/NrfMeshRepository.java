@@ -325,6 +325,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mBleMeshManager.setLogger(logSession);
         final BluetoothDevice bluetoothDevice = device.getDevice();
         initIsConnectedLiveData(connectToNetwork);
+        mConnectionState.postValue("Connecting....");
         //Added a 1 second delay for connection, mostly to wait for a disconnection to complete before connecting.
         mHandler.postDelayed(() -> mBleMeshManager.connect(bluetoothDevice), 1000);
     }
@@ -336,6 +337,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      */
     private void connectToProxy(final ExtendedBluetoothDevice device) {
         initIsConnectedLiveData(true);
+        mConnectionState.postValue("Connecting....");
         mBleMeshManager.connect(device.getDevice());
     }
 
@@ -476,18 +478,22 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onDeviceDisconnecting(final BluetoothDevice device) {
         Log.v(TAG, "Disconnecting...");
-        mConnectionState.postValue("Disconnecting...");
+        if(mIsReconnectingFlag){
+            mConnectionState.postValue("Reconnecting...");
+        } else {
+            mConnectionState.postValue("Disconnecting...");
+        }
     }
 
     @Override
     public void onDeviceDisconnected(final BluetoothDevice device) {
         Log.v(TAG, "Disconnected");
-        mConnectionState.postValue("Disconnected!");
         if (mIsReconnectingFlag) {
             mIsReconnectingFlag = false;
             mIsReconnecting.postValue(false);
             mIsConnected.postValue(false);
         } else {
+            mConnectionState.postValue("");
             mIsConnected.postValue(false);
             mIsConnectedToProxy.postValue(false);
             if (mConnectedMeshNodeAddress.getValue() != null) {
@@ -681,7 +687,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mBleMeshManager.disconnect();
         mBleMeshManager.refreshDeviceCache();
         mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
-        mHandler.postDelayed(mReconnectRunnable, 1500); //Added a slight delay to disconnect and refresh the cache
+        mHandler.post(() -> mConnectionState.postValue("Scanning for provisioned node"));
+        mHandler.postDelayed(mReconnectRunnable, 1000); //Added a slight delay to disconnect and refresh the cache
     }
 
     @Override
@@ -986,7 +993,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             return;
 
         mIsScanning = true;
-        mConnectionState.postValue("Scanning for provisioned node");
         // Scanning settings
         final ScanSettings settings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)

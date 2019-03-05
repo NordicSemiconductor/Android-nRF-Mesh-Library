@@ -44,12 +44,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="@string/no_networks_configured_title"/>
+        android:text="@string/no_nodes_provisioned_title"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:gravity="center_horizontal"
-        android:text="@string/no_networks_configured_rationale"/>
+        android:text="@string/no_nodes_provisioned_rationale"/>
 </LinearLayout>
