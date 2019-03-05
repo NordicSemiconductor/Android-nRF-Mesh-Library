@@ -38,6 +38,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -110,6 +111,7 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
         recyclerViewDevices.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewDevices.getContext(), DividerItemDecoration.VERTICAL);
         recyclerViewDevices.addItemDecoration(dividerItemDecoration);
+        ((SimpleItemAnimator) recyclerViewDevices.getItemAnimator()).setSupportsChangeAnimations(false);
         final DevicesAdapter adapter = new DevicesAdapter(this, mViewModel.getScannerRepository().getScannerState());
         adapter.setOnItemClickListener(this);
         recyclerViewDevices.setAdapter(adapter);
