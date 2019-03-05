@@ -119,40 +119,11 @@ public class SecureUtils {
     private static final int HASH_LENGTH = 8;
     public static int NRF_MESH_KEY_SIZE = 16;
 
-    static {
-        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
-    }
-
     public static byte[] generateRandomNumber() {
         final SecureRandom random = new SecureRandom();
         final byte[] randomBytes = new byte[16];
         random.nextBytes(randomBytes);
 
-        return randomBytes;
-    }
-
-    /**
-     * Generates a random number based on the number of bits
-     *
-     * @param bits number of bits of the random number
-     * @return random number of bytes
-     */
-    public static byte[] generateRandomNumber(final int bits) {
-        final SecureRandom random = new SecureRandom();
-        final byte[] randomBytes = new byte[bits / 8];
-        random.nextBytes(randomBytes);
-
-        return randomBytes;
-    }
-
-    public static byte[] generateRandomNonce() {
-        final SecureRandom random = new SecureRandom();
-        final byte[] randomBytes = new byte[8];
-        random.nextBytes(randomBytes);
-        final int length = NONCE_PADDING.length + randomBytes.length;
-        final ByteBuffer bufferRandomNonce = ByteBuffer.allocate(length).order(ByteOrder.BIG_ENDIAN);
-        bufferRandomNonce.put(NONCE_PADDING);
-        bufferRandomNonce.put(randomBytes);
         return randomBytes;
     }
 
@@ -182,36 +153,6 @@ public class SecureUtils {
         mac.doFinal(cmac, 0);
         return cmac;
     }
-
-    public static byte[] calculateCMAC(final byte[] data, final byte[] key, final int offset) {
-        final byte[] cmac = new byte[data.length];
-
-        CipherParameters cipherParameters = new KeyParameter(key);
-        BlockCipher blockCipher = new AESEngine();
-        CMac mac = new CMac(blockCipher);
-
-        mac.init(cipherParameters);
-        mac.update(data, offset, data.length);
-        mac.doFinal(cmac, 0);
-        return cmac;
-    }
-
-    public static byte[] encryptCCM(final byte[] data, final byte[] key, final byte[] nonce) {
-        final byte[] ccm = new byte[25 + 8];
-        final ByteBuffer buffer = ByteBuffer.allocate(ccm.length + 8);
-        CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
-
-        AEADParameters aeadParameters = new AEADParameters(new KeyParameter(key), 64, nonce);
-        ccmBlockCipher.init(true, aeadParameters);
-        ccmBlockCipher.processBytes(data, 0, data.length, ccm, data.length);
-        try {
-            ccmBlockCipher.doFinal(ccm, 0);
-        } catch (InvalidCipherTextException e) {
-            e.printStackTrace();
-        }
-        return ccm;
-    }
-
 
     public static byte[] encryptCCM(final byte[] data, final byte[] key, final byte[] nonce, final int micSize) {
         final byte[] ccm = new byte[data.length + micSize];
@@ -435,16 +376,6 @@ public class SecureUtils {
         engine.processBlock(data, 0, encrypted, 0);
 
         return encrypted;
-    }
-
-    public static byte[] decryptWithAES(final byte[] data, final byte[] key) {
-        final byte[] decrypted = new byte[data.length];
-        final CipherParameters cipherParameters = new KeyParameter(key);
-        final AESLightEngine engine = new AESLightEngine();
-        engine.init(false, cipherParameters);
-        engine.processBlock(data, 0, decrypted, 0);
-
-        return decrypted;
     }
 
     public static int getNetMicLength(final int ctl) {
