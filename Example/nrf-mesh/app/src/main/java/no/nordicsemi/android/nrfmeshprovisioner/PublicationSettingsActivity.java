@@ -233,7 +233,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @Override
     public void setPublishAddress(final byte[] publishAddress) {
         if (publishAddress != null) {
-            mPublishAddress = AddressUtils.getUnicastAddressInt(publishAddress);
+            mPublishAddress = MeshParserUtils.unsignedBytesToInt(publishAddress[1], publishAddress[0]);
             mPublishAddressView.setText(MeshParserUtils.bytesToHex(publishAddress, true));
         }
     }
