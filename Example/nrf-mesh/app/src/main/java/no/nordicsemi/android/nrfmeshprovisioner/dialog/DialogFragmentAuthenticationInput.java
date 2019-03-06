@@ -50,6 +50,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningConfirmationState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
 import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
@@ -129,6 +130,19 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
         if (TextUtils.isEmpty(input)) {
             pinInputLayout.setError(getString(R.string.error_empty_pin));
             return false;
+        }
+
+        if(mNode.getAuthMethodUsed() == AuthenticationOOBMethods.STATIC_OOB_AUTHENTICATION){
+            if(input.length() != 32) {
+                pinInputLayout.setError(getString(R.string.error_invalid_static_oob));
+                return false;
+            }
+
+            final byte[] staticOObKey = MeshParserUtils.toByteArray(input);
+            if (staticOObKey.length != 16) {
+                pinInputLayout.setError(getString(R.string.error_invalid_static_oob));
+                return false;
+            }
         }
 
         return true;

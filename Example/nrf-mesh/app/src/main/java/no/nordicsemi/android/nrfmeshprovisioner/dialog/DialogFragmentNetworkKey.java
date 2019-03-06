@@ -35,6 +35,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -49,6 +50,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 public class DialogFragmentNetworkKey extends DialogFragment {
 
+    private static final String TAG = DialogFragmentNetworkKey.class.getSimpleName();
     private static final String PATTERN_NETWORK_KEY = "[0-9a-fA-F]{32}";
     private static final String NETWORK_KEY = "NETWORK_KEY";
 
@@ -122,10 +124,14 @@ public class DialogFragmentNetworkKey extends DialogFragment {
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String networkKey = networkKeyInput.getText().toString();
             if (validateInput(networkKey)) {
-                if(getParentFragment() == null) {
-                    ((DialogFragmentNetworkKeyListener) getActivity()).onNetworkKeyGenerated(networkKey);
-                } else {
-                    ((DialogFragmentNetworkKeyListener) getParentFragment()).onNetworkKeyGenerated(networkKey);
+                try {
+                    if (getParentFragment() == null) {
+                        ((DialogFragmentNetworkKeyListener) getActivity()).onNetworkKeyGenerated(networkKey);
+                    } else {
+                        ((DialogFragmentNetworkKeyListener) getParentFragment()).onNetworkKeyGenerated(networkKey);
+                    }
+                } catch (Exception ex) {
+                    Log.v(TAG, ex.getMessage());
                 }
                 dismiss();
             }
@@ -138,12 +144,12 @@ public class DialogFragmentNetworkKey extends DialogFragment {
     private boolean validateInput(final String input) {
         try {
 
-            if(!input.matches(Utils.HEX_PATTERN)) {
+            if (!input.matches(Utils.HEX_PATTERN)) {
                 networkKeyInputLayout.setError(getString(R.string.invalid_hex_value));
                 return false;
             }
 
-            if(MeshParserUtils.validateNetworkKeyInput(getContext(), input)){
+            if (MeshParserUtils.validateNetworkKeyInput(getContext(), input)) {
                 return true;
             }
         } catch (IllegalArgumentException ex) {
