@@ -82,6 +82,7 @@
     <string name="hint_numeric">e.g. 019655</string>
     <string name="hint_alpha_numeric">e.g. 123ABC</string>
     <string name="error_empty_pin">Error, authentication value cannot be empty!</string>
+    <string name="error_invalid_static_oob">Error, static oob value must be 128 bits!</string>
 
     <string name="title_select_oob">Select OOB Type</string>
     <string name="public_key_information_available">Public Key information available</string>
