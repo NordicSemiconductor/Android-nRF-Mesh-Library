@@ -72,8 +72,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
 
     // Butter Knife
-    implementation 'com.jakewharton:butterknife:8.8.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    implementation 'com.jakewharton:butterknife:10.1.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.1.0'
     // Brings the new BluetoothLeScanner API to older platforms
     implementation 'no.nordicsemi.android.support.v18:scanner:1.1.0'
     implementation 'no.nordicsemi.android:ble:1.2.0'

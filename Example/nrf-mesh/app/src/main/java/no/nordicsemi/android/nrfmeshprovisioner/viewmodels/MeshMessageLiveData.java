@@ -13,7 +13,7 @@ public class MeshMessageLiveData extends SingleLiveEvent<MeshMessage> {
     }
 
     @Override
-    public void observe(final LifecycleOwner owner, final Observer<MeshMessage> observer) {
+    public void observe(LifecycleOwner owner, Observer<? super MeshMessage> observer) {
         super.observe(owner, observer);
     }
 }
