@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.utils;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.InputType;
 import android.text.method.NumberKeyListener;
 

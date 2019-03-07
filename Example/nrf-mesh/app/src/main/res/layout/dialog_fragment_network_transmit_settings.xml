@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_constraintTop_toTopOf="parent">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dialog_container_relay_retransmit_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -64,9 +64,9 @@
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_count"
             app:layout_constraintTop_toBottomOf="@id/dialog_network_transmit_count_title" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dialog_container_network_transmit_interval_steps"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -133,6 +133,6 @@
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_interval_steps"
             app:layout_constraintTop_toBottomOf="@id/steps_summary"/>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -28,7 +28,7 @@
     android:layout_height="wrap_content"
     android:clipToPadding="false">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/activity_horizontal_margin">
@@ -75,7 +75,7 @@
             app:layout_constraintStart_toStartOf="@id/radio_select_group"
             app:layout_constraintTop_toBottomOf="@id/groups"/>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/group_name_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
             app:layout_constraintStart_toStartOf="@id/radio_create_group"
             app:layout_constraintTop_toBottomOf="@id/radio_create_group">
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -97,7 +97,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/name_input"/>
 
-                <android.support.design.widget.TextInputEditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/name_input"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -111,10 +111,10 @@
                     app:layout_constraintStart_toEndOf="@id/address_name_text"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:ignore="HardcodedText"/>
-            </android.support.constraint.ConstraintLayout>
-        </android.support.design.widget.TextInputLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/group_address_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -122,7 +122,7 @@
             app:layout_constraintStart_toStartOf="@id/radio_create_group"
             app:layout_constraintTop_toBottomOf="@id/group_name_layout">
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -147,7 +147,7 @@
                     app:layout_constraintStart_toEndOf="@id/address_text"
                     app:layout_constraintTop_toTopOf="@id/address_input"/>
 
-                <android.support.design.widget.TextInputEditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/address_input"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -161,8 +161,8 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:ignore="HardcodedText"/>
 
-            </android.support.constraint.ConstraintLayout>
-        </android.support.design.widget.TextInputLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
