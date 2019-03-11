@@ -299,7 +299,7 @@ public abstract class NetworkLayer extends LowerTransportLayer {
      * @param pdu received from the node
      * @return obfuscted network header
      */
-    private byte[] deobfuscateNetworkHeader(final byte[] pdu) {
+    private byte[] deObfuscateNetworkHeader(final byte[] pdu) {
         final byte[] privacyKey = getK2Output().getPrivacyKey();
         final ByteBuffer obfuscatedNetworkBuffer = ByteBuffer.allocate(6);
         obfuscatedNetworkBuffer.order(ByteOrder.BIG_ENDIAN);
@@ -312,12 +312,12 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         final byte[] privacyRandom = createPrivacyRandom(privacyRandomBuffer.array());
 
         final byte[] pecb = createPECB(privacyRandom, privacyKey);
-        final byte[] deobfuscatedData = new byte[6];
+        final byte[] deObfuscatedData = new byte[6];
 
         for (int i = 0; i < 6; i++)
-            deobfuscatedData[i] = (byte) (obfuscatedData[i] ^ pecb[i]);
+            deObfuscatedData[i] = (byte) (obfuscatedData[i] ^ pecb[i]);
 
-        return deobfuscatedData;
+        return deObfuscatedData;
     }
 
     /**
@@ -403,8 +403,8 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     final Message parseMeshMessage(final byte[] data) throws ExtendedInvalidCipherTextException {
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner();
 
-        //D-eobfuscate network header
-        final byte[] networkHeader = deobfuscateNetworkHeader(data);
+        //De-obfuscate network header
+        final byte[] networkHeader = deObfuscateNetworkHeader(data);
         final int ctlTtl = networkHeader[0];
         final int ctl = (ctlTtl >> 7) & 0x01;
         final int ttl = ctlTtl & 0x7F;
