@@ -162,8 +162,9 @@ public class ConfigModelPublicationSet extends ConfigMessage {
 
         final int rfu = 0; // We ignore the rfu here
         final int octet5 = ((applicationKeyIndex[0] << 4)) | (credentialFlag ? 1 : 0);
+        final int publishPeriod = ((publicationResolution << 6) | publicationSteps);
         final int octet8 = (publishRetransmitCount << 5) | (publishRetransmitIntervalSteps & 0x1F);
-        //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
+        //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sig model
         if (modelIdentifier >= Short.MIN_VALUE && modelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_PUBLISH_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) this.elementAddress);
@@ -171,7 +172,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);
-            paramsBuffer.put((byte) ((publicationSteps << 6) | publicationResolution));
+            paramsBuffer.put((byte) publishPeriod);
             paramsBuffer.put((byte) octet8);
             paramsBuffer.putShort((short) modelIdentifier);
             mParameters = paramsBuffer.array();
@@ -182,7 +183,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);
-            paramsBuffer.put((byte) ((publicationSteps << 6) | publicationResolution));
+            paramsBuffer.put((byte) publishPeriod);
             paramsBuffer.put((byte) octet8);
             final byte[] modelIdentifier = new byte[]{(byte) ((this.modelIdentifier >> 24) & 0xFF), (byte) ((this.modelIdentifier >> 16) & 0xFF), (byte) ((this.modelIdentifier >> 8) & 0xFF), (byte) (this.modelIdentifier & 0xFF)};
             paramsBuffer.put(modelIdentifier[1]);
