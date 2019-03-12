@@ -30,6 +30,9 @@ import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 
+/**
+ * Abstract class that handles mesh messages
+ */
 public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, InternalMeshMsgHandlerCallbacks {
 
     private static final String TAG = BaseMeshMessageHandler.class.getSimpleName();
@@ -40,12 +43,22 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     protected MeshStatusCallbacks mStatusCallbacks;
     private MeshMessageState mMeshMessageState;
 
-    protected BaseMeshMessageHandler(@NonNull final Context context, @NonNull final InternalTransportCallbacks internalTransportCallbacks) {
+    /**
+     * Constructs BaseMessageHandler
+     *
+     * @param context                    Context
+     * @param internalTransportCallbacks {@link InternalTransportCallbacks} Callbacks
+     */
+    protected BaseMeshMessageHandler(@NonNull final Context context,
+                                     @NonNull final InternalTransportCallbacks internalTransportCallbacks) {
         this.mContext = context;
         this.mMeshTransport = new MeshTransport(context);
         this.mInternalTransportCallbacks = internalTransportCallbacks;
     }
 
+    /**
+     * Returns the mesh transport
+     */
     protected abstract MeshTransport getMeshTransport();
 
     /**
@@ -83,7 +96,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      *
      * @param pdu mesh pdu that was sent
      */
-    public final void parseMeshMsgNotifications(final byte[] pdu) {
+    public final void parseMeshMsgNotifications(@NonNull final byte[] pdu) {
         if (mMeshMessageState instanceof DefaultNoOperationMessageState) {
             ((DefaultNoOperationMessageState) mMeshMessageState).parseMeshPdu(pdu);
         }
@@ -104,7 +117,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      *
      * @param newState new state that is to be switched to
      */
-    private void switchToNoOperationState(final MeshMessageState newState) {
+    private void switchToNoOperationState(@NonNull final MeshMessageState newState) {
         //Switching to unknown message state here for messages that are not
         if (mMeshMessageState.getState() != null && newState.getState() != null) {
             Log.v(TAG, "Switching current state " + mMeshMessageState.getState().name() + " to No operation state");
