@@ -35,7 +35,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 final class ConfigModelSubscriptionAddState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelSubscriptionAddState.class.getSimpleName();
-    private final byte[] mDeviceKey;
 
     /**
      * Constructs the state for creating ConfigModelSubscriptionAdd message

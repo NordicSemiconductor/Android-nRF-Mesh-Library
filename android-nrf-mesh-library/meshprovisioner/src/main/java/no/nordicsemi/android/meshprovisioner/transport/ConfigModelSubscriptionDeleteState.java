@@ -35,7 +35,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 final class ConfigModelSubscriptionDeleteState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelSubscriptionDeleteState.class.getSimpleName();
-    private final byte[] mDeviceKey;
 
     /**
      * Constructs the state for creating ConfigModelSubscriptionDelete message

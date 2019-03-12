@@ -11,7 +11,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public final class ConfigNetworkTransmitSetState extends ConfigMessageState {
 
     private static final String TAG = ConfigNetworkTransmitSetState.class.getSimpleName();
-    private final byte[] mDeviceKey;
 
     /**
      * Constructs the state for creating ConfigNetworkTransmitSet message

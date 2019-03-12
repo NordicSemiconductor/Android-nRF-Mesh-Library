@@ -13,7 +13,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 class ConfigProxySetState extends ConfigMessageState {
 
     private static final String TAG = ConfigProxySetState.class.getSimpleName();
-    private final byte[] mDeviceKey;
 
     /**
      * Constructs {@link ConfigProxySetState}

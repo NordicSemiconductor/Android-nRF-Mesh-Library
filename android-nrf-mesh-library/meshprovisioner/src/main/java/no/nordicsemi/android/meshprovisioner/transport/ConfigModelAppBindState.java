@@ -36,7 +36,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 final class ConfigModelAppBindState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelAppBindState.class.getSimpleName();
-    private final byte[] mDeviceKey;
 
     /**
      * Constructs the state for creating ConfigModelAppBind message

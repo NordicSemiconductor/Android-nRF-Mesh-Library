@@ -25,10 +25,21 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+/**
+ * ConfigMessageState class that handles configuration message state.
+ */
 abstract class ConfigMessageState extends MeshMessageState {
 
-    private static final String TAG = ConfigMessageState.class.getSimpleName();
+    protected byte[] mDeviceKey;
 
+    /**
+     * Constructs the ConfigMessageState
+     *
+     * @param context       Context
+     * @param meshMessage   {@link MeshMessage} Mesh message to be sent
+     * @param meshTransport {@link MeshTransport} Mesh transport
+     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} callbacks
+     */
     ConfigMessageState(@NonNull final Context context,
                        @NonNull final MeshMessage meshMessage,
                        @NonNull final MeshTransport meshTransport,
@@ -36,5 +47,8 @@ abstract class ConfigMessageState extends MeshMessageState {
         super(context, meshMessage, meshTransport, callbacks);
     }
 
+    /**
+     * Returns the message state
+     */
     public abstract MessageState getState();
 }

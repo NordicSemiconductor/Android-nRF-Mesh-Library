@@ -32,7 +32,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 class ConfigCompositionDataGetState extends ConfigMessageState {
 
     private static final String TAG = ConfigCompositionDataGetState.class.getSimpleName();
-    private final byte[] mDeviceKey;
 
     /**
      * Constructs the state for ConfigCompositionDataGet message

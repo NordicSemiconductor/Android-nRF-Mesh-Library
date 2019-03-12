@@ -13,7 +13,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public final class ConfigRelaySetState extends ConfigMessageState {
 
     private static final String TAG = ConfigRelaySetState.class.getSimpleName();
-    private final byte[] mDeviceKey;
 
     /**
      * Constructs the state for {@link ConfigRelayGet} message

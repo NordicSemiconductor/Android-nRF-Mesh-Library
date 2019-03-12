@@ -35,7 +35,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 class ConfigModelPublicationSetState extends ConfigMessageState {
 
     private static final String TAG = ConfigModelPublicationSetState.class.getSimpleName();
-    private final byte[] mDeviceKey;
 
     /**
      * Constructs the state for creating ConfigModelPublicationSet message

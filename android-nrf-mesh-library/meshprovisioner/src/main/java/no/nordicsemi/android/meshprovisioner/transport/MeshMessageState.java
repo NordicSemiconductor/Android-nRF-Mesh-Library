@@ -99,6 +99,9 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
             for (int i = 0; i < message.getNetworkPdu().size(); i++) {
                 mInternalTransportCallbacks.sendMeshPdu(mDst, message.getNetworkPdu().get(i));
             }
+
+            if (mMeshStatusCallbacks != null)
+                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
         }
     }
 
@@ -171,6 +174,8 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         CONFIG_PROXY_SET_STATE(11),
 
         //Application message States
+        GENERIC_MESSAGE_STATE(900),
+
         GENERIC_ON_OFF_GET_STATE(200),
         GENERIC_ON_OFF_SET_STATE(201),
         GENERIC_ON_OFF_SET_UNACKNOWLEDGED_STATE(202),

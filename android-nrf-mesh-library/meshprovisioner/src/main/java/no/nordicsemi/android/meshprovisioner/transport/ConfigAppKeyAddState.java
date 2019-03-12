@@ -35,7 +35,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 class ConfigAppKeyAddState extends ConfigMessageState {
 
     private final String TAG = ConfigAppKeyAddState.class.getSimpleName();
-    private final byte[] mDeviceKey;
 
     /**
      * Constructs ConfigCompositionDataGet message

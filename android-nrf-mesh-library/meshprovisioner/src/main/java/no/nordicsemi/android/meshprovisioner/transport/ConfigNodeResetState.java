@@ -13,7 +13,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 class ConfigNodeResetState extends ConfigMessageState {
 
     private static final String TAG = ConfigNodeResetState.class.getSimpleName();
-    private final byte[] mDeviceKey;
 
     /**
      * Constructs {@link ConfigNodeResetState}
