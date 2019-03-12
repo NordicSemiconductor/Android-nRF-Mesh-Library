@@ -121,7 +121,7 @@ public class MeshManagerApi implements MeshMngrApi {
      */
     private final static int ADVERTISED_NETWORK_ID_LENGTH = 8;
     private Context mContext;
-    private final Handler mHanlder;
+    private final Handler mHandler;
     private MeshManagerCallbacks mTransportCallbacks;
     private MeshProvisioningHandler mMeshProvisioningHandler;
     private MeshMessageHandler mMeshMessageHandler;
@@ -162,7 +162,7 @@ public class MeshManagerApi implements MeshMngrApi {
      */
     public MeshManagerApi(@NonNull final Context context) {
         this.mContext = context;
-        mHanlder = new Handler();
+        mHandler = new Handler();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, internalTransportCallbacks, internalMeshMgrCallbacks);
         mMeshMessageHandler = new MeshMessageHandler(context, internalTransportCallbacks);
         mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(networkLayerCallbacks);
@@ -337,9 +337,9 @@ public class MeshManagerApi implements MeshMngrApi {
     private void toggleProxyProtocolSarTimeOut(final byte[] data) {
         final int pduType = MeshParserUtils.unsignedByteToInt(data[0]);
         if (pduType == ((GATT_SAR_START << SAR_BIT_OFFSET) | MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION)) {
-            mHanlder.postDelayed(mProxyProtocolTimeoutRunnable, PROXY_SAR_TRANSFER_TIME_OUT);
+            mHandler.postDelayed(mProxyProtocolTimeoutRunnable, PROXY_SAR_TRANSFER_TIME_OUT);
         } else if (pduType == ((GATT_SAR_END << SAR_BIT_OFFSET) | MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION)) {
-            mHanlder.removeCallbacks(mProxyProtocolTimeoutRunnable);
+            mHandler.removeCallbacks(mProxyProtocolTimeoutRunnable);
         }
     }
 
