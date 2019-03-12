@@ -76,68 +76,8 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             if (mMeshMessageState.getState() == null)
                 return;
 
-            switch (mMeshMessageState.getState()) {
-                case COMPOSITION_DATA_GET_STATE:
-                    final ConfigCompositionDataGetState compositionDataGet = (ConfigCompositionDataGetState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, compositionDataGet.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case APP_KEY_ADD_STATE:
-                    final ConfigAppKeyAddState appKeyAddState = (ConfigAppKeyAddState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, appKeyAddState.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_MODEL_APP_BIND_STATE:
-                    final ConfigModelAppBindState appBindState = (ConfigModelAppBindState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, appBindState.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_MODEL_APP_UNBIND_STATE:
-                    final ConfigModelAppUnbindState appUnbindState = (ConfigModelAppUnbindState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, appUnbindState.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_MODEL_PUBLICATION_GET_STATE:
-                    final ConfigModelPublicationGetState publicationGetState = (ConfigModelPublicationGetState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, publicationGetState.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_MODEL_PUBLICATION_SET_STATE:
-                    final ConfigModelPublicationSetState publicationSetState = (ConfigModelPublicationSetState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, publicationSetState.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_MODEL_SUBSCRIPTION_ADD_STATE:
-                    final ConfigModelSubscriptionAddState subscriptionAdd = (ConfigModelSubscriptionAddState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, subscriptionAdd.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_MODEL_SUBSCRIPTION_DELETE_STATE:
-                    final ConfigModelSubscriptionDeleteState subscriptionDelete = (ConfigModelSubscriptionDeleteState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, subscriptionDelete.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_NODE_RESET_STATE:
-                    final ConfigNodeResetState resetState = (ConfigNodeResetState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, resetState.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_NETWORK_TRANSMIT_GET_STATE:
-                    final ConfigNetworkTransmitGetState networkTransmitGet = (ConfigNetworkTransmitGetState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, networkTransmitGet.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_NETWORK_TRANSMIT_SET_STATE:
-                    final ConfigNetworkTransmitSetState networkTransmitSet = (ConfigNetworkTransmitSetState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, networkTransmitSet.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_RELAY_GET_STATE:
-                    final ConfigRelayGetState configRelayGetState = (ConfigRelayGetState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configRelayGetState.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_RELAY_SET_STATE:
-                    final ConfigRelaySetState configRelaySetState = (ConfigRelaySetState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configRelaySetState.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_PROXY_GET_STATE:
-                    final ConfigProxyGetState configProxyGetState = (ConfigProxyGetState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configProxyGetState.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case CONFIG_PROXY_SET_STATE:
-                    final ConfigProxySetState configProxySetState = (ConfigProxySetState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configProxySetState.getMeshMessage(), mMeshTransport, this));
-                    break;
-            }
+            final ConfigMessageState configMessageState = (ConfigMessageState) mMeshMessageState;
+            switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configMessageState.getMeshMessage(), mMeshTransport, this));
         } else if (mMeshMessageState instanceof GenericMessageState) {
             switchToNoOperationState(new DefaultNoOperationMessageState(mContext, mMeshMessageState.getMeshMessage(), mMeshTransport, this));
         }
@@ -250,113 +190,11 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             return;
         }
 
-        if (configurationMessage instanceof ConfigCompositionDataGet) {
-            final ConfigCompositionDataGetState compositionDataGetState = new
-                    ConfigCompositionDataGetState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigCompositionDataGet) configurationMessage, mMeshTransport, this);
-            compositionDataGetState.setTransportCallbacks(mInternalTransportCallbacks);
-            compositionDataGetState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = compositionDataGetState;
-            compositionDataGetState.executeSend();
-        } else if (configurationMessage instanceof ConfigAppKeyAdd) {
-            final ConfigAppKeyAddState configAppKeyAddState = new ConfigAppKeyAddState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigAppKeyAdd) configurationMessage, mMeshTransport, this);
-            configAppKeyAddState.setTransportCallbacks(mInternalTransportCallbacks);
-            configAppKeyAddState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configAppKeyAddState;
-            configAppKeyAddState.executeSend();
-        } else if (configurationMessage instanceof ConfigModelAppBind) {
-            final ConfigModelAppBindState configModelAppBindState = new ConfigModelAppBindState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigModelAppBind) configurationMessage, mMeshTransport, this);
-            configModelAppBindState.setTransportCallbacks(mInternalTransportCallbacks);
-            configModelAppBindState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configModelAppBindState;
-            configModelAppBindState.executeSend();
-        } else if (configurationMessage instanceof ConfigModelAppUnbind) {
-            final ConfigModelAppUnbindState modelAppUnbindState = new ConfigModelAppUnbindState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigModelAppUnbind) configurationMessage, mMeshTransport, this);
-            modelAppUnbindState.setTransportCallbacks(mInternalTransportCallbacks);
-            modelAppUnbindState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = modelAppUnbindState;
-            modelAppUnbindState.executeSend();
-        } else if (configurationMessage instanceof ConfigModelPublicationGet) {
-            final ConfigModelPublicationGetState configModelPublicationGetState = new ConfigModelPublicationGetState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigModelPublicationGet) configurationMessage, mMeshTransport, this);
-            configModelPublicationGetState.setTransportCallbacks(mInternalTransportCallbacks);
-            configModelPublicationGetState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configModelPublicationGetState;
-            configModelPublicationGetState.executeSend();
-        } else if (configurationMessage instanceof ConfigModelPublicationSet) {
-            final ConfigModelPublicationSetState configModelPublicationSetState = new ConfigModelPublicationSetState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigModelPublicationSet) configurationMessage, mMeshTransport, this);
-            configModelPublicationSetState.setTransportCallbacks(mInternalTransportCallbacks);
-            configModelPublicationSetState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configModelPublicationSetState;
-            configModelPublicationSetState.executeSend();
-        } else if (configurationMessage instanceof ConfigModelSubscriptionAdd) {
-            final ConfigModelSubscriptionAddState configModelSubscriptionAddState = new ConfigModelSubscriptionAddState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigModelSubscriptionAdd) configurationMessage, mMeshTransport, this);
-            configModelSubscriptionAddState.setTransportCallbacks(mInternalTransportCallbacks);
-            configModelSubscriptionAddState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configModelSubscriptionAddState;
-            configModelSubscriptionAddState.executeSend();
-        } else if (configurationMessage instanceof ConfigModelSubscriptionDelete) {
-            final ConfigModelSubscriptionDeleteState configModelSubscriptionDeleteState = new ConfigModelSubscriptionDeleteState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigModelSubscriptionDelete) configurationMessage, mMeshTransport, this);
-            configModelSubscriptionDeleteState.setTransportCallbacks(mInternalTransportCallbacks);
-            configModelSubscriptionDeleteState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configModelSubscriptionDeleteState;
-            configModelSubscriptionDeleteState.executeSend();
-        } else if (configurationMessage instanceof ConfigNodeReset) {
-            final ConfigNodeResetState configNodeResetState = new ConfigNodeResetState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigNodeReset) configurationMessage, mMeshTransport, this);
-            configNodeResetState.setTransportCallbacks(mInternalTransportCallbacks);
-            configNodeResetState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configNodeResetState;
-            configNodeResetState.executeSend();
-        } else if (configurationMessage instanceof ConfigNetworkTransmitGet) {
-            final ConfigNetworkTransmitGetState configNetworkTransmitGetState = new ConfigNetworkTransmitGetState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigNetworkTransmitGet) configurationMessage, mMeshTransport, this);
-            configNetworkTransmitGetState.setTransportCallbacks(mInternalTransportCallbacks);
-            configNetworkTransmitGetState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configNetworkTransmitGetState;
-            configNetworkTransmitGetState.executeSend();
-        } else if (configurationMessage instanceof ConfigNetworkTransmitSet) {
-            final ConfigNetworkTransmitSetState configNetworkTransmitSetState = new ConfigNetworkTransmitSetState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigNetworkTransmitSet) configurationMessage, mMeshTransport, this);
-            configNetworkTransmitSetState.setTransportCallbacks(mInternalTransportCallbacks);
-            configNetworkTransmitSetState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configNetworkTransmitSetState;
-            configNetworkTransmitSetState.executeSend();
-        } else if (configurationMessage instanceof ConfigRelayGet) {
-            final ConfigRelayGetState configRelayGetState = new ConfigRelayGetState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigRelayGet) configurationMessage, mMeshTransport, this);
-            configRelayGetState.setTransportCallbacks(mInternalTransportCallbacks);
-            configRelayGetState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configRelayGetState;
-            configRelayGetState.executeSend();
-        } else if (configurationMessage instanceof ConfigRelaySet) {
-            final ConfigRelaySetState configRelaySetState = new ConfigRelaySetState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigRelaySet) configurationMessage, mMeshTransport, this);
-            configRelaySetState.setTransportCallbacks(mInternalTransportCallbacks);
-            configRelaySetState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configRelaySetState;
-            configRelaySetState.executeSend();
-        } else if (configurationMessage instanceof ConfigProxyGet) {
-            final ConfigProxyGetState configProxyGetState = new ConfigProxyGetState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigProxyGet) configurationMessage, mMeshTransport, this);
-            configProxyGetState.setTransportCallbacks(mInternalTransportCallbacks);
-            configProxyGetState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configProxyGetState;
-            configProxyGetState.executeSend();
-        } else if (configurationMessage instanceof ConfigProxySet) {
-            final ConfigProxySetState configProxySetState = new ConfigProxySetState(mContext, src, dst, node.getDeviceKey(),
-                    (ConfigProxySet) configurationMessage, mMeshTransport, this);
-            configProxySetState.setTransportCallbacks(mInternalTransportCallbacks);
-            configProxySetState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = configProxySetState;
-            configProxySetState.executeSend();
-        }
+        final ConfigMessageState state = new ConfigMessageState(mContext, src, dst, node.getDeviceKey(), configurationMessage, mMeshTransport, this);
+        state.setTransportCallbacks(mInternalTransportCallbacks);
+        state.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = state;
+        state.executeSend();
     }
 
 

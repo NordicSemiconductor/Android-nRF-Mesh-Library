@@ -26,11 +26,11 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     protected final Context mContext;
     final MeshTransport mMeshTransport;
     private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
-    protected MeshMessage mMeshMessage;
-    protected int mSrc;
+    MeshMessage mMeshMessage;
+    int mSrc;
     protected int mDst;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
-    protected MeshStatusCallbacks mMeshStatusCallbacks;
+    MeshStatusCallbacks mMeshStatusCallbacks;
     protected Message message;
     private boolean isIncompleteTimerExpired;
 
@@ -152,11 +152,13 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     public enum MessageState {
 
         //Proxy configuration message
+        PROXY_CONFIG_STATE(500),
         PROXY_CONFIG_SET_FILTER_TYPE_STATE(900),
         PROXY_CONFIG_ADD_ADDRESS_TO_FILTER_STATE(901),
         PROXY_CONFIG_REMOVE_ADDRESS_FROM_FILTER_STATE(902),
 
         //Configuration message States
+        CONFIG_MESSAGE_STATE(501),
         COMPOSITION_DATA_GET_STATE(0),
         APP_KEY_ADD_STATE(1),
         CONFIG_MODEL_APP_BIND_STATE(2),
@@ -174,7 +176,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         CONFIG_PROXY_SET_STATE(11),
 
         //Application message States
-        GENERIC_MESSAGE_STATE(900),
+        GENERIC_MESSAGE_STATE(502),
 
         GENERIC_ON_OFF_GET_STATE(200),
         GENERIC_ON_OFF_SET_STATE(201),
