@@ -61,10 +61,8 @@ class VendorModelMessageAckedState extends GenericMessageState {
         return MessageState.VENDOR_MODEL_ACKNOWLEDGED_STATE;
     }
 
-    /**
-     * Creates the access message to be sent to the node
-     */
-    private void createAccessMessage() {
+    @Override
+    protected final void createAccessMessage() {
         final VendorModelMessageAcked vendorModelMessageAcked = (VendorModelMessageAcked) mMeshMessage;
         final byte[] key = vendorModelMessageAcked.getAppKey();
         final int akf = vendorModelMessageAcked.getAkf();

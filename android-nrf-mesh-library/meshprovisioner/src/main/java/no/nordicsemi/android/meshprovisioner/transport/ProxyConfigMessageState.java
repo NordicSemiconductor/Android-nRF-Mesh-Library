@@ -32,7 +32,7 @@ import android.support.annotation.NonNull;
  * </p>
  */
 @SuppressWarnings("unused")
-abstract class ProxyConfigMessageState extends MeshMessageState {
+class ProxyConfigMessageState extends MeshMessageState {
 
     private static final String TAG = ProxyConfigMessageState.class.getSimpleName();
 
@@ -40,17 +40,37 @@ abstract class ProxyConfigMessageState extends MeshMessageState {
      * Constructs the ProxyConfigMessageState for sending/receiving proxy configuration messages
      *
      * @param context       Context
-     * @param meshMessage   {@link MeshMessage} mesh proxy config message
+     * @param src           Source address
+     * @param dst           Destination address
+     * @param meshMessage   {@link MeshMessage} Mesh proxy config message
      * @param meshTransport {@link MeshTransport} Mesh transport
-     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} internal callbacks
+     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} Internal callbacks
      */
     ProxyConfigMessageState(@NonNull final Context context,
+                            final int src,
+                            final int dst,
                             @NonNull final MeshMessage meshMessage,
                             @NonNull final MeshTransport meshTransport,
                             @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         super(context, meshMessage, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
+        createControlMessage();
     }
 
-    public abstract MeshMessageState.MessageState getState();
+    @Override
+    public MessageState getState() {
+        return MessageState.PROXY_CONFIG_MESSAGE_STATE;
+    }
 
+    /**
+     * Creates the control message to be sent to the node
+     */
+    private void createControlMessage() {
+        final ProxyConfigMessage proxyConfigMessage = (ProxyConfigMessage) mMeshMessage;
+        final int opCode = proxyConfigMessage.getOpCode();
+        final byte[] parameters = proxyConfigMessage.getParameters();
+        message = mMeshTransport.createProxyConfigurationMessage(mSrc, mDst, opCode, parameters);
+        proxyConfigMessage.setMessage(message);
+    }
 }
