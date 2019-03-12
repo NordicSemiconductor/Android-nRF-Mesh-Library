@@ -40,7 +40,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     protected MeshStatusCallbacks mStatusCallbacks;
     private MeshMessageState mMeshMessageState;
 
-    protected BaseMeshMessageHandler(final Context context, final InternalTransportCallbacks internalTransportCallbacks) {
+    protected BaseMeshMessageHandler(@NonNull final Context context, @NonNull final InternalTransportCallbacks internalTransportCallbacks) {
         this.mContext = context;
         this.mMeshTransport = new MeshTransport(context);
         this.mInternalTransportCallbacks = internalTransportCallbacks;
@@ -56,7 +56,8 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      *
      * @param pdu mesh pdu that was sent
      */
-    public final void handleMeshMsgWriteCallbacks(final byte[] pdu) {
+    @SuppressWarnings("unused")
+    public final void handleMeshMsgWriteCallbacks(@NonNull final byte[] pdu) {
         if (mMeshMessageState instanceof ProxyConfigMessageState) {
             if (mMeshMessageState.getState() == null)
                 return;
