@@ -58,20 +58,11 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      */
     public final void handleMeshMsgWriteCallbacks(final byte[] pdu) {
         if (mMeshMessageState instanceof ProxyConfigMessageState) {
-            switch (mMeshMessageState.getState()) {
-                case PROXY_CONFIG_SET_FILTER_TYPE_STATE:
-                    final ProxyConfigSetFilterTypeState setFilterTypeState = (ProxyConfigSetFilterTypeState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, setFilterTypeState.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case PROXY_CONFIG_ADD_ADDRESS_TO_FILTER_STATE:
-                    final ProxyConfigAddAddressState addAddressState = (ProxyConfigAddAddressState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, addAddressState.getMeshMessage(), mMeshTransport, this));
-                    break;
-                case PROXY_CONFIG_REMOVE_ADDRESS_FROM_FILTER_STATE:
-                    final ProxyConfigRemoveAddressState removeAddressState = (ProxyConfigRemoveAddressState) mMeshMessageState;
-                    switchToNoOperationState(new DefaultNoOperationMessageState(mContext, removeAddressState.getMeshMessage(), mMeshTransport, this));
-                    break;
-            }
+            if (mMeshMessageState.getState() == null)
+                return;
+            final ProxyConfigMessageState proxyConfigMessageState = (ProxyConfigMessageState) mMeshMessageState;
+            switchToNoOperationState(new DefaultNoOperationMessageState(mContext, proxyConfigMessageState.getMeshMessage(), mMeshTransport, this));
+
         } else if (mMeshMessageState instanceof ConfigMessageState) {
             if (mMeshMessageState.getState() == null)
                 return;
@@ -154,29 +145,11 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param configurationMessage {@link ProxyConfigMessage} Mesh message containing the message opcode and message parameters
      */
     private void sendProxyConfigMeshMessage(final int src, final int dst, @NonNull final ProxyConfigMessage configurationMessage) {
-
-        if (configurationMessage instanceof ProxyConfigSetFilterType) {
-            final ProxyConfigSetFilterTypeState proxyConfigSetFilterTypeState = new ProxyConfigSetFilterTypeState(mContext, src, dst,
-                    (ProxyConfigSetFilterType) configurationMessage, mMeshTransport, this);
-            proxyConfigSetFilterTypeState.setTransportCallbacks(mInternalTransportCallbacks);
-            proxyConfigSetFilterTypeState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = proxyConfigSetFilterTypeState;
-            proxyConfigSetFilterTypeState.executeSend();
-        } else if (configurationMessage instanceof ProxyConfigAddAddressToFilter) {
-            final ProxyConfigAddAddressState proxyConfigAddAddressState = new ProxyConfigAddAddressState(mContext, src, dst,
-                    (ProxyConfigAddAddressToFilter) configurationMessage, mMeshTransport, this);
-            proxyConfigAddAddressState.setTransportCallbacks(mInternalTransportCallbacks);
-            proxyConfigAddAddressState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = proxyConfigAddAddressState;
-            proxyConfigAddAddressState.executeSend();
-        } else if (configurationMessage instanceof ProxyConfigRemoveAddressFromFilter) {
-            final ProxyConfigRemoveAddressState proxyConfigRemoveAddressState = new ProxyConfigRemoveAddressState(mContext, src, dst,
-                    (ProxyConfigRemoveAddressFromFilter) configurationMessage, mMeshTransport, this);
-            proxyConfigRemoveAddressState.setTransportCallbacks(mInternalTransportCallbacks);
-            proxyConfigRemoveAddressState.setStatusCallbacks(mStatusCallbacks);
-            mMeshMessageState = proxyConfigRemoveAddressState;
-            proxyConfigRemoveAddressState.executeSend();
-        }
+        final ProxyConfigMessageState state = new ProxyConfigMessageState(mContext, src, dst, configurationMessage, mMeshTransport, this);
+        state.setTransportCallbacks(mInternalTransportCallbacks);
+        state.setStatusCallbacks(mStatusCallbacks);
+        mMeshMessageState = state;
+        state.executeSend();
     }
 
     /**

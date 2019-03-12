@@ -28,7 +28,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
     MeshMessage mMeshMessage;
     int mSrc;
-    protected int mDst;
+    int mDst;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     MeshStatusCallbacks mMeshStatusCallbacks;
     protected Message message;
@@ -36,8 +36,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
     /**
      * Constructs the base mesh message state class
-     *
-     * @param context       Context
+     *  @param context       Context
      * @param meshMessage   {@link MeshMessage} Mesh message
      * @param meshTransport {@link MeshTransport} Mesh transport
      * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} Internal mesh message handler callbacks
@@ -152,7 +151,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     public enum MessageState {
 
         //Proxy configuration message
-        PROXY_CONFIG_STATE(500),
+        PROXY_CONFIG_MESSAGE_STATE(500),
         PROXY_CONFIG_SET_FILTER_TYPE_STATE(900),
         PROXY_CONFIG_ADD_ADDRESS_TO_FILTER_STATE(901),
         PROXY_CONFIG_REMOVE_ADDRESS_FROM_FILTER_STATE(902),

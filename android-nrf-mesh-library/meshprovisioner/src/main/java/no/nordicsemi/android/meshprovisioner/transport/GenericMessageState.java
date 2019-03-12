@@ -17,12 +17,14 @@ class GenericMessageState extends MeshMessageState {
                         @NonNull final MeshTransport meshTransport,
                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
         super(context, meshMessage, meshTransport, callbacks);
-        if (!MeshAddress.isAddressInRange(src))
-            throw new IllegalArgumentException("Invalid address, a source address must be a valid 16-bit value!");
         this.mSrc = src;
-        if (!MeshAddress.isAddressInRange(dst))
-            throw new IllegalArgumentException("Invalid address, a destination address must be a valid 16-bit value");
+        if (!MeshAddress.isAddressInRange(src)) {
+            throw new IllegalArgumentException("Invalid address, a source address must be a valid 16-bit value!");
+        }
         this.mDst = dst;
+        if (!MeshAddress.isAddressInRange(dst)) {
+            throw new IllegalArgumentException("Invalid address, a destination address must be a valid 16-bit value");
+        }
         createAccessMessage();
     }
 
