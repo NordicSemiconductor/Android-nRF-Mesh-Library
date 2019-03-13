@@ -23,9 +23,12 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import no.nordicsemi.android.meshprovisioner.transport.BaseMeshMessageHandler;
 import no.nordicsemi.android.meshprovisioner.transport.MeshTransport;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
+import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 
 /**
  * MeshMessageHandler class that handles mesh messages
@@ -35,16 +38,16 @@ final class MeshMessageHandler extends BaseMeshMessageHandler {
     /**
      * Constructs MeshMessageHandler
      *
-     * @param context                    Context
-     * @param internalTransportCallbacks {@link InternalTransportCallbacks} Callbacks
+     * @param context                      Context
+     * @param internalTransportCallbacks   {@link InternalTransportCallbacks} Callbacks
+     * @param networkLayerCallbacks{@link  {@link NetworkLayerCallbacks}} network layer callbacks
+     * @param upperTransportLayerCallbacks {@link UpperTransportLayerCallbacks} upper transport layer callbacks
      */
-    MeshMessageHandler(final Context context, final InternalTransportCallbacks internalTransportCallbacks) {
-        super(context, internalTransportCallbacks);
-    }
-
-    @Override
-    protected MeshTransport getMeshTransport() {
-        return mMeshTransport;
+    MeshMessageHandler(@NonNull final Context context,
+                       @NonNull final InternalTransportCallbacks internalTransportCallbacks,
+                       @NonNull final NetworkLayerCallbacks networkLayerCallbacks,
+                       @NonNull final UpperTransportLayerCallbacks upperTransportLayerCallbacks) {
+        super(context, internalTransportCallbacks, networkLayerCallbacks, upperTransportLayerCallbacks);
     }
 
     void setMeshStatusCallbacks(final MeshStatusCallbacks statusCallbacks) {

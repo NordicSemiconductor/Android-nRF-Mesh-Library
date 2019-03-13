@@ -321,6 +321,40 @@ public abstract class NetworkLayer extends LowerTransportLayer {
     }
 
     /**
+     * Creates the privacy random.
+     *
+     * @param encryptedUpperTransportPDU encrypted transport pdu
+     * @return Privacy random
+     */
+    private byte[] createPrivacyRandom(final byte[] encryptedUpperTransportPDU) {
+        final byte[] privacyRandom = new byte[7];
+        System.arraycopy(encryptedUpperTransportPDU, 0, privacyRandom, 0, privacyRandom.length);
+        return privacyRandom;
+    }
+
+    private byte[] createPECB(final byte[] privacyRandom, final byte[] privacyKey) {
+        final byte[] ivIndex = mUpperTransportLayerCallbacks.getIvIndex();
+        final ByteBuffer buffer = ByteBuffer.allocate(5 + privacyRandom.length + ivIndex.length);
+        buffer.order(ByteOrder.BIG_ENDIAN);
+        buffer.put(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00});
+        buffer.put(ivIndex);
+        buffer.put(privacyRandom);
+        final byte[] temp = buffer.array();
+        Log.v(TAG, "Privacy Random: " + MeshParserUtils.bytesToHex(temp, false));
+        return SecureUtils.encryptWithAES(temp, privacyKey);
+    }
+
+    private byte[] createPECB(final byte[] ivIndex, final byte[] privacyRandom, final byte[] privacyKey) {
+        final ByteBuffer buffer = ByteBuffer.allocate(5 + privacyRandom.length + ivIndex.length);
+        buffer.order(ByteOrder.BIG_ENDIAN);
+        buffer.put(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00});
+        buffer.put(ivIndex);
+        buffer.put(privacyRandom);
+        final byte[] temp = buffer.array();
+        return SecureUtils.encryptWithAES(temp, privacyKey);
+    }
+
+    /**
      * Creates the network nonce
      *
      * @param ctlTTL         combined ctl and ttl value
@@ -355,40 +389,6 @@ public abstract class NetworkLayer extends LowerTransportLayer {
         applicationNonceBuffer.put(new byte[]{PAD_PROXY_NONCE, PAD_PROXY_NONCE});
         applicationNonceBuffer.put(ivIndex);
         return applicationNonceBuffer.array();
-    }
-
-    /**
-     * Creates the privacy random.
-     *
-     * @param encryptedUpperTransportPDU encrypted transport pdu
-     * @return Privacy random
-     */
-    private byte[] createPrivacyRandom(final byte[] encryptedUpperTransportPDU) {
-        final byte[] privacyRandom = new byte[7];
-        System.arraycopy(encryptedUpperTransportPDU, 0, privacyRandom, 0, privacyRandom.length);
-        return privacyRandom;
-    }
-
-    private byte[] createPECB(final byte[] privacyRandom, final byte[] privacyKey) {
-        final byte[] ivIndex = mUpperTransportLayerCallbacks.getIvIndex();
-        final ByteBuffer buffer = ByteBuffer.allocate(5 + privacyRandom.length + ivIndex.length);
-        buffer.order(ByteOrder.BIG_ENDIAN);
-        buffer.put(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00});
-        buffer.put(ivIndex);
-        buffer.put(privacyRandom);
-        final byte[] temp = buffer.array();
-        Log.v(TAG, "Privacy Random: " + MeshParserUtils.bytesToHex(temp, false));
-        return SecureUtils.encryptWithAES(temp, privacyKey);
-    }
-
-    private byte[] createPECB(final byte[] ivIndex, final byte[] privacyRandom, final byte[] privacyKey) {
-        final ByteBuffer buffer = ByteBuffer.allocate(5 + privacyRandom.length + ivIndex.length);
-        buffer.order(ByteOrder.BIG_ENDIAN);
-        buffer.put(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00});
-        buffer.put(ivIndex);
-        buffer.put(privacyRandom);
-        final byte[] temp = buffer.array();
-        return SecureUtils.encryptWithAES(temp, privacyKey);
     }
 
     /**

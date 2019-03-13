@@ -164,9 +164,9 @@ public class MeshManagerApi implements MeshMngrApi {
         this.mContext = context;
         mHandler = new Handler();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, internalTransportCallbacks, internalMeshMgrCallbacks);
-        mMeshMessageHandler = new MeshMessageHandler(context, internalTransportCallbacks);
-        mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(networkLayerCallbacks);
-        mMeshMessageHandler.getMeshTransport().setUpperTransportLayerCallbacks(upperTransportLayerCallbacks);
+        mMeshMessageHandler = new MeshMessageHandler(context, internalTransportCallbacks, networkLayerCallbacks, upperTransportLayerCallbacks);
+        /*mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(networkLayerCallbacks);
+        mMeshMessageHandler.getMeshTransport().setUpperTransportLayerCallbacks(upperTransportLayerCallbacks);*/
 
         initBouncyCastle();
         //Init database
@@ -353,7 +353,7 @@ public class MeshManagerApi implements MeshMngrApi {
             case PDU_TYPE_NETWORK:
                 //MeshNetwork PDU
                 Log.v(TAG, "Received network pdu: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshMessageHandler.parseMeshMsgNotifications(unsegmentedPdu);
+                mMeshMessageHandler.parseNetworkPduNotifications(unsegmentedPdu, mMeshNetwork);
                 break;
             case PDU_TYPE_MESH_BEACON:
                 //Mesh beacon
@@ -368,7 +368,7 @@ public class MeshManagerApi implements MeshMngrApi {
             case PDU_TYPE_PROXY_CONFIGURATION:
                 //Proxy configuration
                 Log.v(TAG, "Received proxy configuration message: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshMessageHandler.parseMeshMsgNotifications(unsegmentedPdu);
+                mMeshMessageHandler.parseProxyPduNotifications(unsegmentedPdu);
                 break;
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
@@ -403,7 +403,7 @@ public class MeshManagerApi implements MeshMngrApi {
             case PDU_TYPE_NETWORK:
                 //MeshNetwork PDU
                 Log.v(TAG, "MeshNetwork pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                mMeshMessageHandler.handleMeshMsgWriteCallbacks(data);
+                //mMeshMessageHandler.handleNetworkPDUWriteCallbacks(data);
                 break;
             case PDU_TYPE_MESH_BEACON:
                 //Mesh beacon
@@ -412,7 +412,7 @@ public class MeshManagerApi implements MeshMngrApi {
             case PDU_TYPE_PROXY_CONFIGURATION:
                 //Proxy configuration
                 Log.v(TAG, "Proxy configuration pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                mMeshMessageHandler.handleMeshMsgWriteCallbacks(data);
+                //mMeshMessageHandler.handleProxyPDUWriteCallbacks(data);
                 break;
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU

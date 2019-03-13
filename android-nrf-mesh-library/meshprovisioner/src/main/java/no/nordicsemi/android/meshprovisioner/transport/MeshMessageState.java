@@ -77,6 +77,13 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     public abstract MessageState getState();
 
     /**
+     * Returns the mesh transport
+     */
+    MeshTransport getMeshTransport() {
+        return mMeshTransport;
+    }
+
+    /**
      * Returns the mesh message relating to the state
      */
     public MeshMessage getMeshMessage() {

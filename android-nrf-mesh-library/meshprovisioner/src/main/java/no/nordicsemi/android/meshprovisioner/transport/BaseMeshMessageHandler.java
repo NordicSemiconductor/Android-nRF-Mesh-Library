@@ -25,10 +25,18 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.util.SparseArray;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 /**
  * Abstract class that handles mesh messages
@@ -38,53 +46,51 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     private static final String TAG = BaseMeshMessageHandler.class.getSimpleName();
 
     protected final Context mContext;
-    protected final MeshTransport mMeshTransport;
+    private final MeshTransport mMeshTransport;
     protected final InternalTransportCallbacks mInternalTransportCallbacks;
+    private final NetworkLayerCallbacks networkLayerCallbacks;
+    private final UpperTransportLayerCallbacks upperTransportLayerCallbacks;
     protected MeshStatusCallbacks mStatusCallbacks;
     private MeshMessageState mMeshMessageState;
+    private SparseArray<MeshTransport> transportSparseArray = new SparseArray<>();
+    private SparseArray<MeshMessageState> stateSparseArray = new SparseArray<>();
 
     /**
      * Constructs BaseMessageHandler
      *
-     * @param context                    Context
-     * @param internalTransportCallbacks {@link InternalTransportCallbacks} Callbacks
+     * @param context                      Context
+     * @param internalTransportCallbacks   {@link InternalTransportCallbacks} Callbacks
+     * @param networkLayerCallbacks        {@link NetworkLayerCallbacks} network layer callbacks
+     * @param upperTransportLayerCallbacks {@link UpperTransportLayerCallbacks} upper transport layer callbacks
      */
     protected BaseMeshMessageHandler(@NonNull final Context context,
-                                     @NonNull final InternalTransportCallbacks internalTransportCallbacks) {
+                                     @NonNull final InternalTransportCallbacks internalTransportCallbacks,
+                                     @NonNull final NetworkLayerCallbacks networkLayerCallbacks,
+                                     @NonNull final UpperTransportLayerCallbacks upperTransportLayerCallbacks) {
         this.mContext = context;
-        this.mMeshTransport = new MeshTransport(context);
         this.mInternalTransportCallbacks = internalTransportCallbacks;
+        this.networkLayerCallbacks = networkLayerCallbacks;
+        this.upperTransportLayerCallbacks = upperTransportLayerCallbacks;
+        this.mMeshTransport = new MeshTransport(context);
     }
 
     /**
-     * Returns the mesh transport
-     */
-    protected abstract MeshTransport getMeshTransport();
-
-    /**
-     * Handle mesh message States on write callback complete
+     * Handle mesh States on receiving mesh message notifications
      * <p>
-     * This method will jump to the current state and switch the current state according to the message that has been sent.
+     * This method will jump to the current state and switch the state depending on the expected and the next message received.
      * </p>
      *
-     * @param pdu mesh pdu that was sent
+     * @param pdu     mesh pdu that was sent
+     * @param network {@link MeshNetwork}
      */
-    @SuppressWarnings("unused")
-    public final void handleMeshMsgWriteCallbacks(@NonNull final byte[] pdu) {
-        if (mMeshMessageState instanceof ProxyConfigMessageState) {
-            if (mMeshMessageState.getState() == null)
-                return;
-            final ProxyConfigMessageState proxyConfigMessageState = (ProxyConfigMessageState) mMeshMessageState;
-            switchToNoOperationState(new DefaultNoOperationMessageState(mContext, proxyConfigMessageState.getMeshMessage(), mMeshTransport, this));
-
-        } else if (mMeshMessageState instanceof ConfigMessageState) {
-            if (mMeshMessageState.getState() == null)
-                return;
-
-            final ConfigMessageState configMessageState = (ConfigMessageState) mMeshMessageState;
-            switchToNoOperationState(new DefaultNoOperationMessageState(mContext, configMessageState.getMeshMessage(), mMeshTransport, this));
-        } else if (mMeshMessageState instanceof GenericMessageState) {
-            switchToNoOperationState(new DefaultNoOperationMessageState(mContext, mMeshMessageState.getMeshMessage(), mMeshTransport, this));
+    public final void parseNetworkPduNotifications(@NonNull final byte[] pdu, @NonNull final MeshNetwork network) {
+        final byte[] networkHeader = deObfuscateNetworkHeader(pdu, network.getPrimaryNetworkKey(), MeshParserUtils.intToBytes(network.getIvIndex()));
+        if (networkHeader != null) {
+            final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
+            final MeshMessageState state = stateSparseArray.get(src);
+            if (state != null) {
+                ((DefaultNoOperationMessageState) state).parseMeshPdu(pdu);
+            }
         }
     }
 
@@ -96,9 +102,10 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      *
      * @param pdu mesh pdu that was sent
      */
-    public final void parseMeshMsgNotifications(@NonNull final byte[] pdu) {
-        if (mMeshMessageState instanceof DefaultNoOperationMessageState) {
-            ((DefaultNoOperationMessageState) mMeshMessageState).parseMeshPdu(pdu);
+    public final void parseProxyPduNotifications(@NonNull final byte[] pdu) {
+        final MeshMessageState state = stateSparseArray.get(MeshAddress.UNASSIGNED_ADDRESS);
+        if (state instanceof DefaultNoOperationMessageState) {
+            ((DefaultNoOperationMessageState) state).parseMeshPdu(pdu);
         }
     }
 
@@ -106,27 +113,25 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     public final void onIncompleteTimerExpired(final boolean incompleteTimerExpired) {
         //We switch no operation state if the incomplete timer has expired so that we don't wait on the same state if a particular message fails.
         final MeshMessage meshMessage = mMeshMessageState.getMeshMessage();
-        switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshMessage, mMeshTransport, this));
+        //switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshMessage, mMeshTransport, this));
     }
 
-    /**
-     * Switch the current state of the mesh message handler
-     * <p>
-     * This method will switch the current state of the mesh message handler
-     * </p>
-     *
-     * @param newState new state that is to be switched to
-     */
-    private void switchToNoOperationState(@NonNull final MeshMessageState newState) {
-        //Switching to unknown message state here for messages that are not
-        if (mMeshMessageState.getState() != null && newState.getState() != null) {
-            Log.v(TAG, "Switching current state " + mMeshMessageState.getState().name() + " to No operation state");
-        } else {
-            Log.v(TAG, "Switched to No operation state");
+    private DefaultNoOperationMessageState toggleState(final MeshMessageState currentState, final MeshMessage meshMessage) {
+        final DefaultNoOperationMessageState state = new DefaultNoOperationMessageState(mContext, meshMessage, currentState.getMeshTransport(), this);
+        state.setTransportCallbacks(mInternalTransportCallbacks);
+        state.setStatusCallbacks(mStatusCallbacks);
+        return state;
+    }
+
+    private MeshTransport getTransport(final int address) {
+        MeshTransport transport = transportSparseArray.get(address);
+        if (transport == null) {
+            transport = new MeshTransport(mContext);
+            transport.setNetworkLayerCallbacks(networkLayerCallbacks);
+            transport.setUpperTransportLayerCallbacks(upperTransportLayerCallbacks);
+            transportSparseArray.put(address, transport);
         }
-        newState.setTransportCallbacks(mInternalTransportCallbacks);
-        newState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = newState;
+        return transport;
     }
 
     @Override
@@ -159,11 +164,11 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param configurationMessage {@link ProxyConfigMessage} Mesh message containing the message opcode and message parameters
      */
     private void sendProxyConfigMeshMessage(final int src, final int dst, @NonNull final ProxyConfigMessage configurationMessage) {
-        final ProxyConfigMessageState state = new ProxyConfigMessageState(mContext, src, dst, configurationMessage, mMeshTransport, this);
-        state.setTransportCallbacks(mInternalTransportCallbacks);
-        state.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = state;
-        state.executeSend();
+        final ProxyConfigMessageState currentState = new ProxyConfigMessageState(mContext, src, dst, configurationMessage, getTransport(dst), this);
+        currentState.setTransportCallbacks(mInternalTransportCallbacks);
+        currentState.setStatusCallbacks(mStatusCallbacks);
+        stateSparseArray.put(dst, toggleState(currentState, configurationMessage));
+        currentState.executeSend();
     }
 
     /**
@@ -177,11 +182,11 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             return;
         }
 
-        final ConfigMessageState state = new ConfigMessageState(mContext, src, dst, node.getDeviceKey(), configurationMessage, mMeshTransport, this);
-        state.setTransportCallbacks(mInternalTransportCallbacks);
-        state.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = state;
-        state.executeSend();
+        final ConfigMessageState currentState = new ConfigMessageState(mContext, src, dst, node.getDeviceKey(), configurationMessage, getTransport(dst), this);
+        currentState.setTransportCallbacks(mInternalTransportCallbacks);
+        currentState.setStatusCallbacks(mStatusCallbacks);
+        stateSparseArray.put(dst, toggleState(currentState, configurationMessage));
+        currentState.executeSend();
     }
 
 
@@ -197,10 +202,61 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param genericMessage Mesh message containing the message opcode and message parameters.
      */
     private void sendAppMeshMessage(final int src, final int dst, @NonNull final GenericMessage genericMessage) {
-        final GenericMessageState genericMessageState = new GenericMessageState(mContext, src, dst, genericMessage, mMeshTransport, this);
-        genericMessageState.setTransportCallbacks(mInternalTransportCallbacks);
-        genericMessageState.setStatusCallbacks(mStatusCallbacks);
-        mMeshMessageState = genericMessageState;
-        genericMessageState.executeSend();
+        final GenericMessageState currentState = new GenericMessageState(mContext, src, dst, genericMessage, getTransport(dst), this);
+        currentState.setTransportCallbacks(mInternalTransportCallbacks);
+        currentState.setStatusCallbacks(mStatusCallbacks);
+        stateSparseArray.put(dst, toggleState(currentState, genericMessage));
+        currentState.executeSend();
+    }
+
+    /**
+     * De-obfuscates the network header
+     *
+     * @param pdu received from the node
+     * @return obfuscted network header
+     */
+    private byte[] deObfuscateNetworkHeader(@NonNull final byte[] pdu, @NonNull final NetworkKey key, @NonNull final byte[] ivIndex) {
+        final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(key.getKey(), SecureUtils.K2_MASTER_INPUT);
+        final byte[] privacyKey = k2Output.getPrivacyKey();
+        final ByteBuffer obfuscatedNetworkBuffer = ByteBuffer.allocate(6);
+        obfuscatedNetworkBuffer.order(ByteOrder.BIG_ENDIAN);
+        obfuscatedNetworkBuffer.put(pdu, 2, 6);
+        final byte[] obfuscatedData = obfuscatedNetworkBuffer.array();
+
+        final ByteBuffer privacyRandomBuffer = ByteBuffer.allocate(7);
+        privacyRandomBuffer.order(ByteOrder.BIG_ENDIAN);
+        privacyRandomBuffer.put(pdu, 8, 7);
+        final byte[] privacyRandom = createPrivacyRandom(privacyRandomBuffer.array());
+
+        final byte[] pecb = createPECB(ivIndex, privacyRandom, privacyKey);
+        final byte[] deObfuscatedData = new byte[6];
+
+        for (int i = 0; i < 6; i++)
+            deObfuscatedData[i] = (byte) (obfuscatedData[i] ^ pecb[i]);
+
+        return deObfuscatedData;
+    }
+
+    /**
+     * Creates the privacy random.
+     *
+     * @param encryptedUpperTransportPDU encrypted transport pdu
+     * @return Privacy random
+     */
+    private byte[] createPrivacyRandom(final byte[] encryptedUpperTransportPDU) {
+        final byte[] privacyRandom = new byte[7];
+        System.arraycopy(encryptedUpperTransportPDU, 0, privacyRandom, 0, privacyRandom.length);
+        return privacyRandom;
+    }
+
+    private byte[] createPECB(final byte[] ivIndex, final byte[] privacyRandom, final byte[] privacyKey) {
+        final ByteBuffer buffer = ByteBuffer.allocate(5 + privacyRandom.length + ivIndex.length);
+        buffer.order(ByteOrder.BIG_ENDIAN);
+        buffer.put(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00});
+        buffer.put(ivIndex);
+        buffer.put(privacyRandom);
+        final byte[] temp = buffer.array();
+        Log.v(TAG, "Privacy Random: " + MeshParserUtils.bytesToHex(temp, false));
+        return SecureUtils.encryptWithAES(temp, privacyKey);
     }
 }
