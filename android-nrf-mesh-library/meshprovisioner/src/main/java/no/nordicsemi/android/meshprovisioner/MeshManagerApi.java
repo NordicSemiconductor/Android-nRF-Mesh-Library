@@ -145,7 +145,7 @@ public class MeshManagerApi implements MeshMngrApi {
     private final Runnable mProxyProtocolTimeoutRunnable = new Runnable() {
         @Override
         public void run() {
-            mMeshMessageHandler.onIncompleteTimerExpired(true);
+            mMeshMessageHandler.onIncompleteTimerExpired(MeshAddress.UNASSIGNED_ADDRESS);
         }
     };
 
