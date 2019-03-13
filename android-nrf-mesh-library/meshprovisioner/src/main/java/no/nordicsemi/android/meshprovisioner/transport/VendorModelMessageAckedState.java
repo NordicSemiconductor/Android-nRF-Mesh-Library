@@ -79,9 +79,5 @@ class VendorModelMessageAckedState extends GenericMessageState {
     public void executeSend() {
         Log.v(TAG, "Sending acknowledged vendor model message");
         super.executeSend();
-        if (message.getNetworkPdu().size() > 0) {
-            if (mMeshStatusCallbacks != null)
-                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
-        }
     }
 }
