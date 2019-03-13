@@ -113,7 +113,6 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     public final void onIncompleteTimerExpired(final int address) {
         //We switch no operation state if the incomplete timer has expired so that we don't wait on the same state if a particular message fails.
         stateSparseArray.put(address, toggleState(getTransport(address), getState(address).getMeshMessage()));
-        //switchToNoOperationState(new DefaultNoOperationMessageState(mContext, meshMessage, mMeshTransport, this));
     }
 
     private DefaultNoOperationMessageState toggleState(final MeshTransport transport, final MeshMessage meshMessage) {
