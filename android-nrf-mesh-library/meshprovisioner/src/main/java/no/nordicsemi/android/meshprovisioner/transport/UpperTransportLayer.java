@@ -37,18 +37,17 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 abstract class UpperTransportLayer extends AccessLayer {
+    private static final String TAG = UpperTransportLayer.class.getSimpleName();
     private static final int PROXY_CONFIG_OPCODE_LENGTH = 1;
     static final int MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH = 12;
     static final int MAX_UNSEGMENTED_CONTROL_PAYLOAD_LENGTH = 11;
     static final int MAX_SEGMENTED_CONTROL_PAYLOAD_LENGTH = 8;
-    /**
-     * Nonce types
-     **/
+
+    //Nonce types
     static final int NONCE_TYPE_NETWORK = 0x00;
     static final int NONCE_TYPE_PROXY = 0x03;
-    /**
-     * Nonce paddings
-     **/
+
+    //Nonce paddings
     static final int PAD_NETWORK_NONCE = 0x00;
     static final int PAD_PROXY_NONCE = 0x00;
     private static final int APPLICATION_KEY_IDENTIFIER = 0; //Identifies that the device key is to be used
@@ -56,7 +55,6 @@ abstract class UpperTransportLayer extends AccessLayer {
     private static final int NONCE_TYPE_APPLICATION = 0x01;
     private static final int NONCE_TYPE_DEVICE = 0x02;
     private static final int PAD_APPLICATION_DEVICE_NONCE = 0b0000000;
-    private static final String TAG = UpperTransportLayer.class.getSimpleName();
     private static final int SZMIC = 1; //Transmic becomes 8 bytes
     private static final int TRANSPORT_SAR_SEQZERO_MASK = 8191;
     private static final int DEFAULT_UNSEGMENTED_MIC_LENGTH = 4; //octets
@@ -66,11 +64,42 @@ abstract class UpperTransportLayer extends AccessLayer {
     UpperTransportLayerCallbacks mUpperTransportLayerCallbacks;
 
     /**
+     * Creates lower transport pdu
+     */
+    abstract void createLowerTransportAccessPDU(@NonNull final AccessMessage message);
+
+    /**
+     * Creates lower transport pdu
+     */
+    abstract void createLowerTransportControlPDU(@NonNull final ControlMessage message);
+
+    /**
+     * Removes the lower transport layer header and reassembles a segented lower transport access pdu in to one message
+     *
+     * @param accessMessage access message containing the lower transport pdus
+     */
+    abstract void reassembleLowerTransportAccessPDU(@NonNull final AccessMessage accessMessage);
+
+    /**
+     * Removes the lower transport layer header and reassembles a segented lower transport control pdu in to one message
+     *
+     * @param controlMessage control message containing the lower transport pdus
+     */
+    abstract void reassembleLowerTransportControlPDU(@NonNull final ControlMessage controlMessage);
+
+    /**
+     * Sets the upper transport layer callbacks
+     *
+     * @param callbacks {@link UpperTransportLayerCallbacks} callbacks
+     */
+    abstract void setUpperTransportLayerCallbacks(@NonNull final UpperTransportLayerCallbacks callbacks);
+
+    /**
      * Creates a mesh message containing an upper transport access pdu
      *
      * @param message The access message required to create the encrypted upper transport pdu
      */
-    void createMeshMessage(final Message message) { //Access message
+    void createMeshMessage(@NonNull final Message message) { //Access message
         if (message instanceof AccessMessage) {
             super.createMeshMessage(message);
             final AccessMessage accessMessage = (AccessMessage) message;
@@ -87,7 +116,7 @@ abstract class UpperTransportLayer extends AccessLayer {
      *
      * @param message The access message required to create the encrypted upper transport pdu
      */
-    void createVendorMeshMessage(final Message message) { //Access message
+    void createVendorMeshMessage(@NonNull final Message message) { //Access message
         super.createVendorMeshMessage(message);
         final AccessMessage accessMessage = (AccessMessage) message;
         final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
@@ -101,7 +130,7 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @param message The message required to create the encrypted upper transport pdu
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    void createUpperTransportPDU(final Message message) {
+    void createUpperTransportPDU(@NonNull final Message message) {
         if (message instanceof AccessMessage) {
             //Access message
             final AccessMessage accessMessage = (AccessMessage) message;
@@ -128,31 +157,6 @@ abstract class UpperTransportLayer extends AccessLayer {
             controlMessage.setTransportControlPdu(accessPdu);
         }
     }
-
-    /**
-     * Creates lower transport pdu
-     */
-    abstract void createLowerTransportAccessPDU(final AccessMessage message);
-
-    /**
-     * Creates lower transport pdu
-     */
-    abstract void createLowerTransportControlPDU(final ControlMessage message);
-
-    /**
-     * Removes the lower transport layer header and reassembles a segented lower transport access pdu in to one message
-     *
-     * @param accessMessage access message containing the lower transport pdus
-     */
-    abstract void reassembleLowerTransportAccessPDU(final AccessMessage accessMessage);
-
-
-    /**
-     * Removes the lower transport layer header and reassembles a segented lower transport control pdu in to one message
-     *
-     * @param controlMessage control message containing the lower transport pdus
-     */
-    abstract void reassembleLowerTransportControlPDU(final ControlMessage controlMessage);
 
     /**
      * Parse upper transport pdu
@@ -198,7 +202,7 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @param message access message object containing the upper transport pdu
      * @return encrypted upper transport pdu
      */
-    private byte[] encryptUpperTransportPDU(final AccessMessage message) {
+    private byte[] encryptUpperTransportPDU(@NonNull final AccessMessage message) {
         final byte[] accessPDU = message.getAccessPdu();
         final int akf = message.getAkf();
         final int aszmic = message.getAszmic(); // upper transport layer will alaways have the aszmic as 0 because the mic is always 32bit
@@ -236,7 +240,7 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @param accessMessage access message object containing the upper transport pdu
      * @return decrypted upper transport pdu
      */
-    private byte[] decryptUpperTransportPDU(final AccessMessage accessMessage) throws InvalidCipherTextException {
+    private byte[] decryptUpperTransportPDU(@NonNull final AccessMessage accessMessage) throws InvalidCipherTextException {
         byte[] decryptedUpperTransportPDU;
         final byte[] key;
         //Check if the key used for encryption is an application key or a device key
@@ -281,7 +285,11 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @param dst            destination address
      * @return Application nonce
      */
-    private byte[] createApplicationNonce(final int aszmic, final byte[] sequenceNumber, final int src, final int dst, final byte[] ivIndex) {
+    private byte[] createApplicationNonce(final int aszmic,
+                                          @NonNull final byte[] sequenceNumber,
+                                          final int src,
+                                          final int dst,
+                                          @NonNull final byte[] ivIndex) {
         final ByteBuffer applicationNonceBuffer = ByteBuffer.allocate(13);
         applicationNonceBuffer.put((byte) NONCE_TYPE_APPLICATION); //Nonce type
         applicationNonceBuffer.put((byte) ((aszmic << 7) | PAD_APPLICATION_DEVICE_NONCE)); //ASZMIC (SZMIC if a segmented access message) and PAD
@@ -301,7 +309,11 @@ abstract class UpperTransportLayer extends AccessLayer {
      * @param dst            destination address
      * @return Device  nonce
      */
-    private byte[] createDeviceNonce(final int aszmic, final byte[] sequenceNumber, final int src, final int dst, final byte[] ivIndex) {
+    private byte[] createDeviceNonce(final int aszmic,
+                                     @NonNull final byte[] sequenceNumber,
+                                     final int src,
+                                     final int dst,
+                                     @NonNull final byte[] ivIndex) {
         final ByteBuffer deviceNonceBuffer = ByteBuffer.allocate(13);
         deviceNonceBuffer.put((byte) NONCE_TYPE_DEVICE); //Nonce type
         deviceNonceBuffer.put((byte) ((aszmic << 7) | PAD_APPLICATION_DEVICE_NONCE)); //ASZMIC (SZMIC if a segmented access message) and PAD
