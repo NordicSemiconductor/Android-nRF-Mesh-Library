@@ -153,40 +153,22 @@ public class MeshManagerApi implements MeshMngrApi {
 
     }
 
-    /**
-     * Sets the {@link MeshManagerCallbacks} listener
-     *
-     * @param callbacks callbacks
-     */
-    public void setMeshManagerCallbacks(final MeshManagerCallbacks callbacks) {
+    @Override
+    public void setMeshManagerCallbacks(@NonNull final MeshManagerCallbacks callbacks) {
         mTransportCallbacks = callbacks;
     }
 
-    /**
-     * Sets the {@link MeshProvisioningStatusCallbacks} listener to return provisioning status callbacks.
-     *
-     * @param callbacks callbacks
-     */
-    public void setProvisioningStatusCallbacks(final MeshProvisioningStatusCallbacks callbacks) {
+    @Override
+    public void setProvisioningStatusCallbacks(@NonNull final MeshProvisioningStatusCallbacks callbacks) {
         mMeshProvisioningHandler.setProvisioningCallbacks(callbacks);
     }
 
-    /**
-     * Sets the {@link MeshManagerCallbacks} listener to return mesh status callbacks.
-     *
-     * @param callbacks callbacks
-     */
-    public void setMeshStatusCallbacks(final MeshStatusCallbacks callbacks) {
+    @Override
+    public void setMeshStatusCallbacks(@NonNull final MeshStatusCallbacks callbacks) {
         mMeshMessageHandler.setMeshStatusCallbacks(callbacks);
     }
 
-    /**
-     * Loads the mesh network from the local database.
-     * <p>
-     * This will start an AsyncTask that will load the network from the database.
-     * {@link MeshManagerCallbacks#onNetworkLoaded(MeshNetwork) will return the mesh network
-     * </p>
-     */
+    @Override
     public void loadMeshNetwork() {
         mMeshNetworkDb.loadNetwork(mMeshNetworkDao,
                 mNetworkKeyDao,
@@ -197,11 +179,7 @@ public class MeshManagerApi implements MeshMngrApi {
                 networkLoadCallbacks);
     }
 
-    /**
-     * Returns an already loaded mesh network, make sure to call {@link #loadMeshNetwork()} before calling this
-     *
-     * @return {@link MeshNetwork}
-     */
+    @Override
     public MeshNetwork getMeshNetwork() {
         return mMeshNetwork;
     }
@@ -279,16 +257,8 @@ public class MeshManagerApi implements MeshMngrApi {
         }
     }
 
-    /**
-     * Handles notifications received by the client.
-     * <p>
-     * This method will check if the library should wait for more data in case of a gatt layer segmentation.
-     * If its required the method will remove the segmentation bytes and combine the data together.
-     * </p>
-     *
-     * @param data pdu received by the client
-     */
-    public final void handleNotifications(final int mtuSize, final byte[] data) {
+    @Override
+    public final void handleNotifications(final int mtuSize, @NonNull final byte[] data) {
         byte[] unsegmentedPdu;
         if (!shouldWaitForMoreData(data)) {
             unsegmentedPdu = data;
@@ -355,7 +325,8 @@ public class MeshManagerApi implements MeshMngrApi {
         }
     }
 
-    public final void handleWriteCallbacks(final int mtuSize, final byte[] data) {
+    @Override
+    public final void handleWriteCallbacks(final int mtuSize, @NonNull final byte[] data) {
         byte[] unsegmentedPdu;
         if (!shouldWaitForMoreData(data)) {
             unsegmentedPdu = data;
