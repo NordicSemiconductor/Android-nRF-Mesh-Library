@@ -30,7 +30,7 @@ import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 
 /**
- * MeshMessageHandler class that handles mesh messages
+ * MeshMessageHandler class for handling mesh
  */
 final class MeshMessageHandler extends BaseMeshMessageHandler {
 
@@ -39,7 +39,7 @@ final class MeshMessageHandler extends BaseMeshMessageHandler {
      *
      * @param context                      Context
      * @param internalTransportCallbacks   {@link InternalTransportCallbacks} Callbacks
-     * @param networkLayerCallbacks{@link  {@link NetworkLayerCallbacks}} network layer callbacks
+     * @param networkLayerCallbacks        {@link NetworkLayerCallbacks} network layer callbacks
      * @param upperTransportLayerCallbacks {@link UpperTransportLayerCallbacks} upper transport layer callbacks
      */
     MeshMessageHandler(@NonNull final Context context,
@@ -49,7 +49,19 @@ final class MeshMessageHandler extends BaseMeshMessageHandler {
         super(context, internalTransportCallbacks, networkLayerCallbacks, upperTransportLayerCallbacks);
     }
 
-    void setMeshStatusCallbacks(final MeshStatusCallbacks statusCallbacks) {
+    @Override
+    protected final void setMeshStatusCallbacks(@NonNull final MeshStatusCallbacks statusCallbacks) {
         mStatusCallbacks = statusCallbacks;
+    }
+
+
+    @Override
+    protected final void parseNetworkPduNotifications(@NonNull final byte[] pdu, @NonNull final MeshNetwork network) {
+        super.parseNetworkPduNotifications(pdu, network);
+    }
+
+    @Override
+    protected final void parseProxyPduNotifications(@NonNull final byte[] pdu) {
+        super.parseProxyPduNotifications(pdu);
     }
 }

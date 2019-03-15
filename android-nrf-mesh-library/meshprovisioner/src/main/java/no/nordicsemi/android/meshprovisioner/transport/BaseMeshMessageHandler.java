@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -46,12 +47,10 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     private static final String TAG = BaseMeshMessageHandler.class.getSimpleName();
 
     protected final Context mContext;
-    private final MeshTransport mMeshTransport;
     protected final InternalTransportCallbacks mInternalTransportCallbacks;
     private final NetworkLayerCallbacks networkLayerCallbacks;
     private final UpperTransportLayerCallbacks upperTransportLayerCallbacks;
     protected MeshStatusCallbacks mStatusCallbacks;
-    private MeshMessageState mMeshMessageState;
     private SparseArray<MeshTransport> transportSparseArray = new SparseArray<>();
     private SparseArray<MeshMessageState> stateSparseArray = new SparseArray<>();
 
@@ -71,8 +70,14 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         this.mInternalTransportCallbacks = internalTransportCallbacks;
         this.networkLayerCallbacks = networkLayerCallbacks;
         this.upperTransportLayerCallbacks = upperTransportLayerCallbacks;
-        this.mMeshTransport = new MeshTransport(context);
     }
+
+    /**
+     * Sets the mesh status callbacks.
+     *
+     * @param statusCallbacks {@link MeshStatusCallbacks} callbacks
+     */
+    protected abstract void setMeshStatusCallbacks(@NonNull final MeshStatusCallbacks statusCallbacks);
 
     /**
      * Handle mesh States on receiving mesh message notifications
@@ -83,7 +88,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param pdu     mesh pdu that was sent
      * @param network {@link MeshNetwork}
      */
-    public final void parseNetworkPduNotifications(@NonNull final byte[] pdu, @NonNull final MeshNetwork network) {
+    protected void parseNetworkPduNotifications(@NonNull final byte[] pdu, @NonNull final MeshNetwork network) {
         final byte[] networkHeader = deObfuscateNetworkHeader(pdu, network.getPrimaryNetworkKey(), MeshParserUtils.intToBytes(network.getIvIndex()));
         if (networkHeader != null) {
             final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
@@ -102,7 +107,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      *
      * @param pdu mesh pdu that was sent
      */
-    public final void parseProxyPduNotifications(@NonNull final byte[] pdu) {
+    protected void parseProxyPduNotifications(@NonNull final byte[] pdu) {
         final MeshMessageState state = getState(MeshAddress.UNASSIGNED_ADDRESS);
         if (state instanceof DefaultNoOperationMessageState) {
             ((DefaultNoOperationMessageState) state).parseMeshPdu(pdu);
@@ -115,14 +120,25 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         stateSparseArray.put(address, toggleState(getTransport(address), getState(address).getMeshMessage()));
     }
 
-    private DefaultNoOperationMessageState toggleState(final MeshTransport transport, final MeshMessage meshMessage) {
+    /**
+     * Toggles the current state to default state of a node
+     *
+     * @param transport   mesh transport of the current state
+     * @param meshMessage Mesh message
+     */
+    private DefaultNoOperationMessageState toggleState(@NonNull final MeshTransport transport, @Nullable final MeshMessage meshMessage) {
         final DefaultNoOperationMessageState state = new DefaultNoOperationMessageState(mContext, meshMessage, transport, this);
         state.setTransportCallbacks(mInternalTransportCallbacks);
         state.setStatusCallbacks(mStatusCallbacks);
         return state;
     }
 
-    private MeshMessageState getState(final int address) {
+    /**
+     * Returns the existing state or a new state if nothing exists for a node
+     *
+     * @param address address of the node
+     */
+    protected MeshMessageState getState(final int address) {
         MeshMessageState state = stateSparseArray.get(address);
         if (state == null) {
             state = new DefaultNoOperationMessageState(mContext, null, getTransport(address), this);
@@ -133,6 +149,11 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         return state;
     }
 
+    /**
+     * Returns the existing transport of the node or a new transport if nothing exists
+     *
+     * @param address address of the node
+     */
     private MeshTransport getTransport(final int address) {
         MeshTransport transport = transportSparseArray.get(address);
         if (transport == null) {
@@ -142,6 +163,16 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             transportSparseArray.put(address, transport);
         }
         return transport;
+    }
+
+    /**
+     * Resets the state and transport for a given node address
+     *
+     * @param address unicast address of the node
+     */
+    public void resetState(final int address) {
+        stateSparseArray.remove(address);
+        transportSparseArray.remove(address);
     }
 
     @Override
@@ -195,7 +226,9 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         final ConfigMessageState currentState = new ConfigMessageState(mContext, src, dst, node.getDeviceKey(), configurationMessage, getTransport(dst), this);
         currentState.setTransportCallbacks(mInternalTransportCallbacks);
         currentState.setStatusCallbacks(mStatusCallbacks);
-        stateSparseArray.put(dst, toggleState(getTransport(dst), configurationMessage));
+        if (MeshAddress.isValidUnicastAddress(dst)) {
+            stateSparseArray.put(dst, toggleState(getTransport(dst), configurationMessage));
+        }
         currentState.executeSend();
     }
 
@@ -215,7 +248,9 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         final GenericMessageState currentState = new GenericMessageState(mContext, src, dst, genericMessage, getTransport(dst), this);
         currentState.setTransportCallbacks(mInternalTransportCallbacks);
         currentState.setStatusCallbacks(mStatusCallbacks);
-        stateSparseArray.put(dst, toggleState(getTransport(dst), genericMessage));
+        if (MeshAddress.isValidUnicastAddress(dst)) {
+            stateSparseArray.put(dst, toggleState(getTransport(dst), genericMessage));
+        }
         currentState.executeSend();
     }
 

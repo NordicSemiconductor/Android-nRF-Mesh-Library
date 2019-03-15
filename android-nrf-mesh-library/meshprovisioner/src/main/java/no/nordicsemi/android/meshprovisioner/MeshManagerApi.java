@@ -88,38 +88,17 @@ public class MeshManagerApi implements MeshMngrApi {
     private static final int GATT_SAR_UNMASK = 0x3F;
     private static final int SAR_BIT_OFFSET = 6;
 
-    //According to the spec the proxy protocol must contain an SAR timeout of 20 seconds.
-    private static final long PROXY_SAR_TRANSFER_TIME_OUT = 20 * 1000;
-    /**
-     * Length of the random number required to calculate the hash containing the node id
-     */
-    private final static int HASH_RANDOM_NUMBER_LENGTH = 64; //in bits
+    private static final long PROXY_SAR_TRANSFER_TIME_OUT = 20 * 1000; // According to the spec the proxy protocol must contain an SAR timeout of 20 seconds.
+    private final static int HASH_RANDOM_NUMBER_LENGTH = 64; // Length of the random number required to calculate the hash containing the node id in bits
     private static final int ADVERTISEMENT_TYPE_NETWORK_ID = 0x00;
     private static final int ADVERTISEMENT_TYPE_NODE_IDENTITY = 0x01;
-    /**
-     * Offset of the hash contained in the advertisement service data
-     */
-    private final static int ADVERTISED_HASH_OFFSET = 1;
-    /**
-     * Length of the hash contained in the advertisement service data
-     */
-    private final static int ADVERTISED_HASH_LENGTH = 8;
-    /**
-     * Offset of the hash contained in the advertisement service data
-     */
-    private final static int ADVERTISED_RANDOM_OFFSET = 9;
-    /**
-     * Length of the hash contained in the advertisement service data
-     */
-    private final static int ADVERTISED_RANDOM_LENGTH = 8;
-    /**
-     * Offset of the network id contained in the advertisement service data
-     */
-    private final static int ADVERTISED_NETWORK_ID_OFFSET = 1;
-    /**
-     * Length of the network id contained in the advertisement service data
-     */
-    private final static int ADVERTISED_NETWORK_ID_LENGTH = 8;
+    private final static int ADVERTISED_HASH_OFFSET = 1; // Offset of the hash contained in the advertisement service data
+    private final static int ADVERTISED_HASH_LENGTH = 8; // Length of the hash contained in the advertisement service data
+    private final static int ADVERTISED_RANDOM_OFFSET = 9; // Offset of the hash contained in the advertisement service data
+    private final static int ADVERTISED_RANDOM_LENGTH = 8; //Length of the hash contained in the advertisement service data
+    private final static int ADVERTISED_NETWORK_ID_OFFSET = 1; //Offset of the network id contained in the advertisement service data
+    private final static int ADVERTISED_NETWORK_ID_LENGTH = 8; //Length of the network id contained in the advertisement service data
+
     private Context mContext;
     private final Handler mHandler;
     private MeshManagerCallbacks mTransportCallbacks;
@@ -918,6 +897,7 @@ public class MeshManagerApi implements MeshMngrApi {
         public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
             if (meshNode != null) {
                 if (mMeshNetwork.deleteResetNode(meshNode)) {
+                    mMeshMessageHandler.resetState(meshNode.getUnicastAddress());
                     mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
                     mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
                 }
