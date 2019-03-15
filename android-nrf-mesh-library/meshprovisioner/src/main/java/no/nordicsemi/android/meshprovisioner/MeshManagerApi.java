@@ -88,40 +88,19 @@ public class MeshManagerApi implements MeshMngrApi {
     private static final int GATT_SAR_UNMASK = 0x3F;
     private static final int SAR_BIT_OFFSET = 6;
 
-    //According to the spec the proxy protocol must contain an SAR timeout of 20 seconds.
-    private static final long PROXY_SAR_TRANSFER_TIME_OUT = 20 * 1000;
-    /**
-     * Length of the random number required to calculate the hash containing the node id
-     */
-    private final static int HASH_RANDOM_NUMBER_LENGTH = 64; //in bits
+    private static final long PROXY_SAR_TRANSFER_TIME_OUT = 20 * 1000; // According to the spec the proxy protocol must contain an SAR timeout of 20 seconds.
+    private final static int HASH_RANDOM_NUMBER_LENGTH = 64; // Length of the random number required to calculate the hash containing the node id in bits
     private static final int ADVERTISEMENT_TYPE_NETWORK_ID = 0x00;
     private static final int ADVERTISEMENT_TYPE_NODE_IDENTITY = 0x01;
-    /**
-     * Offset of the hash contained in the advertisement service data
-     */
-    private final static int ADVERTISED_HASH_OFFSET = 1;
-    /**
-     * Length of the hash contained in the advertisement service data
-     */
-    private final static int ADVERTISED_HASH_LENGTH = 8;
-    /**
-     * Offset of the hash contained in the advertisement service data
-     */
-    private final static int ADVERTISED_RANDOM_OFFSET = 9;
-    /**
-     * Length of the hash contained in the advertisement service data
-     */
-    private final static int ADVERTISED_RANDOM_LENGTH = 8;
-    /**
-     * Offset of the network id contained in the advertisement service data
-     */
-    private final static int ADVERTISED_NETWORK_ID_OFFSET = 1;
-    /**
-     * Length of the network id contained in the advertisement service data
-     */
-    private final static int ADVERTISED_NETWORK_ID_LENGTH = 8;
+    private final static int ADVERTISED_HASH_OFFSET = 1; // Offset of the hash contained in the advertisement service data
+    private final static int ADVERTISED_HASH_LENGTH = 8; // Length of the hash contained in the advertisement service data
+    private final static int ADVERTISED_RANDOM_OFFSET = 9; // Offset of the hash contained in the advertisement service data
+    private final static int ADVERTISED_RANDOM_LENGTH = 8; //Length of the hash contained in the advertisement service data
+    private final static int ADVERTISED_NETWORK_ID_OFFSET = 1; //Offset of the network id contained in the advertisement service data
+    private final static int ADVERTISED_NETWORK_ID_LENGTH = 8; //Length of the network id contained in the advertisement service data
+
     private Context mContext;
-    private final Handler mHanlder;
+    private final Handler mHandler;
     private MeshManagerCallbacks mTransportCallbacks;
     private MeshProvisioningHandler mMeshProvisioningHandler;
     private MeshMessageHandler mMeshMessageHandler;
@@ -145,7 +124,7 @@ public class MeshManagerApi implements MeshMngrApi {
     private final Runnable mProxyProtocolTimeoutRunnable = new Runnable() {
         @Override
         public void run() {
-            mMeshMessageHandler.onIncompleteTimerExpired(true);
+            mMeshMessageHandler.onIncompleteTimerExpired(MeshAddress.UNASSIGNED_ADDRESS);
         }
     };
 
@@ -162,11 +141,9 @@ public class MeshManagerApi implements MeshMngrApi {
      */
     public MeshManagerApi(@NonNull final Context context) {
         this.mContext = context;
-        mHanlder = new Handler();
+        mHandler = new Handler();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, internalTransportCallbacks, internalMeshMgrCallbacks);
-        mMeshMessageHandler = new MeshMessageHandler(context, internalTransportCallbacks);
-        mMeshMessageHandler.getMeshTransport().setNetworkLayerCallbacks(networkLayerCallbacks);
-        mMeshMessageHandler.getMeshTransport().setUpperTransportLayerCallbacks(upperTransportLayerCallbacks);
+        mMeshMessageHandler = new MeshMessageHandler(context, internalTransportCallbacks, networkLayerCallbacks, upperTransportLayerCallbacks);
 
         initBouncyCastle();
         //Init database
@@ -176,40 +153,22 @@ public class MeshManagerApi implements MeshMngrApi {
 
     }
 
-    /**
-     * Sets the {@link MeshManagerCallbacks} listener
-     *
-     * @param callbacks callbacks
-     */
-    public void setMeshManagerCallbacks(final MeshManagerCallbacks callbacks) {
+    @Override
+    public void setMeshManagerCallbacks(@NonNull final MeshManagerCallbacks callbacks) {
         mTransportCallbacks = callbacks;
     }
 
-    /**
-     * Sets the {@link MeshProvisioningStatusCallbacks} listener to return provisioning status callbacks.
-     *
-     * @param callbacks callbacks
-     */
-    public void setProvisioningStatusCallbacks(final MeshProvisioningStatusCallbacks callbacks) {
+    @Override
+    public void setProvisioningStatusCallbacks(@NonNull final MeshProvisioningStatusCallbacks callbacks) {
         mMeshProvisioningHandler.setProvisioningCallbacks(callbacks);
     }
 
-    /**
-     * Sets the {@link MeshManagerCallbacks} listener to return mesh status callbacks.
-     *
-     * @param callbacks callbacks
-     */
-    public void setMeshStatusCallbacks(final MeshStatusCallbacks callbacks) {
+    @Override
+    public void setMeshStatusCallbacks(@NonNull final MeshStatusCallbacks callbacks) {
         mMeshMessageHandler.setMeshStatusCallbacks(callbacks);
     }
 
-    /**
-     * Loads the mesh network from the local database.
-     * <p>
-     * This will start an AsyncTask that will load the network from the database.
-     * {@link MeshManagerCallbacks#onNetworkLoaded(MeshNetwork) will return the mesh network
-     * </p>
-     */
+    @Override
     public void loadMeshNetwork() {
         mMeshNetworkDb.loadNetwork(mMeshNetworkDao,
                 mNetworkKeyDao,
@@ -220,11 +179,7 @@ public class MeshManagerApi implements MeshMngrApi {
                 networkLoadCallbacks);
     }
 
-    /**
-     * Returns an already loaded mesh network, make sure to call {@link #loadMeshNetwork()} before calling this
-     *
-     * @return {@link MeshNetwork}
-     */
+    @Override
     public MeshNetwork getMeshNetwork() {
         return mMeshNetwork;
     }
@@ -302,16 +257,8 @@ public class MeshManagerApi implements MeshMngrApi {
         }
     }
 
-    /**
-     * Handles notifications received by the client.
-     * <p>
-     * This method will check if the library should wait for more data in case of a gatt layer segmentation.
-     * If its required the method will remove the segmentation bytes and combine the data together.
-     * </p>
-     *
-     * @param data pdu received by the client
-     */
-    public final void handleNotifications(final int mtuSize, final byte[] data) {
+    @Override
+    public final void handleNotifications(final int mtuSize, @NonNull final byte[] data) {
         byte[] unsegmentedPdu;
         if (!shouldWaitForMoreData(data)) {
             unsegmentedPdu = data;
@@ -337,9 +284,9 @@ public class MeshManagerApi implements MeshMngrApi {
     private void toggleProxyProtocolSarTimeOut(final byte[] data) {
         final int pduType = MeshParserUtils.unsignedByteToInt(data[0]);
         if (pduType == ((GATT_SAR_START << SAR_BIT_OFFSET) | MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION)) {
-            mHanlder.postDelayed(mProxyProtocolTimeoutRunnable, PROXY_SAR_TRANSFER_TIME_OUT);
+            mHandler.postDelayed(mProxyProtocolTimeoutRunnable, PROXY_SAR_TRANSFER_TIME_OUT);
         } else if (pduType == ((GATT_SAR_END << SAR_BIT_OFFSET) | MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION)) {
-            mHanlder.removeCallbacks(mProxyProtocolTimeoutRunnable);
+            mHandler.removeCallbacks(mProxyProtocolTimeoutRunnable);
         }
     }
 
@@ -353,7 +300,7 @@ public class MeshManagerApi implements MeshMngrApi {
             case PDU_TYPE_NETWORK:
                 //MeshNetwork PDU
                 Log.v(TAG, "Received network pdu: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshMessageHandler.parseMeshMsgNotifications(unsegmentedPdu);
+                mMeshMessageHandler.parseNetworkPduNotifications(unsegmentedPdu, mMeshNetwork);
                 break;
             case PDU_TYPE_MESH_BEACON:
                 //Mesh beacon
@@ -368,7 +315,7 @@ public class MeshManagerApi implements MeshMngrApi {
             case PDU_TYPE_PROXY_CONFIGURATION:
                 //Proxy configuration
                 Log.v(TAG, "Received proxy configuration message: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshMessageHandler.parseMeshMsgNotifications(unsegmentedPdu);
+                mMeshMessageHandler.parseProxyPduNotifications(unsegmentedPdu);
                 break;
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
@@ -378,7 +325,8 @@ public class MeshManagerApi implements MeshMngrApi {
         }
     }
 
-    public final void handleWriteCallbacks(final int mtuSize, final byte[] data) {
+    @Override
+    public final void handleWriteCallbacks(final int mtuSize, @NonNull final byte[] data) {
         byte[] unsegmentedPdu;
         if (!shouldWaitForMoreData(data)) {
             unsegmentedPdu = data;
@@ -403,7 +351,7 @@ public class MeshManagerApi implements MeshMngrApi {
             case PDU_TYPE_NETWORK:
                 //MeshNetwork PDU
                 Log.v(TAG, "MeshNetwork pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                mMeshMessageHandler.handleMeshMsgWriteCallbacks(data);
+                //mMeshMessageHandler.handleNetworkPDUWriteCallbacks(data);
                 break;
             case PDU_TYPE_MESH_BEACON:
                 //Mesh beacon
@@ -412,7 +360,7 @@ public class MeshManagerApi implements MeshMngrApi {
             case PDU_TYPE_PROXY_CONFIGURATION:
                 //Proxy configuration
                 Log.v(TAG, "Proxy configuration pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                mMeshMessageHandler.handleMeshMsgWriteCallbacks(data);
+                //mMeshMessageHandler.handleProxyPDUWriteCallbacks(data);
                 break;
             case PDU_TYPE_PROVISIONING:
                 //Provisioning PDU
@@ -920,6 +868,7 @@ public class MeshManagerApi implements MeshMngrApi {
         public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
             if (meshNode != null) {
                 if (mMeshNetwork.deleteResetNode(meshNode)) {
+                    mMeshMessageHandler.resetState(meshNode.getUnicastAddress());
                     mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
                     mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
                 }

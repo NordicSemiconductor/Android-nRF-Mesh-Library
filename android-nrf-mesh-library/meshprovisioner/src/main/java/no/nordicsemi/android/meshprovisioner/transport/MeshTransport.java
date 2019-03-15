@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
@@ -33,18 +34,32 @@ import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextExce
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class MeshTransport extends NetworkLayer {
+/**
+ * MeshTransport class is responsible for building the configuration and application layer mesh messages.
+ */
+final class MeshTransport extends NetworkLayer {
 
     private static final String TAG = MeshTransport.class.getSimpleName();
     private static final int PROXY_CONFIGURATION_TTL = 0;
 
-    MeshTransport(final Context context) {
+    /**
+     * Constructs the MeshTransport
+     *
+     * @param context context
+     */
+    MeshTransport(@NonNull final Context context) {
         this.mContext = context;
         initHandler();
     }
 
+    /**
+     * Constructs MeshTransport
+     *
+     * @param context Context
+     * @param node    Mesh node
+     */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    MeshTransport(final Context context, final ProvisionedMeshNode node) {
+    MeshTransport(@NonNull final Context context, @NonNull final ProvisionedMeshNode node) {
         super();
         this.mContext = context;
         this.mMeshNode = node;
@@ -57,16 +72,17 @@ public final class MeshTransport extends NetworkLayer {
     }
 
     @Override
-    public final void setLowerTransportLayerCallbacks(final LowerTransportLayerCallbacks callbacks) {
-        super.setLowerTransportLayerCallbacks(callbacks);
+    protected final void setLowerTransportLayerCallbacks(@NonNull final LowerTransportLayerCallbacks callbacks) {
+        mLowerTransportLayerCallbacks = callbacks;
     }
 
-    public final void setNetworkLayerCallbacks(final NetworkLayerCallbacks callbacks) {
+    @Override
+    final void setNetworkLayerCallbacks(@NonNull final NetworkLayerCallbacks callbacks) {
         this.mNetworkLayerCallbacks = callbacks;
     }
 
-
-    public final void setUpperTransportLayerCallbacks(final UpperTransportLayerCallbacks callbacks) {
+    @Override
+    final void setUpperTransportLayerCallbacks(@NonNull final UpperTransportLayerCallbacks callbacks) {
         this.mUpperTransportLayerCallbacks = callbacks;
     }
 
@@ -77,7 +93,7 @@ public final class MeshTransport extends NetworkLayer {
     }
 
     @Override
-    protected final int incrementSequenceNumber(final int src, final byte[] sequenceNumber) {
+    protected final int incrementSequenceNumber(final int src, @NonNull final byte[] sequenceNumber) {
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
         final int seqNumber = MeshParserUtils.getSequenceNumber(sequenceNumber);
         provisioner.setSequenceNumber(seqNumber);

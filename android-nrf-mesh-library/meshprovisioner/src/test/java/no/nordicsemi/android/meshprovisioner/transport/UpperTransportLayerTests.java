@@ -41,6 +41,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
+//TODO revisit this
 public class UpperTransportLayerTests {
 
     @Rule
@@ -54,8 +55,8 @@ public class UpperTransportLayerTests {
         Mockito.mock(Log.class);
         final String expectedTransportPdu = "89511bf1d1a81c11dcef".toUpperCase();
         final byte[] deviceKey = MeshParserUtils.toByteArray("9d6dd0e96eb25dc19a40ed9914f8f03f");
-        final byte[] src = MeshParserUtils.toByteArray("1201");
-        final byte[] dst = MeshParserUtils.toByteArray("0003");
+        final int src = 0x1201;
+        final int dst = 0x0003;
         final byte[] sequenceNumber = MeshParserUtils.toByteArray("000006");
         final byte[] ivIndex = MeshParserUtils.toByteArray("12345678");
         final int ctl = 0x00;

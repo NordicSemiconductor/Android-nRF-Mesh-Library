@@ -2,6 +2,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -32,22 +33,24 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     MeshStatusCallbacks mMeshStatusCallbacks;
     protected Message message;
-    private boolean isIncompleteTimerExpired;
 
     /**
      * Constructs the base mesh message state class
-     *  @param context       Context
+     *
+     * @param context       Context
      * @param meshMessage   {@link MeshMessage} Mesh message
      * @param meshTransport {@link MeshTransport} Mesh transport
      * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} Internal mesh message handler callbacks
      */
     MeshMessageState(@NonNull final Context context,
-                     @NonNull final MeshMessage meshMessage,
+                     @Nullable final MeshMessage meshMessage,
                      @NonNull final MeshTransport meshTransport,
                      @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
         this.mContext = context;
         this.mMeshMessage = meshMessage;
-        this.message = meshMessage.getMessage();
+        if (meshMessage != null) {
+            this.message = meshMessage.getMessage();
+        }
         this.meshMessageHandlerCallbacks = callbacks;
         this.mMeshTransport = meshTransport;
         this.mMeshTransport.setLowerTransportLayerCallbacks(this);
@@ -77,6 +80,13 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     public abstract MessageState getState();
 
     /**
+     * Returns the mesh transport
+     */
+    MeshTransport getMeshTransport() {
+        return mMeshTransport;
+    }
+
+    /**
      * Returns the mesh message relating to the state
      */
     public MeshMessage getMeshMessage() {
@@ -99,8 +109,9 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
                 mInternalTransportCallbacks.sendMeshPdu(mDst, message.getNetworkPdu().get(i));
             }
 
-            if (mMeshStatusCallbacks != null)
+            if (mMeshStatusCallbacks != null) {
                 mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
+            }
         }
     }
 
@@ -128,10 +139,8 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     @Override
     public void onIncompleteTimerExpired() {
         Log.v(TAG, "Incomplete timer has expired, all segments were not received!");
-        isIncompleteTimerExpired = true;
         if (meshMessageHandlerCallbacks != null) {
-
-            meshMessageHandlerCallbacks.onIncompleteTimerExpired(true);
+            meshMessageHandlerCallbacks.onIncompleteTimerExpired(mDst);
 
             if (mMeshStatusCallbacks != null) {
                 mMeshStatusCallbacks.onTransactionFailed(mDst, true);

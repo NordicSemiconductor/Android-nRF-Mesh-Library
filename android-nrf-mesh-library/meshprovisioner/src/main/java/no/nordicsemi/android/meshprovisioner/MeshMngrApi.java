@@ -16,6 +16,64 @@ import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
 interface MeshMngrApi {
 
     /**
+     * Sets the {@link MeshManagerCallbacks} listener
+     *
+     * @param callbacks callbacks
+     */
+    void setMeshManagerCallbacks(@NonNull final MeshManagerCallbacks callbacks);
+
+    /**
+     * Sets the {@link MeshProvisioningStatusCallbacks} listener to return provisioning status callbacks.
+     *
+     * @param callbacks callbacks
+     */
+    void setProvisioningStatusCallbacks(@NonNull final MeshProvisioningStatusCallbacks callbacks);
+
+    /**
+     * Sets the {@link MeshManagerCallbacks} listener to return mesh status callbacks.
+     *
+     * @param callbacks callbacks
+     */
+    void setMeshStatusCallbacks(@NonNull final MeshStatusCallbacks callbacks);
+
+    /**
+     * Loads the mesh network from the local database.
+     * <p>
+     * This will start an AsyncTask that will load the network from the database.
+     * {@link MeshManagerCallbacks#onNetworkLoaded(MeshNetwork) will return the mesh network
+     * </p>
+     */
+    void loadMeshNetwork();
+
+    /**
+     * Returns an already loaded mesh network, make sure to call {@link #loadMeshNetwork()} before calling this
+     *
+     * @return {@link MeshNetwork}
+     */
+    @Nullable
+    MeshNetwork getMeshNetwork();
+
+    /**
+     * Handles notifications received by the client.
+     * <p>
+     * This method will check if the library should wait for more data in case of a gatt layer segmentation.
+     * If its required the method will remove the segmentation bytes and reassemble the pdu together.
+     * </p>
+     *
+     * @param mtuSize GATT MTU size
+     * @param data    PDU received by the client
+     */
+    void handleNotifications(final int mtuSize, @NonNull final byte[] data);
+
+    /**
+     * Must be called to handle provisioning states
+     *
+     * @param mtuSize GATT MTU size
+     * @param data    PDU received by the client
+     */
+    void handleWriteCallbacks(final int mtuSize, @NonNull final byte[] data);
+
+    /**
      * Identifies the node that is to be provisioned.
      * <p>
      * This method will send a provisioning invite to the connected peripheral. This will help users to identify a particular node before starting the provisioning process.
