@@ -33,6 +33,12 @@ import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
+/**
+ * AccessLayer implementation of the mesh network architecture as per the mesh profile specification.
+ * <p>
+ * AccessLayer class generates/parses a raw mesh message containing the specific OpCode and Parameters.
+ * </p>
+ */
 abstract class AccessLayer {
 
     private static final String TAG = AccessLayer.class.getSimpleName();

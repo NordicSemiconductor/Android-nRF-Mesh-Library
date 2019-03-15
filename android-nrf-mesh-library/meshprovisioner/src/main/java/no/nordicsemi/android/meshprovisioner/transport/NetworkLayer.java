@@ -41,10 +41,12 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 /**
- * NetworkLayer implementation of the mesh network
- * Do not touch this class, it's public because it has to be
+ * NetworkLayer implementation of the mesh network architecture as per the mesh profile specification.
+ * <p>
+ * NetworkLayer encrypts/decrypts mesh messages to be sent or received by the nodes in a mesh network.
+ * <p/>
  */
-public abstract class NetworkLayer extends LowerTransportLayer {
+abstract class NetworkLayer extends LowerTransportLayer {
 
     private static final String TAG = NetworkLayer.class.getSimpleName();
     NetworkLayerCallbacks mNetworkLayerCallbacks;

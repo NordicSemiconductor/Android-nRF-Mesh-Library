@@ -34,16 +34,30 @@ import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextExce
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class MeshTransport extends NetworkLayer {
+/**
+ * MeshTransport class is responsible for building the configuration and application layer mesh messages.
+ */
+final class MeshTransport extends NetworkLayer {
 
     private static final String TAG = MeshTransport.class.getSimpleName();
     private static final int PROXY_CONFIGURATION_TTL = 0;
 
+    /**
+     * Constructs the MeshTransport
+     *
+     * @param context context
+     */
     MeshTransport(@NonNull final Context context) {
         this.mContext = context;
         initHandler();
     }
 
+    /**
+     * Constructs MeshTransport
+     *
+     * @param context Context
+     * @param node    Mesh node
+     */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     MeshTransport(@NonNull final Context context, @NonNull final ProvisionedMeshNode node) {
         super();

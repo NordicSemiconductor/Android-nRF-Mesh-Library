@@ -36,6 +36,12 @@ import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextExce
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
+/**
+ * UpperTransportLayer implementation of the mesh network architecture as per the mesh profile specification.
+ * <p>
+ * UpperTransportLayer class encrypts/decrypts Access PDUs created in the access layer.
+ * </p>
+ */
 abstract class UpperTransportLayer extends AccessLayer {
     private static final String TAG = UpperTransportLayer.class.getSimpleName();
     private static final int PROXY_CONFIG_OPCODE_LENGTH = 1;

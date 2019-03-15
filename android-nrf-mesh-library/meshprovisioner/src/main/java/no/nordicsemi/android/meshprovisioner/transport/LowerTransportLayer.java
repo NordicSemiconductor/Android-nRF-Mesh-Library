@@ -37,6 +37,13 @@ import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextExce
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
+/**
+ * LowerTransportLayer implementation of the mesh network architecture as per the mesh profile specification.
+ * <p>
+ * This class generates the messages as per the lower transport layer requirements, segmentation and reassembly of mesh messages sent and received,
+ * retransmitting messages.
+ * </p>
+ */
 abstract class LowerTransportLayer extends UpperTransportLayer {
 
     private static final String TAG = LowerTransportLayer.class.getSimpleName();
