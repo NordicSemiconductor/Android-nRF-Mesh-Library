@@ -9,8 +9,6 @@ import android.arch.persistence.room.PrimaryKey;
 
 import com.google.gson.annotations.Expose;
 
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
 /**
@@ -44,19 +42,6 @@ public class AllocatedUnicastRange {
     @Ignore
     public AllocatedUnicastRange() {
 
-    }
-
-    /**
-     * Constructs {@link AllocatedUnicastRange} for provisioner
-     *
-     * @param lowAddress  low address of unicast range
-     * @param highAddress high address of unicast range
-     */
-    @Deprecated
-    @Ignore
-    public AllocatedUnicastRange(final byte[] lowAddress, final byte[] highAddress) {
-        this.lowAddress = MeshParserUtils.unsignedBytesToInt(lowAddress[1], lowAddress[0]);
-        this.highAddress = MeshParserUtils.unsignedBytesToInt(highAddress[1], highAddress[0]);
     }
 
     /**

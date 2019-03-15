@@ -34,7 +34,6 @@ import java.nio.ByteOrder;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -173,19 +172,6 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     public void resetState(final int address) {
         stateSparseArray.remove(address);
         transportSparseArray.remove(address);
-    }
-
-    @Override
-    public void sendMeshMessage(@NonNull final byte[] src, @NonNull final byte[] dst, @NonNull final MeshMessage meshMessage) {
-        final int srcAddress = AddressUtils.getUnicastAddressInt(src);
-        final int dstAddress = AddressUtils.getUnicastAddressInt(dst);
-        if (meshMessage instanceof ProxyConfigMessage) {
-            sendProxyConfigMeshMessage(srcAddress, dstAddress, (ProxyConfigMessage) meshMessage);
-        } else if (meshMessage instanceof ConfigMessage) {
-            sendConfigMeshMessage(srcAddress, dstAddress, (ConfigMessage) meshMessage);
-        } else if (meshMessage instanceof GenericMessage) {
-            sendAppMeshMessage(srcAddress, dstAddress, (GenericMessage) meshMessage);
-        }
     }
 
     @Override

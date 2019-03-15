@@ -22,8 +22,6 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -46,22 +44,6 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessage {
     private final int elementAddress;
     private final int mSubscriptionAddress;
     private final int mModelIdentifier;
-
-    /**
-     * Constructs ConfigModelSubscriptionDelete message.
-     *
-     * @param elementAddress      Address of the element to which the model belongs to.
-     * @param subscriptionAddress Address to whic the element should subscribe.
-     * @param modelIdentifier     identifier of the model, 16-bit for Sig model and 32-bit model id for vendor models.
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     * @deprecated in favour of {@link #ConfigModelSubscriptionAdd(int, int, int)}
-     */
-    @Deprecated
-    public ConfigModelSubscriptionAdd(@NonNull final byte[] elementAddress,
-                                      @NonNull final byte[] subscriptionAddress,
-                                      final int modelIdentifier) throws IllegalArgumentException {
-        this(AddressUtils.getUnicastAddressInt(elementAddress), AddressUtils.getUnicastAddressInt(subscriptionAddress), modelIdentifier);
-    }
 
     /**
      * Constructs ConfigModelSubscriptionDelete message.

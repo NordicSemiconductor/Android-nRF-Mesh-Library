@@ -174,9 +174,9 @@ class DataMigrator {
                 provisioner.setProvisionerUuid(UUID.randomUUID().toString().toUpperCase(Locale.US));
             }
 
-            final AllocatedGroupRange groupRange = new AllocatedGroupRange(new byte[]{(byte) 0xC0, 0x00}, new byte[]{(byte) 0xFE, (byte) 0xFF});
+            final AllocatedGroupRange groupRange = new AllocatedGroupRange(0xC000, 0xFEFF);
             groupRange.setProvisionerUuid(provisioner.getProvisionerUuid());
-            final AllocatedUnicastRange unicastRange = new AllocatedUnicastRange(new byte[]{(byte) 0x00, 0x00}, new byte[]{(byte) 0x7F, (byte) 0xFF});
+            final AllocatedUnicastRange unicastRange = new AllocatedUnicastRange(0x0000, 0x7FFF);
             unicastRange.setProvisionerUuid(provisioner.getProvisionerUuid());
             final AllocatedSceneRange sceneRange = new AllocatedSceneRange(0, 0);
             sceneRange.setProvisionerUuid(provisioner.getProvisionerUuid());

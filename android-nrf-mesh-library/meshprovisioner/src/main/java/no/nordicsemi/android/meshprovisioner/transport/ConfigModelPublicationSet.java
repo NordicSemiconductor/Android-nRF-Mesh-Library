@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -55,46 +54,6 @@ public class ConfigModelPublicationSet extends ConfigMessage {
     private final int publishRetransmitCount;
     private final int publishRetransmitIntervalSteps;
     private final int modelIdentifier;
-
-    /**
-     * Constructs a ConfigModelPublicationSet message
-     *
-     * @param elementAddress                 Element address that should publish
-     * @param publishAddress                 Address to which the element must publish
-     * @param appKeyIndex                    Index of the application key
-     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false for master credentials.
-     *                                       Currently supports only master credentials
-     * @param publishTtl                     Publication ttl
-     * @param publicationSteps               Publication steps for the publication period
-     * @param publicationResolution          Publication resolution of the publication period
-     * @param publishRetransmitCount         Number of publication retransmits
-     * @param publishRetransmitIntervalSteps Publish retransmit interval steps
-     * @param modelIdentifier                identifier for this model that will do publication
-     * @throws IllegalArgumentException for invalid arguments
-     * @deprecated in favour of {@link #ConfigModelPublicationSet(int, int, int, boolean, int, int, int, int, int, int)}
-     */
-    @Deprecated
-    public ConfigModelPublicationSet(@NonNull final byte[] elementAddress,
-                                     @NonNull final byte[] publishAddress,
-                                     final int appKeyIndex,
-                                     final boolean credentialFlag,
-                                     final int publishTtl,
-                                     final int publicationSteps,
-                                     final int publicationResolution,
-                                     final int publishRetransmitCount,
-                                     final int publishRetransmitIntervalSteps,
-                                     final int modelIdentifier) throws IllegalArgumentException {
-        this(MeshParserUtils.bytesToInt(elementAddress),
-                MeshParserUtils.bytesToInt(publishAddress),
-                appKeyIndex,
-                credentialFlag,
-                publishTtl,
-                publicationSteps,
-                publicationResolution,
-                publishRetransmitCount,
-                publishRetransmitIntervalSteps,
-                modelIdentifier);
-    }
 
     /**
      * Constructs a ConfigModelPublicationSet message
