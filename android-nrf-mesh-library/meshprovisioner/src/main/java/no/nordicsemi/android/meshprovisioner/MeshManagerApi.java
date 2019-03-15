@@ -348,28 +348,23 @@ public class MeshManagerApi implements MeshMngrApi {
      */
     private void handleWriteCallbacks(final byte[] data) {
         switch (data[0]) {
-            case PDU_TYPE_NETWORK:
-                //MeshNetwork PDU
+            case PDU_TYPE_NETWORK: // MeshNetwork PDU
                 Log.v(TAG, "MeshNetwork pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                //mMeshMessageHandler.handleNetworkPDUWriteCallbacks(data);
                 break;
-            case PDU_TYPE_MESH_BEACON:
-                //Mesh beacon
+            case PDU_TYPE_MESH_BEACON: // MESH BEACON
                 Log.v(TAG, "Mesh beacon pdu sent: " + MeshParserUtils.bytesToHex(data, true));
                 break;
-            case PDU_TYPE_PROXY_CONFIGURATION:
-                //Proxy configuration
+            case PDU_TYPE_PROXY_CONFIGURATION: // Proxy configuration
                 Log.v(TAG, "Proxy configuration pdu sent: " + MeshParserUtils.bytesToHex(data, true));
-                //mMeshMessageHandler.handleProxyPDUWriteCallbacks(data);
                 break;
-            case PDU_TYPE_PROVISIONING:
-                //Provisioning PDU
+            case PDU_TYPE_PROVISIONING: // Provisioning PDU
                 Log.v(TAG, "Provisioning pdu sent: " + MeshParserUtils.bytesToHex(data, true));
                 mMeshProvisioningHandler.handleProvisioningWriteCallbacks();
                 break;
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean shouldWaitForMoreData(final byte[] pdu) {
         final int gattSar = (pdu[0] & GATT_SAR_MASK) >> SAR_BIT_OFFSET;
         switch (gattSar) {
@@ -540,11 +535,6 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final InputOOBAction oobAction) throws IllegalArgumentException {
         mMeshProvisioningHandler.startProvisioningWithInputOOB(unprovisionedMeshNode, oobAction);
-    }
-
-    @Override
-    public final void setProvisioningConfirmation(@NonNull final String authentication) {
-        setProvisioningAuthentication(authentication);
     }
 
     @Override
@@ -782,11 +772,6 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
-    public final void sendMeshMessage(@NonNull final byte[] dst, @NonNull final MeshMessage meshMessage) {
-        mMeshMessageHandler.sendMeshMessage(mMeshNetwork.getSelectedProvisioner().getProvisionerAddress(), AddressUtils.getUnicastAddressInt(dst), meshMessage);
-    }
-
-    @Override
     public void sendMeshMessage(final int dst, @NonNull final MeshMessage meshMessage) {
         if (!MeshAddress.isAddressInRange(dst)) {
             throw new IllegalArgumentException("Invalid address, destination address must be a valid 16-bit value!");
@@ -823,10 +808,6 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @SuppressWarnings("FieldCanBeLocal")
     private final InternalTransportCallbacks internalTransportCallbacks = new InternalTransportCallbacks() {
-        @Override
-        public ProvisionedMeshNode getProvisionedNode(final byte[] unicast) {
-            return getMeshNode(AddressUtils.getUnicastAddressInt(unicast));
-        }
 
         @Override
         public ProvisionedMeshNode getProvisionedNode(final int unicast) {
@@ -840,18 +821,9 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         @Override
-        public void sendMeshPdu(final byte[] dst, final byte[] pdu) {
+        public void sendMeshPdu(final int dst, final byte[] pdu) {
             //We must save the mesh network state for every message that is being sent out.
             //This will specifically save the sequence number for every message sent.
-            final int dstAddress = AddressUtils.getUnicastAddressInt(dst);
-            final ProvisionedMeshNode meshNode = mMeshNetwork.getProvisionedNode(dstAddress);
-            updateNetwork(meshNode);
-            final int mtu = mTransportCallbacks.getMtu();
-            mTransportCallbacks.sendMeshPdu(applySegmentation(mtu, pdu));
-        }
-
-        @Override
-        public void sendMeshPdu(final int dst, final byte[] pdu) {
             final ProvisionedMeshNode meshNode = mMeshNetwork.getProvisionedNode(dst);
             updateNetwork(meshNode);
             final int mtu = mTransportCallbacks.getMtu();

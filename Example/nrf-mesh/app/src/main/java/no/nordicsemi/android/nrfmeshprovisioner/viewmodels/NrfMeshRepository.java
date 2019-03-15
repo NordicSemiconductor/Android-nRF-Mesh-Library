@@ -316,7 +316,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      * @param device bluetooth device
      */
     void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
-        mMeshNetworkLiveData.getValue().setNodeName(device.getName());
+        mMeshNetworkLiveData.setNodeName(device.getName());
         mIsProvisioningComplete = false;
         mIsCompositionDataReceived = false;
         mIsAppKeyAddCompleted = false;
@@ -414,11 +414,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      */
     void setSelectedMeshNode(final ProvisionedMeshNode node) {
         mExtendedMeshNode.postValue(node);
-        /*if (mExtendedMeshNode == null) {
-            mExtendedMeshNode = new ExtendedMeshNode(node);
-        } else {
-            mExtendedMeshNode.updateMeshNode(node);
-        }*/
     }
 
     /**
@@ -692,27 +687,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     @Override
-    public void onTransactionFailed(final byte[] dst, final boolean hasIncompleteTimerExpired) {
-        mProvisionedMeshNode = mMeshNetwork.getProvisionedNode(dst);
-        if (mTransactionFailedLiveData.hasActiveObservers()) {
-            mTransactionFailedLiveData.onTransactionFailed(dst, hasIncompleteTimerExpired);
-        }
-    }
-
-    @Override
     public void onTransactionFailed(final int dst, final boolean hasIncompleteTimerExpired) {
         mProvisionedMeshNode = mMeshNetwork.getProvisionedNode(dst);
         if (mTransactionFailedLiveData.hasActiveObservers()) {
             mTransactionFailedLiveData.onTransactionFailed(dst, hasIncompleteTimerExpired);
-        }
-    }
-
-    @Override
-    public void onUnknownPduReceived(final byte[] src, final byte[] accessPayload) {
-        final ProvisionedMeshNode node = mMeshNetwork.getProvisionedNode(src);
-        if (node != null) {
-            mProvisionedMeshNode = node;
-            updateNode(node);
         }
     }
 
@@ -722,20 +700,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         if (node != null) {
             mProvisionedMeshNode = node;
             updateNode(node);
-        }
-    }
-
-    @Override
-    public void onBlockAcknowledgementSent(final byte[] dst) {
-        if (dst != null) {
-            final ProvisionedMeshNode node = mMeshNetwork.getProvisionedNode(dst);
-            if (node != null) {
-                mProvisionedMeshNode = node;
-                if (mSetupProvisionedNode) {
-                    mProvisionedMeshNodeLiveData.postValue(mProvisionedMeshNode);
-                    mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.SENDING_BLOCK_ACKNOWLEDGEMENT);
-                }
-            }
         }
     }
 
@@ -752,18 +716,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     @Override
-    public void onBlockAcknowledgementReceived(final byte[] src) {
-        final ProvisionedMeshNode node = mMeshNetwork.getProvisionedNode(src);
-        if (node != null) {
-            mProvisionedMeshNode = node;
-            if (mSetupProvisionedNode) {
-                mProvisionedMeshNodeLiveData.postValue(node);
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.BLOCK_ACKNOWLEDGEMENT_RECEIVED);
-            }
-        }
-    }
-
-    @Override
     public void onBlockAcknowledgementReceived(final int src) {
         final ProvisionedMeshNode node = mMeshNetwork.getProvisionedNode(src);
         if (node != null) {
@@ -773,10 +725,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.BLOCK_ACKNOWLEDGEMENT_RECEIVED);
             }
         }
-    }
-
-    @Override
-    public void onMeshMessageSent(final byte[] dst, final MeshMessage meshMessage) {
     }
 
     @Override
@@ -796,10 +744,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 }
             }
         }
-    }
-
-    @Override
-    public void onMeshMessageReceived(final byte[] src, final MeshMessage meshMessage) {
     }
 
     @Override

@@ -257,9 +257,9 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Encrypts the network of a proxy configuration pdu.
      *
-     * @param message           mesh message containing network layer pdu
-     * @param lowerTransportPdu lower transport pdu to be encrypted
-     * @param encryptionKey     key used to encrypt the payload
+     * @param message           Mesh message containing network layer pdu
+     * @param lowerTransportPdu Lower transport pdu to be encrypted
+     * @param encryptionKey     Key used to encrypt the payload
      * @return encrypted payload
      */
     private byte[] encryptProxyConfigurationPduPayload(@NonNull final Message message,
@@ -285,7 +285,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param sequenceNumber sequence number of the message
      * @param src            source address
      * @param pecb           value derived from the privacy random
-     * @return obfuscted network header
+     * @return obfuscated network header
      */
     private byte[] obfuscateNetworkHeader(final byte ctlTTL, @NonNull final byte[] sequenceNumber, final int src, @NonNull final byte[] pecb) {
 
@@ -310,7 +310,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * De-obfuscates the network header
      *
      * @param pdu received from the node
-     * @return obfuscted network header
+     * @return obfuscated network header
      */
     private byte[] deObfuscateNetworkHeader(@NonNull final byte[] pdu) {
         final byte[] privacyKey = getK2Output().getPrivacyKey();

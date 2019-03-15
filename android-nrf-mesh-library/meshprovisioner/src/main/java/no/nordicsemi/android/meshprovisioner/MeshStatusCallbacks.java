@@ -39,33 +39,8 @@ public interface MeshStatusCallbacks {
      *
      * @param dst                       unique dst address of the device
      * @param hasIncompleteTimerExpired flag that notifies if the incomplete timer had expired
-     * @deprecated in favor of {@link #onTransactionFailed(int, boolean)}
-     */
-    @Deprecated
-    void onTransactionFailed(final byte[] dst, final boolean hasIncompleteTimerExpired);
-
-    /**
-     * Notifies if a transaction has failed
-     * <p>
-     * As of now this is only triggered if the incomplete timer has expired for a given segmented message.
-     * The incomplete timer will wait for a minimum of 10 seconds on receiving a segmented message.
-     * If all segments are not received during this period, that transaction shall be considered as failed.
-     * </p>
-     *
-     * @param dst                       unique dst address of the device
-     * @param hasIncompleteTimerExpired flag that notifies if the incomplete timer had expired
      */
     void onTransactionFailed(final int dst, final boolean hasIncompleteTimerExpired);
-
-    /**
-     * Notifies if an unknown pdu was received
-     *
-     * @param src           address where the message originated from
-     * @param accessPayload access payload of the message
-     * @deprecated in favor of {@link #onUnknownPduReceived(int, byte[])}
-     */
-    @Deprecated
-    void onUnknownPduReceived(final byte[] src, final byte[] accessPayload);
 
     /**
      * Notifies if an unknown pdu was received
@@ -79,26 +54,8 @@ public interface MeshStatusCallbacks {
      * Notifies if a block acknowledgement was sent
      *
      * @param dst dst address to which the block ack was sent
-     * @deprecated in favour of {@link #onBlockAcknowledgementSent(int)}
-     */
-    @Deprecated
-    void onBlockAcknowledgementSent(final byte[] dst);
-
-    /**
-     * Notifies if a block acknowledgement was sent
-     *
-     * @param dst dst address to which the block ack was sent
      */
     void onBlockAcknowledgementSent(final int dst);
-
-    /**
-     * Notifies if a block acknowledgement was received
-     *
-     * @param src source address from which the block ack was received
-     * @deprecated in favour of {@link #onBlockAcknowledgementSent(int)}
-     */
-    @Deprecated
-    void onBlockAcknowledgementReceived(final byte[] src);
 
     /**
      * Notifies if a block acknowledgement was received
@@ -112,28 +69,8 @@ public interface MeshStatusCallbacks {
      *
      * @param dst         Destination address to be sent
      * @param meshMessage {@link MeshMessage} containing the message that was sent
-     * @deprecated in favour of {@link #onMeshMessageSent(int, MeshMessage)}
-     */
-    @Deprecated
-    void onMeshMessageSent(final byte[] dst, final MeshMessage meshMessage);
-
-    /**
-     * Callback to notify the mesh message has been sent
-     *
-     * @param dst         Destination address to be sent
-     * @param meshMessage {@link MeshMessage} containing the message that was sent
      */
     void onMeshMessageSent(final int dst, final MeshMessage meshMessage);
-
-    /**
-     * Callback to notify that a mesh status message was received
-     *
-     * @param src         source address where the message originated from
-     * @param meshMessage {@link MeshMessage} containing the message that was received
-     * @deprecated in favour of {@link #onMeshMessageSent(int, MeshMessage)}
-     */
-    @Deprecated
-    void onMeshMessageReceived(final byte[] src, final MeshMessage meshMessage);
 
     /**
      * Callback to notify that a mesh status message was received

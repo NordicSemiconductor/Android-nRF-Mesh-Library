@@ -35,14 +35,6 @@ public interface InternalTransportCallbacks {
      * Returns the node with the corresponding unicast address
      *
      * @param unicast unicast address
-     * @deprecated in favour of {@link #getProvisionedNode(int)}
-     */
-    ProvisionedMeshNode getProvisionedNode(final byte[] unicast);
-
-    /**
-     * Returns the node with the corresponding unicast address
-     *
-     * @param unicast unicast address
      */
     ProvisionedMeshNode getProvisionedNode(final int unicast);
 
@@ -53,17 +45,6 @@ public interface InternalTransportCallbacks {
      * @param pdu      mesh pdu to be sent
      */
     void sendProvisioningPdu(final UnprovisionedMeshNode meshNode, final byte[] pdu);
-
-    /**
-     * Send mesh pdu
-     *
-     * @param dst Destination address to be sent
-     * @param pdu mesh pdu to be sent
-     * @deprecated in favour of {@link #sendMeshPdu(int, byte[])}
-     */
-    @Deprecated
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    void sendMeshPdu(final byte[] dst, final byte[] pdu);
 
     /**
      * Send mesh pdu

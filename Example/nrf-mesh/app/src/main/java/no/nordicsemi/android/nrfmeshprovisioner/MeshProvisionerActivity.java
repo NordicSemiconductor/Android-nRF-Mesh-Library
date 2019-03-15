@@ -285,7 +285,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
     @Override
     public void onPinInputComplete(final String pin) {
-        mViewModel.getMeshManagerApi().setProvisioningConfirmation(pin);
+        mViewModel.getMeshManagerApi().setProvisioningAuthentication(pin);
     }
 
     @Override
