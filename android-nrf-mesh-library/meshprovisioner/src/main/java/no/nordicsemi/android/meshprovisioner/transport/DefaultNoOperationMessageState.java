@@ -1,6 +1,5 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -27,11 +26,17 @@ class DefaultNoOperationMessageState extends MeshMessageState {
 
     private static final String TAG = DefaultNoOperationMessageState.class.getSimpleName();
 
-    DefaultNoOperationMessageState(@NonNull final Context context,
-                                   @Nullable final MeshMessage meshMessage,
+    /**
+     * Constructs the DefaultNoOperationMessageState
+     *
+     * @param meshMessage   {@link MeshMessage} Mesh message to be sent
+     * @param meshTransport {@link MeshTransport} Mesh transport
+     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} callbacks
+     */
+    DefaultNoOperationMessageState(@Nullable final MeshMessage meshMessage,
                                    @NonNull final MeshTransport meshTransport,
                                    @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
-        super(context, meshMessage, meshTransport, callbacks);
+        super(meshMessage, meshTransport, callbacks);
     }
 
     @Override
@@ -111,9 +116,9 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigModelPublicationStatus status = new ConfigModelPublicationStatus(message);
                     if (status.isSuccessful()) {
                         final Element element = node.getElements().get(status.getElementAddress());
-                        if(element != null) {
+                        if (element != null) {
                             final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-                            if(model != null) {
+                            if (model != null) {
                                 model.setPublicationStatus(status);
                             }
                         }
@@ -126,9 +131,9 @@ class DefaultNoOperationMessageState extends MeshMessageState {
 
                     if (status.isSuccessful()) {
                         final Element element = node.getElements().get(status.getElementAddress());
-                        if(element != null) {
+                        if (element != null) {
                             final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-                            if(model != null) {
+                            if (model != null) {
                                 if (mMeshMessage instanceof ConfigModelSubscriptionAdd) {
                                     model.addSubscriptionAddress(status.getSubscriptionAddress());
                                 } else if (mMeshMessage instanceof ConfigModelSubscriptionDelete) {

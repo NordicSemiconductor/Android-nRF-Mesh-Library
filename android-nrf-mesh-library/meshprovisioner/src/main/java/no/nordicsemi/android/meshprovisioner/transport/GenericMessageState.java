@@ -1,6 +1,5 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
@@ -10,13 +9,12 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
  */
 class GenericMessageState extends MeshMessageState {
 
-    GenericMessageState(@NonNull final Context context,
-                        final int src,
+    GenericMessageState(final int src,
                         final int dst,
                         @NonNull final MeshMessage meshMessage,
                         @NonNull final MeshTransport meshTransport,
                         @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, meshMessage, meshTransport, callbacks);
+        super(meshMessage, meshTransport, callbacks);
         this.mSrc = src;
         if (!MeshAddress.isAddressInRange(src)) {
             throw new IllegalArgumentException("Invalid address, a source address must be a valid 16-bit value!");

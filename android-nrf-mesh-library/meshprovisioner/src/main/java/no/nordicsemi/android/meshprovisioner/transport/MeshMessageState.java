@@ -1,6 +1,5 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -23,7 +22,6 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
     private static final String TAG = MeshMessageState.class.getSimpleName();
 
-    protected final Context mContext;
     final MeshTransport mMeshTransport;
     private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
     MeshMessage mMeshMessage;
@@ -36,16 +34,13 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     /**
      * Constructs the base mesh message state class
      *
-     * @param context       Context
      * @param meshMessage   {@link MeshMessage} Mesh message
      * @param meshTransport {@link MeshTransport} Mesh transport
      * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} Internal mesh message handler callbacks
      */
-    MeshMessageState(@NonNull final Context context,
-                     @Nullable final MeshMessage meshMessage,
+    MeshMessageState(@Nullable final MeshMessage meshMessage,
                      @NonNull final MeshTransport meshTransport,
                      @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
-        this.mContext = context;
         this.mMeshMessage = meshMessage;
         if (meshMessage != null) {
             this.message = meshMessage.getMessage();
@@ -76,7 +71,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     /**
      * Returns the current mesh state
      */
-    public abstract MessageState getState();
+    abstract MessageState getState();
 
     /**
      * Returns the mesh transport
@@ -109,6 +104,8 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
     /**
      * Re-sends the mesh pdu segments that were lost in flight
+     *
+     * @param retransmitPduIndexes list of indexes of the messages to be
      */
     final void executeResend(final List<Integer> retransmitPduIndexes) {
         if (message.getNetworkPdu().size() > 0 && !retransmitPduIndexes.isEmpty()) {
@@ -138,7 +135,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
     @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
-        //We don't send acks here
+        //We don't send acknowledgements here
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
         mInternalTransportCallbacks.onMeshPduCreated(message.getDst(), message.getNetworkPdu().get(0));
@@ -155,7 +152,6 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
         //Application message States
         GENERIC_MESSAGE_STATE(502),
-
         VENDOR_MODEL_ACKNOWLEDGED_STATE(1000),
         VENDOR_MODEL_UNACKNOWLEDGED_STATE(1001);
 

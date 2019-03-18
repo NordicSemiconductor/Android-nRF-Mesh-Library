@@ -1,6 +1,5 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -12,20 +11,18 @@ class VendorModelMessageUnackedState extends GenericMessageState {
     /**
      * Constructs {@link VendorModelMessageAckedState}
      *
-     * @param context                   Context of the application
      * @param src                       Source address
      * @param dst                       Destination address to which the message must be sent to
      * @param vendorModelMessageUnacked Wrapper class {@link VendorModelMessageStatus} containing the opcode and parameters for {@link VendorModelMessageStatus} message
      * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException exception for invalid arguments
      */
-    VendorModelMessageUnackedState(@NonNull final Context context,
-                                   final int src,
+    VendorModelMessageUnackedState(final int src,
                                    final int dst,
                                    @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked,
                                    @NonNull final MeshTransport meshTransport,
                                    @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, src, dst, vendorModelMessageUnacked, meshTransport, callbacks);
+        super(src, dst, vendorModelMessageUnacked, meshTransport, callbacks);
         this.mSrc = src;
         this.mDst = dst;
         createAccessMessage();
