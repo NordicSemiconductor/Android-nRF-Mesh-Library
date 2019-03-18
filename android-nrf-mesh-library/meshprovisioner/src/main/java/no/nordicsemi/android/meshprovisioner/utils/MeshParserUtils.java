@@ -390,9 +390,9 @@ public class MeshParserUtils {
         return true;
     }
 
-    public static boolean isValidSequenceNumber(final Integer sequenceNumber) {
+    public static boolean isValidSequenceNumber(final int sequenceNumber) {
 
-        boolean flag = sequenceNumber != null && sequenceNumber == (sequenceNumber & 0xFFFFFF);
+        boolean flag = sequenceNumber == (sequenceNumber & 0xFFFFFF);
 
         if (sequenceNumber == 0xFFFFFF) {
             flag = false;
@@ -551,11 +551,11 @@ public class MeshParserUtils {
     /**
      * Checks if the retransmit count is within the allowed range
      *
-     * @param retrantmistCount publish ttl
+     * @param retransmitCount publish ttl
      * @return true if valid and false otherwise
      */
-    public static boolean validateRetransmitCount(final int retrantmistCount) {
-        return retrantmistCount == (retrantmistCount & 0b111);
+    public static boolean validateRetransmitCount(final int retransmitCount) {
+        return retransmitCount == (retransmitCount & 0b111);
     }
 
     /**

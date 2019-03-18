@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -75,11 +76,13 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        @SuppressLint("InflateParams")
         final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publication_parameters, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
-        ((TextView)rootView.findViewById(R.id.summary)).setText(R.string.dialog_summary_publication_steps);
+        ((TextView)rootView.findViewById(R.id.summary)).
+                setText(R.string.dialog_summary_publication_steps);
 
         final String publicationSteps = String.valueOf(mPublicationSteps);
         publicationStepsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -115,20 +118,16 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String publicationStepsInput = this.publicationStepsInput.getText().toString();
+            final String publicationStepsInput = this.publicationStepsInput.getEditableText().toString();
             if (validateInput(publicationStepsInput)) {
-                if (getParentFragment() == null) {
-                    ((DialogFragmentPublicationStepsListener) getActivity()).setPublicationSteps(Integer.parseInt(publicationStepsInput, 16));
-                } else {
-                    ((DialogFragmentPublicationStepsListener) getParentFragment()).setPublicationSteps(Integer.parseInt(publicationStepsInput, 16));
-                }
+                ((DialogFragmentPublicationStepsListener) requireActivity()).
+                        setPublicationSteps(Integer.valueOf(publicationStepsInput));
                 dismiss();
             }
         });
 
         return alertDialog;
     }
-
 
     private boolean validateInput(final String input) {
         try {

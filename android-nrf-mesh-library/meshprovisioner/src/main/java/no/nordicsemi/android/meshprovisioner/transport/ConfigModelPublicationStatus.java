@@ -86,18 +86,18 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
         final ByteBuffer buffer = ByteBuffer.wrap(message.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
         mStatusCode = mParameters[0];
         mStatusCodeName = getStatusCodeName(mStatusCode);
-        final byte[] elementAddress = new byte[]{mParameters[2], mParameters[1]};
         mElementAddress = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
         publishAddress = MeshParserUtils.unsignedBytesToInt(mParameters[3], mParameters[4]);
         final byte[] appKeyIndex = new byte[]{(byte) (mParameters[6] & 0x0F), mParameters[5]};
         mAppKeyIndex = ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
         credentialFlag = (mParameters[6] & 0xF0) >> 4 == 1;
-        publishTtl = mParameters[7];
-        final int publishPeriod = mParameters[8];
+        publishTtl = MeshParserUtils.unsignedByteToInt(mParameters[7]);
+        final int publishPeriod = MeshParserUtils.unsignedByteToInt(mParameters[8]);
         publicationSteps = publishPeriod >> 6;
         publicationResolution = publishPeriod & 0x03;
-        publishRetransmitCount = mParameters[9] >> 5;
-        publishRetransmitIntervalSteps = mParameters[9] & 0x1F;
+        final int publishRetransmission = MeshParserUtils.unsignedByteToInt(mParameters[9]);
+        publishRetransmitCount = publishRetransmission >> 5;
+        publishRetransmitIntervalSteps = publishRetransmission & 0x1F;
 
         final byte[] modelIdentifier;
         if (mParameters.length == CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH) {
@@ -109,7 +109,7 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
 
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Element address: " + MeshParserUtils.bytesToHex(elementAddress, false));
+        Log.v(TAG, "Element address: " + MeshAddress.formatAddress(mElementAddress, false));
         Log.v(TAG, "Publish Address: " + MeshAddress.formatAddress(publishAddress, false));
         Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
         Log.v(TAG, "Credential Flag: " + credentialFlag);
