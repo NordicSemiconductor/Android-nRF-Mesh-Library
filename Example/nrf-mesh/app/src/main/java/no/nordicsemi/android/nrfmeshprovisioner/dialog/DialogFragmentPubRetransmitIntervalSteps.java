@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -52,7 +53,7 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
     @BindView(R.id.text_input_layout)
     TextInputLayout intervalStepsInputLayout;
     @BindView(R.id.text_input)
-    TextInputEditText intevalStepsInput;
+    TextInputEditText intervalStepsInput;
 
     private int mRetransmitCount;
 
@@ -75,6 +76,7 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        @SuppressLint("InflateParams")
         final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publication_parameters, null);
 
         //Bind ui
@@ -82,11 +84,11 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
         ((TextView)rootView.findViewById(R.id.summary)).setText(R.string.dialog_summary_interval_steps);
 
         final String retransmitCount = String.valueOf(mRetransmitCount);
-        intevalStepsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        intervalStepsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
         intervalStepsInputLayout.setHint(getString(R.string.hint_publication_interval_steps));
-        intevalStepsInput.setText(retransmitCount);
-        intevalStepsInput.setSelection(retransmitCount.length());
-        intevalStepsInput.addTextChangedListener(new TextWatcher() {
+        intervalStepsInput.setText(retransmitCount);
+        intervalStepsInput.setSelection(retransmitCount.length());
+        intervalStepsInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -115,13 +117,10 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String ivIndexInput = this.intevalStepsInput.getText().toString();
+            final String ivIndexInput = this.intervalStepsInput.getEditableText().toString();
             if (validateInput(ivIndexInput)) {
-                if (getParentFragment() == null) {
-                    ((DialogFragmentIntervalStepsListener) getActivity()).setRetransmitIntervalSteps(Integer.parseInt(ivIndexInput, 16));
-                } else {
-                    ((DialogFragmentIntervalStepsListener) getParentFragment()).setRetransmitIntervalSteps(Integer.parseInt(ivIndexInput, 16));
-                }
+                    ((DialogFragmentIntervalStepsListener) requireActivity()).
+                            setRetransmitIntervalSteps(Integer.parseInt(ivIndexInput, 16));
                 dismiss();
             }
         });
