@@ -505,14 +505,14 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
             if (!status.isSuccessful()) {
                 DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
-                        newInstance(getString(R.string.title_publlish_address_status), status.getStatusCodeName());
+                        newInstance(getString(R.string.title_publish_address_status), status.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
         } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
             final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
             if (!status.isSuccessful()) {
                 DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
-                        newInstance(getString(R.string.title_publlish_address_status), status.getStatusCodeName());
+                        newInstance(getString(R.string.title_publish_address_status), status.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
             }
         }
