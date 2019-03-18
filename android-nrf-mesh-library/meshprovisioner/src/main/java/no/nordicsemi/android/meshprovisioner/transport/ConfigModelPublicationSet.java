@@ -162,7 +162,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
 
         final int rfu = 0; // We ignore the rfu here
         final int octet5 = ((applicationKeyIndex[0] << 4)) | (credentialFlag ? 1 : 0);
-        final int publishPeriod = ((publicationResolution << 6) | publicationSteps);
+        final int publishPeriod = ((publicationSteps << 6) | publicationResolution);
         final int octet8 = (publishRetransmitCount << 5) | (publishRetransmitIntervalSteps & 0x1F);
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sig model
         if (modelIdentifier >= Short.MIN_VALUE && modelIdentifier <= Short.MAX_VALUE) {

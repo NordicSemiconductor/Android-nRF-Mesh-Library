@@ -81,7 +81,8 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
 
         //Bind ui
         ButterKnife.bind(this, rootView);
-        ((TextView)rootView.findViewById(R.id.summary)).setText(R.string.dialog_summary_publication_steps);
+        ((TextView)rootView.findViewById(R.id.summary)).
+                setText(R.string.dialog_summary_publication_steps);
 
         final String publicationSteps = String.valueOf(mPublicationSteps);
         publicationStepsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -119,11 +120,8 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String publicationStepsInput = this.publicationStepsInput.getEditableText().toString();
             if (validateInput(publicationStepsInput)) {
-                if (getParentFragment() == null) {
-                    ((DialogFragmentPublicationStepsListener) requireActivity()).setPublicationSteps(Integer.parseInt(publicationStepsInput, 16));
-                } else {
-                    ((DialogFragmentPublicationStepsListener) getParentFragment()).setPublicationSteps(Integer.parseInt(publicationStepsInput, 16));
-                }
+                ((DialogFragmentPublicationStepsListener) requireActivity()).
+                        setPublicationSteps(Integer.valueOf(publicationStepsInput));
                 dismiss();
             }
         });

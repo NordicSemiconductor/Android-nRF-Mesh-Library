@@ -379,11 +379,11 @@
     <string name="hint_retransmit_count">Retransmit count</string>
     <string name="hint_publication_interval_steps">Retransmission interval steps</string>
     <string name="error_empty_pub_retransmit_count">Retransmit count cannot be empty!</string>
-    <string name="error_invalid_pub_retransmit_count">Invalid publish retransmit count!</string>
+    <string name="error_invalid_pub_retransmit_count">Publish retransmit count must be in range of 0 to 7!</string>
     <string name="error_empty_pub_retransmit_interval_steps">Publish retransmit interval steps cannot be empty!</string>
-    <string name="error_invalid_pub_retransmit_interval_steps">Publish retransmit interval steps must be in range of 0 to 7!</string>
+    <string name="error_invalid_pub_retransmit_interval_steps">Publish retransmit interval steps must be in range of 0 to 31!</string>
     <string name="error_empty_publication_steps">Number of publication steps cannot be empty!</string>
-    <string name="error_invalid_publication_steps">Publication steps must be in range of 0 to 31!</string>
+    <string name="error_invalid_publication_steps">Publication period steps must be in range of 0 to 63!</string>
     <string name="error_empty_publish_ttl">Publish TTL cannot be empty!</string>
     <string name="error_invalid_publish_ttl">Publish TTL value must be in range of 0 to 127!</string>
 
