@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class DialogFragmentPublicationResolution extends DialogFragment {
@@ -42,10 +43,10 @@ public class DialogFragmentPublicationResolution extends DialogFragment {
                 .setSingleChoiceItems(R.array.arr_publication_resolution, mPublicationResolution, null)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     final int index = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                    ((DialogFragmentPublicationResolutionListener) getActivity()).setPublicationResolution(getResolution(index)); })
+                    ((DialogFragmentPublicationResolutionListener) requireActivity()).setPublicationResolution(getResolution(index));})
                 .setNegativeButton(R.string.cancel, (dialog, which) -> {
                     final int index = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                    ((DialogFragmentPublicationResolutionListener) getActivity()).setPublicationResolution(getResolution(index));
+                    ((DialogFragmentPublicationResolutionListener) requireActivity()).setPublicationResolution(getResolution(index));
                 });
 
         return alertDialogBuilder.create();
