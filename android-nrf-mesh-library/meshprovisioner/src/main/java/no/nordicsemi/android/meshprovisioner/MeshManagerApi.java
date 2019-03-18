@@ -780,6 +780,14 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
+    public void createdMeshPdu(final int dst, @NonNull final MeshMessage meshMessage) throws IllegalArgumentException {
+        if (!MeshAddress.isAddressInRange(dst)) {
+            throw new IllegalArgumentException("Invalid address, destination address must be a valid 16-bit value!");
+        }
+        mMeshMessageHandler.sendMeshMessage(mMeshNetwork.getSelectedProvisioner().getProvisionerAddress(), dst, meshMessage);
+    }
+
+    @Override
     public void exportMeshNetwork(@NonNull final String path) {
         final MeshNetwork meshNetwork = mMeshNetwork;
         if (meshNetwork != null) {
@@ -821,13 +829,13 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         @Override
-        public void sendMeshPdu(final int dst, final byte[] pdu) {
+        public void onMeshPduCreated(final int dst, final byte[] pdu) {
             //We must save the mesh network state for every message that is being sent out.
             //This will specifically save the sequence number for every message sent.
             final ProvisionedMeshNode meshNode = mMeshNetwork.getProvisionedNode(dst);
             updateNetwork(meshNode);
             final int mtu = mTransportCallbacks.getMtu();
-            mTransportCallbacks.sendMeshPdu(applySegmentation(mtu, pdu));
+            mTransportCallbacks.onMeshPduCreated(applySegmentation(mtu, pdu));
         }
 
         @Override

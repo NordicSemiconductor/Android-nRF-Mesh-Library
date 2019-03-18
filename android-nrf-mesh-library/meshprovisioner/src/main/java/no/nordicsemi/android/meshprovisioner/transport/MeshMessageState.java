@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.util.SparseArray;
 
 import java.util.List;
 
@@ -94,23 +93,16 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     }
 
     /**
-     * Returns the network pdu
-     */
-    public SparseArray<byte[]> getNetworkPdu() {
-        return message.getNetworkPdu();
-    }
-
-    /**
      * Starts sending the mesh pdu
      */
     public void executeSend() {
         if (message.getNetworkPdu().size() > 0) {
             for (int i = 0; i < message.getNetworkPdu().size(); i++) {
-                mInternalTransportCallbacks.sendMeshPdu(mDst, message.getNetworkPdu().get(i));
+                mInternalTransportCallbacks.onMeshPduCreated(mDst, message.getNetworkPdu().get(i));
             }
 
             if (mMeshStatusCallbacks != null) {
-                mMeshStatusCallbacks.onMeshMessageSent(mDst, mMeshMessage);
+                mMeshStatusCallbacks.onMeshMessageProcessed(mDst, mMeshMessage);
             }
         }
     }
@@ -126,14 +118,10 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
                     final byte[] pdu = message.getNetworkPdu().get(segO);
                     Log.v(TAG, "Resending segment " + segO + " : " + MeshParserUtils.bytesToHex(pdu, false));
                     final Message retransmitMeshMessage = mMeshTransport.createRetransmitMeshMessage(message, segO);
-                    mInternalTransportCallbacks.sendMeshPdu(mDst, retransmitMeshMessage.getNetworkPdu().get(segO));
+                    mInternalTransportCallbacks.onMeshPduCreated(mDst, retransmitMeshMessage.getNetworkPdu().get(segO));
                 }
             }
         }
-    }
-
-    boolean isSegmented() {
-        return message.getNetworkPdu().size() > 1;
     }
 
     @Override
@@ -153,8 +141,8 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
         //We don't send acks here
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
         Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.sendMeshPdu(message.getDst(), message.getNetworkPdu().get(0));
-        mMeshStatusCallbacks.onBlockAcknowledgementSent(message.getDst());
+        mInternalTransportCallbacks.onMeshPduCreated(message.getDst(), message.getNetworkPdu().get(0));
+        mMeshStatusCallbacks.onBlockAcknowledgementProcessed(message.getDst(), controlMessage);
     }
 
     public enum MessageState {

@@ -22,6 +22,9 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
+import android.support.annotation.NonNull;
+
+import no.nordicsemi.android.meshprovisioner.transport.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 
 /**
@@ -37,25 +40,35 @@ public interface MeshStatusCallbacks {
      * If all segments are not received during this period, that transaction shall be considered as failed.
      * </p>
      *
-     * @param dst                       unique dst address of the device
-     * @param hasIncompleteTimerExpired flag that notifies if the incomplete timer had expired
+     * @param dst                       Unique dst address of the device
+     * @param hasIncompleteTimerExpired Flag that notifies if the incomplete timer had expired
      */
     void onTransactionFailed(final int dst, final boolean hasIncompleteTimerExpired);
 
     /**
      * Notifies if an unknown pdu was received
      *
-     * @param src           address where the message originated from
-     * @param accessPayload access payload of the message
+     * @param src           Address where the message originated from
+     * @param accessPayload Access payload of the message
      */
     void onUnknownPduReceived(final int src, final byte[] accessPayload);
 
     /**
      * Notifies if a block acknowledgement was sent
      *
-     * @param dst dst address to which the block ack was sent
+     * @param dst Destination address to which the block ack was sent
+     * @deperecated in favour of {{@link #onBlockAcknowledgementProcessed(int, ControlMessage)}}
      */
+    @Deprecated
     void onBlockAcknowledgementSent(final int dst);
+
+    /**
+     * Notifies when a block acknowledgement was processed
+     *
+     * @param dst     Destination address to which the block ack was sent
+     * @param message Control message
+     */
+    void onBlockAcknowledgementProcessed(final int dst, @NonNull final ControlMessage message);
 
     /**
      * Notifies if a block acknowledgement was received
@@ -69,16 +82,27 @@ public interface MeshStatusCallbacks {
      *
      * @param dst         Destination address to be sent
      * @param meshMessage {@link MeshMessage} containing the message that was sent
+     * @deperecated in favour of {{@link #onMeshMessageProcessed(int, MeshMessage)}} as the mesh library does not send messages
+     * but only generates messages to be sent over gatt
      */
+    @Deprecated
     void onMeshMessageSent(final int dst, final MeshMessage meshMessage);
+
+    /**
+     * Callback to notify the mesh message has processed
+     *
+     * @param dst         Destination address to be sent
+     * @param meshMessage {@link MeshMessage} containing the message that was sent
+     */
+    void onMeshMessageProcessed(final int dst, @NonNull final MeshMessage meshMessage);
 
     /**
      * Callback to notify that a mesh status message was received
      *
-     * @param src         source address where the message originated from
+     * @param src         Source address where the message originated from
      * @param meshMessage {@link MeshMessage} containing the message that was received
      */
-    void onMeshMessageReceived(final int src, final MeshMessage meshMessage);
+    void onMeshMessageReceived(final int src, @NonNull final MeshMessage meshMessage);
 
     /**
      * Callback to notify if the decryption failed of a received mesh message

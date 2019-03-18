@@ -153,7 +153,6 @@ abstract class NetworkLayer extends LowerTransportLayer {
             //Next we create the PECB
             final byte[] pecb = createPECB(message.getIvIndex(), privacyRandom, privacyKey);
 
-
             final byte[] header = obfuscateNetworkHeader(ctlTTL, sequenceNumbers.get(i), src, pecb);
             final byte[] networkPdu = ByteBuffer.allocate(1 + 1 + header.length + encryptedPayload.length).order(ByteOrder.BIG_ENDIAN)
                     .put((byte) pduType)

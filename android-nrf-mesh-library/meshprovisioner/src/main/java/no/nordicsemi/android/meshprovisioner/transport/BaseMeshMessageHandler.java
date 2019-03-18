@@ -244,7 +244,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * De-obfuscates the network header
      *
      * @param pdu received from the node
-     * @return obfuscted network header
+     * @return obfuscated network header
      */
     private byte[] deObfuscateNetworkHeader(@NonNull final byte[] pdu, @NonNull final NetworkKey key, @NonNull final byte[] ivIndex) {
         final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(key.getKey(), SecureUtils.K2_MASTER_INPUT);

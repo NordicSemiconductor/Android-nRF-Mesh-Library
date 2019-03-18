@@ -47,13 +47,13 @@ public interface InternalTransportCallbacks {
     void sendProvisioningPdu(final UnprovisionedMeshNode meshNode, final byte[] pdu);
 
     /**
-     * Send mesh pdu
+     * Callback that is invoked when a mesh pdu is created
      *
      * @param dst Destination address to be sent
      * @param pdu mesh pdu to be sent
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    void sendMeshPdu(final int dst, final byte[] pdu);
+    void onMeshPduCreated(final int dst, final byte[] pdu);
 
     /**
      * Update mesh network
