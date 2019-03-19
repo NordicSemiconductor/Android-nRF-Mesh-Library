@@ -58,7 +58,7 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessage {
                                       final int modelIdentifier) throws IllegalArgumentException {
 
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
-            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
+            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.elementAddress = elementAddress;
         if (!MeshAddress.isAddressInRange(subscriptionAddress))
             throw new IllegalArgumentException("Invalid subscription address, subscription address must be a 16-bit value");

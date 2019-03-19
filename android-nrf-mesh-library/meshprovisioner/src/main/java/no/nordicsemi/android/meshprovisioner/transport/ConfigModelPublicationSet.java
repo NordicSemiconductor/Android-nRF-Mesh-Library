@@ -82,7 +82,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
                                      final int publishRetransmitIntervalSteps,
                                      final int modelIdentifier) throws IllegalArgumentException {
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
-            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
+            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.elementAddress = elementAddress;
         if (!MeshAddress.isAddressInRange(publishAddress))
             throw new IllegalArgumentException("Invalid publish address, publish address must be a 16-bit value");

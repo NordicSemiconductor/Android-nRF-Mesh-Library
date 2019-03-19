@@ -57,7 +57,7 @@ public final class ConfigModelAppBind extends ConfigMessage {
                               final int modelIdentifier,
                               final int appKeyIndex) throws IllegalArgumentException {
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
-            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
+            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.mElementAddress = elementAddress;
         this.mModelIdentifier = modelIdentifier;
         this.mAppKeyIndex = appKeyIndex;

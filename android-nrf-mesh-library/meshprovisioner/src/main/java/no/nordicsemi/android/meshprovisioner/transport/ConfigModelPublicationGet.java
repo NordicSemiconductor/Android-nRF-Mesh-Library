@@ -56,7 +56,7 @@ public class ConfigModelPublicationGet extends ConfigMessage {
     public ConfigModelPublicationGet(final int elementAddress,
                                      final int modelIdentifier) throws IllegalArgumentException {
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
-            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
+            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.elementAddress = elementAddress;
         this.modelIdentifier = modelIdentifier;
         assembleMessageParameters();
