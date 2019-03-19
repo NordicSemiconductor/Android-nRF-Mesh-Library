@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -99,6 +100,7 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        @SuppressLint("InflateParams")
         final View rootView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_fragment_auth_input, null);
         ButterKnife.bind(this, rootView);
 
@@ -245,7 +247,7 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
             //noinspection ConstantConditions
             final int authInput = MeshParserUtils.unsignedByteToInt(authValue[0]);
             if (inputOOBAction == InputOOBAction.PUSH) {
-                msg = getString(R.string.provisioner_input_pushes, authInput);
+                msg = getResources().getQuantityString(R.plurals.input_pushes, authInput, authInput);
             } else {
                 msg = getString(authInput);
             }

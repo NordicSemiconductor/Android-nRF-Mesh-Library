@@ -247,19 +247,22 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @Override
     public void setPublicationSteps(final int publicationSteps) {
         mPublicationSteps = publicationSteps;
-        mPublicationStepsView.setText(getString(R.string.publication_steps, publicationSteps));
+        mPublicationStepsView.setText(getResources().getQuantityString(R.plurals.steps,
+                publicationSteps, publicationSteps));
     }
 
     @Override
     public void setRetransmitCount(final int retransmitCount) {
         mPublishRetransmitCount = retransmitCount;
-        mRetransmitCountView.setText(getString(R.string.retransmit_count, retransmitCount));
+        mRetransmitCountView.setText(getResources().getQuantityString(R.plurals.retransmit_count,
+                retransmitCount, retransmitCount));
     }
 
     @Override
     public void setRetransmitIntervalSteps(final int intervalSteps) {
         mPublishRetransmitIntervalSteps = intervalSteps;
-        mIntervalStepsView.setText(getString(R.string.retransmit_interval_steps, intervalSteps));
+        mIntervalStepsView.setText(getResources().getQuantityString(R.plurals.steps,
+                intervalSteps, intervalSteps));
     }
 
     @Override
@@ -284,16 +287,18 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
             mPublishTtl = publicationSettings.getPublishTtl();
 
             mPublicationSteps = publicationSettings.getPublicationSteps();
-            mPublicationStepsView.setText(getString(R.string.publication_steps, mPublicationSteps));
+            mPublicationStepsView.setText(getResources().getQuantityString(R.plurals.steps, mPublicationSteps, mPublicationSteps));
 
             mPublicationResolution = publicationSettings.getPublicationResolution();
             mPublicationResolutionView.setText(getResolutionSummary(mPublicationResolution));
 
             mPublishRetransmitCount = publicationSettings.getPublishRetransmitCount();
-            mRetransmitCountView.setText(getString(R.string.retransmit_count, mPublishRetransmitCount));
+            mRetransmitCountView.setText(getResources().getQuantityString(R.plurals.retransmit_count,
+                    mPublishRetransmitCount, mPublishRetransmitCount));
 
             mPublishRetransmitIntervalSteps = publicationSettings.getPublishRetransmitIntervalSteps();
-            mIntervalStepsView.setText(getString(R.string.retransmit_interval_steps, mPublishRetransmitIntervalSteps));
+            mIntervalStepsView.setText(getResources().getQuantityString(R.plurals.steps,
+                    mPublishRetransmitIntervalSteps, mPublishRetransmitIntervalSteps));
 
             if (!model.getBoundAppKeyIndexes().isEmpty()) {
                 mAppKeyIndex = publicationSettings.getAppKeyIndex();
@@ -310,10 +315,12 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         mAppKeyIndexView.setText(getString(R.string.app_key_index, mAppKeyIndex));
         mActionFriendshipCredentialSwitch.setChecked(credentialFlag);
         updateTtlUi(mPublishTtl);
-        mPublicationStepsView.setText(getString(R.string.publication_steps, mPublicationSteps));
+        mPublicationStepsView.setText(getResources().getQuantityString(R.plurals.steps, mPublicationSteps, mPublicationSteps));
         mPublicationResolutionView.setText(getResolutionSummary(mPublicationResolution));
-        mRetransmitCountView.setText(getString(R.string.retransmit_count, mPublishRetransmitCount));
-        mIntervalStepsView.setText(getString(R.string.retransmit_interval_steps, mPublishRetransmitIntervalSteps));
+        mRetransmitCountView.setText(getResources().getQuantityString(R.plurals.retransmit_count,
+                mPublishRetransmitCount, mPublishRetransmitCount));
+        mIntervalStepsView.setText(getResources().getQuantityString(R.plurals.steps,
+                mPublishRetransmitIntervalSteps, mPublishRetransmitIntervalSteps));
 
     }
 
