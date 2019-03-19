@@ -59,7 +59,6 @@
     <string name="provisioner_input_blinks">Input the number of times the device blinked.</string>
     <string name="provisioner_input_beeps">Input the number of times the device beeped.</string>
     <string name="provisioner_input_vibrations">Input the number of times the device vibrated.</string>
-    <string name="provisioner_input_pushes">Push the button on the device %d time(s).</string>
     <string name="provisioner_input_numeric">Input the code displayed on the device.</string>
     <string name="provisioner_input_numeric_device">Key in the following code %s on the device.</string>
     <string name="confirm">Confirm</string>
@@ -187,7 +186,6 @@
     <string name="group_friendly_name">Friendly Name</string>
     <string name="group_name">Name</string>
     <string name="group_address">Address</string>
-    <string name="group_device_count">%d Device(s)</string>
     <string name="title_edit_group_info">Edit Group</string>
     <string name="select_a_group_rationale">Select an existing group</string>
     <string name="no_available_groups">No available groups.</string>
@@ -286,8 +284,6 @@
     <string name="title_network_transmit_interval_steps">Transmit Interval</string>
     <string name="action_network_transmit_get">READ STATE</string>
     <string name="action_network_transmit_set">SET NETWORK TRANSMIT</string>
-    <string name="text_network_transmit_count">%d retransmit(s)</string>
-    <string name="summary_network_transmit_count" formatted="false">%d time(s) and total transmissions: %d</string>
     <string name="text_network_transmit_interval_steps">%d ms</string>
 
     <string name="title_relay_retransmit_info">Relay</string>
@@ -393,13 +389,10 @@
     <string name="dialog_summary_interval_steps">Enter the desired number of interval steps for retransmission. \n1 step = 50ms</string>
     <string name="dialog_summary_publication_steps">Enter the desired number of steps for publication period.</string>
     <string name="dialog_summary_publish_ttl">Enter the desired publish ttl.</string>
-    <string name="retransmit_count">%d time(s)</string>
-    <string name="retransmit_interval_steps">%d step(s)</string>
     <string name="resolution_summary_100_ms">100 milliseconds</string>
     <string name="resolution_summary_1_s">1 second</string>
     <string name="resolution_summary_10_s">10 seconds</string>
     <string name="resolution_summary_100_m">10 minutes</string>
-    <string name="publication_steps">%d step(s)</string>
     <string name="app_key_index">App key index %d</string>
 
     <string name="action_apply">Apply</string>
@@ -448,10 +441,6 @@
         Step 3. Click get composition data\n\n
         Step 4. Add app key</string>
     <string name="network_transmit_interval_steps_summary">10 ms step(s)</string>
-    <string name="light_count">%d Light(s)</string>
-    <string name="switch_count">%d Switch(s)</string>
-    <string name="dimmer_count">%d Dimmer(s)</string>
-    <string name="unknown_device_count">%d Device(s)</string>
     <string name="please_connect_to_network">Please connect to network to control devices!</string>
     <string name="action_edit">Edit</string>
 </resources>

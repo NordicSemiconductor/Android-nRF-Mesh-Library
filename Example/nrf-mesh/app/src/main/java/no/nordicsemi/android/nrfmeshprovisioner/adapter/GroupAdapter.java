@@ -81,7 +81,8 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                 holder.groupName.setText(group.getName());
                 final String addressSummary = "Address: " + MeshAddress.formatAddress(group.getGroupAddress(), true);
                 holder.groupAddress.setText(addressSummary);
-                holder.groupDeviceCount.setText(mContext.getString(R.string.group_device_count, models.size()));
+                holder.groupDeviceCount.setText(mContext.getResources().getQuantityString(R.plurals.device_count,
+                        models.size(), models.size()));
             }
         }
     }

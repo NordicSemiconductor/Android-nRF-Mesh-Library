@@ -1,5 +1,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -64,6 +65,7 @@ public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        @SuppressLint("InflateParams")
         final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_network_transmit_settings, null);
         ButterKnife.bind(this, rootView);
 
@@ -116,13 +118,8 @@ public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            if (getParentFragment() == null) {
-                ((DialogFragmentNetworkTransmitSettings.DialogFragmentNetworkTransmitSettingsListener) getActivity())
-                        .onNetworkTransmitSettingsEntered(mTransmitCount, mTransmitIntervalSteps);
-            } else {
-                ((DialogFragmentNetworkTransmitSettings.DialogFragmentNetworkTransmitSettingsListener) getParentFragment())
-                        .onNetworkTransmitSettingsEntered(mTransmitCount, mTransmitIntervalSteps);
-            }
+            ((DialogFragmentNetworkTransmitSettings.DialogFragmentNetworkTransmitSettingsListener) requireActivity())
+                    .onNetworkTransmitSettingsEntered(mTransmitCount, mTransmitIntervalSteps);
             dismiss();
         });
 
@@ -132,8 +129,8 @@ public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
     private void setTransmitCount(final int transmitCount) {
         mTransmitCount = transmitCount;
         final int transmitCountActual = mTransmitCount + 1;
-        networkTransmitCountText.setText(getResources().getString(
-                R.string.text_network_transmit_count, transmitCountActual));
+        networkTransmitCountText.setText(getResources().getQuantityString(
+                R.plurals.network_transmit_count, transmitCountActual, transmitCountActual));
     }
 
     private void setTransmitIntervalSteps(final int transmitIntervalSteps) {

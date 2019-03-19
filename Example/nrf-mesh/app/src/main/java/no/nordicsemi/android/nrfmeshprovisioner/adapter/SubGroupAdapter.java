@@ -139,32 +139,30 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
             final TextView companyIdView = view.findViewById(R.id.company_id);
             final int companyIdentifier = MeshParserUtils.getCompanyIdentifier(modelId);
             companyIdView.setText(String.valueOf(CompanyIdentifiers.getCompanyName((short) companyIdentifier)));
-            groupSummary.setText(mContext.getString(R.string.unknown_device_count, modelCount));
+            groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.device_count, modelCount, modelCount));
         } else {
             switch (modelId) {
                 case SigModelParser.GENERIC_ON_OFF_SERVER:
-                    groupSummary.setText(mContext.getString(R.string.light_count, modelCount));
+                    groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.light_count, modelCount, modelCount));
                     break;
                 case SigModelParser.GENERIC_ON_OFF_CLIENT:
                     icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_light_switch_nordic_medium_grey_48dp));
                     view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
-                    groupSummary.setText(mContext.getString(R.string.switch_count, modelCount));
+                    groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.switch_count, modelCount, modelCount));
                     break;
                 case SigModelParser.GENERIC_LEVEL_SERVER:
                     icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_level_nordic_sun_outline_48dp));
-                    groupSummary.setText(mContext.getString(R.string.dimmer_count, modelCount));
+                    groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.dimmer_count, modelCount, modelCount));
                     break;
                 default:
                     icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_nordic_medium_grey_48dp));
                     view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
-                    groupSummary.setText(mContext.getString(R.string.unknown_device_count, modelCount));
+                    groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.device_count, modelCount, modelCount));
                     break;
             }
         }
 
-        groupContainerCard.setOnClickListener(v -> {
-            onSubGroupItemClicked(keyIndex, modelId);
-        });
+        groupContainerCard.setOnClickListener(v -> onSubGroupItemClicked(keyIndex, modelId));
 
         on.setOnClickListener(v -> toggleState(keyIndex, modelId, true));
         off.setOnClickListener(v -> toggleState(keyIndex, modelId, false));
