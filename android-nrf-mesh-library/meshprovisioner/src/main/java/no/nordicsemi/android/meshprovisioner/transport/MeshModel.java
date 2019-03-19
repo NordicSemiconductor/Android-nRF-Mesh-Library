@@ -25,6 +25,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.gson.annotations.Expose;
 
@@ -35,6 +36,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
@@ -198,9 +200,8 @@ public abstract class MeshModel implements Parcelable {
      *
      * @param status publication set status
      */
-    protected void setPublicationStatus(final ConfigModelPublicationStatus status) {
+    protected void setPublicationStatus(@NonNull final ConfigModelPublicationStatus status, @Nullable final UUID labelUUID) {
         if (status.isSuccessful()) {
-            //mPublicationSettings = new PublicationSettings(publicationStatus);
             mPublicationSettings = new PublicationSettings(status.getPublishAddress(),
                     status.getAppKeyIndex(),
                     status.getCredentialFlag(),
@@ -209,6 +210,7 @@ public abstract class MeshModel implements Parcelable {
                     status.getPublicationResolution(),
                     status.getPublishRetransmitCount(),
                     status.getPublishRetransmitIntervalSteps());
+            mPublicationSettings.setLabelUUID(labelUUID);
         }
     }
 

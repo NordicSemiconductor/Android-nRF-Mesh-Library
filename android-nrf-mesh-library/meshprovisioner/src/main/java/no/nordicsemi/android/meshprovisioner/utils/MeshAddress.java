@@ -3,6 +3,7 @@ package no.nordicsemi.android.meshprovisioner.utils;
 import android.support.annotation.NonNull;
 
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * Abstract class for bluetooth mesh addresses
@@ -25,6 +26,10 @@ public final class MeshAddress {
     private static final int END_UNICAST_ADDRESS = 0x7FFF;
     private static final byte B1_VIRTUAL_ADDRESS = (byte) 0xBF;
     private static final int END_VIRTUAL_ADDRESS = 0xBFFF;
+
+    public static String formatAddress(final int address, final boolean add0x) {
+        return add0x ? "0x" + String.format(Locale.US, "%04X", address) : String.format(Locale.US, "%04X", address);
+    }
 
     public static boolean isAddressInRange(@NonNull final byte[] address) {
         return address.length != 2;
@@ -139,7 +144,7 @@ public final class MeshAddress {
      * @param address 16-bit address
      * @return true if the address is valid and false otherwise
      */
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings({"ConstantConditions", "BooleanMethodIsAlwaysInverted"})
     public static boolean isValidGroupAddress(final int address) {
         if(!isAddressInRange(address))
             return false;
@@ -152,9 +157,5 @@ public final class MeshAddress {
         final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
 
         return groupRange && !rfu && !allNodes;
-    }
-
-    public static String formatAddress(final int address, final boolean add0x) {
-        return add0x ? "0x" + String.format(Locale.US, "%04X", address) : String.format(Locale.US, "%04X", address);
     }
 }

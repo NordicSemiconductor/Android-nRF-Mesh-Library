@@ -3,6 +3,7 @@ package no.nordicsemi.android.meshprovisioner;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Pair;
 
 import java.util.UUID;
 
@@ -247,7 +248,6 @@ interface MeshMngrApi {
 
     /**
      * Starts an asynchronous task that imports a network from the mesh configuration db json
-     * <p>Af</p>
      *
      * @param uri path to the mesh configuration database json file.
      */
@@ -255,9 +255,15 @@ interface MeshMngrApi {
 
     /**
      * Starts an asynchronous task that imports a network from the mesh configuration db json
-     * <p>Af</p>
      *
      * @param networkJson configuration database json.
      */
     void importMeshNetworkJson(@NonNull final String networkJson);
+
+    /**
+     * Generates a random virtual address
+     */
+    default UUID generateVirtualAddress() {
+        return UUID.randomUUID();
+    }
 }
