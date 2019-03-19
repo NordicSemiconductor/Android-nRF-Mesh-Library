@@ -716,6 +716,18 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     @Override
+    public void onBlockAcknowledgementReceived(final int src, @NonNull final ControlMessage message) {
+        final ProvisionedMeshNode node = mMeshNetwork.getProvisionedNode(src);
+        if (node != null) {
+            mProvisionedMeshNode = node;
+            if (mSetupProvisionedNode) {
+                mProvisionedMeshNodeLiveData.postValue(node);
+                mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.BLOCK_ACKNOWLEDGEMENT_RECEIVED);
+            }
+        }
+    }
+
+    @Override
     public void onMeshMessageSent(final int dst, final MeshMessage meshMessage) {
         //Deprecated
     }

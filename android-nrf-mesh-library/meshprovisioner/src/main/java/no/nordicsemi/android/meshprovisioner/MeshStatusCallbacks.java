@@ -63,19 +63,33 @@ public interface MeshStatusCallbacks {
     void onBlockAcknowledgementSent(final int dst);
 
     /**
-     * Notifies when a block acknowledgement was processed
+     * Notifies when a block acknowledgement has been processed
+     *
+     * <p>
+     * This callback is invoked after {@link MeshManagerCallbacks#onMeshPduCreated(byte[])} where a mesh pdu is created.
+     * </p>
      *
      * @param dst     Destination address to which the block ack was sent
-     * @param message Control message
+     * @param message Control message containing the block acknowledgement
      */
     void onBlockAcknowledgementProcessed(final int dst, @NonNull final ControlMessage message);
 
     /**
      * Notifies if a block acknowledgement was received
      *
-     * @param src source address from which the block ack was received
+     * @param src Source address from which the block ack was received
+     * @deperecated in favour of {{@link #onBlockAcknowledgementReceived(int, ControlMessage)}}
      */
+    @Deprecated
     void onBlockAcknowledgementReceived(final int src);
+
+    /**
+     * Notifies if a block acknowledgement was received
+     *
+     * @param src     Source address from which the block ack was received
+     * @param message Control message containing the block acknowledgement
+     */
+    void onBlockAcknowledgementReceived(final int src, @NonNull final ControlMessage message);
 
     /**
      * Callback to notify the mesh message has been sent
@@ -89,7 +103,11 @@ public interface MeshStatusCallbacks {
     void onMeshMessageSent(final int dst, final MeshMessage meshMessage);
 
     /**
-     * Callback to notify the mesh message has processed
+     * Callback to notify the mesh message has been processed
+     *
+     * <p>
+     * This callback is invoked after {@link MeshManagerCallbacks#onMeshPduCreated(byte[])} where a mesh pdu is created.
+     * </p>
      *
      * @param dst         Destination address to be sent
      * @param meshMessage {@link MeshMessage} containing the message that was sent

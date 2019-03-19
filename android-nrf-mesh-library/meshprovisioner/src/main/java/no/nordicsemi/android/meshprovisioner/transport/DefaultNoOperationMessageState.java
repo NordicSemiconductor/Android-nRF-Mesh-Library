@@ -228,7 +228,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                 case LOWER_TRANSPORT_BLOCK_ACKNOWLEDGEMENT:
                     Log.v(TAG, "Acknowledgement payload: " + MeshParserUtils.bytesToHex(controlMessage.getTransportControlPdu(), false));
                     final ArrayList<Integer> retransmitPduIndexes = BlockAcknowledgementMessage.getSegmentsToBeRetransmitted(controlMessage.getTransportControlPdu(), segmentCount);
-                    mMeshStatusCallbacks.onBlockAcknowledgementReceived(controlMessage.getSrc());
+                    mMeshStatusCallbacks.onBlockAcknowledgementReceived(controlMessage.getSrc(), controlMessage);
                     executeResend(retransmitPduIndexes);
                     break;
                 default:
