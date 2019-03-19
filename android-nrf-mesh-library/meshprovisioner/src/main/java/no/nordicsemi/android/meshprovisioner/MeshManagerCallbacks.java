@@ -100,9 +100,19 @@ public interface MeshManagerCallbacks {
     /**
      * Send mesh pdu
      *
-     * @param pdu      mesh pdu to be sent
+     * @param pdu mesh pdu to be sent
+     * @deperecated in favour of {{@link #onMeshPduCreated(byte[])}}.
+     * This API was renamed because the mesh library only prepares/parses mesh messages to be sent or received
      */
+    @Deprecated
     void sendMeshPdu(final byte[] pdu);
+
+    /**
+     * Send mesh pdu
+     *
+     * @param pdu mesh pdu to be sent
+     */
+    void onMeshPduCreated(final byte[] pdu);
 
     /**
      * Get mtu size supported by the peripheral node

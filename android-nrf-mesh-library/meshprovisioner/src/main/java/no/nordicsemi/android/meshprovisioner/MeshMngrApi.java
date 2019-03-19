@@ -37,23 +37,6 @@ interface MeshMngrApi {
     void setMeshStatusCallbacks(@NonNull final MeshStatusCallbacks callbacks);
 
     /**
-     * Loads the mesh network from the local database.
-     * <p>
-     * This will start an AsyncTask that will load the network from the database.
-     * {@link MeshManagerCallbacks#onNetworkLoaded(MeshNetwork) will return the mesh network
-     * </p>
-     */
-    void loadMeshNetwork();
-
-    /**
-     * Returns an already loaded mesh network, make sure to call {@link #loadMeshNetwork()} before calling this
-     *
-     * @return {@link MeshNetwork}
-     */
-    @Nullable
-    MeshNetwork getMeshNetwork();
-
-    /**
      * Handles notifications received by the client.
      * <p>
      * This method will check if the library should wait for more data in case of a gatt layer segmentation.
@@ -144,15 +127,6 @@ interface MeshMngrApi {
      * Set the provisioning confirmation
      *
      * @param authentication confirmation pin
-     * @deprecated in favour of {@link #setProvisioningAuthentication(String)}
-     */
-    @Deprecated
-    void setProvisioningConfirmation(@NonNull final String authentication);
-
-    /**
-     * Set the provisioning confirmation
-     *
-     * @param authentication confirmation pin
      */
     void setProvisioningAuthentication(@NonNull final String authentication);
 
@@ -235,10 +209,11 @@ interface MeshMngrApi {
      *
      * @param dst         destination address
      * @param meshMessage {@link MeshMessage} Mesh message containing the message opcode and message parameters
-     * @deprecated This method has been deprecated in favour of {@link #sendMeshMessage(int, MeshMessage)}
+     * @deperecated in favour of {{@link #createdMeshPdu(int, MeshMessage)}} as sendMeshMessage method,
+     * do not really send a mesh message but creates on instead to be sent by the user
      */
     @Deprecated
-    void sendMeshMessage(@NonNull final byte[] dst, @NonNull final MeshMessage meshMessage);
+    void sendMeshMessage(final int dst, @NonNull final MeshMessage meshMessage) throws IllegalArgumentException;
 
     /**
      * Sends the specified  mesh message specified within the {@link MeshMessage} object
@@ -246,13 +221,29 @@ interface MeshMngrApi {
      * @param dst         destination address
      * @param meshMessage {@link MeshMessage} Mesh message containing the message opcode and message parameters
      */
-    void sendMeshMessage(final int dst, @NonNull final MeshMessage meshMessage) throws IllegalArgumentException;
+    void createdMeshPdu(final int dst, @NonNull final MeshMessage meshMessage) throws IllegalArgumentException;
+
+    /**
+     * Loads the mesh network from the local database.
+     * <p>
+     * This will start an AsyncTask that will load the network from the database.
+     * {@link MeshManagerCallbacks#onNetworkLoaded(MeshNetwork) will return the mesh network
+     * </p>
+     */
+    void loadMeshNetwork();
+
+    /**
+     * Returns an already loaded mesh network, make sure to call {@link #loadMeshNetwork()} before calling this
+     *
+     * @return {@link MeshNetwork}
+     */
+    @Nullable
+    MeshNetwork getMeshNetwork();
 
     /**
      * Exports mesh network to a json file
      */
     void exportMeshNetwork(@NonNull final String path);
-
 
     /**
      * Starts an asynchronous task that imports a network from the mesh configuration db json

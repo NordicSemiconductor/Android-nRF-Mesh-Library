@@ -34,7 +34,6 @@ import java.nio.ByteOrder;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -127,7 +126,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param meshMessage Mesh message
      */
     private DefaultNoOperationMessageState toggleState(@NonNull final MeshTransport transport, @Nullable final MeshMessage meshMessage) {
-        final DefaultNoOperationMessageState state = new DefaultNoOperationMessageState(mContext, meshMessage, transport, this);
+        final DefaultNoOperationMessageState state = new DefaultNoOperationMessageState(meshMessage, transport, this);
         state.setTransportCallbacks(mInternalTransportCallbacks);
         state.setStatusCallbacks(mStatusCallbacks);
         return state;
@@ -141,7 +140,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     protected MeshMessageState getState(final int address) {
         MeshMessageState state = stateSparseArray.get(address);
         if (state == null) {
-            state = new DefaultNoOperationMessageState(mContext, null, getTransport(address), this);
+            state = new DefaultNoOperationMessageState(null, getTransport(address), this);
             state.setTransportCallbacks(mInternalTransportCallbacks);
             state.setStatusCallbacks(mStatusCallbacks);
             stateSparseArray.put(address, state);
@@ -176,19 +175,6 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     }
 
     @Override
-    public void sendMeshMessage(@NonNull final byte[] src, @NonNull final byte[] dst, @NonNull final MeshMessage meshMessage) {
-        final int srcAddress = AddressUtils.getUnicastAddressInt(src);
-        final int dstAddress = AddressUtils.getUnicastAddressInt(dst);
-        if (meshMessage instanceof ProxyConfigMessage) {
-            sendProxyConfigMeshMessage(srcAddress, dstAddress, (ProxyConfigMessage) meshMessage);
-        } else if (meshMessage instanceof ConfigMessage) {
-            sendConfigMeshMessage(srcAddress, dstAddress, (ConfigMessage) meshMessage);
-        } else if (meshMessage instanceof GenericMessage) {
-            sendAppMeshMessage(srcAddress, dstAddress, (GenericMessage) meshMessage);
-        }
-    }
-
-    @Override
     public void sendMeshMessage(final int src, final int dst, @NonNull final MeshMessage meshMessage) {
         if (meshMessage instanceof ProxyConfigMessage) {
             sendProxyConfigMeshMessage(src, dst, (ProxyConfigMessage) meshMessage);
@@ -205,7 +191,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param configurationMessage {@link ProxyConfigMessage} Mesh message containing the message opcode and message parameters
      */
     private void sendProxyConfigMeshMessage(final int src, final int dst, @NonNull final ProxyConfigMessage configurationMessage) {
-        final ProxyConfigMessageState currentState = new ProxyConfigMessageState(mContext, src, dst, configurationMessage, getTransport(dst), this);
+        final ProxyConfigMessageState currentState = new ProxyConfigMessageState(src, dst, configurationMessage, getTransport(dst), this);
         currentState.setTransportCallbacks(mInternalTransportCallbacks);
         currentState.setStatusCallbacks(mStatusCallbacks);
         stateSparseArray.put(dst, toggleState(currentState.getMeshTransport(), configurationMessage));
@@ -223,7 +209,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             return;
         }
 
-        final ConfigMessageState currentState = new ConfigMessageState(mContext, src, dst, node.getDeviceKey(), configurationMessage, getTransport(dst), this);
+        final ConfigMessageState currentState = new ConfigMessageState(src, dst, node.getDeviceKey(), configurationMessage, getTransport(dst), this);
         currentState.setTransportCallbacks(mInternalTransportCallbacks);
         currentState.setStatusCallbacks(mStatusCallbacks);
         if (MeshAddress.isValidUnicastAddress(dst)) {
@@ -245,7 +231,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param genericMessage Mesh message containing the message opcode and message parameters.
      */
     private void sendAppMeshMessage(final int src, final int dst, @NonNull final GenericMessage genericMessage) {
-        final GenericMessageState currentState = new GenericMessageState(mContext, src, dst, genericMessage, getTransport(dst), this);
+        final GenericMessageState currentState = new GenericMessageState(src, dst, genericMessage, getTransport(dst), this);
         currentState.setTransportCallbacks(mInternalTransportCallbacks);
         currentState.setStatusCallbacks(mStatusCallbacks);
         if (MeshAddress.isValidUnicastAddress(dst)) {
@@ -258,7 +244,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * De-obfuscates the network header
      *
      * @param pdu received from the node
-     * @return obfuscted network header
+     * @return obfuscated network header
      */
     private byte[] deObfuscateNetworkHeader(@NonNull final byte[] pdu, @NonNull final NetworkKey key, @NonNull final byte[] ivIndex) {
         final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(key.getKey(), SecureUtils.K2_MASTER_INPUT);

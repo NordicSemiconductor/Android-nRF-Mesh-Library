@@ -83,7 +83,6 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
     @Override
     final void parseStatusParameters() {
         final AccessMessage message = (AccessMessage) mMessage;
-        final ByteBuffer buffer = ByteBuffer.wrap(message.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
         mStatusCode = mParameters[0];
         mStatusCodeName = getStatusCodeName(mStatusCode);
         mElementAddress = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
@@ -93,8 +92,8 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
         credentialFlag = (mParameters[6] & 0xF0) >> 4 == 1;
         publishTtl = MeshParserUtils.unsignedByteToInt(mParameters[7]);
         final int publishPeriod = MeshParserUtils.unsignedByteToInt(mParameters[8]);
-        publicationSteps = publishPeriod >> 6;
-        publicationResolution = publishPeriod & 0x03;
+        publicationSteps = publishPeriod & 0x3F;
+        publicationResolution = publishPeriod >> 6;
         final int publishRetransmission = MeshParserUtils.unsignedByteToInt(mParameters[9]);
         publishRetransmitCount = publishRetransmission >> 5;
         publishRetransmitIntervalSteps = publishRetransmission & 0x1F;
@@ -114,10 +113,11 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
         Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
         Log.v(TAG, "Credential Flag: " + credentialFlag);
         Log.v(TAG, "Publish TTL: " + publishTtl);
-        Log.v(TAG, "Publish Period: " + publishPeriod);
+        Log.v(TAG, "Publish Period: " + publishPeriod + " where steps: " + publicationSteps + " and resolution: " + publicationResolution);
         Log.v(TAG, "Publish Retransmit Count: " + publishRetransmitCount);
         Log.v(TAG, "Publish Publish Interval Steps: " + publishRetransmitIntervalSteps);
         Log.v(TAG, "Model Identifier: " + Integer.toHexString(mModelIdentifier));
+        Log.v(TAG, "Publication status: " + MeshParserUtils.bytesToHex(mParameters, false));
     }
 
     @Override

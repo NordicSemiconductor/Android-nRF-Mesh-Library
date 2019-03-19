@@ -22,6 +22,9 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
+import android.support.annotation.NonNull;
+
+import no.nordicsemi.android.meshprovisioner.transport.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 
 /**
@@ -37,111 +40,87 @@ public interface MeshStatusCallbacks {
      * If all segments are not received during this period, that transaction shall be considered as failed.
      * </p>
      *
-     * @param dst                       unique dst address of the device
-     * @param hasIncompleteTimerExpired flag that notifies if the incomplete timer had expired
-     * @deprecated in favor of {@link #onTransactionFailed(int, boolean)}
-     */
-    @Deprecated
-    void onTransactionFailed(final byte[] dst, final boolean hasIncompleteTimerExpired);
-
-    /**
-     * Notifies if a transaction has failed
-     * <p>
-     * As of now this is only triggered if the incomplete timer has expired for a given segmented message.
-     * The incomplete timer will wait for a minimum of 10 seconds on receiving a segmented message.
-     * If all segments are not received during this period, that transaction shall be considered as failed.
-     * </p>
-     *
-     * @param dst                       unique dst address of the device
-     * @param hasIncompleteTimerExpired flag that notifies if the incomplete timer had expired
+     * @param dst                       Unique dst address of the device
+     * @param hasIncompleteTimerExpired Flag that notifies if the incomplete timer had expired
      */
     void onTransactionFailed(final int dst, final boolean hasIncompleteTimerExpired);
 
     /**
      * Notifies if an unknown pdu was received
      *
-     * @param src           address where the message originated from
-     * @param accessPayload access payload of the message
-     * @deprecated in favor of {@link #onUnknownPduReceived(int, byte[])}
-     */
-    @Deprecated
-    void onUnknownPduReceived(final byte[] src, final byte[] accessPayload);
-
-    /**
-     * Notifies if an unknown pdu was received
-     *
-     * @param src           address where the message originated from
-     * @param accessPayload access payload of the message
+     * @param src           Address where the message originated from
+     * @param accessPayload Access payload of the message
      */
     void onUnknownPduReceived(final int src, final byte[] accessPayload);
 
     /**
      * Notifies if a block acknowledgement was sent
      *
-     * @param dst dst address to which the block ack was sent
-     * @deprecated in favour of {@link #onBlockAcknowledgementSent(int)}
+     * @param dst Destination address to which the block ack was sent
+     * @deperecated in favour of {{@link #onBlockAcknowledgementProcessed(int, ControlMessage)}}
      */
     @Deprecated
-    void onBlockAcknowledgementSent(final byte[] dst);
-
-    /**
-     * Notifies if a block acknowledgement was sent
-     *
-     * @param dst dst address to which the block ack was sent
-     */
     void onBlockAcknowledgementSent(final int dst);
 
     /**
-     * Notifies if a block acknowledgement was received
+     * Notifies when a block acknowledgement has been processed
      *
-     * @param src source address from which the block ack was received
-     * @deprecated in favour of {@link #onBlockAcknowledgementSent(int)}
+     * <p>
+     * This callback is invoked after {@link MeshManagerCallbacks#onMeshPduCreated(byte[])} where a mesh pdu is created.
+     * </p>
+     *
+     * @param dst     Destination address to which the block ack was sent
+     * @param message Control message containing the block acknowledgement
      */
-    @Deprecated
-    void onBlockAcknowledgementReceived(final byte[] src);
+    void onBlockAcknowledgementProcessed(final int dst, @NonNull final ControlMessage message);
 
     /**
      * Notifies if a block acknowledgement was received
      *
-     * @param src source address from which the block ack was received
+     * @param src Source address from which the block ack was received
+     * @deperecated in favour of {{@link #onBlockAcknowledgementReceived(int, ControlMessage)}}
      */
+    @Deprecated
     void onBlockAcknowledgementReceived(final int src);
 
     /**
-     * Callback to notify the mesh message has been sent
+     * Notifies if a block acknowledgement was received
      *
-     * @param dst         Destination address to be sent
-     * @param meshMessage {@link MeshMessage} containing the message that was sent
-     * @deprecated in favour of {@link #onMeshMessageSent(int, MeshMessage)}
+     * @param src     Source address from which the block ack was received
+     * @param message Control message containing the block acknowledgement
      */
-    @Deprecated
-    void onMeshMessageSent(final byte[] dst, final MeshMessage meshMessage);
+    void onBlockAcknowledgementReceived(final int src, @NonNull final ControlMessage message);
 
     /**
      * Callback to notify the mesh message has been sent
      *
      * @param dst         Destination address to be sent
      * @param meshMessage {@link MeshMessage} containing the message that was sent
+     * @deperecated in favour of {{@link #onMeshMessageProcessed(int, MeshMessage)}} as the mesh library does not send messages
+     * but only generates messages to be sent over gatt
      */
+    @Deprecated
     void onMeshMessageSent(final int dst, final MeshMessage meshMessage);
 
     /**
-     * Callback to notify that a mesh status message was received
+     * Callback to notify the mesh message has been processed
      *
-     * @param src         source address where the message originated from
-     * @param meshMessage {@link MeshMessage} containing the message that was received
-     * @deprecated in favour of {@link #onMeshMessageSent(int, MeshMessage)}
+     * <p>
+     * This callback is invoked after {@link MeshManagerCallbacks#onMeshPduCreated(byte[])} where a mesh pdu is created.
+     * </p>
+     *
+     * @param dst         Destination address to be sent
+     * @param meshMessage {@link MeshMessage} containing the message that was sent
      */
-    @Deprecated
-    void onMeshMessageReceived(final byte[] src, final MeshMessage meshMessage);
+    void onMeshMessageProcessed(final int dst, @NonNull final MeshMessage meshMessage);
 
     /**
      * Callback to notify that a mesh status message was received
      *
-     * @param src         source address where the message originated from
+     * @param src         Source address where the message originated from
      * @param meshMessage {@link MeshMessage} containing the message that was received
      */
-    void onMeshMessageReceived(final int src, final MeshMessage meshMessage);
+    void onMeshMessageReceived(final int src, @NonNull final MeshMessage meshMessage);
 
     /**
      * Callback to notify if the decryption failed of a received mesh message

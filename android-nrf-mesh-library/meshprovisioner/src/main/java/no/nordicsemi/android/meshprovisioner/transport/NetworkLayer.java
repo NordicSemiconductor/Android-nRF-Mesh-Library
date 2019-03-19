@@ -153,7 +153,6 @@ abstract class NetworkLayer extends LowerTransportLayer {
             //Next we create the PECB
             final byte[] pecb = createPECB(message.getIvIndex(), privacyRandom, privacyKey);
 
-
             final byte[] header = obfuscateNetworkHeader(ctlTTL, sequenceNumbers.get(i), src, pecb);
             final byte[] networkPdu = ByteBuffer.allocate(1 + 1 + header.length + encryptedPayload.length).order(ByteOrder.BIG_ENDIAN)
                     .put((byte) pduType)
@@ -232,10 +231,10 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Encrypts the network payload of a network pdu
      *
-     * @param message           mesh message containing network layer pdu
-     * @param lowerTransportPdu lower transport pdu to be encrypted
-     * @param encryptionKey     key used to encrypt the payload.
-     * @return encrypted payload
+     * @param message           Mesh message containing network layer pdu
+     * @param lowerTransportPdu Lower transport pdu to be encrypted
+     * @param encryptionKey     Key used to encrypt the payload.
+     * @return Encrypted payload
      */
     private byte[] encryptNetworkPduPayload(@NonNull final Message message,
                                             @NonNull final byte[] sequenceNumber,
@@ -257,10 +256,10 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Encrypts the network of a proxy configuration pdu.
      *
-     * @param message           mesh message containing network layer pdu
-     * @param lowerTransportPdu lower transport pdu to be encrypted
-     * @param encryptionKey     key used to encrypt the payload
-     * @return encrypted payload
+     * @param message           Mesh message containing network layer pdu
+     * @param lowerTransportPdu Lower transport pdu to be encrypted
+     * @param encryptionKey     Key used to encrypt the payload
+     * @return Encrypted payload
      */
     private byte[] encryptProxyConfigurationPduPayload(@NonNull final Message message,
                                                        @NonNull final byte[] lowerTransportPdu,
@@ -281,11 +280,11 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Obfuscates the network header
      *
-     * @param ctlTTL         message type and ttl bit
-     * @param sequenceNumber sequence number of the message
-     * @param src            source address
-     * @param pecb           value derived from the privacy random
-     * @return obfuscted network header
+     * @param ctlTTL         Message type and ttl bit
+     * @param sequenceNumber Sequence number of the message
+     * @param src            Source address
+     * @param pecb           Value derived from the privacy random
+     * @return Obfuscated network header
      */
     private byte[] obfuscateNetworkHeader(final byte ctlTTL, @NonNull final byte[] sequenceNumber, final int src, @NonNull final byte[] pecb) {
 
@@ -309,8 +308,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * De-obfuscates the network header
      *
-     * @param pdu received from the node
-     * @return obfuscted network header
+     * @param pdu Received from the node
+     * @return Obfuscated network header
      */
     private byte[] deObfuscateNetworkHeader(@NonNull final byte[] pdu) {
         final byte[] privacyKey = getK2Output().getPrivacyKey();
@@ -336,7 +335,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Creates the privacy random.
      *
-     * @param encryptedUpperTransportPDU encrypted transport pdu
+     * @param encryptedUpperTransportPDU Encrypted transport pdu
      * @return Privacy random
      */
     private byte[] createPrivacyRandom(@NonNull final byte[] encryptedUpperTransportPDU) {
@@ -370,9 +369,9 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Creates the network nonce
      *
-     * @param ctlTTL         combined ctl and ttl value
-     * @param sequenceNumber sequence number of the message
-     * @param src            source address
+     * @param ctlTTL         Combined ctl and ttl value
+     * @param sequenceNumber Sequence number of the message
+     * @param src            Source address
      * @return Network nonce
      */
     private byte[] createNetworkNonce(final byte ctlTTL, @NonNull final byte[] sequenceNumber, final int src, @NonNull final byte[] ivIndex) {
@@ -389,8 +388,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Creates the proxy nonce
      *
-     * @param sequenceNumber sequence number of the message
-     * @param src            source address
+     * @param sequenceNumber Sequence number of the message
+     * @param src            Source address
      * @return Proxy nonce
      */
     private byte[] createProxyNonce(@NonNull final byte[] sequenceNumber, final int src, @NonNull final byte[] ivIndex) {
@@ -410,7 +409,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * This method will drop messages with an invalid sequence number as all mesh messages are supposed to have a sequence
      * </p>
      *
-     * @param data pdu received from the mesh node
+     * @param data PDU received from the mesh node
      * @return complete {@link Message} that was successfully parsed or null otherwise
      */
     final Message parseMeshMessage(@NonNull final byte[] data) throws ExtendedInvalidCipherTextException {
@@ -468,12 +467,12 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Parses access message
      *
-     * @param data           received from the node
-     * @param networkHeader  de-obfuscated network header
-     * @param networkNonce   network nonce
-     * @param src            source address
-     * @param sequenceNumber sequence number of the received message
-     * @param micLength      network mic length of the received message
+     * @param data           Received from the node
+     * @param networkHeader  De-obfuscated network header
+     * @param networkNonce   Network nonce
+     * @param src            Source address
+     * @param sequenceNumber Sequence number of the received message
+     * @param micLength      Network mic length of the received message
      * @return access message
      */
     @VisibleForTesting

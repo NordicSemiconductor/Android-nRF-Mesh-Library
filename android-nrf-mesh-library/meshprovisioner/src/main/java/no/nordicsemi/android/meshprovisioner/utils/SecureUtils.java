@@ -43,7 +43,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
-import java.security.Security;
 
 @SuppressWarnings("WeakerAccess")
 public class SecureUtils {

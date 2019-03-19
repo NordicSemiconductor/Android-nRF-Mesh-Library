@@ -22,13 +22,10 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -44,31 +41,15 @@ public final class ConfigModelAppBind extends ConfigMessage {
     private static final int SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 6;
     private static final int VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 8;
 
-
     private final int mElementAddress;
     private final int mModelIdentifier;
     private final int mAppKeyIndex;
-
+    
     /**
      * Constructs ConfigModelAppBind message.
      *
-     * @param elementAddress  element address
-     * @param modelIdentifier model id
-     * @param appKeyIndex     Application key index of this message
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     * @deprecated in favour of {@link #ConfigModelAppBind(int, int, int)}
-     */
-    @Deprecated
-    public ConfigModelAppBind(@NonNull final byte[] elementAddress,
-                              final int modelIdentifier,
-                              final int appKeyIndex) throws IllegalArgumentException {
-        this(AddressUtils.getUnicastAddressInt(elementAddress), modelIdentifier, appKeyIndex);
-    }
-    /**
-     * Constructs ConfigModelAppBind message.
-     *
-     * @param elementAddress  element address
-     * @param modelIdentifier model id
+     * @param elementAddress  Element address
+     * @param modelIdentifier Model id
      * @param appKeyIndex     Application key index of this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */

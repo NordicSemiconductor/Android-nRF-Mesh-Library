@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 
 /**
@@ -35,7 +34,6 @@ class ConfigMessageState extends MeshMessageState {
     /**
      * Constructs the ConfigMessageState
      *
-     * @param context       Context
      * @param src           Source address
      * @param dst           Destination address
      * @param deviceKey     Device key
@@ -43,14 +41,13 @@ class ConfigMessageState extends MeshMessageState {
      * @param meshTransport {@link MeshTransport} Mesh transport
      * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} callbacks
      */
-    ConfigMessageState(@NonNull final Context context,
-                       final int src,
+    ConfigMessageState(final int src,
                        final int dst,
                        @NonNull final byte[] deviceKey,
                        @NonNull final MeshMessage meshMessage,
                        @NonNull final MeshTransport meshTransport,
                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
-        super(context, meshMessage, meshTransport, callbacks);
+        super(meshMessage, meshTransport, callbacks);
         this.mSrc = src;
         this.mDst = dst;
         this.mDeviceKey = deviceKey;

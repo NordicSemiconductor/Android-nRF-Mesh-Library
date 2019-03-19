@@ -33,7 +33,8 @@
 
     <string name="location_permission_title">LOCATION PERMISSION REQUIRED</string>
     <string name="location_permission_info">From Android 6.0 Marshmallow onwards the application requires Location permission in order to scan for Bluetooth Low Energy devices.
-      \n\nThis is because Bluetooth LE beacons, for example iBeacons or Eddystone, may be used to determine the phone\'s and user\'s location. <b>nRF Mesh Provisioner</b> will not use this information in any way.</string>
+      \n\nThis is because Bluetooth LE beacons, for example iBeacons or Eddystone, may be used to determine the phone\'s and user\'s location.
+        <b>nRF Mesh Provisioner</b> will not use this information in any way.</string>
     <string name="location_permission_action">Grant permission</string>
     <string name="location_permission_settings">Settings</string>
 
@@ -41,12 +42,12 @@
     <string name="bluetooth_disabled_info">The Bluetooth adapter is turned off. Click the button below to enable it.</string>
     <string name="bluetooth_disabled_action">Enable</string>
 
-    <string name="blinky_guide_title">CAN\'T SEE YOUR NODE?</string>
-    <string name="blinky_guide_info">1. Make sure the DK is <b>turned on</b> and is connected to a power source using a micro USB cable or a coin cell is plugged in.
+    <string name="unprovisioned_node_guide_title">CAN\'T SEE YOUR NODE?</string>
+    <string name="unprovisioned_node_guide_info">1. Make sure the DK is <b>turned on</b> and is connected to a power source using a micro USB cable or a coin cell is plugged in.
         \n\n2. Make sure the <b>relevant</b> firmware and SoftDevice are flashed.</string>
-    <string name="blinky_guide_location_info">3. Location is turned off. Some Android phones require it enabled in order to scan for Bluetooth LE devices.
-		If you are sure your Blinky is advertising and it doesn\'t show up here, click the button below to enable Location.</string>
-    <string name="blinky_guide_location_action">Enable</string>
+    <string name="unprovisioned_node_guide_location_info">3. Location is turned off. Some Android phones require it enabled in order to scan for Bluetooth LE devices.
+		If you are sure your Node is advertising and it doesn\'t show up here, click the button below to enable Location.</string>
+    <string name="unprovisioned_node_guide_location_action">Enable</string>
 
     <string name="state_connecting">Connecting…</string>
 
@@ -248,7 +249,8 @@
     <string name="title_app_key_index">Key Index</string>
     <string name="title_bound_app_keys">Bound App Keys</string>
 
-    <string name="no_elements_guide_info">No elements were found! \n\nTry configuring the node again to see what elements are available on this node. You may do this by going back to the main screen and connecting to the node.</string>
+    <string name="no_elements_guide_info">No elements were found! \n\nTry configuring the node again to see what elements are available on this node.
+        You may do this by going back to the main screen and connecting to the node.</string>
     <string name="no_elements_guide_composition_data">No elements were found! \nGet composition data to see what elements are on this node.</string>
     <string name="action_connect">CONNECT</string>
     <string name="action_disconnect">Disconnect</string>
@@ -256,7 +258,7 @@
     <string name="dialog_summary_publish_address">Publish address for this model.</string>
     <string name="hint_publish_address">Publish Address</string>
     <string name="error_empty_publish_address">Publish Address cannot be empty!</string>
-    <string name="title_publlish_address_status">Publish Address Status</string>
+    <string name="title_publish_address_status">Publish Address Status</string>
     <string name="hex_format">0x%s</string>
     <string name="hex_prefix">0x</string>
     <string name="invalid_hex_value">Invalid hex value</string>
@@ -273,7 +275,7 @@
     <string name="action_add">ADD</string>
     <string name="action_clear">CLEAR</string>
     <string name="title_about">About</string>
-    <string name="summary_verion">App Version</string>
+    <string name="summary_version">App Version</string>
     <string name="title_node_configuration">Node Configuration</string>
     <string name="title_added_app_keys">Added App Keys</string>
 
@@ -351,7 +353,7 @@
     <string name="public_key_type_title">Public Key Type</string>
     <string name="static_oob_type_title">Static OOB Type</string>
     <string name="output_oob_size_title">Output OOB Size</string>
-    <string name="supported_output_oob_actions_title">Supported Ouput OOB Actions</string>
+    <string name="supported_output_oob_actions_title">Supported Output OOB Actions</string>
     <string name="supported_input_oob_actions_title">Supported Input OOB Actions</string>
     <string name="input_oob_size_title">Input OOB Size</string>
     <string name="unknown">Unknown</string>

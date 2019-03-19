@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -31,7 +30,6 @@ import java.nio.ByteOrder;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
  * To be used as a wrapper class to create a ConfigModelPublicationSet message.
@@ -47,19 +45,6 @@ public class ConfigModelPublicationGet extends ConfigMessage {
 
     private final int elementAddress;
     private final int modelIdentifier;
-
-    /**
-     * Constructs a ConfigModelPublicationGet message
-     *
-     * @param elementAddress                 Element address that should publish
-     * @param modelIdentifier                identifier for this model that will do publication
-     * @throws IllegalArgumentException for invalid arguments
-     */
-    @Deprecated
-    public ConfigModelPublicationGet(@NonNull final byte[] elementAddress,
-                                     final int modelIdentifier) throws IllegalArgumentException {
-        this(MeshParserUtils.bytesToInt(elementAddress), modelIdentifier);
-    }
 
     /**
      * Constructs a ConfigModelPublicationGet message

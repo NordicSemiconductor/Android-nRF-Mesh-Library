@@ -45,13 +45,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -216,7 +213,7 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
         final View containerAbout = rootView.findViewById(R.id.container_version);
         containerAbout.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_puzzle));
         final TextView versionTitle = containerAbout.findViewById(R.id.title);
-        versionTitle.setText(R.string.summary_verion);
+        versionTitle.setText(R.string.summary_version);
         final TextView version = containerAbout.findViewById(R.id.text);
         try {
             version.setText(getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0).versionName);
@@ -291,6 +288,7 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
         return false;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

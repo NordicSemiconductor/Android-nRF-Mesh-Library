@@ -39,20 +39,18 @@ class ProxyConfigMessageState extends MeshMessageState {
     /**
      * Constructs the ProxyConfigMessageState for sending/receiving proxy configuration messages
      *
-     * @param context       Context
      * @param src           Source address
      * @param dst           Destination address
      * @param meshMessage   {@link MeshMessage} Mesh proxy config message
      * @param meshTransport {@link MeshTransport} Mesh transport
      * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} Internal callbacks
      */
-    ProxyConfigMessageState(@NonNull final Context context,
-                            final int src,
+    ProxyConfigMessageState(final int src,
                             final int dst,
                             @NonNull final MeshMessage meshMessage,
                             @NonNull final MeshTransport meshTransport,
                             @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
-        super(context, meshMessage, meshTransport, callbacks);
+        super(meshMessage, meshTransport, callbacks);
         this.mSrc = src;
         this.mDst = dst;
         createControlMessage();

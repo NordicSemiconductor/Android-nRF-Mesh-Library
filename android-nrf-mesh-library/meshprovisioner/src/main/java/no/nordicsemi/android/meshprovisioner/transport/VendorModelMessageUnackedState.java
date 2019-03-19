@@ -1,12 +1,9 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused"})
 class VendorModelMessageUnackedState extends GenericMessageState {
 
     private static final String TAG = VendorModelMessageUnackedState.class.getSimpleName();
@@ -14,41 +11,18 @@ class VendorModelMessageUnackedState extends GenericMessageState {
     /**
      * Constructs {@link VendorModelMessageAckedState}
      *
-     * @param context                   Context of the application
-     * @param src                       Source address
-     * @param dst                       Destination address to which the message must be sent to
-     * @param vendorModelMessageUnacked Wrapper class {@link VendorModelMessageStatus} containing the opcode and parameters for {@link VendorModelMessageStatus} message
-     * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
-     * @throws IllegalArgumentException exception for invalid arguments
-     * @deprecated in favour of {@link #VendorModelMessageUnackedState(Context, int, int, VendorModelMessageUnacked, MeshTransport, InternalMeshMsgHandlerCallbacks)}
-     */
-    @Deprecated
-    VendorModelMessageUnackedState(@NonNull final Context context,
-                                   @NonNull final byte[] src,
-                                   @NonNull final byte[] dst,
-                                   @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked,
-                                   @NonNull final MeshTransport meshTransport,
-                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        this(context, MeshParserUtils.bytesToInt(src), MeshParserUtils.bytesToInt(dst), vendorModelMessageUnacked, meshTransport, callbacks);
-    }
-
-    /**
-     * Constructs {@link VendorModelMessageAckedState}
-     *
-     * @param context                   Context of the application
      * @param src                       Source address
      * @param dst                       Destination address to which the message must be sent to
      * @param vendorModelMessageUnacked Wrapper class {@link VendorModelMessageStatus} containing the opcode and parameters for {@link VendorModelMessageStatus} message
      * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException exception for invalid arguments
      */
-    VendorModelMessageUnackedState(@NonNull final Context context,
-                                   final int src,
+    VendorModelMessageUnackedState(final int src,
                                    final int dst,
                                    @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked,
                                    @NonNull final MeshTransport meshTransport,
                                    @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(context, src, dst, vendorModelMessageUnacked, meshTransport, callbacks);
+        super(src, dst, vendorModelMessageUnacked, meshTransport, callbacks);
         this.mSrc = src;
         this.mDst = dst;
         createAccessMessage();

@@ -78,7 +78,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Expose(serialize = false)
     protected byte[] networkKey;
     /**
-     * @deprecated IV Index is a network property hence movec to {@link MeshNetwork}
+     * @deprecated IV Index is a network property hence moved to {@link MeshNetwork}
      */
     @Deprecated
     @Ignore
