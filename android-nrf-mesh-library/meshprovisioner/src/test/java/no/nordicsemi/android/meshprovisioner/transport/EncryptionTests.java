@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Locale;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -86,7 +87,7 @@ public class EncryptionTests {
     @Test
     public void application_key_id_isCorrect() {
         //8.2.1
-        final String expectedPayload = "56341263964771734fbd76e3b40519d1d94a48".toUpperCase();
+        final String expectedPayload = "56341263964771734fbd76e3b40519d1d94a48".toUpperCase(Locale.US);
         final byte[] appKey = MeshParserUtils.toByteArray("63964771734fbd76e3b40519d1d94a48");
         final int netKeyIndex = 0x123;
         final byte[] networkKeyIndex = {(byte) (netKeyIndex & 0xFF), ((netKeyIndex >> 8) & 0xFF)};
@@ -104,8 +105,8 @@ public class EncryptionTests {
     @Test
     public void identity_key_isCorrect() {
         //8.2.5
-        final String expectedIdentityKey = "84396c435ac48560b5965385253e210c".toUpperCase();
-        final byte[] networkKey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6".toUpperCase());
+        final String expectedIdentityKey = "84396c435ac48560b5965385253e210c".toUpperCase(Locale.US);
+        final byte[] networkKey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6".toUpperCase(Locale.US));
 
         assertEquals(expectedIdentityKey, MeshParserUtils.bytesToHex(SecureUtils.calculateIdentityKey(networkKey), false));
     }
@@ -113,8 +114,8 @@ public class EncryptionTests {
     @Test
     public void beacon_key_isCorrect() {
         //8.2.6
-        final String expectedBeaconKey = "5423d967da639a99cb02231a83f7d254".toUpperCase();
-        final byte[] networkKey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6".toUpperCase());
+        final String expectedBeaconKey = "5423d967da639a99cb02231a83f7d254".toUpperCase(Locale.US);
+        final byte[] networkKey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6".toUpperCase(Locale.US));
 
         assertEquals(expectedBeaconKey, MeshParserUtils.bytesToHex(SecureUtils.calculateBeaconKey(networkKey), false));
     }
@@ -127,8 +128,8 @@ public class EncryptionTests {
         final byte[] networkId = MeshParserUtils.toByteArray("3ecaff672f673370");
         final byte[] authenticationValue = MeshParserUtils.toByteArray("8ea261582f364f6f3c74ef80336ca17e");
 
-        final String expectedSecureNetworkBeacon = "01003ecaff672f673370123456788ea261582f364f6f".toUpperCase();
-        final byte[] networkKey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6".toUpperCase());
+        final String expectedSecureNetworkBeacon = "01003ecaff672f673370123456788ea261582f364f6f".toUpperCase(Locale.US);
+        final byte[] networkKey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6".toUpperCase(Locale.US));
 
         assertEquals(expectedSecureNetworkBeacon,
                 MeshParserUtils.bytesToHex(SecureUtils.calculateSecureNetworkBeacon(networkKey, 1,
@@ -138,7 +139,7 @@ public class EncryptionTests {
     @Test
     public void parse_node_id_isCorrect() {
         //8.2.5
-        final byte[] advertisingData = MeshParserUtils.toByteArray("141628180100861765aefcc57b34ae608fbbc1f2c6".toUpperCase());
+        final byte[] advertisingData = MeshParserUtils.toByteArray("141628180100861765aefcc57b34ae608fbbc1f2c6".toUpperCase(Locale.US));
         final byte[] identityKey = MeshParserUtils.toByteArray("84396c435ac48560b5965385253e210c");
         final ByteBuffer expectedBufferHash = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
         expectedBufferHash.put(advertisingData, 5, 8);
@@ -153,7 +154,7 @@ public class EncryptionTests {
 
     @Test
     public void networkId() {
-        final byte[] networkKey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6".toUpperCase());
+        final byte[] networkKey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6".toUpperCase(Locale.US));
         final String networkIDText = MeshParserUtils.bytesToHex(SecureUtils.calculateK3(networkKey), false).toLowerCase();
         final String expectedNetworkId = "3ecaff672f673370";
         assertEquals(expectedNetworkId, networkIDText);

@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -50,6 +51,8 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         DialogFragmentPublishTtl.DialogFragmentPublishTtlListener {
 
     public static final int SET_PUBLICATION_SETTINGS = 2021;
+    public static final String RESULT_ADDRESS_TYPE = "RESULT_ADDRESS_TYPE";
+    public static final String RESULT_LABEL_UUID = "RESULT_LABEL_UUID";
     public static final String RESULT_PUBLISH_ADDRESS = "RESULT_PUBLISH_ADDRESS";
     public static final String RESULT_APP_KEY_INDEX = "RESULT_APP_KEY_INDEX";
     public static final String RESULT_CREDENTIAL_FLAG = "RESULT_CREDENTIAL_FLAG";
@@ -67,6 +70,8 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     private PublicationViewModel mViewModel;
     private MeshModel mMeshModel;
+    private AddressType mAddressType;
+    private UUID mLabelUUID;
     private int mPublishAddress;
     private Integer mAppKeyIndex;
     private int mPublishTtl = MeshParserUtils.USE_DEFAULT_TTL;
@@ -163,7 +168,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         });
 
         actionPublishTtl.setOnClickListener(v -> {
-            if(meshModel != null) {
+            if (meshModel != null) {
                 final PublicationSettings publicationSettings = meshModel.getPublicationSettings();
                 final DialogFragmentPublishTtl fragmentPublishTtl;
                 if (publicationSettings != null) {
@@ -217,6 +222,9 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @Override
     protected void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);
+        if (mAddressType != null)
+            outState.putInt(RESULT_ADDRESS_TYPE, mAddressType.ordinal());
+        outState.putSerializable(RESULT_LABEL_UUID, mLabelUUID);
         outState.putInt(RESULT_PUBLISH_ADDRESS, mPublishAddress);
         outState.putInt(RESULT_APP_KEY_INDEX, mAppKeyIndex);
         outState.putBoolean(RESULT_CREDENTIAL_FLAG, mActionFriendshipCredentialSwitch.isChecked());
@@ -230,6 +238,8 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @Override
     protected void onRestoreInstanceState(final Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        mAddressType = AddressType.fromValue(savedInstanceState.getInt(RESULT_ADDRESS_TYPE, -1));
+        mLabelUUID = (UUID) savedInstanceState.getSerializable(RESULT_LABEL_UUID);
         mPublishAddress = savedInstanceState.getInt(RESULT_PUBLISH_ADDRESS);
         mAppKeyIndex = savedInstanceState.getInt(RESULT_APP_KEY_INDEX);
         mPublishTtl = savedInstanceState.getInt(RESULT_PUBLISH_TTL);
@@ -249,6 +259,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     @Override
     public void setPublishAddress(@NonNull final AddressType addressType, final int address) {
+        mAddressType = addressType;
         mPublishAddress = address;
         mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
     }
@@ -256,6 +267,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @SuppressWarnings("ConstantConditions")
     @Override
     public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final String name, final int address) {
+        mAddressType = addressType;
         mPublishAddress = address;
         mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
         final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
@@ -266,13 +278,16 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     @Override
     public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final Group group) {
+        mAddressType = addressType;
         mPublishAddress = group.getGroupAddress();
         mPublishAddressView.setText(MeshAddress.formatAddress(group.getGroupAddress(), true));
     }
 
     @Override
-    public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final UUID uuid) {
-
+    public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final UUID labelUuid) {
+        mAddressType = addressType;
+        mLabelUUID = labelUuid;
+        mPublishAddressView.setText(labelUuid.toString().toUpperCase(Locale.US));
     }
 
     @Override
@@ -348,7 +363,11 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     }
 
     private void updateUi(final boolean credentialFlag) {
-        mPublishAddressView.setText(MeshAddress.formatAddress(mPublishAddress, true));
+        if (mLabelUUID == null) {
+            mPublishAddressView.setText(MeshAddress.formatAddress(mPublishAddress, true));
+        } else {
+            mPublishAddressView.setText(mLabelUUID.toString().toUpperCase(Locale.US));
+        }
         mAppKeyIndexView.setText(getString(R.string.app_key_index, mAppKeyIndex));
         mActionFriendshipCredentialSwitch.setChecked(credentialFlag);
         updateTtlUi(mPublishTtl);
@@ -386,6 +405,8 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     private void setReturnIntent() {
         Intent returnIntent = new Intent();
+        returnIntent.putExtra(RESULT_ADDRESS_TYPE, mAddressType.ordinal());
+        returnIntent.putExtra(RESULT_LABEL_UUID, mLabelUUID);
         returnIntent.putExtra(RESULT_PUBLISH_ADDRESS, mPublishAddress);
         returnIntent.putExtra(RESULT_APP_KEY_INDEX, mAppKeyIndex);
         returnIntent.putExtra(RESULT_CREDENTIAL_FLAG, mActionFriendshipCredentialSwitch.isChecked());

@@ -100,7 +100,7 @@
             android:layout_marginTop="@dimen/item_padding_top"
             android:paddingStart="@dimen/activity_horizontal_margin"
             android:paddingEnd="@dimen/activity_horizontal_margin"
-            android:text="EA57D9F1975D4EBDA78A37D189AC58F4"
+            android:text="EA57D9F1-975D-4EBD-A78A-37D189AC58F4"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

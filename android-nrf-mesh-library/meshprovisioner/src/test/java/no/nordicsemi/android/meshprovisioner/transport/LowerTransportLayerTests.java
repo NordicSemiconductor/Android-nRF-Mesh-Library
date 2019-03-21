@@ -32,6 +32,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.util.Locale;
+
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 import static org.junit.Assert.assertEquals;
@@ -53,7 +55,7 @@ public class LowerTransportLayerTests {
     @Test
     public void create_unsegmented_access_message_isCorrect() {
         //Message #16
-        final byte[] expectedLowerTransportPdu = MeshParserUtils.toByteArray("0089511bf1d1a81c11dcef".toUpperCase());
+        final byte[] expectedLowerTransportPdu = MeshParserUtils.toByteArray("0089511bf1d1a81c11dcef".toUpperCase(Locale.US));
         final byte[] deviceKey = MeshParserUtils.toByteArray("9d6dd0e96eb25dc19a40ed9914f8f03f");
         final int src = 0x1201;
         final int dst = 0x0003;
@@ -61,7 +63,7 @@ public class LowerTransportLayerTests {
         final byte[] ivIndex = MeshParserUtils.toByteArray("12345678");
         final byte aszmic = 0;
         final int akf = 0;
-        final byte[] upperTransportPdu = MeshParserUtils.toByteArray("89511bf1d1a81c11dcef".toUpperCase());
+        final byte[] upperTransportPdu = MeshParserUtils.toByteArray("89511bf1d1a81c11dcef".toUpperCase(Locale.US));
 
         final MeshTransport meshLayerTestBase = new MeshTransport(context);
         final AccessMessage accessMessage = new AccessMessage();
@@ -85,8 +87,8 @@ public class LowerTransportLayerTests {
         //Message #6
 
         final SparseArray<String> expectedSegmentedTransportPDU = new SparseArray<>();
-        expectedSegmentedTransportPDU.put(0, "8026ac01ee9dddfd2169326d23f3afdf".toUpperCase());
-        expectedSegmentedTransportPDU.put(1, "8026ac21cfdc18c52fdef772e0e17308".toUpperCase());
+        expectedSegmentedTransportPDU.put(0, "8026ac01ee9dddfd2169326d23f3afdf".toUpperCase(Locale.US));
+        expectedSegmentedTransportPDU.put(1, "8026ac21cfdc18c52fdef772e0e17308".toUpperCase(Locale.US));
 
         final byte[] deviceKey = MeshParserUtils.toByteArray("9d6dd0e96eb25dc19a40ed9914f8f03f");
         final int src = 0x0003;
@@ -95,7 +97,7 @@ public class LowerTransportLayerTests {
         final byte[] ivIndex = MeshParserUtils.toByteArray("12345678");
         final byte aszmic = 0;
         final int akf = 0;
-        final byte[] upperTransportPdu = MeshParserUtils.toByteArray("ee9dddfd2169326d23f3afdfcfdc18c52fdef772e0e17308".toUpperCase());
+        final byte[] upperTransportPdu = MeshParserUtils.toByteArray("ee9dddfd2169326d23f3afdfcfdc18c52fdef772e0e17308".toUpperCase(Locale.US));
 
         final MeshTransport meshLayerTestBase = new MeshTransport(context);
         final AccessMessage accessMessage = new AccessMessage();
@@ -134,7 +136,7 @@ public class LowerTransportLayerTests {
         final int opCode = 0x03;
         final byte aszmic = 0;
         final int akf = 0;
-        final byte[] upperTransportPdu = MeshParserUtils.toByteArray("4b50057e400000010000".toUpperCase());
+        final byte[] upperTransportPdu = MeshParserUtils.toByteArray("4b50057e400000010000".toUpperCase(Locale.US));
 
         final MeshTransport meshLayerTestBase = new MeshTransport(context);
         final ControlMessage controlMessage = new ControlMessage();

@@ -30,6 +30,26 @@ public enum AddressType {
     }
 
     /**
+     * Returns the oob method used for authentication
+     *
+     * @param method auth method used
+     */
+    public static AddressType fromValue(final int method) {
+        switch (method) {
+            default:
+                return null;
+            case 0:
+                return UNASSIGNED_ADDRESS;
+            case 1:
+                return UNICAST_ADDRESS;
+            case 2:
+                return GROUP_ADDRESS;
+            case 3:
+                return VIRTUAL_ADDRESS;
+        }
+    }
+
+    /**
      * Returns the address type name
      *
      * @param type Address type

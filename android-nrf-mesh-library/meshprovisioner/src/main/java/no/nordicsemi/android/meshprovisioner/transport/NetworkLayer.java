@@ -616,7 +616,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
             switch (pduType) {
                 case MeshManagerApi.PDU_TYPE_NETWORK:
                     //Check if the message is directed to us, if its not ignore the message
-                    if (provisionerAddress == dst) {
+                    if (provisionerAddress != dst) {
                         Log.v(TAG, "Received a control message that was not directed to us, so we drop it");
                         return null;
                     }

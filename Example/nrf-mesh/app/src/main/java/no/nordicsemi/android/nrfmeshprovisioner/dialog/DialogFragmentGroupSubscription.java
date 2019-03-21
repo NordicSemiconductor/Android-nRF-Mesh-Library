@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -103,6 +104,7 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        @SuppressLint("InflateParams")
         final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_group_subscription, null);
 
         //Bind ui

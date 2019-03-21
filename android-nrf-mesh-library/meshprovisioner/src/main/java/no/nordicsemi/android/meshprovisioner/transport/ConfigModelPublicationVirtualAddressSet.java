@@ -41,7 +41,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
 
     private static final String TAG = ConfigModelPublicationVirtualAddressSet.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_SET;
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_VIRTUAL_ADDRESS_SET;
 
     private static final int SIG_MODEL_PUBLISH_SET_PARAMS_LENGTH = 25;
     private static final int VENDOR_MODEL_PUBLISH_SET_PARAMS_LENGTH = 27;
@@ -117,7 +117,7 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
         Log.v(TAG, "Retransmission count: " + publishRetransmitCount);
         Log.v(TAG, "Retransmission interval: " + publishRetransmitIntervalSteps);
         Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(modelIdentifier), false));
-
+        final byte[] publishAddress = MeshParserUtils.toByteArray(this.publishAddress.toString().replace("-", ""));
         final int rfu = 0; // We ignore the rfu here
         final int octet5 = ((applicationKeyIndex[0] << 4)) | ((credentialFlag ? 0b01 : 0b00) << 3);
         final byte publishPeriod = (byte) ((publicationResolution << 6) | (publicationSteps & 0x3F));
@@ -126,8 +126,7 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
         if (modelIdentifier >= Short.MIN_VALUE && modelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_PUBLISH_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) elementAddress);
-            paramsBuffer.putLong(publishAddress.getMostSignificantBits());
-            paramsBuffer.putLong(publishAddress.getLeastSignificantBits());
+            paramsBuffer.put(publishAddress);
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);
@@ -138,8 +137,7 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
         } else {
             paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_PUBLISH_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) elementAddress);
-            paramsBuffer.putLong(publishAddress.getMostSignificantBits());
-            paramsBuffer.putLong(publishAddress.getLeastSignificantBits());
+            paramsBuffer.put(publishAddress);
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);

@@ -45,6 +45,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -68,6 +69,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
 
     private static final String PUBLICATION_SETTINGS = "PUBLICATION_SETTINGS";
     private static final String GROUPS = "GROUPS";
+    private static final String UUID_KEY = "UUID";
     private int mPublishAddress = 0;
     private ArrayList<Group> mGroups = new ArrayList<>();
     private PublicationSettings mPublicationSettings;
@@ -81,7 +83,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     @BindView(R.id.text_input)
     TextInputEditText unicastAddressInput;
     @BindView(R.id.uuid_label)
-    TextView uuidView;
+    TextView labelUuidView;
     @BindView(R.id.group_container)
     View groupContainer;
     @BindView(R.id.radio_select_group)
@@ -112,7 +114,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
 
         void setPublishAddress(@NonNull final AddressType addressType, @NonNull final Group group);
 
-        void setPublishAddress(@NonNull final AddressType addressType, @NonNull final UUID uuid);
+        void setPublishAddress(@NonNull final AddressType addressType, @NonNull final UUID labelUuid);
 
     }
 
@@ -144,6 +146,10 @@ public class DialogFragmentPublishAddress extends DialogFragment {
 
         //Bind ui
         ButterKnife.bind(this, rootView);
+        if(savedInstanceState != null) {
+            labelUuidView.setText(savedInstanceState.getString(UUID_KEY));
+        }
+
         setAddressType();
 
         addressTypesSpinnerView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -246,9 +252,15 @@ public class DialogFragmentPublishAddress extends DialogFragment {
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> setPublishAddress());
 
         mGenerateLabelUUID = alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL);
-        mGenerateLabelUUID.setOnClickListener(v -> uuidView.setText(MeshAddress.generateRandomLabelUUID().toString().toUpperCase()));
+        mGenerateLabelUUID.setOnClickListener(v -> labelUuidView.setText(MeshAddress.generateRandomLabelUUID().toString().toUpperCase()));
 
         return alertDialog;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(UUID_KEY, labelUuidView.getText().toString());
     }
 
     private void setPublishAddress() {
@@ -289,7 +301,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 }
                 break;
             case VIRTUAL_ADDRESS:
-                    final UUID uuid = UUID.fromString(uuidView.getEditableText().toString());
+                    final UUID uuid = UUID.fromString(labelUuidView.getText().toString());
                     ((DialogFragmentPublishAddressListener) requireActivity()).
                             setPublishAddress(type, uuid);
                     dismiss();
@@ -339,7 +351,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 unicastAddressInput.setText(publishAddress);
                 unicastAddressInputLayout.setVisibility(View.VISIBLE);
                 groupContainer.setVisibility(View.GONE);
-                uuidView.setVisibility(View.GONE);
+                labelUuidView.setVisibility(View.GONE);
                 mGenerateLabelUUID.setVisibility(View.GONE);
                 break;
             case UNICAST_ADDRESS:
@@ -347,7 +359,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 unicastAddressInput.setText(publishAddress);
                 unicastAddressInputLayout.setVisibility(View.VISIBLE);
                 groupContainer.setVisibility(View.GONE);
-                uuidView.setVisibility(View.GONE);
+                labelUuidView.setVisibility(View.GONE);
                 mGenerateLabelUUID.setVisibility(View.GONE);
                 break;
             case GROUP_ADDRESS:
@@ -355,11 +367,14 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 groups.setSelection(index);
                 groupContainer.setVisibility(View.VISIBLE);
                 unicastAddressInputLayout.setVisibility(View.GONE);
-                uuidView.setVisibility(View.GONE);
+                labelUuidView.setVisibility(View.GONE);
                 mGenerateLabelUUID.setVisibility(View.GONE);
                 break;
             case VIRTUAL_ADDRESS:
-                uuidView.setVisibility(View.VISIBLE);
+                if(mPublicationSettings != null && mPublicationSettings.getLabelUUID() != null){
+                    labelUuidView.setText(mPublicationSettings.getLabelUUID().toString().toUpperCase(Locale.US));
+                }
+                labelUuidView.setVisibility(View.VISIBLE);
                 mGenerateLabelUUID.setVisibility(View.VISIBLE);
                 unicastAddressInputLayout.setVisibility(View.GONE);
                 groupContainer.setVisibility(View.GONE);

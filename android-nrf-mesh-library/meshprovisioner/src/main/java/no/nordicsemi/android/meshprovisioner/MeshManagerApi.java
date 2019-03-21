@@ -677,7 +677,7 @@ public class MeshManagerApi implements MeshMngrApi {
     public boolean networkIdMatches(@NonNull final String networkId, @Nullable final byte[] serviceData) {
         final byte[] advertisedNetworkId = getAdvertisedNetworkId(serviceData);
         if (advertisedNetworkId != null) {
-            final String advertisedNetworkIdString = MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase();
+            final String advertisedNetworkIdString = MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase(Locale.US);
             return networkId.equals(advertisedNetworkIdString);
         }
         return false;
