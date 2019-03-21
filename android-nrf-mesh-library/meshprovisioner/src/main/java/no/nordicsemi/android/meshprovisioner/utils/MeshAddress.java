@@ -1,6 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -51,7 +52,7 @@ public final class MeshAddress {
      * @param address 16-bit address
      * @return true if the address is a valid unassigned address or false otherwise
      */
-    public boolean isUnassignedAddress(@NonNull final byte[] address) {
+    public static boolean isUnassignedAddress(@NonNull final byte[] address) {
         if (isAddressInRange(address)) {
             return false;
         }
@@ -65,7 +66,7 @@ public final class MeshAddress {
      * @param address 16-bit address
      * @return true if the address is a valid unassigned address or false otherwise
      */
-    public boolean isValidUnassignedAddress(final int address) {
+    public static boolean isValidUnassignedAddress(final int address) {
         return isAddressInRange(address) && (address == UNASSIGNED_ADDRESS);
     }
 
@@ -113,10 +114,10 @@ public final class MeshAddress {
      * @return true if the address is a valid virtual address or false otherwise
      */
     public boolean isValidVirtualAddress(final int address) {
-        if(isAddressInRange(address)) {
-            final byte [] tempAddress = new byte[]{(byte) ((address >> 8) & 0xFF), (byte) (address & 0xFF)};
+        if (isAddressInRange(address)) {
+            final byte[] tempAddress = new byte[]{(byte) ((address >> 8) & 0xFF), (byte) (address & 0xFF)};
             final int b1 = tempAddress[0];
-            if(b1 == B1_VIRTUAL_ADDRESS) {
+            if (b1 == B1_VIRTUAL_ADDRESS) {
                 return address <= END_VIRTUAL_ADDRESS;
             }
         }
@@ -124,8 +125,8 @@ public final class MeshAddress {
     }
 
 
-    private static boolean isValidGroupAddress(final byte[] address){
-        if(!isAddressInRange(address))
+    private static boolean isValidGroupAddress(final byte[] address) {
+        if (!isAddressInRange(address))
             return false;
 
         final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
@@ -146,7 +147,7 @@ public final class MeshAddress {
      */
     @SuppressWarnings({"ConstantConditions", "BooleanMethodIsAlwaysInverted"})
     public static boolean isValidGroupAddress(final int address) {
-        if(!isAddressInRange(address))
+        if (!isAddressInRange(address))
             return false;
 
         final int b0 = address >> 8 & 0xFF;
@@ -157,5 +158,33 @@ public final class MeshAddress {
         final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
 
         return groupRange && !rfu && !allNodes;
+    }
+
+    /**
+     * Returns the {@link AddressType}
+     *
+     * @param address 16-bit mesh address
+     */
+    @Nullable
+    public static AddressType getAddressType(final int address) {
+        if (isAddressInRange(address)) {
+            if (isValidUnassignedAddress(address)) {
+                return AddressType.UNASSIGNED_ADDRESS;
+            } else if (isValidUnicastAddress(address)) {
+                return AddressType.UNICAST_ADDRESS;
+            } else if (isValidGroupAddress(address)) {
+                return AddressType.GROUP_ADDRESS;
+            } else {
+                return AddressType.VIRTUAL_ADDRESS;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Generates a random uuid
+     */
+    public static UUID generateRandomLabelUUID(){
+        return UUID.randomUUID();
     }
 }

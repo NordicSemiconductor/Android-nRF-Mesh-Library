@@ -15,13 +15,19 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.Group;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.AddressType;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
@@ -59,6 +65,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @SuppressWarnings("unused")
     private static final int DEFAULT_PUBLICATION_RESOLUTION = MeshParserUtils.RESOLUTION_100_MS;
 
+    private PublicationViewModel mViewModel;
     private MeshModel mMeshModel;
     private int mPublishAddress;
     private Integer mAppKeyIndex;
@@ -88,15 +95,16 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @BindView(R.id.friendship_credential_flag)
     Switch mActionFriendshipCredentialSwitch;
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_publication_settings);
         ButterKnife.bind(this);
 
-        final PublicationViewModel viewModel = ViewModelProviders.of(this, mViewModelFactory).get(PublicationViewModel.class);
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(PublicationViewModel.class);
 
-        final MeshModel meshModel = mMeshModel = viewModel.getSelectedModel().getValue();
+        final MeshModel meshModel = mMeshModel = mViewModel.getSelectedModel().getValue();
         if (meshModel == null)
             finish();
 
@@ -121,8 +129,10 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         }
 
         actionPublishAddress.setOnClickListener(v -> {
-            final byte[] address = AddressUtils.getUnicastAddressBytes(this.mPublishAddress);
-            final DialogFragmentPublishAddress fragmentPublishAddress = DialogFragmentPublishAddress.newInstance(address);
+            //noinspection ConstantConditions
+            List<Group> groups = mViewModel.getMeshManagerApi().getMeshNetwork().getGroups();
+            final DialogFragmentPublishAddress fragmentPublishAddress = DialogFragmentPublishAddress.
+                    newInstance(meshModel.getPublicationSettings(), new ArrayList<>(groups));
             fragmentPublishAddress.show(getSupportFragmentManager(), null);
         });
 
@@ -230,12 +240,39 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         updateUi(savedInstanceState.getBoolean(RESULT_CREDENTIAL_FLAG));
     }
 
-    @Override
-    public void setPublishAddress(final byte[] publishAddress) {
-        if (publishAddress != null) {
-            mPublishAddress = MeshParserUtils.unsignedBytesToInt(publishAddress[1], publishAddress[0]);
-            mPublishAddressView.setText(MeshParserUtils.bytesToHex(publishAddress, true));
+    public void setPublishAddress(final byte[] address) {
+        if (address != null) {
+            mPublishAddress = MeshParserUtils.unsignedBytesToInt(address[1], address[0]);
+            mPublishAddressView.setText(MeshParserUtils.bytesToHex(address, true));
         }
+    }
+
+    @Override
+    public void setPublishAddress(@NonNull final AddressType addressType, final int address) {
+        mPublishAddress = address;
+        mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Override
+    public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final String name, final int address) {
+        mPublishAddress = address;
+        mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
+        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        final Group group = new Group(address, network.getMeshUUID());
+        group.setName(name);
+        network.addGroup(group);
+    }
+
+    @Override
+    public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final Group group) {
+        mPublishAddress = group.getGroupAddress();
+        mPublishAddressView.setText(MeshAddress.formatAddress(group.getGroupAddress(), true));
+    }
+
+    @Override
+    public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final UUID uuid) {
+
     }
 
     @Override

@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
@@ -119,7 +120,12 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         if (element != null) {
                             final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
                             if (model != null) {
-                                model.setPublicationStatus(status);
+                                UUID labelUUID = null;
+                                if(mMeshMessage instanceof ConfigModelPublicationVirtualAddressSet) {
+                                    labelUUID = ((ConfigModelPublicationVirtualAddressSet)mMeshMessage).
+                                            getPublishAddress();
+                                }
+                                model.setPublicationStatus(status, labelUUID);
                             }
                         }
                     }

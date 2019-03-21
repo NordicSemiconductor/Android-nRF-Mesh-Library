@@ -272,6 +272,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void setGroupSubscription(@NonNull final String name, final int address) {
         final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();

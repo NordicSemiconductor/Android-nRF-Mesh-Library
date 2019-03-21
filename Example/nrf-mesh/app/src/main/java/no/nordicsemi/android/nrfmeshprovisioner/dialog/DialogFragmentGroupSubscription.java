@@ -76,10 +76,10 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
 
     private ArrayList<Group> mGroups;
 
-
     public interface DialogFragmentSubscriptionAddressListener {
 
         void setGroupSubscription(@NonNull final String name, final int address);
+
         void setGroupSubscription(@NonNull final Group group);
 
     }
@@ -173,7 +173,8 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
                 final String name = groupNameInput.getEditableText().toString();
                 final String address = addressInput.getEditableText().toString();
                 if (validateInput(name, address)) {
-                    ((DialogFragmentSubscriptionAddressListener) requireActivity()).setGroupSubscription(name, Integer.valueOf(address, 16));
+                    ((DialogFragmentSubscriptionAddressListener) requireActivity()).
+                            setGroupSubscription(name, Integer.valueOf(address, 16));
                     dismiss();
                 }
             } else {

@@ -28,40 +28,32 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.Group;
-import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.meshprovisioner.utils.AddressType;
 
-public class GroupAdapterSpinner extends BaseAdapter {
+public class AddressTypeAdapterSpinner extends BaseAdapter {
 
-    private final ArrayList<Group> mGroups = new ArrayList<>();
+    private final AddressType[] mAddressTypes;
     private final Context mContext;
 
-    public GroupAdapterSpinner(@NonNull final Context context, @NonNull final List<Group> groups) {
+    public AddressTypeAdapterSpinner(@NonNull final Context context, @NonNull final AddressType[] addressTypes) {
         this.mContext = context;
-        mGroups.clear();
-        mGroups.addAll(groups);
+        mAddressTypes = addressTypes;
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        if (mGroups.isEmpty())
-            return 1;
-        return mGroups.size();
+        return mAddressTypes.length;
     }
 
     @Override
-    public Group getItem(final int position) {
-        return mGroups.get(position);
+    public AddressType getItem(final int position) {
+        return mAddressTypes[position];
     }
 
     @Override
@@ -72,19 +64,18 @@ public class GroupAdapterSpinner extends BaseAdapter {
     @Override
     public View getView(final int position, final View convertView, final ViewGroup parent) {
         View view = convertView;
-        if (!mGroups.isEmpty()) {
+        if (mAddressTypes.length > 0) {
             ViewHolder viewHolder;
             if (view == null) {
-                view = LayoutInflater.from(mContext).inflate(R.layout.group_subscription_item, parent, false);
+                view = LayoutInflater.from(mContext).inflate(R.layout.address_type_item, parent, false);
                 viewHolder = new ViewHolder(view);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) view.getTag();
             }
 
-            final Group group = mGroups.get(position);
-            viewHolder.groupName.setText(group.getName());
-            viewHolder.address.setText(MeshAddress.formatAddress(group.getGroupAddress(), true));
+            final AddressType addressType = mAddressTypes[position];
+            viewHolder.addressName.setText(AddressType.getTypeName(addressType));
             return view;
         } else {
             view = LayoutInflater.from(mContext).inflate(R.layout.no_groups_layout, parent, false);
@@ -92,16 +83,10 @@ public class GroupAdapterSpinner extends BaseAdapter {
         }
     }
 
-    public boolean isEmpty() {
-        return mGroups.isEmpty();
-    }
-
     public final class ViewHolder {
 
-        @BindView(R.id.group_name)
-        TextView groupName;
-        @BindView(R.id.address)
-        TextView address;
+        @BindView(R.id.address_name)
+        TextView addressName;
 
         private ViewHolder(final View view) {
             ButterKnife.bind(this, view);

@@ -261,6 +261,8 @@
     <string name="hex_prefix">0x</string>
     <string name="invalid_hex_value">Invalid hex value</string>
     <string name="invalid_address_value">Invalid address</string>
+    <string name="invalid_unicast_address">Unicast address must range from 0x0001 to 0x7FFF</string>
+    <string name="invalid_group_address">Group address must range from 0xC000 to 0xFEFF</string>
     <string name="action_reset_network">Reset</string>
     <string name="title_reset_network">Reset Mesh Network</string>
     <string name="message_reset_network">This will clear all the data stored related to this network and will not be recoverable. Would you like to continue?</string>
@@ -443,4 +445,6 @@
     <string name="network_transmit_interval_steps_summary">10 ms step(s)</string>
     <string name="please_connect_to_network">Please connect to network to control devices!</string>
     <string name="action_edit">Edit</string>
+    <string name="generate_uuid">Generate Label UUID</string>
+    <string name="publish_address_dialog_summary">Publish address of this model.</string>
 </resources>
