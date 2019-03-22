@@ -179,8 +179,6 @@ public class NetworkLayerTests {
         } catch (ExtendedInvalidCipherTextException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @Test
