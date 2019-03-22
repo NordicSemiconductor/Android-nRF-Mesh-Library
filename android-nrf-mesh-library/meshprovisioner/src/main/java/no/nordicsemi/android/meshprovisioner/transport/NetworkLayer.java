@@ -534,7 +534,6 @@ abstract class NetworkLayer extends LowerTransportLayer {
                     message.setTtl(ttl);
                     message.setSrc(src);
                     message.setDst(dst);
-
                     parseUpperTransportPDU(message);
                     parseAccessLayerPDU(message);
                 }
