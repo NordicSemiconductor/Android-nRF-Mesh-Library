@@ -123,7 +123,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                                 UUID labelUUID = null;
                                 if(mMeshMessage instanceof ConfigModelPublicationVirtualAddressSet) {
                                     labelUUID = ((ConfigModelPublicationVirtualAddressSet)mMeshMessage).
-                                            getPublishAddress();
+                                            getLabelUuid();
                                 }
                                 model.setPublicationStatus(status, labelUUID);
                             }

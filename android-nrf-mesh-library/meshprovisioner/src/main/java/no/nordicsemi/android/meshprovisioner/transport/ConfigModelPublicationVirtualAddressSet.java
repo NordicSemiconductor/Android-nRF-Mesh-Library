@@ -47,7 +47,7 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
     private static final int VENDOR_MODEL_PUBLISH_SET_PARAMS_LENGTH = 27;
 
     private final int elementAddress;
-    private final UUID publishAddress;
+    private final UUID labelUuid;
     private final int appKeyIndex;
     private final boolean credentialFlag;
     private final int publishTtl;
@@ -61,7 +61,7 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
      * Constructs a ConfigModelPublicationVirtualAddressSet message
      *
      * @param elementAddress                 Element address that should publish
-     * @param publishAddress                 Value of the Label UUID publish address
+     * @param labelUuid                      Value of the Label UUID publish address
      * @param appKeyIndex                    Index of the application key
      * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false
      *                                       for master credentials. Currently supports only master credentials
@@ -74,7 +74,7 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
      * @throws IllegalArgumentException for invalid arguments
      */
     public ConfigModelPublicationVirtualAddressSet(final int elementAddress,
-                                                   @NonNull final UUID publishAddress,
+                                                   @NonNull final UUID labelUuid,
                                                    final int appKeyIndex,
                                                    final boolean credentialFlag,
                                                    final int publishTtl,
@@ -86,7 +86,7 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
             throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.elementAddress = elementAddress;
-        this.publishAddress = publishAddress;
+        this.labelUuid = labelUuid;
         this.credentialFlag = credentialFlag;
         this.publishTtl = publishTtl;
         this.publicationSteps = publicationSteps;
@@ -110,14 +110,14 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
         final byte[] applicationKeyIndex = MeshParserUtils.addKeyIndexPadding(appKeyIndex);
         Log.v(TAG, "AppKeyIndex: " + appKeyIndex);
         Log.v(TAG, "Element address: " + MeshAddress.formatAddress(elementAddress, true));
-        Log.v(TAG, "Publish address: " + publishAddress.toString());
+        Log.v(TAG, "Label UUID: " + labelUuid.toString());
         Log.v(TAG, "Publish ttl: " + publishTtl);
         Log.v(TAG, "Publish steps: " + publicationSteps);
         Log.v(TAG, "Publish resolution: " + publicationResolution);
         Log.v(TAG, "Retransmission count: " + publishRetransmitCount);
         Log.v(TAG, "Retransmission interval: " + publishRetransmitIntervalSteps);
         Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(modelIdentifier), false));
-        final byte[] publishAddress = MeshParserUtils.toByteArray(this.publishAddress.toString().replace("-", ""));
+        final byte[] publishAddress = MeshParserUtils.toByteArray(this.labelUuid.toString().replace("-", ""));
         final int rfu = 0; // We ignore the rfu here
         final int octet5 = ((applicationKeyIndex[0] << 4)) | ((credentialFlag ? 0b01 : 0b00) << 3);
         final byte publishPeriod = (byte) ((publicationResolution << 6) | (publicationSteps & 0x3F));
@@ -166,8 +166,8 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
     /**
      * Returns the value of the Label UUID publish address
      */
-    public UUID getPublishAddress() {
-        return publishAddress;
+    public UUID getLabelUuid() {
+        return labelUuid;
     }
 
     /**
