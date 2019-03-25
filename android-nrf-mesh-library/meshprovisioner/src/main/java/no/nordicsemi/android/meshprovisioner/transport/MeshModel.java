@@ -41,7 +41,13 @@ import java.util.UUID;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
-
+/**
+ * Base mesh model class
+ * <p>
+ * This class contains properties such as Model Identifier, bound keys, key indexes, subscription
+ * and publication settings belonging to a mesh model.
+ * </p>
+ */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class MeshModel implements Parcelable {
 
@@ -184,7 +190,8 @@ public abstract class MeshModel implements Parcelable {
      * Returns the list of subscription addresses belonging to this model
      *
      * @return subscription addresses
-     * @deprecated in favor of {@link #getSubscribedAddresses()} since addresses have been migrated to 16-bit int instead of byte[]
+     * @deprecated in favor of {@link #getSubscribedAddresses()} since addresses
+     * have been migrated to 16-bit int instead of byte[]
      */
     @Deprecated
     public List<byte[]> getSubscriptionAddresses() {
@@ -221,7 +228,8 @@ public abstract class MeshModel implements Parcelable {
      *
      * @param status publication set status
      */
-    protected void setPublicationStatus(@NonNull final ConfigModelPublicationStatus status, @Nullable final UUID labelUUID) {
+    protected void setPublicationStatus(@NonNull final ConfigModelPublicationStatus status,
+                                        @Nullable final UUID labelUUID) {
         if (status.isSuccessful()) {
             mPublicationSettings = new PublicationSettings(status.getPublishAddress(),
                     status.getAppKeyIndex(),
@@ -247,7 +255,7 @@ public abstract class MeshModel implements Parcelable {
     /**
      * Sets the subscription address in a mesh model
      *
-     * @param subscriptionAddress subscription address
+     * @param subscriptionAddress Subscription address
      */
     protected void addSubscriptionAddress(final int subscriptionAddress) {
         if (!subscriptionAddresses.contains(subscriptionAddress)) {
@@ -259,7 +267,7 @@ public abstract class MeshModel implements Parcelable {
      * Sets the subscription address in a mesh model
      *
      * @param labelUuid           Label uuid of the the subscription address
-     * @param subscriptionAddress subscription address
+     * @param subscriptionAddress Subscription address
      */
     protected void addSubscriptionAddress(@NonNull final UUID labelUuid, final int subscriptionAddress) {
         if (!labelUuids.contains(labelUuid)) {
@@ -286,7 +294,8 @@ public abstract class MeshModel implements Parcelable {
      * @param labelUuid           Label UUID
      * @param subscriptionAddress Subscription address
      */
-    protected void removeVirtualSubscriptionAddress(@NonNull final UUID labelUuid, @NonNull final Integer subscriptionAddress) {
+    protected void removeVirtualSubscriptionAddress(@NonNull final UUID labelUuid,
+                                                    @NonNull final Integer subscriptionAddress) {
         labelUuids.remove(labelUuid);
         removeSubscriptionAddress(subscriptionAddress);
     }

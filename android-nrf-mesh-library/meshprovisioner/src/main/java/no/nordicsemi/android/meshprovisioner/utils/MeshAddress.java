@@ -17,6 +17,13 @@ public final class MeshAddress {
 
     private static final byte[] VTAD = "vtad".getBytes(Charset.forName("US-ASCII"));
 
+    //Unassigned addresses
+    public static final int UNASSIGNED_ADDRESS = 0x0000;
+
+    //Unicast addresses
+    public static final int START_UNICAST_ADDRESS = 0x0001;
+    public static final int END_UNICAST_ADDRESS = 0x7FFF;
+
     //Group address start and end defines the address range that can be used to create groups
     public static final int START_GROUP_ADDRESS = 0xC000;
     public static final int END_GROUP_ADDRESS = 0xFEFF;
@@ -27,15 +34,16 @@ public final class MeshAddress {
     public static final int ALL_RELAYS_ADDRESS = 0xFFFE;
     public static final int ALL_NODES_ADDRESS = 0xFFFF;
 
-    public static final int UNASSIGNED_ADDRESS = 0x0000;
-    private static final int START_UNICAST_ADDRESS = 0x0001;
-    private static final int END_UNICAST_ADDRESS = 0x7FFF;
+    //Virtual addresses
     private static final byte B1_VIRTUAL_ADDRESS = (byte) 0x80;
-    private static final int START_VIRTUAL_ADDRESS = 0x8000;
-    private static final int END_VIRTUAL_ADDRESS = 0xBFFF;
+    public static final int START_VIRTUAL_ADDRESS = 0x8000;
+    public static final int END_VIRTUAL_ADDRESS = 0xBFFF;
+    public static final int UUID_HASH_BIT_MASK = 0x3FFF;
 
     public static String formatAddress(final int address, final boolean add0x) {
-        return add0x ? "0x" + String.format(Locale.US, "%04X", address) : String.format(Locale.US, "%04X", address);
+        return add0x ?
+                "0x" + String.format(Locale.US, "%04X", address) :
+                String.format(Locale.US, "%04X", address);
     }
 
     public static boolean isAddressInRange(@NonNull final byte[] address) {
@@ -190,6 +198,19 @@ public final class MeshAddress {
         return UUID.randomUUID();
     }
 
+    /**
+     * Generates a virtual address from a given Lable UUID
+     *
+     * @param uuid Type 4 UUID
+     */
+    public static Integer generateVirtualAddress(@NonNull final UUID uuid) {
+        final byte[] uuidBytes = MeshParserUtils.uuidToBytes(uuid);
+        final byte[] salt = SecureUtils.calculateSalt(VTAD);
+        final byte[] encryptedUuid = SecureUtils.calculateCMAC(MeshParserUtils.uuidToBytes(uuid), salt);
+        ByteBuffer buffer = ByteBuffer.wrap(encryptedUuid);
+        buffer.position(12); //Move the position to 12
+        return START_VIRTUAL_ADDRESS | (buffer.getInt() & UUID_HASH_BIT_MASK);
+    }
 
     /**
      * Returns the label UUID for a given virtual address
@@ -205,7 +226,7 @@ public final class MeshAddress {
                 final byte[] encryptedUuid = SecureUtils.calculateCMAC(MeshParserUtils.uuidToBytes(uuid), salt);
                 ByteBuffer buffer = ByteBuffer.wrap(encryptedUuid);
                 buffer.position(12); //Move the position to 12
-                final int hash = buffer.getInt() & 0x3FFF;
+                final int hash = buffer.getInt() & UUID_HASH_BIT_MASK;
                 if (hash == getHash(address)) {
                     return uuid;
                 }
