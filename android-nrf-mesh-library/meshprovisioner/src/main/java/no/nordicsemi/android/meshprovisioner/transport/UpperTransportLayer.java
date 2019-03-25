@@ -171,10 +171,9 @@ abstract class UpperTransportLayer extends AccessLayer {
      */
     final void parseUpperTransportPDU(@NonNull final Message message) throws ExtendedInvalidCipherTextException {
         try {
-
             switch (message.getPduType()) {
                 case MeshManagerApi.PDU_TYPE_NETWORK:
-                    if (message.getCtl() == 0) { //Access message
+                    if (message instanceof AccessMessage) { //Access message
                         final AccessMessage accessMessage = (AccessMessage) message;
                         reassembleLowerTransportAccessPDU(accessMessage);
                         final byte[] decryptedUpperTransportControlPdu = decryptUpperTransportPDU(accessMessage);
@@ -211,7 +210,7 @@ abstract class UpperTransportLayer extends AccessLayer {
     private byte[] encryptUpperTransportPDU(@NonNull final AccessMessage message) {
         final byte[] accessPDU = message.getAccessPdu();
         final int akf = message.getAkf();
-        final int aszmic = message.getAszmic(); // upper transport layer will alaways have the aszmic as 0 because the mic is always 32bit
+        final int aszmic = message.getAszmic(); // upper transport layer will always have the aszmic as 0 because the mic is always 32bit
 
         final byte[] sequenceNumber = message.getSequenceNumber();
         final int src = message.getSrc();
@@ -241,10 +240,9 @@ abstract class UpperTransportLayer extends AccessLayer {
     }
 
     /**
-     * Decrypts upper transport pdu
+     * Returns the decrypted upper transport pdu
      *
-     * @param accessMessage access message object containing the upper transport pdu
-     * @return decrypted upper transport pdu
+     * @param accessMessage Access message object containing the upper transport pdu
      */
     private byte[] decryptUpperTransportPDU(@NonNull final AccessMessage accessMessage) throws InvalidCipherTextException {
         byte[] decryptedUpperTransportPDU;

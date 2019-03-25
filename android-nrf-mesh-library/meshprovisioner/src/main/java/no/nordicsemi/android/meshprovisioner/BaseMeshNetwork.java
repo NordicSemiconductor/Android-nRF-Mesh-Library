@@ -116,9 +116,6 @@ abstract class BaseMeshNetwork {
     boolean lastSelected;
 
     @Ignore
-    private Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new LinkedHashMap<>();
-
-    @Ignore
     protected MeshNetworkCallbacks mCallbacks;
 
     @Ignore

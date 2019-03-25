@@ -483,11 +483,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
                                              @NonNull final byte[] sequenceNumber,
                                              final int micLength) throws ExtendedInvalidCipherTextException {
         try {
-
             final SecureUtils.K2Output k2Output = getK2Output();
-
             final byte[] encryptionKey = k2Output.getEncryptionKey();
-
             final int ttl = networkHeader[0] & 0x7F;
             final int networkPayloadLength = data.length - (2 + networkHeader.length);
             final byte[] transportPdu = new byte[networkPayloadLength];
@@ -499,7 +496,6 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
             }
             final int dst = MeshParserUtils.unsignedBytesToInt(decryptedNetworkPayload[1], decryptedNetworkPayload[0]);
-
             Log.v(TAG, "Dst: " + MeshAddress.formatAddress(dst, true));
 
             if (isSegmentedMessage(decryptedNetworkPayload[2])) {
@@ -560,7 +556,6 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 parseUnsegmentedAccessLowerTransportPDU(message, pdu);
                 parseUpperTransportPDU(message);
                 parseAccessLayerPDU(message);
-
                 return message;
             }
         } catch (InvalidCipherTextException ex) {
