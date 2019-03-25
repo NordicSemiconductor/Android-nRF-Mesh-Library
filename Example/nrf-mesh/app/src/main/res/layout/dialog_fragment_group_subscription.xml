@@ -31,138 +31,65 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/activity_horizontal_margin">
-
-        <RadioButton
-            android:id="@+id/radio_select_group"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="start|center_vertical"
-            android:text="@string/select_a_group_rationale"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin">
 
         <TextView
-            android:id="@+id/no_groups_configured"
+            android:id="@+id/summary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:text="@string/no_available_groups"
-            android:visibility="gone"
+            android:layout_marginTop="@dimen/item_padding_top"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/subscription_address_dialog_summary"
+            android:textColor="@color/black"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/radio_select_group"
-            app:layout_constraintTop_toBottomOf="@id/radio_select_group"
-            tools:visibility="visible"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText"/>
 
         <Spinner
-            android:id="@+id/groups"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/radio_select_group"
-            app:layout_constraintTop_toBottomOf="@id/radio_select_group"/>
-
-        <RadioButton
-            android:id="@+id/radio_create_group"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:gravity="start|center_vertical"
-            android:text="@string/create_a_group_rationale"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/radio_select_group"
-            app:layout_constraintTop_toBottomOf="@id/groups"/>
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/group_name_layout"
+            android:id="@+id/address_types"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/radio_create_group"
-            app:layout_constraintTop_toBottomOf="@id/radio_create_group">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/summary"/>
 
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/address_name_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/activity_horizontal_margin"
-                    android:text="@string/group_name"
-                    app:layout_constraintBottom_toBottomOf="@id/name_input"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/name_input"/>
-
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/name_input"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/activity_horizontal_margin"
-                    android:hint="Living Room"
-                    android:inputType="text|textCapCharacters"
-                    android:maxLength="20"
-                    android:singleLine="true"
-                    android:textSize="16sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/address_name_text"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:ignore="HardcodedText"/>
-            </android.support.constraint.ConstraintLayout>
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/group_address_layout"
+        <include
+            android:id="@+id/group_container"
+            layout="@layout/layout_group_subscription"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/radio_create_group"
-            app:layout_constraintTop_toBottomOf="@id/group_name_layout">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/address_types"/>
 
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/label_summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/item_padding_top"
+            android:text="@string/label_uuid"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/group_container"
+            tools:ignore="RtlSymmetry"/>
 
-                <TextView
-                    android:id="@+id/address_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/activity_horizontal_margin"
-                    android:text="@string/group_address"
-                    app:layout_constraintBottom_toBottomOf="@id/address_input"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/address_input"/>
-
-                <TextView
-                    android:id="@+id/prefix"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/activity_vertical_margin"
-                    android:text="@string/hex_prefix"
-                    android:textSize="16sp"
-                    app:layout_constraintBottom_toBottomOf="@id/address_input"
-                    app:layout_constraintStart_toEndOf="@id/address_text"
-                    app:layout_constraintTop_toTopOf="@id/address_input"/>
-
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/address_input"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:hint="C000 - 0xFEFF"
-                    android:inputType="text|textCapCharacters"
-                    android:maxLength="4"
-                    android:singleLine="true"
-                    android:textSize="16sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/prefix"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:ignore="HardcodedText"/>
-
-            </android.support.constraint.ConstraintLayout>
-        </android.support.design.widget.TextInputLayout>
+        <TextView
+            android:id="@+id/uuid_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/item_padding_top"
+            android:text="EA57D9F1-975D-4EBD-A78A-37D189AC58F4"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/label_summary"
+            app:layout_constraintTop_toBottomOf="@id/label_summary"
+            tools:ignore="HardcodedText"/>
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>

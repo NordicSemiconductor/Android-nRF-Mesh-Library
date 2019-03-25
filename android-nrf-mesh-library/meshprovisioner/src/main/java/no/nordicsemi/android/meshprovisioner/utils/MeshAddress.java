@@ -3,6 +3,9 @@ package no.nordicsemi.android.meshprovisioner.utils;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -11,6 +14,8 @@ import java.util.UUID;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public final class MeshAddress {
+
+    private static final byte[] VTAD = "vtad".getBytes(Charset.forName("US-ASCII"));
 
     //Group address start and end defines the address range that can be used to create groups
     public static final int START_GROUP_ADDRESS = 0xC000;
@@ -25,7 +30,8 @@ public final class MeshAddress {
     public static final int UNASSIGNED_ADDRESS = 0x0000;
     private static final int START_UNICAST_ADDRESS = 0x0001;
     private static final int END_UNICAST_ADDRESS = 0x7FFF;
-    private static final byte B1_VIRTUAL_ADDRESS = (byte) 0xBF;
+    private static final byte B1_VIRTUAL_ADDRESS = (byte) 0x80;
+    private static final int START_VIRTUAL_ADDRESS = 0x8000;
     private static final int END_VIRTUAL_ADDRESS = 0xBFFF;
 
     public static String formatAddress(final int address, final boolean add0x) {
@@ -100,7 +106,7 @@ public final class MeshAddress {
      * @param address Address in bytes
      * @return true if the address is a valid virtual address or false otherwise
      */
-    public boolean isValidVirtualAddress(@NonNull final byte[] address) {
+    public static boolean isValidVirtualAddress(@NonNull final byte[] address) {
         if (isAddressInRange(address)) {
             return false;
         }
@@ -113,13 +119,9 @@ public final class MeshAddress {
      * @param address 16-bit address
      * @return true if the address is a valid virtual address or false otherwise
      */
-    public boolean isValidVirtualAddress(final int address) {
+    public static boolean isValidVirtualAddress(final int address) {
         if (isAddressInRange(address)) {
-            final byte[] tempAddress = new byte[]{(byte) ((address >> 8) & 0xFF), (byte) (address & 0xFF)};
-            final int b1 = tempAddress[0];
-            if (b1 == B1_VIRTUAL_ADDRESS) {
-                return address <= END_VIRTUAL_ADDRESS;
-            }
+            return address >= START_VIRTUAL_ADDRESS && address <= END_VIRTUAL_ADDRESS;
         }
         return false;
     }
@@ -184,7 +186,47 @@ public final class MeshAddress {
     /**
      * Generates a random uuid
      */
-    public static UUID generateRandomLabelUUID(){
+    public static UUID generateRandomLabelUUID() {
         return UUID.randomUUID();
+    }
+
+
+    /**
+     * Returns the label UUID for a given virtual address
+     *
+     * @param address 16-bit virtual address
+     */
+    @Nullable
+    public static UUID getLabelUuid(@NonNull final List<UUID> uuids, final int address) {
+        if (MeshAddress.isValidVirtualAddress(address)) {
+            for (UUID uuid : uuids) {
+                final byte[] salt = SecureUtils.calculateSalt(VTAD);
+                //Encrypt the label uuid with the salt as the key
+                final byte[] encryptedUuid = SecureUtils.calculateCMAC(MeshParserUtils.uuidToBytes(uuid), salt);
+                ByteBuffer buffer = ByteBuffer.wrap(encryptedUuid);
+                buffer.position(12); //Move the position to 12
+                final int hash = buffer.getInt() & 0x3FFF;
+                if (hash == getHash(address)) {
+                    return uuid;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the value of the hash from a virtual address
+     * <p>
+     * The hash stored in a virtual address is derived from the label UUID.
+     * In a virtual address bits 13 to 0 are set to the value of a hash of the corresponding Label UUID.
+     * </p>
+     *
+     * @param address virtual address
+     */
+    public static int getHash(final int address) {
+        if (isValidVirtualAddress(address)) {
+            return address & 0x3FFF;
+        }
+        return 0;
     }
 }

@@ -38,12 +38,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class MeshModel implements Parcelable {
 
+    @Expose
+    protected int mModelId;
     @Expose
     final List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
     @Expose(serialize = false)
@@ -56,7 +59,7 @@ public abstract class MeshModel implements Parcelable {
     @Expose
     final List<Integer> subscriptionAddresses = new ArrayList<>();
     @Expose
-    protected int mModelId;
+    final List<UUID> labelUuids = new ArrayList<>();
     @Expose
     PublicationSettings mPublicationSettings;
 
@@ -81,6 +84,7 @@ public abstract class MeshModel implements Parcelable {
         sortAppKeys(in.readHashMap(ApplicationKey.class.getClassLoader()));
         mPublicationSettings = (PublicationSettings) in.readValue(PublicationSettings.class.getClassLoader());
         in.readList(subscriptionAddresses, Integer.class.getClassLoader());
+        in.readList(labelUuids, UUID.class.getClassLoader());
     }
 
     /**
@@ -97,6 +101,7 @@ public abstract class MeshModel implements Parcelable {
         dest.writeMap(mBoundApplicationKeys);
         dest.writeValue(mPublicationSettings);
         dest.writeList(subscriptionAddresses);
+        dest.writeList(labelUuids);
     }
 
     /**
@@ -196,6 +201,22 @@ public abstract class MeshModel implements Parcelable {
     }
 
     /**
+     * Returns the list of label UUIDs subscribed to this model
+     */
+    public List<UUID> getLabelUUID() {
+        return Collections.unmodifiableList(labelUuids);
+    }
+
+    /**
+     * Returns the label UUID for a given virtual address
+     *
+     * @param address 16-bit virtual address
+     */
+    public UUID getLabelUUID(final int address) {
+        return MeshAddress.getLabelUuid(labelUuids, address);
+    }
+
+    /**
      * Sets the data from the {@link ConfigModelPublicationStatus}
      *
      * @param status publication set status
@@ -235,11 +256,38 @@ public abstract class MeshModel implements Parcelable {
     }
 
     /**
+     * Sets the subscription address in a mesh model
+     *
+     * @param labelUuid           Label uuid of the the subscription address
+     * @param subscriptionAddress subscription address
+     */
+    protected void addSubscriptionAddress(@NonNull final UUID labelUuid, final int subscriptionAddress) {
+        if (!labelUuids.contains(labelUuid)) {
+            labelUuids.add(labelUuid);
+        }
+
+        if (!subscriptionAddresses.contains(subscriptionAddress)) {
+            subscriptionAddresses.add(subscriptionAddress);
+        }
+    }
+
+    /**
      * Removes the subscription address in a mesh model
      *
-     * @param subscriptionAddress subscription address
+     * @param subscriptionAddress Subscription address
      */
     protected void removeSubscriptionAddress(@NonNull final Integer subscriptionAddress) {
         subscriptionAddresses.remove(subscriptionAddress);
+    }
+
+    /**
+     * Removes the subscription address in a mesh model
+     *
+     * @param labelUuid           Label UUID
+     * @param subscriptionAddress Subscription address
+     */
+    protected void removeVirtualSubscriptionAddress(@NonNull final UUID labelUuid, @NonNull final Integer subscriptionAddress) {
+        labelUuids.remove(labelUuid);
+        removeSubscriptionAddress(subscriptionAddress);
     }
 }

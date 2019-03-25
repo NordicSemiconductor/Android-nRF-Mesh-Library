@@ -1034,7 +1034,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     if (model != null) {
                         final List<Integer> subscriptionAddresses = model.getSubscribedAddresses();
                         for (Integer address : subscriptionAddresses) {
-                            if (!mMeshNetwork.isGroupExist(address)) {
+                            if (MeshAddress.isValidGroupAddress(address) &&
+                                    !mMeshNetwork.isGroupExist(address)) {
                                 final Group group = new Group(address, uuid);
                                 mMeshNetwork.addGroup(group);
                             }

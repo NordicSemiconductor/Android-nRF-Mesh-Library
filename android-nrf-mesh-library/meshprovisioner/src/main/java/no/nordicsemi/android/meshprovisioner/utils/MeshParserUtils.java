@@ -31,10 +31,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Calendar;
 import java.util.Random;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "BooleanMethodIsAlwaysInverted"})
 public class MeshParserUtils {
 
     private static final String TAG = MeshParserUtils.class.getSimpleName();
@@ -761,6 +762,15 @@ public class MeshParserUtils {
         }
         Log.v(TAG, "Random OOB alpha numeric: " + new String(value));
         return value;
+    }
+
+    /**
+     * Returns UUID in bytes
+     *
+     * @param uuid UUID
+     */
+    public static byte[] uuidToBytes(@NonNull final UUID uuid) {
+        return toByteArray(uuid.toString().replace("-", ""));
     }
 
 }

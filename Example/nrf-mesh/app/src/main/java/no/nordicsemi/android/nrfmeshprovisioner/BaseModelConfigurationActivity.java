@@ -62,6 +62,8 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigModelPublicationVir
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionDelete;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionVirtualAddressAdd;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionVirtualAddressDelete;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
@@ -121,7 +123,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     TextView mSubscribeAddressView;
     @BindView(R.id.subscribe_hint)
     TextView mSubscribeHint;
-
     @BindView(R.id.configuration_progress_bar)
     ProgressBar mProgressbar;
 
@@ -277,7 +278,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void setGroupSubscription(@NonNull final String name, final int address) {
+    public void setSubscription(@NonNull final String name, final int address) {
         final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
         final Group group = new Group(address, network.getMeshUUID());
         group.setName(name);
@@ -286,25 +287,13 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public void setGroupSubscription(@NonNull final Group group) {
+    public void setSubscription(@NonNull final Group group) {
         subscribe(group.getGroupAddress());
     }
 
-    private void subscribe(final int address) {
-        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
-        if (meshNode != null) {
-            final Element element = mViewModel.getSelectedElement().getValue();
-            if (element != null) {
-                final int elementAddress = element.getElementAddress();
-                final MeshModel model = mViewModel.getSelectedModel().getValue();
-                if (model != null) {
-                    final int modelIdentifier = model.getModelId();
-                    final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, address, modelIdentifier);
-                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
-                    showProgressbar();
-                }
-            }
-        }
+    @Override
+    public void setSubscription(@NonNull final UUID uuid) {
+        subscribe(uuid);
     }
 
     @Override
@@ -442,6 +431,42 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
+    private void subscribe(final int address) {
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if (meshNode != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final int elementAddress = element.getElementAddress();
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    final int modelIdentifier = model.getModelId();
+                    final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, address, modelIdentifier);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
+                    showProgressbar();
+                }
+            }
+        }
+    }
+
+    private void subscribe(final UUID uuid) {
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if (meshNode != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final int elementAddress = element.getElementAddress();
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    final int modelIdentifier = model.getModelId();
+                    final ConfigModelSubscriptionVirtualAddressAdd configModelSubscriptionAdd = new ConfigModelSubscriptionVirtualAddressAdd(elementAddress,
+                            uuid,
+                            modelIdentifier);
+                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
+                    showProgressbar();
+                }
+            }
+        }
+    }
+
     private void deleteSubscription(final int position) {
         if (mSubscriptionAdapter.getItemCount() != 0) {
             final int address = mGroupAddress.get(position);
@@ -451,10 +476,19 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                 if (element != null) {
                     final MeshModel model = mViewModel.getSelectedModel().getValue();
                     if (model != null) {
-                        final ConfigModelSubscriptionDelete configModelAppUnbind = new ConfigModelSubscriptionDelete(element.getElementAddress(),
-                                address, model.getModelId());
-                        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
-                        showProgressbar();
+                        MeshMessage subscriptionDelete = null;
+                        if (MeshAddress.isValidGroupAddress(address)) {
+                            subscriptionDelete = new ConfigModelSubscriptionDelete(element.getElementAddress(), address, model.getModelId());
+                        } else {
+                            final UUID uuid = model.getLabelUUID(address);//MeshAddress.getLabelUuid(model.getLabelUUID(), address);
+                            if (uuid != null)
+                                subscriptionDelete = new ConfigModelSubscriptionVirtualAddressDelete(element.getElementAddress(), uuid, model.getModelId());
+                        }
+
+                        if (subscriptionDelete != null) {
+                            mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), subscriptionDelete);
+                            showProgressbar();
+                        }
                     }
                 }
             }
@@ -486,7 +520,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
         if (mActionRead != null && !mActionRead.isEnabled())
             mActionRead.setEnabled(true);
-
     }
 
     protected void disableClickableViews() {
@@ -497,8 +530,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
         if (mActionRead != null)
             mActionRead.setEnabled(false);
-
-
     }
 
     /**

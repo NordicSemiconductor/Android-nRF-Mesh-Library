@@ -240,7 +240,6 @@ public class SecureUtils {
         final int srcOffset = result.length - networkId.length;
 
         System.arraycopy(result, srcOffset, networkId, 0, networkId.length);
-        //bBuffer.
         return networkId;
     }
 

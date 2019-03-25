@@ -121,8 +121,8 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                             final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
                             if (model != null) {
                                 UUID labelUUID = null;
-                                if(mMeshMessage instanceof ConfigModelPublicationVirtualAddressSet) {
-                                    labelUUID = ((ConfigModelPublicationVirtualAddressSet)mMeshMessage).
+                                if (mMeshMessage instanceof ConfigModelPublicationVirtualAddressSet) {
+                                    labelUUID = ((ConfigModelPublicationVirtualAddressSet) mMeshMessage).
                                             getLabelUuid();
                                 }
                                 model.setPublicationStatus(status, labelUUID);
@@ -142,8 +142,14 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                             if (model != null) {
                                 if (mMeshMessage instanceof ConfigModelSubscriptionAdd) {
                                     model.addSubscriptionAddress(status.getSubscriptionAddress());
+                                } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressAdd) {
+                                    model.addSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressAdd) mMeshMessage).
+                                            getLabelUuid(), status.getSubscriptionAddress());
                                 } else if (mMeshMessage instanceof ConfigModelSubscriptionDelete) {
                                     model.removeSubscriptionAddress(status.getSubscriptionAddress());
+                                } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressDelete) {
+                                    model.removeVirtualSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressDelete) mMeshMessage).
+                                            getLabelUuid(), status.getSubscriptionAddress());
                                 }
                             }
                         }

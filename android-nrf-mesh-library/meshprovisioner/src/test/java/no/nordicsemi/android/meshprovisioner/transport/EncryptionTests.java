@@ -22,12 +22,17 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -158,5 +163,15 @@ public class EncryptionTests {
         final String networkIDText = MeshParserUtils.bytesToHex(SecureUtils.calculateK3(networkKey), false).toLowerCase();
         final String expectedNetworkId = "3ecaff672f673370";
         assertEquals(expectedNetworkId, networkIDText);
+    }
+
+    @Test
+    public void isLabelUuidCorrect(){
+        //Message #22
+        final UUID uuid = UUID.fromString("0073e7e4-d8b9-440f-af84-15df4c56c0e1");
+        final List<UUID> uuids = new ArrayList<>();
+        uuids.add(uuid);
+        final int address = 0xB529;
+        Assert.assertEquals(uuid, MeshAddress.getLabelUuid(uuids, address));
     }
 }
