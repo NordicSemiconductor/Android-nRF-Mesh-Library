@@ -133,6 +133,45 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
+    @Override
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+        super.updateMeshMessage(meshMessage);
+        if (meshMessage instanceof ConfigNetworkTransmitStatus) {
+            final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
+            final ProvisionedMeshNode meshNode = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(status.getSrc());
+            updateNetworkTransmitUi(meshNode);
+        } else if (meshMessage instanceof ConfigRelayStatus) {
+            final ConfigRelayStatus status = (ConfigRelayStatus) meshMessage;
+            final ProvisionedMeshNode meshNode = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(status.getSrc());
+            updateRelayUi(meshNode);
+        }
+    }
+
+    @Override
+    protected void enableClickableViews() {
+        super.enableClickableViews();
+        mReadNetworkTransmitStateButton.setEnabled(true);
+        mSetNetworkTransmitStateButton.setEnabled(true);
+    }
+
+    @Override
+    protected void disableClickableViews() {
+        super.disableClickableViews();
+        mReadNetworkTransmitStateButton.setEnabled(false);
+        mSetNetworkTransmitStateButton.setEnabled(false);
+    }
+
+    @Override
+    public void onNetworkTransmitSettingsEntered(int transmitCount, int transmitIntervalSteps) {
+        setNetworkTransmit(transmitCount, transmitIntervalSteps);
+    }
+
+    @Override
+    public void onRelayRetransmitSet(final int relay, final int retransmitCount, final int retransmitIntervalSteps) {
+        setRelayRetransmit(relay, retransmitCount, retransmitIntervalSteps);
+    }
+
     private void getNetworkTransmit() {
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         try {
@@ -172,21 +211,6 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Override
-    protected void updateMeshMessage(final MeshMessage meshMessage) {
-        super.updateMeshMessage(meshMessage);
-        if (meshMessage instanceof ConfigNetworkTransmitStatus) {
-            final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
-            final ProvisionedMeshNode meshNode = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(status.getSrc());
-            updateNetworkTransmitUi(meshNode);
-        } else if (meshMessage instanceof ConfigRelayStatus) {
-            final ConfigRelayStatus status = (ConfigRelayStatus) meshMessage;
-            final ProvisionedMeshNode meshNode = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(status.getSrc());
-            updateRelayUi(meshNode);
-        }
-    }
-
     private void updateNetworkTransmitUi(@NonNull final ProvisionedMeshNode meshNode) {
         final NetworkTransmitSettings networkTransmitSettings = meshNode.getNetworkTransmitSettings();
         if (networkTransmitSettings != null) {
@@ -218,29 +242,5 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mRelayRetransmitCountText.setText(getResources().getString(R.string.unknown));
             mRelayRetransmitIntervalStepsText.setText(getResources().getString(R.string.unknown));
         }
-    }
-
-    @Override
-    protected void enableClickableViews() {
-        super.enableClickableViews();
-        mReadNetworkTransmitStateButton.setEnabled(true);
-        mSetNetworkTransmitStateButton.setEnabled(true);
-    }
-
-    @Override
-    protected void disableClickableViews() {
-        super.disableClickableViews();
-        mReadNetworkTransmitStateButton.setEnabled(false);
-        mSetNetworkTransmitStateButton.setEnabled(false);
-    }
-
-    @Override
-    public void onNetworkTransmitSettingsEntered(int transmitCount, int transmitIntervalSteps) {
-        setNetworkTransmit(transmitCount, transmitIntervalSteps);
-    }
-
-    @Override
-    public void onRelayRetransmitSet(final int relay, final int retransmitCount, final int retransmitIntervalSteps) {
-        setRelayRetransmit(relay, retransmitCount, retransmitIntervalSteps);
     }
 }
