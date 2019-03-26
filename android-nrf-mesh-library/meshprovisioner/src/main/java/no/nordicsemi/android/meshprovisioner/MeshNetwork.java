@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
@@ -132,12 +133,12 @@ public final class MeshNetwork extends BaseMeshNetwork {
      * Adds a group to the existing group list within the network
      *
      * @param address Address of the group
-     * @param name Friendly name of the group
+     * @param name    Friendly name of the group
      * @return true if the group was successfully added and false otherwise since a group may already exist with the same group address
      */
     public boolean addGroup(final int address, @NonNull final String name) {
         final Group group = new Group(address, meshUUID);
-        if(!TextUtils.isEmpty(name))
+        if (!TextUtils.isEmpty(name))
             group.setName(name);
 
         if (!isGroupExist(group)) {
@@ -161,9 +162,10 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     /**
      * Updates a group in the mesh network
+     *
      * @param group group to be updated
      */
-    public boolean updateGroup(@NonNull final Group group){
+    public boolean updateGroup(@NonNull final Group group) {
         if (isGroupExist(group)) {
             if (mCallbacks != null) {
                 mCallbacks.onGroupUpdated(group);
@@ -175,11 +177,12 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     /**
      * Removes a group from the mesh network
+     *
      * @param group group to be removed
      */
-    public boolean removeGroup(@NonNull final Group group){
-        if(groups.remove(group)){
-            if(mCallbacks != null) {
+    public boolean removeGroup(@NonNull final Group group) {
+        if (groups.remove(group)) {
+            if (mCallbacks != null) {
                 mCallbacks.onGroupDeleted(group);
             }
             return true;
@@ -258,7 +261,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
                         final List<Integer> subscriptionAddresses = model.getSubscribedAddresses();
                         for (Integer subscriptionAddress : subscriptionAddresses) {
                             if (group.getGroupAddress() == subscriptionAddress) {
-                                if(!models.contains(model))
+                                if (!models.contains(model))
                                     models.add(model);
                             }
                         }
