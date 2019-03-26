@@ -22,25 +22,23 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
-import androidx.lifecycle.LiveData;
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.nrfmeshprovisioner.BaseModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
@@ -48,25 +46,18 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
 
     private final ArrayList<ApplicationKey> mAppKeys = new ArrayList<>();
     private final Context mContext;
-    private Map<Integer, ApplicationKey> mBoundAppKeys = new LinkedHashMap<>();
-    private OnItemClickListener mOnItemClickListener;
 
-    public BoundAppKeysAdapter(final BaseModelConfigurationActivity activity, final LiveData<MeshModel> meshModelLiveData) {
-        this.mContext = activity;
-        meshModelLiveData.observe(activity, meshModel -> {
+    public BoundAppKeysAdapter(@NonNull final Context context, @NonNull final LiveData<MeshModel> meshModelLiveData) {
+        this.mContext = context;
+        meshModelLiveData.observe((LifecycleOwner) context, meshModel -> {
             if(meshModel != null) {
                 if (meshModel.getBoundApplicationKeys() != null) {
-                    mBoundAppKeys.putAll(meshModel.getBoundApplicationKeys());
                     mAppKeys.clear();
                     mAppKeys.addAll(meshModel.getBoundApplicationKeys().values());
                     notifyDataSetChanged();
                 }
             }
         });
-    }
-
-    public void setOnItemClickListener(final BoundAppKeysAdapter.OnItemClickListener listener) {
-        mOnItemClickListener = listener;
     }
 
     @NonNull
