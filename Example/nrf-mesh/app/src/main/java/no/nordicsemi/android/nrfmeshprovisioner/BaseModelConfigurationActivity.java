@@ -43,6 +43,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -583,7 +584,12 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         if (publicationSettings != null) {
             final int publishAddress = publicationSettings.getPublishAddress();
             if (publishAddress != MeshParserUtils.DISABLED_PUBLICATION_ADDRESS) {
-                mPublishAddressView.setText(MeshAddress.formatAddress(publishAddress, true));
+                if(MeshAddress.isValidVirtualAddress(publishAddress)) {
+                    //noinspection ConstantConditions
+                    mPublishAddressView.setText(publicationSettings.getLabelUUID().toString().toUpperCase(Locale.US));
+                } else {
+                    mPublishAddressView.setText(MeshAddress.formatAddress(publishAddress, true));
+                }
                 mActionClearPublication.setVisibility(View.VISIBLE);
             } else {
                 mPublishAddressView.setText(R.string.none);

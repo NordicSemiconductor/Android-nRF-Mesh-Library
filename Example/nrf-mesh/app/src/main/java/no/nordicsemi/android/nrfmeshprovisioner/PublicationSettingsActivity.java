@@ -259,6 +259,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     @Override
     public void setPublishAddress(@NonNull final AddressType addressType, final int address) {
+        mLabelUUID = null;
         mAddressType = addressType;
         mPublishAddress = address;
         mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
@@ -267,6 +268,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @SuppressWarnings("ConstantConditions")
     @Override
     public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final String name, final int address) {
+        mLabelUUID = null;
         mAddressType = addressType;
         mPublishAddress = address;
         mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
@@ -278,6 +280,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     @Override
     public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final Group group) {
+        mLabelUUID = null;
         mAddressType = addressType;
         mPublishAddress = group.getGroupAddress();
         mPublishAddressView.setText(MeshAddress.formatAddress(group.getGroupAddress(), true));
@@ -333,7 +336,13 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
         if (publicationSettings != null) {
             mPublishAddress = publicationSettings.getPublishAddress();
-            mPublishAddressView.setText(MeshAddress.formatAddress(mPublishAddress, true));
+            mLabelUUID = publicationSettings.getLabelUUID();
+            if(MeshAddress.isValidVirtualAddress(mPublishAddress)){
+                //noinspection ConstantConditions
+                mPublishAddressView.setText(publicationSettings.getLabelUUID().toString().toUpperCase(Locale.US));
+            } else {
+                mPublishAddressView.setText(MeshAddress.formatAddress(mPublishAddress, true));
+            }
 
             mActionFriendshipCredentialSwitch.setChecked(publicationSettings.getCredentialFlag());
             mPublishTtl = publicationSettings.getPublishTtl();
@@ -403,9 +412,20 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void setReturnIntent() {
         Intent returnIntent = new Intent();
-        returnIntent.putExtra(RESULT_ADDRESS_TYPE, mAddressType.ordinal());
+        int type = -1;
+        if (mLabelUUID != null) {
+            type = AddressType.VIRTUAL_ADDRESS.ordinal();
+        } else {
+            mAddressType = MeshAddress.getAddressType(mPublishAddress);
+            if(mAddressType != null) {
+                type = mAddressType.ordinal();
+            }
+        }
+
+        returnIntent.putExtra(RESULT_ADDRESS_TYPE, type);
         returnIntent.putExtra(RESULT_LABEL_UUID, mLabelUUID);
         returnIntent.putExtra(RESULT_PUBLISH_ADDRESS, mPublishAddress);
         returnIntent.putExtra(RESULT_APP_KEY_INDEX, mAppKeyIndex);

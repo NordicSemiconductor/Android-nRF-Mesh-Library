@@ -198,6 +198,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
 
                 if (jsonPublicationSettings.has("publishAddress")) {
                     final int publishAddress;
+                    UUID labelUUID = null;
                     final JsonElement jsonElement = jsonPublicationSettings.get("publishAddress");
                     //We check if publish address is a byte[] or not inorder to migrate avoiding data loss
                     if (jsonElement.isJsonArray()) {
@@ -213,7 +214,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
 
                     if(jsonPublicationSettings.has("labelUUID")){
                         final String uuid = jsonPublicationSettings.get("labelUUID").getAsString();
-                        meshModel.labelUuids.add(UUID.fromString(uuid));
+                        labelUUID = UUID.fromString(uuid);
                     }
 
                     final int publishRetransmitCount = jsonPublicationSettings.get("publishRetransmitCount").getAsInt();
@@ -222,6 +223,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                     meshModel.mPublicationSettings = new PublicationSettings(publishAddress,
                             appKeyIndex, credentialFlag, publishTtl, publicationSteps,
                             publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
+                    meshModel.mPublicationSettings.setLabelUUID(labelUUID);
                 }
             }
         }
