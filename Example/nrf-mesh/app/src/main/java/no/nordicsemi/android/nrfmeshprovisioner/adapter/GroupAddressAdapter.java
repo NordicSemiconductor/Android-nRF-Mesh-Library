@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -35,6 +36,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,7 +44,6 @@ import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.nrfmeshprovisioner.BaseModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
@@ -51,13 +52,14 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
     private final Context mContext;
     private final MeshNetwork network;
     private final ArrayList<Integer> mAddresses = new ArrayList<>();
-    private OnItemClickListener mOnItemClickListener;
+    private MeshModel model;
 
-    public GroupAddressAdapter(final BaseModelConfigurationActivity context, final MeshNetwork network, final LiveData<MeshModel> meshModelLiveData) {
+    public GroupAddressAdapter(@NonNull final Context context, @NonNull final MeshNetwork network, @NonNull final LiveData<MeshModel> meshModelLiveData) {
         this.mContext = context;
         this.network = network;
-        meshModelLiveData.observe(context, meshModel -> {
+        meshModelLiveData.observe((LifecycleOwner) context, meshModel -> {
             if(meshModel != null) {
+                model = meshModel;
                 final List<Integer> tempAddresses = meshModel.getSubscribedAddresses();
                 if (tempAddresses != null) {
                     mAddresses.clear();
@@ -66,10 +68,6 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
                 }
             }
         });
-    }
-
-    public void setOnItemClickListener(final GroupAddressAdapter.OnItemClickListener listener) {
-        mOnItemClickListener = listener;
     }
 
     @NonNull
@@ -89,7 +87,11 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
                 holder.name.setText(group.getName());
                 holder.address.setText(MeshAddress.formatAddress(address, true));
             } else {
-                holder.address.setText(MeshAddress.formatAddress(address, true));
+                if(MeshAddress.isValidVirtualAddress(address)) {
+                    holder.icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_label_outline_black_alpha_24dp));
+                    holder.name.setText(R.string.label_uuid);
+                    holder.address.setText(model.getLabelUUID(address).toString().toUpperCase(Locale.US));
+                }
             }
         }
     }
@@ -108,11 +110,6 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
         return getItemCount() == 0;
     }
 
-    @FunctionalInterface
-    public interface OnItemClickListener {
-        void onItemClick(final int position, final int address);
-    }
-
     public final class ViewHolder extends RemovableViewHolder {
 
         @BindView(R.id.icon)
@@ -125,11 +122,6 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            view.findViewById(R.id.removable).setOnClickListener(v -> {
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), mAddresses.get(getAdapterPosition()));
-                }
-            });
         }
     }
 }

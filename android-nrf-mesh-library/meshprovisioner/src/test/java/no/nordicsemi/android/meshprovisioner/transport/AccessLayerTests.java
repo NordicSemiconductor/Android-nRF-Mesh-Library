@@ -30,6 +30,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.util.Locale;
+
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 import static org.junit.Assert.assertEquals;
@@ -86,7 +88,7 @@ public class AccessLayerTests {
     public void create_custom_access_message_isCorrect() {
         //Message 21
 
-        final String expectedAccessMessage = "d50a0048656c6c6f".toUpperCase();
+        final String expectedAccessMessage = "d50a0048656c6c6f".toUpperCase(Locale.US);
 
         final int opCode = 0x15;
         final int companyIdentifier = 0x000A;
@@ -108,7 +110,7 @@ public class AccessLayerTests {
     @Test
     public void create_custom_access_message_isCorrect1() {
         //Message 16
-        final String expectedAccessMessage = "d50a0048656c6c6f".toUpperCase();
+        final String expectedAccessMessage = "d50a0048656c6c6f".toUpperCase(Locale.US);
 
         final int opCode = 0x15;
         final int companyIdentifier = 0x000A;

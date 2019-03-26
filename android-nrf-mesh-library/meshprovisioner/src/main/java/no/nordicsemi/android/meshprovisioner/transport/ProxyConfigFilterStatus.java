@@ -12,7 +12,7 @@ import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
  */
 @SuppressWarnings("WeakerAccess")
 public class ProxyConfigFilterStatus extends ProxyConfigStatusMessage {
-    private static final String TAG = SceneRegisterStatus.class.getSimpleName();
+    private static final String TAG = ProxyConfigFilterStatus.class.getSimpleName();
 
 
     private ProxyFilterType mFilterType;

@@ -30,15 +30,18 @@ import android.util.SparseArray;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Random;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.R;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "BooleanMethodIsAlwaysInverted"})
 public class MeshParserUtils {
 
     private static final String TAG = MeshParserUtils.class.getSimpleName();
-    private static final String PATTERN_NETWORK_KEY = "[0-9a-fA-F]{32}";
+    private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
+    private static final String PATTERN_UUID = "[0-9a-fA-F]{32}";
     private static final int TAI_YEAR = 2000;
     private static final int TAI_MONTH = 1;
     private static final int TAI_DATE = 1;
@@ -258,7 +261,7 @@ public class MeshParserUtils {
 
         if (TextUtils.isEmpty(input)) {
             throw new IllegalArgumentException(context.getString(R.string.error_empty_network_key));
-        } else if (!input.matches(PATTERN_NETWORK_KEY)) {
+        } else if (!input.matches(PATTERN_KEY)) {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_network_key));
         }
 
@@ -383,7 +386,7 @@ public class MeshParserUtils {
 
         if (TextUtils.isEmpty(input)) {
             throw new IllegalArgumentException(context.getString(R.string.error_empty_app_key));
-        } else if (!input.matches(PATTERN_NETWORK_KEY)) {
+        } else if (!input.matches(PATTERN_KEY)) {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_app_key));
         }
 
@@ -761,6 +764,56 @@ public class MeshParserUtils {
         }
         Log.v(TAG, "Random OOB alpha numeric: " + new String(value));
         return value;
+    }
+
+    /**
+     * Returns UUID as a hex
+     *
+     * @param uuid UUID
+     */
+    public static String uuidToHex(@NonNull final UUID uuid) {
+        return uuid.toString().replace("-", "").toUpperCase(Locale.US);
+    }
+
+    /**
+     * Returns UUID in bytes
+     *
+     * @param uuid UUID
+     */
+    public static byte[] uuidToBytes(@NonNull final UUID uuid) {
+        return toByteArray(uuid.toString().replace("-", ""));
+    }
+
+    /**
+     * Formats a hex string without dashes to a uuid string
+     *
+     * @param uuidHex Hex string
+     */
+    public static String formatUuid(@NonNull final String uuidHex) {
+        if (uuidHex.matches(PATTERN_UUID)) {
+            return new StringBuffer(uuidHex).
+                    insert(8, "-").
+                    insert(13, "-").
+                    insert(18, "-").
+                    insert(23, "-").toString();
+        }
+        return null;
+    }
+
+    /**
+     * Returns a type4 UUID from a uuid string without dashes
+     *
+     * @param uuidHex Hex string
+     */
+    public static UUID getUuid(@NonNull final String uuidHex) {
+        if (uuidHex.matches(PATTERN_UUID)) {
+            return UUID.fromString(new StringBuffer(uuidHex).
+                    insert(8, "-").
+                    insert(4, "-").
+                    insert(4, "-").
+                    insert(4, "-").toString());
+        }
+        return null;
     }
 
 }

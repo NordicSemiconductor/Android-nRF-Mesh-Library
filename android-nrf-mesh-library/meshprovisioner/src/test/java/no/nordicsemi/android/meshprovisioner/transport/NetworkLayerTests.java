@@ -35,6 +35,7 @@ import org.mockito.junit.MockitoRule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
@@ -62,7 +63,7 @@ public class NetworkLayerTests {
         //Message #16
 
         final Map<Integer, String> expectedNetworkPdu = new HashMap<>();
-        expectedNetworkPdu.put(0, "0068e80e5da5af0e6b9be7f5a642f2f98680e61c3a8b47f228".toUpperCase());
+        expectedNetworkPdu.put(0, "0068e80e5da5af0e6b9be7f5a642f2f98680e61c3a8b47f228".toUpperCase(Locale.US));
 
         final byte[] netkey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6");
 
@@ -72,7 +73,7 @@ public class NetworkLayerTests {
         final int src = 0x1201;
         final int dst = 0x0003;
 
-        final byte[] lowerTransportPdu = MeshParserUtils.toByteArray("0089511bf1d1a81c11dcef".toUpperCase());
+        final byte[] lowerTransportPdu = MeshParserUtils.toByteArray("0089511bf1d1a81c11dcef".toUpperCase(Locale.US));
         final byte[] ivIndex = MeshParserUtils.toByteArray("12345678");
 
         final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(netkey, SecureUtils.K2_MASTER_INPUT);
@@ -111,8 +112,8 @@ public class NetworkLayerTests {
         //Message #6
 
         final Map<Integer, String> expectedNetworkPdu = new HashMap<>();
-        expectedNetworkPdu.put(0, "0068cab5c5348a230afba8c63d4e686364979deaf4fd40961145939cda0e".toUpperCase());
-        expectedNetworkPdu.put(1, "00681615b5dd4a846cae0c032bf0746f44f1b8cc8ce5edc57e55beed49c0".toUpperCase());
+        expectedNetworkPdu.put(0, "0068cab5c5348a230afba8c63d4e686364979deaf4fd40961145939cda0e".toUpperCase(Locale.US));
+        expectedNetworkPdu.put(1, "00681615b5dd4a846cae0c032bf0746f44f1b8cc8ce5edc57e55beed49c0".toUpperCase(Locale.US));
 
         final byte[] netkey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6");
 
@@ -122,8 +123,8 @@ public class NetworkLayerTests {
         final int src = 0x0003;
         final int dst = 0x1201;
 
-        final byte[] lowerTransportPdu0 = MeshParserUtils.toByteArray("8026ac01ee9dddfd2169326d23f3afdf".toUpperCase());
-        final byte[] lowerTransportPdu1 = MeshParserUtils.toByteArray("8026ac21cfdc18c52fdef772e0e17308".toUpperCase());
+        final byte[] lowerTransportPdu0 = MeshParserUtils.toByteArray("8026ac01ee9dddfd2169326d23f3afdf".toUpperCase(Locale.US));
+        final byte[] lowerTransportPdu1 = MeshParserUtils.toByteArray("8026ac21cfdc18c52fdef772e0e17308".toUpperCase(Locale.US));
         final byte[] ivIndex = MeshParserUtils.toByteArray("12345678");
 
         final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(netkey, SecureUtils.K2_MASTER_INPUT);
@@ -178,14 +179,12 @@ public class NetworkLayerTests {
         } catch (ExtendedInvalidCipherTextException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @Test
     public void parseSegmentedAccessMessage() {
         //Message #16
-        final String expectedAccessPayload = "0056341263964771734fbd76e3b40519d1d94a48".toUpperCase();
+        final String expectedAccessPayload = "0056341263964771734fbd76e3b40519d1d94a48".toUpperCase(Locale.US);
         final byte[] netkey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6");
 
         final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(netkey, SecureUtils.K2_MASTER_INPUT);
@@ -219,7 +218,7 @@ public class NetworkLayerTests {
         //Message #6
 
         final Map<Integer, String> expectedProxyConfigurationPdu = new HashMap<>();
-        expectedProxyConfigurationPdu.put(0, "0210386bd60efbbb8b8c28512e792d3711f4b526".toUpperCase());
+        expectedProxyConfigurationPdu.put(0, "0210386bd60efbbb8b8c28512e792d3711f4b526".toUpperCase(Locale.US));
 
         final byte[] netkey = MeshParserUtils.toByteArray("d1aafb2a1a3c281cbdb0e960edfad852");
 
@@ -229,7 +228,7 @@ public class NetworkLayerTests {
         final int src = 0x0001;
         final int dst = 0x0000;
 
-        final byte[] lowerTransportPdu0 = MeshParserUtils.toByteArray("0000".toUpperCase());
+        final byte[] lowerTransportPdu0 = MeshParserUtils.toByteArray("0000".toUpperCase(Locale.US));
         final byte[] ivIndex = MeshParserUtils.toByteArray("12345678");
 
         final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(netkey, SecureUtils.K2_MASTER_INPUT);

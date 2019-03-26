@@ -49,12 +49,11 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     private OnItemClickListener mOnItemClickListener;
     private MeshNetwork mNetwork;
 
-    public GroupAdapter(final Context context/*, final MeshNetwork meshNetwork, final List<Group> groupLiveData*/) {
+    public GroupAdapter(final Context context) {
         this.mContext = context;
     }
 
-    public void updateAdapter(final MeshNetwork meshNetwork, final List<Group> groups){
-
+    public void updateAdapter(final MeshNetwork meshNetwork, final List<Group> groups) {
         mNetwork = meshNetwork;
         mGroups.clear();
         mGroups.addAll(groups);
@@ -79,10 +78,10 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             if (group != null) {
                 final List<MeshModel> models = mNetwork.getModels(group);
                 holder.groupName.setText(group.getName());
-                final String addressSummary = "Address: " + MeshAddress.formatAddress(group.getGroupAddress(), true);
-                holder.groupAddress.setText(addressSummary);
-                holder.groupDeviceCount.setText(mContext.getResources().getQuantityString(R.plurals.device_count,
-                        models.size(), models.size()));
+                holder.groupAddress.setText(mContext.
+                        getString(R.string.group_address_summary, MeshAddress.formatAddress(group.getGroupAddress(), true)));
+                holder.groupDeviceCount.setText(mContext.getResources().
+                        getQuantityString(R.plurals.device_count, models.size(), models.size()));
             }
         }
     }
@@ -103,10 +102,11 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     /**
      * Returns the number of models associated to the group in a particular position
+     *
      * @param position position
      */
-    public int getModelCount(final int position){
-        if(position >= 0 && !mGroups.isEmpty() && position < mGroups.size()) {
+    public int getModelCount(final int position) {
+        if (position >= 0 && !mGroups.isEmpty() && position < mGroups.size()) {
             final Group group = mGroups.get(position);
             return mNetwork.getModels(group).size();
         }

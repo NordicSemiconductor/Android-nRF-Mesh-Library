@@ -22,45 +22,51 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.support.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * To be used as a wrapper class to create a ConfigModelAppUnbind message.
+ * This class handles subscribing a model to subscription address.
  */
-@SuppressWarnings("unused")
-public final class ConfigModelAppUnbind extends ConfigMessage {
+@SuppressWarnings({"unused", "WeakerAccess"})
+public final class ConfigModelSubscriptionVirtualAddressDelete extends ConfigMessage {
 
-    private static final String TAG = ConfigModelAppUnbind.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_APP_UNBIND;
+    private static final String TAG = ConfigModelSubscriptionVirtualAddressDelete.class.getSimpleName();
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE;
 
-    private static final int SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 6;
-    private static final int VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 8;
+    //Length in bytes
+    private static final int CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE_LENGTH = 20;
+    private static final int VENDOR_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE_LENGTH = CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE_LENGTH + 2;
 
     private final int mElementAddress;
+    private final UUID labelUuid;
     private final int mModelIdentifier;
-    private final int mAppKeyIndex;
 
     /**
-     * Constructs ConfigModelAppUnbind message.
+     * Constructs ConfigModelSubscriptionDelete message.
      *
-     * @param elementAddress  Address of the element to which the model belongs to
-     * @param modelIdentifier Model from which the key must be unbound from
-     * @param appKeyIndex     Global app key index of the key to be unbound
+     * @param elementAddress  Address of the element to which the model belongs to.
+     * @param labelUuid       Value of the Label UUID.
+     * @param modelIdentifier Model identifier, 16-bit for Sig model and 32-bit model id for vendor models.
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigModelAppUnbind(final int elementAddress,
-                                final int modelIdentifier,
-                                final int appKeyIndex) throws IllegalArgumentException {
+    public ConfigModelSubscriptionVirtualAddressDelete(final int elementAddress,
+                                                       @NonNull final UUID labelUuid,
+                                                       final int modelIdentifier) throws IllegalArgumentException {
+
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
             throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.mElementAddress = elementAddress;
+        this.labelUuid = labelUuid;
         this.mModelIdentifier = modelIdentifier;
-        this.mAppKeyIndex = appKeyIndex;
         assembleMessageParameters();
     }
 
@@ -71,22 +77,25 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
 
     @Override
     void assembleMessageParameters() {
+
         final ByteBuffer paramsBuffer;
-        final byte[] applicationKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKeyIndex);
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
+        final byte[] elementAddress = AddressUtils.getUnicastAddressBytes(mElementAddress);
+        final byte[] subscriptionAddress = MeshParserUtils.uuidToBytes(labelUuid);
         if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
-            paramsBuffer = ByteBuffer.allocate(SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.putShort((short) mElementAddress);
-            paramsBuffer.put(applicationKeyIndex[1]);
-            paramsBuffer.put(applicationKeyIndex[0]);
+            paramsBuffer = ByteBuffer.allocate(CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer.put(elementAddress[1]);
+            paramsBuffer.put(elementAddress[0]);
+            paramsBuffer.put(subscriptionAddress);
             paramsBuffer.putShort((short) mModelIdentifier);
             mParameters = paramsBuffer.array();
         } else {
-            paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.putShort((short) mElementAddress);
-            paramsBuffer.put(applicationKeyIndex[1]);
-            paramsBuffer.put(applicationKeyIndex[0]);
-            final byte[] modelIdentifier = new byte[]{(byte) ((mModelIdentifier >> 24) & 0xFF), (byte) ((mModelIdentifier >> 16) & 0xFF), (byte) ((mModelIdentifier >> 8) & 0xFF), (byte) (mModelIdentifier & 0xFF)};
+            paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer.put(elementAddress[1]);
+            paramsBuffer.put(elementAddress[0]);
+            paramsBuffer.put(subscriptionAddress);
+            final byte[] modelIdentifier = new byte[]{(byte) ((mModelIdentifier >> 24) & 0xFF),
+                    (byte) ((mModelIdentifier >> 16) & 0xFF), (byte) ((mModelIdentifier >> 8) & 0xFF), (byte) (mModelIdentifier & 0xFF)};
             paramsBuffer.put(modelIdentifier[1]);
             paramsBuffer.put(modelIdentifier[0]);
             paramsBuffer.put(modelIdentifier[3]);
@@ -96,29 +105,9 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
     }
 
     /**
-     * Returns the element address to which the app key must be bound.
-     *
-     * @return element address
+     * Returns the value of the Label UUID of the subscription address
      */
-    public int getElementAddress() {
-        return mElementAddress;
-    }
-
-    /**
-     * Returns the model identifier to which the key is to be bound.
-     *
-     * @return 16-bit or 32-bit vendor model identifier
-     */
-    public int getModelIdentifier() {
-        return mModelIdentifier;
-    }
-
-    /**
-     * Returns the global index of the app key to be bound.
-     *
-     * @return app key index
-     */
-    public int getAppKeyIndex() {
-        return mAppKeyIndex;
+    public UUID getLabelUuid() {
+        return labelUuid;
     }
 }

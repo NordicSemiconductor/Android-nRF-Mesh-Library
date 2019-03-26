@@ -2,11 +2,13 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
 import com.google.gson.annotations.Expose;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.UUID;
 
 /**
  * Contains the publication settings of a mesh model
@@ -22,36 +24,33 @@ public class PublicationSettings implements Parcelable {
 
     @Expose
     private int publishAddress;
-
+    @Expose
+    private UUID labelUUID;
     @Expose
     private int appKeyIndex;
-
     @Expose
     private boolean credentialFlag;
-
     @Expose
     private int publishTtl = DEFAULT_PUBLISH_TTL;
-
     @Expose
     private int publicationSteps = DEFAULT_PUBLICATION_STEPS;
-
     @Expose
     private int publicationResolution = DEFAULT_PUBLICATION_RESOLUTION;
-
     @Expose
     private int publishRetransmitCount = DEFAULT_PUBLICATION_RETRANSMIT_COUNT;
-
     @Expose
     private int publishRetransmitIntervalSteps = DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS;
 
-    public PublicationSettings() {}
+    public PublicationSettings() {
+    }
 
     /**
-     * Constructs a ConfigModelPublicationSet message
+     * Constructs a PublicationSettings
      *
      * @param publishAddress                 Address to which the element must publish
      * @param appKeyIndex                    Index of the application key
-     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false for master credentials. Currently supports only master credentials
+     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use
+     *                                       friendship credentials and false for master credentials. Currently supports only master credentials
      * @param publishRetransmitCount         Number of publication retransmits
      * @param publishRetransmitIntervalSteps Publish retransmit interval steps
      */
@@ -69,11 +68,12 @@ public class PublicationSettings implements Parcelable {
     }
 
     /**
-     * Constructs a ConfigModelPublicationSet message
+     * Constructs a PublicationSettings
      *
      * @param publishAddress                 Address to which the element must publish
      * @param appKeyIndex                    Index of the application key
-     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false for master credentials. Currently supports only master credentials
+     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use
+     *                                       friendship credentials and false for master credentials. Currently supports only master credentials
      * @param publishTtl                     Publication ttl
      * @param publicationSteps               Publication steps for the publication period
      * @param publicationResolution          Publication resolution of the publication period
@@ -99,11 +99,12 @@ public class PublicationSettings implements Parcelable {
     }
 
     /**
-     * Constructs a ConfigModelPublicationSet message
+     * Constructs a PublicationSettings
      *
      * @param publishAddress                 Address to which the element must publish
      * @param appKeyIndex                    Index of the application key
-     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false for master credentials. Currently supports only master credentials
+     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use
+     *                                       friendship credentials and false for master credentials. Currently supports only master credentials
      * @param publishTtl                     Publication ttl
      * @param publicationSteps               Publication steps for the publication period
      * @param publicationResolution          Publication resolution of the publication period
@@ -167,6 +168,23 @@ public class PublicationSettings implements Parcelable {
      */
     public void setPublishAddress(final int publishAddress) {
         this.publishAddress = publishAddress;
+    }
+
+    /**
+     * Returns the label uuid for thi model
+     */
+    @Nullable
+    public UUID getLabelUUID() {
+        return labelUUID;
+    }
+
+    /**
+     * Sets the label uuid for the publication settings of the model
+     *
+     * @param labelUUID 16-byte label uuid
+     */
+    public void setLabelUUID(@Nullable final UUID labelUUID) {
+        this.labelUUID = labelUUID;
     }
 
     /**

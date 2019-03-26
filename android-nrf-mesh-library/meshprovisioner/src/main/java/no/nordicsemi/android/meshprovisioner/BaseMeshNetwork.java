@@ -15,9 +15,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
@@ -113,9 +111,6 @@ abstract class BaseMeshNetwork {
     @ColumnInfo(name = "last_selected")
     @Expose
     boolean lastSelected;
-
-    @Ignore
-    private Map<Integer, ProvisionedMeshNode> mProvisionedNodes = new LinkedHashMap<>();
 
     @Ignore
     protected MeshNetworkCallbacks mCallbacks;

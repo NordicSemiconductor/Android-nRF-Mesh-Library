@@ -1,14 +1,28 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * Abstract class for bluetooth mesh addresses
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public final class MeshAddress {
+
+    private static final byte[] VTAD = "vtad".getBytes(Charset.forName("US-ASCII"));
+
+    //Unassigned addresses
+    public static final int UNASSIGNED_ADDRESS = 0x0000;
+
+    //Unicast addresses
+    public static final int START_UNICAST_ADDRESS = 0x0001;
+    public static final int END_UNICAST_ADDRESS = 0x7FFF;
 
     //Group address start and end defines the address range that can be used to create groups
     public static final int START_GROUP_ADDRESS = 0xC000;
@@ -20,11 +34,17 @@ public final class MeshAddress {
     public static final int ALL_RELAYS_ADDRESS = 0xFFFE;
     public static final int ALL_NODES_ADDRESS = 0xFFFF;
 
-    public static final int UNASSIGNED_ADDRESS = 0x0000;
-    private static final int START_UNICAST_ADDRESS = 0x0001;
-    private static final int END_UNICAST_ADDRESS = 0x7FFF;
-    private static final byte B1_VIRTUAL_ADDRESS = (byte) 0xBF;
-    private static final int END_VIRTUAL_ADDRESS = 0xBFFF;
+    //Virtual addresses
+    private static final byte B1_VIRTUAL_ADDRESS = (byte) 0x80;
+    public static final int START_VIRTUAL_ADDRESS = 0x8000;
+    public static final int END_VIRTUAL_ADDRESS = 0xBFFF;
+    public static final int UUID_HASH_BIT_MASK = 0x3FFF;
+
+    public static String formatAddress(final int address, final boolean add0x) {
+        return add0x ?
+                "0x" + String.format(Locale.US, "%04X", address) :
+                String.format(Locale.US, "%04X", address);
+    }
 
     public static boolean isAddressInRange(@NonNull final byte[] address) {
         return address.length != 2;
@@ -46,7 +66,7 @@ public final class MeshAddress {
      * @param address 16-bit address
      * @return true if the address is a valid unassigned address or false otherwise
      */
-    public boolean isUnassignedAddress(@NonNull final byte[] address) {
+    public static boolean isUnassignedAddress(@NonNull final byte[] address) {
         if (isAddressInRange(address)) {
             return false;
         }
@@ -60,7 +80,7 @@ public final class MeshAddress {
      * @param address 16-bit address
      * @return true if the address is a valid unassigned address or false otherwise
      */
-    public boolean isValidUnassignedAddress(final int address) {
+    public static boolean isValidUnassignedAddress(final int address) {
         return isAddressInRange(address) && (address == UNASSIGNED_ADDRESS);
     }
 
@@ -94,7 +114,7 @@ public final class MeshAddress {
      * @param address Address in bytes
      * @return true if the address is a valid virtual address or false otherwise
      */
-    public boolean isValidVirtualAddress(@NonNull final byte[] address) {
+    public static boolean isValidVirtualAddress(@NonNull final byte[] address) {
         if (isAddressInRange(address)) {
             return false;
         }
@@ -107,20 +127,16 @@ public final class MeshAddress {
      * @param address 16-bit address
      * @return true if the address is a valid virtual address or false otherwise
      */
-    public boolean isValidVirtualAddress(final int address) {
-        if(isAddressInRange(address)) {
-            final byte [] tempAddress = new byte[]{(byte) ((address >> 8) & 0xFF), (byte) (address & 0xFF)};
-            final int b1 = tempAddress[0];
-            if(b1 == B1_VIRTUAL_ADDRESS) {
-                return address <= END_VIRTUAL_ADDRESS;
-            }
+    public static boolean isValidVirtualAddress(final int address) {
+        if (isAddressInRange(address)) {
+            return address >= START_VIRTUAL_ADDRESS && address <= END_VIRTUAL_ADDRESS;
         }
         return false;
     }
 
 
-    private static boolean isValidGroupAddress(final byte[] address){
-        if(!isAddressInRange(address))
+    private static boolean isValidGroupAddress(final byte[] address) {
+        if (!isAddressInRange(address))
             return false;
 
         final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
@@ -139,9 +155,9 @@ public final class MeshAddress {
      * @param address 16-bit address
      * @return true if the address is valid and false otherwise
      */
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings({"ConstantConditions", "BooleanMethodIsAlwaysInverted"})
     public static boolean isValidGroupAddress(final int address) {
-        if(!isAddressInRange(address))
+        if (!isAddressInRange(address))
             return false;
 
         final int b0 = address >> 8 & 0xFF;
@@ -154,7 +170,84 @@ public final class MeshAddress {
         return groupRange && !rfu && !allNodes;
     }
 
-    public static String formatAddress(final int address, final boolean add0x) {
-        return add0x ? "0x" + String.format(Locale.US, "%04X", address) : String.format(Locale.US, "%04X", address);
+    /**
+     * Returns the {@link AddressType}
+     *
+     * @param address 16-bit mesh address
+     */
+    @Nullable
+    public static AddressType getAddressType(final int address) {
+        if (isAddressInRange(address)) {
+            if (isValidUnassignedAddress(address)) {
+                return AddressType.UNASSIGNED_ADDRESS;
+            } else if (isValidUnicastAddress(address)) {
+                return AddressType.UNICAST_ADDRESS;
+            } else if (isValidGroupAddress(address)) {
+                return AddressType.GROUP_ADDRESS;
+            } else {
+                return AddressType.VIRTUAL_ADDRESS;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Generates a random uuid
+     */
+    public static UUID generateRandomLabelUUID() {
+        return UUID.randomUUID();
+    }
+
+    /**
+     * Generates a virtual address from a given Lable UUID
+     *
+     * @param uuid Type 4 UUID
+     */
+    public static Integer generateVirtualAddress(@NonNull final UUID uuid) {
+        final byte[] uuidBytes = MeshParserUtils.uuidToBytes(uuid);
+        final byte[] salt = SecureUtils.calculateSalt(VTAD);
+        final byte[] encryptedUuid = SecureUtils.calculateCMAC(MeshParserUtils.uuidToBytes(uuid), salt);
+        ByteBuffer buffer = ByteBuffer.wrap(encryptedUuid);
+        buffer.position(12); //Move the position to 12
+        return START_VIRTUAL_ADDRESS | (buffer.getInt() & UUID_HASH_BIT_MASK);
+    }
+
+    /**
+     * Returns the label UUID for a given virtual address
+     *
+     * @param address 16-bit virtual address
+     */
+    @Nullable
+    public static UUID getLabelUuid(@NonNull final List<UUID> uuids, final int address) {
+        if (MeshAddress.isValidVirtualAddress(address)) {
+            for (UUID uuid : uuids) {
+                final byte[] salt = SecureUtils.calculateSalt(VTAD);
+                //Encrypt the label uuid with the salt as the key
+                final byte[] encryptedUuid = SecureUtils.calculateCMAC(MeshParserUtils.uuidToBytes(uuid), salt);
+                ByteBuffer buffer = ByteBuffer.wrap(encryptedUuid);
+                buffer.position(12); //Move the position to 12
+                final int hash = buffer.getInt() & UUID_HASH_BIT_MASK;
+                if (hash == getHash(address)) {
+                    return uuid;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the value of the hash from a virtual address
+     * <p>
+     * The hash stored in a virtual address is derived from the label UUID.
+     * In a virtual address bits 13 to 0 are set to the value of a hash of the corresponding Label UUID.
+     * </p>
+     *
+     * @param address virtual address
+     */
+    public static int getHash(final int address) {
+        if (isValidVirtualAddress(address)) {
+            return address & 0x3FFF;
+        }
+        return 0;
     }
 }

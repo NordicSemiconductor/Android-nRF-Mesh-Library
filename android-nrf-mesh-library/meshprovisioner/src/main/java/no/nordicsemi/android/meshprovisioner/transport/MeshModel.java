@@ -25,6 +25,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.gson.annotations.Expose;
 
@@ -35,13 +36,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
-
+/**
+ * Base mesh model class
+ * <p>
+ * This class contains properties such as Model Identifier, bound keys, key indexes, subscription
+ * and publication settings belonging to a mesh model.
+ * </p>
+ */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class MeshModel implements Parcelable {
 
+    @Expose
+    protected int mModelId;
     @Expose
     final List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
     @Expose(serialize = false)
@@ -54,7 +65,7 @@ public abstract class MeshModel implements Parcelable {
     @Expose
     final List<Integer> subscriptionAddresses = new ArrayList<>();
     @Expose
-    protected int mModelId;
+    final List<UUID> labelUuids = new ArrayList<>();
     @Expose
     PublicationSettings mPublicationSettings;
 
@@ -79,6 +90,7 @@ public abstract class MeshModel implements Parcelable {
         sortAppKeys(in.readHashMap(ApplicationKey.class.getClassLoader()));
         mPublicationSettings = (PublicationSettings) in.readValue(PublicationSettings.class.getClassLoader());
         in.readList(subscriptionAddresses, Integer.class.getClassLoader());
+        in.readList(labelUuids, UUID.class.getClassLoader());
     }
 
     /**
@@ -95,6 +107,7 @@ public abstract class MeshModel implements Parcelable {
         dest.writeMap(mBoundApplicationKeys);
         dest.writeValue(mPublicationSettings);
         dest.writeList(subscriptionAddresses);
+        dest.writeList(labelUuids);
     }
 
     /**
@@ -177,7 +190,8 @@ public abstract class MeshModel implements Parcelable {
      * Returns the list of subscription addresses belonging to this model
      *
      * @return subscription addresses
-     * @deprecated in favor of {@link #getSubscribedAddresses()} since addresses have been migrated to 16-bit int instead of byte[]
+     * @deprecated in favor of {@link #getSubscribedAddresses()} since addresses
+     * have been migrated to 16-bit int instead of byte[]
      */
     @Deprecated
     public List<byte[]> getSubscriptionAddresses() {
@@ -194,13 +208,29 @@ public abstract class MeshModel implements Parcelable {
     }
 
     /**
+     * Returns the list of label UUIDs subscribed to this model
+     */
+    public List<UUID> getLabelUUID() {
+        return Collections.unmodifiableList(labelUuids);
+    }
+
+    /**
+     * Returns the label UUID for a given virtual address
+     *
+     * @param address 16-bit virtual address
+     */
+    public UUID getLabelUUID(final int address) {
+        return MeshAddress.getLabelUuid(labelUuids, address);
+    }
+
+    /**
      * Sets the data from the {@link ConfigModelPublicationStatus}
      *
      * @param status publication set status
      */
-    protected void setPublicationStatus(final ConfigModelPublicationStatus status) {
+    protected void setPublicationStatus(@NonNull final ConfigModelPublicationStatus status,
+                                        @Nullable final UUID labelUUID) {
         if (status.isSuccessful()) {
-            //mPublicationSettings = new PublicationSettings(publicationStatus);
             mPublicationSettings = new PublicationSettings(status.getPublishAddress(),
                     status.getAppKeyIndex(),
                     status.getCredentialFlag(),
@@ -209,6 +239,7 @@ public abstract class MeshModel implements Parcelable {
                     status.getPublicationResolution(),
                     status.getPublishRetransmitCount(),
                     status.getPublishRetransmitIntervalSteps());
+            mPublicationSettings.setLabelUUID(labelUUID);
         }
     }
 
@@ -224,7 +255,7 @@ public abstract class MeshModel implements Parcelable {
     /**
      * Sets the subscription address in a mesh model
      *
-     * @param subscriptionAddress subscription address
+     * @param subscriptionAddress Subscription address
      */
     protected void addSubscriptionAddress(final int subscriptionAddress) {
         if (!subscriptionAddresses.contains(subscriptionAddress)) {
@@ -233,11 +264,39 @@ public abstract class MeshModel implements Parcelable {
     }
 
     /**
+     * Sets the subscription address in a mesh model
+     *
+     * @param labelUuid           Label uuid of the the subscription address
+     * @param subscriptionAddress Subscription address
+     */
+    protected void addSubscriptionAddress(@NonNull final UUID labelUuid, final int subscriptionAddress) {
+        if (!labelUuids.contains(labelUuid)) {
+            labelUuids.add(labelUuid);
+        }
+
+        if (!subscriptionAddresses.contains(subscriptionAddress)) {
+            subscriptionAddresses.add(subscriptionAddress);
+        }
+    }
+
+    /**
      * Removes the subscription address in a mesh model
      *
-     * @param subscriptionAddress subscription address
+     * @param subscriptionAddress Subscription address
      */
     protected void removeSubscriptionAddress(@NonNull final Integer subscriptionAddress) {
         subscriptionAddresses.remove(subscriptionAddress);
+    }
+
+    /**
+     * Removes the subscription address in a mesh model
+     *
+     * @param labelUuid           Label UUID
+     * @param subscriptionAddress Subscription address
+     */
+    protected void removeVirtualSubscriptionAddress(@NonNull final UUID labelUuid,
+                                                    @NonNull final Integer subscriptionAddress) {
+        labelUuids.remove(labelUuid);
+        removeSubscriptionAddress(subscriptionAddress);
     }
 }

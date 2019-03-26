@@ -32,6 +32,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.util.Locale;
+
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 import static org.junit.Assert.assertEquals;
@@ -53,7 +55,7 @@ public class UpperTransportLayerTests {
     @Test
     public void create_upper_transport_pdu_access_message_isCorrect() {
         Mockito.mock(Log.class);
-        final String expectedTransportPdu = "89511bf1d1a81c11dcef".toUpperCase();
+        final String expectedTransportPdu = "89511bf1d1a81c11dcef".toUpperCase(Locale.US);
         final byte[] deviceKey = MeshParserUtils.toByteArray("9d6dd0e96eb25dc19a40ed9914f8f03f");
         final int src = 0x1201;
         final int dst = 0x0003;
