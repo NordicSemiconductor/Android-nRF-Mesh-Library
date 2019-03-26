@@ -70,7 +70,6 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     private static final String PUBLICATION_SETTINGS = "PUBLICATION_SETTINGS";
     private static final String GROUPS = "GROUPS";
     private static final String UUID_KEY = "UUID";
-    private int mPublishAddress = 0;
     private ArrayList<Group> mGroups = new ArrayList<>();
     private PublicationSettings mPublicationSettings;
     private static final AddressType[] addressTypes = {UNASSIGNED_ADDRESS, UNICAST_ADDRESS, GROUP_ADDRESS, VIRTUAL_ADDRESS};
@@ -133,7 +132,6 @@ public class DialogFragmentPublishAddress extends DialogFragment {
         if (getArguments() != null) {
             mPublicationSettings = getArguments().getParcelable(PUBLICATION_SETTINGS);
             mGroups = getArguments().getParcelableArrayList(GROUPS);
-            //mPublishAddress = getArguments().getInt(PUBLICATION_SETTINGS);
         }
     }
 
@@ -431,7 +429,6 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                     //do nothing since the library generates it
                     return true;
             }
-
         } catch (IllegalArgumentException ex) {
             unicastAddressInputLayout.setError(ex.getMessage());
             return false;
