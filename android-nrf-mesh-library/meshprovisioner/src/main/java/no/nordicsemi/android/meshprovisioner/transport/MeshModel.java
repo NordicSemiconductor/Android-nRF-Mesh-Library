@@ -267,36 +267,59 @@ public abstract class MeshModel implements Parcelable {
      * Sets the subscription address in a mesh model
      *
      * @param labelUuid           Label uuid of the the subscription address
-     * @param subscriptionAddress Subscription address
+     * @param address Subscription address
      */
-    protected void addSubscriptionAddress(@NonNull final UUID labelUuid, final int subscriptionAddress) {
+    protected void addSubscriptionAddress(@NonNull final UUID labelUuid, final int address) {
         if (!labelUuids.contains(labelUuid)) {
             labelUuids.add(labelUuid);
         }
 
-        if (!subscriptionAddresses.contains(subscriptionAddress)) {
-            subscriptionAddresses.add(subscriptionAddress);
+        if (!subscriptionAddresses.contains(address)) {
+            subscriptionAddresses.add(address);
         }
     }
 
     /**
      * Removes the subscription address in a mesh model
      *
-     * @param subscriptionAddress Subscription address
+     * @param address Subscription address
      */
-    protected void removeSubscriptionAddress(@NonNull final Integer subscriptionAddress) {
-        subscriptionAddresses.remove(subscriptionAddress);
+    protected void removeSubscriptionAddress(@NonNull final Integer address) {
+        subscriptionAddresses.remove(address);
     }
 
     /**
      * Removes the subscription address in a mesh model
      *
-     * @param labelUuid           Label UUID
+     * @param labelUuid Label UUID
+     * @param address   Subscription address
+     */
+    protected void removeSubscriptionAddress(@NonNull final UUID labelUuid,
+                                             @NonNull final Integer address) {
+        labelUuids.remove(labelUuid);
+        removeSubscriptionAddress(address);
+    }
+
+    /**
+     * Overwrites the subscription addresses in a mesh model by clearing the existing addresses and adding a new address
+     *
      * @param subscriptionAddress Subscription address
      */
-    protected void removeVirtualSubscriptionAddress(@NonNull final UUID labelUuid,
-                                                    @NonNull final Integer subscriptionAddress) {
-        labelUuids.remove(labelUuid);
-        removeSubscriptionAddress(subscriptionAddress);
+    protected void overwriteSubscriptionAddress(@NonNull final Integer subscriptionAddress) {
+        subscriptionAddresses.clear();
+        addSubscriptionAddress(subscriptionAddress);
+    }
+
+    /**
+     * Overwrites the subscription addresses in a mesh model by clearing the existing addresses and adding a new address
+     *
+     * @param labelUuid Label UUID
+     * @param address   Subscription address
+     */
+    protected void overwriteSubscriptionAddress(@NonNull final UUID labelUuid,
+                                                @NonNull final Integer address) {
+        labelUuids.clear();
+        addSubscriptionAddress(labelUuid, address);
+        overwriteSubscriptionAddress(address);
     }
 }
