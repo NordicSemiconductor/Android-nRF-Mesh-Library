@@ -102,6 +102,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
+    @BindView(R.id.app_key_card)
+    View mContainerAppKeyBinding;
     @BindView(R.id.action_bind_app_key)
     Button mActionBindAppKey;
     @BindView(R.id.bound_keys)
@@ -109,6 +111,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @BindView(R.id.unbind_hint)
     TextView mUnbindHint;
 
+    @BindView(R.id.publish_address_card)
+    View mContainerPublication;
     @BindView(R.id.action_set_publication)
     Button mActionSetPublication;
     @BindView(R.id.action_clear_publication_set)
