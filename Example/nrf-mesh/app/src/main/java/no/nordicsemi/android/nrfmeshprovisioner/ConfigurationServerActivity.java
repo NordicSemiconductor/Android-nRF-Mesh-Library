@@ -55,9 +55,9 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         super.onCreate(savedInstanceState);
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof ConfigurationServerModel) {
-            //Hide the app key binding view since the ConfigurationServerModel does not support app key binding
+            //Hide the app key binding, publication adn subscription views since the ConfigurationServerModel does not support app key binding
             mContainerAppKeyBinding.setVisibility(View.GONE);
-            //Hide the subscription view since the ConfigurationServerModel is not a subscribe model
+            mContainerPublication.setVisibility(View.GONE);
             mContainerSubscribe.setVisibility(View.GONE);
             final ConstraintLayout view = findViewById(R.id.node_controls_container);
             final View nodeControlsContainer = LayoutInflater.from(this)
