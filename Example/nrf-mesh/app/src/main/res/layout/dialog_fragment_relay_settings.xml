@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dialog_container_relay_state"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,9 +43,9 @@
             app:layout_constraintBottom_toBottomOf="@id/dialog_relay_state_title"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dialog_container_relay_retransmit_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -98,9 +98,9 @@
             app:layout_constraintStart_toEndOf="@id/dialog_image_relay_retransmit_count"
             app:layout_constraintTop_toBottomOf="@id/dialog_image_relay_retransmit_count" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dialog_container_relay_retransmit_interval_steps"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -165,6 +165,6 @@
             app:layout_constraintEnd_toEndOf="@id/dialog_relay_interval_steps"
             app:layout_constraintTop_toBottomOf="@id/steps_summary"/>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

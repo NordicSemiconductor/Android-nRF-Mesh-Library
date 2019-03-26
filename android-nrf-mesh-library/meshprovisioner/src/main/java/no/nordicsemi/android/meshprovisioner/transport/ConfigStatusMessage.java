@@ -1,6 +1,6 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import static no.nordicsemi.android.meshprovisioner.transport.ConfigStatusMessage.StatusCodeNames.fromStatusCode;
 

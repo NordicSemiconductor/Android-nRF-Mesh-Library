@@ -1,7 +1,7 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Abstract class containing mesh beacon information

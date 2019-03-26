@@ -1,6 +1,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.LiveData;
 
 /**
  * This class is used to observes the updates happening in the {@link NetworkInformation}

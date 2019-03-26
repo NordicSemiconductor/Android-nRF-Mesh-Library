@@ -1,7 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
-import android.arch.persistence.room.TypeConverter;
-import android.support.annotation.RestrictTo;
+import androidx.room.TypeConverter;
+import androidx.annotation.RestrictTo;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

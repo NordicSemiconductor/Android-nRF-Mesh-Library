@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.LiveData;
 
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
