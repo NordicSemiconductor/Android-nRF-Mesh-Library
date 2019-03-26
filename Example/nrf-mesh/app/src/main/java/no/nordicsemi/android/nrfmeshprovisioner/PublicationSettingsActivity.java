@@ -250,13 +250,6 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         updateUi(savedInstanceState.getBoolean(RESULT_CREDENTIAL_FLAG));
     }
 
-    public void setPublishAddress(final byte[] address) {
-        if (address != null) {
-            mPublishAddress = MeshParserUtils.unsignedBytesToInt(address[1], address[0]);
-            mPublishAddressView.setText(MeshParserUtils.bytesToHex(address, true));
-        }
-    }
-
     @Override
     public void setPublishAddress(@NonNull final AddressType addressType, final int address) {
         mLabelUUID = null;
