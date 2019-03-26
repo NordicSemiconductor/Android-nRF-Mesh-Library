@@ -239,7 +239,7 @@
     <string name="none">None</string>
     <string name="no_app_keys_bound">No app keys are bound to this model.</string>
     <string name="title_publish_address_configuration">Publish</string>
-    <string name="title_subscription_addresses_configuration">Subscribe</string>
+    <string name="title_subscription_addresses_configuration">Subscriptions</string>
     <string name="action_bind_app_key">Bind Key</string>
     <string name="action_unbind_app_key">Unbind Key</string>
     <string name="action_set_publish_address">Set Publication</string>
@@ -449,5 +449,6 @@
     <string name="generate_uuid">Generate Label UUID</string>
     <string name="publish_address_dialog_summary">Publish address of this model.</string>
     <string name="subscription_address_dialog_summary">Subscription address for this model.</string>
-    <string name="label_uuid">Label UUID:</string>
+    <string name="label_uuid_summary">Label UUID:</string>
+    <string name="label_uuid">Label UUID</string>
 </resources>

@@ -68,7 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:hint="Living Room"
-                android:inputType="text|textCapCharacters"
+                android:inputType="textCapWords"
                 android:maxLength="20"
                 android:singleLine="true"
                 android:textSize="16sp"
