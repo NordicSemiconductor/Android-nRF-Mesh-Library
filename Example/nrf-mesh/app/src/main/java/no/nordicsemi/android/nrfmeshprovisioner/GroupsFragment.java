@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -63,12 +64,9 @@ public class GroupsFragment extends Fragment implements Injectable,
         GroupAdapter.OnItemClickListener,
         DialogFragmentCreateGroup.DialogFragmentCreateGroupListener {
 
-    private static final String TAG = GroupsFragment.class.getSimpleName();
-
-    private SharedViewModel mViewModel;
-
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
+    private SharedViewModel mViewModel;
 
     @BindView(R.id.container)
     View container;
@@ -84,13 +82,13 @@ public class GroupsFragment extends Fragment implements Injectable,
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
+        @SuppressLint("InflateParams")
         final View rootView = inflater.inflate(R.layout.fragment_groups, null);
         ButterKnife.bind(this, rootView);
 
         mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
 
         final View noGroupsConfiguredView = rootView.findViewById(R.id.no_groups_configured);
-
         // Configure the recycler view
         final RecyclerView recyclerViewGroups = rootView.findViewById(R.id.recycler_view_groups);
         recyclerViewGroups.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -105,7 +103,7 @@ public class GroupsFragment extends Fragment implements Injectable,
 
         mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
-                if(meshNetworkLiveData.getMeshNetwork().getGroups().isEmpty()){
+                if (meshNetworkLiveData.getMeshNetwork().getGroups().isEmpty()) {
                     noGroupsConfiguredView.setVisibility(View.VISIBLE);
                 } else {
                     noGroupsConfiguredView.setVisibility(View.INVISIBLE);
@@ -171,7 +169,7 @@ public class GroupsFragment extends Fragment implements Injectable,
         final int position = viewHolder.getAdapterPosition();
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         final Group group = network.getGroups().get(position);
-        if(network.getModels(group).size() == 0) {
+        if (network.getModels(group).size() == 0) {
             network.removeGroup(group);
             final String message = getString(R.string.group_deleted, group.getName());
             displaySnackBar(message);
@@ -185,9 +183,9 @@ public class GroupsFragment extends Fragment implements Injectable,
     }
 
 
-    private void displaySnackBar(final String message){
+    private void displaySnackBar(final String message) {
         Snackbar.make(container, message, Snackbar.LENGTH_LONG)
-                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();
     }
 
