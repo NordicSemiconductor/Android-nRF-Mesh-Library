@@ -82,20 +82,9 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
             final ApplicationKey applicationKey = mAppKeys.get(position);
             final String appKey = MeshParserUtils.bytesToHex(applicationKey.getKey(), false);
             final Integer appKeyIndex = applicationKey.getKeyIndex();
-            if(appKeyIndex != null) {
-                holder.appKeyId.setText(mContext.getString(R.string.app_key_index_item, appKeyIndex));
-                holder.appKey.setText(appKey.toUpperCase());
-            }
+            holder.appKeyId.setText(mContext.getString(R.string.app_key_index_item, appKeyIndex));
+            holder.appKey.setText(appKey.toUpperCase());
         }
-    }
-
-    private Integer getAppKeyIndex(final String appKey){
-        for(Integer key : mBoundAppKeys.keySet()){
-            if(mBoundAppKeys.get(key).equals(appKey)){
-                return key;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -134,11 +123,6 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            view.findViewById(R.id.removable).setOnClickListener(v -> {
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), mAppKeys.get(getAdapterPosition()));
-                }
-            });
         }
     }
 }

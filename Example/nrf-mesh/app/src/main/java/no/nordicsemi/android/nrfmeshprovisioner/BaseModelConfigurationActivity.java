@@ -89,15 +89,11 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public abstract class BaseModelConfigurationActivity extends AppCompatActivity implements Injectable,
         DialogFragmentGroupSubscription.DialogFragmentSubscriptionAddressListener,
-        BoundAppKeysAdapter.OnItemClickListener,
         ItemTouchHelperAdapter,
         DialogFragmentDisconnected.DialogFragmentDisconnectedListener {
 
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
-
-    @Inject
-    DispatchingAndroidInjector<Fragment> mDispatchingAndroidInjector;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -177,7 +173,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         itemTouchHelperKeys.attachToRecyclerView(recyclerViewBoundKeys);
         mBoundAppKeyAdapter = new BoundAppKeysAdapter(this, mViewModel.getSelectedModel());
         recyclerViewBoundKeys.setAdapter(mBoundAppKeyAdapter);
-        mBoundAppKeyAdapter.setOnItemClickListener(this);
 
         mActionBindAppKey.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, ManageAppKeysActivity.class);
@@ -237,7 +232,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    protected void onSaveInstanceState(final Bundle outState) {
+    protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(PROGRESS_BAR_STATE, mProgressbar.getVisibility() == View.VISIBLE);
     }
@@ -314,11 +309,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     @Override
     public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
-
-    }
-
-    @Override
-    public void onItemClick(final int position, final ApplicationKey appKey) {
 
     }
 
