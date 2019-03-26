@@ -24,8 +24,8 @@ package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import android.app.Activity;
 import android.app.Service;
-import android.support.multidex.MultiDexApplication;
-import android.support.v7.app.AppCompatDelegate;
+import androidx.multidex.MultiDexApplication;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import javax.inject.Inject;
 

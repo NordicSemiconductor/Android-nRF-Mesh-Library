@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import no.nordicsemi.android.meshprovisioner.transport.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;

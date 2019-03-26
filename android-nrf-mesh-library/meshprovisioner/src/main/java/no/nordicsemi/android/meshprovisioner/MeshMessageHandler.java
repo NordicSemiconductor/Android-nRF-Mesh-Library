@@ -23,7 +23,7 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import no.nordicsemi.android.meshprovisioner.transport.BaseMeshMessageHandler;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;

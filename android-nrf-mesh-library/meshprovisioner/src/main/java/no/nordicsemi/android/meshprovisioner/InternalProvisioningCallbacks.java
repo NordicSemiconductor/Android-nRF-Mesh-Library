@@ -1,6 +1,6 @@
 package no.nordicsemi.android.meshprovisioner;
 
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 
 /**
  * Internal provisioning callbacks

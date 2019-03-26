@@ -2,7 +2,7 @@ package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.util.ArrayList;
