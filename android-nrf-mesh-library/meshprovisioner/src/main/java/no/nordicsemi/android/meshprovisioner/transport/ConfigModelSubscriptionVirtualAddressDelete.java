@@ -34,7 +34,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * This class handles subscribing a model to subscription address.
+ * This is the message class for deleting a virtual address from a subscription list
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class ConfigModelSubscriptionVirtualAddressDelete extends ConfigMessage {

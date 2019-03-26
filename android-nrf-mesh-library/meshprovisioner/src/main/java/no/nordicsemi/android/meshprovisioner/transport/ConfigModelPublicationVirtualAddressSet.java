@@ -35,7 +35,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * To be used as a wrapper class to create a ConfigModelPublicationVirtualAddressSet message.
+ * This is the message class for setting a virtual address as a publication address
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
