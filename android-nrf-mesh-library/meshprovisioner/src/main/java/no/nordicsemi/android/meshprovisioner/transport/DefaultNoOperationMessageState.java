@@ -148,7 +148,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                                 } else if (mMeshMessage instanceof ConfigModelSubscriptionDelete) {
                                     model.removeSubscriptionAddress(status.getSubscriptionAddress());
                                 } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressDelete) {
-                                    model.removeVirtualSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressDelete) mMeshMessage).
+                                    model.removeSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressDelete) mMeshMessage).
+                                            getLabelUuid(), status.getSubscriptionAddress());
+                                } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressOverwrite) {
+                                    model.overwriteSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressOverwrite) mMeshMessage).
                                             getLabelUuid(), status.getSubscriptionAddress());
                                 }
                             }
