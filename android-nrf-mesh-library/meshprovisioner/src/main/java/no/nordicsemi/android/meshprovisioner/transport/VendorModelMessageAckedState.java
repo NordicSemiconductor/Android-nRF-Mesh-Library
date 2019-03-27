@@ -16,7 +16,8 @@ class VendorModelMessageAckedState extends GenericMessageState {
      *
      * @param src                     Source address
      * @param dst                     Destination address to which the message must be sent to
-     * @param vendorModelMessageAcked Wrapper class {@link VendorModelMessageStatus} containing the opcode and parameters for {@link VendorModelMessageStatus} message
+     * @param vendorModelMessageAcked Wrapper class {@link VendorModelMessageStatus} containing the
+     *                                opcode and parameters for {@link VendorModelMessageStatus} message
      * @param callbacks               {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
      * @throws IllegalArgumentException exception for invalid arguments
      */

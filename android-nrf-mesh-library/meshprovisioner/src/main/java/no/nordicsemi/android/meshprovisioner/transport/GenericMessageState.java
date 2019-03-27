@@ -1,7 +1,6 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import androidx.annotation.NonNull;
-
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 /**
@@ -9,6 +8,16 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
  */
 class GenericMessageState extends MeshMessageState {
 
+    /**
+     * Constructs the generic message state
+     *
+     * @param src           Source address
+     * @param dst           Destination address
+     * @param meshMessage   {@link MeshMessage} to be sent
+     * @param meshTransport {@link MeshTransport} transport
+     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} callbacks
+     * @throws IllegalArgumentException if src or dst address is invalid
+     */
     GenericMessageState(final int src,
                         final int dst,
                         @NonNull final MeshMessage meshMessage,
