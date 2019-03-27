@@ -22,32 +22,30 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.AppKeyAdapter;
 
-public class DialogFragmentAddAppKey extends DialogFragment implements AppKeyAdapter.OnItemClickListener {
-
-    private static final String APP_KEY = "APP_KEY";
+public class DialogFragmentAddAppKey extends DialogFragment {
 
     //UI Bindings
     @BindView(R.id.text_input_layout)
@@ -57,10 +55,13 @@ public class DialogFragmentAddAppKey extends DialogFragment implements AppKeyAda
 
     private String mAppKey;
 
-    public static DialogFragmentAddAppKey newInstance(final String appKey) {
+    public interface DialogFragmentAddAppKeysListener {
+        void onAppKeyAdded(final String appKey);
+    }
+
+    public static DialogFragmentAddAppKey newInstance() {
         DialogFragmentAddAppKey fragmentNetworkKey = new DialogFragmentAddAppKey();
         final Bundle args = new Bundle();
-        args.putString(APP_KEY, appKey);
         fragmentNetworkKey.setArguments(args);
         return fragmentNetworkKey;
     }
@@ -68,14 +69,13 @@ public class DialogFragmentAddAppKey extends DialogFragment implements AppKeyAda
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mAppKey = getArguments().getString(APP_KEY);
-        }
+        mAppKey = SecureUtils.generateRandomApplicationKey();
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        @SuppressLint("InflateParams")
         final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
         ButterKnife.bind(this, rootView);
 
@@ -113,10 +113,10 @@ public class DialogFragmentAddAppKey extends DialogFragment implements AppKeyAda
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String appKey = appKeyInput.getText().toString();
+            final String appKey = appKeyInput.getEditableText().toString();
             if (validateInput(appKey)) {
                 try {
-                    ((DialogFragmentAddAppKeysListener) getContext()).onAppKeyAdded(appKey);
+                    ((DialogFragmentAddAppKeysListener) requireContext()).onAppKeyAdded(appKey);
                     dismiss();
                 } catch (IllegalArgumentException ex) {
                     appKeysInputLayout.setError(ex.getMessage());
@@ -136,14 +136,5 @@ public class DialogFragmentAddAppKey extends DialogFragment implements AppKeyAda
             appKeysInputLayout.setError(ex.getMessage());
         }
         return false;
-    }
-
-    @Override
-    public void onItemClick(final int position, final ApplicationKey appKey) {
-
-    }
-
-    public interface DialogFragmentAddAppKeysListener {
-        void onAppKeyAdded(final String appKey);
     }
 }
