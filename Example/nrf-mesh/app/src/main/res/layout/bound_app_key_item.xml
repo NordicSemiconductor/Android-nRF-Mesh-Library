@@ -49,10 +49,10 @@
         android:paddingBottom="@dimen/item_padding_bottom"
         tools:ignore="ContentDescription">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/icon"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:scaleType="center"
             app:srcCompat="@drawable/ic_vpn_key_black_alpha_24dp"
             app:layout_constraintTop_toTopOf="@id/app_key_id"
