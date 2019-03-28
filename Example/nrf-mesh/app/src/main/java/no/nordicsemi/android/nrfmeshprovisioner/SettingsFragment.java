@@ -257,12 +257,12 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
     }
 
     @Override
-    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull final Menu menu, @NonNull final MenuInflater inflater) {
         inflater.inflate(R.menu.network_settings, menu);
     }
 
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         final int id = item.getItemId();
         switch (id) {
             case R.id.action_import_network:
@@ -396,7 +396,7 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
     /**
      * Fires an intent to spin up the "file chooser" UI to select a file
      */
-    public void performFileSearch() {
+    private void performFileSearch() {
         final Intent intent;
         if (Utils.isKitkatOrAbove()) {
             intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);

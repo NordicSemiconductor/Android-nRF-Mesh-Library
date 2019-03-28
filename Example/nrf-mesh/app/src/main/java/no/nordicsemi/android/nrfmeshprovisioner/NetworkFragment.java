@@ -56,7 +56,6 @@ import static android.app.Activity.RESULT_OK;
 public class NetworkFragment extends Fragment implements Injectable,
         NodeAdapter.OnItemClickListener {
 
-    private static final String TAG_SCANNER_FRAGMENT = "SCANNER_FRAGMENT";
     private SharedViewModel mViewModel;
 
     @Inject
@@ -84,7 +83,6 @@ public class NetworkFragment extends Fragment implements Injectable,
 
         final FloatingActionButton fab = rootView.findViewById(R.id.fab_add_node);
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
-
 
         // Configure the recycler view
         mAdapter = new NodeAdapter(getActivity(), mViewModel.getProvisionedNodes());
@@ -121,7 +119,6 @@ public class NetworkFragment extends Fragment implements Injectable,
         });
 
         return rootView;
-
     }
 
     @Override
@@ -170,7 +167,6 @@ public class NetworkFragment extends Fragment implements Injectable,
         meshConfigurationIntent.putExtra(Utils.EXTRA_DEVICE, node);
         requireActivity().startActivity(meshConfigurationIntent);
     }
-
 
     private void displaySnackBar(final String message){
         Snackbar.make(container, message, Snackbar.LENGTH_LONG)

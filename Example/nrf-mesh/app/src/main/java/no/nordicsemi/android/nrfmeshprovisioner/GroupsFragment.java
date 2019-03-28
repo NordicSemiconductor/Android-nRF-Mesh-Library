@@ -60,8 +60,6 @@ public class GroupsFragment extends Fragment implements Injectable,
         GroupAdapter.OnItemClickListener,
         DialogFragmentCreateGroup.DialogFragmentCreateGroupListener {
 
-    private static final String TAG = GroupsFragment.class.getSimpleName();
-
     private SharedViewModel mViewModel;
 
     @Inject
