@@ -21,8 +21,6 @@
  */
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -33,6 +31,8 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
@@ -229,6 +229,283 @@ abstract class NetworkLayer extends LowerTransportLayer {
     }
 
     /**
+     * Parse received mesh message
+     * <p>
+     * This method will drop messages with an invalid sequence number as all mesh messages are supposed to have a sequence
+     * </p>
+     *
+     * @param data PDU received from the mesh node
+     * @return complete {@link Message} that was successfully parsed or null otherwise
+     */
+    final Message parseMeshMessage(@NonNull final byte[] data) throws ExtendedInvalidCipherTextException {
+        final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner();
+        final int nid = data[1] & 0x7F;
+        //De-obfuscate network header
+        final byte[] networkHeader = deObfuscateNetworkHeader(data);
+        final int ctlTtl = networkHeader[0];
+        final int ctl = (ctlTtl >> 7) & 0x01;
+        final int ttl = ctlTtl & 0x7F;
+        Log.v(TAG, "TTL for received message: " + ttl);
+
+        final byte[] sequenceNumber = ByteBuffer.allocate(3).order(ByteOrder.BIG_ENDIAN).put(networkHeader, 1, 3).array();
+        final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
+        if (mMeshNode == null || mMeshNode.getUnicastAddress() != src) {
+            mMeshNode = mNetworkLayerCallbacks.getProvisionedNode(src);
+            if (mMeshNode == null) {
+                return null;
+            }
+        }
+
+        //Check if the sequence number has been incremented since the last message sent and return null if not
+        final int sequenceNo = MeshParserUtils.getSequenceNumber(sequenceNumber);
+        Log.v(TAG, "Sequence number of received access message: " + MeshParserUtils.getSequenceNumber(sequenceNumber));
+        if (sequenceNo > mMeshNode.getReceivedSequenceNumber()) {
+            if (!MeshParserUtils.isValidSequenceNumber(sequenceNo)) {
+                return null;
+            }
+            mMeshNode.setReceivedSequenceNumber(sequenceNo);
+        }
+
+        byte[] nonce = null;
+        final byte[] decryptedNetworkPayload;
+        final byte[] ivIndex = mUpperTransportLayerCallbacks.getIvIndex();
+        switch (data[0]) {
+            case MeshManagerApi.PDU_TYPE_NETWORK:
+                nonce = createNetworkNonce((byte) ctlTtl, sequenceNumber, src, ivIndex);
+                break;
+            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
+                nonce = createProxyNonce(sequenceNumber, src, ivIndex);
+                break;
+
+        }
+
+        if (nonce == null)
+            return null;
+        decryptedNetworkPayload = decryptPdu(data, nonce, nid, networkHeader.length, SecureUtils.getNetMicLength(ctl));
+        if (decryptedNetworkPayload == null)
+            return null;
+
+        if (ctl == 1) {
+            return parseControlMessage(provisioner.getProvisionerAddress(), data, networkHeader, decryptedNetworkPayload, src, sequenceNumber);
+        } else {
+            return parseAccessMessage(data, networkHeader, decryptedNetworkPayload, src, sequenceNumber);
+        }
+    }
+
+    /**
+     * Parses access message
+     *
+     * @param data                    Received from the node
+     * @param networkHeader           De-obfuscated network header
+     * @param decryptedNetworkPayload Decrypted network payload
+     * @param src                     Source address
+     * @param sequenceNumber          Sequence number of the received message
+     * @return access message
+     */
+    @VisibleForTesting
+    private AccessMessage parseAccessMessage(@NonNull final byte[] data,
+                                             @NonNull final byte[] networkHeader,
+                                             @NonNull final byte[] decryptedNetworkPayload,
+                                             final int src,
+                                             @NonNull final byte[] sequenceNumber) throws ExtendedInvalidCipherTextException {
+        try {
+            final int ttl = networkHeader[0] & 0x7F;
+            final int dst = MeshParserUtils.unsignedBytesToInt(decryptedNetworkPayload[1], decryptedNetworkPayload[0]);
+            Log.v(TAG, "Dst: " + MeshAddress.formatAddress(dst, true));
+
+            if (isSegmentedMessage(decryptedNetworkPayload[2])) {
+                Log.v(TAG, "Received a segmented access message from: " + MeshAddress.formatAddress(src, false));
+
+                //Check if the received segmented message is from the same src as the previous segment
+                if (src != mMeshNode.getUnicastAddress()) {
+                    Log.v(TAG, "Segment received is from a different src than the one we are processing, let's drop it");
+                    return null;
+                }
+
+                if (segmentedAccessMessagesMessages == null) {
+                    segmentedAccessMessagesMessages = new SparseArray<>();
+                    segmentedAccessMessagesMessages.put(0, data);
+                } else {
+                    final int k = segmentedAccessMessagesMessages.size();
+                    segmentedAccessMessagesMessages.put(k, data);
+                }
+                //Removing the mDst here
+                final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
+                        .order(ByteOrder.BIG_ENDIAN)
+                        .put(data, 0, 2)
+                        .put(networkHeader)
+                        .put(decryptedNetworkPayload)
+                        .array();
+                final AccessMessage message = parseSegmentedAccessLowerTransportPDU(pdu);
+                if (message != null) {
+                    final SparseArray<byte[]> segmentedMessages = segmentedAccessMessagesMessages.clone();
+                    segmentedAccessMessagesMessages = null;
+                    message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
+                    message.setNetworkPdu(segmentedMessages);
+                    message.setTtl(ttl);
+                    message.setSrc(src);
+                    message.setDst(dst);
+                    parseUpperTransportPDU(message);
+                    parseAccessLayerPDU(message);
+                }
+                return message;
+
+            } else {
+                final AccessMessage message = new AccessMessage();
+                message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
+                final SparseArray<byte[]> networkPduMap = new SparseArray<>();
+                networkPduMap.put(0, data);
+                message.setNetworkPdu(networkPduMap);
+                message.setTtl(ttl);
+                message.setSrc(src);
+                message.setDst(dst);
+                message.setSequenceNumber(sequenceNumber);
+
+                //Removing the mDst here
+                final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
+                        .order(ByteOrder.BIG_ENDIAN)
+                        .put(data, 0, 2)
+                        .put(networkHeader)
+                        .put(decryptedNetworkPayload)
+                        .array();
+                parseUnsegmentedAccessLowerTransportPDU(message, pdu);
+                parseUpperTransportPDU(message);
+                parseAccessLayerPDU(message);
+                return message;
+            }
+        } catch (InvalidCipherTextException ex) {
+            throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
+        }
+    }
+
+    /**
+     * Parses control message
+     *
+     * @param provisionerAddress      Provisioner address
+     * @param data                    Data received from the node
+     * @param networkHeader           De-obfuscated network header
+     * @param decryptedNetworkPayload Decrypted network payload
+     * @param src                     Source address where the pdu originated from
+     * @param sequenceNumber          Sequence number of the received message
+     * @return a complete {@link ControlMessage} or null if the message was unable to parsed
+     */
+    private ControlMessage parseControlMessage(final int provisionerAddress,
+                                               @NonNull final byte[] data,
+                                               @NonNull final byte[] networkHeader,
+                                               @NonNull final byte[] decryptedNetworkPayload,
+                                               final int src,
+                                               @NonNull final byte[] sequenceNumber) throws ExtendedInvalidCipherTextException {
+        try {
+            final int ttl = networkHeader[0] & 0x7F;
+            final int dst = MeshParserUtils.unsignedBytesToInt(decryptedNetworkPayload[1], decryptedNetworkPayload[0]);
+
+            //Removing the mDst here
+            final byte[] decryptedProxyPdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
+                    .order(ByteOrder.BIG_ENDIAN)
+                    .put(data, 0, 2)
+                    .put(networkHeader)
+                    .put(decryptedNetworkPayload)
+                    .array();
+
+            //We check the pdu type
+            final int pduType = data[0];
+            switch (pduType) {
+                case MeshManagerApi.PDU_TYPE_NETWORK:
+                    //Check if the message is directed to us, if its not ignore the message
+                    if (provisionerAddress != dst) {
+                        Log.v(TAG, "Received a control message that was not directed to us, so we drop it");
+                        return null;
+                    }
+
+                    if (isSegmentedMessage(decryptedNetworkPayload[2])) {
+                        return parseSegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst);
+                    } else {
+                        return parseUnsegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst, sequenceNumber);
+                    }
+                case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
+                    //Proxy configuration messages are segmented only at the gatt level
+                    return parseUnsegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst, sequenceNumber);
+                default:
+                    return null;
+            }
+        } catch (InvalidCipherTextException ex) {
+            throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
+        }
+    }
+
+    /**
+     * Parses an unsegmented control message
+     *
+     * @param data              Received pdu data
+     * @param decryptedProxyPdu Decrypted proxy pdu
+     * @param ttl               TTL of the pdu
+     * @param src               Source address where the pdu originated from
+     * @param dst               Destination address to which the pdu was sent
+     * @param sequenceNumber    Sequence number of the pdu
+     * @return a complete {@link ControlMessage} or null if the message was unable to parsed
+     */
+    private ControlMessage parseUnsegmentedControlMessage(@NonNull final byte[] data,
+                                                          @NonNull final byte[] decryptedProxyPdu,
+                                                          final int ttl,
+                                                          final int src,
+                                                          final int dst,
+                                                          @NonNull final byte[] sequenceNumber) throws ExtendedInvalidCipherTextException {
+        final ControlMessage message = new ControlMessage();
+        message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
+        final SparseArray<byte[]> proxyPduArray = new SparseArray<>();
+        proxyPduArray.put(0, data);
+        message.setNetworkPdu(proxyPduArray);
+        message.setTtl(ttl);
+        message.setSrc(src);
+        message.setDst(dst);
+        message.setSequenceNumber(sequenceNumber);
+        message.setSegmented(false);
+        parseUnsegmentedControlLowerTransportPDU(message, decryptedProxyPdu);
+
+        return message;
+    }
+
+    /**
+     * Parses a unsegmented control message
+     *
+     * @param data              Received pdu data
+     * @param decryptedProxyPdu Decrypted proxy pdu
+     * @param ttl               TTL of the pdu
+     * @param src               Source address where the pdu originated from
+     * @param dst               Destination address to which the pdu was sent
+     * @return a complete {@link ControlMessage} or null if the message was unable to parsed
+     */
+    private ControlMessage parseSegmentedControlMessage(@NonNull final byte[] data, @NonNull final byte[] decryptedProxyPdu, final int ttl, final int src, final int dst) {
+        if (segmentedControlMessagesMessages == null) {
+            segmentedControlMessagesMessages = new SparseArray<>();
+            segmentedControlMessagesMessages.put(0, data);
+        } else {
+            final int k = segmentedControlMessagesMessages.size();
+            segmentedAccessMessagesMessages.put(k, data);
+        }
+
+        final ControlMessage message = parseSegmentedControlLowerTransportPDU(decryptedProxyPdu);
+        if (message != null) {
+            final SparseArray<byte[]> segmentedMessages = segmentedControlMessagesMessages.clone();
+            segmentedControlMessagesMessages = null;
+            message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
+            message.setNetworkPdu(segmentedMessages);
+            message.setTtl(ttl);
+            message.setSrc(src);
+            message.setDst(dst);
+        }
+        return message;
+    }
+
+    /**
+     * Returns the master credentials {@link SecureUtils.K2Output}
+     */
+    private SecureUtils.K2Output getK2Output() {
+        final NetworkKey networkKey = mNetworkLayerCallbacks.getPrimaryNetworkKey();
+        return SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
+    }
+
+    /**
      * Encrypts the network payload of a network pdu
      *
      * @param message           Mesh message containing network layer pdu
@@ -404,302 +681,41 @@ abstract class NetworkLayer extends LowerTransportLayer {
     }
 
     /**
-     * Parse received mesh message
-     * <p>
-     * This method will drop messages with an invalid sequence number as all mesh messages are supposed to have a sequence
-     * </p>
+     * Decrypts the pdu
      *
-     * @param data PDU received from the mesh node
-     * @return complete {@link Message} that was successfully parsed or null otherwise
+     * @param pdu          PDU received
+     * @param nonce        Nonce depending on the PDU type
+     * @param nid          7-bit network identifier
+     * @param headerLength Length of the de-obfuscated bytes
+     * @param micLength    Message integrity check length
+     * @throws ExtendedInvalidCipherTextException if the decryption failed
      */
-    final Message parseMeshMessage(@NonNull final byte[] data) throws ExtendedInvalidCipherTextException {
-        final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner();
+    private byte[] decryptPdu(@NonNull final byte[] pdu,
+                              @NonNull final byte[] nonce,
+                              final int nid,
+                              final int headerLength,
+                              final int micLength) throws ExtendedInvalidCipherTextException {
+        final int networkPayloadLength = pdu.length - (2 + headerLength);
+        final byte[] transportPdu = new byte[networkPayloadLength];
+        System.arraycopy(pdu, 8, transportPdu, 0, networkPayloadLength);
 
-        //De-obfuscate network header
-        final byte[] networkHeader = deObfuscateNetworkHeader(data);
-        final int ctlTtl = networkHeader[0];
-        final int ctl = (ctlTtl >> 7) & 0x01;
-        final int ttl = ctlTtl & 0x7F;
-        Log.v(TAG, "TTL for received message: " + ttl);
-
-        final int micLength = SecureUtils.getNetMicLength(ctl);
-        final byte[] sequenceNumber = ByteBuffer.allocate(3).order(ByteOrder.BIG_ENDIAN).put(networkHeader, 1, 3).array();
-        final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
-        if (mMeshNode == null || mMeshNode.getUnicastAddress() != src) {
-            mMeshNode = mNetworkLayerCallbacks.getProvisionedNode(src);
-            if (mMeshNode == null) {
-                return null;
-            }
-        }
-
-        //Check if the sequence number has been incremented since the last message sent and return null if not
-        final int sequenceNo = MeshParserUtils.getSequenceNumber(sequenceNumber);
-        Log.v(TAG, "Sequence number of received access message: " + MeshParserUtils.getSequenceNumber(sequenceNumber));
-        if (sequenceNo > mMeshNode.getReceivedSequenceNumber()) {
-            if (!MeshParserUtils.isValidSequenceNumber(sequenceNo)) {
-                return null;
-            }
-            mMeshNode.setReceivedSequenceNumber(sequenceNo);
-        }
-
-        final byte[] nonce;
-
-        final byte[] ivIndex = mUpperTransportLayerCallbacks.getIvIndex();
-        switch (data[0]) {
-            case MeshManagerApi.PDU_TYPE_NETWORK:
-                nonce = createNetworkNonce((byte) ctlTtl, sequenceNumber, src, ivIndex);
-                break;
-            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
-                nonce = createProxyNonce(sequenceNumber, src, ivIndex);
-                break;
-            default:
-                return null;
-
-        }
-
-        if (ctl == 1) {
-            return parseControlMessage(provisioner.getProvisionerAddress(), data, networkHeader, nonce, src, sequenceNumber, micLength);
-        } else {
-            return parseAccessMessage(data, networkHeader, nonce, src, sequenceNumber, micLength);
-        }
-    }
-
-    /**
-     * Parses access message
-     *
-     * @param data           Received from the node
-     * @param networkHeader  De-obfuscated network header
-     * @param networkNonce   Network nonce
-     * @param src            Source address
-     * @param sequenceNumber Sequence number of the received message
-     * @param micLength      Network mic length of the received message
-     * @return access message
-     */
-    @VisibleForTesting
-    private AccessMessage parseAccessMessage(@NonNull final byte[] data,
-                                             @NonNull final byte[] networkHeader,
-                                             @NonNull final byte[] networkNonce,
-                                             final int src,
-                                             @NonNull final byte[] sequenceNumber,
-                                             final int micLength) throws ExtendedInvalidCipherTextException {
-        try {
-            final SecureUtils.K2Output k2Output = getK2Output();
-            final byte[] encryptionKey = k2Output.getEncryptionKey();
-            final int ttl = networkHeader[0] & 0x7F;
-            final int networkPayloadLength = data.length - (2 + networkHeader.length);
-            final byte[] transportPdu = new byte[networkPayloadLength];
-            System.arraycopy(data, 8, transportPdu, 0, networkPayloadLength);
-            final byte[] decryptedNetworkPayload;
-            try {
-                decryptedNetworkPayload = SecureUtils.decryptCCM(transportPdu, encryptionKey, networkNonce, micLength);
-            } catch (InvalidCipherTextException ex) {
-                throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
-            }
-            final int dst = MeshParserUtils.unsignedBytesToInt(decryptedNetworkPayload[1], decryptedNetworkPayload[0]);
-            Log.v(TAG, "Dst: " + MeshAddress.formatAddress(dst, true));
-
-            if (isSegmentedMessage(decryptedNetworkPayload[2])) {
-                Log.v(TAG, "Received a segmented access message from: " + MeshAddress.formatAddress(src, false));
-
-                //Check if the received segmented message is from the same src as the previous segment
-                if (src != mMeshNode.getUnicastAddress()) {
-                    Log.v(TAG, "Segment received is from a different src than the one we are processing, let's drop it");
-                    return null;
-                }
-
-                if (segmentedAccessMessagesMessages == null) {
-                    segmentedAccessMessagesMessages = new SparseArray<>();
-                    segmentedAccessMessagesMessages.put(0, data);
-                } else {
-                    final int k = segmentedAccessMessagesMessages.size();
-                    segmentedAccessMessagesMessages.put(k, data);
-                }
-                //Removing the mDst here
-                final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
-                        .order(ByteOrder.BIG_ENDIAN)
-                        .put(data, 0, 2)
-                        .put(networkHeader)
-                        .put(decryptedNetworkPayload)
-                        .array();
-                final AccessMessage message = parseSegmentedAccessLowerTransportPDU(pdu);
-                if (message != null) {
-                    final SparseArray<byte[]> segmentedMessages = segmentedAccessMessagesMessages.clone();
-                    segmentedAccessMessagesMessages = null;
-                    message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-                    message.setNetworkPdu(segmentedMessages);
-                    message.setTtl(ttl);
-                    message.setSrc(src);
-                    message.setDst(dst);
-                    parseUpperTransportPDU(message);
-                    parseAccessLayerPDU(message);
-                }
-                return message;
-
-            } else {
-                final AccessMessage message = new AccessMessage();
-                message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-                final SparseArray<byte[]> networkPduMap = new SparseArray<>();
-                networkPduMap.put(0, data);
-                message.setNetworkPdu(networkPduMap);
-                message.setTtl(ttl);
-                message.setSrc(src);
-                message.setDst(dst);
-                message.setSequenceNumber(sequenceNumber);
-
-                //Removing the mDst here
-                final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
-                        .order(ByteOrder.BIG_ENDIAN)
-                        .put(data, 0, 2)
-                        .put(networkHeader)
-                        .put(decryptedNetworkPayload)
-                        .array();
-                parseUnsegmentedAccessLowerTransportPDU(message, pdu);
-                parseUpperTransportPDU(message);
-                parseAccessLayerPDU(message);
-                return message;
-            }
-        } catch (InvalidCipherTextException ex) {
-            throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
-        }
-    }
-
-    /**
-     * Parses control message
-     *
-     * @param provisionerAddress Provisioner address
-     * @param data               Data received from the node
-     * @param networkHeader      De-obfuscated network header
-     * @param nonce              Nonce depending on the pdu type
-     * @param src                Source address where the pdu originated from
-     * @param sequenceNumber     Sequence number of the received message
-     * @param micLength          Network mic length of the received message
-     * @return a complete {@link ControlMessage} or null if the message was unable to parsed
-     */
-    private ControlMessage parseControlMessage(final int provisionerAddress,
-                                               @NonNull final byte[] data,
-                                               @NonNull final byte[] networkHeader,
-                                               @NonNull final byte[] nonce,
-                                               final int src,
-                                               @NonNull final byte[] sequenceNumber,
-                                               final int micLength) throws ExtendedInvalidCipherTextException {
-        try {
-            final SecureUtils.K2Output k2Output = getK2Output();
-            final byte[] encryptionKey = k2Output.getEncryptionKey();
-            final int ttl = networkHeader[0] & 0x7F;
-            final int networkPayloadLength = data.length - (2 + networkHeader.length);
-            final byte[] transportPdu = new byte[networkPayloadLength];
-            System.arraycopy(data, 8, transportPdu, 0, networkPayloadLength);
-            final byte[] decryptedNetworkPayload;
-            try {
-                decryptedNetworkPayload = SecureUtils.decryptCCM(transportPdu, encryptionKey, nonce, micLength);
-            } catch (InvalidCipherTextException ex) {
-                throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
-            }
-            final int dst = MeshParserUtils.unsignedBytesToInt(decryptedNetworkPayload[1], decryptedNetworkPayload[0]);
-
-            //Removing the mDst here
-            final byte[] decryptedProxyPdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
-                    .order(ByteOrder.BIG_ENDIAN)
-                    .put(data, 0, 2)
-                    .put(networkHeader)
-                    .put(decryptedNetworkPayload)
-                    .array();
-
-            //We check the pdu type
-            final int pduType = data[0];
-            switch (pduType) {
-                case MeshManagerApi.PDU_TYPE_NETWORK:
-                    //Check if the message is directed to us, if its not ignore the message
-                    if (provisionerAddress != dst) {
-                        Log.v(TAG, "Received a control message that was not directed to us, so we drop it");
-                        return null;
+        final List<NetworkKey> networkKeys = mNetworkLayerCallbacks.getNetworkKeys();
+        //Here we go through all the network keys and filter out network keys based on the nid.
+        for (int i = 0; i < networkKeys.size(); i++) {
+            NetworkKey networkKey = networkKeys.get(i);
+            final SecureUtils.K2Output output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
+            if (nid == output.getNid()) {
+                final SecureUtils.K2Output k2Output = getK2Output();
+                final byte[] encryptionKey = k2Output.getEncryptionKey();
+                try {
+                    return SecureUtils.decryptCCM(transportPdu, encryptionKey, nonce, micLength);
+                } catch (InvalidCipherTextException ex) {
+                    if (i == networkKeys.size() - 1) {
+                        throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
                     }
-
-                    if (isSegmentedMessage(decryptedNetworkPayload[2])) {
-                        return parseSegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst);
-                    } else {
-                        return parseUnsegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst, sequenceNumber);
-                    }
-                case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
-                    //Proxy configuration messages are segmented only at the gatt level
-                    return parseUnsegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst, sequenceNumber);
-                default:
-                    return null;
+                }
             }
-        } catch (InvalidCipherTextException ex) {
-            throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
         }
-    }
-
-    /**
-     * Parses an unsegmented control message
-     *
-     * @param data              Received pdu data
-     * @param decryptedProxyPdu Decrypted proxy pdu
-     * @param ttl               TTL of the pdu
-     * @param src               Source address where the pdu originated from
-     * @param dst               Destination address to which the pdu was sent
-     * @param sequenceNumber    Sequence number of the pdu
-     * @return a complete {@link ControlMessage} or null if the message was unable to parsed
-     */
-    private ControlMessage parseUnsegmentedControlMessage(@NonNull final byte[] data,
-                                                          @NonNull final byte[] decryptedProxyPdu,
-                                                          final int ttl,
-                                                          final int src,
-                                                          final int dst,
-                                                          @NonNull final byte[] sequenceNumber) throws ExtendedInvalidCipherTextException {
-        final ControlMessage message = new ControlMessage();
-        message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-        final SparseArray<byte[]> proxyPduArray = new SparseArray<>();
-        proxyPduArray.put(0, data);
-        message.setNetworkPdu(proxyPduArray);
-        message.setTtl(ttl);
-        message.setSrc(src);
-        message.setDst(dst);
-        message.setSequenceNumber(sequenceNumber);
-        message.setSegmented(false);
-        parseUnsegmentedControlLowerTransportPDU(message, decryptedProxyPdu);
-
-        return message;
-    }
-
-    /**
-     * Parses a unsegmented control message
-     *
-     * @param data              Received pdu data
-     * @param decryptedProxyPdu Decrypted proxy pdu
-     * @param ttl               TTL of the pdu
-     * @param src               Source address where the pdu originated from
-     * @param dst               Destination address to which the pdu was sent
-     * @return a complete {@link ControlMessage} or null if the message was unable to parsed
-     */
-    private ControlMessage parseSegmentedControlMessage(@NonNull final byte[] data, @NonNull final byte[] decryptedProxyPdu, final int ttl, final int src, final int dst) {
-        if (segmentedControlMessagesMessages == null) {
-            segmentedControlMessagesMessages = new SparseArray<>();
-            segmentedControlMessagesMessages.put(0, data);
-        } else {
-            final int k = segmentedControlMessagesMessages.size();
-            segmentedAccessMessagesMessages.put(k, data);
-        }
-
-        final ControlMessage message = parseSegmentedControlLowerTransportPDU(decryptedProxyPdu);
-        if (message != null) {
-            final SparseArray<byte[]> segmentedMessages = segmentedControlMessagesMessages.clone();
-            segmentedControlMessagesMessages = null;
-            message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-            message.setNetworkPdu(segmentedMessages);
-            message.setTtl(ttl);
-            message.setSrc(src);
-            message.setDst(dst);
-        }
-        return message;
-    }
-
-    /**
-     * Returns the master credentials {@link SecureUtils.K2Output}
-     */
-    private SecureUtils.K2Output getK2Output() {
-        final NetworkKey networkKey = mNetworkLayerCallbacks.getPrimaryNetworkKey();
-        return SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
+        return null;
     }
 }

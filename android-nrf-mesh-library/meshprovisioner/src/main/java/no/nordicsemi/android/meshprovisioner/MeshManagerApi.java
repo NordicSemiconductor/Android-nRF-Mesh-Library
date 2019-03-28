@@ -928,6 +928,11 @@ public class MeshManagerApi implements MeshMngrApi {
         public NetworkKey getPrimaryNetworkKey() {
             return mMeshNetwork.getPrimaryNetworkKey();
         }
+
+        @Override
+        public List<NetworkKey> getNetworkKeys() {
+            return mMeshNetwork.getNetKeys();
+        }
     };
 
     @SuppressWarnings("FieldCanBeLocal")
