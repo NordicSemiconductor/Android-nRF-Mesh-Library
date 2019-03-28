@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -78,16 +79,15 @@ public class GroupsFragment extends Fragment implements Injectable,
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
+        @SuppressLint("InflateParams")
         final View rootView = inflater.inflate(R.layout.fragment_groups, null);
-        ButterKnife.bind(this, rootView);
-
         mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
+        ButterKnife.bind(this, rootView);
 
         final View noGroupsConfiguredView = rootView.findViewById(R.id.no_groups_configured);
 
@@ -128,39 +128,6 @@ public class GroupsFragment extends Fragment implements Injectable,
     }
 
     @Override
-    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        if (mViewModel.getProvisionedNodes().getValue() != null && !mViewModel.getProvisionedNodes().getValue().isEmpty()) {
-            final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-            if (isConnectedToNetwork != null && isConnectedToNetwork) {
-                inflater.inflate(R.menu.disconnect, menu);
-            } else {
-                inflater.inflate(R.menu.connect, menu);
-            }
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        final int id = item.getItemId();
-        switch (id) {
-            case R.id.action_connect:
-                final Intent intent = new Intent(requireActivity(), ScannerActivity.class);
-                intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, false);
-                startActivity(intent);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void onAttach(final Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
     public void onItemClick(final int address) {
         mViewModel.setSelectedGroup(address);
         startActivity(new Intent(requireContext(), GroupControlsActivity.class));
@@ -184,16 +151,15 @@ public class GroupsFragment extends Fragment implements Injectable,
         displaySnackBar(message);
     }
 
+    @Override
+    public boolean createGroup(@NonNull final String name, final int address) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        return network.addGroup(address, name);
+    }
 
     private void displaySnackBar(final String message){
         Snackbar.make(container, message, Snackbar.LENGTH_LONG)
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
                 .show();
-    }
-
-    @Override
-    public boolean createGroup(@NonNull final String name, final int address) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        return network.addGroup(address, name);
     }
 }

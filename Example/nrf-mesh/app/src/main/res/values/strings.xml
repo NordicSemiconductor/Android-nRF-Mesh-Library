@@ -307,6 +307,7 @@
     <string name="proxy_set_off_rationale_summary">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.
         However, you will still be able to continue sending messages via the other proxy nodes in the network. Do you wish to continue?</string>
 
+    <string name="proxy_filter_settings">Proxy Filter Settings</string>
     <string name="title_proxy_filter">Proxy Filter</string>
     <string name="white_list_filter">Whitelist Filter</string>
     <string name="black_list_filter">Blacklist Filter</string>

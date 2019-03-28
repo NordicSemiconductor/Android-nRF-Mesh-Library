@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -73,19 +74,19 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
+        @SuppressLint("InflateParams")
         final View rootView = inflater.inflate(R.layout.fragment_network, null);
+        mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
         ButterKnife.bind(this, rootView);
 
         final FloatingActionButton fab = rootView.findViewById(R.id.fab_add_node);
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
 
-        mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
 
         // Configure the recycler view
         mAdapter = new NodeAdapter(getActivity(), mViewModel.getProvisionedNodes());
@@ -97,7 +98,7 @@ public class NetworkFragment extends Fragment implements Injectable,
 
         // Create view model containing utility methods for scanning
         mViewModel.getProvisionedNodes().observe(this, nodes -> {
-            if (!nodes.isEmpty()) {
+            if (nodes != null && !nodes.isEmpty()) {
                 noNetworksConfiguredView.setVisibility(View.GONE);
             } else {
                 noNetworksConfiguredView.setVisibility(View.VISIBLE);
@@ -123,34 +124,6 @@ public class NetworkFragment extends Fragment implements Injectable,
 
         return rootView;
 
-    }
-
-    @Override
-    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        if (mViewModel.getProvisionedNodes().getValue() != null && !mViewModel.getProvisionedNodes().getValue().isEmpty()) {
-            final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-            if (isConnectedToNetwork != null && isConnectedToNetwork) {
-                inflater.inflate(R.menu.disconnect, menu);
-            } else {
-                inflater.inflate(R.menu.connect, menu);
-            }
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        final int id = item.getItemId();
-        switch (id) {
-            case R.id.action_connect:
-                final Intent intent = new Intent(requireActivity(), ScannerActivity.class);
-                intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, false);
-                startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
-        }
-        return false;
     }
 
     @Override
