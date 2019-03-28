@@ -64,9 +64,12 @@ public class GroupsFragment extends Fragment implements Injectable,
         GroupAdapter.OnItemClickListener,
         DialogFragmentCreateGroup.DialogFragmentCreateGroupListener {
 
+    private static final String TAG = GroupsFragment.class.getSimpleName();
+
+    private SharedViewModel mViewModel;
+
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
-    private SharedViewModel mViewModel;
 
     @BindView(R.id.container)
     View container;
@@ -84,11 +87,11 @@ public class GroupsFragment extends Fragment implements Injectable,
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         @SuppressLint("InflateParams")
         final View rootView = inflater.inflate(R.layout.fragment_groups, null);
+        mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
         ButterKnife.bind(this, rootView);
 
-        mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
-
         final View noGroupsConfiguredView = rootView.findViewById(R.id.no_groups_configured);
+
         // Configure the recycler view
         final RecyclerView recyclerViewGroups = rootView.findViewById(R.id.recycler_view_groups);
         recyclerViewGroups.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -182,16 +185,15 @@ public class GroupsFragment extends Fragment implements Injectable,
         displaySnackBar(message);
     }
 
-
-    private void displaySnackBar(final String message) {
-        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
-                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
-                .show();
-    }
-
     @Override
     public boolean createGroup(@NonNull final String name, final int address) {
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         return network.addGroup(address, name);
+    }
+
+    private void displaySnackBar(final String message){
+        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
+                .show();
     }
 }

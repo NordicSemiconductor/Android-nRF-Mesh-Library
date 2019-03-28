@@ -105,8 +105,8 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_settings, null);
-
+        @SuppressLint("InflateParams")
+        final View rootView = inflater.inflate(R.layout.fragment_settings, null);
         mViewModel = ViewModelProviders.of(getActivity(), mViewModelFactory).get(SharedViewModel.class);
 
         // Set up views
@@ -257,11 +257,6 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         inflater.inflate(R.menu.network_settings, menu);
     }
@@ -324,24 +319,6 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
         }
     }
 
-    private String parseFlagsMessage(final int flags) {
-        final int keyRefreshFlag = MeshParserUtils.getBitValue(flags, 0);
-        final int ivUpdateFlag = MeshParserUtils.getBitValue(flags, 1);
-        final StringBuilder flagsText = new StringBuilder();
-
-        if (keyRefreshFlag == 0)
-            flagsText.append(getString(R.string.key_refresh_phase_0)).append(", ");
-        else
-            flagsText.append(getString(R.string.key_refresh_phase_2)).append(", ");
-
-        if (ivUpdateFlag == 0)
-            flagsText.append(getString(R.string.normal_operation));
-        else
-            flagsText.append(getString(R.string.iv_update_active));
-
-        return flagsText.toString();
-    }
-
     @Override
     public void onNetworkNameEntered(final String networkName) {
         mViewModel.getMeshNetworkLiveData().setNetworkName(networkName);
@@ -396,6 +373,24 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
     public void requestPermission() {
         Utils.markWriteStoragePermissionRequested(getContext());
         requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+    }
+
+    private String parseFlagsMessage(final int flags) {
+        final int keyRefreshFlag = MeshParserUtils.getBitValue(flags, 0);
+        final int ivUpdateFlag = MeshParserUtils.getBitValue(flags, 1);
+        final StringBuilder flagsText = new StringBuilder();
+
+        if (keyRefreshFlag == 0)
+            flagsText.append(getString(R.string.key_refresh_phase_0)).append(", ");
+        else
+            flagsText.append(getString(R.string.key_refresh_phase_2)).append(", ");
+
+        if (ivUpdateFlag == 0)
+            flagsText.append(getString(R.string.normal_operation));
+        else
+            flagsText.append(getString(R.string.iv_update_active));
+
+        return flagsText.toString();
     }
 
     /**

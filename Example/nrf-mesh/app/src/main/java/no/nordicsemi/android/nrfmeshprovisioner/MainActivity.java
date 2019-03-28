@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -32,6 +33,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import android.view.Menu;
 import android.view.MenuItem;
 
 import javax.inject.Inject;
@@ -41,6 +44,9 @@ import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
 public class MainActivity extends AppCompatActivity implements Injectable,
         HasSupportFragmentInjector,
@@ -61,15 +67,18 @@ public class MainActivity extends AppCompatActivity implements Injectable,
     private NetworkFragment mNetworkFragment;
     private GroupsFragment mGroupsFragment;
     private Fragment mSettingsFragment;
+    private SharedViewModel mViewModel;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mViewModel = ViewModelProviders.of(this).get(SharedViewModel.class);
         ButterKnife.bind(this);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.app_name);
 
         mNetworkFragment = (NetworkFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_network);
@@ -88,17 +97,42 @@ public class MainActivity extends AppCompatActivity implements Injectable,
     }
 
     @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        if (mViewModel.getProvisionedNodes().getValue() != null && !mViewModel.getProvisionedNodes().getValue().isEmpty()) {
+            final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
+            if (isConnectedToNetwork != null && isConnectedToNetwork) {
+                getMenuInflater().inflate(R.menu.disconnect, menu);
+            } else {
+                getMenuInflater().inflate(R.menu.connect, menu);
+            }
+            return true;
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        final int id = item.getItemId();
+        switch (id) {
+            case R.id.action_connect:
+                final Intent intent = new Intent(this, ScannerActivity.class);
+                intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, false);
+                startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
+                return true;
+            case R.id.action_disconnect:
+                mViewModel.disconnect();
+                return true;
+        }
+        return false;
+    }
+
+    @Override
     public void onBackPressed() {
         if(getSupportFragmentManager().getFragments().size() > TAB_COUNT) {
             getSupportFragmentManager().popBackStack();
         } else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     @Override
