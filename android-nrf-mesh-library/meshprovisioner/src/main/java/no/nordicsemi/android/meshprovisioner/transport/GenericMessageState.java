@@ -40,7 +40,7 @@ class GenericMessageState extends MeshMessageState {
      */
     protected void createAccessMessage() {
         final GenericMessage genericMessage = (GenericMessage) mMeshMessage;
-        final byte[] key = genericMessage.getAppKey();
+        final ApplicationKey key = genericMessage.getAppKey();
         final int akf = genericMessage.getAkf();
         final int aid = genericMessage.getAid();
         final int aszmic = genericMessage.getAszmic();

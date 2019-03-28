@@ -24,12 +24,12 @@ public class SceneDelete extends GenericMessage {
     /**
      * Constructs SceneDelete message.
      *
-     * @param appKey      application key for this message
-     * @param sceneNumber scene number of SceneDelete message
+     * @param appKey      {@link ApplicationKey} key for this message
+     * @param sceneNumber Scene number of SceneDelete message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public SceneDelete(@NonNull final byte[] appKey,
+    public SceneDelete(@NonNull final ApplicationKey appKey,
                        final int sceneNumber) {
         super(appKey);
         this.mSceneNumber = sceneNumber;
@@ -43,7 +43,7 @@ public class SceneDelete extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "Scene Number: " + mSceneNumber);
         paramsBuffer = ByteBuffer.allocate(SCENE_DELETE_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);

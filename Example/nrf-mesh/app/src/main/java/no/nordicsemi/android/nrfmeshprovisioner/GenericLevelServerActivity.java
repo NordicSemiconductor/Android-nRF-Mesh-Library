@@ -13,6 +13,7 @@ import android.widget.Toast;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelGet;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSet;
@@ -218,7 +219,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
             if (model != null) {
                 if (!model.getBoundAppKeyIndexes().isEmpty()) {
                     final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                    final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
+                    final ApplicationKey appKey = model.getBoundAppKey(appKeyIndex);
 
                     final int address = element.getElementAddress();
                     Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
@@ -247,7 +248,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 if (model != null) {
                     if (!model.getBoundAppKeyIndexes().isEmpty()) {
                         final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                        final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
+                        final ApplicationKey appKey = model.getBoundAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
                                 + ". Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));

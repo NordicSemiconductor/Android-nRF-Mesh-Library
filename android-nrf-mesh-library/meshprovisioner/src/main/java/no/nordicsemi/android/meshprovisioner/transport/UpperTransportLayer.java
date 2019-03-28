@@ -216,13 +216,15 @@ abstract class UpperTransportLayer extends AccessLayer {
         final int src = message.getSrc();
         final int dst = message.getDst();
         final byte[] ivIndex = message.getIvIndex();
-        final byte[] key = message.getKey();
+        final byte[] key;
 
         byte[] nonce;
         if (akf == APPLICATION_KEY_IDENTIFIER) {
+             key= message.getDeviceKey();
             nonce = createDeviceNonce(aszmic, sequenceNumber, src, dst, ivIndex);
             Log.v(TAG, "Device nonce: " + MeshParserUtils.bytesToHex(nonce, false));
         } else {
+             key = message.getApplicationKey().getKey();
             nonce = createApplicationNonce(aszmic, sequenceNumber, src, dst, ivIndex);
             Log.v(TAG, "Application nonce: " + MeshParserUtils.bytesToHex(nonce, false));
         }

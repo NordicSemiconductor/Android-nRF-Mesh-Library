@@ -22,7 +22,7 @@ public class LightHslGet extends GenericMessage {
      * @param appKey application key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightHslGet(@NonNull final byte[] appKey) throws IllegalArgumentException {
+    public LightHslGet(@NonNull final ApplicationKey appKey) throws IllegalArgumentException {
         super(appKey);
         assembleMessageParameters();
     }
@@ -34,6 +34,6 @@ public class LightHslGet extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
     }
 }
