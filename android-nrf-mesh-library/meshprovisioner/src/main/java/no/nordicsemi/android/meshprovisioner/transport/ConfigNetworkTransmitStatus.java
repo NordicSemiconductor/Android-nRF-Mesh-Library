@@ -74,6 +74,9 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
     @Override
     final void parseStatusParameters() {
         final byte[] payload = ((AccessMessage) mMessage).getAccessPdu();
+        mStatusCode = mParameters[0];
+        mStatusCodeName = getStatusCodeName(mStatusCode);
+
         mNetworkTransmitCount = payload[2] & 0b111;
         mNetworkTransmitIntervalSteps = (payload[2] >> 3) & 0b11111;
     }
@@ -94,6 +97,15 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
      */
     public int getNetworkTransmitIntervalSteps() {
         return mNetworkTransmitIntervalSteps;
+    }
+
+    /**
+     * Returns if the message was successful
+     *
+     * @return true if the message was successful or false otherwise
+     */
+    public final boolean isSuccessful() {
+        return mStatusCode == 0x00;
     }
 
     @Override

@@ -185,6 +185,14 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
                 provisioningProgress = new ProvisionerProgress(state, "App key status received...", R.drawable.ic_arrow_forward_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
+            case SENDING_NETWORK_TRANSMIT_SET:
+                provisioningProgress = new ProvisionerProgress(state, "Sending network transmit set...", R.drawable.ic_arrow_forward_black_alpha);
+                mProvisioningProgress.add(provisioningProgress);
+                break;
+            case NETWORK_TRANSMIT_STATUS_RECEIVED:
+                provisioningProgress = new ProvisionerProgress(state, "Network transmit status received...", R.drawable.ic_arrow_forward_black_alpha);
+                mProvisioningProgress.add(provisioningProgress);
+                break;
         }
         postValue(this);
     }

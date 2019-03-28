@@ -38,6 +38,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataStat
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigNetworkTransmitSet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNetworkTransmitStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigProxyStatus;
@@ -53,6 +54,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManagerCallbacks;
@@ -138,6 +140,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private MeshNetwork mMeshNetwork;
     private boolean mIsCompositionDataReceived;
     private boolean mIsAppKeyAddCompleted;
+    private boolean mIsNetworkRetransmitSetCompleted;
 
     private final Runnable mReconnectRunnable = this::startScan;
 
@@ -207,6 +210,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     boolean isAppKeyAddCompleted() {
         return mIsAppKeyAddCompleted;
+    }
+
+    boolean isNetworkRetransmitSetCompleted() {
+        return mIsNetworkRetransmitSetCompleted;
     }
 
     final MeshNetworkLiveData getMeshNetworkLiveData() {
@@ -747,6 +754,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     mProvisionedMeshNodeLiveData.postValue(node);
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.SENDING_APP_KEY_ADD);
                 }
+            } else if (meshMessage instanceof ConfigNetworkTransmitStatus) {
+                if (mSetupProvisionedNode) {
+                    mProvisionedMeshNodeLiveData.postValue(node);
+                    mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.SENDING_NETWORK_TRANSMIT_SET);
+                }
             }
         }
     }
@@ -785,8 +797,14 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             } else if (meshMessage instanceof ConfigAppKeyStatus) {
                 final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
                 if (mSetupProvisionedNode) {
-                    mIsAppKeyAddCompleted = true;
-                    mSetupProvisionedNode = false;
+                    if (status.isSuccessful()) {
+                        mHandler.postDelayed(() -> {
+                            final ConfigNetworkTransmitSet networkTransmitSet = new ConfigNetworkTransmitSet(2, 1);
+                            mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), networkTransmitSet);
+                        }, 2500);
+                        mIsAppKeyAddCompleted = true;
+                    }
+
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.APP_KEY_STATUS_RECEIVED);
                 } else {
                     updateNode(node);
@@ -836,11 +854,18 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 mMeshMessageLiveData.postValue(status);
 
             } else if (meshMessage instanceof ConfigNetworkTransmitStatus) {
-                if (updateNode(node)) {
-                    final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
+                final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
+                if (mSetupProvisionedNode) {
+                    mSetupProvisionedNode = false;
+                    if (status.isSuccessful()) {
+                        mIsNetworkRetransmitSetCompleted = true;
+                        Log.v(TAG, "Network Transmit was updated: " + status.getNetworkTransmitCount() + " " + status.getNetworkTransmitIntervalSteps());
+                    }
+                    mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.NETWORK_TRANSMIT_STATUS_RECEIVED);
+                } else {
+                    updateNode(node);
                     mMeshMessageLiveData.postValue(status);
                 }
-
             } else if (meshMessage instanceof ConfigRelayStatus) {
                 if (updateNode(node)) {
                     final ConfigRelayStatus status = (ConfigRelayStatus) meshMessage;
