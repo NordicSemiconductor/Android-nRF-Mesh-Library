@@ -854,13 +854,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 mMeshMessageLiveData.postValue(status);
 
             } else if (meshMessage instanceof ConfigNetworkTransmitStatus) {
-                final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
                 if (mSetupProvisionedNode) {
                     mSetupProvisionedNode = false;
-                    if (status.isSuccessful()) {
-                        mIsNetworkRetransmitSetCompleted = true;
-                        Log.v(TAG, "Network Transmit was updated: " + status.getNetworkTransmitCount() + " " + status.getNetworkTransmitIntervalSteps());
-                    }
+                    mIsNetworkRetransmitSetCompleted = true;
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.NETWORK_TRANSMIT_STATUS_RECEIVED);
                 } else {
                     updateNode(node);
