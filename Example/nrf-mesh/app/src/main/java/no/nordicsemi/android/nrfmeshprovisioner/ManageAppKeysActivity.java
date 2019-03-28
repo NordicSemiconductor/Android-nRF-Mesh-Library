@@ -23,6 +23,8 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.app.Activity;
+
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -68,10 +70,8 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
     public static final String RESULT_APP_KEY = "RESULT_APP_KEY";
     public static final String RESULT_APP_KEY_INDEX = "RESULT_APP_KEY_INDEX";
     public static final String RESULT_APP_KEY_LIST_SIZE = "RESULT_APP_KEY_LIST_SIZE";
-    public static final String APP_KEYS = "APP_KEYS";
     public static final int SELECT_APP_KEY = 2011; //Random number
     public static final int MANAGE_APP_KEYS = 2012; //Random number
-    private static final String MAIN_ACTIVITY = ".MainActivity";
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -98,6 +98,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         setSupportActionBar(toolbar);
         final FloatingActionButton fab = findViewById(R.id.fab);
 
+        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         final RecyclerView appKeysRecyclerView = findViewById(R.id.recycler_view_app_keys);
         appKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -147,7 +148,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         }
 
         fab.setOnClickListener(v -> {
-            final DialogFragmentAddAppKey dialogFragmentAddAppKey = DialogFragmentAddAppKey.newInstance(null);
+            final DialogFragmentAddAppKey dialogFragmentAddAppKey = DialogFragmentAddAppKey.newInstance();
             dialogFragmentAddAppKey.show(getSupportFragmentManager(), null);
         });
     }
@@ -179,7 +180,7 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
     }
 
     @Override
-    public void onItemClick(final int position, final ApplicationKey appKey) {
+    public void onItemClick(final int position, @NonNull final ApplicationKey appKey) {
         final int extras = getIntent().getExtras().getInt(Utils.EXTRA_DATA);
         switch (extras) {
             case Utils.MANAGE_APP_KEY:

@@ -24,6 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,9 +51,9 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public ManageAppKeyAdapter(final ManageAppKeysActivity activity, final MeshNetworkLiveData meshNetworkLiveData) {
-        this.mContext = activity;
-        meshNetworkLiveData.observe(activity, networkData -> {
+    public ManageAppKeyAdapter(@NonNull final Context context, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
+        this.mContext = context;
+        meshNetworkLiveData.observe((LifecycleOwner) context, networkData -> {
             //noinspection ConstantConditions
             final List<ApplicationKey> keys = networkData.getAppKeys();
             if (keys != null) {
@@ -110,7 +111,7 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final int position, final ApplicationKey appKey);
+        void onItemClick(final int position, @NonNull final ApplicationKey appKey);
     }
 
     final class ViewHolder extends RemovableViewHolder {

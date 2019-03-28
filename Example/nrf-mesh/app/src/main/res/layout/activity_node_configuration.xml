@@ -55,7 +55,8 @@
             android:layout_marginBottom="-7dp"
             android:indeterminate="true"
             android:indeterminateTint="@color/white"
-            android:visibility="invisible"/>
+            android:visibility="invisible"
+            tools:ignore="UnusedAttribute"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -140,8 +141,8 @@
                             android:layout_width="0dp"
                             android:layout_height="1dp"
                             android:background="@drawable/divider"
-                            app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"/>
 
                         <Button
@@ -221,8 +222,8 @@
                             android:paddingBottom="@dimen/activity_vertical_margin"
                             android:scrollbars="none"
                             android:visibility="gone"
-                            app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             tools:visibility="visible"/>
 
@@ -234,7 +235,7 @@
                         android:layout_width="0dp"
                         android:layout_height="1dp"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/icon"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/container_app_key_bind"/>
 
                     <Button
@@ -298,7 +299,7 @@
                         android:layout_width="0dp"
                         android:layout_height="1dp"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/icon"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/proxy_state_summary"/>
 
                     <Button
@@ -323,12 +324,12 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginStart="@dimen/item_padding_end"
                         android:layout_marginEnd="@dimen/item_padding_start"
+                        android:enabled="false"
                         android:padding="@dimen/activity_horizontal_margin"
                         android:text="@string/action_proxy_state_set_on"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/div2"
-                        android:enabled="false"/>
+                        app:layout_constraintTop_toBottomOf="@id/div2"/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -341,11 +342,11 @@
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:background="@color/white"
+                android:visibility="gone"
                 app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/node_proxy_state_card"
-                android:visibility="gone"
                 tools:visibility="visible">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -368,10 +369,10 @@
                         android:id="@+id/filter_switch"
                         android:layout_width="150dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/activity_horizontal_margin"
                         android:checked="true"
                         android:text="@string/white_list_filter"
                         android:textColor="@color/textColorSecondary"
-                        android:layout_marginEnd="@dimen/activity_horizontal_margin"
                         app:layout_constraintBottom_toBottomOf="@+id/proxy_filter_tool_bar"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/proxy_filter_tool_bar"
@@ -421,7 +422,7 @@
                         android:layout_width="0dp"
                         android:layout_height="1dp"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/icon"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/container_proxy_filter"/>
 
                     <Button

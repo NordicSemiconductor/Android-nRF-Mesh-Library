@@ -22,29 +22,30 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.AppKeyAdapter;
 
-public class DialogFragmentEditAppKey extends DialogFragment implements AppKeyAdapter.OnItemClickListener {
+public class DialogFragmentEditAppKey extends DialogFragment {
 
     private static final String POSITION = "POSITION";
     private static final String APP_KEY = "APP_KEY";
@@ -57,6 +58,10 @@ public class DialogFragmentEditAppKey extends DialogFragment implements AppKeyAd
 
     private int mPosition;
     private ApplicationKey mAppKey;
+
+    public interface DialogFragmentEditAppKeysListener {
+        void onAppKeysUpdated(final int position, final String appKey);
+    }
 
     public static DialogFragmentEditAppKey newInstance(final int position, final ApplicationKey appKey) {
         DialogFragmentEditAppKey fragmentNetworkKey = new DialogFragmentEditAppKey();
@@ -79,6 +84,7 @@ public class DialogFragmentEditAppKey extends DialogFragment implements AppKeyAd
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        @SuppressLint("InflateParams")
         final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
         ButterKnife.bind(this, rootView);
 
@@ -115,10 +121,10 @@ public class DialogFragmentEditAppKey extends DialogFragment implements AppKeyAd
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String appKey = appKeyInput.getText().toString();
+            final String appKey = appKeyInput.getEditableText().toString();
             if (validateInput(appKey)) {
                 try {
-                    ((DialogFragmentEditAppKeysListener) getContext()).onAppKeysUpdated(mPosition, appKey);
+                    ((DialogFragmentEditAppKeysListener) requireContext()).onAppKeysUpdated(mPosition, appKey);
                     dismiss();
                 } catch (IllegalArgumentException ex) {
                     appKeysInputLayout.setError(ex.getMessage());
@@ -139,14 +145,5 @@ public class DialogFragmentEditAppKey extends DialogFragment implements AppKeyAd
             appKeysInputLayout.setError(ex.getMessage());
         }
         return false;
-    }
-
-    @Override
-    public void onItemClick(final int position, final ApplicationKey appKey) {
-
-    }
-
-    public interface DialogFragmentEditAppKeysListener {
-        void onAppKeysUpdated(final int position, final String appKey);
     }
 }
