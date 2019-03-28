@@ -125,7 +125,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
                     }
                     sequenceNumbers.add(message.getSequenceNumber());
                     Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNumbers.get(i), false));
-                    final byte[] encryptedPayload = encryptNetworkPduPayload(message, sequenceNumbers.get(i), lowerTransportPdu, encryptionKey);
+                    final byte[] nonce = createNetworkNonce(ctlTTL, sequenceNumbers.get(i), src, message.getIvIndex());
+                    final byte[] encryptedPayload = encryptPdu(lowerTransportPdu, encryptionKey, nonce, message.getDst(), SecureUtils.getNetMicLength(message.getCtl()));
                     encryptedNetworkPduPayloadMap.put(i, encryptedPayload);
                     Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedPayload, false));
                 }
@@ -138,7 +139,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
                     final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
                     message.setSequenceNumber(sequenceNum);
                     sequenceNumbers.add(message.getSequenceNumber());
-                    final byte[] encryptedPayload = encryptProxyConfigurationPduPayload(message, lowerTransportPdu, encryptionKey);
+                    final byte[] nonce = createProxyNonce(message.getSequenceNumber(), src, message.getIvIndex());
+                    final byte[] encryptedPayload = encryptPdu(lowerTransportPdu, encryptionKey, nonce, message.getDst(), SecureUtils.getNetMicLength(message.getCtl()));
                     encryptedNetworkPduPayloadMap.put(i, encryptedPayload);
                     Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedPayload, false));
                 }
@@ -201,7 +203,9 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 message.setSequenceNumber(sequenceNum);
 
                 Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNum, false));
-                encryptedNetworkPayload = encryptNetworkPduPayload(message, sequenceNum, lowerTransportPdu, encryptionKey);
+
+                final byte[] nonce = createNetworkNonce(ctlTTL, sequenceNum, src, message.getIvIndex());
+                encryptedNetworkPayload = encryptPdu(lowerTransportPdu, encryptionKey, nonce, message.getDst(), SecureUtils.getNetMicLength(message.getCtl()));
                 if (encryptedNetworkPayload == null)
                     return null;
                 Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedNetworkPayload, false));
@@ -506,55 +510,6 @@ abstract class NetworkLayer extends LowerTransportLayer {
     }
 
     /**
-     * Encrypts the network payload of a network pdu
-     *
-     * @param message           Mesh message containing network layer pdu
-     * @param lowerTransportPdu Lower transport pdu to be encrypted
-     * @param encryptionKey     Key used to encrypt the payload.
-     * @return Encrypted payload
-     */
-    private byte[] encryptNetworkPduPayload(@NonNull final Message message,
-                                            @NonNull final byte[] sequenceNumber,
-                                            @NonNull final byte[] lowerTransportPdu,
-                                            @NonNull final byte[] encryptionKey) {
-
-        final byte ctlTTL = (byte) ((message.getCtl() << 7) | message.getTtl());
-        final byte[] networkNonce = createNetworkNonce(ctlTTL, sequenceNumber, message.getSrc(), message.getIvIndex());
-        Log.v(TAG, "Network nonce: " + MeshParserUtils.bytesToHex(networkNonce, false));
-
-        final int dst = message.getDst();
-        //Adding the destination address on network layer
-        final byte[] unencryptedNetworkPayload = ByteBuffer.allocate(2 + lowerTransportPdu.length).order(ByteOrder.BIG_ENDIAN).putShort((short) dst).put(lowerTransportPdu).array();
-
-        //Network layer encryption
-        return SecureUtils.encryptCCM(unencryptedNetworkPayload, encryptionKey, networkNonce, SecureUtils.getNetMicLength(message.getCtl()));
-    }
-
-    /**
-     * Encrypts the network of a proxy configuration pdu.
-     *
-     * @param message           Mesh message containing network layer pdu
-     * @param lowerTransportPdu Lower transport pdu to be encrypted
-     * @param encryptionKey     Key used to encrypt the payload
-     * @return Encrypted payload
-     */
-    private byte[] encryptProxyConfigurationPduPayload(@NonNull final Message message,
-                                                       @NonNull final byte[] lowerTransportPdu,
-                                                       @NonNull final byte[] encryptionKey) {
-
-        final byte[] proxyNonce = createProxyNonce(message.getSequenceNumber(), message.getSrc(), message.getIvIndex());
-        Log.v(TAG, "Proxy nonce: " + MeshParserUtils.bytesToHex(proxyNonce, false));
-
-        final int dst = message.getDst();
-        //Adding the destination address on network layer
-        final byte[] unencryptedNetworkPayload = ByteBuffer.allocate(2 + lowerTransportPdu.length).order(ByteOrder.BIG_ENDIAN)
-                .putShort((short) dst)
-                .put(lowerTransportPdu).array();
-        //Network layer encryption
-        return SecureUtils.encryptCCM(unencryptedNetworkPayload, encryptionKey, proxyNonce, SecureUtils.getNetMicLength(message.getCtl()));
-    }
-
-    /**
      * Obfuscates the network header
      *
      * @param ctlTTL         Message type and ttl bit
@@ -681,6 +636,28 @@ abstract class NetworkLayer extends LowerTransportLayer {
     }
 
     /**
+     * Encrypts the pdu
+     *
+     * @param lowerTransportPdu lower transport pdu to be encrypted
+     * @param encryptionKey     encryption key
+     * @param nonce             nonce depending on the pdu type
+     * @param dst               Destination address
+     * @param micLength         Message integrity check length
+     */
+    private byte[] encryptPdu(@NonNull final byte[] lowerTransportPdu,
+                              @NonNull final byte[] encryptionKey,
+                              @NonNull final byte[] nonce,
+                              final int dst,
+                              final int micLength) {
+        //Adding the destination address on network layer
+        final byte[] unencryptedNetworkPayload = ByteBuffer.allocate(2 + lowerTransportPdu.length).order(ByteOrder.BIG_ENDIAN)
+                .putShort((short) dst)
+                .put(lowerTransportPdu).array();
+        //Network layer encryption
+        return SecureUtils.encryptCCM(unencryptedNetworkPayload, encryptionKey, nonce, micLength);
+    }
+
+    /**
      * Decrypts the pdu
      *
      * @param pdu          PDU received
@@ -703,9 +680,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
         //Here we go through all the network keys and filter out network keys based on the nid.
         for (int i = 0; i < networkKeys.size(); i++) {
             NetworkKey networkKey = networkKeys.get(i);
-            final SecureUtils.K2Output output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
-            if (nid == output.getNid()) {
-                final SecureUtils.K2Output k2Output = getK2Output();
+            final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
+            if (nid == k2Output.getNid()) {
                 final byte[] encryptionKey = k2Output.getEncryptionKey();
                 try {
                     return SecureUtils.decryptCCM(transportPdu, encryptionKey, nonce, micLength);
