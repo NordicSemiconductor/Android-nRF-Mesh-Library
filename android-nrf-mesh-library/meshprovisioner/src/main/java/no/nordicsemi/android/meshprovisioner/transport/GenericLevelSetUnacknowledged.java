@@ -31,12 +31,12 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
     /**
      * Constructs GenericLevelSetUnacknowledged message.
      *
-     * @param appKey application key for this message
-     * @param level  level of the GenericLevelModel
-     * @param tId    transaction id
+     * @param appKey {@link ApplicationKey} key for this message
+     * @param level  Level of the GenericLevelModel
+     * @param tId    Transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericLevelSetUnacknowledged(@NonNull final byte[] appKey,
+    public GenericLevelSetUnacknowledged(@NonNull final ApplicationKey appKey,
                                          final int level,
                                          final int tId) throws IllegalArgumentException {
         this(appKey, null, null, null, level, tId);
@@ -45,16 +45,16 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
     /**
      * Constructs GenericLevelSetUnacknowledged message.
      *
-     * @param appKey               application key for this message
-     * @param transitionSteps      transition steps for the level
-     * @param transitionResolution transition resolution for the level
-     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param level                level of the GenericLevelModel
-     * @param tId                  transaction id
+     * @param appKey               {@link ApplicationKey} key for this message
+     * @param transitionSteps      Transition steps for the level
+     * @param transitionResolution Transition resolution for the level
+     * @param delay                Delay for this message to be executed 0 - 1275 milliseconds
+     * @param level                Level of the GenericLevelModel
+     * @param tId                  Transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public GenericLevelSetUnacknowledged(@NonNull final byte[] appKey,
+    public GenericLevelSetUnacknowledged(@NonNull final ApplicationKey appKey,
                                          @Nullable final Integer transitionSteps,
                                          @Nullable final Integer transitionResolution,
                                          @Nullable final Integer delay,
@@ -78,7 +78,7 @@ public class GenericLevelSetUnacknowledged extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "Level: " + mLevel);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
