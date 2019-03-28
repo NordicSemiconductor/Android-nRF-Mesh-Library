@@ -56,11 +56,8 @@ import static android.app.Activity.RESULT_OK;
 public class NetworkFragment extends Fragment implements Injectable,
         NodeAdapter.OnItemClickListener {
 
-<<<<<<< HEAD
-=======
     private static final String TAG_SCANNER_FRAGMENT = "SCANNER_FRAGMENT";
     private static int mConfigurationSteps = 0;
->>>>>>> Add support for setting default network retransmit setting to 3 as a part of initial configuration.
     private SharedViewModel mViewModel;
 
     @Inject
