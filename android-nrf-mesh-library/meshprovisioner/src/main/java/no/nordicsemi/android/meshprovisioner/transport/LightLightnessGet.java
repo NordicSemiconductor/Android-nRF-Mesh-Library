@@ -19,10 +19,10 @@ public class LightLightnessGet extends GenericMessage {
     /**
      * Constructs LightLightnessGet message.
      *
-     * @param appKey application key for this message
+     * @param appKey {@link ApplicationKey} key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightLightnessGet(@NonNull final byte[] appKey) throws IllegalArgumentException {
+    public LightLightnessGet(@NonNull final ApplicationKey appKey) throws IllegalArgumentException {
         super(appKey);
         assembleMessageParameters();
     }
@@ -34,6 +34,6 @@ public class LightLightnessGet extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
     }
 }

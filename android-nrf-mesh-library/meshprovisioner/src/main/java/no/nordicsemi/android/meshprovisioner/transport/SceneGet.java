@@ -17,11 +17,11 @@ public class SceneGet extends GenericMessage {
     /**
      * Constructs SceneGet message.
      *
-     * @param appKey application key for this message
+     * @param appKey {@link ApplicationKey} key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public SceneGet(@NonNull final byte[] appKey) {
+    public SceneGet(@NonNull final ApplicationKey appKey) {
         super(appKey);
         assembleMessageParameters();
     }
@@ -33,6 +33,6 @@ public class SceneGet extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
     }
 }

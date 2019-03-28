@@ -19,6 +19,7 @@ import android.widget.Toast;
 import javax.inject.Inject;
 
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
@@ -96,8 +97,8 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
             actionSend.setOnClickListener(v -> {
                 messageContainer.setVisibility(View.GONE);
                 receivedMessage.setText("");
-                final String opCode = opCodeEditText.getText().toString().trim();
-                final String parameters = parametersEditText.getText().toString().trim();
+                final String opCode = opCodeEditText.getEditableText().toString().trim();
+                final String parameters = parametersEditText.getEditableText().toString().trim();
 
                 if (!validateOpcode(opCode, opCodeLayout))
                     return;
@@ -212,7 +213,7 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
             final VendorModel model = (VendorModel) mViewModel.getSelectedModel().getValue();
             if (model != null) {
                 final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                final byte[] appKey = model.getBoundAppKey(appKeyIndex).getKey();
+                final ApplicationKey appKey = model.getBoundAppKey(appKeyIndex);
                 final MeshMessage message;
                 if (acknowledged) {
                     message = new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);

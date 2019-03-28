@@ -55,23 +55,25 @@ abstract class Message implements Parcelable {
      **/
     private byte[] mSequenceNumber;
     /**
-     * key, used for encryption in transport layer which could be application key or device key
+     * deviceKey, used for encryption in transport layer which could be application deviceKey or device deviceKey
      **/
-    private byte[] key;
+    private byte[] deviceKey;
+
+    private ApplicationKey applicationKey;
     /**
-     * encryption key, derived from k2 using network key
+     * encryption deviceKey, derived from k2 using network deviceKey
      **/
     private byte[] encryptionKey;
     /**
-     * privacy key, derived from k2 using network key
+     * privacy deviceKey, derived from k2 using network deviceKey
      **/
     private byte[] privacyKey;
     /**
-     * akf if akf = 0 device key to be used for encryption in the transport layer if not use application key
+     * akf if akf = 0 device deviceKey to be used for encryption in the transport layer if not use application deviceKey
      **/
     private int akf;
     /**
-     * aid, if akf = 0 aid is also 0 if not aid is the identifier for the key used for encrytpion
+     * aid, if akf = 0 aid is also 0 if not aid is the identifier for the deviceKey used for encrytpion
      **/
     private int aid;
     /**
@@ -100,7 +102,8 @@ abstract class Message implements Parcelable {
         src = source.readInt();
         dst = source.readInt();
         mSequenceNumber = source.createByteArray();
-        key = source.createByteArray();
+        deviceKey = source.createByteArray();
+        applicationKey = (ApplicationKey) source.readValue(ApplicationKey.class.getClassLoader());
         encryptionKey = source.createByteArray();
         privacyKey = source.createByteArray();
         akf = source.readInt();
@@ -122,7 +125,8 @@ abstract class Message implements Parcelable {
         dest.writeInt(src);
         dest.writeInt(dst);
         dest.writeByteArray(mSequenceNumber);
-        dest.writeByteArray(key);
+        dest.writeByteArray(deviceKey);
+        dest.writeValue(applicationKey);
         dest.writeByteArray(encryptionKey);
         dest.writeByteArray(privacyKey);
         dest.writeInt(akf);
@@ -177,12 +181,20 @@ abstract class Message implements Parcelable {
         this.mSequenceNumber = sequenceNumber;
     }
 
-    public final byte[] getKey() {
-        return key;
+    public final byte[] getDeviceKey() {
+        return deviceKey;
     }
 
-    public final void setKey(final byte[] key) {
-        this.key = key;
+    public final void setDeviceKey(final byte[] deviceKey) {
+        this.deviceKey = deviceKey;
+    }
+
+    public final ApplicationKey getApplicationKey() {
+        return applicationKey;
+    }
+
+    public final void setApplicationKey(final ApplicationKey key) {
+        this.applicationKey = key;
     }
 
     public final byte[] getEncryptionKey() {
