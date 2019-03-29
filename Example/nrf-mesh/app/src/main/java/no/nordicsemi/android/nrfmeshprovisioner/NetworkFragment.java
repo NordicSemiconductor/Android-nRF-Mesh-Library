@@ -56,7 +56,6 @@ import static android.app.Activity.RESULT_OK;
 public class NetworkFragment extends Fragment implements Injectable,
         NodeAdapter.OnItemClickListener {
 
-    private static final String TAG_SCANNER_FRAGMENT = "SCANNER_FRAGMENT";
     private SharedViewModel mViewModel;
 
     @Inject
