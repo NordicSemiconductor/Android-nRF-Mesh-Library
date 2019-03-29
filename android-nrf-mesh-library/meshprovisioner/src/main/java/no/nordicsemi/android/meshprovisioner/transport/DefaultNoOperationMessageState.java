@@ -236,7 +236,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
      */
     private void parseControlMessage(final ControlMessage controlMessage) {
         //Get the segment count count of the access message
-        final int segmentCount = message.getNetworkPdu().size();
+        final int segmentCount = message.getNetworkLayerPdu().size();
         if (controlMessage.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
             final TransportControlMessage transportControlMessage = controlMessage.getTransportControlMessage();
             switch (transportControlMessage.getState()) {

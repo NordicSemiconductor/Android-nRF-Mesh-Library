@@ -894,7 +894,6 @@ public class MeshManagerApi implements MeshMngrApi {
                     break;
                 }
             }
-
             mMeshNetwork.nodes.add(meshNode);
         }
     };

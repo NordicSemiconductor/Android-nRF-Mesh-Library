@@ -105,7 +105,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
 
         final int src = message.getSrc();
         final SparseArray<byte[]> lowerTransportPduMap;
-        final SparseArray<byte[]> encryptedNetworkPduPayloadMap = new SparseArray<>();
+        final SparseArray<byte[]> encryptedPduPayload = new SparseArray<>();
         final List<byte[]> sequenceNumbers = new ArrayList<>();
 
         final int pduType = message.getPduType();
@@ -127,7 +127,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
                     Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNumbers.get(i), false));
                     final byte[] nonce = createNetworkNonce(ctlTTL, sequenceNumbers.get(i), src, message.getIvIndex());
                     final byte[] encryptedPayload = encryptPdu(lowerTransportPdu, encryptionKey, nonce, message.getDst(), SecureUtils.getNetMicLength(message.getCtl()));
-                    encryptedNetworkPduPayloadMap.put(i, encryptedPayload);
+                    encryptedPduPayload.put(i, encryptedPayload);
                     Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedPayload, false));
                 }
                 break;
@@ -141,29 +141,29 @@ abstract class NetworkLayer extends LowerTransportLayer {
                     sequenceNumbers.add(message.getSequenceNumber());
                     final byte[] nonce = createProxyNonce(message.getSequenceNumber(), src, message.getIvIndex());
                     final byte[] encryptedPayload = encryptPdu(lowerTransportPdu, encryptionKey, nonce, message.getDst(), SecureUtils.getNetMicLength(message.getCtl()));
-                    encryptedNetworkPduPayloadMap.put(i, encryptedPayload);
+                    encryptedPduPayload.put(i, encryptedPayload);
                     Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedPayload, false));
                 }
                 break;
         }
 
-        final SparseArray<byte[]> networkPduMap = new SparseArray<>();
-        for (int i = 0; i < encryptedNetworkPduPayloadMap.size(); i++) {
+        final SparseArray<byte[]> pduArray = new SparseArray<>();
+        for (int i = 0; i < encryptedPduPayload.size(); i++) {
             //Create the privacy random
-            final byte[] encryptedPayload = encryptedNetworkPduPayloadMap.get(i);
+            final byte[] encryptedPayload = encryptedPduPayload.get(i);
             final byte[] privacyRandom = createPrivacyRandom(encryptedPayload);
             //Next we create the PECB
             final byte[] pecb = createPECB(message.getIvIndex(), privacyRandom, privacyKey);
 
             final byte[] header = obfuscateNetworkHeader(ctlTTL, sequenceNumbers.get(i), src, pecb);
-            final byte[] networkPdu = ByteBuffer.allocate(1 + 1 + header.length + encryptedPayload.length).order(ByteOrder.BIG_ENDIAN)
+            final byte[] pdu = ByteBuffer.allocate(1 + 1 + header.length + encryptedPayload.length).order(ByteOrder.BIG_ENDIAN)
                     .put((byte) pduType)
                     .put(iviNID)
                     .put(header)
                     .put(encryptedPayload)
                     .array();
-            networkPduMap.put(i, networkPdu);
-            message.setNetworkPdu(networkPduMap);
+            pduArray.put(i, pdu);
+            message.setNetworkLayerPdu(pduArray);
         }
 
         return message;
@@ -212,7 +212,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 break;
         }
 
-        final SparseArray<byte[]> networkPduMap = new SparseArray<>();
+        final SparseArray<byte[]> pduArray = new SparseArray<>();
         if (encryptedNetworkPayload == null)
             return null;
 
@@ -221,14 +221,14 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final byte[] pecb = createPECB(message.getIvIndex(), privacyRandom, privacyKey);
 
         final byte[] header = obfuscateNetworkHeader(ctlTTL, message.getSequenceNumber(), src, pecb);
-        final byte[] networkPdu = ByteBuffer.allocate(1 + 1 + header.length + encryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN)
+        final byte[] pdu = ByteBuffer.allocate(1 + 1 + header.length + encryptedNetworkPayload.length).order(ByteOrder.BIG_ENDIAN)
                 .put((byte) pduType)
                 .put(iviNID)
                 .put(header)
                 .put(encryptedNetworkPayload)
                 .array();
-        networkPduMap.put(segment, networkPdu);
-        message.setNetworkPdu(networkPduMap);
+        pduArray.put(segment, pdu);
+        message.setNetworkLayerPdu(pduArray);
         return message;
     }
 
@@ -345,7 +345,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
                     final SparseArray<byte[]> segmentedMessages = segmentedAccessMessagesMessages.clone();
                     segmentedAccessMessagesMessages = null;
                     message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-                    message.setNetworkPdu(segmentedMessages);
+                    message.setNetworkLayerPdu(segmentedMessages);
                     message.setTtl(ttl);
                     message.setSrc(src);
                     message.setDst(dst);
@@ -357,9 +357,9 @@ abstract class NetworkLayer extends LowerTransportLayer {
             } else {
                 final AccessMessage message = new AccessMessage();
                 message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-                final SparseArray<byte[]> networkPduMap = new SparseArray<>();
-                networkPduMap.put(0, data);
-                message.setNetworkPdu(networkPduMap);
+                final SparseArray<byte[]> pduArray = new SparseArray<>();
+                pduArray.put(0, data);
+                message.setNetworkLayerPdu(pduArray);
                 message.setTtl(ttl);
                 message.setSrc(src);
                 message.setDst(dst);
@@ -458,7 +458,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
         message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         final SparseArray<byte[]> proxyPduArray = new SparseArray<>();
         proxyPduArray.put(0, data);
-        message.setNetworkPdu(proxyPduArray);
+        message.setNetworkLayerPdu(proxyPduArray);
         message.setTtl(ttl);
         message.setSrc(src);
         message.setDst(dst);
@@ -493,7 +493,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
             final SparseArray<byte[]> segmentedMessages = segmentedControlMessagesMessages.clone();
             segmentedControlMessagesMessages = null;
             message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-            message.setNetworkPdu(segmentedMessages);
+            message.setNetworkLayerPdu(segmentedMessages);
             message.setTtl(ttl);
             message.setSrc(src);
             message.setDst(dst);
@@ -639,7 +639,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * Encrypts the pdu
      *
      * @param lowerTransportPdu lower transport pdu to be encrypted
-     * @param encryptionKey     encryption key
+     * @param encryptionKey     Encryption key
      * @param nonce             nonce depending on the pdu type
      * @param dst               Destination address
      * @param micLength         Message integrity check length
