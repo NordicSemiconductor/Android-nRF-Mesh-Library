@@ -128,8 +128,12 @@ final class MeshTransport extends NetworkLayer {
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    final AccessMessage createMeshMessage(final int src, final int dst,
-                                          final byte[] key, final int akf, final int aid, final int aszmic,
+    final AccessMessage createMeshMessage(final int src,
+                                          final int dst,
+                                          final byte[] key,
+                                          final int akf,
+                                          final int aid,
+                                          final int aszmic,
                                           final int accessOpCode, final byte[] accessMessageParameters) {
         final int sequenceNumber = incrementSequenceNumber(src);
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
@@ -177,9 +181,14 @@ final class MeshTransport extends NetworkLayer {
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    final AccessMessage createMeshMessage(final int src, final int dst,
-                                          final ApplicationKey key, final int akf, final int aid, final int aszmic,
-                                          final int accessOpCode, final byte[] accessMessageParameters) {
+    final AccessMessage createMeshMessage(final int src,
+                                          final int dst,
+                                          final ApplicationKey key,
+                                          final int akf,
+                                          final int aid,
+                                          final int aszmic,
+                                          final int accessOpCode,
+                                          final byte[] accessMessageParameters) {
         final int sequenceNumber = incrementSequenceNumber(src);
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
@@ -226,8 +235,13 @@ final class MeshTransport extends NetworkLayer {
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    final AccessMessage createVendorMeshMessage(final int companyIdentifier, final int src, final int dst,
-                                                final ApplicationKey key, final int akf, final int aid, final int aszmic,
+    final AccessMessage createVendorMeshMessage(final int companyIdentifier,
+                                                final int src,
+                                                final int dst,
+                                                final ApplicationKey key,
+                                                final int akf,
+                                                final int aid,
+                                                final int aszmic,
                                                 final int accessOpCode, final byte[] accessMessageParameters) {
         final int sequenceNumber = incrementSequenceNumber(src);
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
