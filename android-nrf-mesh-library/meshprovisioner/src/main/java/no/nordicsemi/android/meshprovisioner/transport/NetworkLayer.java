@@ -238,57 +238,22 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * This method will drop messages with an invalid sequence number as all mesh messages are supposed to have a sequence
      * </p>
      *
-     * @param data PDU received from the mesh node
+     * @param data                    PDU received from the mesh node
+     * @param decryptedNetworkPayload Decrypted network payload
      * @return complete {@link Message} that was successfully parsed or null otherwise
      */
-    final Message parseMeshMessage(@NonNull final byte[] data) throws ExtendedInvalidCipherTextException {
+    final Message parseMeshMessage(@NonNull final ProvisionedMeshNode node,
+                                   @NonNull final byte[] data,
+                                   @NonNull final byte[] networkHeader,
+                                   final byte[] decryptedNetworkPayload) throws ExtendedInvalidCipherTextException {
+        mMeshNode = node;
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner();
-        final int nid = data[1] & 0x7F;
-        //De-obfuscate network header
-        final byte[] networkHeader = deObfuscateNetworkHeader(data);
         final int ctlTtl = networkHeader[0];
         final int ctl = (ctlTtl >> 7) & 0x01;
         final int ttl = ctlTtl & 0x7F;
         Log.v(TAG, "TTL for received message: " + ttl);
-
         final byte[] sequenceNumber = ByteBuffer.allocate(3).order(ByteOrder.BIG_ENDIAN).put(networkHeader, 1, 3).array();
         final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
-        if (mMeshNode == null || mMeshNode.getUnicastAddress() != src) {
-            mMeshNode = mNetworkLayerCallbacks.getProvisionedNode(src);
-            if (mMeshNode == null) {
-                return null;
-            }
-        }
-
-        //Check if the sequence number has been incremented since the last message sent and return null if not
-        final int sequenceNo = MeshParserUtils.getSequenceNumber(sequenceNumber);
-        Log.v(TAG, "Sequence number of received access message: " + MeshParserUtils.getSequenceNumber(sequenceNumber));
-        if (sequenceNo > mMeshNode.getReceivedSequenceNumber()) {
-            if (!MeshParserUtils.isValidSequenceNumber(sequenceNo)) {
-                return null;
-            }
-            mMeshNode.setReceivedSequenceNumber(sequenceNo);
-        }
-
-        byte[] nonce = null;
-        final byte[] decryptedNetworkPayload;
-        final byte[] ivIndex = mUpperTransportLayerCallbacks.getIvIndex();
-        switch (data[0]) {
-            case MeshManagerApi.PDU_TYPE_NETWORK:
-                nonce = createNetworkNonce((byte) ctlTtl, sequenceNumber, src, ivIndex);
-                break;
-            case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
-                nonce = createProxyNonce(sequenceNumber, src, ivIndex);
-                break;
-
-        }
-
-        if (nonce == null)
-            return null;
-        decryptedNetworkPayload = decryptPdu(data, nonce, nid, networkHeader.length, SecureUtils.getNetMicLength(ctl));
-        if (decryptedNetworkPayload == null)
-            return null;
-
         if (ctl == 1) {
             return parseControlMessage(provisioner.getProvisionerAddress(), data, networkHeader, decryptedNetworkPayload, src, sequenceNumber);
         } else {
@@ -543,8 +508,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param pdu Received from the node
      * @return Obfuscated network header
      */
-    private byte[] deObfuscateNetworkHeader(@NonNull final byte[] pdu) {
-        final byte[] privacyKey = getK2Output().getPrivacyKey();
+    static byte[] deObfuscateNetworkHeader(@NonNull final byte[] pdu, @NonNull final byte[] ivIndex, @NonNull final byte[] privacyKey) {
         final ByteBuffer obfuscatedNetworkBuffer = ByteBuffer.allocate(6);
         obfuscatedNetworkBuffer.order(ByteOrder.BIG_ENDIAN);
         obfuscatedNetworkBuffer.put(pdu, 2, 6);
@@ -555,7 +519,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
         privacyRandomBuffer.put(pdu, 8, 7);
         final byte[] privacyRandom = createPrivacyRandom(privacyRandomBuffer.array());
 
-        final byte[] pecb = createPECB(privacyRandom, privacyKey);
+        final byte[] pecb = createPECB(ivIndex, privacyRandom, privacyKey);
         final byte[] deObfuscatedData = new byte[6];
 
         for (int i = 0; i < 6; i++)
@@ -570,25 +534,13 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param encryptedUpperTransportPDU Encrypted transport pdu
      * @return Privacy random
      */
-    private byte[] createPrivacyRandom(@NonNull final byte[] encryptedUpperTransportPDU) {
+    private static byte[] createPrivacyRandom(@NonNull final byte[] encryptedUpperTransportPDU) {
         final byte[] privacyRandom = new byte[7];
         System.arraycopy(encryptedUpperTransportPDU, 0, privacyRandom, 0, privacyRandom.length);
         return privacyRandom;
     }
 
-    private byte[] createPECB(@NonNull final byte[] privacyRandom, @NonNull final byte[] privacyKey) {
-        final byte[] ivIndex = mUpperTransportLayerCallbacks.getIvIndex();
-        final ByteBuffer buffer = ByteBuffer.allocate(5 + privacyRandom.length + ivIndex.length);
-        buffer.order(ByteOrder.BIG_ENDIAN);
-        buffer.put(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00});
-        buffer.put(ivIndex);
-        buffer.put(privacyRandom);
-        final byte[] temp = buffer.array();
-        Log.v(TAG, "Privacy Random: " + MeshParserUtils.bytesToHex(temp, false));
-        return SecureUtils.encryptWithAES(temp, privacyKey);
-    }
-
-    private byte[] createPECB(@NonNull final byte[] ivIndex, @NonNull final byte[] privacyRandom, @NonNull final byte[] privacyKey) {
+    private static byte[] createPECB(@NonNull final byte[] ivIndex, @NonNull final byte[] privacyRandom, @NonNull final byte[] privacyKey) {
         final ByteBuffer buffer = ByteBuffer.allocate(5 + privacyRandom.length + ivIndex.length);
         buffer.order(ByteOrder.BIG_ENDIAN);
         buffer.put(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00});
@@ -606,7 +558,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param src            Source address
      * @return Network nonce
      */
-    private byte[] createNetworkNonce(final byte ctlTTL, @NonNull final byte[] sequenceNumber, final int src, @NonNull final byte[] ivIndex) {
+    static byte[] createNetworkNonce(final byte ctlTTL, @NonNull final byte[] sequenceNumber, final int src, @NonNull final byte[] ivIndex) {
         final ByteBuffer networkNonce = ByteBuffer.allocate(13);
         networkNonce.put((byte) NONCE_TYPE_NETWORK); //Nonce type
         networkNonce.put(ctlTTL); // CTL and TTL
@@ -624,7 +576,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param src            Source address
      * @return Proxy nonce
      */
-    private byte[] createProxyNonce(@NonNull final byte[] sequenceNumber, final int src, @NonNull final byte[] ivIndex) {
+    static byte[] createProxyNonce(@NonNull final byte[] sequenceNumber, final int src, @NonNull final byte[] ivIndex) {
         final ByteBuffer applicationNonceBuffer = ByteBuffer.allocate(13);
         applicationNonceBuffer.put((byte) NONCE_TYPE_PROXY); //Nonce type
         applicationNonceBuffer.put((byte) PAD_PROXY_NONCE); //PAD
@@ -667,11 +619,11 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param micLength    Message integrity check length
      * @throws ExtendedInvalidCipherTextException if the decryption failed
      */
-    private byte[] decryptPdu(@NonNull final byte[] pdu,
-                              @NonNull final byte[] nonce,
-                              final int nid,
-                              final int headerLength,
-                              final int micLength) throws ExtendedInvalidCipherTextException {
+    byte[] decryptPdu(@NonNull final byte[] pdu,
+                      @NonNull final byte[] nonce,
+                      final int nid,
+                      final int headerLength,
+                      final int micLength) throws ExtendedInvalidCipherTextException {
         final int networkPayloadLength = pdu.length - (2 + headerLength);
         final byte[] transportPdu = new byte[networkPayloadLength];
         System.arraycopy(pdu, 8, transportPdu, 0, networkPayloadLength);

@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.transport.BaseMeshMessageHandler;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
+import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 
 /**
  * MeshMessageHandler class for handling mesh
@@ -56,12 +57,7 @@ final class MeshMessageHandler extends BaseMeshMessageHandler {
 
 
     @Override
-    protected final void parseNetworkPduNotifications(@NonNull final byte[] pdu, @NonNull final MeshNetwork network) {
-        super.parseNetworkPduNotifications(pdu, network);
-    }
-
-    @Override
-    protected final void parseProxyPduNotifications(@NonNull final byte[] pdu) {
-        super.parseProxyPduNotifications(pdu);
+    protected final void parseMeshPduNotifications(@NonNull final byte[] pdu, @NonNull final MeshNetwork network) throws ExtendedInvalidCipherTextException {
+        super.parseMeshPduNotifications(pdu, network);
     }
 }

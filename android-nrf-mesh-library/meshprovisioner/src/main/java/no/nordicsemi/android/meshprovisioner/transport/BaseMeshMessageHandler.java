@@ -23,20 +23,29 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 import android.util.SparseArray;
 
+import org.spongycastle.crypto.InvalidCipherTextException;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
+import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
+
+import static no.nordicsemi.android.meshprovisioner.transport.NetworkLayer.createNetworkNonce;
+import static no.nordicsemi.android.meshprovisioner.transport.NetworkLayer.createProxyNonce;
+import static no.nordicsemi.android.meshprovisioner.transport.NetworkLayer.deObfuscateNetworkHeader;
 
 /**
  * Abstract class that handles mesh messages
@@ -79,37 +88,77 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     protected abstract void setMeshStatusCallbacks(@NonNull final MeshStatusCallbacks statusCallbacks);
 
     /**
-     * Handle mesh States on receiving mesh message notifications
+     * Parse the mesh network/proxy pdus
      * <p>
-     * This method will jump to the current state and switch the state depending on the expected and the next message received.
+     * This method will try to network layer de-obfuscation and decryption using the available network keys
      * </p>
      *
      * @param pdu     mesh pdu that was sent
      * @param network {@link MeshNetwork}
      */
-    protected void parseNetworkPduNotifications(@NonNull final byte[] pdu, @NonNull final MeshNetwork network) {
-        final byte[] networkHeader = deObfuscateNetworkHeader(pdu, network.getPrimaryNetworkKey(), MeshParserUtils.intToBytes(network.getIvIndex()));
-        if (networkHeader != null) {
-            final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
-            final MeshMessageState state = getState(src);
-            if (state != null) {
-                ((DefaultNoOperationMessageState) state).parseMeshPdu(pdu);
-            }
-        }
-    }
+    protected void parseMeshPduNotifications(@NonNull final byte[] pdu, @NonNull final MeshNetwork network) throws ExtendedInvalidCipherTextException {
+        final List<NetworkKey> networkKeys = network.getNetKeys();
+        final int nid = pdu[1] & 0x7F;
+        //Here we go through all the network keys and filter out network keys based on the nid.
+        for (int i = 0; i < networkKeys.size(); i++) {
+            NetworkKey networkKey = networkKeys.get(i);
+            final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
+            if (nid == k2Output.getNid()) {
+                final byte[] networkHeader = deObfuscateNetworkHeader(pdu, MeshParserUtils.intToBytes(network.getIvIndex()), k2Output.getPrivacyKey());
+                if (networkHeader != null) {
+                    final int ctlTtl = networkHeader[0];
+                    final int ctl = (ctlTtl >> 7) & 0x01;
+                    final int ttl = ctlTtl & 0x7F;
+                    Log.v(TAG, "TTL for received message: " + ttl);
 
-    /**
-     * Handle mesh States on receiving mesh message notifications
-     * <p>
-     * This method will jump to the current state and switch the state depending on the expected and the next message received.
-     * </p>
-     *
-     * @param pdu mesh pdu that was sent
-     */
-    protected void parseProxyPduNotifications(@NonNull final byte[] pdu) {
-        final MeshMessageState state = getState(MeshAddress.UNASSIGNED_ADDRESS);
-        if (state instanceof DefaultNoOperationMessageState) {
-            ((DefaultNoOperationMessageState) state).parseMeshPdu(pdu);
+                    final byte[] sequenceNumber = ByteBuffer.allocate(3).order(ByteOrder.BIG_ENDIAN).put(networkHeader, 1, 3).array();
+                    final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
+
+                    final int sequenceNo = MeshParserUtils.getSequenceNumber(sequenceNumber);
+                    Log.v(TAG, "Sequence number of received access message: " + MeshParserUtils.getSequenceNumber(sequenceNumber));
+
+                    final ProvisionedMeshNode node = network.getProvisionedNode(src);
+                    if (node != null) {
+                        //Check if the sequence number has been incremented since the last message sent and return null if not
+                        if (sequenceNo > node.getReceivedSequenceNumber()) {
+                            if (!MeshParserUtils.isValidSequenceNumber(sequenceNo)) {
+                                return;
+                            }
+                            node.setReceivedSequenceNumber(sequenceNo);
+                        }
+                    }
+
+                    byte[] nonce;
+                    final byte[] ivIndex = MeshParserUtils.intToBytes(network.getIvIndex());
+                    try {
+
+                        final int networkPayloadLength = pdu.length - (2 + networkHeader.length);
+                        final byte[] transportPdu = new byte[networkPayloadLength];
+                        System.arraycopy(pdu, 8, transportPdu, 0, networkPayloadLength);
+                        final byte[] decryptedNetworkPayload;
+                        final MeshMessageState state;
+                        if (pdu[0] == MeshManagerApi.PDU_TYPE_NETWORK) {
+                            nonce = createNetworkNonce((byte) ctlTtl, sequenceNumber, src, ivIndex);
+                            decryptedNetworkPayload = SecureUtils.decryptCCM(transportPdu, k2Output.getEncryptionKey(), nonce, SecureUtils.getNetMicLength(ctl));
+                            state = getState(src);
+                        } else {
+                            nonce = createProxyNonce(sequenceNumber, src, ivIndex);
+                            decryptedNetworkPayload = SecureUtils.decryptCCM(transportPdu, k2Output.getEncryptionKey(), nonce, SecureUtils.getNetMicLength(ctl));
+                            state = getState(MeshAddress.UNASSIGNED_ADDRESS);
+                        }
+                        if (state != null) {
+                            //TODO look in to proxy filter messages
+                            //noinspection ConstantConditions
+                            ((DefaultNoOperationMessageState) state).parseMeshPdu(node, pdu, networkHeader, decryptedNetworkPayload);
+                            return;
+                        }
+                    } catch (InvalidCipherTextException ex) {
+                        if (i == networkKeys.size() - 1) {
+                            throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -232,9 +281,9 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      */
     private void sendAppMeshMessage(final int src, final int dst, @NonNull final GenericMessage genericMessage) {
         final GenericMessageState currentState;
-        if(genericMessage instanceof VendorModelMessageAcked) {
+        if (genericMessage instanceof VendorModelMessageAcked) {
             currentState = new VendorModelMessageAckedState(src, dst, (VendorModelMessageAcked) genericMessage, getTransport(dst), this);
-        } else if(genericMessage instanceof  VendorModelMessageUnacked) {
+        } else if (genericMessage instanceof VendorModelMessageUnacked) {
             currentState = new VendorModelMessageUnackedState(src, dst, (VendorModelMessageUnacked) genericMessage, getTransport(dst), this);
         } else {
             currentState = new GenericMessageState(src, dst, genericMessage, getTransport(dst), this);
@@ -245,56 +294,5 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             stateSparseArray.put(dst, toggleState(getTransport(dst), genericMessage));
         }
         currentState.executeSend();
-    }
-
-    /**
-     * De-obfuscates the network header
-     *
-     * @param pdu received from the node
-     * @return obfuscated network header
-     */
-    private byte[] deObfuscateNetworkHeader(@NonNull final byte[] pdu, @NonNull final NetworkKey key, @NonNull final byte[] ivIndex) {
-        final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(key.getKey(), SecureUtils.K2_MASTER_INPUT);
-        final byte[] privacyKey = k2Output.getPrivacyKey();
-        final ByteBuffer obfuscatedNetworkBuffer = ByteBuffer.allocate(6);
-        obfuscatedNetworkBuffer.order(ByteOrder.BIG_ENDIAN);
-        obfuscatedNetworkBuffer.put(pdu, 2, 6);
-        final byte[] obfuscatedData = obfuscatedNetworkBuffer.array();
-
-        final ByteBuffer privacyRandomBuffer = ByteBuffer.allocate(7);
-        privacyRandomBuffer.order(ByteOrder.BIG_ENDIAN);
-        privacyRandomBuffer.put(pdu, 8, 7);
-        final byte[] privacyRandom = createPrivacyRandom(privacyRandomBuffer.array());
-
-        final byte[] pecb = createPECB(ivIndex, privacyRandom, privacyKey);
-        final byte[] deObfuscatedData = new byte[6];
-
-        for (int i = 0; i < 6; i++)
-            deObfuscatedData[i] = (byte) (obfuscatedData[i] ^ pecb[i]);
-
-        return deObfuscatedData;
-    }
-
-    /**
-     * Creates the privacy random.
-     *
-     * @param encryptedUpperTransportPDU encrypted transport pdu
-     * @return Privacy random
-     */
-    private byte[] createPrivacyRandom(final byte[] encryptedUpperTransportPDU) {
-        final byte[] privacyRandom = new byte[7];
-        System.arraycopy(encryptedUpperTransportPDU, 0, privacyRandom, 0, privacyRandom.length);
-        return privacyRandom;
-    }
-
-    private byte[] createPECB(final byte[] ivIndex, final byte[] privacyRandom, final byte[] privacyKey) {
-        final ByteBuffer buffer = ByteBuffer.allocate(5 + privacyRandom.length + ivIndex.length);
-        buffer.order(ByteOrder.BIG_ENDIAN);
-        buffer.put(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00});
-        buffer.put(ivIndex);
-        buffer.put(privacyRandom);
-        final byte[] temp = buffer.array();
-        Log.v(TAG, "Privacy Random: " + MeshParserUtils.bytesToHex(temp, false));
-        return SecureUtils.encryptWithAES(temp, privacyKey);
     }
 }
