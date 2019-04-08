@@ -414,6 +414,9 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 returnIntent.putExtra(Utils.COMPOSITION_DATA_COMPLETED, true);
                 if (mViewModel.isAppKeyAddCompleted()) {
                     returnIntent.putExtra(Utils.APP_KEY_ADD_COMPLETED, true);
+                    if (mViewModel.isNetworkRetransmitSetCompleted()) {
+                        returnIntent.putExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, true);
+                    }
                 }
             }
         }

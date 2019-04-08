@@ -129,20 +129,30 @@ public class NetworkFragment extends Fragment implements Injectable,
                 if (provisioningSuccess) {
                     final boolean compositionDataReceived = data.getBooleanExtra(Utils.COMPOSITION_DATA_COMPLETED, false);
                     final boolean appKeyAddCompleted = data.getBooleanExtra(Utils.APP_KEY_ADD_COMPLETED, false);
+                    final boolean networkRetransmitSetCompleted = data.getBooleanExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, false);
                     final DialogFragmentConfigError fragmentConfigError;
                     if(compositionDataReceived){
-                        if(!appKeyAddCompleted){
-                            fragmentConfigError =
-                                    DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                            , getString(R.string.init_config_error_app_key_msg));
-                            fragmentConfigError.show(getChildFragmentManager(), null);
-                        }
+                            if (appKeyAddCompleted) {
+                                if (!networkRetransmitSetCompleted) {
+                                    fragmentConfigError =
+                                            DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                                    , getString(R.string.init_config_error_net_transmit_msg));
+                                    fragmentConfigError.show(getChildFragmentManager(), null);
+                                }
+                            }
+                            else {
+                                fragmentConfigError =
+                                        DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                                , getString(R.string.init_config_error_app_key_msg));
+                                fragmentConfigError.show(getChildFragmentManager(), null);
+                            }
+
                     } else {
-                        fragmentConfigError =
-                                DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                        , getString(R.string.init_config_error_all));
-                        fragmentConfigError.show(getChildFragmentManager(), null);
-                    }
+                                fragmentConfigError =
+                                        DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                                , getString(R.string.init_config_error_all));
+                                fragmentConfigError.show(getChildFragmentManager(), null);
+                            }
                 }
                 requireActivity().invalidateOptionsMenu();
             }

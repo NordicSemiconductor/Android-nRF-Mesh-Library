@@ -77,6 +77,10 @@ public class MeshProvisionerViewModel extends ViewModel {
         return mNrfMeshRepository.isAppKeyAddCompleted();
     }
 
+    public boolean isNetworkRetransmitSetCompleted() {
+        return mNrfMeshRepository.isNetworkRetransmitSetCompleted();
+    }
+
     public ProvisioningStatusLiveData getProvisioningStatus() {
         return mNrfMeshRepository.getProvisioningState();
     }

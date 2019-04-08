@@ -74,6 +74,7 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
     @Override
     final void parseStatusParameters() {
         final byte[] payload = ((AccessMessage) mMessage).getAccessPdu();
+
         mNetworkTransmitCount = payload[2] & 0b111;
         mNetworkTransmitIntervalSteps = (payload[2] >> 3) & 0b11111;
     }
