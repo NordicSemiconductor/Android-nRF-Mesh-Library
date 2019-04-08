@@ -1018,7 +1018,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         }
 
         @Override
-        public void onBatchScanResults(final List<ScanResult> results) {
+        public void onBatchScanResults(@NonNull final List<ScanResult> results) {
             // Batch scan is disabled (report delay = 0)
         }
 
