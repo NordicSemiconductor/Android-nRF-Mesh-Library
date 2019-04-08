@@ -804,7 +804,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                         }, 2500);
                         mIsAppKeyAddCompleted = true;
                     }
-
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.APP_KEY_STATUS_RECEIVED);
                 } else {
                     updateNode(node);
