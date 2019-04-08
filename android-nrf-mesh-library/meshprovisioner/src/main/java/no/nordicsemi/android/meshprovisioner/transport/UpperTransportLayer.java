@@ -56,7 +56,7 @@ abstract class UpperTransportLayer extends AccessLayer {
     //Nonce paddings
     static final int PAD_NETWORK_NONCE = 0x00;
     static final int PAD_PROXY_NONCE = 0x00;
-    private static final int APPLICATION_KEY_IDENTIFIER = 0; //Identifies that the device key is to be used
+    static final int APPLICATION_KEY_IDENTIFIER = 0; //Identifies that the device key is to be used
     private static final int MAX_UNSEGMENTED_ACCESS_PAYLOAD_LENGTH = 15;
     private static final int NONCE_TYPE_APPLICATION = 0x01;
     private static final int NONCE_TYPE_DEVICE = 0x02;

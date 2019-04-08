@@ -90,7 +90,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
 
     @Override
     public final Message createNetworkLayerPDU(@NonNull final Message message) {
-        final SecureUtils.K2Output k2Output = getK2Output();
+        final SecureUtils.K2Output k2Output = getK2Output(message);
         final int nid = k2Output.getNid();
         final byte[] encryptionKey = k2Output.getEncryptionKey();
         Log.v(TAG, "Encryption key: " + MeshParserUtils.bytesToHex(encryptionKey, false));
@@ -172,7 +172,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
     @SuppressWarnings("ConstantConditions")
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     final Message createRetransmitNetworkLayerPDU(@NonNull final Message message, final int segment) {
-        final SecureUtils.K2Output k2Output = getK2Output();
+        final SecureUtils.K2Output k2Output = getK2Output(message);
         final int nid = k2Output.getNid();
         final byte[] encryptionKey = k2Output.getEncryptionKey();
         Log.v(TAG, "Encryption key: " + MeshParserUtils.bytesToHex(encryptionKey, false));
@@ -471,6 +471,23 @@ abstract class NetworkLayer extends LowerTransportLayer {
      */
     private SecureUtils.K2Output getK2Output() {
         final NetworkKey networkKey = mNetworkLayerCallbacks.getPrimaryNetworkKey();
+        return SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
+    }
+
+    /**
+     * Returns the master credentials {@link SecureUtils.K2Output}
+     *
+     * @param message Message
+     */
+    private SecureUtils.K2Output getK2Output(final Message message) {
+        final NetworkKey networkKey;
+        if (APPLICATION_KEY_IDENTIFIER == message.getAkf()) {
+            networkKey = mNetworkLayerCallbacks.getPrimaryNetworkKey();
+        } else {
+            final List<NetworkKey> networkKeys = mNetworkLayerCallbacks.getNetworkKeys();
+            final int netKeyIndex = message.getApplicationKey().getBoundNetKeyIndex();
+            networkKey = networkKeys.get(netKeyIndex);
+        }
         return SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
     }
 
