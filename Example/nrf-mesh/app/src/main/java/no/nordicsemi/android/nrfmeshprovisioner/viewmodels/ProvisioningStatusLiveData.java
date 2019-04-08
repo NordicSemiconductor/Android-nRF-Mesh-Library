@@ -61,7 +61,9 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
         SENDING_BLOCK_ACKNOWLEDGEMENT(19),
         SENDING_APP_KEY_ADD(20),
         BLOCK_ACKNOWLEDGEMENT_RECEIVED(21),
-        APP_KEY_STATUS_RECEIVED(22);
+        APP_KEY_STATUS_RECEIVED(22),
+        SENDING_NETWORK_TRANSMIT_SET(23),
+        NETWORK_TRANSMIT_STATUS_RECEIVED(24);
 
         private final int state;
 
