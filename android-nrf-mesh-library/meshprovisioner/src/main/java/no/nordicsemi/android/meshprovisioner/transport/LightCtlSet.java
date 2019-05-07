@@ -33,14 +33,14 @@ public class LightCtlSet extends GenericMessage {
     /**
      * Constructs LightCtlSet message.
      *
-     * @param appKey           application key for this message
-     * @param lightLightness   lightLightness of the LightCtlModel
-     * @param lightTemperature temperature of the LightCtlModel
-     * @param lightDeltaUv     delta uv of the LightCtlModel
-     * @param tId              transaction id
+     * @param appKey           {@link ApplicationKey} key for this message
+     * @param lightLightness   LightLightness of the LightCtlModel
+     * @param lightTemperature Temperature of the LightCtlModel
+     * @param lightDeltaUv     Delta uv of the LightCtlModel
+     * @param tId              Transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightCtlSet(@NonNull final byte[] appKey,
+    public LightCtlSet(@NonNull final ApplicationKey appKey,
                        final int lightLightness,
                        final int lightTemperature,
                        final int lightDeltaUv,
@@ -62,7 +62,7 @@ public class LightCtlSet extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public LightCtlSet(@NonNull final byte[] appKey,
+    public LightCtlSet(@NonNull final ApplicationKey appKey,
                        @Nullable final Integer transitionSteps,
                        @Nullable final Integer transitionResolution,
                        @Nullable final Integer delay,
@@ -94,7 +94,7 @@ public class LightCtlSet extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "Lightness: " + mLightness);
         Log.v(TAG, "Temperature: " + mTemperature);

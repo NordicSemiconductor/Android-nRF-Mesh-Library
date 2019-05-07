@@ -40,7 +40,7 @@ class VendorModelMessageAckedState extends GenericMessageState {
     @Override
     protected final void createAccessMessage() {
         final VendorModelMessageAcked vendorModelMessageAcked = (VendorModelMessageAcked) mMeshMessage;
-        final byte[] key = vendorModelMessageAcked.getAppKey();
+        final ApplicationKey key = vendorModelMessageAcked.getAppKey();
         final int akf = vendorModelMessageAcked.getAkf();
         final int aid = vendorModelMessageAcked.getAid();
         final int aszmic = vendorModelMessageAcked.getAszmic();

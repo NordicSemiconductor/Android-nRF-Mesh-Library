@@ -21,7 +21,7 @@ public class SceneRegisterGet extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public SceneRegisterGet(@NonNull final byte[] appKey) {
+    public SceneRegisterGet(@NonNull final ApplicationKey appKey) {
         super(appKey);
         assembleMessageParameters();
     }
@@ -33,6 +33,6 @@ public class SceneRegisterGet extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
     }
 }

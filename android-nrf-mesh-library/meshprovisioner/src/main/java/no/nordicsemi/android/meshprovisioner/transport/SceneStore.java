@@ -29,7 +29,7 @@ public class SceneStore extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public SceneStore(@NonNull final byte[] appKey,
+    public SceneStore(@NonNull final ApplicationKey appKey,
                       final int sceneNumber) {
         super(appKey);
         this.mSceneNumber = sceneNumber;
@@ -43,7 +43,7 @@ public class SceneStore extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "State Number: " + mSceneNumber);
         paramsBuffer = ByteBuffer.allocate(SCENE_STORE_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);

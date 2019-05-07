@@ -33,14 +33,14 @@ public class LightHslSetUnacknowledged extends GenericMessage {
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param appKey          application key for this message
+     * @param appKey          {@link ApplicationKey} key for this message
      * @param lightLightness  lightness of the LightHslModel
      * @param lightHue        hue of the LightHslModel
      * @param lightSaturation saturation of the LightHslModel
      * @param tId             transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightHslSetUnacknowledged(@NonNull final byte[] appKey,
+    public LightHslSetUnacknowledged(@NonNull final ApplicationKey appKey,
                                      final int lightLightness,
                                      final int lightHue,
                                      final int lightSaturation,
@@ -51,7 +51,7 @@ public class LightHslSetUnacknowledged extends GenericMessage {
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param appKey               application key for this message
+     * @param appKey               {@link ApplicationKey} key for this message
      * @param transitionSteps      transition steps for the lightLightness
      * @param transitionResolution transition resolution for the lightLightness
      * @param delay                delay for this message to be executed 0 - 1275 milliseconds
@@ -62,7 +62,7 @@ public class LightHslSetUnacknowledged extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public LightHslSetUnacknowledged(@NonNull final byte[] appKey,
+    public LightHslSetUnacknowledged(@NonNull final ApplicationKey appKey,
                                      @Nullable final Integer transitionSteps,
                                      @Nullable final Integer transitionResolution,
                                      @Nullable final Integer delay,
@@ -94,7 +94,7 @@ public class LightHslSetUnacknowledged extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "Lightness: " + mLightness);
         Log.v(TAG, "Hue: " + mHue);

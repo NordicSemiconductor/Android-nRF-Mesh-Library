@@ -60,7 +60,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.6.3'
     androidTestImplementation 'org.mockito:mockito-android:2.6.3'
-    implementation 'androidx.annotation:annotation:1.1.0-alpha02'
+    implementation 'androidx.annotation:annotation:1.1.0-beta01'
     api 'no.nordicsemi.android:log:2.1.1'
     // Spongycastle - Android implementation of Bouncy Castle
     implementation 'com.madgag.spongycastle:core:1.56.0.0'

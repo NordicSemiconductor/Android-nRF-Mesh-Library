@@ -59,6 +59,7 @@ import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -296,32 +297,36 @@ public class MeshManagerApi implements MeshMngrApi {
      * @param unsegmentedPdu pdu received by the client.
      */
     private void parseNotifications(final byte[] unsegmentedPdu) {
-        switch (unsegmentedPdu[0]) {
-            case PDU_TYPE_NETWORK:
-                //MeshNetwork PDU
-                Log.v(TAG, "Received network pdu: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshMessageHandler.parseNetworkPduNotifications(unsegmentedPdu, mMeshNetwork);
-                break;
-            case PDU_TYPE_MESH_BEACON:
-                //Mesh beacon
-                final byte[] n = mMeshNetwork.getPrimaryNetworkKey().getKey();
-                final byte[] flags = {(byte) mMeshNetwork.getProvisioningFlags()};
-                final byte[] networkId = SecureUtils.calculateK3(n);
-                final byte[] ivIndex = ByteBuffer.allocate(4).putInt(mMeshNetwork.getIvIndex()).array();
-                Log.v(TAG, "Generated mesh beacon: " +
-                        MeshParserUtils.bytesToHex(SecureUtils.calculateSecureNetworkBeacon(n, 1, flags, networkId, ivIndex), true));
-                Log.v(TAG, "Received mesh beacon: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                break;
-            case PDU_TYPE_PROXY_CONFIGURATION:
-                //Proxy configuration
-                Log.v(TAG, "Received proxy configuration message: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshMessageHandler.parseProxyPduNotifications(unsegmentedPdu);
-                break;
-            case PDU_TYPE_PROVISIONING:
-                //Provisioning PDU
-                Log.v(TAG, "Received provisioning message: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
-                mMeshProvisioningHandler.parseProvisioningNotifications(unsegmentedPdu);
-                break;
+        try {
+            switch (unsegmentedPdu[0]) {
+                case PDU_TYPE_NETWORK:
+                    //MeshNetwork PDU
+                    Log.v(TAG, "Received network pdu: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
+                    mMeshMessageHandler.parseMeshPduNotifications(unsegmentedPdu, mMeshNetwork);
+                    break;
+                case PDU_TYPE_MESH_BEACON:
+                    //Mesh beacon
+                    final byte[] n = mMeshNetwork.getPrimaryNetworkKey().getKey();
+                    final byte[] flags = {(byte) mMeshNetwork.getProvisioningFlags()};
+                    final byte[] networkId = SecureUtils.calculateK3(n);
+                    final byte[] ivIndex = ByteBuffer.allocate(4).putInt(mMeshNetwork.getIvIndex()).array();
+                    Log.v(TAG, "Generated mesh beacon: " +
+                            MeshParserUtils.bytesToHex(SecureUtils.calculateSecureNetworkBeacon(n, 1, flags, networkId, ivIndex), true));
+                    Log.v(TAG, "Received mesh beacon: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
+                    break;
+                case PDU_TYPE_PROXY_CONFIGURATION:
+                    //Proxy configuration
+                    Log.v(TAG, "Received proxy configuration message: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
+                    mMeshMessageHandler.parseMeshPduNotifications(unsegmentedPdu, mMeshNetwork);
+                    break;
+                case PDU_TYPE_PROVISIONING:
+                    //Provisioning PDU
+                    Log.v(TAG, "Received provisioning message: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
+                    mMeshProvisioningHandler.parseProvisioningNotifications(unsegmentedPdu);
+                    break;
+            }
+        } catch (ExtendedInvalidCipherTextException ex) {
+            //TODO handle decryption failure
         }
     }
 
@@ -894,7 +899,6 @@ public class MeshManagerApi implements MeshMngrApi {
                     break;
                 }
             }
-
             mMeshNetwork.nodes.add(meshNode);
         }
     };

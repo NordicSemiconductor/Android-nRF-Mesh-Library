@@ -91,9 +91,9 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
      * Starts sending the mesh pdu
      */
     public void executeSend() {
-        if (message.getNetworkPdu().size() > 0) {
-            for (int i = 0; i < message.getNetworkPdu().size(); i++) {
-                mInternalTransportCallbacks.onMeshPduCreated(mDst, message.getNetworkPdu().get(i));
+        if (message.getNetworkLayerPdu().size() > 0) {
+            for (int i = 0; i < message.getNetworkLayerPdu().size(); i++) {
+                mInternalTransportCallbacks.onMeshPduCreated(mDst, message.getNetworkLayerPdu().get(i));
             }
 
             if (mMeshStatusCallbacks != null) {
@@ -108,14 +108,14 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
      * @param retransmitPduIndexes list of indexes of the messages to be
      */
     final void executeResend(final List<Integer> retransmitPduIndexes) {
-        if (message.getNetworkPdu().size() > 0 && !retransmitPduIndexes.isEmpty()) {
+        if (message.getNetworkLayerPdu().size() > 0 && !retransmitPduIndexes.isEmpty()) {
             for (int i = 0; i < retransmitPduIndexes.size(); i++) {
                 final int segO = retransmitPduIndexes.get(i);
-                if (message.getNetworkPdu().get(segO) != null) {
-                    final byte[] pdu = message.getNetworkPdu().get(segO);
+                if (message.getNetworkLayerPdu().get(segO) != null) {
+                    final byte[] pdu = message.getNetworkLayerPdu().get(segO);
                     Log.v(TAG, "Resending segment " + segO + " : " + MeshParserUtils.bytesToHex(pdu, false));
                     final Message retransmitMeshMessage = mMeshTransport.createRetransmitMeshMessage(message, segO);
-                    mInternalTransportCallbacks.onMeshPduCreated(mDst, retransmitMeshMessage.getNetworkPdu().get(segO));
+                    mInternalTransportCallbacks.onMeshPduCreated(mDst, retransmitMeshMessage.getNetworkLayerPdu().get(segO));
                 }
             }
         }
@@ -137,8 +137,8 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         //We don't send acknowledgements here
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
-        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkPdu().get(0), false));
-        mInternalTransportCallbacks.onMeshPduCreated(message.getDst(), message.getNetworkPdu().get(0));
+        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkLayerPdu().get(0), false));
+        mInternalTransportCallbacks.onMeshPduCreated(message.getDst(), message.getNetworkLayerPdu().get(0));
         mMeshStatusCallbacks.onBlockAcknowledgementProcessed(message.getDst(), controlMessage);
     }
 

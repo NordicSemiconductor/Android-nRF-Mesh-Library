@@ -71,7 +71,7 @@ public class LowerTransportLayerTests {
         accessMessage.setDst(dst);
         accessMessage.setSequenceNumber(sequenceNumber);
         accessMessage.setIvIndex(ivIndex);
-        accessMessage.setKey(deviceKey);
+        accessMessage.setDeviceKey(deviceKey);
         accessMessage.setAkf(akf);
         accessMessage.setAszmic(aszmic);
         accessMessage.setUpperTransportPdu(upperTransportPdu);
@@ -105,7 +105,7 @@ public class LowerTransportLayerTests {
         accessMessage.setDst(dst);
         accessMessage.setSequenceNumber(sequenceNumber);
         accessMessage.setIvIndex(ivIndex);
-        accessMessage.setKey(deviceKey);
+        accessMessage.setDeviceKey(deviceKey);
         accessMessage.setAkf(akf);
         accessMessage.setAszmic(aszmic);
         accessMessage.setUpperTransportPdu(upperTransportPdu);

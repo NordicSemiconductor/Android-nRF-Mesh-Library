@@ -25,8 +25,8 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.content.Context;
 import android.util.SparseArray;
 
-import junit.framework.Assert;
 
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -67,7 +67,6 @@ public class NetworkLayerTests {
 
         final byte[] netkey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6");
 
-        final int ctl = 0x00;
         final int ttl = 0x0b;
         final byte[] sequenceNumber = MeshParserUtils.toByteArray("000006");
         final int src = 0x1201;
@@ -94,7 +93,7 @@ public class NetworkLayerTests {
 
         final Message message = meshLayerTestBase.createNetworkLayerPDU(accessMessage);
 
-        final SparseArray<byte[]> actualNetworkTransportPdu = message.getNetworkPdu();
+        final SparseArray<byte[]> actualNetworkTransportPdu = message.getNetworkLayerPdu();
 
         Assert.assertFalse("Segment count does not match", expectedNetworkPdu.size() != actualNetworkTransportPdu.size());
 
@@ -117,7 +116,6 @@ public class NetworkLayerTests {
 
         final byte[] netkey = MeshParserUtils.toByteArray("7dd7364cd842ad18c17c2b820c84c3d6");
 
-        final int ctl = 0x00;
         final int ttl = 0x04;
         final byte[] sequenceNumber = MeshParserUtils.toByteArray("3129ab");
         final int src = 0x0003;
@@ -145,7 +143,7 @@ public class NetworkLayerTests {
 
         final Message message = meshLayerTestBase.createNetworkLayerPDU(accessMessage);
 
-        final SparseArray<byte[]> actualNetworkTransportPdu = message.getNetworkPdu();
+        final SparseArray<byte[]> actualNetworkTransportPdu = message.getNetworkLayerPdu();
 
         Assert.assertFalse("Segment count does not match", expectedNetworkPdu.size() != actualNetworkTransportPdu.size());
 
@@ -222,7 +220,6 @@ public class NetworkLayerTests {
 
         final byte[] netkey = MeshParserUtils.toByteArray("d1aafb2a1a3c281cbdb0e960edfad852");
 
-        final int ctl = 0x00;
         final int ttl = 0x04;
         final byte[] sequenceNumber = MeshParserUtils.toByteArray("000001");
         final int src = 0x0001;
@@ -248,7 +245,7 @@ public class NetworkLayerTests {
 
         final Message message = meshLayerTestBase.createNetworkLayerPDU(accessMessage);
 
-        final SparseArray<byte[]> actualNetworkTransportPdu = message.getNetworkPdu();
+        final SparseArray<byte[]> actualNetworkTransportPdu = message.getNetworkLayerPdu();
 
         Assert.assertFalse("Segment count does not match", expectedProxyConfigurationPdu.size() != actualNetworkTransportPdu.size());
 

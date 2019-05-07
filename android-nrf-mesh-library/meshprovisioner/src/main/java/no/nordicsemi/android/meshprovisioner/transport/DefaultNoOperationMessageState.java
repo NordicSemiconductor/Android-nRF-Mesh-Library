@@ -45,10 +45,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
         return null;
     }
 
-    void parseMeshPdu(final byte[] pdu) {
+    void parseMeshPdu(@NonNull final ProvisionedMeshNode node, @NonNull final byte[] pdu, @NonNull final byte[] networkHeader, @NonNull final byte[] decryptedNetworkPayload) {
         final Message message;
         try {
-            message = mMeshTransport.parsePdu(pdu);
+            message = mMeshTransport.parsePdu(node, pdu, networkHeader, decryptedNetworkPayload);
             if (message != null) {
                 if (message instanceof AccessMessage) {
                     parseAccessMessage((AccessMessage) message);
@@ -236,7 +236,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
      */
     private void parseControlMessage(final ControlMessage controlMessage) {
         //Get the segment count count of the access message
-        final int segmentCount = message.getNetworkPdu().size();
+        final int segmentCount = message.getNetworkLayerPdu().size();
         if (controlMessage.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
             final TransportControlMessage transportControlMessage = controlMessage.getTransportControlMessage();
             switch (transportControlMessage.getState()) {

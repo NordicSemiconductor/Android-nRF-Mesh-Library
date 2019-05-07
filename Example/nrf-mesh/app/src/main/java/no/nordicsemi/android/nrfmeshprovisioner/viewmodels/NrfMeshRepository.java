@@ -804,7 +804,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                         }, 2500);
                         mIsAppKeyAddCompleted = true;
                     }
-
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.APP_KEY_STATUS_RECEIVED);
                 } else {
                     updateNode(node);
@@ -1018,7 +1017,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         }
 
         @Override
-        public void onBatchScanResults(final List<ScanResult> results) {
+        public void onBatchScanResults(@NonNull final List<ScanResult> results) {
             // Batch scan is disabled (report delay = 0)
         }
 

@@ -9,7 +9,7 @@ abstract class GenericMessage extends MeshMessage {
     public static final int GENERIC_TRANSITION_STEP_2 = 2;
     public static final int GENERIC_TRANSITION_STEP_3 = 3;
 
-    final byte[] mAppKey;
+    final ApplicationKey mAppKey;
     byte mAid;
 
     /**
@@ -17,8 +17,8 @@ abstract class GenericMessage extends MeshMessage {
      *
      * @param appKey application key
      */
-    GenericMessage(@NonNull final byte[] appKey) {
-        if (appKey.length != 16)
+    GenericMessage(@NonNull final ApplicationKey appKey) {
+        if (appKey.getKey().length != 16)
             throw new IllegalArgumentException("Application key must be 16 bytes");
         this.mAppKey = appKey;
     }
@@ -38,7 +38,7 @@ abstract class GenericMessage extends MeshMessage {
      *
      * @return app key
      */
-    public final byte[] getAppKey() {
+    public final ApplicationKey getAppKey() {
         return mAppKey;
     }
 
