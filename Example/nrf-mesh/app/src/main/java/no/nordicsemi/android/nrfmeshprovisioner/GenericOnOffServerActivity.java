@@ -239,8 +239,6 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                         final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
                         final ApplicationKey appKey = model.getBoundAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
-                        Log.v(TAG, "No subscription addresses found for model: " + CompositionDataParser.formatModelIdentifier(model.getModelId(), true)
-                                + ". Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
                         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state, node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
                         mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
                         showProgressbar();
