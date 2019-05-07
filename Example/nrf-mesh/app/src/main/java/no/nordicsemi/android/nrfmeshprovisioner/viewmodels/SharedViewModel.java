@@ -135,8 +135,8 @@ public class SharedViewModel extends ViewModel {
         return nRFMeshRepository.getNetworkExportState();
     }
 
-    public LiveData<Integer> getConnectedMeshNodeAddress(){
-        return nRFMeshRepository.getConnectedMeshNodeAddress();
+    public LiveData<Integer> getConnectedProxyAddress(){
+        return nRFMeshRepository.getConnectedProxyAddress();
     }
 
     public void setSelectedGroup(final int address){

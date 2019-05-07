@@ -101,7 +101,7 @@ public class NodeConfigurationViewModel extends ViewModel {
     }
 
     public LiveData<Integer> getConnectedMeshNodeAddress(){
-        return mNrfMeshRepository.getConnectedMeshNodeAddress();
+        return mNrfMeshRepository.getConnectedProxyAddress();
     }
 
 }
