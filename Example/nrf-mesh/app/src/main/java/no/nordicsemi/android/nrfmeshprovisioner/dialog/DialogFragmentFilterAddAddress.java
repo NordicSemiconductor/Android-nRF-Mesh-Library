@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -91,7 +93,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_filter_address, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_filter_address, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
@@ -138,7 +140,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
             }
         });
 
-        return new AlertDialog.Builder(getContext()).setView(rootView)
+        return new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.confirm, (dialog, which) -> {
                     if (!addresses.isEmpty()) {
                         if (getParentFragment() == null) {

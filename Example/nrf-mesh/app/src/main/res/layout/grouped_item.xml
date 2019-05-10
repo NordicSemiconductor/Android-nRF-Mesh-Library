@@ -78,26 +78,24 @@
                 app:layout_constraintTop_toBottomOf="@id/group_summary"
                 app:layout_constraintStart_toStartOf="@id/icon"
                 app:layout_constraintEnd_toEndOf="@id/icon">
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_on"
                     android:gravity="center"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/group_on_off_button_padding"
                     android:text="@string/action_generic_on"
-                    android:background="?selectableItemBackgroundBorderless"
-                    style="@style/BlueTextButton"/>
+                    android:background="?selectableItemBackgroundBorderless"/>
 
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_off"
                     android:gravity="center"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/group_on_off_button_padding"
                     android:text="@string/action_generic_off"
-                    android:background="?selectableItemBackgroundBorderless"
-                    style="@style/BlueTextButton"/>
+                    android:background="?selectableItemBackgroundBorderless"/>
 
             </LinearLayout>
 

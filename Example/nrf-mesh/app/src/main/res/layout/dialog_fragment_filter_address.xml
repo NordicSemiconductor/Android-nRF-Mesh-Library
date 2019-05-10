@@ -62,9 +62,8 @@
                 android:singleLine="true"
                 android:textSize="16sp"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_add"
-                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/action_add"/>

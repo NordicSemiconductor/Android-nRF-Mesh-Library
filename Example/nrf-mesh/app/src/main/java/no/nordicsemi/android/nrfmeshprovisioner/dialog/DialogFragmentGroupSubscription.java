@@ -23,7 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -203,7 +203,7 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).
                 setIcon(R.drawable.ic_subscribe_black_alpha_24dp).
                 setTitle(R.string.title_subscribe_group).
                 setView(rootView).

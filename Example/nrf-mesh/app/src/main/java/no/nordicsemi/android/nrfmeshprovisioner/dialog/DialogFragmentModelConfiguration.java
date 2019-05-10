@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -74,7 +76,7 @@ public class DialogFragmentModelConfiguration extends DialogFragment{
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_provision_data_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_provision_data_input, null);
         ButterKnife.bind(this, rootView);
 
         //Bind ui
@@ -102,7 +104,7 @@ public class DialogFragmentModelConfiguration extends DialogFragment{
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null)
                 .setNeutralButton(R.string.generate_app_key, null);
 
@@ -112,31 +114,25 @@ public class DialogFragmentModelConfiguration extends DialogFragment{
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String appKey = appKeyInput.getText().toString();
+            final String appKey = appKeyInput.getEditableText().toString();
             if (validateInput(appKey)) {
-                ((DialogFragmentAddAppKey.DialogFragmentAddAppKeysListener) getContext()).onAppKeyAdded(appKey);
+                ((DialogFragmentAddAppKey.DialogFragmentAddAppKeysListener) requireContext()).onAppKeyAdded(appKey);
                 dismiss();
             }
         });
-        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> {
-            appKeyInput.setText(SecureUtils.generateRandomNetworkKey());
-        });
+        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> appKeyInput.setText(SecureUtils.generateRandomNetworkKey()));
 
         return alertDialog;
     }
 
     private boolean validateInput(final String appKey) {
         try {
-            if(MeshParserUtils.validateAppKeyInput(getContext(), appKey)) {
+            if(MeshParserUtils.validateAppKeyInput(requireContext(), appKey)) {
                 return true;
             }
         } catch (IllegalArgumentException ex) {
             appKeysInputLayout.setError(ex.getMessage());
         }
         return false;
-    }
-
-    public interface DialogFragmentAddAppKeysListener {
-        void onAppKeyAdded(final String appKey);
     }
 }

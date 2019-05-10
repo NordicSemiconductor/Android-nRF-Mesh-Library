@@ -52,7 +52,8 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    style="?buttonBarStyle">
 
                     <androidx.appcompat.widget.Toolbar
                         android:id="@+id/proxy_filter_tool_bar"
@@ -85,9 +86,9 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/proxy_filter_summary"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_disable"
-                        style="@style/BlueTextButton"
+                        style="?materialButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -95,14 +96,13 @@
                         android:layout_marginEnd="@dimen/item_padding_start"
                         android:padding="@dimen/activity_horizontal_margin"
                         android:text="@string/action_disable"
-                        android:textColor="@color/blue_button_states"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/div2"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_black_list"
-                        style="@style/BlueTextButton"
+                        style="?materialButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -110,14 +110,13 @@
                         android:layout_marginEnd="@dimen/item_padding_start"
                         android:padding="@dimen/activity_horizontal_margin"
                         android:text="@string/black_list_filter"
-                        android:textColor="@color/blue_button_states"
                         app:layout_constraintBottom_toBottomOf="@id/action_disable"
                         app:layout_constraintEnd_toStartOf="@id/action_disable"
                         app:layout_constraintTop_toTopOf="@id/action_disable"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_white_list"
-                        style="@style/BlueTextButton"
+                        style="?materialButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -125,7 +124,6 @@
                         android:layout_marginEnd="@dimen/item_padding_start"
                         android:padding="@dimen/activity_horizontal_margin"
                         android:text="@string/white_list_filter"
-                        android:textColor="@color/blue_button_states"
                         app:layout_constraintBottom_toBottomOf="@id/action_black_list"
                         app:layout_constraintEnd_toStartOf="@id/action_black_list"
                         app:layout_constraintTop_toTopOf="@id/action_black_list"/>
@@ -205,9 +203,9 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/container_proxy_filter"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_add_address"
-                        style="@style/BlueTextButton"
+                        style="?materialButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -221,7 +219,7 @@
                         app:layout_constraintTop_toBottomOf="@id/div2"/>
 
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_clear_addresses"
                         style="@style/RedButton"
                         android:layout_width="wrap_content"

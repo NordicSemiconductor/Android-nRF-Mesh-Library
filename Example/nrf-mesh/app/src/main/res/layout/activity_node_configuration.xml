@@ -145,9 +145,8 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"/>
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/action_get_compostion_data"
-                            style="@style/BlueTextButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
@@ -238,9 +237,8 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/container_app_key_bind"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_add_app_keys"
-                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -302,9 +300,8 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/proxy_state_summary"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_get_proxy_state"
-                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -316,7 +313,7 @@
                         app:layout_constraintEnd_toStartOf="@id/action_set_proxy_state"
                         app:layout_constraintTop_toBottomOf="@id/div2"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_set_proxy_state"
                         style="@style/RedButton"
                         android:layout_width="wrap_content"
@@ -382,7 +379,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/textview"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_reset_node"
                         style="@style/RedButton"
                         android:layout_width="wrap_content"

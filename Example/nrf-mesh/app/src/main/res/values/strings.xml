@@ -146,7 +146,7 @@
     <string name="title_generate_network_key">Network Key</string>
     <string name="summary_generate_network_key">Enter your own network key or click generate to create a new random network key.</string>
     <string name="hint_network_key">Network key</string>
-    <string name="generate_network_key">Generate network key</string>
+    <string name="generate_network_key">Generate Key</string>
     <string name="error_empty_network_key">Network key cannot be empty!</string>
     <string name="error_invalid_network_key">Network key must be 16 bytes long!</string>
 

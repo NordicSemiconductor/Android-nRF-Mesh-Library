@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -78,7 +80,7 @@ public class DialogFragmentKeyIndex extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_index_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_index_input, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
@@ -110,19 +112,18 @@ public class DialogFragmentKeyIndex extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_numeric);
         alertDialogBuilder.setTitle(R.string.title_key_index);
-        alertDialogBuilder.setMessage(R.string.dialog_summary_key_index);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String keyIndex = keyIndexInput.getText().toString();
+            final String keyIndex = keyIndexInput.getEditableText().toString();
             if (validateInput(keyIndex)) {
                 if ((getParentFragment()) == null) {
-                    ((DialogFragmentKeyIndexListener) getActivity()).onKeyIndexGenerated(Integer.valueOf(keyIndex));
+                    ((DialogFragmentKeyIndexListener) requireActivity()).onKeyIndexGenerated(Integer.valueOf(keyIndex));
                 } else {
                     ((DialogFragmentKeyIndexListener) getParentFragment()).onKeyIndexGenerated(Integer.valueOf(keyIndex));
                 }

@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -74,7 +76,7 @@ public class DialogFragmentGlobalTtl extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_ttl_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_ttl_input, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
@@ -103,19 +105,18 @@ public class DialogFragmentGlobalTtl extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_timer);
         alertDialogBuilder.setTitle(R.string.title_global_ttl);
-        alertDialogBuilder.setMessage(R.string.summary_ttl);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String globalTTL = ttlInput.getText().toString();
+            final String globalTTL = ttlInput.getEditableText().toString();
             if (validateInput(globalTTL)) {
                 if(getParentFragment() == null) {
-                    ((DialogFragmentGlobalTtlListener) getActivity()).onGlobalTtlEntered(Integer.parseInt(globalTTL));
+                    ((DialogFragmentGlobalTtlListener) requireActivity()).onGlobalTtlEntered(Integer.parseInt(globalTTL));
                 } else {
                     ((DialogFragmentGlobalTtlListener) getParentFragment()).onGlobalTtlEntered(Integer.parseInt(globalTTL));
                 }

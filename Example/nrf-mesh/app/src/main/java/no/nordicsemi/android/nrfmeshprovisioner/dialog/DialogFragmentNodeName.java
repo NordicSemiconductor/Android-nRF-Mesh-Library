@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -36,6 +38,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -72,10 +75,11 @@ public class DialogFragmentNodeName extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_name, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_name, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
+        final TextView summary = rootView.findViewById(R.id.summary);
         nodeNameInputLayout.setHint(getString(R.string.hint_node_name));
         nodeNameInput.setText(mNodeName);
         nodeNameInput.addTextChangedListener(new TextWatcher() {
@@ -99,18 +103,18 @@ public class DialogFragmentNodeName extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
         alertDialogBuilder.setTitle(R.string.title_node_name);
-        alertDialogBuilder.setMessage(R.string.name_rationale);
+        summary.setText(R.string.name_rationale);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String nodeName = nodeNameInput.getText().toString();
+            final String nodeName = nodeNameInput.getEditableText().toString();
             if (!TextUtils.isEmpty(nodeName)) {
-                ((DialogFragmentNodeNameListener) getContext()).onNodeNameUpdated(nodeName);
+                ((DialogFragmentNodeNameListener) requireContext()).onNodeNameUpdated(nodeName);
                 dismiss();
             }
         });

@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -75,7 +77,7 @@ public class DialogFragmentRetransmitCount extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publication_parameters, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publication_parameters, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
@@ -107,7 +109,7 @@ public class DialogFragmentRetransmitCount extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_numeric);
@@ -115,10 +117,10 @@ public class DialogFragmentRetransmitCount extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String ivIndexInput = this.retransmitInput.getText().toString();
+            final String ivIndexInput = this.retransmitInput.getEditableText().toString();
             if (validateInput(ivIndexInput)) {
                 if (getParentFragment() == null) {
-                    ((DialogFragmentRetransmitCountListener) getActivity()).setRetransmitCount(Integer.parseInt(ivIndexInput, 16));
+                    ((DialogFragmentRetransmitCountListener) requireActivity()).setRetransmitCount(Integer.parseInt(ivIndexInput, 16));
                 } else {
                     ((DialogFragmentRetransmitCountListener) getParentFragment()).setRetransmitCount(Integer.parseInt(ivIndexInput, 16));
                 }

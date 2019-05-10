@@ -24,16 +24,10 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -49,11 +43,16 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFlags;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalNetworkName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGlobalTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentIvIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentKeyIndex;
@@ -61,6 +60,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshExportM
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshImport;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshImportMsg;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPermissionRationale;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNetwork;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSourceAddress;
@@ -73,7 +73,7 @@ import static no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity.RES
 import static no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshRepository.EXPORT_PATH;
 
 public class SettingsFragment extends Fragment implements Injectable,
-        DialogFragmentGlobalNetworkName.DialogFragmentNetworkNameListener,
+        DialogFragmentNetworkName.DialogFragmentNetworkNameListener,
         DialogFragmentGlobalTtl.DialogFragmentGlobalTtlListener,
         DialogFragmentNetworkKey.DialogFragmentNetworkKeyListener,
         DialogFragmentKeyIndex.DialogFragmentKeyIndexListener,
@@ -83,7 +83,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         DialogFragmentSourceAddress.DialogFragmentSourceAddressListener,
         DialogFragmentResetNetwork.DialogFragmentResetNetworkListener,
         DialogFragmentMeshImport.DialogFragmentNetworkImportListener,
-DialogFragmentPermissionRationale.StoragePermissionListener {
+        DialogFragmentPermissionRationale.StoragePermissionListener {
 
     private static final int REQUEST_STORAGE_PERMISSION = 2023; // random number
     private static final int READ_FILE_REQUEST_CODE = 42;
@@ -105,8 +105,7 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = inflater.inflate(R.layout.fragment_settings, null);
+        @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_settings, null);
         mViewModel = ViewModelProviders.of(getActivity(), mViewModelFactory).get(SharedViewModel.class);
 
         // Set up views
@@ -116,7 +115,7 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
         networkNameTitle.setText(R.string.summary_global_network_name);
         final TextView networkNameView = containerNetworkName.findViewById(R.id.text);
         containerNetworkName.setOnClickListener(v -> {
-            final DialogFragmentGlobalNetworkName dialogFragmentNetworkKey = DialogFragmentGlobalNetworkName.newInstance(networkNameView.getText().toString());
+            final DialogFragmentNetworkName dialogFragmentNetworkKey = DialogFragmentNetworkName.newInstance(networkNameView.getText().toString());
             dialogFragmentNetworkKey.show(getChildFragmentManager(), null);
         });
 
@@ -188,17 +187,6 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
             dialogFragmentFlags.show(getChildFragmentManager(), null);
         });
 
-        final View containerUnicastAddress = rootView.findViewById(R.id.container_supported_algorithm);
-        containerUnicastAddress.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_lan_black_alpha_24dp));
-        final TextView unicastAddressTitle = containerUnicastAddress.findViewById(R.id.title);
-        unicastAddressTitle.setText(R.string.summary_unicast_address);
-        final TextView unicastAddressView = containerUnicastAddress.findViewById(R.id.text);
-        containerUnicastAddress.setOnClickListener(v -> {
-            final int unicastAddress = mViewModel.getMeshNetworkLiveData().getValue().getUnicastAddress();
-            final DialogFragmentUnicastAddress dialogFragmentFlags = DialogFragmentUnicastAddress.newInstance(unicastAddress);
-            dialogFragmentFlags.show(getChildFragmentManager(), null);
-        });
-
         final View containerManageAppKeys = rootView.findViewById(R.id.container_app_keys);
         containerManageAppKeys.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_folder_key_black_24dp_alpha));
         final TextView manageAppKeys = containerManageAppKeys.findViewById(R.id.title);
@@ -230,7 +218,6 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
                 keyIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%03X", key.getKeyIndex())));
                 flagsView.setText(parseFlagsMessage(meshNetworkLiveData.getFlags()));
                 ivIndexView.setText(getString(R.string.hex_format, String.format(Locale.US, "%08X", meshNetworkLiveData.getIvIndex())));
-                unicastAddressView.setText(getString(R.string.hex_format, String.format(Locale.US, "%04X", meshNetworkLiveData.getUnicastAddress())));
                 manageAppKeysView.setText(getString(R.string.app_key_count, meshNetworkLiveData.getAppKeys().size()));
                 sourceAddressView.setText(MeshParserUtils.bytesToHex(meshNetworkLiveData.getProvisionerAddress(), true));
             }
@@ -310,12 +297,10 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
     @Override
     public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode){
-            case REQUEST_STORAGE_PERMISSION:
-                if(PackageManager.PERMISSION_GRANTED != grantResults[0]){
-                    Toast.makeText(getContext(), getString(R.string.ext_storage_permission_denied), Toast.LENGTH_LONG).show();
-                }
-                break;
+        if (requestCode == REQUEST_STORAGE_PERMISSION) {
+            if (PackageManager.PERMISSION_GRANTED != grantResults[0]) {
+                Toast.makeText(getContext(), getString(R.string.ext_storage_permission_denied), Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -419,7 +404,7 @@ DialogFragmentPermissionRationale.StoragePermissionListener {
             fragmentPermissionRationale.show(getChildFragmentManager(), null);
         } else {
             final File f = new File(EXPORT_PATH);
-            if(!f.exists()) {
+            if (!f.exists()) {
                 f.mkdirs();
             }
             mViewModel.getMeshManagerApi().exportMeshNetwork(EXPORT_PATH);

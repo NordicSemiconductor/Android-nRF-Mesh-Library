@@ -1,7 +1,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -22,8 +22,8 @@ public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
 
     private static final String TAG = DialogFragmentNetworkTransmitSettings.class.getSimpleName();
 
-    public static final String TRANSMIT_COUNT = "TRANSMIT_COUNT";
-    public static final String TRANSMIT_INTERVAL_STEPS = "TRANSMIT_INTERVAL_STEPS";
+    private static final String TRANSMIT_COUNT = "TRANSMIT_COUNT";
+    private static final String TRANSMIT_INTERVAL_STEPS = "TRANSMIT_INTERVAL_STEPS";
 
     private static final int MIN_TRANSMIT_COUNT = 0;
     private static final int MAX_TRANSMIT_COUNT = 0b111;
@@ -110,7 +110,7 @@ public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_repeat_black_24dp);

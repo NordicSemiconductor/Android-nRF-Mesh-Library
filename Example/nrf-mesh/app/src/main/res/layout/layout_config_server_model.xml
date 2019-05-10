@@ -149,9 +149,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/container_relay_retransmit_interval_steps"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_relay_retransmit_get"
-                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -162,9 +161,8 @@
                 app:layout_constraintEnd_toStartOf="@id/action_relay_retransmit_configure"
                 app:layout_constraintTop_toBottomOf="@id/relay_retransmit_divider"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_relay_retransmit_configure"
-                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -316,9 +314,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/container_network_transmit_interval_steps"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_network_transmit_get"
-                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -329,9 +326,8 @@
                 app:layout_constraintEnd_toStartOf="@id/action_network_transmit_configure"
                 app:layout_constraintTop_toBottomOf="@id/network_transmit_divider"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_network_transmit_configure"
-                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"

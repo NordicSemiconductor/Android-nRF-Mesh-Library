@@ -64,9 +64,8 @@
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:text="@string/unprovisioned_node_guide_location_info"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/action_enable_location"
-            style="@style/BlueTextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
