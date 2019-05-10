@@ -468,9 +468,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mIsConnectedToProxy.postValue(false);
             if (mConnectedProxyAddress.getValue() != null) {
                 final MeshNetwork network = mMeshManagerApi.getMeshNetwork();
-                final ProvisionedMeshNode node = network.getProvisionedNode(mConnectedProxyAddress.getValue());
-                if (node != null)
-                    node.setProxyFilter(null);
+                network.setProxyFilter(null);
 
             }
             clearExtendedMeshNode();

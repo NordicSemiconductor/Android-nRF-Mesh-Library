@@ -21,9 +21,9 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<menu xmlns:tools="http://schemas.android.com/tools"
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools">
     <item
         android:id="@+id/action_network"
         android:enabled="true"
@@ -33,10 +33,18 @@
         tools:ignore="AlwaysShowAction"/>
 
     <item
-        android:id="@+id/action_scanner"
+        android:id="@+id/action_groups"
         android:enabled="true"
         android:icon="@drawable/ic_outline_group_work_black_24dp"
         android:title="@string/action_groups"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction"/>
+
+    <item
+        android:id="@+id/action_proxy"
+        android:enabled="true"
+        android:icon="@drawable/ic_filter_list_black_24dp"
+        android:title="@string/action_proxy"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction"/>
 

@@ -22,11 +22,12 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface InternalTransportCallbacks {
@@ -54,6 +55,11 @@ public interface InternalTransportCallbacks {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     void onMeshPduCreated(final int dst, final byte[] pdu);
+
+
+    ProxyFilter getProxyFilter();
+
+    void setProxyFilter(@NonNull final ProxyFilter filter);
 
     /**
      * Update mesh network

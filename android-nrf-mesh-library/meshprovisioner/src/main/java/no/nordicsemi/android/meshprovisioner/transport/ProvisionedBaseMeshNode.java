@@ -22,17 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Embedded;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
-import androidx.room.TypeConverters;
 import android.os.Parcelable;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
@@ -45,12 +35,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
+import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
-import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
@@ -215,10 +214,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Ignore
     @Expose(deserialize = false)
     protected String bluetoothDeviceAddress;
-
-    @Ignore
-    @Expose(serialize = false)
-    private ProxyFilter proxyFilter;
 
     public ProvisionedBaseMeshNode() {
 
@@ -409,24 +404,5 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({LOW, HIGH})
     public @interface SecurityState {
-    }
-
-    /**
-     * Returns the {@link ProxyFilter} set on the node
-     */
-    @Nullable
-    public ProxyFilter getProxyFilter() {
-        return proxyFilter;
-    }
-
-    /**
-     * Sets the {@link ProxyFilter} settings on the node
-     * <p>
-     * Please note that this is not persisted within the node since the filter is reinitialized to a whitelist filter upon connecting to a proxy node.
-     * Therefore after setting a proxy filter and disconnecting users will have to manually
-     * <p/>
-     */
-    public void setProxyFilter(@Nullable final ProxyFilter proxyFilter) {
-        this.proxyFilter = proxyFilter;
     }
 }
