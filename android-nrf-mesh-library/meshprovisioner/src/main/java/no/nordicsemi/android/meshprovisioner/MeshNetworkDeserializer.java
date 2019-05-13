@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
@@ -24,7 +25,7 @@ import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork>, JsonDeserializer<MeshNetwork> {
     private static final String TAG = MeshNetworkDeserializer.class.getSimpleName();
@@ -82,11 +83,11 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
 
         //Optional properties
         if (!network.getGroups().isEmpty())
-            jsonObject.add("groups", serializeGroups(context, network.getGroups()));
+            jsonObject.add("groups", serializeGroups(network.getGroups()));
 
         //Optional properties
         if (!network.getScenes().isEmpty())
-            jsonObject.add("scenes", serializeScenes(context, network.getScenes()));
+            jsonObject.add("scenes", serializeScenes(network.getScenes()));
 
         return jsonObject;
     }
@@ -232,14 +233,19 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
     /**
      * Returns serialized json element containing the groups
      *
-     * @param context Serializer context
      * @param groups  Group list
      * @return JsonElement
      */
-    private JsonElement serializeGroups(final JsonSerializationContext context, final List<Group> groups) {
-        final Type group = new TypeToken<List<Group>>() {
-        }.getType();
-        return context.serialize(groups, group);
+    private JsonElement serializeGroups(final List<Group> groups) {
+        JsonArray groupsArray = new JsonArray();
+        for(Group group : groups){
+            JsonObject groupObj = new JsonObject();
+            groupObj.addProperty("name", group.getName());
+            groupObj.addProperty("address", MeshAddress.formatAddress(group.getGroupAddress(), false));
+            groupObj.addProperty("parentAddress", MeshAddress.formatAddress(group.getParentAddress(), false));
+            groupsArray.add(groupObj);
+        }
+        return groupsArray;
     }
 
     /**
@@ -275,14 +281,23 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
     /**
      * Returns serialized json element containing the scenes
      *
-     * @param context Serializer context
      * @param scenes  Group list
      * @return JsonElement
      */
-    private JsonElement serializeScenes(final JsonSerializationContext context, final List<Scene> scenes) {
-        final Type scene = new TypeToken<List<Scene>>() {
-        }.getType();
-        return context.serialize(scenes, scene);
+    private JsonElement serializeScenes(final List<Scene> scenes) {
+        JsonArray scenesArray = new JsonArray();
+        for(Scene scene : scenes){
+            JsonObject sceneObj = new JsonObject();
+            sceneObj.addProperty("name", scene.getName());
+            final JsonArray array = new JsonArray();
+            for(Integer address : scene.getAddresses()){
+                array.add(MeshAddress.formatAddress(address, false));
+            }
+            sceneObj.add("addresses", array);
+            sceneObj.addProperty("number", String.format(Locale.US, "%04X", scene.getNumber()));
+            scenesArray.add(sceneObj);
+        }
+        return scenesArray;
     }
 
     /**
@@ -302,11 +317,11 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             for (int i = 0; i < jsonScenes.size(); i++) {
                 final JsonObject jsonScene = jsonScenes.get(i).getAsJsonObject();
                 final String name = jsonScene.get("name").getAsString();
-                final List<byte[]> addresses = new ArrayList<>();
+                final List<Integer> addresses = new ArrayList<>();
                 if (jsonScene.has("addresses")) {
                     final JsonArray addressesArray = jsonScene.get("addresses").getAsJsonArray();
                     for (int j = 0; j < addressesArray.size(); j++) {
-                        addresses.add(MeshParserUtils.toByteArray(addressesArray.get(j).getAsString()));
+                        addresses.add(Integer.parseInt(addressesArray.get(j).getAsString(), 16));
                     }
                 }
                 final int number = jsonScene.get("number").getAsInt();

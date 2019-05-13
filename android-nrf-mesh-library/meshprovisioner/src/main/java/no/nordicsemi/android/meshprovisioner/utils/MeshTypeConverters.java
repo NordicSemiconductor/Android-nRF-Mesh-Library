@@ -107,13 +107,13 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public String addressesToJson(final List<byte[]> addresses){
+    public String addressesToJson(final List<Integer> addresses){
         return new Gson().toJson(addresses);
     }
 
     @TypeConverter
-    public List<byte[]> fromJsonToAddresses(final String addressesJson){
-        Type addresses = new TypeToken<List<byte[]>>() {
+    public List<Integer> fromJsonToAddresses(final String addressesJson){
+        Type addresses = new TypeToken<List<Integer>>() {
         }.getType();
         return new Gson().fromJson(addressesJson, addresses);
     }
