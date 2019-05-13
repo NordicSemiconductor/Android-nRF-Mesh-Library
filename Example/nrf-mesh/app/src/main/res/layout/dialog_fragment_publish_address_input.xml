@@ -40,8 +40,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/item_padding_top"
-            android:paddingStart="@dimen/activity_horizontal_margin"
-            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:text="@string/publish_address_dialog_summary"
             android:textSize="16sp"
             android:textColor="@color/black"
@@ -54,32 +54,30 @@
             android:id="@+id/address_types"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/summary"
+            app:layout_constraintStart_toStartOf="@id/summary"
             app:layout_constraintTop_toBottomOf="@id/summary"/>
+
+        <TextView
+            android:id="@+id/prefix"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hex_prefix"
+            android:textSize="16sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/text_input_layout"
+            app:layout_constraintEnd_toStartOf="@id/text_input_layout"
+            app:layout_constraintStart_toStartOf="@id/summary"
+            app:layout_constraintTop_toTopOf="@id/text_input_layout"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/text_input_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/item_padding_top"
-            android:paddingStart="@dimen/activity_horizontal_margin"
-            android:paddingEnd="@dimen/activity_horizontal_margin"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="@dimen/item_padding_start"
+            app:layout_constraintEnd_toEndOf="@id/summary"
+            app:layout_constraintStart_toEndOf="@id/prefix"
             app:layout_constraintTop_toBottomOf="@id/address_types">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/hex_prefix"
-                    android:textSize="16sp"/>
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/text_input"
@@ -90,7 +88,6 @@
                     android:singleLine="true"
                     android:textSize="16sp"/>
 
-            </LinearLayout>
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -98,12 +95,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/item_padding_top"
-            android:paddingStart="@dimen/activity_horizontal_margin"
-            android:paddingEnd="@dimen/activity_horizontal_margin"
             android:text="EA57D9F1-975D-4EBD-A78A-37D189AC58F4"
             android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/summary"
+            app:layout_constraintStart_toStartOf="@id/summary"
             app:layout_constraintTop_toBottomOf="@id/text_input_layout"
             tools:ignore="HardcodedText"/>
 

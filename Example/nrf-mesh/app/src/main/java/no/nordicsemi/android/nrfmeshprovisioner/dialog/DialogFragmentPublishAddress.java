@@ -77,6 +77,8 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     //UI Bindings
     @BindView(R.id.address_types)
     Spinner addressTypesSpinnerView;
+    @BindView(R.id.prefix)
+    TextView prefix;
     @BindView(R.id.text_input_layout)
     TextInputLayout unicastAddressInputLayout;
     @BindView(R.id.text_input)
@@ -347,6 +349,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             case UNASSIGNED_ADDRESS:
                 publishAddress = MeshAddress.formatAddress(MeshAddress.UNASSIGNED_ADDRESS, false);
                 unicastAddressInput.setText(publishAddress);
+                prefix.setVisibility(View.VISIBLE);
                 unicastAddressInputLayout.setVisibility(View.VISIBLE);
                 groupContainer.setVisibility(View.GONE);
                 labelUuidView.setVisibility(View.GONE);
@@ -355,6 +358,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             case UNICAST_ADDRESS:
                 publishAddress = MeshAddress.formatAddress(address, false);
                 unicastAddressInput.setText(publishAddress);
+                prefix.setVisibility(View.VISIBLE);
                 unicastAddressInputLayout.setVisibility(View.VISIBLE);
                 groupContainer.setVisibility(View.GONE);
                 labelUuidView.setVisibility(View.GONE);
@@ -364,6 +368,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 final int index = getGroupIndex(address);
                 groups.setSelection(index);
                 groupContainer.setVisibility(View.VISIBLE);
+                prefix.setVisibility(View.GONE);
                 unicastAddressInputLayout.setVisibility(View.GONE);
                 labelUuidView.setVisibility(View.GONE);
                 mGenerateLabelUUID.setVisibility(View.GONE);
@@ -374,6 +379,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 }
                 labelUuidView.setVisibility(View.VISIBLE);
                 mGenerateLabelUUID.setVisibility(View.VISIBLE);
+                prefix.setVisibility(View.GONE);
                 unicastAddressInputLayout.setVisibility(View.GONE);
                 groupContainer.setVisibility(View.GONE);
                 break;

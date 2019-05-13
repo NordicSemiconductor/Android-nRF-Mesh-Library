@@ -241,10 +241,6 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
         return alertDialog;
     }
 
-    private void setSubscriptionAddressType() {
-        int address = 0;
-    }
-
     private void updateAddress(final AddressType addressType) {
         if (addressType == VIRTUAL_ADDRESS) {
             labelSummary.setVisibility(VISIBLE);

@@ -114,7 +114,6 @@ public class DialogFragmentPublishTtl extends DialogFragment {
 
         alertDialogBuilder.setIcon(R.drawable.ic_timer);
         alertDialogBuilder.setTitle(R.string.title_publish_ttl);
-        alertDialogBuilder.setMessage(R.string.dialog_summary_publish_ttl);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {

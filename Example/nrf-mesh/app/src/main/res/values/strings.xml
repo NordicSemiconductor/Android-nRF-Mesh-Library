@@ -465,4 +465,5 @@
     <string name="subscription_address_dialog_summary">Subscription address for this model.</string>
     <string name="label_uuid_summary">Label UUID:</string>
     <string name="label_uuid">Label UUID</string>
+    <string name="name">Name</string>
 </resources>
