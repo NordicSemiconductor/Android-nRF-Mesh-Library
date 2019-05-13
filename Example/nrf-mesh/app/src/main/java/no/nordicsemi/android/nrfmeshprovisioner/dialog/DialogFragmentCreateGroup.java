@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -76,7 +78,7 @@ public class DialogFragmentCreateGroup extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_create_group, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_create_group, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
@@ -104,7 +106,7 @@ public class DialogFragmentCreateGroup extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_outline_group_work_black_alpha_24dp);

@@ -24,20 +24,20 @@ package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public class DialogFragmentAppKeyAddStatus extends DialogFragmentMessage {
+public class DialogFragmentConfigurationComplete extends DialogFragmentMessage {
 
-    public interface DialogFragmentAppKeyAddStatusListener {
-        void onAppKeyAddStatusReceived();
+    public interface ConfigurationCompleteListener {
+        void onConfigurationCompleted();
     }
 
-    public static DialogFragmentAppKeyAddStatus newInstance(final String title, final String message) {
+    public static DialogFragmentConfigurationComplete newInstance(final String title, final String message) {
         Bundle args = new Bundle();
-        DialogFragmentAppKeyAddStatus fragment = new DialogFragmentAppKeyAddStatus();
+        DialogFragmentConfigurationComplete fragment = new DialogFragmentConfigurationComplete();
         args.putString(TITLE, title);
         args.putString(MESSAGE, message);
         fragment.setArguments(args);
@@ -52,10 +52,10 @@ public class DialogFragmentAppKeyAddStatus extends DialogFragmentMessage {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
+        alertDialogBuilder = new AlertDialog.Builder(requireContext());
+        alertDialogBuilder.setIcon(R.drawable.ic_done_all_black_alpha_24dp);
         alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> (
-                (DialogFragmentAppKeyAddStatusListener)getActivity()).onAppKeyAddStatusReceived());
+                (ConfigurationCompleteListener)requireActivity()).onConfigurationCompleted());
 
         return super.onCreateDialog(savedInstanceState);
     }

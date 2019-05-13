@@ -1,7 +1,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -23,9 +23,9 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
 
     private static final String TAG = DialogRelayRetransmitSettings.class.getSimpleName();
 
-    public static final String RELAY = "RELAY";
-    public static final String TRANSMIT_COUNT = "TRANSMIT_COUNT";
-    public static final String TRANSMIT_INTERVAL_STEPS = "TRANSMIT_INTERVAL_STEPS";
+    private static final String RELAY = "RELAY";
+    private static final String TRANSMIT_COUNT = "TRANSMIT_COUNT";
+    private static final String TRANSMIT_INTERVAL_STEPS = "TRANSMIT_INTERVAL_STEPS";
 
     private static final int MIN_RETRANSMIT_COUNT = 0;
     private static final int MAX_RETRANSMIT_COUNT = 0b111;
@@ -120,7 +120,7 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
             }
         });
 
-        return new AlertDialog.Builder(getContext())
+        return new AlertDialog.Builder(requireContext())
                 .setView(rootView)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     if (getParentFragment() == null) {

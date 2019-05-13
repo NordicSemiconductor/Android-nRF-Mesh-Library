@@ -23,24 +23,21 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.app.Activity;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigSetFilterType;
-import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -69,6 +66,7 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(deviceName);
         getSupportActionBar().setSubtitle(deviceAddress);
@@ -91,9 +89,6 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
                 returnIntent.putExtra(Utils.EXTRA_DATA, true);
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
-                //We send a proxy whitelist filter message to identify the node we are connected to when reconnecting to the network
-                final ProxyConfigSetFilterType setFilterType = new ProxyConfigSetFilterType(new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER));
-                mReconnectViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, setFilterType);
             }
         });
 
@@ -101,10 +96,9 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
         return false;
     }

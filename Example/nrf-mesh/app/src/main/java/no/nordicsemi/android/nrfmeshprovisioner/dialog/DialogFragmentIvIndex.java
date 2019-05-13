@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -78,7 +80,7 @@ public class DialogFragmentIvIndex extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_ivindex_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_ivindex_input, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
@@ -110,19 +112,18 @@ public class DialogFragmentIvIndex extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_list);
         alertDialogBuilder.setTitle(R.string.title_iv_index);
-        alertDialogBuilder.setMessage(R.string.dialog_summary_iv_index);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String ivIndexInput = this.ivIndexInput.getText().toString();
+            final String ivIndexInput = this.ivIndexInput.getEditableText().toString();
             if (validateInput(ivIndexInput)) {
                 if (getParentFragment() == null) {
-                    ((DialogFragmentIvIndexListener) getActivity()).setIvIndex(Integer.parseInt(ivIndexInput, 16));
+                    ((DialogFragmentIvIndexListener) requireActivity()).setIvIndex(Integer.parseInt(ivIndexInput, 16));
                 } else {
                     ((DialogFragmentIvIndexListener) getParentFragment()).setIvIndex(Integer.parseInt(ivIndexInput, 16));
                 }

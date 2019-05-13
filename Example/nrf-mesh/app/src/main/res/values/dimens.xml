@@ -35,4 +35,10 @@
     <dimen name="network_recycler_view_bottom_padding">72dp</dimen>
     <dimen name="mesh_list_icon_padding">3dp</dimen>
     <dimen name="group_on_off_button_padding">8dp</dimen>
+
+    <dimen name="alert_dialog_padding">16dp</dimen>
+    <dimen name="alert_dialog_padding_left">24dp</dimen>
+    <dimen name="alert_dialog_padding_right">24dp</dimen>
+    <dimen name="alert_dialog_padding_top">20dp</dimen>
+    <dimen name="alert_dialog_padding_bottom">32dp</dimen>
 </resources>

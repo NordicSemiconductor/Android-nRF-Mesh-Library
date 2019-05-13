@@ -145,9 +145,8 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"/>
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/action_get_compostion_data"
-                            style="@style/BlueTextButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
@@ -238,9 +237,8 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/container_app_key_bind"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_add_app_keys"
-                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -302,9 +300,8 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/proxy_state_summary"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_get_proxy_state"
-                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -316,7 +313,7 @@
                         app:layout_constraintEnd_toStartOf="@id/action_set_proxy_state"
                         app:layout_constraintTop_toBottomOf="@id/div2"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_set_proxy_state"
                         style="@style/RedButton"
                         android:layout_width="wrap_content"
@@ -336,141 +333,6 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/proxy_filter_card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:background="@color/white"
-                android:visibility="gone"
-                app:cardElevation="1dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/node_proxy_state_card"
-                tools:visibility="visible">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <androidx.appcompat.widget.Toolbar
-                        android:id="@+id/proxy_filter_tool_bar"
-                        android:layout_width="0dp"
-                        android:layout_height="?actionBarSize"
-                        android:layout_marginEnd="8dp"
-                        app:layout_constraintEnd_toStartOf="@+id/filter_switch"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:logo="@drawable/ic_filter_list_black_alpha_24dp"
-                        app:title="@string/title_proxy_filter"
-                        app:titleMarginStart="@dimen/toolbar_title_margin"/>
-
-                    <Switch
-                        android:id="@+id/filter_switch"
-                        android:layout_width="150dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                        android:checked="true"
-                        android:text="@string/white_list_filter"
-                        android:textColor="@color/textColorSecondary"
-                        app:layout_constraintBottom_toBottomOf="@+id/proxy_filter_tool_bar"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/proxy_filter_tool_bar"
-                        app:layout_constraintTop_toTopOf="@id/proxy_filter_tool_bar"/>
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/container_proxy_filter"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="?selectableItemBackground"
-                        android:paddingTop="@dimen/item_padding_top"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/proxy_filter_tool_bar">
-
-                        <TextView
-                            android:id="@+id/no_addresses"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="@dimen/activity_horizontal_margin"
-                            android:paddingEnd="@dimen/activity_horizontal_margin"
-                            android:paddingBottom="@dimen/activity_vertical_margin"
-                            android:text="@string/no_addresses_added"
-                            android:textSize="16sp"
-                            app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"/>
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recycler_view_addresses"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:clipToPadding="false"
-                            android:paddingBottom="@dimen/activity_vertical_margin"
-                            android:scrollbars="none"
-                            android:visibility="gone"
-                            app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            tools:visibility="invisible"/>
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <include
-                        android:id="@+id/div2"
-                        layout="@layout/layout_divider"
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/container_proxy_filter"/>
-
-                    <Button
-                        android:id="@+id/action_add_address"
-                        style="@style/BlueTextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginStart="@dimen/item_padding_end"
-                        android:layout_marginEnd="@dimen/item_padding_start"
-                        android:padding="@dimen/activity_horizontal_margin"
-                        android:text="@string/action_add"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/div2"/>
-
-
-                    <Button
-                        android:id="@+id/action_clear_addresses"
-                        style="@style/RedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginStart="@dimen/item_padding_end"
-                        android:layout_marginEnd="@dimen/item_padding_start"
-                        android:padding="@dimen/activity_horizontal_margin"
-                        android:text="@string/action_clear"
-                        android:visibility="gone"
-                        app:layout_constraintBottom_toBottomOf="@id/action_add_address"
-                        app:layout_constraintEnd_toStartOf="@id/action_add_address"
-                        app:layout_constraintTop_toTopOf="@id/action_add_address"
-                        tools:visibility="visible"/>
-
-                    <TextView
-                        android:id="@+id/remove_hint"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/item_padding_end"
-                        android:padding="@dimen/activity_horizontal_margin"
-                        android:text="@string/hint_remove"
-                        app:layout_constraintBottom_toBottomOf="@id/action_add_address"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/action_add_address"/>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
                 android:id="@+id/node_reset_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -480,7 +342,7 @@
                 app:cardElevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/proxy_filter_card">
+                app:layout_constraintTop_toBottomOf="@id/node_proxy_state_card">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -514,10 +376,10 @@
                         android:layout_width="0dp"
                         android:layout_height="1dp"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/icon"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/textview"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_reset_node"
                         style="@style/RedButton"
                         android:layout_width="wrap_content"

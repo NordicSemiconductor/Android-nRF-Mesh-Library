@@ -1,12 +1,12 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
@@ -21,9 +21,7 @@ import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 
-@SuppressWarnings("WeakerAccess")
 class DefaultNoOperationMessageState extends MeshMessageState {
-
 
     private static final String TAG = DefaultNoOperationMessageState.class.getSimpleName();
 
@@ -239,46 +237,42 @@ class DefaultNoOperationMessageState extends MeshMessageState {
         final int segmentCount = message.getNetworkLayerPdu().size();
         if (controlMessage.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
             final TransportControlMessage transportControlMessage = controlMessage.getTransportControlMessage();
-            switch (transportControlMessage.getState()) {
-                case LOWER_TRANSPORT_BLOCK_ACKNOWLEDGEMENT:
-                    Log.v(TAG, "Acknowledgement payload: " + MeshParserUtils.bytesToHex(controlMessage.getTransportControlPdu(), false));
-                    final ArrayList<Integer> retransmitPduIndexes = BlockAcknowledgementMessage.getSegmentsToBeRetransmitted(controlMessage.getTransportControlPdu(), segmentCount);
-                    mMeshStatusCallbacks.onBlockAcknowledgementReceived(controlMessage.getSrc(), controlMessage);
-                    executeResend(retransmitPduIndexes);
-                    break;
-                default:
-                    Log.v(TAG, "Unexpected control message received, ignoring message");
-                    mMeshStatusCallbacks.onUnknownPduReceived(controlMessage.getSrc(), controlMessage.getTransportControlPdu());
-                    break;
+            if (transportControlMessage.getState() == TransportControlMessage.TransportControlMessageState.LOWER_TRANSPORT_BLOCK_ACKNOWLEDGEMENT) {
+                Log.v(TAG, "Acknowledgement payload: " + MeshParserUtils.bytesToHex(controlMessage.getTransportControlPdu(), false));
+                final ArrayList<Integer> retransmitPduIndexes = BlockAcknowledgementMessage.getSegmentsToBeRetransmitted(controlMessage.getTransportControlPdu(), segmentCount);
+                mMeshStatusCallbacks.onBlockAcknowledgementReceived(controlMessage.getSrc(), controlMessage);
+                executeResend(retransmitPduIndexes);
+            } else {
+                Log.v(TAG, "Unexpected control message received, ignoring message");
+                mMeshStatusCallbacks.onUnknownPduReceived(controlMessage.getSrc(), controlMessage.getTransportControlPdu());
             }
         } else if (controlMessage.getPduType() == MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION) {
             final ProvisionedMeshNode node = mInternalTransportCallbacks.getProvisionedNode(controlMessage.getSrc());
             if (controlMessage.getOpCode() == ProxyConfigMessageOpCodes.FILTER_STATUS) {
-                final ProxyFilter currentFilter = node.getProxyFilter();
                 final ProxyConfigFilterStatus status = new ProxyConfigFilterStatus(controlMessage);
                 final ProxyFilter filter;
                 if (mMeshMessage instanceof ProxyConfigSetFilterType) {
-                    node.setProxyFilter(new ProxyFilter(status.getFilterType()));
+                    filter = new ProxyFilter(status.getFilterType());
+                    mInternalTransportCallbacks.setProxyFilter(filter);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(controlMessage.getSrc(), status);
                 } else if (mMeshMessage instanceof ProxyConfigAddAddressToFilter) {
-                    filter = getProxyFilter(currentFilter, status.getFilterType());
-
+                    filter = updateProxyFilter(mInternalTransportCallbacks.getProxyFilter(), status.getFilterType());
                     final ProxyConfigAddAddressToFilter addAddressToFilter = (ProxyConfigAddAddressToFilter) mMeshMessage;
                     for (AddressArray addressArray : addAddressToFilter.getAddresses()) {
                         filter.addAddress(addressArray);
                     }
-                    node.setProxyFilter(filter);
+                    mInternalTransportCallbacks.setProxyFilter(filter);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(controlMessage.getSrc(), status);
 
                 } else if (mMeshMessage instanceof ProxyConfigRemoveAddressFromFilter) {
-                    filter = getProxyFilter(currentFilter, status.getFilterType());
+                    filter = updateProxyFilter(mInternalTransportCallbacks.getProxyFilter(), status.getFilterType());
                     final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = (ProxyConfigRemoveAddressFromFilter) mMeshMessage;
                     for (AddressArray addressArray : removeAddressFromFilter.getAddresses()) {
                         filter.removeAddress(addressArray);
                     }
-                    node.setProxyFilter(filter);
+                    mInternalTransportCallbacks.setProxyFilter(filter);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(controlMessage.getSrc(), status);
                 }
@@ -292,7 +286,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
      * @param currentFilter Proxy filter that is currently set on this node
      * @param filterType    Type of {@link ProxyFilterType} that was received by the status message
      */
-    private ProxyFilter getProxyFilter(final ProxyFilter currentFilter, final ProxyFilterType filterType) {
+    private ProxyFilter updateProxyFilter(final ProxyFilter currentFilter, final ProxyFilterType filterType) {
         if (currentFilter != null && currentFilter.getFilterType().getType() == filterType.getType()) {
             return currentFilter;
         } else {

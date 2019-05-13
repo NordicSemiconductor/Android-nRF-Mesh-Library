@@ -22,11 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,9 +30,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
@@ -45,23 +42,28 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdapter.ViewHolder> {
 
-    private final ArrayList<AddressArray> mAddresses;// = new ArrayList<>();
+    private final ArrayList<AddressArray> mAddresses = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public FilterAddressAdapter(@NonNull final Context context, @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
+    public FilterAddressAdapter(@NonNull final Context context) {
         this.mContext = context;
-        mAddresses = new ArrayList<>();
-        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
-            if (meshNode != null) {
-                final ProxyFilter proxyFilter = meshNode.getProxyFilter();
-                if (proxyFilter != null) {
-                    mAddresses.clear();
-                    mAddresses.addAll(proxyFilter.getAddresses());
-                    notifyDataSetChanged();
-                }
-            }
-        });
+    }
+
+    public void updateData(@NonNull final ProxyFilter filter){
+        mAddresses.clear();
+        mAddresses.addAll(filter.getAddresses());
+        notifyDataSetChanged();
+    }
+
+    public void clearData(){
+        mAddresses.clear();
+        notifyDataSetChanged();
+    }
+
+    public void clearRow(final int position){
+        mAddresses.remove(position);
+        notifyDataSetChanged();
     }
 
     public void setOnItemClickListener(final FilterAddressAdapter.OnItemClickListener listener) {

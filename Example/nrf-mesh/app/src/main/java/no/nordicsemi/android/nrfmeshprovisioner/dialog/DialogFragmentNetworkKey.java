@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -38,6 +40,7 @@ import android.text.method.KeyListener;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -81,11 +84,12 @@ public class DialogFragmentNetworkKey extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
 
         final KeyListener hexKeyListener = new HexKeyListener();
         //Bind ui
         ButterKnife.bind(this, rootView);
+        final TextView summary = rootView.findViewById(R.id.summary);
         final String key = MeshParserUtils.bytesToHex(mNetworkKey.getKey(), false);
         networkKeyInputLayout.setHint(getString(R.string.hint_network_key));
         networkKeyInput.setKeyListener(hexKeyListener);
@@ -112,21 +116,21 @@ public class DialogFragmentNetworkKey extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null)
                 .setNeutralButton(R.string.generate_network_key, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
         alertDialogBuilder.setTitle(R.string.title_generate_network_key);
-        alertDialogBuilder.setMessage(R.string.summary_generate_network_key);
+        summary.setText(R.string.summary_generate_network_key);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String networkKey = networkKeyInput.getText().toString();
+            final String networkKey = networkKeyInput.getEditableText().toString();
             if (validateInput(networkKey)) {
                 try {
                     if (getParentFragment() == null) {
-                        ((DialogFragmentNetworkKeyListener) getActivity()).onNetworkKeyGenerated(networkKey);
+                        ((DialogFragmentNetworkKeyListener) requireActivity()).onNetworkKeyGenerated(networkKey);
                     } else {
                         ((DialogFragmentNetworkKeyListener) getParentFragment()).onNetworkKeyGenerated(networkKey);
                     }

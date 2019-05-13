@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -81,7 +83,7 @@ public class DialogFragmentFlags extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_flags_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_flags_input, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
@@ -100,12 +102,11 @@ public class DialogFragmentFlags extends DialogFragment {
         radioGroupKeyRefreshFlag.setEnabled(false);
         radioGroupIVUpdateFlag.setEnabled(false);
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_flag);
         alertDialogBuilder.setTitle(R.string.title_flags);
-        alertDialogBuilder.setMessage(R.string.dialog_summary_flags);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
@@ -113,7 +114,7 @@ public class DialogFragmentFlags extends DialogFragment {
                 final int keyRefreshFlag = parseKeyRefreshFlag();
                 final int ivUpdateFlag = parseIvUpdateFlag();
                 if (getParentFragment() == null) {
-                    ((DialogFragmentFlagsListener) getActivity()).onFlagsSelected(keyRefreshFlag, ivUpdateFlag);
+                    ((DialogFragmentFlagsListener) requireActivity()).onFlagsSelected(keyRefreshFlag, ivUpdateFlag);
                 } else {
                     ((DialogFragmentFlagsListener) getParentFragment()).onFlagsSelected(keyRefreshFlag, ivUpdateFlag);
                 }

@@ -164,9 +164,8 @@
                         app:layout_constraintTop_toBottomOf="@id/div1"
                         tools:visibility="visible"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_bind_app_key"
-                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -178,9 +177,8 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/div1"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_unbind_app_key"
-                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -279,12 +277,11 @@
                         android:layout_width="0dp"
                         android:layout_height="1dp"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/icon"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/container_publish_address"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_set_publication"
-                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -296,9 +293,8 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/div2"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_clear_publication_set"
-                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -403,9 +399,8 @@
                         app:layout_constraintTop_toBottomOf="@id/div3"
                         tools:visibility="visible"/>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_subscribe_address"
-                        style="@style/BlueTextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"

@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -114,7 +116,7 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_select_oob_type, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_select_oob_type, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
@@ -162,7 +164,7 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).
                 setView(rootView).
                 setIcon(R.drawable.ic_oob_lock_outline).
                 setTitle(R.string.title_select_oob).

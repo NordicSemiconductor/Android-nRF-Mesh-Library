@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -39,6 +41,7 @@ import android.text.method.KeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -91,11 +94,11 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_filter_address, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_filter_address, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
-
+        final TextView summary = rootView.findViewById(R.id.summary);
         if (savedInstanceState != null) {
             filterType = savedInstanceState.getParcelable(PROXY_FILTER_KEY);
             addresses = savedInstanceState.getParcelableArrayList("AddressList");
@@ -138,7 +141,9 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
             }
         });
 
-        return new AlertDialog.Builder(getContext()).setView(rootView)
+        summary.setText(getString(R.string.dialog_summary_filter_address, filterType.getFilterTypeName()));
+
+        return new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.confirm, (dialog, which) -> {
                     if (!addresses.isEmpty()) {
                         if (getParentFragment() == null) {
@@ -152,8 +157,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .setIcon(R.drawable.ic_lan_black_alpha_24dp)
-                .setTitle(R.string.title_add_address)
-                .setMessage(getString(R.string.dialog_summary_filter_address, filterType.getFilterTypeName())).create();
+                .setTitle(R.string.title_add_address).create();
     }
 
     @Override

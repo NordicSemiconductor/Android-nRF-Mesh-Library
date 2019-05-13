@@ -1,12 +1,5 @@
 package no.nordicsemi.android.meshprovisioner;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -17,10 +10,18 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.room.ColumnInfo;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 abstract class BaseMeshNetwork {
@@ -117,6 +118,10 @@ abstract class BaseMeshNetwork {
 
     @Ignore
     private final Comparator<ApplicationKey> appKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
+
+    @Ignore
+    @Expose(serialize = false, deserialize = false)
+    private ProxyFilter proxyFilter;
 
     BaseMeshNetwork(@NonNull final String meshUUID) {
         this.meshUUID = meshUUID;
@@ -487,6 +492,25 @@ abstract class BaseMeshNetwork {
         final Provisioner provisioner = provisioners.get(0);
         provisioner.setGlobalTtl(globalTtl);
         notifyProvisionerUpdated(provisioner);
+    }
+
+    /**
+     * Returns the {@link ProxyFilter} set on the proxy
+     */
+    @Nullable
+    public ProxyFilter getProxyFilter() {
+        return proxyFilter;
+    }
+
+    /**
+     * Sets the {@link ProxyFilter} settings on the proxy
+     * <p>
+     * Please note that this is not persisted within the node since the filter is reinitialized to a whitelist filter upon connecting to a proxy node.
+     * Therefore after setting a proxy filter and disconnecting users will have to manually
+     * <p/>
+     */
+    public void setProxyFilter(@Nullable final ProxyFilter proxyFilter) {
+        this.proxyFilter = proxyFilter;
     }
 
     final void notifyNetworkUpdated() {

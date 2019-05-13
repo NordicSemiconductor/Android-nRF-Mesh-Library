@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -37,6 +39,7 @@ import android.text.TextWatcher;
 import android.text.method.KeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.Locale;
 
@@ -78,10 +81,11 @@ public class DialogFragmentSourceAddress extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_address_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_address_input, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
+        final TextView summary = rootView.findViewById(R.id.summary);
 
         final KeyListener hexKeyListener = new HexKeyListener();
         final String unicastAddress = String.format(Locale.US, "%04X", mUnicastAddress);
@@ -110,20 +114,20 @@ public class DialogFragmentSourceAddress extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
         alertDialogBuilder.setTitle(R.string.title_src_address);
-        alertDialogBuilder.setMessage(R.string.dialog_summary_src);
+        summary.setText(R.string.dialog_summary_src);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String unicast = unicastAddressInput.getText().toString();
+            final String unicast = unicastAddressInput.getEditableText().toString();
             if (validateInput(unicast)) {
                 try {
                     if (getParentFragment() == null) {
-                        if(((DialogFragmentSourceAddressListener) getActivity()).setSourceAddress(Integer.parseInt(unicast, 16))){
+                        if(((DialogFragmentSourceAddressListener) requireActivity()).setSourceAddress(Integer.parseInt(unicast, 16))){
                             dismiss();
                         }
                     } else {

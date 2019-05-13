@@ -1,7 +1,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -36,7 +36,7 @@ public class DialogFragmentPublicationResolution extends DialogFragment {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext())
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
                 .setIcon(R.drawable.ic_linear_scale_black_alpha_24dp)
                 .setTitle(R.string.title_publication_resolution)
                 .setSingleChoiceItems(R.array.arr_publication_resolution, mPublicationResolution, null)

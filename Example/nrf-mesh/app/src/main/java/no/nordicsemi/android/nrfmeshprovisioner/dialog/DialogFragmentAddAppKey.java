@@ -23,7 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -32,6 +32,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -78,7 +79,7 @@ public class DialogFragmentAddAppKey extends DialogFragment {
         @SuppressLint("InflateParams")
         final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
         ButterKnife.bind(this, rootView);
-
+        final TextView summary = rootView.findViewById(R.id.summary);
         //Bind ui
         appKeysInputLayout.setHint(getString(R.string.hint_app_key));
         appKeyInput.setText(mAppKey);
@@ -103,13 +104,13 @@ public class DialogFragmentAddAppKey extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null)
                 .setNeutralButton(R.string.generate_app_key, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
         alertDialogBuilder.setTitle(R.string.title_manage_app_keys);
-        alertDialogBuilder.setMessage(R.string.summary_app_keys);
+        summary.setText(R.string.summary_app_keys);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {

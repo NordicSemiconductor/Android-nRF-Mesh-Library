@@ -110,7 +110,7 @@ public class NetworkFragment extends Fragment implements Injectable,
             }
         });
 
-        mViewModel.getConnectedMeshNodeAddress().observe(this, unicastAddress -> mAdapter.selectConnectedMeshNode(unicastAddress));
+        mViewModel.getConnectedProxyAddress().observe(this, unicastAddress -> mAdapter.selectConnectedMeshNode(unicastAddress));
 
         fab.setOnClickListener(v -> {
             final Intent intent = new Intent(requireActivity(), ScannerActivity.class);

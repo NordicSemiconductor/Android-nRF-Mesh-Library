@@ -22,30 +22,29 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import butterknife.ButterKnife;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
 public class MainActivity extends AppCompatActivity implements Injectable,
@@ -62,10 +61,9 @@ public class MainActivity extends AppCompatActivity implements Injectable,
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
-    private BottomNavigationView mBottomNavigationView;
-
     private NetworkFragment mNetworkFragment;
     private GroupsFragment mGroupsFragment;
+    private ProxyFilterFragment mProxyFilterFragment;
     private Fragment mSettingsFragment;
     private SharedViewModel mViewModel;
 
@@ -83,16 +81,17 @@ public class MainActivity extends AppCompatActivity implements Injectable,
 
         mNetworkFragment = (NetworkFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_network);
         mGroupsFragment = (GroupsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_groups);
+        mProxyFilterFragment = (ProxyFilterFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_proxy);
         mSettingsFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_settings);
-        mBottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        final BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
 
-        mBottomNavigationView.setOnNavigationItemSelectedListener(this);
-        mBottomNavigationView.setOnNavigationItemReselectedListener(this);
+        bottomNavigationView.setOnNavigationItemSelectedListener(this);
+        bottomNavigationView.setOnNavigationItemReselectedListener(this);
 
         if (savedInstanceState == null) {
-            onNavigationItemSelected(mBottomNavigationView.getMenu().findItem(R.id.action_network));
+            onNavigationItemSelected(bottomNavigationView.getMenu().findItem(R.id.action_network));
         } else {
-            mBottomNavigationView.setSelectedItemId(savedInstanceState.getInt(CURRENT_FRAGMENT));
+            bottomNavigationView.setSelectedItemId(savedInstanceState.getInt(CURRENT_FRAGMENT));
         }
     }
 
@@ -128,11 +127,7 @@ public class MainActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public void onBackPressed() {
-        if(getSupportFragmentManager().getFragments().size() > TAB_COUNT) {
-            getSupportFragmentManager().popBackStack();
-        } else {
-            super.onBackPressed();
-        }
+        super.onBackPressed();
     }
 
     @Override
@@ -146,13 +141,16 @@ public class MainActivity extends AppCompatActivity implements Injectable,
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         switch (id) {
             case R.id.action_network:
-                ft.show(mNetworkFragment).hide(mGroupsFragment).hide(mSettingsFragment);
+                ft.show(mNetworkFragment).hide(mGroupsFragment).hide(mProxyFilterFragment).hide(mSettingsFragment);
                 break;
-            case R.id.action_scanner:
-                ft.hide(mNetworkFragment).show(mGroupsFragment).hide(mSettingsFragment);
+            case R.id.action_groups:
+                ft.hide(mNetworkFragment).show(mGroupsFragment).hide(mProxyFilterFragment).hide(mSettingsFragment);
+                break;
+            case R.id.action_proxy:
+                ft.hide(mNetworkFragment).hide(mGroupsFragment).show(mProxyFilterFragment).hide(mSettingsFragment);
                 break;
             case R.id.action_settings:
-                ft.hide(mNetworkFragment).hide(mGroupsFragment).show(mSettingsFragment);
+                ft.hide(mNetworkFragment).hide(mGroupsFragment).hide(mProxyFilterFragment).show(mSettingsFragment);
                 break;
         }
         ft.commit();

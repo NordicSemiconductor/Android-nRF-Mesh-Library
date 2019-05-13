@@ -23,12 +23,12 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilitiesState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCompleteState;
@@ -310,7 +310,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     }
 
     /**
-     * Starts provisioning an unprovisioned mesh node usign Static OOB
+     * Starts provisioning an unprovisioned mesh node using Static OOB
      * <p>
      * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int, int, int)}.
      * </p>

@@ -22,16 +22,17 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModel;
 import android.net.Uri;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 public class SharedViewModel extends ViewModel {
@@ -63,6 +64,10 @@ public class SharedViewModel extends ViewModel {
 
     public MeshNetworkLiveData getMeshNetworkLiveData() {
         return nRFMeshRepository.getMeshNetworkLiveData();
+    }
+
+    public LiveData<MeshMessage> getMeshMessageLiveData() {
+        return nRFMeshRepository.getMeshMessageLiveData();
     }
 
     public LiveData<List<Group>> getGroups(){
@@ -135,8 +140,8 @@ public class SharedViewModel extends ViewModel {
         return nRFMeshRepository.getNetworkExportState();
     }
 
-    public LiveData<Integer> getConnectedMeshNodeAddress(){
-        return nRFMeshRepository.getConnectedMeshNodeAddress();
+    public LiveData<Integer> getConnectedProxyAddress(){
+        return nRFMeshRepository.getConnectedProxyAddress();
     }
 
     public void setSelectedGroup(final int address){

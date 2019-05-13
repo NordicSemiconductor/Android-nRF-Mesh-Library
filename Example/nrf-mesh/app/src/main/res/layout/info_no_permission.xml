@@ -52,17 +52,15 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:text="@string/location_permission_info"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/action_grant_location_permission"
-        style="@style/BlueTextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="@string/location_permission_action"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/action_permission_settings"
-        style="@style/BlueTextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"

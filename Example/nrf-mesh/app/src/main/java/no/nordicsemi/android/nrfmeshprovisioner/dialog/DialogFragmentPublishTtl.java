@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -76,7 +78,7 @@ public class DialogFragmentPublishTtl extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publish_ttl_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publish_ttl_input, null);
         ButterKnife.bind(this, rootView);
 
         chkPublishTtl.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -107,22 +109,21 @@ public class DialogFragmentPublishTtl extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_timer);
         alertDialogBuilder.setTitle(R.string.title_publish_ttl);
-        alertDialogBuilder.setMessage(R.string.dialog_summary_publish_ttl);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             if(chkPublishTtl.isChecked()) {
-                ((DialogFragmentPublishTtlListener) getActivity()).setPublishTtl(MeshParserUtils.USE_DEFAULT_TTL);
+                ((DialogFragmentPublishTtlListener) requireActivity()).setPublishTtl(MeshParserUtils.USE_DEFAULT_TTL);
                 dismiss();
             } else {
-                final String publishTtl = ttlInput.getText().toString();
+                final String publishTtl = ttlInput.getEditableText().toString();
                 if (validateInput(publishTtl)) {
-                    ((DialogFragmentPublishTtlListener) getActivity()).setPublishTtl(Integer.parseInt(publishTtl));
+                    ((DialogFragmentPublishTtlListener) requireActivity()).setPublishTtl(Integer.parseInt(publishTtl));
                     dismiss();
                 }
             }

@@ -25,8 +25,6 @@ package no.nordicsemi.android.meshprovisioner;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -41,6 +39,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.data.ApplicationKeyDao;
 import no.nordicsemi.android.meshprovisioner.data.GroupDao;
 import no.nordicsemi.android.meshprovisioner.data.GroupsDao;
@@ -64,6 +64,7 @@ import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
+import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 
@@ -403,7 +404,7 @@ public class MeshManagerApi implements MeshMngrApi {
             mIncomingBufferOffset += length;
             mIncomingBuffer = buffer;
             if (length < mtuSize) {
-                final byte packet[] = mIncomingBuffer;
+                final byte[] packet = mIncomingBuffer;
                 mIncomingBuffer = null;
                 return packet;
             }
@@ -432,7 +433,7 @@ public class MeshManagerApi implements MeshMngrApi {
             mOutgoingBufferOffset += length;
             mOutgoingBuffer = buffer;
             if (length < mtuSize) {
-                final byte packet[] = mOutgoingBuffer;
+                final byte[] packet = mOutgoingBuffer;
                 mOutgoingBuffer = null;
                 return packet;
             }
@@ -841,6 +842,16 @@ public class MeshManagerApi implements MeshMngrApi {
             updateNetwork(meshNode);
             final int mtu = mTransportCallbacks.getMtu();
             mTransportCallbacks.onMeshPduCreated(applySegmentation(mtu, pdu));
+        }
+
+        @Override
+        public ProxyFilter getProxyFilter() {
+            return mMeshNetwork.getProxyFilter();
+        }
+
+        @Override
+        public void setProxyFilter(@NonNull final ProxyFilter filter) {
+            mMeshNetwork.setProxyFilter(filter);
         }
 
         @Override

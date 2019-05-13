@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -36,12 +38,13 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public class DialogFragmentGlobalNetworkName extends DialogFragment {
+public class DialogFragmentNetworkName extends DialogFragment {
 
     private static final String NETWORK_NAME = "NETWORK_NAME";
 
@@ -53,8 +56,8 @@ public class DialogFragmentGlobalNetworkName extends DialogFragment {
 
     private String mNetworkName;
 
-    public static DialogFragmentGlobalNetworkName newInstance(final String networkName) {
-        DialogFragmentGlobalNetworkName fragmentNetworkKey = new DialogFragmentGlobalNetworkName();
+    public static DialogFragmentNetworkName newInstance(final String networkName) {
+        DialogFragmentNetworkName fragmentNetworkKey = new DialogFragmentNetworkName();
         final Bundle args = new Bundle();
         args.putString(NETWORK_NAME, networkName);
         fragmentNetworkKey.setArguments(args);
@@ -72,10 +75,11 @@ public class DialogFragmentGlobalNetworkName extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_name, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_name, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
+        final TextView summary = rootView.findViewById(R.id.summary);
         networkNameInputLayout.setHint(getString(R.string.hint_global_network_name));
         networkNameInput.setText(mNetworkName);
         networkNameInput.addTextChangedListener(new TextWatcher() {
@@ -99,19 +103,19 @@ public class DialogFragmentGlobalNetworkName extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
         alertDialogBuilder.setTitle(R.string.title_network_name);
-        alertDialogBuilder.setMessage(R.string.summary_network_name);
+        summary.setText(R.string.summary_network_name);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String networkKey = networkNameInput.getText().toString();
+            final String networkKey = networkNameInput.getEditableText().toString();
             if (validateInput(networkKey)) {
                 if(getParentFragment() == null) {
-                    ((DialogFragmentNetworkNameListener) getActivity()).onNetworkNameEntered(networkKey);
+                    ((DialogFragmentNetworkNameListener) requireActivity()).onNetworkNameEntered(networkKey);
                 } else {
                     ((DialogFragmentNetworkNameListener) getParentFragment()).onNetworkNameEntered(networkKey);
                 }
