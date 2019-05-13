@@ -184,7 +184,6 @@
 
     <string name="no_groups_configured_title">NO GROUPS CONFIGURED</string>
     <string name="no_groups_configured_rationale">Create a group to control your devices. All groups listed here can be subscribed to from a model.</string>
-    <string name="group_friendly_name">Friendly Name</string>
     <string name="group_name">Name</string>
     <string name="group_address">Address</string>
     <string name="group_address_summary">Address %s</string>
@@ -397,7 +396,7 @@
     <string name="error_invalid_publish_ttl">Publish TTL value must be in range of 0 to 127!</string>
 
     <string name="dialog_summary_retransmit_count">Enter the desired number of retransmissions.</string>
-    <string name="dialog_summary_interval_steps">Enter the desired number of interval steps for retransmission. \n1 step = 50ms</string>
+    <string name="dialog_summary_interval_steps">Enter the desired number of interval steps for retransmission. \n\n1 step = 50ms</string>
     <string name="dialog_summary_publication_steps">Enter the desired number of steps for publication period.</string>
     <string name="dialog_summary_publish_ttl">Enter the desired publish ttl.</string>
     <string name="resolution_summary_100_ms">100 milliseconds</string>
