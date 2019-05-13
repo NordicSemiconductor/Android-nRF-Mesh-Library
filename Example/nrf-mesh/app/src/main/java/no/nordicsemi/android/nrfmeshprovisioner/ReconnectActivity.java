@@ -69,6 +69,7 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(deviceName);
         getSupportActionBar().setSubtitle(deviceAddress);
@@ -91,9 +92,6 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
                 returnIntent.putExtra(Utils.EXTRA_DATA, true);
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
-                //We send a proxy whitelist filter message to identify the node we are connected to when reconnecting to the network
-                final ProxyConfigSetFilterType setFilterType = new ProxyConfigSetFilterType(new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER));
-                mReconnectViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, setFilterType);
             }
         });
 
@@ -101,10 +99,9 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
         return false;
     }
