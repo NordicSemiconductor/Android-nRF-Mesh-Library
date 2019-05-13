@@ -88,7 +88,6 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_disable"
-                        style="?materialButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -96,13 +95,14 @@
                         android:layout_marginEnd="@dimen/item_padding_start"
                         android:padding="@dimen/activity_horizontal_margin"
                         android:text="@string/action_disable"
+                        android:enabled="false"
+                        android:textColor="@color/proxy_filter_button_states"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/div2"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_black_list"
-                        style="?materialButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -110,13 +110,14 @@
                         android:layout_marginEnd="@dimen/item_padding_start"
                         android:padding="@dimen/activity_horizontal_margin"
                         android:text="@string/black_list_filter"
+                        android:enabled="false"
+                        android:textColor="@color/proxy_filter_button_states"
                         app:layout_constraintBottom_toBottomOf="@id/action_disable"
                         app:layout_constraintEnd_toStartOf="@id/action_disable"
                         app:layout_constraintTop_toTopOf="@id/action_disable"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_white_list"
-                        style="?materialButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -124,6 +125,8 @@
                         android:layout_marginEnd="@dimen/item_padding_start"
                         android:padding="@dimen/activity_horizontal_margin"
                         android:text="@string/white_list_filter"
+                        android:enabled="false"
+                        android:textColor="@color/proxy_filter_button_states"
                         app:layout_constraintBottom_toBottomOf="@id/action_black_list"
                         app:layout_constraintEnd_toStartOf="@id/action_black_list"
                         app:layout_constraintTop_toTopOf="@id/action_black_list"/>
@@ -205,7 +208,6 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/action_add_address"
-                        style="?materialButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -214,6 +216,7 @@
                         android:padding="@dimen/activity_horizontal_margin"
                         android:text="@string/action_add"
                         android:enabled="false"
+                        android:textColor="@color/filter_add_button_states"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/div2"/>
