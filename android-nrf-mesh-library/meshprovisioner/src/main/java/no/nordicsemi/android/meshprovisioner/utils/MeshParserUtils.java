@@ -22,26 +22,29 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.R;
 
 @SuppressWarnings({"WeakerAccess", "BooleanMethodIsAlwaysInverted"})
 public class MeshParserUtils {
 
     private static final String TAG = MeshParserUtils.class.getSimpleName();
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy:MM:dd'T'HH:mm:ssXXX", Locale.US);
     private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
-    private static final String PATTERN_UUID = "[0-9a-fA-F]{32}";
+    private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
     private static final int TAI_YEAR = 2000;
     private static final int TAI_MONTH = 1;
     private static final int TAI_DATE = 1;
@@ -790,7 +793,7 @@ public class MeshParserUtils {
      * @param uuidHex Hex string
      */
     public static String formatUuid(@NonNull final String uuidHex) {
-        if (uuidHex.matches(PATTERN_UUID)) {
+        if (isUuidPattern(uuidHex)) {
             return new StringBuffer(uuidHex).
                     insert(8, "-").
                     insert(13, "-").
@@ -800,13 +803,17 @@ public class MeshParserUtils {
         return null;
     }
 
+    public static boolean isUuidPattern(@NonNull final String uuidHex) {
+        return uuidHex.matches(PATTERN_UUID_HEX);
+    }
+
     /**
      * Returns a type4 UUID from a uuid string without dashes
      *
      * @param uuidHex Hex string
      */
     public static UUID getUuid(@NonNull final String uuidHex) {
-        if (uuidHex.matches(PATTERN_UUID)) {
+        if (uuidHex.matches(PATTERN_UUID_HEX)) {
             return UUID.fromString(new StringBuffer(uuidHex).
                     insert(8, "-").
                     insert(4, "-").
@@ -816,4 +823,12 @@ public class MeshParserUtils {
         return null;
     }
 
+    /**
+     * Converts the timestamp to long
+     *
+     * @param timestamp timestamp
+     */
+    public static Long parseTimeStamp(@NonNull final String timestamp) throws ParseException {
+        return SDF.parse(timestamp).getTime();
+    }
 }

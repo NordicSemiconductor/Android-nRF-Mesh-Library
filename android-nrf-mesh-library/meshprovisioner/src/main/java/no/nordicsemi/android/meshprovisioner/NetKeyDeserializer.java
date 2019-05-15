@@ -8,8 +8,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.JsonSyntaxException;
 
 import java.lang.reflect.Type;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +52,12 @@ final class NetKeyDeserializer implements JsonSerializer<List<NetworkKey>>, Json
             final byte[] oldKey = getOldKey(jsonObject);
             final int phase = jsonObject.get("phase").getAsInt();
             final boolean minSecurity = jsonObject.get("minSecurity").getAsString().equalsIgnoreCase("low");
-            final long timestamp = Long.parseLong(jsonObject.get("timestamp").getAsString(), 16);
+            final long timestamp;
+            try {
+                timestamp = MeshParserUtils.parseTimeStamp(jsonObject.get("timestamp").getAsString());
+            } catch (ParseException e) {
+                throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, mesh network timestamp must follow the Mesh Provisioning/Configuration Database format.");
+            }
 
             final NetworkKey networkKey = new NetworkKey(index, key);
             networkKey.setName(name);

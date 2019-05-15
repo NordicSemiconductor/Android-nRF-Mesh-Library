@@ -10,6 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.AllocatedGroupRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedSceneRange;
@@ -116,5 +117,19 @@ public class MeshTypeConverters {
         Type addresses = new TypeToken<List<Integer>>() {
         }.getType();
         return new Gson().fromJson(addressesJson, addresses);
+    }
+
+    @TypeConverter
+    public String uuidToJson(final UUID uuid){
+        if(uuid == null)
+            return null;
+        return new Gson().toJson(uuid.toString());
+    }
+
+    @TypeConverter
+    public UUID fromJsonToUuid(final String addressesJson){
+        Type uuid = new TypeToken<UUID>() {
+        }.getType();
+        return new Gson().fromJson(addressesJson, uuid);
     }
 }

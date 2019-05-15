@@ -158,7 +158,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
 
         final JsonArray jsonArray = jsonObject.get("bind").getAsJsonArray();
         for (int i = 0; i < jsonArray.size(); i++) {
-            final int index = Integer.parseInt(jsonArray.get(i).getAsString(), 16);
+            final int index = jsonArray.get(i).getAsInt();
             boundKeyIndexes.add(index);
         }
         return boundKeyIndexes;

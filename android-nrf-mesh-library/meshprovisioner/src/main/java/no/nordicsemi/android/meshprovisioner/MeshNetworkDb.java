@@ -43,7 +43,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
         ProvisionedMeshNode.class,
         Group.class,
         Scene.class},
-        version = 2)
+        version = 3)
 abstract class MeshNetworkDb extends RoomDatabase {
 
     abstract MeshNetworkDao meshNetworkDao();
@@ -80,6 +80,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                             MeshNetworkDb.class, "mesh_network_database.db")
                             .addCallback(sRoomDatabaseCallback)
                             .addMigrations(MIGRATION_1_2)
+                            .addMigrations(MIGRATION_2_3)
                             .build();
                 }
 
@@ -663,18 +664,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
         }
     }
 
-    private static final Migration MIGRATION_1_12 = new Migration(1, 2) {
-        @Override
-        public void migrate(SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE mesh_network "
-                    + " ADD COLUMN address INTEGER NOT NULL DEFAULT 1");
-            database.execSQL("ALTER TABLE provisioner "
-                    + " ADD COLUMN address INTEGER NOT NULL DEFAULT " + 0x7FFF);
-            database.execSQL("ALTER TABLE groups "
-                    + " ADD COLUMN grp_address INTEGER NOT NULL DEFAULT " + MeshAddress.START_GROUP_ADDRESS);
-        }
-    };
-
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
@@ -682,6 +671,13 @@ abstract class MeshNetworkDb extends RoomDatabase {
             migrateNodes(database);
             migrateProvisioner(database);
             migrateGroup(database);
+        }
+    };
+
+    private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            migrateGroup1(database);
         }
     };
 
@@ -814,6 +810,42 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 "`name` TEXT, " +
                 "`group_address` INTEGER NOT NULL DEFAULT 49152, " +
                 "`parent_address` INTEGER NOT NULL DEFAULT 49152, " +
+                "FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )");
+
+        final Cursor cursor = database.query("SELECT * FROM groups");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                final String uuid = cursor.getString(cursor.getColumnIndex("mesh_uuid"));
+                final String name = cursor.getString(cursor.getColumnIndex("name"));
+                final byte[] grpAddress = cursor.getBlob(cursor.getColumnIndex("group_address"));
+                final byte[] pAddress = cursor.getBlob(cursor.getColumnIndex("parent_address"));
+                final int groupAddress = MeshParserUtils.unsignedBytesToInt(grpAddress[1], grpAddress[0]);
+                final ContentValues values = new ContentValues();
+                values.put("mesh_uuid", uuid);
+                values.put("name", name);
+                values.put("group_address", groupAddress);
+                if (pAddress != null) {
+                    final int parentAddress = MeshParserUtils.unsignedBytesToInt(pAddress[1], pAddress[0]);
+                    values.put("parent_address", parentAddress);
+                }
+                database.insert("groups_temp", SQLiteDatabase.CONFLICT_REPLACE, values);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        database.execSQL("DROP TABLE groups");
+        database.execSQL("ALTER TABLE groups_temp RENAME TO groups");
+        database.execSQL("CREATE INDEX index_groups_mesh_uuid ON `groups` (mesh_uuid)");
+    }
+
+    private static void migrateGroup1(final SupportSQLiteDatabase database) {
+        database.execSQL("CREATE TABLE `groups_temp` " +
+                "(`id` INTEGER PRIMARY KEY NOT NULL," +
+                "`mesh_uuid` TEXT, " +
+                "`name` TEXT, " +
+                "`group_address` INTEGER NOT NULL DEFAULT 49152, " +
+                "`parent_address` INTEGER NOT NULL DEFAULT 49152, " +
+                "`group_address_label` TEXT, " +
                 "FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )");
 
         final Cursor cursor = database.query("SELECT * FROM groups");

@@ -1,20 +1,25 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.util.UUID;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import android.os.Parcel;
-import android.os.Parcelable;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
+import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
+import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 
 import static androidx.room.ForeignKey.CASCADE;
 
@@ -43,6 +48,11 @@ public class Group implements Parcelable {
     @SerializedName("address")
     private int groupAddress;
 
+    @TypeConverters(MeshTypeConverters.class)
+    @ColumnInfo(name = "group_address_label")
+    @Expose(serialize = false, deserialize = false)
+    private UUID groupAddressLabel;
+
     @ColumnInfo(name = "parent_address")
     @Expose
     @SerializedName("parentAddress")
@@ -53,7 +63,6 @@ public class Group implements Parcelable {
     @SerializedName("meshUuid")
     private String meshUuid;
 
-
     /**
      * Constructs a mesh group
      *
@@ -63,12 +72,12 @@ public class Group implements Parcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public Group(final int id, final int groupAddress, @NonNull final String meshUuid) {
         this.id = id;
-        if (!MeshAddress.isValidGroupAddress(groupAddress)) {
-            throw new IllegalArgumentException("Address cannot be an unassigned address, unicast address, all-nodes address or virtual address");
+        if (!MeshAddress.isValidGroupAddress(groupAddress) && !MeshAddress.isValidVirtualAddress(groupAddress)) {
+            throw new IllegalArgumentException("Address cannot be an unassigned address, " +
+                    "unicast address or an all-nodes address");
         }
         this.groupAddress = groupAddress;
-        //by default parent address is set to same as the group address
-        this.parentAddress = groupAddress;
+        this.parentAddress = 0x0000;
         this.meshUuid = meshUuid;
     }
 
@@ -81,11 +90,26 @@ public class Group implements Parcelable {
     @Ignore
     public Group(final int groupAddress, @NonNull final String meshUuid) {
         if (!MeshAddress.isValidGroupAddress(groupAddress)) {
-            throw new IllegalArgumentException("Address cannot be an unassigned address, unicast address, all-nodes address or virtual address");
+            throw new IllegalArgumentException("Address cannot be an unassigned address, " +
+                    "unicast address, all-nodes address or virtual address");
         }
         this.groupAddress = groupAddress;
-        //by default parent address is set to same as the group address
-        this.parentAddress = groupAddress;
+        this.parentAddress = 0x0000;
+        this.groupAddressLabel = null;
+        this.meshUuid = meshUuid;
+    }
+
+    /**
+     * Constructs a mesh group
+     *
+     * @param groupAddressLabel UUID label of the group the group address
+     * @param meshUuid          uuid of the mesh network
+     */
+    @Ignore
+    public Group(@NonNull final UUID groupAddressLabel, @NonNull final String meshUuid) {
+        this.groupAddressLabel = groupAddressLabel;
+        this.groupAddress = MeshAddress.generateVirtualAddress(groupAddressLabel);
+        this.parentAddress = 0x0000;
         this.meshUuid = meshUuid;
     }
 
@@ -152,12 +176,23 @@ public class Group implements Parcelable {
     }
 
     /**
-     * Sets a group address
+     * Returns the label UUID of the group address
      *
-     * @param groupAddress 2 byte group address
+     * @return Label UUID of the group address if the group address is a virtual address or null otherwise
      */
-    public void setGroupAddress(final int groupAddress) {
-        this.groupAddress = groupAddress;
+    @Nullable
+    public UUID getGroupAddressLabel() {
+        return groupAddressLabel;
+    }
+
+    /**
+     * Sets the group address label
+     *
+     * @param uuidLabel UUID label of the address
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setGroupAddressLabel(@Nullable final UUID uuidLabel) {
+        groupAddressLabel = uuidLabel;
     }
 
     /**

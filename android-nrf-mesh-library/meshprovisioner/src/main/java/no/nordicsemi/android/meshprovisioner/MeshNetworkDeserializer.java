@@ -19,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
@@ -26,25 +27,33 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork>, JsonDeserializer<MeshNetwork> {
     private static final String TAG = MeshNetworkDeserializer.class.getSimpleName();
 
     @Override
     public MeshNetwork deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
+
         final JsonObject jsonObject = json.getAsJsonObject();
         if (!isValidMeshObject(jsonObject))
             throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, mesh network object must follow the Mesh Provisioning/Configuration Database format.");
 
-        final String meshUuid = jsonObject.get("meshUUID").getAsString();
-
+        final String uuid = jsonObject.get("meshUUID").getAsString();
+        final String meshUuid = MeshParserUtils.formatUuid(uuid);
         final MeshNetwork network = new MeshNetwork(meshUuid);
 
         network.schema = jsonObject.get("$schema").getAsString();
         network.id = jsonObject.get("id").getAsString();
         network.version = jsonObject.get("version").getAsString();
         network.meshName = jsonObject.get("meshName").getAsString();
-        network.timestamp = Long.parseLong(jsonObject.get("timestamp").getAsString(), 16);
+
+        try {
+            network.timestamp = MeshParserUtils.parseTimeStamp(jsonObject.get("timestamp").getAsString());
+        } catch (Exception ex) {
+            throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, mesh network timestamp must follow the Mesh Provisioning/Configuration Database format.");
+        }
+
         network.netKeys = deserializeNetKeys(context, jsonObject.getAsJsonArray("netKeys"), network.meshUUID);
         network.appKeys = deserializeAppKeys(context, jsonObject.getAsJsonArray("appKeys"), network.meshUUID);
         network.provisioners = deserializeProvisioners(context, jsonObject.getAsJsonArray("provisioners"), network.meshUUID);
@@ -57,19 +66,20 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             network.scenes = deserializeScenes(jsonObject, network.meshUUID);
 
         network.unicastAddress = getNextAvailableAddress(network.nodes);
-        populateNetworkKeys(network.getNodes(), network.getNetKeys());
-        populateAddedAppKeysInNodes(network.getNodes(), network.getAppKeys());
-        populateBoundAppKeysInNodes(network.getNodes(), network.getAppKeys());
+        populateNetworkKeys(network.nodes, network.netKeys);
+        populateAddedAppKeysInNodes(network.nodes, network.appKeys);
+        populateBoundAppKeysInNodes(network.nodes, network.appKeys);
         return network;
     }
 
     @Override
     public JsonElement serialize(final MeshNetwork network, final Type typeOfSrc, final JsonSerializationContext context) {
+        final String meshUuid = network.getMeshUUID().replace("-", "");
         final JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("$schema", network.getSchema());
         jsonObject.addProperty("id", network.getId());
         jsonObject.addProperty("version", network.getVersion());
-        jsonObject.addProperty("meshUUID", network.getMeshUUID());
+        jsonObject.addProperty("meshUUID", meshUuid);
         jsonObject.addProperty("meshName", network.getMeshName());
         jsonObject.addProperty("timestamp", Long.toString(network.getTimestamp(), 16));
         jsonObject.add("provisioners", serializeProvisioners(context, network.getProvisioners()));
@@ -233,12 +243,12 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
     /**
      * Returns serialized json element containing the groups
      *
-     * @param groups  Group list
+     * @param groups Group list
      * @return JsonElement
      */
     private JsonElement serializeGroups(final List<Group> groups) {
         JsonArray groupsArray = new JsonArray();
-        for(Group group : groups){
+        for (Group group : groups) {
             JsonObject groupObj = new JsonObject();
             groupObj.addProperty("name", group.getName());
             groupObj.addProperty("address", MeshAddress.formatAddress(group.getGroupAddress(), false));
@@ -265,10 +275,17 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             for (int i = 0; i < jsonGroups.size(); i++) {
                 final JsonObject jsonGroup = jsonGroups.get(i).getAsJsonObject();
                 final String name = jsonGroup.get("name").getAsString();
-                final int address = jsonGroup.get("address").getAsInt();
-                final int parentAddress = jsonGroup.get("parentAddress").getAsInt();
-                final Group group = new Group(address, meshUuid);
-                group.setParentAddress(parentAddress);
+                final String tempGroupAddress = jsonGroup.get("address").getAsString();
+                final String groupAddress = MeshParserUtils.formatUuid(tempGroupAddress);
+                final int address;
+                final Group group;
+                if (groupAddress == null) {
+                    address = Integer.parseInt(tempGroupAddress, 16);
+                    group = new Group(address, meshUuid);
+                } else {
+                    group = new Group(UUID.fromString(groupAddress), meshUuid);
+                }
+                group.setParentAddress(Integer.parseInt(jsonGroup.get("parentAddress").getAsString(), 16));
                 group.setName(name);
                 groups.add(group);
             }
@@ -281,16 +298,16 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
     /**
      * Returns serialized json element containing the scenes
      *
-     * @param scenes  Group list
+     * @param scenes Group list
      * @return JsonElement
      */
     private JsonElement serializeScenes(final List<Scene> scenes) {
         JsonArray scenesArray = new JsonArray();
-        for(Scene scene : scenes){
+        for (Scene scene : scenes) {
             JsonObject sceneObj = new JsonObject();
             sceneObj.addProperty("name", scene.getName());
             final JsonArray array = new JsonArray();
-            for(Integer address : scene.getAddresses()){
+            for (Integer address : scene.getAddresses()) {
                 array.add(MeshAddress.formatAddress(address, false));
             }
             sceneObj.add("addresses", array);
@@ -379,9 +396,9 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         for (ProvisionedMeshNode node : nodes) {
             final Map<Integer, ApplicationKey> applicationKeyMap = new LinkedHashMap<>();
             for (Integer index : node.getAddedAppKeyIndexes()) {
-                if (!applicationKeys.isEmpty()) {
-                    final ApplicationKey applicationKey = applicationKeys.get(index);
-                    applicationKeyMap.put(applicationKey.getKeyIndex(), applicationKey);
+                final ApplicationKey applicationKey = getKey(index, applicationKeys);
+                if (applicationKey != null) {
+                    applicationKeyMap.put(index, applicationKey);
                 }
             }
             node.setAddedApplicationKeys(applicationKeyMap);
@@ -401,10 +418,22 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
                 for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
                     final MeshModel model = modelEntry.getValue();
                     for (Integer index : model.getBoundAppKeyIndexes()) {
-                        model.getBoundApplicationKeys().put(index, applicationKeys.get(index));
+                        final ApplicationKey applicationKey = getKey(index, applicationKeys);
+                        if (applicationKey != null) {
+                            model.getBoundApplicationKeys().put(index, applicationKey);
+                        }
                     }
                 }
             }
         }
+    }
+
+    private ApplicationKey getKey(final Integer index, final List<ApplicationKey> applicationKeys) {
+        for (ApplicationKey applicationKey : applicationKeys) {
+            if (index == applicationKey.getKeyIndex()) {
+                return applicationKey;
+            }
+        }
+        return null;
     }
 }
