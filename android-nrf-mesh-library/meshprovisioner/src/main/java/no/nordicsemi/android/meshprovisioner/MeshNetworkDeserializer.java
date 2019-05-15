@@ -81,7 +81,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         jsonObject.addProperty("version", network.getVersion());
         jsonObject.addProperty("meshUUID", meshUuid);
         jsonObject.addProperty("meshName", network.getMeshName());
-        jsonObject.addProperty("timestamp", Long.toString(network.getTimestamp(), 16));
+        jsonObject.addProperty("timestamp", MeshParserUtils.formatTimeStamp(network.getTimestamp()));
         jsonObject.add("provisioners", serializeProvisioners(context, network.getProvisioners()));
         jsonObject.add("netKeys", serializeNetKeys(context, network.getNetKeys()));
         jsonObject.add("appKeys", serializeAppKeys(context, network.getAppKeys()));
@@ -251,7 +251,11 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         for (Group group : groups) {
             JsonObject groupObj = new JsonObject();
             groupObj.addProperty("name", group.getName());
-            groupObj.addProperty("address", MeshAddress.formatAddress(group.getGroupAddress(), false));
+            if(group.getGroupAddressLabel() == null) {
+                groupObj.addProperty("address", MeshAddress.formatAddress(group.getGroupAddress(), false));
+            } else {
+                groupObj.addProperty("address", MeshParserUtils.uuidToHex(group.getGroupAddressLabel()));
+            }
             groupObj.addProperty("parentAddress", MeshAddress.formatAddress(group.getParentAddress(), false));
             groupsArray.add(groupObj);
         }

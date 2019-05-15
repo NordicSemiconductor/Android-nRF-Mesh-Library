@@ -195,7 +195,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         } else {
             publicationJson.addProperty("address", MeshAddress.formatAddress(settings.getPublishAddress(), false));
         }
-        publicationJson.addProperty("index", String.format(Locale.US, "%04X", settings.getAppKeyIndex()));
+        publicationJson.addProperty("index", settings.getAppKeyIndex());
         publicationJson.addProperty("ttl", settings.getPublishTtl());
         publicationJson.addProperty("period", settings.calculatePublicationPeriod());
 
@@ -215,7 +215,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
     private JsonArray serializeBoundAppKeys(final List<Integer> boundAppKeys) {
         final JsonArray boundAppKeyIndexes = new JsonArray();
         for (Integer index : boundAppKeys) {
-            boundAppKeyIndexes.add(String.format(Locale.US, "%04X", index));
+            boundAppKeyIndexes.add(index);
         }
         return boundAppKeyIndexes;
     }

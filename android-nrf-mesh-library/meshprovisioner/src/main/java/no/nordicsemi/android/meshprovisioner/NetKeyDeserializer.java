@@ -33,8 +33,8 @@ final class NetKeyDeserializer implements JsonSerializer<List<NetworkKey>>, Json
                 networkKeyObject.addProperty("oldKey", MeshParserUtils.bytesToHex(networkKey.getOldKey(), false));
             }
             networkKeyObject.addProperty("phase", networkKey.getPhase());
-            networkKeyObject.addProperty("minSecurity", networkKey.isMinSecurity() ? 0 : 1);
-            networkKeyObject.addProperty("timestamp", Long.toString(networkKey.getTimestamp(),16));
+            networkKeyObject.addProperty("minSecurity", networkKey.isMinSecurity() ? "low" : "high");
+            networkKeyObject.addProperty("timestamp", MeshParserUtils.formatTimeStamp(networkKey.getTimestamp()));
             jsonArray.add(networkKeyObject);
         }
         return jsonArray;

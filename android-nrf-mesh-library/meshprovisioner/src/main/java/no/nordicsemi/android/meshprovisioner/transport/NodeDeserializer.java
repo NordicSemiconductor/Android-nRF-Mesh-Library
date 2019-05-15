@@ -1,7 +1,5 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.annotation.RestrictTo;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -16,9 +14,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
+import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
@@ -108,7 +106,6 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
         return nodes;
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public JsonElement serialize(final List<ProvisionedMeshNode> nodes, final Type typeOfSrc, final JsonSerializationContext context) {
         final JsonArray jsonArray = new JsonArray();
@@ -145,7 +142,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             }
 
             if (node.getTtl() != null) {
-                nodeJson.addProperty("ttl", node.getTtl());
+                nodeJson.addProperty("defaultTTL", node.getTtl());
             }
 
             if (node.getNetworkTransmitSettings() != null) {
@@ -184,8 +181,9 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
         for (NetworkKey networkKey : addedNetKeys) {
             final JsonObject keyIndexJson = new JsonObject();
             keyIndexJson.addProperty("index", networkKey.getKeyIndex());
-            netKeyIndexes.add(keyIndexJson);
             //TODO add updated property when key refresh support is added
+            keyIndexJson.addProperty("updated", false);
+            netKeyIndexes.add(keyIndexJson);
         }
         return netKeyIndexes;
     }
@@ -211,9 +209,10 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
 
         for (Map.Entry<Integer, ApplicationKey> keyEntry : addedAppKeys.entrySet()) {
             final JsonObject keyIndexJson = new JsonObject();
-            keyIndexJson.addProperty("index", String.format(Locale.US, "%04X", keyEntry.getValue().getKeyIndex()));
-            appKeyIndexes.add(keyIndexJson);
+            keyIndexJson.addProperty("index", keyEntry.getValue().getKeyIndex());
             //TODO add updated property when key refresh support is added
+            keyIndexJson.addProperty("updated", false);
+            appKeyIndexes.add(keyIndexJson);
         }
         return appKeyIndexes;
     }

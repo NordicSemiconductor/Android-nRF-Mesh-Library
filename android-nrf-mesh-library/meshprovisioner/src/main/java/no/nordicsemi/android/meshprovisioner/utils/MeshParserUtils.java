@@ -31,6 +31,7 @@ import java.nio.ByteOrder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
@@ -112,10 +113,6 @@ public class MeshParserUtils {
         return value == null || value != (value & 0xFFF);
     }
 
-    private static boolean isValidUnicastAddress(final Integer value) {
-        return value != null && value == (value & 0x7FFF);
-    }
-
     /**
      * Checks if the unicast address is valid
      *
@@ -128,20 +125,6 @@ public class MeshParserUtils {
         final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
 
         return addressVal > 0x0000 && addressVal <= 0x7FFF;
-    }
-
-    /**
-     * Checks if the address is a valid unassigned address
-     *
-     * @param address address to be validated
-     * @return true if is valid and false otherwise
-     */
-    public static boolean isValidUnassignedAddress(final byte[] address) {
-        if (address == null || address.length != 2)
-            return false;
-        final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
-
-        return addressVal == 0x0000;
     }
 
     /**
@@ -201,8 +184,19 @@ public class MeshParserUtils {
         return false;
     }
 
-    private static boolean isValidIvIndex(final Integer value) {
-        return value != null && (value >= 0 && value <= Integer.MAX_VALUE);
+    /**
+     * Checks if the IV Index is valid.
+     *
+     * <p>
+     * The IV Index is a 32-bit value that is a shared network resource
+     * (i.e., all nodes in a mesh network share the same value of the IV Index
+     * and use it for all subnets they belong to). The IV Index starts at 0x00000000
+     * </p>
+     *
+     * @param ivIndex IV Index value
+     */
+    private static boolean isValidIvIndex(@NonNull final Integer ivIndex) {
+        return ivIndex == 0 || ivIndex > 0;
     }
 
     public static byte parseUpdateFlags(final int keyRefreshFlag, final int ivUpdateFlag) {
@@ -345,10 +339,6 @@ public class MeshParserUtils {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
         }
 
-        if (ivIndex < IV_ADDRESS_MIN && ivIndex > IV_ADDRESS_MAX) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
-        }
-
         return true;
     }
 
@@ -367,10 +357,6 @@ public class MeshParserUtils {
         }
 
         if (!isValidIvIndex(ivIndex)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
-        }
-
-        if (ivIndex < IV_ADDRESS_MIN && ivIndex > IV_ADDRESS_MAX) {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
         }
 
@@ -830,5 +816,14 @@ public class MeshParserUtils {
      */
     public static Long parseTimeStamp(@NonNull final String timestamp) throws ParseException {
         return SDF.parse(timestamp).getTime();
+    }
+
+    /**
+     * Formats the timestamp
+     *
+     * @param timestamp timestamp
+     */
+    public static String formatTimeStamp(final long timestamp) {
+        return SDF.format(new Date(timestamp));
     }
 }

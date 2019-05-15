@@ -14,6 +14,7 @@ import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 final class AllocatedSceneRangeDeserializer implements JsonSerializer<List<AllocatedSceneRange>>, JsonDeserializer<List<AllocatedSceneRange>> {
     private static final String TAG = AllocatedSceneRangeDeserializer.class.getSimpleName();
@@ -25,8 +26,8 @@ final class AllocatedSceneRangeDeserializer implements JsonSerializer<List<Alloc
             final JsonArray jsonObject = json.getAsJsonArray();
             for (int i = 0; i < jsonObject.size(); i++) {
                 final JsonObject unicastRangeJson = jsonObject.get(i).getAsJsonObject();
-                final int firstScene = unicastRangeJson.get("firstScene").getAsInt();
-                final int lastScene = unicastRangeJson.get("lastScene").getAsInt();
+                final int firstScene = Integer.parseInt(unicastRangeJson.get("firstScene").getAsString(), 16);
+                final int lastScene = Integer.parseInt(unicastRangeJson.get("lastScene").getAsString(), 16);
                 sceneRanges.add(new AllocatedSceneRange(firstScene, lastScene));
             }
         } catch (Exception ex) {
@@ -40,8 +41,8 @@ final class AllocatedSceneRangeDeserializer implements JsonSerializer<List<Alloc
         final JsonArray jsonArray = new JsonArray();
         for(AllocatedSceneRange range :  ranges){
             final JsonObject rangeJson = new JsonObject();
-            rangeJson.addProperty("firstScene", range.getFirstScene());
-            rangeJson.addProperty("lastScene", range.getLastScene());
+            rangeJson.addProperty("firstScene", String.format(Locale.US, "%04X", range.getFirstScene()));
+            rangeJson.addProperty("lastScene", String.format(Locale.US, "%04X", range.getLastScene()));
             jsonArray.add(rangeJson);
         }
         return jsonArray;
