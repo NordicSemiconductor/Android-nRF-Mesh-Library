@@ -49,6 +49,7 @@ import no.nordicsemi.android.meshprovisioner.transport.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
@@ -779,7 +780,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     if (!mMeshNetwork.getAppKeys().isEmpty()) {
                         mHandler.postDelayed(() -> {
                             final ApplicationKey appKey = mMeshNetworkLiveData.getSelectedAppKey();
-                            final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node.getAddedNetworkKeys().get(0), appKey);
+                            final int index = node.getAddedNetworkKeyIndexes().get(0);
+                            final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(index);
+                            final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
                             mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), configAppKeyAdd);
                         }, 2500);
                     }

@@ -109,4 +109,8 @@ public class ModelConfigurationViewModel extends ViewModel {
     public LiveData<List<Group>> getGroups(){
         return mNrfMeshRepository.getGroups();
     }
+
+    public MeshNetworkLiveData getMeshNetworkLiveData() {
+        return mNrfMeshRepository.getMeshNetworkLiveData();
+    }
 }

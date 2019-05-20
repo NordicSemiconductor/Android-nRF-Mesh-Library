@@ -24,13 +24,13 @@ public class ProvisionerDeserializer implements JsonSerializer<List<Provisioner>
             final String name = jsonProvisioner.get("provisionerName").getAsString();
             final String provisionerUuid = jsonProvisioner.get("UUID").getAsString();
             final List<AllocatedUnicastRange> unicastRanges = deserializeAllocatedUnicastRange(context, jsonProvisioner.get("allocatedUnicastRange").getAsJsonArray());
-            List<AllocatedGroupRange> groupRanges = null;
+            List<AllocatedGroupRange> groupRanges = new ArrayList<>();
             if (jsonProvisioner.has("allocatedGroupRange"))
-                groupRanges = deserializeAllocatedGroupRange(context, jsonProvisioner.get("allocatedGroupRange").getAsJsonArray());
+                groupRanges.addAll(deserializeAllocatedGroupRange(context, jsonProvisioner.get("allocatedGroupRange").getAsJsonArray()));
 
-            List<AllocatedSceneRange> sceneRanges = null;
+            List<AllocatedSceneRange> sceneRanges = new ArrayList<>();
             if (jsonProvisioner.has("allocatedSceneRange"))
-                sceneRanges = deserializeAllocatedSceneRange(context, jsonProvisioner);
+                sceneRanges.addAll(deserializeAllocatedSceneRange(context, jsonProvisioner));
 
             final Provisioner provisioner = new Provisioner(provisionerUuid, unicastRanges, groupRanges, sceneRanges, "");
             provisioner.setProvisionerName(name);
@@ -54,10 +54,9 @@ public class ProvisionerDeserializer implements JsonSerializer<List<Provisioner>
                 provisionerJson.add("allocatedGroupRange",
                         serializeAllocatedGroupRanges(context, provisioner.getAllocatedGroupRanges()));
 
-            if (provisioner.getAllocatedSceneRanges() != null &&
-                    !provisioner.getAllocatedSceneRanges().isEmpty())
-                provisionerJson.add("allocatedSceneRange",
-                        serializeAllocatedSceneRanges(context, provisioner.getAllocatedSceneRanges()));
+            /*if (provisioner.getAllocatedSceneRanges() != null &&
+                    !provisioner.getAllocatedSceneRanges().isEmpty())*/
+            provisionerJson.add("allocatedSceneRange", serializeAllocatedSceneRanges(context, provisioner.getAllocatedSceneRanges()));
             jsonArray.add(provisionerJson);
         }
         return jsonArray;

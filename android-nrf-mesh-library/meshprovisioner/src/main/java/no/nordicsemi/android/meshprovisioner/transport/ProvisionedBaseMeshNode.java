@@ -62,9 +62,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @ColumnInfo(name = "timestamp")
     @Expose
     public long mTimeStampInMillis;
-    @TypeConverters(MeshTypeConverters.class)
-    @Expose
-    public List<NetworkKey> mAddedNetworkKeys = new ArrayList<>();
     @ColumnInfo(name = "name")
     @Expose
     protected String nodeName = "My Node";
@@ -145,66 +142,31 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Nullable
     @Expose
     Integer crpl = null;
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Boolean relayFeatureSupported = null;
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Boolean proxyFeatureSupported = null;
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Boolean friendFeatureSupported = null;
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Boolean lowPowerFeatureSupported = null;
     @Embedded
     @Expose
     Features nodeFeatures = null;
     @Embedded
     @Expose
     SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
-    @Ignore
-    @Expose(serialize = false)
-    List<Integer> mAddedNetworkKeyIndexes = new ArrayList<>();
+    @TypeConverters(MeshTypeConverters.class)
+    @SerializedName("netKeys")
+    @ColumnInfo(name = "netKeys")
+    @Expose
+    public List<Integer> mAddedNetworkKeyIndexes = new ArrayList<>();
+    @TypeConverters(MeshTypeConverters.class)
+    @SerializedName("appKeys")
+    @ColumnInfo(name = "appKeys")
+    @Expose
+    public List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
     @Ignore
     @Expose
     byte[] identityKey;
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    byte[] keyIndex;
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    int netKeyIndex;
     @Ignore
     @Expose
     byte[] mFlags;
-    /**
-     * @deprecated use {@link Features} instead
-     */
-    @Deprecated
-    @Ignore
-    @Expose(deserialize = false)
-    Integer features = null;
     @TypeConverters(MeshTypeConverters.class)
     @Expose
     Map<Integer, Element> mElements = new LinkedHashMap<>();
-    @Ignore
-    @SerializedName("appKeys")
-    @Expose(serialize = false)
-    List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Map<Integer, String> mAddedAppKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
-    @TypeConverters(MeshTypeConverters.class)
-    @Expose
-    Map<Integer, ApplicationKey> mAddedApplicationKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
     @Ignore
     @Expose
     byte[] generatedNetworkId;
@@ -272,17 +234,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     public final byte[] getIdentityKey() {
         return identityKey;
-    }
-
-    /**
-     * Returns the key index
-     *
-     * @return network key index
-     * @deprecated Use {@link ProvisionedMeshNode#getAddedNetworkKeys()} instead
-     */
-    @Deprecated
-    public final byte[] getKeyIndex() {
-        return keyIndex;
     }
 
     public final byte[] getFlags() {

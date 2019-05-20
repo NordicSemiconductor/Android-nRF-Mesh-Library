@@ -59,16 +59,14 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             } else {
                 meshModelJson.addProperty("modelId", String.format(Locale.US, "%04X", model.getModelId()));
             }
-            if (!model.getSubscribedAddresses().isEmpty()) {
-                meshModelJson.add("subscribe", serializeSubscriptionAddresses(model));
-            }
+
+            meshModelJson.add("bind", serializeBoundAppKeys(model.getBoundAppKeyIndexes()));
+            meshModelJson.add("subscribe", serializeSubscriptionAddresses(model));
+
             if (model.getPublicationSettings() != null) {
                 meshModelJson.add("publish", serializePublicationSettings(model.getPublicationSettings()));
             }
 
-            if (!model.getBoundAppKeyIndexes().isEmpty()) {
-                meshModelJson.add("bind", serializeBoundAppKeys(model.getBoundAppKeyIndexes()));
-            }
             jsonArray.add(meshModelJson);
         }
         return jsonArray;

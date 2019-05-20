@@ -80,6 +80,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProxySet;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 
 public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
@@ -87,7 +88,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         DialogFragmentProxySet.DialogFragmentProxySetListener,
         DialogFragmentFilterAddAddress.DialogFragmentFilterAddressListener,
         DialogFragmentResetNode.DialogFragmentNodeResetListener,
-        AddedAppKeyAdapter.OnItemClickListener {
+        AddedAppKeyAdapter.OnItemClickListener, DialogFragmentConfigurationComplete.ConfigurationCompleteListener {
 
     private final static String TAG = NodeConfigurationActivity.class.getSimpleName();
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
@@ -168,7 +169,9 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         final RecyclerView recyclerViewAppKeys = findViewById(R.id.recycler_view_app_keys);
         recyclerViewAppKeys.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewAppKeys.setItemAnimator(new DefaultItemAnimator());
-        final AddedAppKeyAdapter appKeyAdapter = new AddedAppKeyAdapter(this, mViewModel.getSelectedMeshNode());
+        mViewModel.getMeshNetworkLiveData().getAppKeys();
+        final AddedAppKeyAdapter appKeyAdapter = new AddedAppKeyAdapter(this,
+                mViewModel.getMeshNetworkLiveData().getAppKeys(), mViewModel.getSelectedMeshNode());
         recyclerViewAppKeys.setAdapter(appKeyAdapter);
 
         mViewModel.getSelectedMeshNode().observe(this, meshNode -> {
@@ -187,7 +190,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 mRecyclerViewElements.setVisibility(View.INVISIBLE);
             }
 
-            if (!meshNode.getAddedApplicationKeys().isEmpty()) {
+            if (!meshNode.getAddedNetworkKeyIndexes().isEmpty()) {
                 noAppKeysFound.setVisibility(View.GONE);
                 recyclerViewAppKeys.setVisibility(View.VISIBLE);
             } else {
@@ -436,5 +439,10 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     public void addAddresses(final List<AddressArray> addresses) {
         final ProxyConfigAddAddressToFilter addAddressToFilter = new ProxyConfigAddAddressToFilter(addresses);
         mViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, addAddressToFilter);
+    }
+
+    @Override
+    public void onConfigurationCompleted() {
+        //Do nothing
     }
 }

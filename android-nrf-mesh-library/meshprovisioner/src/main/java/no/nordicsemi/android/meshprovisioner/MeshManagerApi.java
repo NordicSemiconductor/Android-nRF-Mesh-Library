@@ -111,7 +111,6 @@ public class MeshManagerApi implements MeshMngrApi {
     private byte[] mOutgoingBuffer;
     private int mOutgoingBufferOffset;
     private MeshNetwork mMeshNetwork;
-    private Gson mGson;
 
     private MeshNetworkDb mMeshNetworkDb;
     private MeshNetworkDao mMeshNetworkDao;
@@ -150,8 +149,6 @@ public class MeshManagerApi implements MeshMngrApi {
         initBouncyCastle();
         //Init database
         initDb(context);
-        initGson();
-        migrateMeshNetwork(context);
 
     }
 
@@ -200,29 +197,6 @@ public class MeshManagerApi implements MeshMngrApi {
         mGroupsDao = mMeshNetworkDb.groupsDao();
         mGroupDao = mMeshNetworkDb.groupDao();
         mSceneDao = mMeshNetworkDb.sceneDao();
-    }
-
-    private void initGson() {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.excludeFieldsWithoutExposeAnnotation();
-        gsonBuilder.enableComplexMapKeySerialization();
-        gsonBuilder.registerTypeAdapter(MeshModel.class, new InternalMeshModelDeserializer());
-        gsonBuilder.setPrettyPrinting();
-        mGson = gsonBuilder.create();
-    }
-
-    /**
-     * Migrates the old network data and loads a new mesh network object
-     *
-     * @param context context
-     */
-    private void migrateMeshNetwork(final Context context) {
-        final MeshNetwork meshNetwork = DataMigrator.migrateData(context, mGson);
-        if (meshNetwork != null) {
-            this.mMeshNetwork = meshNetwork;
-            meshNetwork.setCallbacks(callbacks);
-            insertNetwork(meshNetwork);
-        }
     }
 
     private void insertNetwork(final MeshNetwork meshNetwork) {
@@ -759,9 +733,11 @@ public class MeshManagerApi implements MeshMngrApi {
     private List<Provisioner> generateProvisioners(final String meshUuid) {
         final String provisionerUuid = UUID.randomUUID().toString().toUpperCase(Locale.US);
         final AllocatedUnicastRange unicastRange = new AllocatedUnicastRange(0x0001, 0x7FFF);
-        final List<AllocatedUnicastRange> ranges = new ArrayList<>();
-        ranges.add(unicastRange);
-        final Provisioner provisioner = new Provisioner(provisionerUuid, ranges, null, null, meshUuid);
+        final List<AllocatedUnicastRange> unicastRanges = new ArrayList<>();
+        unicastRanges.add(unicastRange);
+        final List<AllocatedGroupRange> groupRanges = new ArrayList<>();
+        final List<AllocatedSceneRange> sceneRanges = new ArrayList<>();
+        final Provisioner provisioner = new Provisioner(provisionerUuid, unicastRanges, groupRanges, sceneRanges, meshUuid);
         provisioner.setLastSelected(true);
         final List<Provisioner> provisioners = new ArrayList<>();
         provisioners.add(provisioner);
@@ -1030,7 +1006,7 @@ public class MeshManagerApi implements MeshMngrApi {
     private final MeshNetworkCallbacks callbacks = new MeshNetworkCallbacks() {
         @Override
         public void onMeshNetworkUpdated() {
-            mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
+            mMeshNetwork.setTimestamp(System.currentTimeMillis());
             mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
             mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }

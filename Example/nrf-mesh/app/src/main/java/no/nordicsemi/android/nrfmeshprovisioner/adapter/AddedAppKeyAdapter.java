@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import android.content.Context;
 import androidx.annotation.NonNull;
@@ -51,13 +52,21 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public AddedAppKeyAdapter(final NodeConfigurationActivity activity, final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
-        this.mContext = activity.getApplicationContext();
-        meshNodeLiveData.observe(activity, meshNode -> {
+    public AddedAppKeyAdapter(@NonNull final Context context,
+                              @NonNull final List<ApplicationKey> appKeys,
+                              @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
+        this.mContext = context;
+        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
             if (meshNode != null) {
-                appKeys.clear();
-                appKeys.addAll(meshNode.getAddedApplicationKeys().values());
-                Collections.sort(appKeys, Utils.appKeyComparator);
+                this.appKeys.clear();
+                for(Integer index : meshNode.getAddedAppKeyIndexes()) {
+                    for (ApplicationKey applicationKey : appKeys) {
+                        if (index == applicationKey.getKeyIndex()){
+                            this.appKeys.add(applicationKey);
+                        }
+                    }
+                }
+                Collections.sort(this.appKeys, Utils.appKeyComparator);
                 notifyDataSetChanged();
             }
         });

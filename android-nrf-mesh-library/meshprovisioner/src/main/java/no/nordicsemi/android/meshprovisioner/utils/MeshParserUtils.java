@@ -43,7 +43,7 @@ import no.nordicsemi.android.meshprovisioner.R;
 public class MeshParserUtils {
 
     private static final String TAG = MeshParserUtils.class.getSimpleName();
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy:MM:dd'T'HH:mm:ssXXX", Locale.US);
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US);
     private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
     private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
     private static final int TAI_YEAR = 2000;
@@ -286,27 +286,6 @@ public class MeshParserUtils {
         } catch (NumberFormatException ex) {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_key_index));
         }
-        if (isValidKeyIndex(keyIndex)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_key_index));
-        }
-
-        return true;
-    }
-
-    /**
-     * Validates the Key Index input
-     *
-     * @param context  context
-     * @param keyIndex Key Index input
-     * @return true if the Key Index is a valid value
-     * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
-     */
-    public static boolean validateKeyIndexInput(final Context context, final Integer keyIndex) throws IllegalArgumentException {
-
-        if (keyIndex == null) {
-            throw new IllegalArgumentException(context.getString(R.string.error_empty_key_index));
-        }
-
         if (isValidKeyIndex(keyIndex)) {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_key_index));
         }
@@ -661,7 +640,6 @@ public class MeshParserUtils {
     /**
      * Convert an unsigned integer value to a two's-complement encoded signed value.
      */
-
     private static int unsignedToSigned(int unsigned, int size) {
         if ((unsigned & (1 << size - 1)) != 0) {
             unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
@@ -762,6 +740,15 @@ public class MeshParserUtils {
      */
     public static String uuidToHex(@NonNull final UUID uuid) {
         return uuid.toString().replace("-", "").toUpperCase(Locale.US);
+    }
+
+    /**
+     * Returns UUID as a hex
+     *
+     * @param uuid UUID
+     */
+    public static String uuidToHex(@NonNull final String uuid) {
+        return uuid.replace("-", "").toUpperCase(Locale.US);
     }
 
     /**

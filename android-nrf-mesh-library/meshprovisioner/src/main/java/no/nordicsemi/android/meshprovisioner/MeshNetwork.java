@@ -1,9 +1,6 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import androidx.room.Entity;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -11,6 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.room.Entity;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
@@ -74,19 +74,35 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return meshUUID;
     }
 
+    /**
+     * Returns the name of the mesh network
+     */
     public String getMeshName() {
         return meshName;
     }
 
+    /**
+     * Sets the name of the mesh network
+     *
+     * @param meshName name
+     */
     public void setMeshName(String meshName) {
         this.meshName = meshName;
         notifyNetworkUpdated();
     }
 
+    /**
+     * Returns the time stamp of th e mesh network
+     */
     public long getTimestamp() {
         return timestamp;
     }
 
+    /**
+     * Sets the time stamp
+     *
+     * @param timestamp timestamp
+     */
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
@@ -290,6 +306,8 @@ public final class MeshNetwork extends BaseMeshNetwork {
     public List<Provisioner> getProvisioners() {
         return Collections.unmodifiableList(provisioners);
     }
+
+
 
     public List<NetworkKey> getNetKeys() {
         return netKeys;

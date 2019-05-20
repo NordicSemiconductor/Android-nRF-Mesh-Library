@@ -13,6 +13,7 @@ import androidx.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
@@ -22,7 +23,7 @@ import static androidx.room.ForeignKey.CASCADE;
 /**
  * Class definition of a Provisioner of mesh network
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 @Entity(tableName = "provisioner",
         foreignKeys = @ForeignKey(entity = MeshNetwork.class,
                 parentColumns = "mesh_uuid",
@@ -49,15 +50,15 @@ public class Provisioner {
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<AllocatedGroupRange> allocatedGroupRanges;
+    private List<AllocatedGroupRange> allocatedGroupRanges = new ArrayList<>();
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<AllocatedUnicastRange> allocatedUnicastRanges;
+    private List<AllocatedUnicastRange> allocatedUnicastRanges = new ArrayList<>();
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<AllocatedSceneRange> allocatedSceneRanges;
+    private List<AllocatedSceneRange> allocatedSceneRanges = new ArrayList<>();
 
     @ColumnInfo(name = "sequence_number")
     @Expose
@@ -80,8 +81,8 @@ public class Provisioner {
      */
     public Provisioner(@NonNull final String provisionerUuid,
                        @NonNull final List<AllocatedUnicastRange> allocatedUnicastRanges,
-                       @Nullable final List<AllocatedGroupRange> allocatedGroupRanges,
-                       @Nullable final List<AllocatedSceneRange> allocatedSceneRanges,
+                       @NonNull final List<AllocatedGroupRange> allocatedGroupRanges,
+                       @NonNull final List<AllocatedSceneRange> allocatedSceneRanges,
                        @NonNull final String meshUuid) {
         this.provisionerUuid = provisionerUuid;
         this.allocatedUnicastRanges = allocatedUnicastRanges;

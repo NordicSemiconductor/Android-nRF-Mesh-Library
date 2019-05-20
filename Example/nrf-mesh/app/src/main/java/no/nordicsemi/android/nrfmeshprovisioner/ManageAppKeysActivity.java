@@ -23,31 +23,30 @@
 package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.app.Activity;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
@@ -133,9 +132,9 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
                 //Get selected mesh node
                 final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
                 if (node != null) {
-                    final List<ApplicationKey> applicationKeys = new ArrayList<>(node.getAddedApplicationKeys().values());
+                    final List<Integer> applicationKeys = node.getAddedAppKeyIndexes();
                     if (!applicationKeys.isEmpty()) {
-                        mAdapter = new ManageAppKeyAdapter(this, applicationKeys);
+                        mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData().getAppKeys(), applicationKeys);
                         mAdapter.setOnItemClickListener(this);
                         appKeysRecyclerView.setAdapter(mAdapter);
                     } else {
@@ -155,10 +154,9 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
         return false;
     }
@@ -166,34 +164,28 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
     @Override
     public void onBackPressed() {
         final int extras = getIntent().getExtras().getInt(Utils.EXTRA_DATA);
-        switch (extras) {
-            case Utils.MANAGE_APP_KEY:
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra(RESULT_APP_KEY_LIST_SIZE, mAdapter.getItemCount());
-                setResult(Activity.RESULT_OK, returnIntent);
-                finish();
-                break;
-            default:
-                super.onBackPressed();
-                break;
+        if (extras == Utils.MANAGE_APP_KEY) {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(RESULT_APP_KEY_LIST_SIZE, mAdapter.getItemCount());
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        } else {
+            super.onBackPressed();
         }
     }
 
     @Override
     public void onItemClick(final int position, @NonNull final ApplicationKey appKey) {
         final int extras = getIntent().getExtras().getInt(Utils.EXTRA_DATA);
-        switch (extras) {
-            case Utils.MANAGE_APP_KEY:
-                final DialogFragmentEditAppKey dialogFragmentEditAppKey = DialogFragmentEditAppKey.newInstance(position, appKey);
-                dialogFragmentEditAppKey.show(getSupportFragmentManager(), null);
-                break;
-            default:
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra(RESULT_APP_KEY_INDEX, position);
-                returnIntent.putExtra(RESULT_APP_KEY, appKey);
-                setResult(Activity.RESULT_OK, returnIntent);
-                finish();
-                break;
+        if (extras == Utils.MANAGE_APP_KEY) {
+            final DialogFragmentEditAppKey dialogFragmentEditAppKey = DialogFragmentEditAppKey.newInstance(position, appKey);
+            dialogFragmentEditAppKey.show(getSupportFragmentManager(), null);
+        } else {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(RESULT_APP_KEY_INDEX, position);
+            returnIntent.putExtra(RESULT_APP_KEY, appKey);
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
         }
     }
 

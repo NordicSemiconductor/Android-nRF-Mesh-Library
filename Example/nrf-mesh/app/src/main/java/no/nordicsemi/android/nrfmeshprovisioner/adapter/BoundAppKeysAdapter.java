@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
@@ -44,18 +45,24 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapter.ViewHolder> {
 
-    private final ArrayList<ApplicationKey> mAppKeys = new ArrayList<>();
+    private final ArrayList<ApplicationKey> appKeys = new ArrayList<>();
     private final Context mContext;
 
-    public BoundAppKeysAdapter(@NonNull final Context context, @NonNull final LiveData<MeshModel> meshModelLiveData) {
+    public BoundAppKeysAdapter(@NonNull final Context context,
+                               @NonNull final List<ApplicationKey> appKeys,
+                               @NonNull final LiveData<MeshModel> meshModelLiveData) {
         this.mContext = context;
         meshModelLiveData.observe((LifecycleOwner) context, meshModel -> {
-            if(meshModel != null) {
-                if (meshModel.getBoundApplicationKeys() != null) {
-                    mAppKeys.clear();
-                    mAppKeys.addAll(meshModel.getBoundApplicationKeys().values());
-                    notifyDataSetChanged();
+            if (meshModel != null) {
+                this.appKeys.clear();
+                for (Integer index : meshModel.getBoundAppKeyIndexes()) {
+                    for (ApplicationKey applicationKey : appKeys) {
+                        if (index == applicationKey.getKeyIndex()) {
+                            this.appKeys.add(applicationKey);
+                        }
+                    }
                 }
+                notifyDataSetChanged();
             }
         });
     }
@@ -69,8 +76,8 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
 
     @Override
     public void onBindViewHolder(@NonNull final BoundAppKeysAdapter.ViewHolder holder, final int position) {
-        if(mAppKeys.size() > 0) {
-            final ApplicationKey applicationKey = mAppKeys.get(position);
+        if (appKeys.size() > 0) {
+            final ApplicationKey applicationKey = appKeys.get(position);
             final String appKey = MeshParserUtils.bytesToHex(applicationKey.getKey(), false);
             final Integer appKeyIndex = applicationKey.getKeyIndex();
             holder.appKeyId.setText(mContext.getString(R.string.app_key_index_item, appKeyIndex));
@@ -85,7 +92,7 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
 
     @Override
     public int getItemCount() {
-        return mAppKeys.size();
+        return appKeys.size();
     }
 
     public boolean isEmpty() {
@@ -93,8 +100,8 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
     }
 
     public ApplicationKey getAppKey(final int position) {
-        if(!mAppKeys.isEmpty()){
-            return mAppKeys.get(position);
+        if (!appKeys.isEmpty()) {
+            return appKeys.get(position);
         }
         return null;
     }

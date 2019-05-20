@@ -31,7 +31,7 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public Map<Integer, ApplicationKey> fromJsonToAddedAppKeys(final String appKeyJson){
+    public static Map<Integer, ApplicationKey> fromJsonToAddedAppKeys(final String appKeyJson){
         Type addedAppKeys = new TypeToken<Map<Integer, ApplicationKey>>() {
         }.getType();
         return new Gson().fromJson(appKeyJson, addedAppKeys);
@@ -43,7 +43,7 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public List<NetworkKey> fromJsonToAddedNetKeys(final String networkKeyJson){
+    public static List<NetworkKey> fromJsonToAddedNetKeys(final String networkKeyJson){
         Type addedNetKeys = new TypeToken<List<NetworkKey>>() {
         }.getType();
         return new Gson().fromJson(networkKeyJson, addedNetKeys);
@@ -108,15 +108,15 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public String addressesToJson(final List<Integer> addresses){
-        return new Gson().toJson(addresses);
+    public static String integerToJson(final List<Integer> integerList){
+        return new Gson().toJson(integerList);
     }
 
     @TypeConverter
-    public List<Integer> fromJsonToAddresses(final String addressesJson){
+    public static List<Integer> fromJsonToIntegerList(final String integerListJson){
         Type addresses = new TypeToken<List<Integer>>() {
         }.getType();
-        return new Gson().fromJson(addressesJson, addresses);
+        return new Gson().fromJson(integerListJson, addresses);
     }
 
     @TypeConverter
@@ -132,4 +132,16 @@ public class MeshTypeConverters {
         }.getType();
         return new Gson().fromJson(addressesJson, uuid);
     }
+
+    /*@TypeConverter
+    public String keyIndexesToJson(final List<Integer> indexes){
+        return new Gson().toJson(indexes);
+    }
+
+    @TypeConverter
+    public List<Integer> fromJsonToKeyIndexes(final String indexesJson){
+        Type addresses = new TypeToken<List<Integer>>() {
+        }.getType();
+        return new Gson().fromJson(indexesJson, addresses);
+    }*/
 }

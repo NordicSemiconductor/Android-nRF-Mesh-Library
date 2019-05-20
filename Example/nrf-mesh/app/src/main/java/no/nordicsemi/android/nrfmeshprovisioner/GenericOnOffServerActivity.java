@@ -207,7 +207,8 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             if (model != null) {
                 if (!model.getBoundAppKeyIndexes().isEmpty()) {
                     final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                    final ApplicationKey appKey = model.getBoundAppKey(appKeyIndex);
+                    //noinspection ConstantConditions
+                    final ApplicationKey appKey = mViewModel.getMeshManagerApi().getMeshNetwork().getAppKey(appKeyIndex);
 
                     final int address = element.getElementAddress();
                     Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
@@ -237,7 +238,8 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                 if (model != null) {
                     if (!model.getBoundAppKeyIndexes().isEmpty()) {
                         final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                        final ApplicationKey appKey = model.getBoundAppKey(appKeyIndex);
+                        //noinspection ConstantConditions
+                        final ApplicationKey appKey = mViewModel.getMeshManagerApi().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state, node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
                         mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);

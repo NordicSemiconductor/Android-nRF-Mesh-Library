@@ -169,7 +169,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ItemTouchHelper.Callback itemTouchHelperCallbackKeys = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelperKeys = new ItemTouchHelper(itemTouchHelperCallbackKeys);
         itemTouchHelperKeys.attachToRecyclerView(recyclerViewBoundKeys);
-        mBoundAppKeyAdapter = new BoundAppKeysAdapter(this, mViewModel.getSelectedModel());
+        mBoundAppKeyAdapter = new BoundAppKeysAdapter(this, mViewModel.getMeshNetworkLiveData().getAppKeys(), mViewModel.getSelectedModel());
         recyclerViewBoundKeys.setAdapter(mBoundAppKeyAdapter);
 
         mActionBindAppKey.setOnClickListener(v -> {
@@ -221,10 +221,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
         return false;
     }

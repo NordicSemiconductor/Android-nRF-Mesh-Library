@@ -48,8 +48,6 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
         for (int i = 0; i < jsonArrayBoundKeyIndexes.size(); i++) {
             final int index = jsonArrayBoundKeyIndexes.get(i).getAsInt();
             final String key = jsonBoundKeys.get(String.valueOf(index)).getAsString();
-            final ApplicationKey applicationKey = new ApplicationKey(index, MeshParserUtils.toByteArray(key));
-            meshModel.mBoundApplicationKeys.put(index, applicationKey);
             meshModel.mBoundAppKeyIndexes.add(index);
         }
 
@@ -146,13 +144,8 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
         final MeshModel meshModel = getMeshModel(modelId);
 
         final JsonArray jsonArrayBoundKeyIndexes = jsonObject.getAsJsonArray("mBoundAppKeyIndexes");
-        final JsonObject jsonBoundKeys = jsonObject.getAsJsonObject("mBoundApplicationKeys");
         for (int i = 0; i < jsonArrayBoundKeyIndexes.size(); i++) {
             final int index = jsonArrayBoundKeyIndexes.get(i).getAsInt();
-            final byte[] key = getKey(jsonBoundKeys.get(String.valueOf(index)).
-                    getAsJsonObject().getAsJsonArray("key"));
-            final ApplicationKey applicationKey = new ApplicationKey(index, key);
-            meshModel.mBoundApplicationKeys.put(index, applicationKey);
             meshModel.mBoundAppKeyIndexes.add(index);
         }
 
