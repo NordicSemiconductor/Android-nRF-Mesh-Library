@@ -78,7 +78,7 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
      *
      * @param listener {@link OnItemClickListener}
      */
-    public void setOnItemClickListener(final GroupModelAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(@NonNull final GroupModelAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 

@@ -22,54 +22,19 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModel;
-import android.content.Context;
+import androidx.annotation.NonNull;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
-import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
+import no.nordicsemi.android.nrfmeshprovisioner.ReconnectActivity;
 
-public class ReconnectViewModel extends ViewModel {
-
-    private final NrfMeshRepository mNrfMeshRepository;
+/**
+ * ViewModel for {@link ReconnectActivity}
+ */
+public class ReconnectViewModel extends BaseViewModel {
 
     @Inject
-    ReconnectViewModel(final NrfMeshRepository nrfMeshRepository) {
-        this.mNrfMeshRepository = nrfMeshRepository;
-    }
-
-    public LiveData<Void> isDeviceReady() {
-        return mNrfMeshRepository.isDeviceReady();
-    }
-
-    public LiveData<String> getConnectionState() {
-        return mNrfMeshRepository.getConnectionState();
-    }
-
-    public LiveData<Boolean> isConnected() {
-        return mNrfMeshRepository.isConnected();
-    }
-
-    public void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
-        mNrfMeshRepository.connect(context, device, connectToNetwork);
-    }
-
-    public void disconnect() {
-        mNrfMeshRepository.disconnect();
-    }
-
-    public NrfMeshRepository getNrfMeshRepository() {
-        return mNrfMeshRepository;
-    }
-
-    public BleMeshManager getBleMeshManager() {
-        return mNrfMeshRepository.getBleMeshManager();
-    }
-
-    public MeshManagerApi getMeshManagerApi() {
-        return mNrfMeshRepository.getMeshManagerApi();
+    ReconnectViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
+        super(nrfMeshRepository);
     }
 }

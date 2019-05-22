@@ -22,59 +22,59 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.annotation.NonNull;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import no.nordicsemi.android.nrfmeshprovisioner.di.ViewModelSubComponent;
 
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
-	private final Map<Class, Callable<? extends ViewModel>> creators;
+    private final Map<Class, Callable<? extends ViewModel>> creators;
 
-	@Inject
-	public ViewModelFactory(final ViewModelSubComponent viewModelSubComponent) {
-		creators = new HashMap<>();
-		// we cannot inject view models directly because they won't be bound to the owner's
-		// view model scope.
-		creators.put(SplashViewModel.class, viewModelSubComponent::splashViewModel);
-		creators.put(SharedViewModel.class, viewModelSubComponent::commonViewModel);
-		creators.put(ScannerViewModel.class, viewModelSubComponent::scannerViewModel);
-		creators.put(GroupControlsViewModel.class, viewModelSubComponent::groupControlsViewModel);
+    @Inject
+    public ViewModelFactory(final ViewModelSubComponent viewModelSubComponent) {
+        creators = new HashMap<>();
+        // we cannot inject view models directly because they won't be bound to the owner's
+        // view model scope.
+        creators.put(SplashViewModel.class, viewModelSubComponent::splashViewModel);
+        creators.put(SharedViewModel.class, viewModelSubComponent::commonViewModel);
+        creators.put(ScannerViewModel.class, viewModelSubComponent::scannerViewModel);
+        creators.put(GroupControlsViewModel.class, viewModelSubComponent::groupControlsViewModel);
         creators.put(ManageAppKeysViewModel.class, viewModelSubComponent::manageAppKeysViewModel);
-		creators.put(MeshProvisionerViewModel.class, viewModelSubComponent::meshProvisionerViewModel);
-		creators.put(NodeConfigurationViewModel.class, viewModelSubComponent::meshConfigurationViewModel);
-		creators.put(ModelConfigurationViewModel.class, viewModelSubComponent::modelConfigurationViewModel);
-		creators.put(PublicationViewModel.class, viewModelSubComponent::publicationViewModel);
-		creators.put(ReconnectViewModel.class, viewModelSubComponent::reconnectViewModule);
-	}
+        creators.put(MeshProvisionerViewModel.class, viewModelSubComponent::meshProvisionerViewModel);
+        creators.put(NodeDetailsViewModel.class, viewModelSubComponent::nodeDetailsViewModel);
+        creators.put(NodeConfigurationViewModel.class, viewModelSubComponent::nodeConfigurationViewModel);
+        creators.put(ModelConfigurationViewModel.class, viewModelSubComponent::modelConfigurationViewModel);
+        creators.put(PublicationViewModel.class, viewModelSubComponent::publicationViewModel);
+        creators.put(ReconnectViewModel.class, viewModelSubComponent::reconnectViewModule);
+    }
 
-	@SuppressWarnings("unchecked")
-	@NonNull
-	@Override
-	public <T extends ViewModel> T create(@NonNull final Class<T> modelClass) {
-		Callable<? extends ViewModel> creator = creators.get(modelClass);
-		if (creator == null) {
-			for (Map.Entry<Class, Callable<? extends ViewModel>> entry : creators.entrySet()) {
-				if (modelClass.isAssignableFrom(entry.getKey())) {
-					creator = entry.getValue();
-					break;
-				}
-			}
-		}
-		if (creator == null) {
-			throw new IllegalArgumentException("unknown model class " + modelClass);
-		}
-		try {
-			return (T) creator.call();
-		} catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    @SuppressWarnings("unchecked")
+    @NonNull
+    @Override
+    public <T extends ViewModel> T create(@NonNull final Class<T> modelClass) {
+        Callable<? extends ViewModel> creator = creators.get(modelClass);
+        if (creator == null) {
+            for (Map.Entry<Class, Callable<? extends ViewModel>> entry : creators.entrySet()) {
+                if (modelClass.isAssignableFrom(entry.getKey())) {
+                    creator = entry.getValue();
+                    break;
+                }
+            }
+        }
+        if (creator == null) {
+            throw new IllegalArgumentException("unknown model class " + modelClass);
+        }
+        try {
+            return (T) creator.call();
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

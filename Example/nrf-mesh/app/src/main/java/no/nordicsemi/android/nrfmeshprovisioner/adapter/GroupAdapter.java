@@ -49,18 +49,18 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     private OnItemClickListener mOnItemClickListener;
     private MeshNetwork mNetwork;
 
-    public GroupAdapter(final Context context) {
+    public GroupAdapter(@NonNull final Context context) {
         this.mContext = context;
     }
 
-    public void updateAdapter(final MeshNetwork meshNetwork, final List<Group> groups) {
+    public void updateAdapter(@NonNull final MeshNetwork meshNetwork, @NonNull final List<Group> groups) {
         mNetwork = meshNetwork;
         mGroups.clear();
         mGroups.addAll(groups);
         notifyDataSetChanged();
     }
 
-    public void setOnItemClickListener(final OnItemClickListener listener) {
+    public void setOnItemClickListener(@NonNull final OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 

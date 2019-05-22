@@ -25,9 +25,10 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
@@ -39,6 +40,8 @@ import android.widget.Toast;
 import java.text.DateFormat;
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
@@ -48,11 +51,13 @@ import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapterDetails;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeDetailsViewModel;
 
 public class NodeDetailsActivity extends AppCompatActivity implements Injectable, ElementAdapterDetails.OnItemClickListener {
 
-    private final static String TAG = NodeDetailsActivity.class.getSimpleName();
+    @Inject
+    ViewModelProvider.Factory mViewModelFactory;
+
     private RecyclerView mRecyclerView;
 
     @Override
@@ -61,11 +66,12 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         setContentView(R.layout.activity_node_details);
         ButterKnife.bind(this);
 
-        final Intent intent = getIntent();
-        final ProvisionedMeshNode node = intent.getParcelableExtra(Utils.EXTRA_DEVICE);
-        if(node == null)
+        final NodeDetailsViewModel viewModel = ViewModelProviders.of(this, mViewModelFactory).get(NodeDetailsViewModel.class);
+        if(viewModel.getSelectedMeshNode().getValue() == null) {
             finish();
+        }
 
+        final ProvisionedMeshNode node = viewModel.getSelectedMeshNode().getValue();
         final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -166,10 +172,9 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
         return false;
     }

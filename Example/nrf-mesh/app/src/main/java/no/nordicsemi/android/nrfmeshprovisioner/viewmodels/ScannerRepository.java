@@ -37,14 +37,16 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
 import no.nordicsemi.android.support.v18.scanner.ScanCallback;
 import no.nordicsemi.android.support.v18.scanner.ScanFilter;
+import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 
@@ -68,7 +70,7 @@ public class ScannerRepository {
     private final ScanCallback mScanCallbacks = new ScanCallback() {
 
         @Override
-        public void onScanResult(final int callbackType, final ScanResult result) {
+        public void onScanResult(final int callbackType, @NonNull final ScanResult result) {
             try {
                 if (mFilterUuid.equals(BleMeshManager.MESH_PROVISIONING_UUID)) {
                     // If the packet has been obtained while Location was disabled, mark Location as not required
@@ -98,7 +100,7 @@ public class ScannerRepository {
         }
 
         @Override
-        public void onBatchScanResults(final List<ScanResult> results) {
+        public void onBatchScanResults(@NonNull final List<ScanResult> results) {
             // Batch scan is disabled (report delay = 0)
         }
 
@@ -158,16 +160,20 @@ public class ScannerRepository {
         return mScannerLiveData;
     }
 
-    private void updateScannerLiveData(final ScanResult result){
-        if (result.getScanRecord() != null) {
-            final byte[] beaconData = mMeshManagerApi.getMeshBeaconData(result.getScanRecord().getBytes());
-            if (beaconData != null) {
-                mScannerLiveData.deviceDiscovered(result, mMeshManagerApi.getMeshBeacon(beaconData));
-            } else {
-                mScannerLiveData.deviceDiscovered(result);
+    private void updateScannerLiveData(final ScanResult result) {
+        final ScanRecord scanRecord = result.getScanRecord();
+        if (scanRecord != null) {
+            if (scanRecord.getBytes() != null) {
+                final byte[] beaconData = mMeshManagerApi.getMeshBeaconData(scanRecord.getBytes());
+                if (beaconData != null) {
+                    mScannerLiveData.deviceDiscovered(result, mMeshManagerApi.getMeshBeacon(beaconData));
+                } else {
+                    mScannerLiveData.deviceDiscovered(result);
+                }
             }
         }
     }
+
     /**
      * Register for required broadcast receivers.
      */
@@ -207,9 +213,11 @@ public class ScannerRepository {
         }
 
         if (mFilterUuid.equals(BleMeshManager.MESH_PROXY_UUID)) {
-            final List<NetworkKey> networkKeys = mMeshManagerApi.getMeshNetwork().getNetKeys();
-            if (!networkKeys.isEmpty()) {
-                mNetworkId = mMeshManagerApi.generateNetworkId(networkKeys.get(0).getKey());
+            final MeshNetwork network = mMeshManagerApi.getMeshNetwork();
+            if (network != null) {
+                if (!network.getNetKeys().isEmpty()) {
+                    mNetworkId = mMeshManagerApi.generateNetworkId(network.getNetKeys().get(0).getKey());
+                }
             }
         }
 
@@ -250,9 +258,12 @@ public class ScannerRepository {
      * @return true if the node identity matches or false otherwise
      */
     private boolean checkIfNodeIdentityMatches(final byte[] serviceData) {
-        for (ProvisionedMeshNode node : mMeshManagerApi.getMeshNetwork().getProvisionedNodes()) {
-            if (mMeshManagerApi.nodeIdentityMatches(node, serviceData)) {
-                return true;
+        final MeshNetwork network = mMeshManagerApi.getMeshNetwork();
+        if (network != null) {
+            for (ProvisionedMeshNode node : network.getNodes()) {
+                if (mMeshManagerApi.nodeIdentityMatches(node, serviceData)) {
+                    return true;
+                }
             }
         }
         return false;

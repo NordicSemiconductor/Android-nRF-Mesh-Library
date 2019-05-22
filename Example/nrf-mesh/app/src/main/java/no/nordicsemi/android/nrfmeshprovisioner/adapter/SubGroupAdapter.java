@@ -92,7 +92,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
     }
 
 
-    public void setOnItemClickListener(final SubGroupAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(@NonNull final SubGroupAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 

@@ -111,7 +111,10 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
         recyclerViewDevices.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewDevices.getContext(), DividerItemDecoration.VERTICAL);
         recyclerViewDevices.addItemDecoration(dividerItemDecoration);
-        ((SimpleItemAnimator) recyclerViewDevices.getItemAnimator()).setSupportsChangeAnimations(false);
+
+        final SimpleItemAnimator itemAnimator = (SimpleItemAnimator) recyclerViewDevices.getItemAnimator();
+        if(itemAnimator != null) itemAnimator.setSupportsChangeAnimations(false);
+
         final DevicesAdapter adapter = new DevicesAdapter(this, mViewModel.getScannerRepository().getScannerState());
         adapter.setOnItemClickListener(this);
         recyclerViewDevices.setAdapter(adapter);
@@ -127,10 +130,9 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
         return false;
     }
@@ -176,10 +178,8 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
     @Override
     public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case REQUEST_ACCESS_COARSE_LOCATION:
-                mViewModel.getScannerRepository().getScannerState().refresh();
-                break;
+        if (requestCode == REQUEST_ACCESS_COARSE_LOCATION) {
+            mViewModel.getScannerRepository().getScannerState().refresh();
         }
     }
 

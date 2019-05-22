@@ -22,86 +22,24 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModel;
-
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
-import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 
 /**
  * View model class for {@link NodeConfigurationActivity}
  */
-public class NodeConfigurationViewModel extends ViewModel {
-
-    private final NrfMeshRepository mNrfMeshRepository;
+public class NodeConfigurationViewModel extends BaseViewModel {
 
     @Inject
-    NodeConfigurationViewModel(final NrfMeshRepository nrfMeshRepository) {
-        this.mNrfMeshRepository = nrfMeshRepository;
+    NodeConfigurationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
+        super(nrfMeshRepository);
     }
 
-    public LiveData<ProvisionedMeshNode> getSelectedMeshNode() {
-        return mNrfMeshRepository.getSelectedMeshNode();
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        mNrfMeshRepository.clearTransactionStatus();
     }
-
-    /**
-     * Set the element to be configured
-     *
-     * @param element {@link Element}
-     */
-    public void setSelectedElement(final Element element) {
-        mNrfMeshRepository.setSelectedElement(element);
-    }
-
-    /**
-     * Set the mesh model to be configured
-     *
-     * @param model {@link MeshModel}
-     */
-    public void setSelectedModel(final MeshModel model) {
-        mNrfMeshRepository.setSelectedModel(model);
-    }
-
-    public LiveData<Boolean> isConnected() {
-        return mNrfMeshRepository.isConnected();
-    }
-
-    public LiveData<Boolean> isConnectedToProxy() {
-        return mNrfMeshRepository.isConnected();
-    }
-
-    public LiveData<MeshMessage> getMeshMessageLiveData() {
-        return mNrfMeshRepository.getMeshMessageLiveData();
-    }
-
-    /**
-     * Returns an observable live data object containing the transaction status.
-     *
-     * @return {@link TransactionStatusLiveData}
-     */
-    public TransactionStatusLiveData getTransactionStatus() {
-        return mNrfMeshRepository.getTransactionStatusLiveData();
-    }
-
-    /**
-     * Returns the {@link MeshManagerApi}
-     */
-    public MeshManagerApi getMeshManagerApi() {
-        return mNrfMeshRepository.getMeshManagerApi();
-    }
-
-    public NrfMeshRepository getNrfMeshRepository(){
-        return mNrfMeshRepository;
-    }
-
-    public MeshNetworkLiveData getMeshNetworkLiveData() {
-        return mNrfMeshRepository.getMeshNetworkLiveData();
-    }
-
 }

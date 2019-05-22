@@ -200,11 +200,13 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             }
         });
 
-        mViewModel.getTransactionStatus().observe(this, transactionFailedLiveData -> {
-            hideProgressBar();
-            final String message = getString(R.string.operation_timed_out);
-            DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", message);
-            fragmentMessage.show(getSupportFragmentManager(), null);
+        mViewModel.getTransactionStatus().observe(this, transactionStatus -> {
+            if (transactionStatus != null) {
+                hideProgressBar();
+                final String message = getString(R.string.operation_timed_out);
+                DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", message);
+                fragmentMessage.show(getSupportFragmentManager(), null);
+            }
         });
 
         mViewModel.isConnectedToProxy().observe(this, aBoolean -> {
@@ -215,7 +217,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             }
         });
 
-        mViewModel.getMeshMessageLiveData().observe(this, this::updateMeshMessage);
+        mViewModel.getMeshMessage().observe(this, this::updateMeshMessage);
     }
 
     @Override
@@ -574,7 +576,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         if (publicationSettings != null) {
             final int publishAddress = publicationSettings.getPublishAddress();
             if (publishAddress != MeshParserUtils.DISABLED_PUBLICATION_ADDRESS) {
-                if(MeshAddress.isValidVirtualAddress(publishAddress)) {
+                if (MeshAddress.isValidVirtualAddress(publishAddress)) {
                     //noinspection ConstantConditions
                     mPublishAddressView.setText(publicationSettings.getLabelUUID().toString().toUpperCase(Locale.US));
                 } else {

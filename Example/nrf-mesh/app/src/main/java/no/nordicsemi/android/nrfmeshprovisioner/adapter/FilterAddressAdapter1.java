@@ -44,7 +44,7 @@ public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAda
     private final ArrayList<AddressArray> mAddresses;
     private final Context mContext;
 
-    public FilterAddressAdapter1(@NonNull final Context context, final ArrayList<AddressArray> addresses) {
+    public FilterAddressAdapter1(@NonNull final Context context, @NonNull final ArrayList<AddressArray> addresses) {
         this.mContext = context;
         this.mAddresses = addresses;
     }

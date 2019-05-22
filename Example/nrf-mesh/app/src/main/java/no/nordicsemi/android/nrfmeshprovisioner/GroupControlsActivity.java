@@ -141,7 +141,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             }
         });
 
-        mViewModel.getNrfMeshRepository().getMeshMessageLiveData().observe(this, meshMessage -> {
+        mViewModel.getMeshMessage().observe(this, meshMessage -> {
             if (meshMessage instanceof VendorModelMessageStatus) {
                 final VendorModelMessageStatus status = (VendorModelMessageStatus) meshMessage;
                 final BottomSheetVendorDialogFragment fragment = (BottomSheetVendorDialogFragment) getSupportFragmentManager().findFragmentByTag(VENDOR_FRAGMENT);
@@ -156,7 +156,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
-        if (mViewModel.getProvisionedNodes().getValue() != null && !mViewModel.getProvisionedNodes().getValue().isEmpty()) {
+        if (mViewModel.getNodes().getValue() != null && !mViewModel.getNodes().getValue().isEmpty()) {
             final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
             if (isConnectedToNetwork != null && isConnectedToNetwork) {
                 getMenuInflater().inflate(R.menu.menu_group_controls_disconnect, menu);

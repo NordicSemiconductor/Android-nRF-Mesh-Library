@@ -20,28 +20,20 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.di;
+package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.content.Context;
+import javax.inject.Inject;
 
-import javax.inject.Singleton;
+import androidx.annotation.NonNull;
+import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 
-import dagger.Module;
-import dagger.Provides;
-import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
+/**
+ * View model class for {@link NodeConfigurationActivity}
+ */
+public class NodeDetailsViewModel extends BaseViewModel {
 
-@Module
-class BleMeshManagerModule {
-
-    @Provides
-    BleMeshManager provideBleMeshManager(final Context context) {
-        return new BleMeshManager(context);
-    }
-
-    @Provides
-    @Singleton
-    MeshManagerApi provideMeshManagerApi(final Context context) {
-        return new MeshManagerApi(context);
+    @Inject
+    NodeDetailsViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
+        super(nrfMeshRepository);
     }
 }

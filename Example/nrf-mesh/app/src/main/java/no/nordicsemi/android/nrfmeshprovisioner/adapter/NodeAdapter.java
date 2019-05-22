@@ -22,11 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
-import androidx.lifecycle.LiveData;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
-import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.recyclerview.widget.RecyclerView;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +33,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
@@ -49,21 +50,21 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
     private Integer mUnicastAddress;
     private int mNodeIndex = -1;
-    private final FragmentActivity mContext;
+    private final Context mContext;
     private final List<ProvisionedMeshNode> mNodes = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
 
-    public NodeAdapter(final FragmentActivity fragmentActivity, LiveData<List<ProvisionedMeshNode>> provisionedNodesLiveData) {
-        this.mContext = fragmentActivity;
-        provisionedNodesLiveData.observe(fragmentActivity, provisionedNodes -> {
-            if (provisionedNodes != null) {
+    public NodeAdapter(@NonNull final Context context, @NonNull final LiveData<List<ProvisionedMeshNode>> provisionedNodesLiveData) {
+        this.mContext = context;
+        provisionedNodesLiveData.observe((LifecycleOwner) context, nodes -> {
+            if (nodes != null) {
                 mNodes.clear();
-                mNodes.addAll(provisionedNodes);
+                mNodes.addAll(nodes);
             }
         });
     }
 
-    public void setOnItemClickListener(final OnItemClickListener listener) {
+    public void setOnItemClickListener(@NonNull final OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
@@ -77,18 +78,20 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final ProvisionedMeshNode node = mNodes.get(position);
-        holder.name.setText(node.getNodeName());
-        holder.unicastAddress.setText(MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(node.getUnicastAddress()), false));
-        final Map<Integer, Element> elements = node.getElements();
-        if (!elements.isEmpty()) {
-            holder.nodeInfoContainer.setVisibility(View.VISIBLE);
-            holder.companyIdentifier.setText(CompanyIdentifiers.getCompanyName(node.getCompanyIdentifier().shortValue()));
-            holder.elements.setText(String.valueOf(elements.size()));
-            holder.models.setText(String.valueOf(getModels(elements)));
-        } else {
-            holder.companyIdentifier.setText(R.string.unknown);
-            holder.elements.setText(String.valueOf(node.getNumberOfElements()));
-            holder.models.setText(R.string.unknown);
+        if(node != null) {
+            holder.name.setText(node.getNodeName());
+            holder.unicastAddress.setText(MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(node.getUnicastAddress()), false));
+            final Map<Integer, Element> elements = node.getElements();
+            if (!elements.isEmpty()) {
+                holder.nodeInfoContainer.setVisibility(View.VISIBLE);
+                holder.companyIdentifier.setText(CompanyIdentifiers.getCompanyName(node.getCompanyIdentifier().shortValue()));
+                holder.elements.setText(String.valueOf(elements.size()));
+                holder.models.setText(String.valueOf(getModels(elements)));
+            } else {
+                holder.companyIdentifier.setText(R.string.unknown);
+                holder.elements.setText(String.valueOf(node.getNumberOfElements()));
+                holder.models.setText(R.string.unknown);
+            }
         }
     }
 

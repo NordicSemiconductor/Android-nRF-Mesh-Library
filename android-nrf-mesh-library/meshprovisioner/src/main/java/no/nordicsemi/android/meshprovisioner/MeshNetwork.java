@@ -33,10 +33,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.mCallbacks = mCallbacks;
     }
 
-    public final List<ProvisionedMeshNode> getProvisionedNodes() {
-        return Collections.unmodifiableList(nodes);
-    }
-
     public void setIvIndex(final int ivIndex) {
         this.ivIndex = ivIndex;
         notifyNetworkUpdated();
@@ -111,11 +107,19 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.provisioners = provisioners;
     }
 
+    /**
+     * Returns the list of {@link ProvisionedMeshNode}
+     */
     public List<ProvisionedMeshNode> getNodes() {
         return Collections.unmodifiableList(nodes);
     }
 
-    void setNodes(List<ProvisionedMeshNode> nodes) {
+    /**
+     * Sets the list of {@link ProvisionedMeshNode}
+     *
+     * @param nodes list of {@link ProvisionedMeshNode}
+     */
+    void setNodes(@NonNull List<ProvisionedMeshNode> nodes) {
         this.nodes = nodes;
     }
 
@@ -307,8 +311,9 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return Collections.unmodifiableList(provisioners);
     }
 
-
-
+    /**
+     * Returns a list of {@link NetworkKey} belonging to the mesh network
+     */
     public List<NetworkKey> getNetKeys() {
         return netKeys;
     }

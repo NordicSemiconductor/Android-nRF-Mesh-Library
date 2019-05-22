@@ -25,6 +25,8 @@ package no.nordicsemi.android.nrfmeshprovisioner.di;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,11 +38,11 @@ import dagger.android.support.HasSupportFragmentInjector;
 /**
  * Helper class to automatically inject fragments if they implement {@link Injectable}.
  */
-public class AppInjector {
+class AppInjector {
 	private AppInjector() {
 	}
 
-	public static void init(final MeshApplication application) {
+	static void init(final MeshApplication application) {
 		DaggerMeshAppComponent.builder()
 				.contextModule(new ContextModule(application))
 				.build()
@@ -92,7 +94,7 @@ public class AppInjector {
 			((AppCompatActivity) activity).getSupportFragmentManager().registerFragmentLifecycleCallbacks(
 					new FragmentManager.FragmentLifecycleCallbacks() {
 						@Override
-						public void onFragmentCreated(final FragmentManager fm, final Fragment f, final Bundle savedInstanceState) {
+						public void onFragmentCreated(@NonNull final FragmentManager fm, @NonNull final Fragment f, final Bundle savedInstanceState) {
 							if (f instanceof Injectable) {
 								AndroidSupportInjection.inject(f);
 							}

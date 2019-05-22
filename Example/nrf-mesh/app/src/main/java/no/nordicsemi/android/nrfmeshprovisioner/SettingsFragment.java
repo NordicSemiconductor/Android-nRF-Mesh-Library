@@ -285,7 +285,7 @@ public class SettingsFragment extends Fragment implements Injectable,
                 if (resultCode == RESULT_OK) {
                     if (data != null) {
                         final Uri uri = data.getData();
-                        mViewModel.importMeshNetwork(uri);
+                        mViewModel.getMeshManagerApi().importMeshNetwork(uri);
                     }
                 } else {
                     Log.e(TAG, "Error while opening file browser");

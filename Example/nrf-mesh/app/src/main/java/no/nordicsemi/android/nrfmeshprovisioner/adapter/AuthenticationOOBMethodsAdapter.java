@@ -40,8 +40,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class AuthenticationOOBMethodsAdapter extends BaseAdapter {
 
-    private final ArrayList<AuthenticationOOBMethods> mOOBTypes = new ArrayList<>();
     private final Context mContext;
+    private final ArrayList<AuthenticationOOBMethods> mOOBTypes = new ArrayList<>();
 
     /**
      * Constructs AuthenticationOOBMethodsAdapter
