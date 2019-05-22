@@ -1,8 +1,5 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
-import androidx.room.TypeConverter;
-import androidx.annotation.RestrictTo;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -12,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import androidx.annotation.RestrictTo;
+import androidx.room.TypeConverter;
 import no.nordicsemi.android.meshprovisioner.AllocatedGroupRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedSceneRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedUnicastRange;
@@ -26,36 +25,26 @@ import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 public class MeshTypeConverters {
 
     @TypeConverter
-    public String addedAppKeysToJson(final Map<Integer, ApplicationKey> appKeys){
-        return new Gson().toJson(appKeys);
-    }
-
-    @TypeConverter
-    public static Map<Integer, ApplicationKey> fromJsonToAddedAppKeys(final String appKeyJson){
+    public static Map<Integer, ApplicationKey> fromJsonToAddedAppKeys(final String appKeyJson) {
         Type addedAppKeys = new TypeToken<Map<Integer, ApplicationKey>>() {
         }.getType();
         return new Gson().fromJson(appKeyJson, addedAppKeys);
     }
 
     @TypeConverter
-    public String addedNetKeysToJson(final List<NetworkKey> networkKeys){
-        return new Gson().toJson(networkKeys);
-    }
-
-    @TypeConverter
-    public static List<NetworkKey> fromJsonToAddedNetKeys(final String networkKeyJson){
+    public static List<NetworkKey> fromJsonToAddedNetKeys(final String networkKeyJson) {
         Type addedNetKeys = new TypeToken<List<NetworkKey>>() {
         }.getType();
         return new Gson().fromJson(networkKeyJson, addedNetKeys);
     }
 
     @TypeConverter
-    public String elementsToJson(final Map<Integer, Element> elements){
+    public String elementsToJson(final Map<Integer, Element> elements) {
         return new Gson().toJson(elements);
     }
 
     @TypeConverter
-    public Map<Integer, Element> fromJsonToElements(final String elementsJson){
+    public Map<Integer, Element> fromJsonToElements(final String elementsJson) {
         Type elements = new TypeToken<Map<Integer, Element>>() {
         }.getType();
         return new GsonBuilder().
@@ -66,82 +55,64 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public String allocatedGroupRangeToJson(final List<AllocatedGroupRange> ranges){
+    public String allocatedGroupRangeToJson(final List<AllocatedGroupRange> ranges) {
         return new Gson().toJson(ranges);
     }
 
     @TypeConverter
-    public List<AllocatedGroupRange> fromJsonToAllocatedGroupRanges(final String rangesJson){
+    public List<AllocatedGroupRange> fromJsonToAllocatedGroupRanges(final String rangesJson) {
         Type ranges = new TypeToken<List<AllocatedGroupRange>>() {
         }.getType();
-        return new GsonBuilder().
-                registerTypeAdapter(AllocatedGroupRange.class, new AllocatedGroupRangeDbMigrator()).
-                create().
-                fromJson(rangesJson, ranges);
+        return new Gson().fromJson(rangesJson, ranges);
     }
 
     @TypeConverter
-    public String allocatedSceneRangeToJson(final List<AllocatedSceneRange> ranges){
+    public String allocatedSceneRangeToJson(final List<AllocatedSceneRange> ranges) {
         return new Gson().toJson(ranges);
     }
 
     @TypeConverter
-    public List<AllocatedSceneRange> fromJsonToAllocatedSceneRanges(final String rangesJson){
+    public List<AllocatedSceneRange> fromJsonToAllocatedSceneRanges(final String rangesJson) {
         Type ranges = new TypeToken<List<AllocatedSceneRange>>() {
         }.getType();
         return new Gson().fromJson(rangesJson, ranges);
     }
 
     @TypeConverter
-    public String allocatedUnicastRangeToJson(final List<AllocatedUnicastRange> ranges){
+    public String allocatedUnicastRangeToJson(final List<AllocatedUnicastRange> ranges) {
         return new Gson().toJson(ranges);
     }
 
     @TypeConverter
-    public List<AllocatedUnicastRange> fromJsonToAllocatedUnicastRanges(final String rangesJson){
-        Type ranges = new TypeToken<AllocatedUnicastRange>() {
+    public List<AllocatedUnicastRange> fromJsonToAllocatedUnicastRanges(final String rangesJson) {
+        Type ranges = new TypeToken<List<AllocatedUnicastRange>>() {
         }.getType();
-        return new GsonBuilder().
-                registerTypeAdapter(AllocatedUnicastRange.class, new AllocatedUnicastRangeDbMigrator()).
-                create().
-                fromJson(rangesJson, ranges);
+        return new Gson().fromJson(rangesJson, ranges);
     }
 
     @TypeConverter
-    public static String integerToJson(final List<Integer> integerList){
+    public static String integerToJson(final List<Integer> integerList) {
         return new Gson().toJson(integerList);
     }
 
     @TypeConverter
-    public static List<Integer> fromJsonToIntegerList(final String integerListJson){
+    public static List<Integer> fromJsonToIntegerList(final String integerListJson) {
         Type addresses = new TypeToken<List<Integer>>() {
         }.getType();
         return new Gson().fromJson(integerListJson, addresses);
     }
 
     @TypeConverter
-    public String uuidToJson(final UUID uuid){
-        if(uuid == null)
+    public String uuidToJson(final UUID uuid) {
+        if (uuid == null)
             return null;
         return new Gson().toJson(uuid.toString());
     }
 
     @TypeConverter
-    public UUID fromJsonToUuid(final String addressesJson){
+    public UUID fromJsonToUuid(final String addressesJson) {
         Type uuid = new TypeToken<UUID>() {
         }.getType();
         return new Gson().fromJson(addressesJson, uuid);
     }
-
-    /*@TypeConverter
-    public String keyIndexesToJson(final List<Integer> indexes){
-        return new Gson().toJson(indexes);
-    }
-
-    @TypeConverter
-    public List<Integer> fromJsonToKeyIndexes(final String indexesJson){
-        Type addresses = new TypeToken<List<Integer>>() {
-        }.getType();
-        return new Gson().fromJson(indexesJson, addresses);
-    }*/
 }
