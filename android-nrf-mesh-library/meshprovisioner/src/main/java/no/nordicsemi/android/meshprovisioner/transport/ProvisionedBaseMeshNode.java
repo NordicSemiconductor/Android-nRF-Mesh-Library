@@ -53,7 +53,7 @@ import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
-@SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+@SuppressWarnings({"unused", "WeakerAccess"})
 abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     public static final int LOW = 0; //Low security
@@ -68,18 +68,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @ColumnInfo(name = "ttl")
     @Expose
     protected Integer ttl = 5;
-    //Fields ignored by the entity as they have been migrated to the mesh network object
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    protected byte[] networkKey;
-    /**
-     * @deprecated IV Index is a network property hence moved to {@link MeshNetwork}
-     */
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    protected byte[] ivIndex;
     @ColumnInfo(name = "blacklisted")
     @Expose
     protected boolean blackListed = false;
@@ -152,12 +140,12 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @SerializedName("netKeys")
     @ColumnInfo(name = "netKeys")
     @Expose
-    public List<Integer> mAddedNetworkKeyIndexes = new ArrayList<>();
+    List<Integer> mAddedNetKeyIndexes = new ArrayList<>();
     @TypeConverters(MeshTypeConverters.class)
     @SerializedName("appKeys")
     @ColumnInfo(name = "appKeys")
     @Expose
-    public List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
+    List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
     @Ignore
     @Expose
     byte[] identityKey;
@@ -177,6 +165,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Expose(deserialize = false)
     protected String bluetoothDeviceAddress;
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedBaseMeshNode() {
 
     }
@@ -242,24 +231,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     public final void setFlags(final byte[] flags) {
         this.mFlags = flags;
-    }
-
-    /**
-     * @deprecated IV Index is a part of the network {@link MeshNetwork#getIvIndex()}
-     */
-    @Deprecated
-    public final byte[] getIvIndex() {
-        return ivIndex;
-    }
-
-    @VisibleForTesting
-    final void setIvIndex(final byte[] ivIndex) {
-        this.ivIndex = ivIndex;
-    }
-
-    @Deprecated
-    public void setBluetoothDeviceAddress(final String bluetoothDeviceAddress) {
-        this.bluetoothDeviceAddress = bluetoothDeviceAddress;
     }
 
     public long getTimeStamp() {
@@ -345,11 +316,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setRelaySettings(final RelaySettings relaySettings) {
         this.relaySettings = relaySettings;
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public List<Integer> getAddedAppKeyIndexes() {
-        return mAddedAppKeyIndexes;
     }
 
     @Retention(RetentionPolicy.SOURCE)

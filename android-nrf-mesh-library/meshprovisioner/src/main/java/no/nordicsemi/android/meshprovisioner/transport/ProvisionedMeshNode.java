@@ -50,7 +50,7 @@ import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
 import static androidx.room.ForeignKey.CASCADE;
 
-@SuppressWarnings({"WeakerAccess", "unused", "deprecation"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 @Entity(tableName = "nodes",
         foreignKeys = @ForeignKey(entity = MeshNetwork.class,
                 parentColumns = "mesh_uuid",
@@ -86,8 +86,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         uuid = unprovisionedMeshNode.getDeviceUuid().toString();
         isConfigured = unprovisionedMeshNode.isConfigured();
         nodeName = unprovisionedMeshNode.getNodeName();
-        networkKey = unprovisionedMeshNode.getNetworkKey();
-        mAddedNetworkKeyIndexes.add(unprovisionedMeshNode.getKeyIndex());
+        mAddedNetKeyIndexes.add(unprovisionedMeshNode.getKeyIndex());
         identityKey = unprovisionedMeshNode.getIdentityKey();
         mFlags = unprovisionedMeshNode.getFlags();
         unicastAddress = unprovisionedMeshNode.getUnicastAddress();
@@ -104,7 +103,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         uuid = in.readString();
         isConfigured = in.readByte() != 1;
         nodeName = in.readString();
-        mAddedNetworkKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
+        mAddedNetKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mFlags = in.createByteArray();
         unicastAddress = in.readInt();
         deviceKey = in.createByteArray();
@@ -134,7 +133,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeString(uuid);
         dest.writeByte((byte) (isConfigured ? 1 : 0));
         dest.writeString(nodeName);
-        dest.writeList(mAddedNetworkKeyIndexes);
+        dest.writeList(mAddedNetKeyIndexes);
         dest.writeByteArray(mFlags);
         dest.writeInt(unicastAddress);
         dest.writeByteArray(deviceKey);
@@ -286,14 +285,43 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     /**
      * Returns the list of Network keys added to this node
      */
-    public List<Integer> getAddedNetworkKeyIndexes() {
-        return mAddedNetworkKeyIndexes;
+    public final List<Integer> getAddedNetKeyIndexes() {
+        return Collections.unmodifiableList(mAddedNetKeyIndexes);
+    }
+
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public final void setAddedNetKeyIndexes(final List<Integer> addedNetkeyIndexes) {
+        mAddedNetKeyIndexes = addedNetkeyIndexes;
     }
 
     /**
-     * Adds an app key index that was added to the node
+     * Adds a NetKey index that was added to the node
      *
-     * @param index app key index
+     * @param index NetKey index
+     */
+    protected final void setAddedNetKeyIndex(final int index) {
+        if (!mAddedNetKeyIndexes.contains(index)) {
+            this.mAddedNetKeyIndexes.add(index);
+        }
+    }
+
+    /**
+     * Returns the list of added AppKey indexes to the node
+     */
+    public final List<Integer> getAddedAppKeyIndexes() {
+        return Collections.unmodifiableList(mAddedAppKeyIndexes);
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public final void setAddedAppKeyIndexes(final List<Integer> addedAppKeyIndexes) {
+        mAddedAppKeyIndexes = addedAppKeyIndexes;
+    }
+
+    /**
+     * Adds an AppKey index that was added to the node
+     *
+     * @param index AppKey index
      */
     protected final void setAddedAppKeyIndex(final int index) {
         if (!mAddedAppKeyIndexes.contains(index)) {

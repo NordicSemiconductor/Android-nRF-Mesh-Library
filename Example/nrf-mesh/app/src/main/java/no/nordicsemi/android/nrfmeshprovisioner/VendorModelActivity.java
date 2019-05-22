@@ -221,7 +221,7 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
                 } else {
                     message = new VendorModelMessageUnacked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
                 }
-                mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
+                mViewModel.getMeshManagerApi().createMeshPdu(element.getElementAddress(), message);
             }
         }
     }

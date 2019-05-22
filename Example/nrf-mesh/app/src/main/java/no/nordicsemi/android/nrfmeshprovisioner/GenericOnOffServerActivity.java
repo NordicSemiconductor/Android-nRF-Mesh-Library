@@ -22,7 +22,6 @@ import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -214,7 +213,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                     Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
 
                     final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey);
-                    mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
+                    mViewModel.getMeshManagerApi().createMeshPdu(address, genericOnOffSet);
                     showProgressbar();
                 } else {
                     Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
@@ -242,7 +241,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                         final ApplicationKey appKey = mViewModel.getMeshManagerApi().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state, node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
-                        mViewModel.getMeshManagerApi().sendMeshMessage(address, genericOnOffSet);
+                        mViewModel.getMeshManagerApi().createMeshPdu(address, genericOnOffSet);
                         showProgressbar();
                     } else {
                         Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();

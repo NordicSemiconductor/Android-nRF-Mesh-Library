@@ -233,7 +233,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
     @Override
     public void addAddresses(final List<AddressArray> addresses) {
         final ProxyConfigAddAddressToFilter addAddressToFilter = new ProxyConfigAddAddressToFilter(addresses);
-        mViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, addAddressToFilter);
+        mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, addAddressToFilter);
     }
 
     private void removeAddress(final int position) {
@@ -247,7 +247,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
                 addresses.add(addressArr);
                 addressAdapter.clearRow(position);
                 final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = new ProxyConfigRemoveAddressFromFilter(addresses);
-                mViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, removeAddressFromFilter);
+                mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, removeAddressFromFilter);
             }
         }
     }
@@ -259,7 +259,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
             if (proxyFilter != null) {
                 if (!proxyFilter.getAddresses().isEmpty()) {
                     final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = new ProxyConfigRemoveAddressFromFilter(proxyFilter.getAddresses());
-                    mViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, removeAddressFromFilter);
+                    mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, removeAddressFromFilter);
                 }
             }
         }
@@ -267,7 +267,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
 
     private void setFilter(final ProxyFilterType filterType) {
         final ProxyConfigSetFilterType setFilterType = new ProxyConfigSetFilterType(filterType);
-        mViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, setFilterType);
+        mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, setFilterType);
     }
 
     @Override

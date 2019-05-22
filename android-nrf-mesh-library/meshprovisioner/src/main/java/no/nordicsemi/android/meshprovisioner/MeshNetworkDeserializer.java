@@ -196,11 +196,11 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             final List<AllocatedUnicastRange> unicastRanges = deserializeAllocatedUnicastRange(context, jsonProvisioner.get("allocatedUnicastRange").getAsJsonArray());
             List<AllocatedGroupRange> groupRanges = new ArrayList<>();
             if (jsonProvisioner.has("allocatedGroupRange"))
-                groupRanges.addAll(deserializeAllocatedGroupRange(context, jsonProvisioner.get("allocatedGroupRange").getAsJsonArray()));
+                groupRanges = (deserializeAllocatedGroupRange(context, jsonProvisioner.get("allocatedGroupRange").getAsJsonArray()));
 
             List<AllocatedSceneRange> sceneRanges = new ArrayList<>();
             if (jsonProvisioner.has("allocatedSceneRange"))
-                sceneRanges.addAll(deserializeAllocatedSceneRange(context, jsonProvisioner));
+                sceneRanges = (deserializeAllocatedSceneRange(context, jsonProvisioner));
 
             final Provisioner provisioner = new Provisioner(provisionerUuid, unicastRanges, groupRanges, sceneRanges, meshUuid);
             provisioner.setProvisionerName(name);

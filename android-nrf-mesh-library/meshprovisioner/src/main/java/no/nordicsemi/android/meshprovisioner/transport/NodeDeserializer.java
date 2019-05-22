@@ -40,7 +40,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             node.unicastAddress = unicastAddress;
             final boolean security = jsonObject.get("security").getAsString().equals("high");
             node.security = security ? 1 : 0;
-            node.mAddedNetworkKeyIndexes = deserializeNetKeyIndexes(jsonObject.get("netKeys").getAsJsonArray());
+            node.mAddedNetKeyIndexes = deserializeNetKeyIndexes(jsonObject.get("netKeys").getAsJsonArray());
             node.isConfigured = jsonObject.get("configComplete").getAsBoolean();
 
             if (jsonObject.has("cid"))
@@ -155,7 +155,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 nodeJson.add("relayRetransmit", json);
             }
 
-            nodeJson.add("netKeys", serializeNetKeyIndexes(node.getAddedNetworkKeyIndexes()));
+            nodeJson.add("netKeys", serializeNetKeyIndexes(node.getAddedNetKeyIndexes()));
             nodeJson.add("appKeys", serializeAppKeyIndexes(node.getAddedAppKeyIndexes()));
             nodeJson.add("elements", serializeElements(context, node.getElements()));
             nodeJson.addProperty("blacklisted", node.isBlackListed());

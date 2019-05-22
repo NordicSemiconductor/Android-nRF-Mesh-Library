@@ -209,19 +209,8 @@ interface MeshMngrApi {
      *
      * @param dst         destination address
      * @param meshMessage {@link MeshMessage} Mesh message containing the message opcode and message parameters
-     * @deperecated in favour of {{@link #createdMeshPdu(int, MeshMessage)}} as sendMeshMessage method,
-     * do not really send a mesh message but creates on instead to be sent by the user
      */
-    @Deprecated
-    void sendMeshMessage(final int dst, @NonNull final MeshMessage meshMessage) throws IllegalArgumentException;
-
-    /**
-     * Sends the specified  mesh message specified within the {@link MeshMessage} object
-     *
-     * @param dst         destination address
-     * @param meshMessage {@link MeshMessage} Mesh message containing the message opcode and message parameters
-     */
-    void createdMeshPdu(final int dst, @NonNull final MeshMessage meshMessage) throws IllegalArgumentException;
+    void createMeshPdu(final int dst, @NonNull final MeshMessage meshMessage) throws IllegalArgumentException;
 
     /**
      * Loads the mesh network from the local database.

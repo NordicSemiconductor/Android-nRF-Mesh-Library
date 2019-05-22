@@ -27,9 +27,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.Security;
@@ -51,9 +48,7 @@ import no.nordicsemi.android.meshprovisioner.data.ProvisionerDao;
 import no.nordicsemi.android.meshprovisioner.data.SceneDao;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
-import no.nordicsemi.android.meshprovisioner.transport.InternalMeshModelDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
@@ -754,19 +749,11 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
-    public void sendMeshMessage(final int dst, @NonNull final MeshMessage meshMessage) {
+    public void createMeshPdu(final int dst, @NonNull final MeshMessage meshMessage) {
         if (!MeshAddress.isAddressInRange(dst)) {
             throw new IllegalArgumentException("Invalid address, destination address must be a valid 16-bit value!");
         }
-        mMeshMessageHandler.sendMeshMessage(mMeshNetwork.getSelectedProvisioner().getProvisionerAddress(), dst, meshMessage);
-    }
-
-    @Override
-    public void createdMeshPdu(final int dst, @NonNull final MeshMessage meshMessage) throws IllegalArgumentException {
-        if (!MeshAddress.isAddressInRange(dst)) {
-            throw new IllegalArgumentException("Invalid address, destination address must be a valid 16-bit value!");
-        }
-        mMeshMessageHandler.sendMeshMessage(mMeshNetwork.getSelectedProvisioner().getProvisionerAddress(), dst, meshMessage);
+        mMeshMessageHandler.createMeshMessage(mMeshNetwork.getSelectedProvisioner().getProvisionerAddress(), dst, meshMessage);
     }
 
     @Override

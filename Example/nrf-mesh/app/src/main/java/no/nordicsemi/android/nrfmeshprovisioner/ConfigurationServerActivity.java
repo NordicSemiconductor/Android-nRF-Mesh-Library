@@ -125,7 +125,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 ConfigRelayGet message = new ConfigRelayGet();
-                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), message);
                 showProgressbar();
             }
         } catch (Exception e) {
@@ -177,7 +177,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 ConfigNetworkTransmitGet message = new ConfigNetworkTransmitGet();
-                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), message);
                 showProgressbar();
             }
         } catch (Exception e) {
@@ -190,7 +190,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 final ConfigRelaySet message = new ConfigRelaySet(relay, relayRetransmit, relayRetransmitIntervalSteps);
-                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), message);
                 showProgressbar();
             }
         } catch (Exception e) {
@@ -203,7 +203,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 final ConfigNetworkTransmitSet message = new ConfigNetworkTransmitSet(networkTransmitCount, networkTransmitIntervalSteps);
-                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), message);
                 showProgressbar();
             }
         } catch (Exception e) {

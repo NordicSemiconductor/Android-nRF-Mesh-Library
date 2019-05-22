@@ -226,11 +226,11 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         switch (modelId) {
             case SigModelParser.GENERIC_ON_OFF_SERVER:
                 meshMessage = new GenericOnOffSetUnacknowledged(applicationKey, isChecked, tid);
-                mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
+                mViewModel.getMeshManagerApi().createMeshPdu(group.getGroupAddress(), meshMessage);
                 break;
             case SigModelParser.GENERIC_LEVEL_SERVER:
                 meshMessage = new GenericLevelSetUnacknowledged(applicationKey, isChecked ? 32767 : -32768, tid);
-                mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
+                mViewModel.getMeshManagerApi().createMeshPdu(group.getGroupAddress(), meshMessage);
                 break;
         }
     }
@@ -245,7 +245,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final ApplicationKey applicationKey = network.getAppKey(keyIndex);
         final int tid = network.getSelectedProvisioner().getSequenceNumber();
         final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey, state, tid, transitionSteps, transitionStepResolution, delay);
-        mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
+        mViewModel.getMeshManagerApi().createMeshPdu(group.getGroupAddress(), meshMessage);
     }
 
     @Override
@@ -260,7 +260,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             final ApplicationKey applicationKey = network.getAppKey(keyIndex);
             final int tid = mViewModel.getMeshManagerApi().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
             final MeshMessage meshMessage = new GenericLevelSetUnacknowledged(applicationKey, transitionSteps, transitionStepResolution, delay, level, tid);
-            mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), meshMessage);
+            mViewModel.getMeshManagerApi().createMeshPdu(group.getGroupAddress(), meshMessage);
         }
     }
 
@@ -339,7 +339,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             } else {
                 message = new VendorModelMessageUnacked(appKey, modelId, model.getCompanyIdentifier(), opCode, parameters);
             }
-            mViewModel.getMeshManagerApi().sendMeshMessage(group.getGroupAddress(), message);
+            mViewModel.getMeshManagerApi().createMeshPdu(group.getGroupAddress(), message);
         }
     }
 

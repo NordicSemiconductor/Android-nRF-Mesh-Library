@@ -80,7 +80,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProxySet;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 
 public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
@@ -190,7 +189,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 mRecyclerViewElements.setVisibility(View.INVISIBLE);
             }
 
-            if (!meshNode.getAddedNetworkKeyIndexes().isEmpty()) {
+            if (!meshNode.getAddedNetKeyIndexes().isEmpty()) {
                 noAppKeysFound.setVisibility(View.GONE);
                 recyclerViewAppKeys.setVisibility(View.VISIBLE);
             } else {
@@ -202,7 +201,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         actionGetCompositionData.setOnClickListener(v -> {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
-            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configCompositionDataGet);
+            mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configCompositionDataGet);
             showProgressbar();
         });
 
@@ -215,7 +214,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         actionGetProxyState.setOnClickListener(v -> {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final ConfigProxyGet configProxyGet = new ConfigProxyGet();
-            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configProxyGet);
+            mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configProxyGet);
         });
 
         actionSetProxyState.setOnClickListener(v -> {
@@ -278,7 +277,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
                     final NetworkKey networkKey = mViewModel.getMeshManagerApi().getMeshNetwork().getPrimaryNetworkKey();
                     final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
-                    mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configAppKeyAdd);
+                    mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configAppKeyAdd);
                 }
             }
         }
@@ -322,7 +321,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         try {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final ConfigNodeReset configNodeReset = new ConfigNodeReset();
-            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configNodeReset);
+            mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configNodeReset);
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
         }
@@ -333,7 +332,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         try {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final ConfigProxySet configProxySet = new ConfigProxySet(state);
-            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configProxySet);
+            mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configProxySet);
             mRequestedState = state == 1;
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
@@ -437,7 +436,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @Override
     public void addAddresses(final List<AddressArray> addresses) {
         final ProxyConfigAddAddressToFilter addAddressToFilter = new ProxyConfigAddAddressToFilter(addresses);
-        mViewModel.getMeshManagerApi().sendMeshMessage(MeshAddress.UNASSIGNED_ADDRESS, addAddressToFilter);
+        mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, addAddressToFilter);
     }
 
     @Override
