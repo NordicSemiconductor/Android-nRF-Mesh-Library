@@ -2,7 +2,6 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-@SuppressWarnings("unchecked")
 public class TransactionStatusLiveData extends SingleLiveEvent<TransactionStatusLiveData> {
 
     private int mElementAddress;

@@ -218,8 +218,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
             if (model != null) {
                 if (!model.getBoundAppKeyIndexes().isEmpty()) {
                     final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                    //noinspection ConstantConditions
-                    final ApplicationKey appKey = mViewModel.getMeshManagerApi().getMeshNetwork().getAppKey(appKeyIndex);
+                    final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
 
                     final int address = element.getElementAddress();
                     Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
@@ -248,8 +247,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 if (model != null) {
                     if (!model.getBoundAppKeyIndexes().isEmpty()) {
                         final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                        //noinspection ConstantConditions
-                        final ApplicationKey appKey = mViewModel.getMeshManagerApi().getMeshNetwork().getAppKey(appKeyIndex);
+                        final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level, node.getReceivedSequenceNumber());
                         mViewModel.getMeshManagerApi().createMeshPdu(address, genericLevelSet);

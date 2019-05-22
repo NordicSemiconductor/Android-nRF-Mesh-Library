@@ -134,8 +134,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         }
 
         actionPublishAddress.setOnClickListener(v -> {
-            //noinspection ConstantConditions
-            List<Group> groups = mViewModel.getMeshManagerApi().getMeshNetwork().getGroups();
+            List<Group> groups = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getGroups();
             final DialogFragmentPublishAddress fragmentPublishAddress = DialogFragmentPublishAddress.
                     newInstance(meshModel.getPublicationSettings(), new ArrayList<>(groups));
             fragmentPublishAddress.show(getSupportFragmentManager(), null);
@@ -220,7 +219,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     }
 
     @Override
-    protected void onSaveInstanceState(final Bundle outState) {
+    protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mAddressType != null)
             outState.putInt(RESULT_ADDRESS_TYPE, mAddressType.ordinal());
@@ -258,14 +257,13 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final String name, final int address) {
         mLabelUUID = null;
         mAddressType = addressType;
         mPublishAddress = address;
         mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         final Group group = new Group(address, network.getMeshUUID());
         group.setName(name);
         network.addGroup(group);
@@ -405,7 +403,6 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     }
 
-    @SuppressWarnings("ConstantConditions")
     private void setReturnIntent() {
         Intent returnIntent = new Intent();
         int type = -1;

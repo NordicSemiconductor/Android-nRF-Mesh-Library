@@ -102,7 +102,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final RecyclerView recyclerViewSubGroups = findViewById(R.id.recycler_view_grouped_models);
         recyclerViewSubGroups.setLayoutManager(new LinearLayoutManager(this));
         groupAdapter = new SubGroupAdapter(this,
-                mViewModel.getMeshManagerApi().getMeshNetwork(),
+                mViewModel.getMeshNetworkLiveData().getMeshNetwork(),
                 mViewModel.getSelectedGroup(),
                 mViewModel.isConnectedToProxy());
         groupAdapter.setOnItemClickListener(this);
@@ -135,7 +135,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             final BottomSheetDetailsDialogFragment fragment = (BottomSheetDetailsDialogFragment) getSupportFragmentManager().findFragmentByTag(DETAILS_FRAGMENT);
             if (fragment != null) {
                 final Group group = mViewModel.getSelectedGroup().getValue();
-                final MeshNetwork meshNetwork = mViewModel.getMeshManagerApi().getMeshNetwork();
+                final MeshNetwork meshNetwork = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
                 final ArrayList<Element> elements = new ArrayList<>(meshNetwork.getElements(group));
                 fragment.updateAdapter(group, elements);
             }
@@ -255,10 +255,10 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             return;
 
 
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         if (network != null) {
             final ApplicationKey applicationKey = network.getAppKey(keyIndex);
-            final int tid = mViewModel.getMeshManagerApi().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
+            final int tid = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
             final MeshMessage meshMessage = new GenericLevelSetUnacknowledged(applicationKey, transitionSteps, transitionStepResolution, delay, level, tid);
             mViewModel.getMeshManagerApi().createMeshPdu(group.getGroupAddress(), meshMessage);
         }
@@ -266,7 +266,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     private void editGroup() {
         final Group group = mViewModel.getSelectedGroup().getValue();
-        final MeshNetwork meshNetwork = mViewModel.getMeshManagerApi().getMeshNetwork();
+        final MeshNetwork meshNetwork = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         if (meshNetwork != null) {
             final ArrayList<Element> elements = new ArrayList<>(meshNetwork.getElements(group));
             final BottomSheetDetailsDialogFragment onOffFragment = BottomSheetDetailsDialogFragment.getInstance(group, elements);
@@ -330,7 +330,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         if (model == null)
             return;
 
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         if (network != null) {
             final ApplicationKey appKey = network.getAppKey(keyIndex);
             final MeshMessage message;

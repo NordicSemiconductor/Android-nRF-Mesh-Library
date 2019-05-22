@@ -79,4 +79,8 @@ public class PublicationViewModel extends ViewModel {
     public LiveData<MeshModel> getSelectedModel() {
         return mNrfMeshRepository.getSelectedModel();
     }
+
+    public MeshNetworkLiveData getMeshNetworkLiveData() {
+        return mNrfMeshRepository.getMeshNetworkLiveData();
+    }
 }

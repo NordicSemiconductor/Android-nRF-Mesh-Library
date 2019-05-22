@@ -160,8 +160,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerViewAddresses);
-        //noinspection ConstantConditions
-        mSubscriptionAdapter = new GroupAddressAdapter(this, mViewModel.getMeshManagerApi().getMeshNetwork(), mViewModel.getSelectedModel());
+        mSubscriptionAdapter = new GroupAddressAdapter(this, mViewModel.getMeshNetworkLiveData().getMeshNetwork(), mViewModel.getSelectedModel());
         recyclerViewAddresses.setAdapter(mSubscriptionAdapter);
 
         recyclerViewBoundKeys = findViewById(R.id.recycler_view_bound_keys);
@@ -274,10 +273,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void setSubscription(@NonNull final String name, final int address) {
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         final Group group = new Group(address, network.getMeshUUID());
         group.setName(name);
         network.addGroup(group);

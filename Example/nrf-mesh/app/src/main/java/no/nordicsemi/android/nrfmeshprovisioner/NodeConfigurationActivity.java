@@ -275,7 +275,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 if (appKey != null) {
                     showProgressbar();
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
-                    final NetworkKey networkKey = mViewModel.getMeshManagerApi().getMeshNetwork().getPrimaryNetworkKey();
+                    final NetworkKey networkKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getPrimaryNetworkKey();
                     final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
                     mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configAppKeyAdd);
                 }

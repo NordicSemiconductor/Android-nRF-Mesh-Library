@@ -141,7 +141,6 @@ public class ProvisioningConfirmationState extends ProvisioningState {
                 return OutputOOBAction.generateOutputOOBAuthenticationValue(action, authentication);
             case INPUT_OOB_AUTHENTICATION:
                 final InputOOBAction inputOOBAction = InputOOBAction.fromValue(mNode.getAuthActionUsed());
-                //noinspection ConstantConditions
                 return InputOOBAction.generateInputOOBAuthenticationValue(inputOOBAction, mNode.getInputAuthentication());
         }
         return null;
