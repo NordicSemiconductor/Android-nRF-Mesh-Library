@@ -106,7 +106,7 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
         for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
             final MeshModel model = modelEntry.getValue();
             for (Integer address : model.getSubscribedAddresses()) {
-                if (mGroup.getGroupAddress() == address) {
+                if (mGroup.getAddress() == address) {
                     final View view = LayoutInflater.from(mContext).inflate(R.layout.group_model_item, holder.mModelContainer, false);
                     final ConstraintLayout container = view.findViewById(R.id.container);
                     final ImageView modelIcon = view.findViewById(R.id.icon);

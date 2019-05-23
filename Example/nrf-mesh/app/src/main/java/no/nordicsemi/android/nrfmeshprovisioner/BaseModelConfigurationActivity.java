@@ -286,7 +286,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     @Override
     public void setSubscription(@NonNull final Group group) {
-        subscribe(group.getGroupAddress());
+        subscribe(group.getAddress());
     }
 
     @Override

@@ -172,7 +172,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     public Group getGroup(final int address) {
         for (final Group group : groups) {
-            if (address == group.getGroupAddress()) {
+            if (address == group.getAddress()) {
                 return group;
             }
         }
@@ -216,7 +216,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public boolean isGroupExist(final int address) {
         for (final Group group : groups) {
-            if (address == group.getGroupAddress()) {
+            if (address == group.getAddress()) {
                 return true;
             }
         }
@@ -230,7 +230,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public boolean isGroupExist(@NonNull final Group group) {
         for (final Group grp : groups) {
-            if (group.getGroupAddress() == grp.getGroupAddress()) {
+            if (group.getAddress() == grp.getAddress()) {
                 return true;
             }
         }
@@ -252,7 +252,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
                     if (model != null) {
                         final List<Integer> subscriptionAddresses = model.getSubscribedAddresses();
                         for (Integer subscriptionAddress : subscriptionAddresses) {
-                            if (group.getGroupAddress() == subscriptionAddress) {
+                            if (group.getAddress() == subscriptionAddress) {
                                 if (!elements.contains(element))
                                     elements.add(element);
                             }
@@ -279,7 +279,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
                     if (model != null) {
                         final List<Integer> subscriptionAddresses = model.getSubscribedAddresses();
                         for (Integer subscriptionAddress : subscriptionAddresses) {
-                            if (group.getGroupAddress() == subscriptionAddress) {
+                            if (group.getAddress() == subscriptionAddress) {
                                 if (!models.contains(model))
                                     models.add(model);
                             }

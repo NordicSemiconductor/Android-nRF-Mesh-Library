@@ -273,8 +273,8 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final Group group) {
         mLabelUUID = null;
         mAddressType = addressType;
-        mPublishAddress = group.getGroupAddress();
-        mPublishAddressView.setText(MeshAddress.formatAddress(group.getGroupAddress(), true));
+        mPublishAddress = group.getAddress();
+        mPublishAddressView.setText(MeshAddress.formatAddress(group.getAddress(), true));
     }
 
     @Override

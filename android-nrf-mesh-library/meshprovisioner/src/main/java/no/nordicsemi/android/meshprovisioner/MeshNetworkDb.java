@@ -853,30 +853,14 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 "`mesh_uuid` TEXT, " +
                 "`name` TEXT, " +
                 "`group_address` INTEGER NOT NULL DEFAULT 49152, " +
-                "`parent_address` INTEGER NOT NULL DEFAULT 49152, " +
+                "`parent_address` INTEGER NOT NULL DEFAULT 0, " +
                 "`group_address_label` TEXT, " +
+                "`parent_address_label` TEXT, " +
                 "FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )");
 
-        final Cursor cursor = database.query("SELECT * FROM groups");
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                final String uuid = cursor.getString(cursor.getColumnIndex("mesh_uuid"));
-                final String name = cursor.getString(cursor.getColumnIndex("name"));
-                final byte[] grpAddress = cursor.getBlob(cursor.getColumnIndex("group_address"));
-                final byte[] pAddress = cursor.getBlob(cursor.getColumnIndex("parent_address"));
-                final int groupAddress = MeshParserUtils.unsignedBytesToInt(grpAddress[1], grpAddress[0]);
-                final ContentValues values = new ContentValues();
-                values.put("mesh_uuid", uuid);
-                values.put("name", name);
-                values.put("group_address", groupAddress);
-                if (pAddress != null) {
-                    final int parentAddress = MeshParserUtils.unsignedBytesToInt(pAddress[1], pAddress[0]);
-                    values.put("parent_address", parentAddress);
-                }
-                database.insert("groups_temp", SQLiteDatabase.CONFLICT_REPLACE, values);
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
+        database.execSQL(
+                "INSERT INTO groups_temp (id, mesh_uuid, name, group_address, parent_address) " +
+                        "SELECT id, mesh_uuid, name, group_address, parent_address FROM groups");
 
         database.execSQL("DROP TABLE groups");
         database.execSQL("ALTER TABLE groups_temp RENAME TO groups");
@@ -933,7 +917,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 final List<NetworkKey> netKeys = MeshTypeConverters.fromJsonToAddedNetKeys(netKeysJson);
                 final List<Integer> keyIndexes = new ArrayList<>();
                 for (NetworkKey networkKey : netKeys) {
-                    if(networkKey != null) {
+                    if (networkKey != null) {
                         keyIndexes.add(networkKey.getKeyIndex());
                     }
                 }
@@ -944,7 +928,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 final Map<Integer, ApplicationKey> appKeyMap = MeshTypeConverters.fromJsonToAddedAppKeys(appKeysJson);
                 for (Map.Entry<Integer, ApplicationKey> applicationKeyEntry : appKeyMap.entrySet()) {
                     final ApplicationKey key = applicationKeyEntry.getValue();
-                    if(key != null) {
+                    if (key != null) {
                         keyIndexes.add(key.getKeyIndex());
                     }
                 }

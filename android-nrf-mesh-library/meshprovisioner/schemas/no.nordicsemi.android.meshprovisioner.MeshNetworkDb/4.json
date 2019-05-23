@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "ee0ebbb374bdc3233e2ae6cc95c005cb",
+    "identityHash": "3ed2f199e0d2eac83cce2cd2ad91c0eb",
     "entities": [
       {
         "tableName": "mesh_network",
@@ -422,7 +422,7 @@
             "notNull": false
           },
           {
-            "fieldPath": "mAddedNetworkKeyIndexes",
+            "fieldPath": "mAddedNetKeyIndexes",
             "columnName": "netKeys",
             "affinity": "TEXT",
             "notNull": false
@@ -520,7 +520,7 @@
       },
       {
         "tableName": "groups",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `group_address` INTEGER NOT NULL, `group_address_label` TEXT, `parent_address` INTEGER NOT NULL, `mesh_uuid` TEXT, FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `group_address` INTEGER NOT NULL, `group_address_label` TEXT, `parent_address` INTEGER NOT NULL, `parent_address_label` TEXT, `mesh_uuid` TEXT, FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -535,13 +535,13 @@
             "notNull": false
           },
           {
-            "fieldPath": "groupAddress",
+            "fieldPath": "address",
             "columnName": "group_address",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "groupAddressLabel",
+            "fieldPath": "addressLabel",
             "columnName": "group_address_label",
             "affinity": "TEXT",
             "notNull": false
@@ -551,6 +551,12 @@
             "columnName": "parent_address",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "parentAddressLabel",
+            "columnName": "parent_address_label",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "meshUuid",
@@ -652,7 +658,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"ee0ebbb374bdc3233e2ae6cc95c005cb\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"3ed2f199e0d2eac83cce2cd2ad91c0eb\")"
     ]
   }
 }

@@ -388,7 +388,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
 
     private int getGroupIndex(final int address) {
         for (int i = 0; i < mGroups.size(); i++) {
-            if (address == mGroups.get(i).getGroupAddress()) {
+            if (address == mGroups.get(i).getAddress()) {
                 return i;
             }
         }
@@ -425,7 +425,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                         return false;
                     }
                     for (Group group : mGroups) {
-                        if (address == group.getGroupAddress()) {
+                        if (address == group.getAddress()) {
                             addressInputLayout.setError(getString(R.string.error_group_address_in_used));
                             return false;
                         }
@@ -459,7 +459,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             }
 
             for (Group group : mGroups) {
-                if (groupAddress == group.getGroupAddress()) {
+                if (groupAddress == group.getAddress()) {
                     addressInputLayout.setError(getString(R.string.error_group_address_in_used));
                     return false;
                 }

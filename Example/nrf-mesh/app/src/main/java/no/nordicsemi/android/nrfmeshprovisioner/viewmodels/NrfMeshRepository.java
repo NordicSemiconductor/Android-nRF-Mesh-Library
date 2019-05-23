@@ -1031,7 +1031,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private void updateSelectedGroup() {
         final Group selectedGroup = mSelectedGroupLiveData.getValue();
         if (selectedGroup != null) {
-            mSelectedGroupLiveData.postValue(mMeshNetwork.getGroup(selectedGroup.getGroupAddress()));
+            mSelectedGroupLiveData.postValue(mMeshNetwork.getGroup(selectedGroup.getAddress()));
         }
     }
 

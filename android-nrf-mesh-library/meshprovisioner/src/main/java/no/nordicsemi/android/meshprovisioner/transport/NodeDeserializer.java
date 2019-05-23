@@ -66,7 +66,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 node.setSecureNetworkBeaconSupported(jsonObject.get("secureNetworkBeacon").getAsBoolean());
             }
 
-            if (jsonObject.has("defaultTTL")) {
+            if (jsonObject.has("defaultTTL") && !jsonObject.get("defaultTTL").isJsonNull()) {
                 node.ttl = jsonObject.get("defaultTTL").getAsInt();
             }
 

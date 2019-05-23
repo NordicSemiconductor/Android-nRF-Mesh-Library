@@ -79,7 +79,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                 final List<MeshModel> models = mNetwork.getModels(group);
                 holder.groupName.setText(group.getName());
                 holder.groupAddress.setText(mContext.
-                        getString(R.string.group_address_summary, MeshAddress.formatAddress(group.getGroupAddress(), true)));
+                        getString(R.string.group_address_summary, MeshAddress.formatAddress(group.getAddress(), true)));
                 holder.groupDeviceCount.setText(mContext.getResources().
                         getQuantityString(R.plurals.device_count, models.size(), models.size()));
             }
@@ -131,7 +131,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             ButterKnife.bind(this, view);
             view.findViewById(R.id.container).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(mGroups.get(getAdapterPosition()).getGroupAddress());
+                    mOnItemClickListener.onItemClick(mGroups.get(getAdapterPosition()).getAddress());
                 }
             });
         }
