@@ -23,9 +23,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,11 +32,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
@@ -54,7 +53,6 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
     public ManageAppKeyAdapter(@NonNull final Context context, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
         this.mContext = context;
         meshNetworkLiveData.observe((LifecycleOwner) context, networkData -> {
-            //noinspection ConstantConditions
             final List<ApplicationKey> keys = networkData.getAppKeys();
             if (keys != null) {
                 appKeys.clear();
@@ -65,10 +63,18 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
         });
     }
 
-    public ManageAppKeyAdapter(final ManageAppKeysActivity activity, final List<ApplicationKey> appKeys) {
-        this.mContext = activity;
-        this.appKeys.addAll(appKeys);
-        Collections.sort(appKeys, Utils.appKeyComparator);
+    public ManageAppKeyAdapter(@NonNull final Context context,
+                               @NonNull final List<ApplicationKey> appKeys,
+                               @NonNull final List<Integer> appKeyIndexes) {
+        this.mContext = context;
+        for (Integer index : appKeyIndexes) {
+            for (ApplicationKey applicationKey : appKeys) {
+                if (index == applicationKey.getKeyIndex()) {
+                    this.appKeys.add(applicationKey);
+                }
+            }
+        }
+        Collections.sort(this.appKeys, Utils.appKeyComparator);
         notifyDataSetChanged();
     }
 

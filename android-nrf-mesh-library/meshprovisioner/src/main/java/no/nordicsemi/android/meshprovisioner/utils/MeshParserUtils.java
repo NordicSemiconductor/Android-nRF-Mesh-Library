@@ -22,26 +22,30 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.R;
 
 @SuppressWarnings({"WeakerAccess", "BooleanMethodIsAlwaysInverted"})
 public class MeshParserUtils {
 
     private static final String TAG = MeshParserUtils.class.getSimpleName();
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US);
     private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
-    private static final String PATTERN_UUID = "[0-9a-fA-F]{32}";
+    private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
     private static final int TAI_YEAR = 2000;
     private static final int TAI_MONTH = 1;
     private static final int TAI_DATE = 1;
@@ -109,10 +113,6 @@ public class MeshParserUtils {
         return value == null || value != (value & 0xFFF);
     }
 
-    private static boolean isValidUnicastAddress(final Integer value) {
-        return value != null && value == (value & 0x7FFF);
-    }
-
     /**
      * Checks if the unicast address is valid
      *
@@ -125,20 +125,6 @@ public class MeshParserUtils {
         final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
 
         return addressVal > 0x0000 && addressVal <= 0x7FFF;
-    }
-
-    /**
-     * Checks if the address is a valid unassigned address
-     *
-     * @param address address to be validated
-     * @return true if is valid and false otherwise
-     */
-    public static boolean isValidUnassignedAddress(final byte[] address) {
-        if (address == null || address.length != 2)
-            return false;
-        final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
-
-        return addressVal == 0x0000;
     }
 
     /**
@@ -198,8 +184,19 @@ public class MeshParserUtils {
         return false;
     }
 
-    private static boolean isValidIvIndex(final Integer value) {
-        return value != null && (value >= 0 && value <= Integer.MAX_VALUE);
+    /**
+     * Checks if the IV Index is valid.
+     *
+     * <p>
+     * The IV Index is a 32-bit value that is a shared network resource
+     * (i.e., all nodes in a mesh network share the same value of the IV Index
+     * and use it for all subnets they belong to). The IV Index starts at 0x00000000
+     * </p>
+     *
+     * @param ivIndex IV Index value
+     */
+    private static boolean isValidIvIndex(@NonNull final Integer ivIndex) {
+        return ivIndex == 0 || ivIndex > 0;
     }
 
     public static byte parseUpdateFlags(final int keyRefreshFlag, final int ivUpdateFlag) {
@@ -297,27 +294,6 @@ public class MeshParserUtils {
     }
 
     /**
-     * Validates the Key Index input
-     *
-     * @param context  context
-     * @param keyIndex Key Index input
-     * @return true if the Key Index is a valid value
-     * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
-     */
-    public static boolean validateKeyIndexInput(final Context context, final Integer keyIndex) throws IllegalArgumentException {
-
-        if (keyIndex == null) {
-            throw new IllegalArgumentException(context.getString(R.string.error_empty_key_index));
-        }
-
-        if (isValidKeyIndex(keyIndex)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_key_index));
-        }
-
-        return true;
-    }
-
-    /**
      * Validates the IV Index input
      *
      * @param context context
@@ -342,10 +318,6 @@ public class MeshParserUtils {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
         }
 
-        if (ivIndex < IV_ADDRESS_MIN && ivIndex > IV_ADDRESS_MAX) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
-        }
-
         return true;
     }
 
@@ -364,10 +336,6 @@ public class MeshParserUtils {
         }
 
         if (!isValidIvIndex(ivIndex)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
-        }
-
-        if (ivIndex < IV_ADDRESS_MIN && ivIndex > IV_ADDRESS_MAX) {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
         }
 
@@ -672,7 +640,6 @@ public class MeshParserUtils {
     /**
      * Convert an unsigned integer value to a two's-complement encoded signed value.
      */
-
     private static int unsignedToSigned(int unsigned, int size) {
         if ((unsigned & (1 << size - 1)) != 0) {
             unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
@@ -776,6 +743,15 @@ public class MeshParserUtils {
     }
 
     /**
+     * Returns UUID as a hex
+     *
+     * @param uuid UUID
+     */
+    public static String uuidToHex(@NonNull final String uuid) {
+        return uuid.replace("-", "").toUpperCase(Locale.US);
+    }
+
+    /**
      * Returns UUID in bytes
      *
      * @param uuid UUID
@@ -790,7 +766,7 @@ public class MeshParserUtils {
      * @param uuidHex Hex string
      */
     public static String formatUuid(@NonNull final String uuidHex) {
-        if (uuidHex.matches(PATTERN_UUID)) {
+        if (isUuidPattern(uuidHex)) {
             return new StringBuffer(uuidHex).
                     insert(8, "-").
                     insert(13, "-").
@@ -800,13 +776,17 @@ public class MeshParserUtils {
         return null;
     }
 
+    public static boolean isUuidPattern(@NonNull final String uuidHex) {
+        return uuidHex.matches(PATTERN_UUID_HEX);
+    }
+
     /**
      * Returns a type4 UUID from a uuid string without dashes
      *
      * @param uuidHex Hex string
      */
     public static UUID getUuid(@NonNull final String uuidHex) {
-        if (uuidHex.matches(PATTERN_UUID)) {
+        if (uuidHex.matches(PATTERN_UUID_HEX)) {
             return UUID.fromString(new StringBuffer(uuidHex).
                     insert(8, "-").
                     insert(4, "-").
@@ -816,4 +796,21 @@ public class MeshParserUtils {
         return null;
     }
 
+    /**
+     * Converts the timestamp to long
+     *
+     * @param timestamp timestamp
+     */
+    public static Long parseTimeStamp(@NonNull final String timestamp) throws ParseException {
+        return SDF.parse(timestamp).getTime();
+    }
+
+    /**
+     * Formats the timestamp
+     *
+     * @param timestamp timestamp
+     */
+    public static String formatTimeStamp(final long timestamp) {
+        return SDF.format(new Date(timestamp));
+    }
 }

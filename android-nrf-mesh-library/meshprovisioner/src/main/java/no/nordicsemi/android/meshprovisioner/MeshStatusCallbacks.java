@@ -54,15 +54,6 @@ public interface MeshStatusCallbacks {
     void onUnknownPduReceived(final int src, final byte[] accessPayload);
 
     /**
-     * Notifies if a block acknowledgement was sent
-     *
-     * @param dst Destination address to which the block ack was sent
-     * @deperecated in favour of {{@link #onBlockAcknowledgementProcessed(int, ControlMessage)}}
-     */
-    @Deprecated
-    void onBlockAcknowledgementSent(final int dst);
-
-    /**
      * Notifies when a block acknowledgement has been processed
      *
      * <p>
@@ -77,30 +68,10 @@ public interface MeshStatusCallbacks {
     /**
      * Notifies if a block acknowledgement was received
      *
-     * @param src Source address from which the block ack was received
-     * @deperecated in favour of {{@link #onBlockAcknowledgementReceived(int, ControlMessage)}}
-     */
-    @Deprecated
-    void onBlockAcknowledgementReceived(final int src);
-
-    /**
-     * Notifies if a block acknowledgement was received
-     *
      * @param src     Source address from which the block ack was received
      * @param message Control message containing the block acknowledgement
      */
     void onBlockAcknowledgementReceived(final int src, @NonNull final ControlMessage message);
-
-    /**
-     * Callback to notify the mesh message has been sent
-     *
-     * @param dst         Destination address to be sent
-     * @param meshMessage {@link MeshMessage} containing the message that was sent
-     * @deperecated in favour of {{@link #onMeshMessageProcessed(int, MeshMessage)}} as the mesh library does not send messages
-     * but only generates messages to be sent over gatt
-     */
-    @Deprecated
-    void onMeshMessageSent(final int dst, final MeshMessage meshMessage);
 
     /**
      * Callback to notify the mesh message has been processed

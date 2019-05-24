@@ -61,7 +61,8 @@ public class ConfigModelPublicationSet extends ConfigMessage {
      * @param elementAddress                 Element address that should publish
      * @param publishAddress                 Address to which the element must publish
      * @param appKeyIndex                    Index of the application key
-     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false for master credentials.
+     * @param credentialFlag                 Credentials flag define which credentials to be used,
+     *                                       set true to use friendship credentials and false for master credentials.
      *                                       Currently supports only master credentials
      * @param publishTtl                     Publication ttl
      * @param publicationSteps               Publication steps for the publication period
@@ -120,7 +121,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
         Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(modelIdentifier), false));
 
         final int rfu = 0; // We ignore the rfu here
-        final int octet5 = ((applicationKeyIndex[0] << 4)) | ((credentialFlag ? 0b01 : 0b00) << 3);
+        final int octet5 = (applicationKeyIndex[0] | (credentialFlag ? 0b01 : 0b00) << 3);
         final byte publishPeriod = (byte) ((publicationResolution << 6) | (publicationSteps & 0x3F));
         final int octet8 = (publishRetransmitCount << 5) | (publishRetransmitIntervalSteps & 0x1F);
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sig model
@@ -128,7 +129,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_PUBLISH_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) this.elementAddress);
             paramsBuffer.putShort((short) this.publishAddress);
-            paramsBuffer.put(applicationKeyIndex[1]);
+            paramsBuffer.put((applicationKeyIndex[1]));
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);
             paramsBuffer.put(publishPeriod);

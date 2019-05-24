@@ -83,7 +83,7 @@ public class GroupAdapterSpinner extends BaseAdapter {
 
             final Group group = mGroups.get(position);
             viewHolder.groupName.setText(group.getName());
-            viewHolder.address.setText(MeshAddress.formatAddress(group.getGroupAddress(), true));
+            viewHolder.address.setText(MeshAddress.formatAddress(group.getAddress(), true));
             return view;
         } else {
             view = LayoutInflater.from(mContext).inflate(R.layout.no_groups_layout, parent, false);

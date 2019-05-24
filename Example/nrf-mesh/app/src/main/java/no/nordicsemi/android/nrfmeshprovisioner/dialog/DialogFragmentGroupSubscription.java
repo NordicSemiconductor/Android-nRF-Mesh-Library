@@ -273,7 +273,7 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
             }
 
             for (Group group : mGroups) {
-                if (groupAddress == group.getGroupAddress()) {
+                if (groupAddress == group.getAddress()) {
                     addressInputLayout.setError(getString(R.string.error_group_address_in_used));
                     return false;
                 }

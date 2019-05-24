@@ -59,16 +59,14 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             } else {
                 meshModelJson.addProperty("modelId", String.format(Locale.US, "%04X", model.getModelId()));
             }
-            if (!model.getSubscribedAddresses().isEmpty()) {
-                meshModelJson.add("subscribe", serializeSubscriptionAddresses(model));
-            }
+
+            meshModelJson.add("bind", serializeBoundAppKeys(model.getBoundAppKeyIndexes()));
+            meshModelJson.add("subscribe", serializeSubscriptionAddresses(model));
+
             if (model.getPublicationSettings() != null) {
                 meshModelJson.add("publish", serializePublicationSettings(model.getPublicationSettings()));
             }
 
-            if (!model.getBoundAppKeyIndexes().isEmpty()) {
-                meshModelJson.add("bind", serializeBoundAppKeys(model.getBoundAppKeyIndexes()));
-            }
             jsonArray.add(meshModelJson);
         }
         return jsonArray;
@@ -158,7 +156,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
 
         final JsonArray jsonArray = jsonObject.get("bind").getAsJsonArray();
         for (int i = 0; i < jsonArray.size(); i++) {
-            final int index = Integer.parseInt(jsonArray.get(i).getAsString(), 16);
+            final int index = jsonArray.get(i).getAsInt();
             boundKeyIndexes.add(index);
         }
         return boundKeyIndexes;
@@ -195,7 +193,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         } else {
             publicationJson.addProperty("address", MeshAddress.formatAddress(settings.getPublishAddress(), false));
         }
-        publicationJson.addProperty("index", String.format(Locale.US, "%04X", settings.getAppKeyIndex()));
+        publicationJson.addProperty("index", settings.getAppKeyIndex());
         publicationJson.addProperty("ttl", settings.getPublishTtl());
         publicationJson.addProperty("period", settings.calculatePublicationPeriod());
 
@@ -215,7 +213,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
     private JsonArray serializeBoundAppKeys(final List<Integer> boundAppKeys) {
         final JsonArray boundAppKeyIndexes = new JsonArray();
         for (Integer index : boundAppKeys) {
-            boundAppKeyIndexes.add(String.format(Locale.US, "%04X", index));
+            boundAppKeyIndexes.add(index);
         }
         return boundAppKeyIndexes;
     }

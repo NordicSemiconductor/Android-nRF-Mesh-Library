@@ -49,6 +49,7 @@ import no.nordicsemi.android.meshprovisioner.transport.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
@@ -93,8 +94,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private final MutableLiveData<ProvisionedMeshNode> mProvisionedMeshNodeLiveData = new MutableLiveData<>();
     private final SingleLiveEvent<Integer> mConnectedProxyAddress = new SingleLiveEvent<>();
 
-    // Contains the initial provisioning live data
-    private NetworkInformationLiveData mNetworkInformationLiveData;
     private boolean mIsProvisioningComplete = false; // Flag to determine if provisioning was completed
 
     // Holds the selected MeshNode to configure
@@ -124,7 +123,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     private final MutableLiveData<List<Group>> mGroups = new MutableLiveData<>();
 
-    private final TransactionStatusLiveData mTransactionFailedLiveData = new TransactionStatusLiveData();
+    private final MutableLiveData<TransactionStatus> mTransactionStatus = new SingleLiveEvent<>();
 
     private MeshManagerApi mMeshManagerApi;
     private BleMeshManager mBleMeshManager;
@@ -148,7 +147,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     };
 
     public NrfMeshRepository(final MeshManagerApi meshManagerApi,
-                             final NetworkInformation networkInformation,
                              final BleMeshManager bleMeshManager) {
         //Initialize the mesh api
         mMeshManagerApi = meshManagerApi;
@@ -218,7 +216,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mMeshNetworkLiveData;
     }
 
-    LiveData<List<ProvisionedMeshNode>> getProvisionedNodes() {
+    LiveData<List<ProvisionedMeshNode>> getNodes() {
         return mProvisionedNodes;
     }
 
@@ -234,16 +232,21 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mNetworkExportState;
     }
 
-    NetworkInformationLiveData getNetworkInformationLiveData() {
-        return mNetworkInformationLiveData;
-    }
-
     ProvisioningStatusLiveData getProvisioningState() {
         return mProvisioningStateLiveData;
     }
 
-    TransactionStatusLiveData getTransactionStatusLiveData() {
-        return mTransactionFailedLiveData;
+    LiveData<TransactionStatus> getTransactionStatus() {
+        return mTransactionStatus;
+    }
+
+    /**
+     * Clears the transaction status
+     */
+    void clearTransactionStatus() {
+        if (mTransactionStatus.getValue() != null) {
+            mTransactionStatus.postValue(null);
+        }
     }
 
     /**
@@ -267,7 +270,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Returns the {@link MeshMessageLiveData} live data object containing the mesh message
      */
-    public LiveData<MeshMessage> getMeshMessageLiveData() {
+    LiveData<MeshMessage> getMeshMessageLiveData() {
         return mMeshMessageLiveData;
     }
 
@@ -286,13 +289,16 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Connect to peripheral
      *
-     * @param device bluetooth device
+     * @param context          Context
+     * @param device           {@link ExtendedBluetoothDevice} device
+     * @param connectToNetwork True if connecting to an unprovisioned node or proxy node
      */
     void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
         mMeshNetworkLiveData.setNodeName(device.getName());
         mIsProvisioningComplete = false;
         mIsCompositionDataReceived = false;
         mIsAppKeyAddCompleted = false;
+        mIsNetworkRetransmitSetCompleted = false;
         clearExtendedMeshNode();
         final LogSession logSession = Logger.newSession(context, null, device.getAddress(), device.getName());
         mBleMeshManager.setLogger(logSession);
@@ -332,7 +338,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mBleMeshManager.disconnect();
     }
 
-    void removeCallbacks() {
+    private void removeCallbacks() {
         mHandler.removeCallbacksAndMessages(null);
     }
 
@@ -363,10 +369,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     LiveData<UnprovisionedMeshNode> getUnprovisionedMeshNode() {
         return mUnprovisionedMeshNodeLiveData;
-    }
-
-    LiveData<ProvisionedMeshNode> getProvisionedMeshNode() {
-        return mProvisionedMeshNodeLiveData;
     }
 
     LiveData<Integer> getConnectedProxyAddress() {
@@ -498,7 +500,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 //Adding a slight delay here so we don't send anything before we receive the mesh beacon message
                 final ProvisionedMeshNode node = mProvisionedMeshNodeLiveData.getValue();
                 final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet();
-                mHandler.postDelayed(() -> mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), compositionDataGet), 2000);
+                mHandler.postDelayed(() -> mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), compositionDataGet), 2000);
             }
             mIsConnectedToProxy.postValue(true);
         }
@@ -597,11 +599,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     @Override
-    public void sendMeshPdu(final byte[] pdu) {
-        //Deprecated
-    }
-
-    @Override
     public void onMeshPduCreated(final byte[] pdu) {
         mBleMeshManager.sendPdu(pdu);
     }
@@ -656,7 +653,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mIsReconnecting.postValue(true);
         mBleMeshManager.disconnect();
         mBleMeshManager.refreshDeviceCache();
-        mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
+        mProvisionedNodes.postValue(mMeshNetwork.getNodes());
         mHandler.post(() -> mConnectionState.postValue("Scanning for provisioned node"));
         mHandler.postDelayed(mReconnectRunnable, 1000); //Added a slight delay to disconnect and refresh the cache
     }
@@ -664,9 +661,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onTransactionFailed(final int dst, final boolean hasIncompleteTimerExpired) {
         mProvisionedMeshNode = mMeshNetwork.getProvisionedNode(dst);
-        if (mTransactionFailedLiveData.hasActiveObservers()) {
-            mTransactionFailedLiveData.onTransactionFailed(dst, hasIncompleteTimerExpired);
-        }
+        mTransactionStatus.postValue(new TransactionStatus(dst, hasIncompleteTimerExpired));
     }
 
     @Override
@@ -675,18 +670,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         if (node != null) {
             mProvisionedMeshNode = node;
             updateNode(node);
-        }
-    }
-
-    @Override
-    public void onBlockAcknowledgementSent(final int dst) {
-        final ProvisionedMeshNode node = mMeshNetwork.getProvisionedNode(dst);
-        if (node != null) {
-            mProvisionedMeshNode = node;
-            if (mSetupProvisionedNode) {
-                mProvisionedMeshNodeLiveData.postValue(mProvisionedMeshNode);
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.SENDING_BLOCK_ACKNOWLEDGEMENT);
-            }
         }
     }
 
@@ -703,18 +686,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     @Override
-    public void onBlockAcknowledgementReceived(final int src) {
-        final ProvisionedMeshNode node = mMeshNetwork.getProvisionedNode(src);
-        if (node != null) {
-            mProvisionedMeshNode = node;
-            if (mSetupProvisionedNode) {
-                mProvisionedMeshNodeLiveData.postValue(node);
-                mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.BLOCK_ACKNOWLEDGEMENT_RECEIVED);
-            }
-        }
-    }
-
-    @Override
     public void onBlockAcknowledgementReceived(final int src, @NonNull final ControlMessage message) {
         final ProvisionedMeshNode node = mMeshNetwork.getProvisionedNode(src);
         if (node != null) {
@@ -724,11 +695,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisioningState.States.BLOCK_ACKNOWLEDGEMENT_RECEIVED);
             }
         }
-    }
-
-    @Override
-    public void onMeshMessageSent(final int dst, final MeshMessage meshMessage) {
-        //Deprecated
     }
 
     @Override
@@ -779,8 +745,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     if (!mMeshNetwork.getAppKeys().isEmpty()) {
                         mHandler.postDelayed(() -> {
                             final ApplicationKey appKey = mMeshNetworkLiveData.getSelectedAppKey();
-                            final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(node.getAddedNetworkKeys().get(0), appKey);
-                            mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), configAppKeyAdd);
+                            final int index = node.getAddedNetKeyIndexes().get(0);
+                            final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(index);
+                            final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
+                            mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), configAppKeyAdd);
                         }, 2500);
                     }
                 } else {
@@ -792,7 +760,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     if (status.isSuccessful()) {
                         mHandler.postDelayed(() -> {
                             final ConfigNetworkTransmitSet networkTransmitSet = new ConfigNetworkTransmitSet(2, 1);
-                            mMeshManagerApi.sendMeshMessage(node.getUnicastAddress(), networkTransmitSet);
+                            mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), networkTransmitSet);
                         }, 2500);
                         mIsAppKeyAddCompleted = true;
                     }
@@ -841,7 +809,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
                 final ConfigNodeResetStatus status = (ConfigNodeResetStatus) meshMessage;
                 mExtendedMeshNode.postValue(null);
-                mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
+                mProvisionedNodes.postValue(mMeshNetwork.getNodes());
                 mMeshMessageLiveData.postValue(status);
 
             } else if (meshMessage instanceof ConfigNetworkTransmitStatus) {
@@ -932,7 +900,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             //Load live data with mesh network
             mMeshNetworkLiveData.loadNetworkInformation(meshNetwork);
             //Load live data with provisioned nodes
-            mProvisionedNodes.postValue(mMeshNetwork.getProvisionedNodes());
+            mProvisionedNodes.postValue(mMeshNetwork.getNodes());
         }
     }
 
@@ -1039,7 +1007,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private void loadGroups() {
         final String uuid = mMeshNetwork.getMeshUUID();
         final List<Group> groups = new ArrayList<>();
-        for (final ProvisionedMeshNode node : mMeshNetwork.getProvisionedNodes()) {
+        for (final ProvisionedMeshNode node : mMeshNetwork.getNodes()) {
             for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
                 final Element element = elementEntry.getValue();
                 for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
@@ -1063,7 +1031,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private void updateSelectedGroup() {
         final Group selectedGroup = mSelectedGroupLiveData.getValue();
         if (selectedGroup != null) {
-            mSelectedGroupLiveData.postValue(mMeshNetwork.getGroup(selectedGroup.getGroupAddress()));
+            mSelectedGroupLiveData.postValue(mMeshNetwork.getGroup(selectedGroup.getAddress()));
         }
     }
 

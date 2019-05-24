@@ -125,7 +125,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 ConfigRelayGet message = new ConfigRelayGet();
-                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), message);
                 showProgressbar();
             }
         } catch (Exception e) {
@@ -139,11 +139,11 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         super.updateMeshMessage(meshMessage);
         if (meshMessage instanceof ConfigNetworkTransmitStatus) {
             final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
-            final ProvisionedMeshNode meshNode = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(status.getSrc());
+            final ProvisionedMeshNode meshNode = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getProvisionedNode(status.getSrc());
             updateNetworkTransmitUi(meshNode);
         } else if (meshMessage instanceof ConfigRelayStatus) {
             final ConfigRelayStatus status = (ConfigRelayStatus) meshMessage;
-            final ProvisionedMeshNode meshNode = mViewModel.getMeshManagerApi().getMeshNetwork().getProvisionedNode(status.getSrc());
+            final ProvisionedMeshNode meshNode = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getProvisionedNode(status.getSrc());
             updateRelayUi(meshNode);
         }
     }
@@ -177,7 +177,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 ConfigNetworkTransmitGet message = new ConfigNetworkTransmitGet();
-                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), message);
                 showProgressbar();
             }
         } catch (Exception e) {
@@ -190,7 +190,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 final ConfigRelaySet message = new ConfigRelaySet(relay, relayRetransmit, relayRetransmitIntervalSteps);
-                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), message);
                 showProgressbar();
             }
         } catch (Exception e) {
@@ -203,7 +203,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 final ConfigNetworkTransmitSet message = new ConfigNetworkTransmitSet(networkTransmitCount, networkTransmitIntervalSteps);
-                mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), message);
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), message);
                 showProgressbar();
             }
         } catch (Exception e) {

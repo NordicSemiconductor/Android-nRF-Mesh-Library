@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements Injectable,
         BottomNavigationView.OnNavigationItemSelectedListener,
         BottomNavigationView.OnNavigationItemReselectedListener {
 
-    private static final int TAB_COUNT = 3;
     private static final String CURRENT_FRAGMENT = "CURRENT_FRAGMENT";
 
     @Inject
@@ -97,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
-        if (mViewModel.getProvisionedNodes().getValue() != null && !mViewModel.getProvisionedNodes().getValue().isEmpty()) {
+        if (mViewModel.getNodes().getValue() != null && !mViewModel.getNodes().getValue().isEmpty()) {
             final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
             if (isConnectedToNetwork != null && isConnectedToNetwork) {
                 getMenuInflater().inflate(R.menu.disconnect, menu);

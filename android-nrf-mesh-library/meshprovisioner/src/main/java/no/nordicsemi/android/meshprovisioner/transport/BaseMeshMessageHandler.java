@@ -150,7 +150,6 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                         }
                         if (state != null) {
                             //TODO look in to proxy filter messages
-                            //noinspection ConstantConditions
                             ((DefaultNoOperationMessageState) state).parseMeshPdu(node, pdu, networkHeader, decryptedNetworkPayload);
                             return;
                         }
@@ -226,13 +225,13 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     }
 
     @Override
-    public void sendMeshMessage(final int src, final int dst, @NonNull final MeshMessage meshMessage) {
+    public void createMeshMessage(final int src, final int dst, @NonNull final MeshMessage meshMessage) {
         if (meshMessage instanceof ProxyConfigMessage) {
-            sendProxyConfigMeshMessage(src, dst, (ProxyConfigMessage) meshMessage);
+            createProxyConfigMeshMessage(src, dst, (ProxyConfigMessage) meshMessage);
         } else if (meshMessage instanceof ConfigMessage) {
-            sendConfigMeshMessage(src, dst, (ConfigMessage) meshMessage);
+            createConfigMeshMessage(src, dst, (ConfigMessage) meshMessage);
         } else if (meshMessage instanceof GenericMessage) {
-            sendAppMeshMessage(src, dst, (GenericMessage) meshMessage);
+            createAppMeshMessage(src, dst, (GenericMessage) meshMessage);
         }
     }
 
@@ -241,7 +240,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      *
      * @param configurationMessage {@link ProxyConfigMessage} Mesh message containing the message opcode and message parameters
      */
-    private void sendProxyConfigMeshMessage(final int src, final int dst, @NonNull final ProxyConfigMessage configurationMessage) {
+    private void createProxyConfigMeshMessage(final int src, final int dst, @NonNull final ProxyConfigMessage configurationMessage) {
         final ProxyConfigMessageState currentState = new ProxyConfigMessageState(src, dst, configurationMessage, getTransport(dst), this);
         currentState.setTransportCallbacks(mInternalTransportCallbacks);
         currentState.setStatusCallbacks(mStatusCallbacks);
@@ -254,7 +253,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      *
      * @param configurationMessage {@link ConfigMessage} Mesh message containing the message opcode and message parameters
      */
-    private void sendConfigMeshMessage(final int src, final int dst, @NonNull final ConfigMessage configurationMessage) {
+    private void createConfigMeshMessage(final int src, final int dst, @NonNull final ConfigMessage configurationMessage) {
         final ProvisionedMeshNode node = mInternalTransportCallbacks.getProvisionedNode(dst);
         if (node == null) {
             return;
@@ -281,7 +280,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param dst            Destination to which the message must be sent to, this could be a unicast address or a group address.
      * @param genericMessage Mesh message containing the message opcode and message parameters.
      */
-    private void sendAppMeshMessage(final int src, final int dst, @NonNull final GenericMessage genericMessage) {
+    private void createAppMeshMessage(final int src, final int dst, @NonNull final GenericMessage genericMessage) {
         final GenericMessageState currentState;
         if (genericMessage instanceof VendorModelMessageAcked) {
             currentState = new VendorModelMessageAckedState(src, dst, (VendorModelMessageAcked) genericMessage, getTransport(dst), this);

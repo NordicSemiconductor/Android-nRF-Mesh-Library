@@ -21,7 +21,6 @@ import no.nordicsemi.android.meshprovisioner.transport.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -219,13 +218,13 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
             if (model != null) {
                 if (!model.getBoundAppKeyIndexes().isEmpty()) {
                     final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                    final ApplicationKey appKey = model.getBoundAppKey(appKeyIndex);
+                    final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
 
                     final int address = element.getElementAddress();
                     Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
 
                     final GenericLevelGet genericLevelGet = new GenericLevelGet(appKey);
-                    mViewModel.getMeshManagerApi().sendMeshMessage(address, genericLevelGet);
+                    mViewModel.getMeshManagerApi().createMeshPdu(address, genericLevelGet);
                 } else {
                     Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
                 }
@@ -248,10 +247,10 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 if (model != null) {
                     if (!model.getBoundAppKeyIndexes().isEmpty()) {
                         final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                        final ApplicationKey appKey = model.getBoundAppKey(appKeyIndex);
+                        final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level, node.getReceivedSequenceNumber());
-                        mViewModel.getMeshManagerApi().sendMeshMessage(address, genericLevelSet);
+                        mViewModel.getMeshManagerApi().createMeshPdu(address, genericLevelSet);
                         showProgressbar();
                     } else {
                         Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();

@@ -1,9 +1,6 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
-import androidx.room.Entity;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -11,6 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.room.Entity;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
@@ -31,10 +31,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     void setCallbacks(final MeshNetworkCallbacks mCallbacks) {
         this.mCallbacks = mCallbacks;
-    }
-
-    public final List<ProvisionedMeshNode> getProvisionedNodes() {
-        return Collections.unmodifiableList(nodes);
     }
 
     public void setIvIndex(final int ivIndex) {
@@ -74,19 +70,35 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return meshUUID;
     }
 
+    /**
+     * Returns the name of the mesh network
+     */
     public String getMeshName() {
         return meshName;
     }
 
+    /**
+     * Sets the name of the mesh network
+     *
+     * @param meshName name
+     */
     public void setMeshName(String meshName) {
         this.meshName = meshName;
         notifyNetworkUpdated();
     }
 
+    /**
+     * Returns the time stamp of th e mesh network
+     */
     public long getTimestamp() {
         return timestamp;
     }
 
+    /**
+     * Sets the time stamp
+     *
+     * @param timestamp timestamp
+     */
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
@@ -95,11 +107,19 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.provisioners = provisioners;
     }
 
+    /**
+     * Returns the list of {@link ProvisionedMeshNode}
+     */
     public List<ProvisionedMeshNode> getNodes() {
         return Collections.unmodifiableList(nodes);
     }
 
-    void setNodes(List<ProvisionedMeshNode> nodes) {
+    /**
+     * Sets the list of {@link ProvisionedMeshNode}
+     *
+     * @param nodes list of {@link ProvisionedMeshNode}
+     */
+    void setNodes(@NonNull List<ProvisionedMeshNode> nodes) {
         this.nodes = nodes;
     }
 
@@ -152,7 +172,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     public Group getGroup(final int address) {
         for (final Group group : groups) {
-            if (address == group.getGroupAddress()) {
+            if (address == group.getAddress()) {
                 return group;
             }
         }
@@ -196,7 +216,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public boolean isGroupExist(final int address) {
         for (final Group group : groups) {
-            if (address == group.getGroupAddress()) {
+            if (address == group.getAddress()) {
                 return true;
             }
         }
@@ -210,7 +230,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public boolean isGroupExist(@NonNull final Group group) {
         for (final Group grp : groups) {
-            if (group.getGroupAddress() == grp.getGroupAddress()) {
+            if (group.getAddress() == grp.getAddress()) {
                 return true;
             }
         }
@@ -232,7 +252,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
                     if (model != null) {
                         final List<Integer> subscriptionAddresses = model.getSubscribedAddresses();
                         for (Integer subscriptionAddress : subscriptionAddresses) {
-                            if (group.getGroupAddress() == subscriptionAddress) {
+                            if (group.getAddress() == subscriptionAddress) {
                                 if (!elements.contains(element))
                                     elements.add(element);
                             }
@@ -259,7 +279,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
                     if (model != null) {
                         final List<Integer> subscriptionAddresses = model.getSubscribedAddresses();
                         for (Integer subscriptionAddress : subscriptionAddresses) {
-                            if (group.getGroupAddress() == subscriptionAddress) {
+                            if (group.getAddress() == subscriptionAddress) {
                                 if (!models.contains(model))
                                     models.add(model);
                             }
@@ -291,6 +311,9 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return Collections.unmodifiableList(provisioners);
     }
 
+    /**
+     * Returns a list of {@link NetworkKey} belonging to the mesh network
+     */
     public List<NetworkKey> getNetKeys() {
         return netKeys;
     }

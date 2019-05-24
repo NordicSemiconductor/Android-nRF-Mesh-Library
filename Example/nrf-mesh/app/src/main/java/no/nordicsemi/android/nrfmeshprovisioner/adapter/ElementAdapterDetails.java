@@ -58,7 +58,7 @@ public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDe
     }
 
 
-    public void setOnItemClickListener(final ElementAdapterDetails.OnItemClickListener listener) {
+    public void setOnItemClickListener(@NonNull final ElementAdapterDetails.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
@@ -136,19 +136,15 @@ public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDe
 
         @Override
         public void onClick(final View v) {
-            switch (v.getId()){
-                case R.id.element_item_container:
-                    if(mModelContainer.getVisibility() == View.VISIBLE){
-                        mElementExpand.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_round_expand_more_black_alpha_24dp));
-                        mModelContainer.setVisibility(View.GONE);
-                    } else {
-                        mElementExpand.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_round_expand_less_black_alpha_24dp));
-                        mModelContainer.setVisibility(View.VISIBLE);
-                    }
-                    mOnItemClickListener.onItemClick(getAdapterPosition());
-                    break;
-                default:
-                    break;
+            if (v.getId() == R.id.element_item_container) {
+                if (mModelContainer.getVisibility() == View.VISIBLE) {
+                    mElementExpand.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_round_expand_more_black_alpha_24dp));
+                    mModelContainer.setVisibility(View.GONE);
+                } else {
+                    mElementExpand.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_round_expand_less_black_alpha_24dp));
+                    mModelContainer.setVisibility(View.VISIBLE);
+                }
+                mOnItemClickListener.onItemClick(getAdapterPosition());
             }
         }
     }

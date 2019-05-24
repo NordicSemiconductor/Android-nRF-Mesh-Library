@@ -160,8 +160,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerViewAddresses);
-        //noinspection ConstantConditions
-        mSubscriptionAdapter = new GroupAddressAdapter(this, mViewModel.getMeshManagerApi().getMeshNetwork(), mViewModel.getSelectedModel());
+        mSubscriptionAdapter = new GroupAddressAdapter(this, mViewModel.getMeshNetworkLiveData().getMeshNetwork(), mViewModel.getSelectedModel());
         recyclerViewAddresses.setAdapter(mSubscriptionAdapter);
 
         recyclerViewBoundKeys = findViewById(R.id.recycler_view_bound_keys);
@@ -169,7 +168,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ItemTouchHelper.Callback itemTouchHelperCallbackKeys = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelperKeys = new ItemTouchHelper(itemTouchHelperCallbackKeys);
         itemTouchHelperKeys.attachToRecyclerView(recyclerViewBoundKeys);
-        mBoundAppKeyAdapter = new BoundAppKeysAdapter(this, mViewModel.getSelectedModel());
+        mBoundAppKeyAdapter = new BoundAppKeysAdapter(this, mViewModel.getMeshNetworkLiveData().getAppKeys(), mViewModel.getSelectedModel());
         recyclerViewBoundKeys.setAdapter(mBoundAppKeyAdapter);
 
         mActionBindAppKey.setOnClickListener(v -> {
@@ -201,11 +200,13 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             }
         });
 
-        mViewModel.getTransactionStatus().observe(this, transactionFailedLiveData -> {
-            hideProgressBar();
-            final String message = getString(R.string.operation_timed_out);
-            DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", message);
-            fragmentMessage.show(getSupportFragmentManager(), null);
+        mViewModel.getTransactionStatus().observe(this, transactionStatus -> {
+            if (transactionStatus != null) {
+                hideProgressBar();
+                final String message = getString(R.string.operation_timed_out);
+                DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", message);
+                fragmentMessage.show(getSupportFragmentManager(), null);
+            }
         });
 
         mViewModel.isConnectedToProxy().observe(this, aBoolean -> {
@@ -216,15 +217,14 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             }
         });
 
-        mViewModel.getMeshMessageLiveData().observe(this, this::updateMeshMessage);
+        mViewModel.getMeshMessage().observe(this, this::updateMeshMessage);
     }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
         return false;
     }
@@ -275,10 +275,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void setSubscription(@NonNull final String name, final int address) {
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         final Group group = new Group(address, network.getMeshUUID());
         group.setName(name);
         network.addGroup(group);
@@ -287,7 +286,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     @Override
     public void setSubscription(@NonNull final Group group) {
-        subscribe(group.getGroupAddress());
+        subscribe(group.getAddress());
     }
 
     @Override
@@ -332,7 +331,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                 final MeshModel model = mViewModel.getSelectedModel().getValue();
                 if (model != null) {
                     final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(element.getElementAddress(), model.getModelId(), appKeyIndex);
-                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+                    mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), configModelAppUnbind);
                     showProgressbar();
                 }
             }
@@ -350,7 +349,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                     final MeshModel model = mViewModel.getSelectedModel().getValue();
                     if (model != null) {
                         final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(element.getElementAddress(), model.getModelId(), keyIndex);
-                        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+                        mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), configModelAppUnbind);
                         showProgressbar();
                     }
                 }
@@ -391,7 +390,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                                         labelUuid, appKeyIndex, credentialFlag, publishTtl,
                                         publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId());
                             }
-                            mViewModel.getMeshManagerApi().sendMeshMessage(node.getUnicastAddress(), configModelPublicationSet);
+                            mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configModelPublicationSet);
                             showProgressbar();
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -415,7 +414,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                         final boolean credentialFlag = model.getPublicationSettings().getCredentialFlag();
                         final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), address, appKeyIndex,
                                 credentialFlag, 0, 0, 0, 0, 0, model.getModelId());
-                        mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
+                        mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), configModelPublicationSet);
                         showProgressbar();
                     } else {
                         Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
@@ -435,7 +434,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                 if (model != null) {
                     final int modelIdentifier = model.getModelId();
                     final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, address, modelIdentifier);
-                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
+                    mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
                     showProgressbar();
                 }
             }
@@ -454,7 +453,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                     final ConfigModelSubscriptionVirtualAddressAdd configModelSubscriptionAdd = new ConfigModelSubscriptionVirtualAddressAdd(elementAddress,
                             uuid,
                             modelIdentifier);
-                    mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
+                    mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
                     showProgressbar();
                 }
             }
@@ -480,7 +479,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                         }
 
                         if (subscriptionDelete != null) {
-                            mViewModel.getMeshManagerApi().sendMeshMessage(meshNode.getUnicastAddress(), subscriptionDelete);
+                            mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), subscriptionDelete);
                             showProgressbar();
                         }
                     }
@@ -577,7 +576,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         if (publicationSettings != null) {
             final int publishAddress = publicationSettings.getPublishAddress();
             if (publishAddress != MeshParserUtils.DISABLED_PUBLICATION_ADDRESS) {
-                if(MeshAddress.isValidVirtualAddress(publishAddress)) {
+                if (MeshAddress.isValidVirtualAddress(publishAddress)) {
                     //noinspection ConstantConditions
                     mPublishAddressView.setText(publicationSettings.getLabelUUID().toString().toUpperCase(Locale.US));
                 } else {

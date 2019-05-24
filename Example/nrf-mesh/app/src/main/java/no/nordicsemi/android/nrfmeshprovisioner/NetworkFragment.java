@@ -68,11 +68,6 @@ public class NetworkFragment extends Fragment implements Injectable,
 
     private NodeAdapter mAdapter;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
@@ -85,7 +80,7 @@ public class NetworkFragment extends Fragment implements Injectable,
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
 
         // Configure the recycler view
-        mAdapter = new NodeAdapter(getActivity(), mViewModel.getProvisionedNodes());
+        mAdapter = new NodeAdapter(requireContext(), mViewModel.getNodes());
         mAdapter.setOnItemClickListener(this);
         mRecyclerViewNodes.setLayoutManager(new LinearLayoutManager(getContext()));
         final DividerItemDecoration decoration = new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
@@ -93,16 +88,15 @@ public class NetworkFragment extends Fragment implements Injectable,
         mRecyclerViewNodes.setAdapter(mAdapter);
 
         // Create view model containing utility methods for scanning
-        mViewModel.getProvisionedNodes().observe(this, nodes -> {
+        mViewModel.getNodes().observe(this, nodes -> {
             if (nodes != null && !nodes.isEmpty()) {
                 noNetworksConfiguredView.setVisibility(View.GONE);
             } else {
                 noNetworksConfiguredView.setVisibility(View.VISIBLE);
             }
             mAdapter.notifyDataSetChanged();
+            requireActivity().invalidateOptionsMenu();
         });
-
-        mViewModel.getProvisionedNodes().observe(this, provisionedNodes -> requireActivity().invalidateOptionsMenu());
 
         mViewModel.isConnectedToProxy().observe(this, isConnected -> {
             if (isConnected != null) {
@@ -173,12 +167,12 @@ public class NetworkFragment extends Fragment implements Injectable,
 
     @Override
     public void onDetailsClicked(final ProvisionedMeshNode node) {
-        final Intent meshConfigurationIntent = new Intent(getActivity(), NodeDetailsActivity.class);
-        meshConfigurationIntent.putExtra(Utils.EXTRA_DEVICE, node);
-        requireActivity().startActivity(meshConfigurationIntent);
+        final Intent nodeDetails = new Intent(getActivity(), NodeDetailsActivity.class);
+        mViewModel.setSelectedMeshNode(node);
+        requireActivity().startActivity(nodeDetails);
     }
 
-    private void displaySnackBar(final String message){
+    private void displaySnackBar(@NonNull final String message){
         Snackbar.make(container, message, Snackbar.LENGTH_LONG)
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
                 .show();

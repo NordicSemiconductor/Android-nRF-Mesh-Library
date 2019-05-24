@@ -213,14 +213,14 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
             final VendorModel model = (VendorModel) mViewModel.getSelectedModel().getValue();
             if (model != null) {
                 final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                final ApplicationKey appKey = model.getBoundAppKey(appKeyIndex);
+                final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                 final MeshMessage message;
                 if (acknowledged) {
                     message = new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
                 } else {
                     message = new VendorModelMessageUnacked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
                 }
-                mViewModel.getMeshManagerApi().sendMeshMessage(element.getElementAddress(), message);
+                mViewModel.getMeshManagerApi().createMeshPdu(element.getElementAddress(), message);
             }
         }
     }

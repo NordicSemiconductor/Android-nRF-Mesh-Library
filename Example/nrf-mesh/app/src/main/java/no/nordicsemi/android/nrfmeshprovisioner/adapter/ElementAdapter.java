@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import android.content.Context;
 import androidx.annotation.NonNull;
@@ -45,7 +46,6 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHolder> {
@@ -56,9 +56,9 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     private OnItemClickListener mOnItemClickListener;
     private ProvisionedMeshNode mProvisionedMeshNode;
 
-    public ElementAdapter(final NodeConfigurationActivity nodeConfigurationActivity, final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
-        this.mContext = nodeConfigurationActivity.getApplicationContext();
-        meshNodeLiveData.observe(nodeConfigurationActivity, meshNode -> {
+    public ElementAdapter(@NonNull final Context context, @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
+        this.mContext = context.getApplicationContext();
+        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
             if (meshNode != null) {
                 mProvisionedMeshNode = meshNode;
                 mElements.clear();
@@ -69,7 +69,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     }
 
 
-    public void setOnItemClickListener(final ElementAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(@NonNull final ElementAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
@@ -160,18 +160,14 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
 
         @Override
         public void onClick(final View v) {
-            switch (v.getId()) {
-                case R.id.element_item_container:
-                    if (mModelContainer.getVisibility() == View.VISIBLE) {
-                        mElementExpand.setImageResource(R.drawable.ic_round_expand_more_black_alpha_24dp);
-                        mModelContainer.setVisibility(View.GONE);
-                    } else {
-                        mElementExpand.setImageResource(R.drawable.ic_round_expand_less_black_alpha_24dp);
-                        mModelContainer.setVisibility(View.VISIBLE);
-                    }
-                    break;
-                default:
-                    break;
+            if (v.getId() == R.id.element_item_container) {
+                if (mModelContainer.getVisibility() == View.VISIBLE) {
+                    mElementExpand.setImageResource(R.drawable.ic_round_expand_more_black_alpha_24dp);
+                    mModelContainer.setVisibility(View.GONE);
+                } else {
+                    mElementExpand.setImageResource(R.drawable.ic_round_expand_less_black_alpha_24dp);
+                    mModelContainer.setVisibility(View.VISIBLE);
+                }
             }
         }
     }

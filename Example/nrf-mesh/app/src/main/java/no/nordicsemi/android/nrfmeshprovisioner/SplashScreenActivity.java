@@ -34,7 +34,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SplashViewModel;
 
 public class SplashScreenActivity extends AppCompatActivity implements Injectable {
-    private static final int DURATION = 1000;
+
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 

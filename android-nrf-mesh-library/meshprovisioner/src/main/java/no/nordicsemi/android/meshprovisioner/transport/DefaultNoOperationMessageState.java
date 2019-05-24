@@ -93,8 +93,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigAppKeyStatus status = new ConfigAppKeyStatus(message);
                     if (status.isSuccessful()) {
                         if (mMeshMessage instanceof ConfigAppKeyAdd) {
-                            final ConfigAppKeyAdd configAppKeyAdd = (ConfigAppKeyAdd) mMeshMessage;
-                            node.setAddedAppKey(status.getAppKeyIndex(), configAppKeyAdd.getAppKey());
+                            node.setAddedAppKeyIndex(status.getAppKeyIndex());
                         }
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);

@@ -196,7 +196,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
         mViewModel.isReconnecting().observe(this, isReconnecting -> {
             if (isReconnecting != null && isReconnecting) {
-                mViewModel.getUnProvisionedMeshNode().removeObservers(this);
+                mViewModel.getUnprovisionedMeshNode().removeObservers(this);
                 provisioningStatusContainer.setVisibility(View.GONE);
                 container.setVisibility(View.GONE);
                 mProvisioningProgressBar.setVisibility(View.GONE);
@@ -213,7 +213,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
             appKeyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
         });
 
-        mViewModel.getUnProvisionedMeshNode().observe(this, meshNode -> {
+        mViewModel.getUnprovisionedMeshNode().observe(this, meshNode -> {
             if (meshNode != null) {
                 if (meshNode.getProvisioningCapabilities() != null) {
                     mProvisioningProgressBar.setVisibility(View.INVISIBLE);
@@ -224,7 +224,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         });
 
         provisioner.setOnClickListener(v -> {
-            final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
+            final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
             if (node == null) {
                 device.setName(mViewModel.getMeshNetworkLiveData().getNodeName());
                 mViewModel.getNrfMeshRepository().identifyNode(device);
@@ -331,7 +331,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     }
 
     private void disconnect() {
-        mViewModel.getUnProvisionedMeshNode().removeObservers(this);
+        mViewModel.getUnprovisionedMeshNode().removeObservers(this);
         mViewModel.disconnect();
     }
 
@@ -360,21 +360,21 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                         case PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING:
                             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
                                 DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
-                                        newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
+                                        newInstance(mViewModel.getUnprovisionedMeshNode().getValue());
                                 dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
                             }
                             break;
                         case PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING:
                             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
                                 DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
-                                        newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
+                                        newInstance(mViewModel.getUnprovisionedMeshNode().getValue());
                                 dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
                             }
                             break;
                         case PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING:
                             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
                                 DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
-                                        newInstance(mViewModel.getUnProvisionedMeshNode().getValue());
+                                        newInstance(mViewModel.getUnprovisionedMeshNode().getValue());
                                 dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
                             }
                             break;
@@ -517,7 +517,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
     @Override
     public void onNoOOBSelected() {
-        final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
+        final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
             setupProvisionerStateObservers(provisioningStatusContainer);
             mProvisioningProgressBar.setVisibility(View.VISIBLE);
@@ -527,7 +527,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
     @Override
     public void onStaticOOBSelected(final StaticOOBType staticOOBType) {
-        final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
+        final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
             setupProvisionerStateObservers(provisioningStatusContainer);
             mProvisioningProgressBar.setVisibility(View.VISIBLE);
@@ -537,7 +537,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
     @Override
     public void onOutputOOBActionSelected(final OutputOOBAction action) {
-        final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
+        final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
             setupProvisionerStateObservers(provisioningStatusContainer);
             mProvisioningProgressBar.setVisibility(View.VISIBLE);
@@ -547,7 +547,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
 
     @Override
     public void onInputOOBActionSelected(final InputOOBAction action) {
-        final UnprovisionedMeshNode node = mViewModel.getUnProvisionedMeshNode().getValue();
+        final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
             setupProvisionerStateObservers(provisioningStatusContainer);
             mProvisioningProgressBar.setVisibility(View.VISIBLE);

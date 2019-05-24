@@ -147,8 +147,6 @@ class NetworkImportExportUtils {
                 }.getType();
                 Type allocatedSceneRange = new TypeToken<List<AllocatedSceneRange>>() {
                 }.getType();
-                Type provisionerList = new TypeToken<List<Provisioner>>() {
-                }.getType();
                 Type nodeList = new TypeToken<List<ProvisionedMeshNode>>() {
                 }.getType();
                 Type meshModelList = new TypeToken<List<MeshModel>>() {
@@ -160,14 +158,13 @@ class NetworkImportExportUtils {
                 gsonBuilder.registerTypeAdapter(MeshNetwork.class, new MeshNetworkDeserializer());
                 gsonBuilder.registerTypeAdapter(netKeyList, new NetKeyDeserializer());
                 gsonBuilder.registerTypeAdapter(appKeyList, new AppKeyDeserializer());
-                gsonBuilder.registerTypeAdapter(provisionerList, new ProvisionerDeserializer());
                 gsonBuilder.registerTypeAdapter(allocatedUnicastRange, new AllocatedUnicastRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(allocatedGroupRange, new AllocatedGroupRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(allocatedSceneRange, new AllocatedSceneRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(nodeList, new NodeDeserializer());
                 gsonBuilder.registerTypeAdapter(elementList, new InternalElementListDeserializer());
                 gsonBuilder.registerTypeAdapter(meshModelList, new MeshModelListDeserializer());
-                final Gson gson = gsonBuilder.create();
+                final Gson gson = gsonBuilder.serializeNulls().create();
 
                 final String json = this.networkJson != null ? this.networkJson : readJsonStringFromUri();
                 final MeshNetwork network = gson.fromJson(json, MeshNetwork.class);
@@ -273,8 +270,6 @@ class NetworkImportExportUtils {
                 }.getType();
                 Type allocatedSceneRange = new TypeToken<List<AllocatedSceneRange>>() {
                 }.getType();
-                Type provisionerList = new TypeToken<List<Provisioner>>() {
-                }.getType();
                 Type nodeList = new TypeToken<List<ProvisionedMeshNode>>() {
                 }.getType();
                 Type meshModelList = new TypeToken<List<MeshModel>>() {
@@ -286,7 +281,6 @@ class NetworkImportExportUtils {
 
                 gsonBuilder.registerTypeAdapter(netKeyList, new NetKeyDeserializer());
                 gsonBuilder.registerTypeAdapter(appKeyList, new AppKeyDeserializer());
-                gsonBuilder.registerTypeAdapter(provisionerList, new ProvisionerDeserializer());
                 gsonBuilder.registerTypeAdapter(allocatedUnicastRange, new AllocatedUnicastRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(allocatedGroupRange, new AllocatedGroupRangeDeserializer());
                 gsonBuilder.registerTypeAdapter(allocatedSceneRange, new AllocatedSceneRangeDeserializer());
@@ -295,7 +289,7 @@ class NetworkImportExportUtils {
                 gsonBuilder.registerTypeAdapter(meshModelList, new MeshModelListDeserializer());
                 gsonBuilder.registerTypeAdapter(MeshNetwork.class, new MeshNetworkDeserializer());
 
-                final Gson gson = gsonBuilder.create();
+                final Gson gson = gsonBuilder.serializeNulls().create();
 
                 if (this.path != null) {
                     gsonBuilder.setPrettyPrinting();

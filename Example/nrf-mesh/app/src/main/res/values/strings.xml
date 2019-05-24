@@ -186,7 +186,7 @@
     <string name="no_groups_configured_rationale">Create a group to control your devices. All groups listed here can be subscribed to from a model.</string>
     <string name="group_name">Name</string>
     <string name="group_address">Address</string>
-    <string name="group_address_summary">Address %s</string>
+    <string name="group_address_summary">Address: %s</string>
     <string name="title_edit_group_info">Edit Group</string>
     <string name="select_a_group_rationale">Select an existing group</string>
     <string name="no_available_groups">No available groups.</string>

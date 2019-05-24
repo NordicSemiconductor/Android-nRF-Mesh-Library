@@ -255,14 +255,12 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
             start = msg.indexOf(String.valueOf(authInput));
             end = start + String.valueOf(authInput).length();
         } else if (inputOOBAction == InputOOBAction.INPUT_NUMERIC) {
-            //noinspection ConstantConditions
             final String authString = String.valueOf(ByteBuffer.wrap(authValue).getInt());
             msg = getString(R.string.provisioner_input_numeric_device, authString);
             start = msg.indexOf(authString);
             end = start + authString.length();
             spannableMessage = new SpannableStringBuilder(msg);
         } else {
-            //noinspection ConstantConditions
             final String authString = new String(authValue);
             msg = getString(R.string.provisioner_input_numeric_device, authString);
             start = msg.indexOf(authString);
