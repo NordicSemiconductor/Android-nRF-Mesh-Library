@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements Injectable,
         BottomNavigationView.OnNavigationItemSelectedListener,
         BottomNavigationView.OnNavigationItemReselectedListener {
 
-    private static final int TAB_COUNT = 3;
     private static final String CURRENT_FRAGMENT = "CURRENT_FRAGMENT";
 
     @Inject
