@@ -57,7 +57,7 @@ public class DialogFragmentAddAppKey extends DialogFragment {
     private String mAppKey;
 
     public interface DialogFragmentAddAppKeysListener {
-        void onAppKeyAdded(final String appKey);
+        void onAppKeyAdded(@NonNull final String appKey);
     }
 
     public static DialogFragmentAddAppKey newInstance() {
@@ -124,13 +124,14 @@ public class DialogFragmentAddAppKey extends DialogFragment {
                 }
             }
         });
-        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> appKeyInput.setText(SecureUtils.generateRandomNetworkKey()));
+        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).
+                setOnClickListener(v -> appKeyInput.setText(SecureUtils.generateRandomNetworkKey()));
         return alertDialog;
     }
 
     private boolean validateInput(final String appKey) {
         try {
-            if(MeshParserUtils.validateAppKeyInput(getContext(), appKey)) {
+            if(MeshParserUtils.validateAppKeyInput(appKey)) {
                 return true;
             }
         } catch (IllegalArgumentException ex) {

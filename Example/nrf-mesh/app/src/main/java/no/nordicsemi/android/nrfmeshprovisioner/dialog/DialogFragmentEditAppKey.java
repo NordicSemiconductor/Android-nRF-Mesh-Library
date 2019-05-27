@@ -139,7 +139,7 @@ public class DialogFragmentEditAppKey extends DialogFragment {
     private boolean validateInput(final String appKey) {
         try {
 
-            if(MeshParserUtils.validateAppKeyInput(getContext(), appKey)) {
+            if(MeshParserUtils.validateAppKeyInput(appKey)) {
                 return true;
             }
         } catch (IllegalArgumentException ex) {

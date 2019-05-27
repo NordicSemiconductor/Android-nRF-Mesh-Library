@@ -8,7 +8,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.IntDef;
@@ -120,6 +119,10 @@ abstract class BaseMeshNetwork {
     @Ignore
     private final Comparator<ApplicationKey> appKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
 
+
+    @Ignore
+    private final Comparator<NetworkKey> netKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
+
     @Ignore
     @Expose(serialize = false, deserialize = false)
     private ProxyFilter proxyFilter;
@@ -143,14 +146,57 @@ abstract class BaseMeshNetwork {
      *
      * @param netKey key
      */
-    public void addNetKey(final String netKey) {
-        if (isNetKeyExists(netKey)) {
-            throw new IllegalArgumentException("Network key already exists");
+    public boolean addNetKey(@NonNull final String netKey) {
+        if (MeshParserUtils.validateNetworkKeyInput(netKey)) {
+            if (isNetKeyExists(netKey)) {
+                throw new IllegalArgumentException("Network key already exists");
+            } else {
+                final NetworkKey key = new NetworkKey(getAvailableNetKeyIndex(), MeshParserUtils.toByteArray(netKey));
+                key.setMeshUuid(meshUUID);
+                netKeys.add(key);
+                notifyNetKeyAdded(key);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index,
+     * an illegal argument exception is thrown.
+     *
+     * @param keyIndex      Index of the key
+     * @param newNetworkKey key
+     * @throws IllegalArgumentException if net key already exists
+     */
+    public boolean addNetKey(final int keyIndex, @NonNull final String newNetworkKey) throws IllegalArgumentException {
+        if (MeshParserUtils.validateNetworkKeyInput(newNetworkKey)) {
+            if (isNetKeyExists(newNetworkKey)) {
+                throw new IllegalArgumentException("Net key already exists");
+            } else {
+                final NetworkKey networkKey = new NetworkKey(keyIndex, MeshParserUtils.toByteArray(newNetworkKey));
+                networkKey.setMeshUuid(meshUUID);
+                netKeys.add(networkKey);
+                notifyNetKeyAdded(networkKey);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Adds a Net key to the list of net keys with the given key index
+     *
+     * @param newNetKey application key
+     * @throws IllegalArgumentException if app key already exists
+     */
+    public void addNetKey(@NonNull final NetworkKey newNetKey) {
+        if (isNetKeyExists(MeshParserUtils.bytesToHex(newNetKey.getKey(), false))) {
+            throw new IllegalArgumentException("Net key already exists");
         } else {
-            final NetworkKey key = new NetworkKey(getAvailableNetKeyIndex(), MeshParserUtils.toByteArray(netKey));
-            key.setMeshUuid(meshUUID);
-            netKeys.add(key);
-            notifyNetKeyAdded(key);
+            newNetKey.setMeshUuid(meshUUID);
+            netKeys.add(newNetKey);
+            notifyNetKeyAdded(newNetKey);
         }
     }
 
@@ -158,36 +204,9 @@ abstract class BaseMeshNetwork {
         if (netKeys.isEmpty()) {
             return 0;
         } else {
+            Collections.sort(netKeys, netKeyComparator);
             final int index = netKeys.size() - 1;
             return netKeys.get(index).getKeyIndex() + 1;
-        }
-    }
-
-    /**
-     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, an illegal argument exception is thrown.
-     *
-     * @param keyIndex      index of the key
-     * @param newNetworkKey key
-     * @throws IllegalArgumentException if net key already exists
-     */
-    public void addNetKey(final int keyIndex, final String newNetworkKey) {
-        if (netKeys.isEmpty()) {
-            final NetworkKey networkKey = new NetworkKey(keyIndex, MeshParserUtils.toByteArray(newNetworkKey));
-            networkKey.setMeshUuid(meshUUID);
-            netKeys.add(networkKey);
-            return;
-        }
-
-        if (isNetKeyExists(newNetworkKey))
-            throw new IllegalArgumentException("Net key already exists");
-
-        for (int i = 0; i < netKeys.size(); i++) {
-            final NetworkKey networkKey = netKeys.get(i);
-            if (keyIndex == networkKey.getKeyIndex()) {
-                networkKey.setKey(MeshParserUtils.toByteArray(newNetworkKey));
-                notifyNetKeyAdded(networkKey);
-                break;
-            }
         }
     }
 
@@ -197,42 +216,76 @@ abstract class BaseMeshNetwork {
      * @param keyIndex index of the key
      * @param netKey   key
      */
-    public void updateNetKey(final int keyIndex, final String netKey) {
-        if (isNetKeyExists(netKey))
-            throw new IllegalArgumentException("Net key already exists");
+    public boolean updateNetKey(final int keyIndex, @NonNull final String netKey) {
+        if (MeshParserUtils.validateAppKeyInput(netKey)) {
+            if (isNetKeyExists(netKey))
+                throw new IllegalArgumentException("Net key already exists");
 
-        for (int i = 0; i < netKeys.size(); i++) {
-            final NetworkKey networkKey = netKeys.get(i);
-            if (keyIndex == networkKey.getKeyIndex()) {
-                networkKey.setKey(MeshParserUtils.toByteArray(netKey));
-                notifyNetKeyUpdated(networkKey);
-                break;
+            final NetworkKey key = getNetKey(keyIndex);
+            if (isKeyInUse(key)) {
+                throw new IllegalArgumentException("Unable to update an app key that's already in use");
+            } else {
+                for (int i = 0; i < netKeys.size(); i++) {
+                    final NetworkKey networkKey = netKeys.get(i);
+                    if (keyIndex == networkKey.getKeyIndex()) {
+                        networkKey.setKey(MeshParserUtils.toByteArray(netKey));
+                        notifyNetKeyUpdated(networkKey);
+                        return true;
+                    }
+                }
             }
         }
+        return false;
+
     }
 
     /**
      * Removes a network key from the network key list
      *
      * @param networkKey key to be removed
+     * @throws IllegalArgumentException if the key is in use or if it does not exist in the list of keys
      */
-    public void removeNetKey(final NetworkKey networkKey) {
-        netKeys.remove(networkKey);
-        notifyNetKeyDeleted(networkKey);
+    public boolean removeNetKey(@NonNull final NetworkKey networkKey) throws IllegalArgumentException {
+        if (!isKeyInUse(networkKey)) {
+            if (netKeys.remove(networkKey)) {
+                notifyNetKeyDeleted(networkKey);
+                return true;
+            } else {
+                throw new IllegalArgumentException("Key does not exist");
+            }
+        }
+        throw new IllegalArgumentException("Unable to delete a network key that's already in use");
     }
 
     /**
-     * Removes a net key from the network key list
+     * Checks if the key is in use. This will check if the specified key is added to a node
      *
-     * @param networkKey key to be removed
+     * @param netKey {@link NetworkKey}
      */
-    public void removeNetKey(final String networkKey) {
-        for (NetworkKey key : netKeys) {
-            if (networkKey.equalsIgnoreCase(MeshParserUtils.bytesToHex(key.getKey(), false))) {
-                removeNetKey(key);
-                break;
+    public boolean isKeyInUse(@NonNull final NetworkKey netKey) {
+        for (ProvisionedMeshNode node : nodes) {
+            final int netKeyIndex = netKey.getKeyIndex();
+            for (Integer keyIndex : node.getAddedNetKeyIndexes()) {
+                if (netKeyIndex == keyIndex) {
+                    return true;
+                }
             }
         }
+        return false;
+    }
+
+    /**
+     * Returns an application key with a given key index
+     *
+     * @param keyIndex index
+     */
+    public NetworkKey getNetKey(final int keyIndex) {
+        for (NetworkKey key : netKeys) {
+            if (keyIndex == key.getKeyIndex()) {
+                return key;
+            }
+        }
+        return null;
     }
 
     /**
@@ -240,14 +293,54 @@ abstract class BaseMeshNetwork {
      *
      * @param appKey application key to be added
      */
-    public void addAppKey(final String appKey) {
-        if (isAppKeyExists(appKey)) {
+    public boolean addAppKey(@NonNull final String appKey) throws IllegalArgumentException {
+        if (MeshParserUtils.validateAppKeyInput(appKey)) {
+            if (isAppKeyExists(appKey)) {
+                throw new IllegalArgumentException("App key already exists");
+            } else {
+                final ApplicationKey applicationKey = new ApplicationKey(getAvailableAppKeyIndex(), MeshParserUtils.toByteArray(appKey));
+                applicationKey.setMeshUuid(meshUUID);
+                appKeys.add(applicationKey);
+                notifyAppKeyAdded(applicationKey);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index,
+     * an illegal argument exception is thrown.
+     *
+     * @param keyIndex  index of the key
+     * @param newAppKey application key
+     * @throws IllegalArgumentException if app key already exists
+     */
+    public boolean addAppKey(final int keyIndex, @NonNull final String newAppKey) {
+        if (isAppKeyExists(newAppKey)) {
             throw new IllegalArgumentException("App key already exists");
         } else {
-            final ApplicationKey applicationKey = new ApplicationKey(getAvailableAppKeyIndex(), MeshParserUtils.toByteArray(appKey));
-            applicationKey.setMeshUuid(meshUUID);
-            appKeys.add(applicationKey);
+            final ApplicationKey applicationKey = new ApplicationKey(keyIndex, MeshParserUtils.toByteArray(newAppKey));
+            appKeys.add(keyIndex, applicationKey);
             notifyAppKeyAdded(applicationKey);
+        }
+        return true;
+    }
+
+    /**
+     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index,
+     * an illegal argument exception is thrown.
+     *
+     * @param newAppKey application key
+     * @throws IllegalArgumentException if app key already exists
+     */
+    public void addAppKey(@NonNull final ApplicationKey newAppKey) {
+        if (isAppKeyExists(MeshParserUtils.bytesToHex(newAppKey.getKey(), false))) {
+            throw new IllegalArgumentException("App key already exists");
+        } else {
+            newAppKey.setMeshUuid(meshUUID);
+            appKeys.add(newAppKey);
+            notifyAppKeyAdded(newAppKey);
         }
     }
 
@@ -286,93 +379,67 @@ abstract class BaseMeshNetwork {
     }
 
     /**
-     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, an illegal argument exception is thrown.
-     *
-     * @param keyIndex  index of the key
-     * @param newAppKey application key
-     * @throws IllegalArgumentException if app key already exists
-     */
-    public void addAppKey(final int keyIndex, final String newAppKey) {
-        if (appKeys.isEmpty()) {
-            final ApplicationKey applicationKey = new ApplicationKey(keyIndex, MeshParserUtils.toByteArray(newAppKey));
-            applicationKey.setMeshUuid(meshUUID);
-            appKeys.add(applicationKey);
-            return;
-        }
-
-        if (isAppKeyExists(newAppKey)) {
-            throw new IllegalArgumentException("App key already exists");
-        } else {
-            final ApplicationKey applicationKey = new ApplicationKey(keyIndex, MeshParserUtils.toByteArray(newAppKey));
-            appKeys.add(keyIndex, applicationKey);
-            notifyAppKeyAdded(applicationKey);
-        }
-    }
-
-    /**
-     * Adds an app key to the list of keys with the given key index. If there is an existing key with the same index, an illegal argument exception is thrown.
-     *
-     * @param newAppKey application key
-     * @throws IllegalArgumentException if app key already exists
-     */
-    public void addAppKey(final ApplicationKey newAppKey) {
-        newAppKey.setMeshUuid(meshUUID);
-        if (appKeys.isEmpty()) {
-            appKeys.add(newAppKey);
-            return;
-        }
-
-        if (isAppKeyExists(MeshParserUtils.bytesToHex(newAppKey.getKey(), false))) {
-            throw new IllegalArgumentException("App key already exists");
-        } else {
-            appKeys.add(newAppKey);
-            notifyAppKeyAdded(newAppKey);
-        }
-    }
-
-    /**
      * Updates an app key in the mesh network.
      *
-     * @param keyIndex index of the key
-     * @param appKey   application key
+     * @param keyIndex Index of the key
+     * @param appKey   Application key
      */
-    public void updateAppKey(final int keyIndex, final String appKey) {
-        if (isAppKeyExists(appKey))
-            throw new IllegalArgumentException("App key already exists");
+    public boolean updateAppKey(final int keyIndex, @NonNull final String appKey) throws IllegalArgumentException {
+        if (MeshParserUtils.validateAppKeyInput(appKey)) {
+            if (isAppKeyExists(appKey))
+                throw new IllegalArgumentException("App key already exists");
 
-        for (int i = 0; i < appKeys.size(); i++) {
-            final ApplicationKey applicationKey = appKeys.get(i);
-            if (keyIndex == applicationKey.getKeyIndex()) {
-                applicationKey.setKey(MeshParserUtils.toByteArray(appKey));
-                notifyAppKeyUpdated(applicationKey);
-                break;
+            final ApplicationKey key = getAppKey(keyIndex);
+            if (!isKeyInUse(key)) {
+                for (int i = 0; i < appKeys.size(); i++) {
+                    final ApplicationKey applicationKey = appKeys.get(i);
+                    if (keyIndex == applicationKey.getKeyIndex()) {
+                        applicationKey.setKey(MeshParserUtils.toByteArray(appKey));
+                        notifyAppKeyUpdated(applicationKey);
+                        return true;
+                    }
+                }
+            } else {
+                throw new IllegalArgumentException("Unable to update an app key that's already in use");
             }
         }
+        return false;
     }
 
     /**
      * Removes an app key from the app key list
      *
      * @param appKey app key to be removed
+     * @throws IllegalArgumentException if the key is in use or if it does not exist in the list of keys
      */
-    public void removeAppKey(final ApplicationKey appKey) {
-        if (appKeys.remove(appKey)) {
-            notifyAppKeyDeleted(appKey);
+    public boolean removeAppKey(@NonNull final ApplicationKey appKey) throws IllegalArgumentException {
+        if (isKeyInUse(appKey)) {
+            throw new IllegalArgumentException("Unable to delete an app key that's in use");
+        } else {
+            if (appKeys.remove(appKey)) {
+                notifyAppKeyDeleted(appKey);
+                return true;
+            } else {
+                throw new IllegalArgumentException("Key does not exist");
+            }
         }
     }
 
     /**
-     * Removes an app key from the app key list
+     * Checks if the app key is in use. This will check if the specified app key is added to a node
      *
-     * @param appKey app key to be removed
+     * @param appKey {@link ApplicationKey}
      */
-    public void removeAppKey(final String appKey) {
-        for (ApplicationKey key : appKeys) {
-            if (appKey.equalsIgnoreCase(MeshParserUtils.bytesToHex(key.getKey(), false))) {
-                removeAppKey(key);
-                break;
+    public boolean isKeyInUse(@NonNull final ApplicationKey appKey) {
+        for (ProvisionedMeshNode node : nodes) {
+            final int appKeyIndex = appKey.getKeyIndex();
+            for (Integer keyIndex : node.getAddedAppKeyIndexes()) {
+                if (appKeyIndex == keyIndex) {
+                    return true;
+                }
             }
         }
+        return false;
     }
 
     public int getProvisionerAddress() {
@@ -382,7 +449,7 @@ abstract class BaseMeshNetwork {
     /**
      * Set provisioner address
      *
-     * @param address unciast address
+     * @param address Unicast address
      * @return true if success, false if the address is in use by another device
      */
     public boolean setProvisionerAddress(final int address) {
@@ -417,7 +484,7 @@ abstract class BaseMeshNetwork {
      * @return true if success, false if the address is in use by another device
      */
     public boolean assignUnicastAddress(final int unicastAddress) {
-        if(isAddressInUse(unicastAddress))
+        if (isAddressInUse(unicastAddress))
             return false;
 
         this.unicastAddress = unicastAddress;
@@ -444,7 +511,7 @@ abstract class BaseMeshNetwork {
      * @param provisioner {@link Provisioner}
      */
     public final void selectProvisioner(final Provisioner provisioner) {
-        for(Provisioner prov : provisioners){
+        for (Provisioner prov : provisioners) {
             prov.setLastSelected(false);
         }
         provisioner.setLastSelected(true);
@@ -459,7 +526,7 @@ abstract class BaseMeshNetwork {
      */
     public final boolean isProvisionerSelected() {
         if (provisioners.size() == 1) {
-            if(!provisioners.get(0).isLastSelected())
+            if (!provisioners.get(0).isLastSelected())
                 selectProvisioner(provisioners.get(0));
             return true;
         }
@@ -475,7 +542,7 @@ abstract class BaseMeshNetwork {
     /**
      * Returns the selected provisioner in the network
      */
-    public Provisioner getSelectedProvisioner(){
+    public Provisioner getSelectedProvisioner() {
         for (Provisioner provisioner : provisioners) {
             if (provisioner.isLastSelected()) {
                 return provisioner;

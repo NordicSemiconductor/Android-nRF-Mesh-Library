@@ -249,17 +249,16 @@ public class MeshParserUtils {
     /**
      * Validates the network key input
      *
-     * @param context context
-     * @param input   Network Key input
+     * @param networkKey   Network Key input
      * @return true if the Network Key is a valid value
      * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
      */
-    public static boolean validateNetworkKeyInput(final Context context, final String input) throws IllegalArgumentException {
+    public static boolean validateNetworkKeyInput(@NonNull final String networkKey) throws IllegalArgumentException {
 
-        if (TextUtils.isEmpty(input)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_empty_network_key));
-        } else if (!input.matches(PATTERN_KEY)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_network_key));
+        if (TextUtils.isEmpty(networkKey)) {
+            throw new IllegalArgumentException("Network key cannot be empty!");
+        } else if (!networkKey.matches(PATTERN_KEY)) {
+            throw new IllegalArgumentException("Network key must be 16 bytes long!");
         }
 
         return true;
@@ -345,17 +344,15 @@ public class MeshParserUtils {
     /**
      * Validates the app key input
      *
-     * @param context context
-     * @param input   App key input
+     * @param appKey App key
      * @return true if the Network Key is a valid value
      * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
      */
-    public static boolean validateAppKeyInput(final Context context, final String input) throws IllegalArgumentException {
-
-        if (TextUtils.isEmpty(input)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_empty_app_key));
-        } else if (!input.matches(PATTERN_KEY)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_app_key));
+    public static boolean validateAppKeyInput(@NonNull final String appKey) throws IllegalArgumentException {
+        if (TextUtils.isEmpty(appKey)) {
+            throw new IllegalArgumentException("App key cannot be empty!");
+        } else if (!appKey.matches(PATTERN_KEY)) {
+            throw new IllegalArgumentException("App key must be 16 bytes long and must be a valid hex value!");
         }
 
         return true;

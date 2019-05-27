@@ -22,11 +22,10 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import androidx.lifecycle.LiveData;
-import androidx.annotation.NonNull;
-
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
@@ -81,8 +80,10 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      *
      * @param networkKey network key
      */
-    public void setPrimaryNetworkKey(final String networkKey) {
-        meshNetwork.addNetKey(0, networkKey);
+    public void setPrimaryNetworkKey(@NonNull final String networkKey) {
+        if(meshNetwork != null) {
+            meshNetwork.addNetKey(0, networkKey);
+        }
         postValue(this);
     }
 
@@ -213,19 +214,20 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
         postValue(this);
     }
 
-    public void resetSelectedAppKey(){
+    public void resetSelectedAppKey() {
         this.selectedAppKey = null;
     }
 
     /**
      * Adds an application key to the next available index in the global app key list
-     * @param applicationKey key {@link ApplicationKey}
+     *
+     * @param appKey key {@link ApplicationKey}
      */
-    public void addAppKey(final String applicationKey) {
+    public boolean addAppKey(@NonNull final String appKey) throws IllegalArgumentException {
         if (meshNetwork != null) {
-            meshNetwork.addAppKey(applicationKey);
+            return meshNetwork.addAppKey(appKey);
         }
-        postValue(this);
+        return false;
     }
 
     /**
@@ -240,25 +242,27 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
 
     /**
      * Update the application key in a particular position
-     * @param keyIndex update app key in given key index
+     *
+     * @param keyIndex       update app key in given key index
      * @param applicationKey app key
      */
-    public void updateAppKey(final int keyIndex, final String applicationKey) {
+    public boolean updateAppKey(final int keyIndex, final String applicationKey) throws IllegalArgumentException {
         if (meshNetwork != null) {
-            meshNetwork.updateAppKey(keyIndex, applicationKey);
+            return meshNetwork.updateAppKey(keyIndex, applicationKey);
         }
-        postValue(this);
+        return false;
     }
 
     /**
      * Remove app key from the list of application keys in the mesh network
+     *
      * @param appKey key {@link ApplicationKey}
      */
-    public void removeAppKey(final ApplicationKey appKey) {
+    public boolean removeAppKey(@NonNull final ApplicationKey appKey) throws IllegalArgumentException {
         if (meshNetwork != null) {
-            meshNetwork.removeAppKey(appKey);
+            return meshNetwork.removeAppKey(appKey);
         }
-        postValue(this);
+        return false;
     }
 
     /**
@@ -270,12 +274,14 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
 
     /**
      * Set the network name of the mesh network
+     *
      * @param name network name
      */
     public void setNetworkName(final String name) {
         meshNetwork.setMeshName(name);
         postValue(this);
     }
+
     /**
      * Sets the node name
      *
