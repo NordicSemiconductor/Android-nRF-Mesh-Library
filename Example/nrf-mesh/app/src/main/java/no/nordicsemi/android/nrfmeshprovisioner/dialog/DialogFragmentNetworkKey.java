@@ -153,7 +153,7 @@ public class DialogFragmentNetworkKey extends DialogFragment {
                 return false;
             }
 
-            if (MeshParserUtils.validateNetworkKeyInput(getContext(), input)) {
+            if (MeshParserUtils.validateNetworkKeyInput(input)) {
                 return true;
             }
         } catch (IllegalArgumentException ex) {

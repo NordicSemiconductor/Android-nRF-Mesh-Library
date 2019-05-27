@@ -127,7 +127,7 @@ public class DialogFragmentModelConfiguration extends DialogFragment{
 
     private boolean validateInput(final String appKey) {
         try {
-            if(MeshParserUtils.validateAppKeyInput(requireContext(), appKey)) {
+            if(MeshParserUtils.validateAppKeyInput(appKey)) {
                 return true;
             }
         } catch (IllegalArgumentException ex) {

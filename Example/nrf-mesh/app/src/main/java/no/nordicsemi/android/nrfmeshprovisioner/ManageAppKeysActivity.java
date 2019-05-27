@@ -191,23 +191,31 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
 
     @Override
     public void onAppKeysUpdated(final int position, final String appKey) {
-        mViewModel.getMeshNetworkLiveData().updateAppKey(position, appKey);
+        if (!mViewModel.getMeshNetworkLiveData().updateAppKey(position, appKey)) {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
-    public void onAppKeyAdded(final String appKey) {
+    public void onAppKeyAdded(@NonNull final String appKey) {
         mViewModel.getMeshNetworkLiveData().addAppKey(appKey);
     }
 
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         final ApplicationKey key = (ApplicationKey) viewHolder.getSwipeableView().getTag();
-        mViewModel.getMeshNetworkLiveData().removeAppKey(key);
-        displaySnackBar(viewHolder.getAdapterPosition(), key);
-        // Show the empty view
-        final boolean empty = mAdapter.getItemCount() == 0;
-        if (empty) {
-            mEmptyView.setVisibility(View.VISIBLE);
+        try {
+            if (mViewModel.getMeshNetworkLiveData().removeAppKey(key)) {
+                displaySnackBar(key);
+                // Show the empty view
+                final boolean empty = mAdapter.getItemCount() == 0;
+                if (empty) {
+                    mEmptyView.setVisibility(View.VISIBLE);
+                }
+            }
+        } catch (Exception ex) {
+            mAdapter.notifyDataSetChanged();
+            displaySnackBar(ex.getMessage());
         }
     }
 
@@ -227,14 +235,18 @@ public class ManageAppKeysActivity extends AppCompatActivity implements Injectab
         });
     }
 
-    private void displaySnackBar(final int key, final ApplicationKey appKey) {
-
+    private void displaySnackBar(final ApplicationKey appKey) {
         Snackbar.make(container, getString(R.string.app_key_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
                     mEmptyView.setVisibility(View.INVISIBLE);
                     mViewModel.getMeshNetworkLiveData().addAppKey(appKey);
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
+                .show();
+    }
+
+    private void displaySnackBar(final String message) {
+        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
                 .show();
     }
 }

@@ -1,17 +1,18 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import com.google.gson.annotations.Expose;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Ignore;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 
 import static androidx.room.ForeignKey.CASCADE;
