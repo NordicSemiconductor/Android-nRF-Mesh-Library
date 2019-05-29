@@ -71,7 +71,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigAddAddressToFi
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddedAppKeyAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.AddedAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationComplete;
@@ -156,6 +156,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         // Set up views
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.title_node_configuration);
         getSupportActionBar().setSubtitle(mViewModel.getSelectedMeshNode().getValue().getNodeName());

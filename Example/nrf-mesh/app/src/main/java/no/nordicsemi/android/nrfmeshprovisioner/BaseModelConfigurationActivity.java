@@ -72,7 +72,7 @@ import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.BoundAppKeysAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatus;

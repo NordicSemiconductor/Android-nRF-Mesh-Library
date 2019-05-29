@@ -20,7 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.adapter;
+package no.nordicsemi.android.nrfmeshprovisioner.keys.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -63,21 +63,6 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
             }
             notifyDataSetChanged();
         });
-    }
-
-    public ManageNetKeyAdapter(@NonNull final Context context,
-                               @NonNull final List<ApplicationKey> networkKeys,
-                               @NonNull final List<Integer> appKeyIndexes) {
-        this.mContext = context;
-        for (Integer index : appKeyIndexes) {
-            for (ApplicationKey applicationKey : networkKeys) {
-                if (index == applicationKey.getKeyIndex()) {
-                    //this.networkKeys.add(applicationKey);
-                }
-            }
-        }
-        Collections.sort(this.networkKeys, Utils.netKeyComparator);
-        notifyDataSetChanged();
     }
 
     public void setOnItemClickListener(final ManageNetKeyAdapter.OnItemClickListener listener) {

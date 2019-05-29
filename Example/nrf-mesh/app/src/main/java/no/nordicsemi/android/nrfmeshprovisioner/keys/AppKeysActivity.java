@@ -22,10 +22,12 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.keys;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -48,9 +50,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.ManageAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.ManageAppKeyAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AppKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
@@ -91,11 +95,9 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //noinspection ConstantConditions
-        getSupportActionBar().setTitle(R.string.title_manage_app_keys);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final ExtendedFloatingActionButton fab = findViewById(R.id.fab);
-
         final RecyclerView appKeysRecyclerView = findViewById(R.id.recycler_view_keys);
         appKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration =
@@ -103,13 +105,50 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
         appKeysRecyclerView.addItemDecoration(dividerItemDecoration);
         appKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
-        final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
-        mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
-        mAdapter.setOnItemClickListener(this);
-        appKeysRecyclerView.setAdapter(mAdapter);
-        setUpObserver();
+        final Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            switch (bundle.getInt(Utils.EXTRA_DATA)) {
+                case Utils.MANAGE_APP_KEY:
+                    break;
+                case Utils.ADD_APP_KEY:
+                    getSupportActionBar().setTitle(R.string.title_select_app_key);
+                    fab.hide();
+                    mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
+                    mAdapter.setOnItemClickListener(this);
+                    appKeysRecyclerView.setAdapter(mAdapter);
+                    setUpObserver();
+                    break;
+                case Utils.BIND_APP_KEY:
+                case Utils.PUBLICATION_APP_KEY:
+                    getSupportActionBar().setTitle(R.string.title_select_app_key);
+                    fab.hide();
+                    //Get selected mesh node
+                    final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+                    if (node != null) {
+                        final List<Integer> applicationKeys = node.getAddedAppKeyIndexes();
+                        if (!applicationKeys.isEmpty()) {
+                            mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData().getAppKeys(), applicationKeys);
+                            mAdapter.setOnItemClickListener(this);
+                            appKeysRecyclerView.setAdapter(mAdapter);
+                        } else {
+                            final TextView textView = mEmptyView.findViewById(R.id.rationale);
+                            textView.setText(R.string.no_added_app_keys_rationale);
+                            mEmptyView.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    break;
+            }
+        } else {
+            getSupportActionBar().setTitle(R.string.title_manage_app_keys);
+            final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
+            final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
+            itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
+            mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
+            mAdapter.setOnItemClickListener(this);
+            appKeysRecyclerView.setAdapter(mAdapter);
+            setUpObserver();
+        }
+
 
         fab.setOnClickListener(v -> {
             final Intent intent = new Intent(this, AddAppKeyActivity.class);
@@ -142,10 +181,39 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
     }
 
     @Override
+    public void onBackPressed() {
+        final Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            if (bundle.getInt(Utils.EXTRA_DATA) == Utils.MANAGE_APP_KEY) {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(RESULT_APP_KEY_LIST_SIZE, mAdapter.getItemCount());
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            }
+        }
+        super.onBackPressed();
+    }
+
+    @Override
     public void onItemClick(final int position, @NonNull final ApplicationKey appKey) {
-        final Intent intent = new Intent(this, EditAppKeyActivity.class);
-        intent.putExtra(EDIT_APP_KEY, appKey.getKeyIndex());
-        startActivity(intent);
+        final Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            switch (bundle.getInt(Utils.EXTRA_DATA)) {
+                case Utils.ADD_APP_KEY:
+                case Utils.BIND_APP_KEY:
+                case Utils.PUBLICATION_APP_KEY:
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra(RESULT_APP_KEY_INDEX, position);
+                    returnIntent.putExtra(RESULT_APP_KEY, appKey);
+                    setResult(Activity.RESULT_OK, returnIntent);
+                    finish();
+
+            }
+        } else {
+            final Intent intent = new Intent(this, EditAppKeyActivity.class);
+            intent.putExtra(EDIT_APP_KEY, appKey.getKeyIndex());
+            startActivity(intent);
+        }
     }
 
     @Override

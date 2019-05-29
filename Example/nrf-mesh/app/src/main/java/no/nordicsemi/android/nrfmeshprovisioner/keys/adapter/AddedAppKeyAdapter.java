@@ -20,9 +20,13 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.adapter;
+package no.nordicsemi.android.nrfmeshprovisioner.keys.adapter;
 
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import android.content.Context;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,72 +36,59 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapter.ViewHolder> {
+public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.ViewHolder> {
 
     private final List<ApplicationKey> appKeys = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public ManageAppKeyAdapter(@NonNull final Context context, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
+    public AddedAppKeyAdapter(@NonNull final Context context,
+                              @NonNull final List<ApplicationKey> appKeys,
+                              @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
         this.mContext = context;
-        meshNetworkLiveData.observe((LifecycleOwner) context, networkData -> {
-            final List<ApplicationKey> keys = networkData.getAppKeys();
-            if (keys != null) {
-                appKeys.clear();
-                appKeys.addAll(keys);
-                Collections.sort(appKeys, Utils.appKeyComparator);
+        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
+            if (meshNode != null) {
+                this.appKeys.clear();
+                for(Integer index : meshNode.getAddedAppKeyIndexes()) {
+                    for (ApplicationKey applicationKey : appKeys) {
+                        if (index == applicationKey.getKeyIndex()){
+                            this.appKeys.add(applicationKey);
+                        }
+                    }
+                }
+                Collections.sort(this.appKeys, Utils.appKeyComparator);
+                notifyDataSetChanged();
             }
-            notifyDataSetChanged();
         });
     }
 
-    public ManageAppKeyAdapter(@NonNull final Context context,
-                               @NonNull final List<ApplicationKey> appKeys,
-                               @NonNull final List<Integer> appKeyIndexes) {
-        this.mContext = context;
-        for (Integer index : appKeyIndexes) {
-            for (ApplicationKey applicationKey : appKeys) {
-                if (index == applicationKey.getKeyIndex()) {
-                    this.appKeys.add(applicationKey);
-                }
-            }
-        }
-        Collections.sort(this.appKeys, Utils.appKeyComparator);
-        notifyDataSetChanged();
-    }
-
-    public void setOnItemClickListener(final ManageAppKeyAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(final AddedAppKeyAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
     @NonNull
     @Override
-    public ManageAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+    public AddedAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.app_key_item, parent, false);
-        return new ManageAppKeyAdapter.ViewHolder(layoutView);
+        return new AddedAppKeyAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ManageAppKeyAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final AddedAppKeyAdapter.ViewHolder holder, final int position) {
         if (appKeys.size() > 0) {
-            final ApplicationKey appKey = appKeys.get(position);
-            holder.appKeyName.setText(appKey.getName());
-            final String key = MeshParserUtils.bytesToHex(appKey.getKey(), false);
-            holder.appKey.setText(key.toUpperCase());
-            holder.getSwipeableView().setTag(appKey);
-
+            final ApplicationKey key = appKeys.get(position);
+            holder.appKeyName.setText(key.getName());
+            final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
+            holder.appKey.setText(appKey.toUpperCase());
         }
     }
 
@@ -117,7 +108,7 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final int position, @NonNull final ApplicationKey appKey);
+        void onItemClick(final ApplicationKey appKey);
     }
 
     final class ViewHolder extends RemovableViewHolder {
@@ -133,7 +124,7 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
             view.findViewById(R.id.removable).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final ApplicationKey key = appKeys.get(getAdapterPosition());
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), key);
+                    mOnItemClickListener.onItemClick(key);
                 }
             });
         }

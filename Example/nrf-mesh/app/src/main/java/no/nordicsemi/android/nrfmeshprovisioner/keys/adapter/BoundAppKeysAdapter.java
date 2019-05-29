@@ -20,13 +20,9 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.adapter;
+package no.nordicsemi.android.nrfmeshprovisioner.keys.adapter;
 
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,31 +32,34 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.ViewHolder> {
+public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapter.ViewHolder> {
 
-    private final List<ApplicationKey> appKeys = new ArrayList<>();
+    private final ArrayList<ApplicationKey> appKeys = new ArrayList<>();
     private final Context mContext;
-    private OnItemClickListener mOnItemClickListener;
 
-    public AddedAppKeyAdapter(@NonNull final Context context,
-                              @NonNull final List<ApplicationKey> appKeys,
-                              @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
+    public BoundAppKeysAdapter(@NonNull final Context context,
+                               @NonNull final List<ApplicationKey> appKeys,
+                               @NonNull final LiveData<MeshModel> meshModelLiveData) {
         this.mContext = context;
-        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
-            if (meshNode != null) {
+        meshModelLiveData.observe((LifecycleOwner) context, meshModel -> {
+            if (meshModel != null) {
                 this.appKeys.clear();
-                for(Integer index : meshNode.getAddedAppKeyIndexes()) {
+                for (Integer index : meshModel.getBoundAppKeyIndexes()) {
                     for (ApplicationKey applicationKey : appKeys) {
-                        if (index == applicationKey.getKeyIndex()){
+                        if (index == applicationKey.getKeyIndex()) {
                             this.appKeys.add(applicationKey);
                         }
                     }
@@ -71,23 +70,19 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         });
     }
 
-    public void setOnItemClickListener(final AddedAppKeyAdapter.OnItemClickListener listener) {
-        mOnItemClickListener = listener;
-    }
-
     @NonNull
     @Override
-    public AddedAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+    public BoundAppKeysAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.app_key_item, parent, false);
-        return new AddedAppKeyAdapter.ViewHolder(layoutView);
+        return new BoundAppKeysAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final AddedAppKeyAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final BoundAppKeysAdapter.ViewHolder holder, final int position) {
         if (appKeys.size() > 0) {
-            final ApplicationKey key = appKeys.get(position);
-            holder.appKeyId.setText(mContext.getString(R.string.app_key_item, key.getKeyIndex()));
-            final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
+            final ApplicationKey applicationKey = appKeys.get(position);
+            final String appKey = MeshParserUtils.bytesToHex(applicationKey.getKey(), false);
+            holder.appKeyName.setText(applicationKey.getName());
             holder.appKey.setText(appKey.toUpperCase());
         }
     }
@@ -106,27 +101,28 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         return getItemCount() == 0;
     }
 
-    @FunctionalInterface
-    public interface OnItemClickListener {
-        void onItemClick(final ApplicationKey appKey);
+    public ApplicationKey getAppKey(final int position) {
+        if (!appKeys.isEmpty()) {
+            return appKeys.get(position);
+        }
+        return null;
     }
 
-    final class ViewHolder extends RemovableViewHolder {
+    @FunctionalInterface
+    public interface OnItemClickListener {
+        void onItemClick(final int position, final ApplicationKey appKey);
+    }
+
+    public final class ViewHolder extends RemovableViewHolder {
 
         @BindView(R.id.key_id)
-        TextView appKeyId;
+        TextView appKeyName;
         @BindView(R.id.key)
         TextView appKey;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            view.findViewById(R.id.removable).setOnClickListener(v -> {
-                if (mOnItemClickListener != null) {
-                    final ApplicationKey key = appKeys.get(getAdapterPosition());
-                    mOnItemClickListener.onItemClick(key);
-                }
-            });
         }
     }
 }
