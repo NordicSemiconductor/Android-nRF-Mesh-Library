@@ -140,6 +140,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         final TextView nameTitle = containerName.findViewById(R.id.title);
         nameTitle.setText(R.string.summary_name);
         final TextView nameView = containerName.findViewById(R.id.text);
+        nameView.setVisibility(View.VISIBLE);
         containerName.setOnClickListener(v -> {
             final DialogFragmentNodeName dialogFragmentNodeName = DialogFragmentNodeName.newInstance(deviceName);
             dialogFragmentNodeName.show(getSupportFragmentManager(), null);
@@ -150,6 +151,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         final TextView unicastAddressTitle = containerUnicastAddress.findViewById(R.id.title);
         unicastAddressTitle.setText(R.string.summary_unicast_address);
         final TextView unicastAddressView = containerUnicastAddress.findViewById(R.id.text);
+        unicastAddressView.setVisibility(View.VISIBLE);
         containerUnicastAddress.setOnClickListener(v -> {
             final int unicastAddress = mViewModel.getMeshNetworkLiveData().getUnicastAddress();
             final DialogFragmentUnicastAddress dialogFragmentFlags = DialogFragmentUnicastAddress.newInstance(unicastAddress);
@@ -161,6 +163,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         final TextView appKeyTitle = containerAppKey.findViewById(R.id.title);
         appKeyTitle.setText(R.string.title_app_keys);
         final TextView appKeyView = containerAppKey.findViewById(R.id.text);
+        appKeyView.setVisibility(View.VISIBLE);
         containerAppKey.setOnClickListener(v -> {
             final Intent manageAppKeys = new Intent(MeshProvisionerActivity.this, AppKeysActivity.class);
             manageAppKeys.putExtra(Utils.EXTRA_DATA, Utils.ADD_APP_KEY);
