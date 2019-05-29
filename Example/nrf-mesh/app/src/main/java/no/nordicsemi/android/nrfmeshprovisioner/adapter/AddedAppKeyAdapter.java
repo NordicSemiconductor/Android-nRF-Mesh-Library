@@ -113,9 +113,9 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
 
     final class ViewHolder extends RemovableViewHolder {
 
-        @BindView(R.id.app_key_id)
+        @BindView(R.id.key_id)
         TextView appKeyId;
-        @BindView(R.id.app_key)
+        @BindView(R.id.key)
         TextView appKey;
 
         private ViewHolder(final View view) {

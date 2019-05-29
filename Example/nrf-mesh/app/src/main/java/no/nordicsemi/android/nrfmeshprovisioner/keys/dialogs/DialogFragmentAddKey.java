@@ -20,82 +20,70 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
-
-import androidx.appcompat.app.AlertDialog;
+package no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs;
 
 import android.annotation.SuppressLint;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.method.KeyListener;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
-public class DialogFragmentNetworkKey extends DialogFragment {
-
-    private static final String TAG = DialogFragmentNetworkKey.class.getSimpleName();
-    private static final String PATTERN_NETWORK_KEY = "[0-9a-fA-F]{32}";
-    private static final String NETWORK_KEY = "NETWORK_KEY";
+public class DialogFragmentAddKey extends DialogFragment {
 
     //UI Bindings
     @BindView(R.id.text_input_layout)
-    TextInputLayout networkKeyInputLayout;
+    TextInputLayout appKeysInputLayout;
     @BindView(R.id.text_input)
-    TextInputEditText networkKeyInput;
+    TextInputEditText appKeyInput;
 
-    private NetworkKey mNetworkKey;
+    private String mAppKey;
 
-    public static DialogFragmentNetworkKey newInstance(final NetworkKey networkKey) {
-        DialogFragmentNetworkKey fragmentNetworkKey = new DialogFragmentNetworkKey();
+    public interface DialogFragmentAddAppKeysListener {
+        void onAppKeyAdded(@NonNull final String appKey);
+    }
+
+    public static DialogFragmentAddKey newInstance() {
+        DialogFragmentAddKey fragmentAddAppKey = new DialogFragmentAddKey();
         final Bundle args = new Bundle();
-        args.putParcelable(NETWORK_KEY, networkKey);
-        fragmentNetworkKey.setArguments(args);
-        return fragmentNetworkKey;
+        fragmentAddAppKey.setArguments(args);
+        return fragmentAddAppKey;
     }
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mNetworkKey = getArguments().getParcelable(NETWORK_KEY);
-        }
+        mAppKey = SecureUtils.generateRandomApplicationKey();
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
-
-        final KeyListener hexKeyListener = new HexKeyListener();
-        //Bind ui
+        @SuppressLint("InflateParams")
+        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
         ButterKnife.bind(this, rootView);
         final TextView summary = rootView.findViewById(R.id.summary);
-        final String key = MeshParserUtils.bytesToHex(mNetworkKey.getKey(), false);
-        networkKeyInputLayout.setHint(getString(R.string.hint_network_key));
-        networkKeyInput.setKeyListener(hexKeyListener);
-        networkKeyInput.setText(key);
-        networkKeyInput.setSelection(key.length());
-        networkKeyInput.addTextChangedListener(new TextWatcher() {
+        //Bind ui
+        appKeysInputLayout.setHint(getString(R.string.hint_app_key));
+        appKeyInput.setText(mAppKey);
+        appKeyInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -104,9 +92,9 @@ public class DialogFragmentNetworkKey extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    networkKeyInputLayout.setError(getString(R.string.error_empty_network_key));
+                    appKeysInputLayout.setError(getString(R.string.error_empty_app_key));
                 } else {
-                    networkKeyInputLayout.setError(null);
+                    appKeysInputLayout.setError(null);
                 }
             }
 
@@ -118,53 +106,37 @@ public class DialogFragmentNetworkKey extends DialogFragment {
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null)
-                .setNeutralButton(R.string.generate_network_key, null);
+                .setNeutralButton(R.string.generate_new_key, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
-        alertDialogBuilder.setTitle(R.string.title_generate_network_key);
-        summary.setText(R.string.summary_generate_network_key);
+        alertDialogBuilder.setTitle(R.string.title_manage_app_keys);
+        summary.setText(R.string.title_app_keys);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String networkKey = networkKeyInput.getEditableText().toString();
-            if (validateInput(networkKey)) {
+            final String appKey = appKeyInput.getEditableText().toString();
+            if (validateInput(appKey)) {
                 try {
-                    if (getParentFragment() == null) {
-                        ((DialogFragmentNetworkKeyListener) requireActivity()).onNetworkKeyGenerated(networkKey);
-                    } else {
-                        ((DialogFragmentNetworkKeyListener) getParentFragment()).onNetworkKeyGenerated(networkKey);
-                    }
-                } catch (Exception ex) {
-                    Log.v(TAG, ex.getMessage());
+                    ((DialogFragmentAddAppKeysListener) requireContext()).onAppKeyAdded(appKey);
+                    dismiss();
+                } catch (IllegalArgumentException ex) {
+                    appKeysInputLayout.setError(ex.getMessage());
                 }
-                dismiss();
             }
         });
-        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> networkKeyInput.setText(SecureUtils.generateRandomNetworkKey()));
-
+        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).
+                setOnClickListener(v -> appKeyInput.setText(SecureUtils.generateRandomNetworkKey()));
         return alertDialog;
     }
 
-    private boolean validateInput(final String input) {
+    private boolean validateInput(final String appKey) {
         try {
-
-            if (!input.matches(Utils.HEX_PATTERN)) {
-                networkKeyInputLayout.setError(getString(R.string.invalid_hex_value));
-                return false;
-            }
-
-            if (MeshParserUtils.validateNetworkKeyInput(input)) {
+            if(MeshParserUtils.validateAppKeyInput(appKey)) {
                 return true;
             }
         } catch (IllegalArgumentException ex) {
-            networkKeyInputLayout.setError(ex.getMessage());
+            appKeysInputLayout.setError(ex.getMessage());
         }
         return false;
-    }
-
-    public interface DialogFragmentNetworkKeyListener {
-
-        void onNetworkKeyGenerated(final String networkKey);
-
     }
 }

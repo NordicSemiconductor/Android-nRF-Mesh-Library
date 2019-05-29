@@ -45,9 +45,9 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".SplashScreenActivity"
-            android:theme="@style/AppTheme.SplashScreen"
+            android:launchMode="singleTop"
             android:noHistory="true"
-            android:launchMode="singleTop">
+            android:theme="@style/AppTheme.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -71,10 +71,25 @@
             android:launchMode="singleTop"/>
         <activity
             android:name=".GroupControlsActivity"
-            android:launchMode="singleTop"
-            android:configChanges="orientation|screenSize"/>
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"/>
         <activity
-            android:name=".ManageAppKeysActivity"
+            android:name=".keys.NetKeysActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".keys.EditNetKeyActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".keys.AddNetKeyActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".keys.AppKeysActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".keys.AddAppKeyActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".keys.EditAppKeyActivity"
             android:launchMode="singleTop"/>
         <activity
             android:name=".MeshProvisionerActivity"
@@ -100,7 +115,9 @@
         <activity
             android:name=".ConfigurationServerActivity"
             android:launchMode="singleTop"/>
-        <activity android:name=".ModelConfigurationActivity"/>
+        <activity
+            android:name=".ModelConfigurationActivity"
+            android:launchMode="singleTop"/>
     </application>
 
 </manifest>

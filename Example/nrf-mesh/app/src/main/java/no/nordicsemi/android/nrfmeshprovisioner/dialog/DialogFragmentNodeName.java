@@ -91,7 +91,7 @@ public class DialogFragmentNodeName extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    nodeNameInputLayout.setError(getString(R.string.error_node_name));
+                    nodeNameInputLayout.setError(getString(R.string.error_empty_name));
                 } else {
                     nodeNameInputLayout.setError(null);
                 }
@@ -108,7 +108,7 @@ public class DialogFragmentNodeName extends DialogFragment {
 
         alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
         alertDialogBuilder.setTitle(R.string.title_node_name);
-        summary.setText(R.string.name_rationale);
+        summary.setText(R.string.node_name_rationale);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {

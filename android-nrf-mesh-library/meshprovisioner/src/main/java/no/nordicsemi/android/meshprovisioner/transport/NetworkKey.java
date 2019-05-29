@@ -1,21 +1,22 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 
 import static androidx.room.ForeignKey.CASCADE;
@@ -156,7 +157,9 @@ public final class NetworkKey implements Parcelable {
      *
      * @param name friendly name
      */
-    public void setName(final String name) {
+    public void setName(@NonNull final String name) throws IllegalArgumentException {
+        if (TextUtils.isEmpty(name))
+            throw new IllegalArgumentException("Name cannot be empty");
         this.name = name;
     }
 

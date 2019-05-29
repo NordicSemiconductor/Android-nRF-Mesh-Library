@@ -46,7 +46,10 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         creators.put(SharedViewModel.class, viewModelSubComponent::commonViewModel);
         creators.put(ScannerViewModel.class, viewModelSubComponent::scannerViewModel);
         creators.put(GroupControlsViewModel.class, viewModelSubComponent::groupControlsViewModel);
-        creators.put(ManageAppKeysViewModel.class, viewModelSubComponent::manageAppKeysViewModel);
+        creators.put(NetKeysViewModel.class, viewModelSubComponent::netKeysViewModel);
+        creators.put(EditNetKeyViewModel.class, viewModelSubComponent::editNetKeyViewModel);
+        creators.put(AppKeysViewModel.class, viewModelSubComponent::appKeysViewModel);
+        creators.put(EditAppKeyViewModel.class, viewModelSubComponent::editAppKeyViewModel);
         creators.put(MeshProvisionerViewModel.class, viewModelSubComponent::meshProvisionerViewModel);
         creators.put(NodeDetailsViewModel.class, viewModelSubComponent::nodeDetailsViewModel);
         creators.put(NodeConfigurationViewModel.class, viewModelSubComponent::nodeConfigurationViewModel);

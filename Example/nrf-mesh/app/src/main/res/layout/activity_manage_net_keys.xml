@@ -21,20 +21,35 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<ScrollView
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MeshProvisionerActivity"
+    tools:context=".keys.AppKeysActivity"
     tools:ignore="ContentDescription">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/network_settings_card"
@@ -51,33 +66,15 @@
                 android:paddingBottom="@dimen/item_padding_bottom">
 
                 <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/network_settings_toolbar"
+                    android:id="@+id/primary_net_key_toolbar"
                     android:layout_width="0dp"
                     android:layout_height="?actionBarSize"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:logo="@drawable/ic_certificate"
-                    app:title="@string/network_settings"
+                    app:logo="@drawable/ic_vpn_key_black_alpha_24dp"
+                    app:title="@string/title_primary_net_key"
                     app:titleMarginStart="@dimen/toolbar_title_margin"/>
-
-                <include
-                    android:id="@+id/container_network_name"
-                    layout="@layout/layout_container"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/network_settings_toolbar"/>
-
-                <include
-                    android:id="@+id/container_provisioners"
-                    layout="@layout/layout_container"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/container_network_name"/>
 
                 <include
                     android:id="@+id/container_net_keys"
@@ -86,54 +83,50 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/container_provisioners"/>
+                    app:layout_constraintTop_toBottomOf="@+id/primary_net_key_toolbar"/>
 
-                <include
-                    android:id="@+id/container_app_keys"
-                    layout="@layout/layout_container"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/container_net_keys"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/about_card"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/activity_horizontal_margin"
-            android:background="@color/white"
-            app:cardElevation="1dp">
+            android:background="@color/white">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/about_container"
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/sub_net_key_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:logo="@drawable/ic_folder_key_black_24dp_alpha"
+                app:title="@string/title_sub_net_keys"
+                app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_keys"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingBottom="@dimen/item_padding_bottom">
+                android:layout_alignParentTop="true"
+                android:clipToPadding="false"
+                android:paddingBottom="@dimen/activity_vertical_margin_bottom"
+                android:scrollbars="none"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/sub_net_key_toolbar"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/about_tool_bar"
-                    android:layout_width="0dp"
-                    android:layout_height="?actionBarSize"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:logo="@drawable/ic_info_black_24dp_alpha"
-                    app:title="@string/title_about"
-                    app:titleMarginStart="@dimen/toolbar_title_margin"/>
-
-                <include
-                    android:id="@+id/container_version"
-                    layout="@layout/layout_container"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/about_tool_bar"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
     </LinearLayout>
-</ScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        app:elevation="@dimen/fab_elevation"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_add_white"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

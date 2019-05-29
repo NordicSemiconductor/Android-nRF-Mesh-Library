@@ -79,6 +79,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFilterAddAd
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProxySet;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 
@@ -168,7 +169,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         adapter.setOnItemClickListener(this);
         mRecyclerViewElements.setAdapter(adapter);
 
-        final RecyclerView recyclerViewAppKeys = findViewById(R.id.recycler_view_app_keys);
+        final RecyclerView recyclerViewAppKeys = findViewById(R.id.recycler_view_keys);
         recyclerViewAppKeys.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewAppKeys.setItemAnimator(new DefaultItemAnimator());
         mViewModel.getMeshNetworkLiveData().getAppKeys();
@@ -209,9 +210,9 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         });
 
         actionAddAppkey.setOnClickListener(v -> {
-            final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, ManageAppKeysActivity.class);
+            final Intent addAppKeys = new Intent(NodeConfigurationActivity.this, AppKeysActivity.class);
             addAppKeys.putExtra(Utils.EXTRA_DATA, Utils.ADD_APP_KEY);
-            startActivityForResult(addAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
+            startActivityForResult(addAppKeys, AppKeysActivity.SELECT_APP_KEY);
         });
 
         actionGetProxyState.setOnClickListener(v -> {
@@ -274,7 +275,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ManageAppKeysActivity.SELECT_APP_KEY) {
+        if (requestCode == AppKeysActivity.SELECT_APP_KEY) {
             if (resultCode == RESULT_OK) {
                 final ApplicationKey appKey = data.getParcelableExtra(Utils.RESULT_APP_KEY);
                 if (appKey != null) {

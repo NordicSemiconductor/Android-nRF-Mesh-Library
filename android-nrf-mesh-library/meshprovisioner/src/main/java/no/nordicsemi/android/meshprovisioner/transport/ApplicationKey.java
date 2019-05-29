@@ -2,6 +2,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
 
@@ -10,7 +11,6 @@ import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
-import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
@@ -140,7 +140,9 @@ public final class ApplicationKey implements Parcelable {
      *
      * @param name friendly name for the application key
      */
-    public void setName(final String name) {
+    public void setName(@NonNull final String name) throws IllegalArgumentException {
+        if (TextUtils.isEmpty(name))
+            throw new IllegalArgumentException("Name cannot be empty!");
         this.name = name;
     }
 

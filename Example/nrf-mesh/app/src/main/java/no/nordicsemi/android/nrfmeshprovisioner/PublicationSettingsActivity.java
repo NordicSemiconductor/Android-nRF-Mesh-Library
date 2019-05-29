@@ -39,6 +39,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublication
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPublishTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentRetransmitCount;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
 
@@ -161,9 +162,9 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         });
 
         actionKeyIndex.setOnClickListener(v -> {
-            final Intent bindAppKeysIntent = new Intent(this, ManageAppKeysActivity.class);
+            final Intent bindAppKeysIntent = new Intent(this, AppKeysActivity.class);
             bindAppKeysIntent.putExtra(Utils.EXTRA_DATA, Utils.PUBLICATION_APP_KEY);
-            startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
+            startActivityForResult(bindAppKeysIntent, AppKeysActivity.SELECT_APP_KEY);
         });
 
         actionPublishTtl.setOnClickListener(v -> {
@@ -182,7 +183,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
-        getMenuInflater().inflate(R.menu.publication_apply, menu);
+        getMenuInflater().inflate(R.menu.menu_apply, menu);
         return true;
     }
 
@@ -207,9 +208,9 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ManageAppKeysActivity.SELECT_APP_KEY) {
+        if (requestCode == AppKeysActivity.SELECT_APP_KEY) {
             if (resultCode == RESULT_OK) {
-                final ApplicationKey appKey = data.getParcelableExtra(ManageAppKeysActivity.RESULT_APP_KEY);
+                final ApplicationKey appKey = data.getParcelableExtra(AppKeysActivity.RESULT_APP_KEY);
                 if (appKey != null) {
                     mAppKeyIndex = appKey.getKeyIndex();
                     mAppKeyIndexView.setText(getString(R.string.app_key_index, appKey.getKeyIndex()));

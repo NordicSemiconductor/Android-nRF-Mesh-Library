@@ -23,10 +23,13 @@
 package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import dagger.Subcomponent;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AppKeysViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditAppKeyViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditNetKeyViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.GroupControlsViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ManageAppKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeDetailsViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
@@ -51,7 +54,10 @@ public interface ViewModelSubComponent {
 	SharedViewModel commonViewModel();
 	ScannerViewModel scannerViewModel();
 	GroupControlsViewModel groupControlsViewModel();
-	ManageAppKeysViewModel manageAppKeysViewModel();
+	NetKeysViewModel netKeysViewModel();
+	EditNetKeyViewModel editNetKeyViewModel();
+	AppKeysViewModel appKeysViewModel();
+	EditAppKeyViewModel editAppKeyViewModel();
 	MeshProvisionerViewModel meshProvisionerViewModel();
 	NodeConfigurationViewModel nodeConfigurationViewModel();
 	NodeDetailsViewModel nodeDetailsViewModel();

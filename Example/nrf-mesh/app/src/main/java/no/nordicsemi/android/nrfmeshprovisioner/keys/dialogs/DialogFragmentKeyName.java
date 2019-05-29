@@ -20,47 +20,47 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
-
-import androidx.appcompat.app.AlertDialog;
+package no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.MeshKeyListener;
 
-public class DialogFragmentModelConfiguration extends DialogFragment{
-    private static final String APP_KEY = "APP_KEY";
+public class DialogFragmentKeyName extends DialogFragment {
+
+    private static final String KEY_NAME = "NODE_NAME";
 
     //UI Bindings
     @BindView(R.id.text_input_layout)
-    TextInputLayout appKeysInputLayout;
+    TextInputLayout keyNameInputLayout;
     @BindView(R.id.text_input)
-    TextInputEditText appKeyInput;
+    TextInputEditText keyNameInput;
 
-    private String mAppKey;
+    private String name;
 
-    public static DialogFragmentAddAppKey newInstance(final String appKey) {
-        DialogFragmentAddAppKey fragmentNetworkKey = new DialogFragmentAddAppKey();
+    public static DialogFragmentKeyName newInstance(@NonNull final String name) {
+        DialogFragmentKeyName fragmentNetworkKey = new DialogFragmentKeyName();
         final Bundle args = new Bundle();
-        args.putString(APP_KEY, appKey);
+        args.putString(KEY_NAME, name);
         fragmentNetworkKey.setArguments(args);
         return fragmentNetworkKey;
     }
@@ -69,21 +69,21 @@ public class DialogFragmentModelConfiguration extends DialogFragment{
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mAppKey = getArguments().getString(APP_KEY);
+            name = getArguments().getString(KEY_NAME);
         }
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_provision_data_input, null);
-        ButterKnife.bind(this, rootView);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_name, null);
 
         //Bind ui
-        appKeyInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
-        appKeysInputLayout.setHint(getString(R.string.hint_app_key));
-        appKeyInput.setText(mAppKey);
-        appKeyInput.addTextChangedListener(new TextWatcher() {
+        ButterKnife.bind(this, rootView);
+        final TextView summary = rootView.findViewById(R.id.summary);
+        keyNameInputLayout.setHint(getString(R.string.name));
+        keyNameInput.setText(name);
+        keyNameInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -92,9 +92,9 @@ public class DialogFragmentModelConfiguration extends DialogFragment{
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    appKeysInputLayout.setError(getString(R.string.error_empty_app_key));
+                    keyNameInputLayout.setError(getString(R.string.error_empty_name));
                 } else {
-                    appKeysInputLayout.setError(null);
+                    keyNameInputLayout.setError(null);
                 }
             }
 
@@ -105,34 +105,24 @@ public class DialogFragmentModelConfiguration extends DialogFragment{
         });
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
-                .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null)
-                .setNeutralButton(R.string.generate_app_key, null);
+                .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
-        alertDialogBuilder.setTitle(R.string.title_manage_app_keys);
-        alertDialogBuilder.setMessage(R.string.summary_app_keys);
+        alertDialogBuilder.setTitle(R.string.title_edit_key_name);
+        summary.setText(R.string.key_name_rationale);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String appKey = appKeyInput.getEditableText().toString();
-            if (validateInput(appKey)) {
-                ((DialogFragmentAddAppKey.DialogFragmentAddAppKeysListener) requireContext()).onAppKeyAdded(appKey);
-                dismiss();
+            final String nodeName = keyNameInput.getEditableText().toString();
+            try {
+                if (((MeshKeyListener) requireContext()).onKeyNameUpdated(nodeName)) {
+                    dismiss();
+                }
+            } catch (IllegalArgumentException ex) {
+                keyNameInputLayout.setError(ex.getMessage());
             }
         });
-        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> appKeyInput.setText(SecureUtils.generateRandomNetworkKey()));
 
         return alertDialog;
-    }
-
-    private boolean validateInput(final String appKey) {
-        try {
-            if(MeshParserUtils.validateAppKeyInput(appKey)) {
-                return true;
-            }
-        } catch (IllegalArgumentException ex) {
-            appKeysInputLayout.setError(ex.getMessage());
-        }
-        return false;
     }
 }

@@ -67,11 +67,11 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurati
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFlags;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentIvIndex;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentKeyIndex;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkKey;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisioningFailedError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSelectOOBType;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionerProgress;
@@ -81,7 +81,6 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         DialogFragmentSelectOOBType.DialogFragmentSelectOOBTypeListener,
         DialogFragmentAuthenticationInput.ProvisionerInputFragmentListener,
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
-        DialogFragmentNetworkKey.DialogFragmentNetworkKeyListener,
         DialogFragmentKeyIndex.DialogFragmentKeyIndexListener,
         DialogFragmentFlags.DialogFragmentFlagsListener,
         DialogFragmentIvIndex.DialogFragmentIvIndexListener,
@@ -160,12 +159,12 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         final View containerAppKey = findViewById(R.id.container_public_key_type);
         containerAppKey.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
         final TextView appKeyTitle = containerAppKey.findViewById(R.id.title);
-        appKeyTitle.setText(R.string.summary_app_keys);
+        appKeyTitle.setText(R.string.title_app_keys);
         final TextView appKeyView = containerAppKey.findViewById(R.id.text);
         containerAppKey.setOnClickListener(v -> {
-            final Intent manageAppKeys = new Intent(MeshProvisionerActivity.this, ManageAppKeysActivity.class);
+            final Intent manageAppKeys = new Intent(MeshProvisionerActivity.this, AppKeysActivity.class);
             manageAppKeys.putExtra(Utils.EXTRA_DATA, Utils.ADD_APP_KEY);
-            startActivityForResult(manageAppKeys, ManageAppKeysActivity.SELECT_APP_KEY);
+            startActivityForResult(manageAppKeys, AppKeysActivity.SELECT_APP_KEY);
         });
 
         mViewModel.getConnectionState().observe(this, connectionState::setText);
@@ -270,9 +269,9 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ManageAppKeysActivity.SELECT_APP_KEY) {
+        if (requestCode == AppKeysActivity.SELECT_APP_KEY) {
             if (resultCode == RESULT_OK) {
-                final ApplicationKey appKey = data.getParcelableExtra(ManageAppKeysActivity.RESULT_APP_KEY);
+                final ApplicationKey appKey = data.getParcelableExtra(AppKeysActivity.RESULT_APP_KEY);
                 if (appKey != null) {
                     mViewModel.getMeshNetworkLiveData().setSelectedAppKey(appKey);
                 }
@@ -296,11 +295,6 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     @Override
     public void onNodeNameUpdated(final String nodeName) {
         mViewModel.getMeshNetworkLiveData().setNodeName(nodeName);
-    }
-
-    @Override
-    public void onNetworkKeyGenerated(final String networkKey) {
-        mViewModel.getMeshNetworkLiveData().setPrimaryNetworkKey(networkKey);
     }
 
     @Override

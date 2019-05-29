@@ -54,13 +54,6 @@
     <string name="yes">YES</string>
     <string name="no">NO</string>
 
-    <string name="provisioner_authentication_title">Authentication</string>
-    <string name="provisioner_input_static_oob">Input the 128-bit Static OOB value provided with the device.</string>
-    <string name="provisioner_input_blinks">Input the number of times the device blinked.</string>
-    <string name="provisioner_input_beeps">Input the number of times the device beeped.</string>
-    <string name="provisioner_input_vibrations">Input the number of times the device vibrated.</string>
-    <string name="provisioner_input_numeric">Input the code displayed on the device.</string>
-    <string name="provisioner_input_numeric_device">Key in the following code %s on the device.</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
 
@@ -115,12 +108,20 @@
     <string name="title_elements">Elements</string>
     <string name="title_node_element_details">Element Details</string>
 
-    <string name="generate_app_key">Generate app key</string>
+    <string name="generate_new_key">Generate New key</string>
 
     <string name="title_network_name">Network Name</string>
-    <string name="summary_global_network_name">Network name</string>
     <string name="summary_network_name">Enter a network name</string>
     <string name="hint_global_network_name">Network Name</string>
+
+    <string name="title_provisioners">Provisioners</string>
+    <string name="provisioner_authentication_title">Authentication</string>
+    <string name="provisioner_input_static_oob">Input the 128-bit Static OOB value provided with the device.</string>
+    <string name="provisioner_input_blinks">Input the number of times the device blinked.</string>
+    <string name="provisioner_input_beeps">Input the number of times the device beeped.</string>
+    <string name="provisioner_input_vibrations">Input the number of times the device vibrated.</string>
+    <string name="provisioner_input_numeric">Input the code displayed on the device.</string>
+    <string name="provisioner_input_numeric_device">Key in the following code %s on the device.</string>
 
     <string name="title_global_ttl">Global TTL</string>
     <string name="summary_global_ttl">Global TTL</string>
@@ -134,17 +135,21 @@
 
     <string name="network_settings">Network Settings</string>
     <string name="summary_flags">Flags</string>
-    <string name="summary_key">Key</string>
+    <string name="title_net_keys">Network Keys</string>
     <string name="summary_index">Key Index</string>
     <string name="summary_unicast_address">Unicast Address</string>
 
     <string name="title_node_name">Node name</string>
     <string name="summary_name">Name</string>
-    <string name="name_rationale">This is a friendly name to be used to identify nodes by naming them</string>
+    <string name="node_name_rationale">This is a friendly name to be used to identify nodes</string>
     <string name="hint_node_name">Friendly name</string>
 
     <string name="title_generate_network_key">Network Key</string>
     <string name="summary_generate_network_key">Enter your own network key or click generate to create a new random network key.</string>
+    <string name="title_primary_net_key">Primary Network Key</string>
+    <string name="title_sub_net_keys">Sub Network Keys</string>
+    <string name="title_primary_key">Primary Key</string>
+    <string name="primary_key">Primary Key: %s</string>
     <string name="hint_network_key">Network key</string>
     <string name="generate_network_key">Generate Key</string>
     <string name="error_empty_network_key">Network key cannot be empty!</string>
@@ -203,9 +208,23 @@
     <string name="no_app_key_configured_title">NO APP KEYS BOUND</string>
     <string name="no_app_key_configured_rationale">No app keys are bound for models in this group. \nClick edit on the options menu to bind an app key to the models.</string>
 
+    <string name="title_manage_net_keys">Manage Net Keys</string>
+    <string name="summary_manage_net_keys">Manage your network keys</string>
+    <string name="title_net_key">Net Key</string>
+    <string name="title_add_net_key">Add Net Key</string>
+    <string name="title_edit_net_key">Edit Net Key</string>
     <string name="title_manage_app_keys">Manage App Keys</string>
+    <string name="summary_manage_app_keys">Manage your application keys</string>
+    <string name="title_app_key">App Key</string>
+    <string name="title_app_keys">App Keys</string>
+    <string name="title_key_details">Key Details</string>
+    <string name="title_add_app_key">Add App Key</string>
+    <string name="title_edit_app_key">Edit App Key</string>
+    <string name="summary_edit_key">The key must be a 32-character hexadecimal string.</string>
+    <string name="title_edit_key">Edit Key</string>
+    <string name="title_edit_key_name">Edit Key Name</string>
+    <string name="key_name_rationale">This is a friendly name that can be used to identify a key.</string>
     <string name="title_select_app_key">Select App Key</string>
-    <string name="summary_app_keys">App Keys</string>
     <string name="app_key_count">%d keys</string>
     <string name="hint_app_key">App key</string>
     <string name="no_app_keys_title">NO APP KEYS AVAILABLE</string>
@@ -215,6 +234,7 @@
         Please add an app key in the network settings.</string>
     <string name="no_added_app_keys_rationale">Binding an app key to a model requires it to be added to a provisioned mesh node.
         Navigate back to the node configuration view add a new app key</string>
+    <string name="net_key_deleted">Net key deleted.</string>
     <string name="app_key_deleted">App key deleted.</string>
     <string name="undo">Undo</string>
     <string name="title_error_provisioning_failed">Provisioning Failed</string>
@@ -229,7 +249,7 @@
     <string name="title_appkey_status">AppKey Status</string>
     <string name="app_key_item">App key %d</string>
     <string name="app_key_index_item">Key Index: %d</string>
-    <string name="error_node_name">Node name cannot be empty!</string>
+    <string name="error_empty_name">Name cannot be empty!</string>
     <string name="element_address">Element: %s</string>
     <string name="model_count">%d Models</string>
     <string name="format_sig_model_id">SIG Model ID: %s</string>
@@ -403,9 +423,11 @@
     <string name="resolution_summary_1_s">1 second</string>
     <string name="resolution_summary_10_s">10 seconds</string>
     <string name="resolution_summary_100_m">10 minutes</string>
+
     <string name="app_key_index">App key index %d</string>
 
     <string name="action_apply">Apply</string>
+    <string name="action_save">Save</string>
 
     <string-array name="arr_publication_resolution">
         <item>100 milliseconds</item>
@@ -465,4 +487,7 @@
     <string name="label_uuid_summary">Label UUID:</string>
     <string name="label_uuid">Label UUID</string>
     <string name="name">Name</string>
+    <string name="action_add_app_key">Add App Key</string>
+    <string name="action_add_sub_net_key">Add Sub Net Key</string>
+    <string name="hint_delete_key">Hint: Swipe to delete a key.</string>
 </resources>

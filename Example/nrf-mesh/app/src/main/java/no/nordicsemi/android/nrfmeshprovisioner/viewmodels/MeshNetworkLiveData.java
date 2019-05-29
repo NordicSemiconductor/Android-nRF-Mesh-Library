@@ -27,6 +27,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
@@ -66,6 +67,10 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
     void refresh(@NonNull final MeshNetwork meshNetwork) {
         this.meshNetwork = meshNetwork;
         postValue(this);
+    }
+
+    public List<NetworkKey> getNetworkKeys(){
+        return meshNetwork.getNetKeys();
     }
 
     /**
@@ -148,6 +153,10 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
     public void setUnicastAddress(final int unicastAddress) {
         meshNetwork.assignUnicastAddress(unicastAddress);
         postValue(this);
+    }
+
+    public Provisioner getProvisioner(){
+        return meshNetwork.getSelectedProvisioner();
     }
 
     public byte[] getProvisionerAddress() {
@@ -233,11 +242,12 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
     /**
      * Adds an application key to the mesh network
      */
-    public void addAppKey(final ApplicationKey applicationKey) {
+    @SuppressWarnings("UnusedReturnValue")
+    public boolean addAppKey(final ApplicationKey applicationKey) {
         if (meshNetwork != null) {
-            meshNetwork.addAppKey(applicationKey);
+            return meshNetwork.addAppKey(applicationKey);
         }
-        postValue(this);
+        return false;
     }
 
     /**

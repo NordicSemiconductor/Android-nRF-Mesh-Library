@@ -214,7 +214,7 @@
 
 
                         <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recycler_view_app_keys"
+                            android:id="@+id/recycler_view_keys"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:clipToPadding="false"

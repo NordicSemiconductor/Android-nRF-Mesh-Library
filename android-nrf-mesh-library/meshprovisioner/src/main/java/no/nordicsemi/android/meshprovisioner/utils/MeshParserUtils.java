@@ -352,7 +352,7 @@ public class MeshParserUtils {
         if (TextUtils.isEmpty(appKey)) {
             throw new IllegalArgumentException("App key cannot be empty!");
         } else if (!appKey.matches(PATTERN_KEY)) {
-            throw new IllegalArgumentException("App key must be 16 bytes long and must be a valid hex value!");
+            throw new IllegalArgumentException("The key must be a 32-character hexadecimal string!");
         }
 
         return true;

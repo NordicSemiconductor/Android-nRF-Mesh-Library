@@ -79,6 +79,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatu
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDisconnected;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGroupSubscription;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
@@ -172,9 +173,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         recyclerViewBoundKeys.setAdapter(mBoundAppKeyAdapter);
 
         mActionBindAppKey.setOnClickListener(v -> {
-            final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, ManageAppKeysActivity.class);
+            final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, AppKeysActivity.class);
             bindAppKeysIntent.putExtra(Utils.EXTRA_DATA, Utils.BIND_APP_KEY);
-            startActivityForResult(bindAppKeysIntent, ManageAppKeysActivity.SELECT_APP_KEY);
+            startActivityForResult(bindAppKeysIntent, AppKeysActivity.SELECT_APP_KEY);
         });
 
         mPublishAddressView.setText(R.string.none);
@@ -251,9 +252,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case ManageAppKeysActivity.SELECT_APP_KEY:
+            case AppKeysActivity.SELECT_APP_KEY:
                 if (resultCode == RESULT_OK) {
-                    final ApplicationKey appKey = data.getParcelableExtra(ManageAppKeysActivity.RESULT_APP_KEY);
+                    final ApplicationKey appKey = data.getParcelableExtra(AppKeysActivity.RESULT_APP_KEY);
                     if (appKey != null) {
                         bindAppKey(appKey.getKeyIndex());
                     }

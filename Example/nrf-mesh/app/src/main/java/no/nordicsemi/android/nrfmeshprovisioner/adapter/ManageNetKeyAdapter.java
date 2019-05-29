@@ -38,65 +38,67 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapter.ViewHolder> {
+public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapter.ViewHolder> {
 
-    private final List<ApplicationKey> appKeys = new ArrayList<>();
+    private final List<NetworkKey> networkKeys = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public ManageAppKeyAdapter(@NonNull final Context context, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
+    public ManageNetKeyAdapter(@NonNull final Context context, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
         this.mContext = context;
         meshNetworkLiveData.observe((LifecycleOwner) context, networkData -> {
-            final List<ApplicationKey> keys = networkData.getAppKeys();
+            final List<NetworkKey> keys = networkData.getNetworkKeys();
             if (keys != null) {
-                appKeys.clear();
-                appKeys.addAll(keys);
-                Collections.sort(appKeys, Utils.appKeyComparator);
+                networkKeys.clear();
+                networkKeys.addAll(keys);
+                networkKeys.remove(0);
+                Collections.sort(networkKeys, Utils.netKeyComparator);
             }
             notifyDataSetChanged();
         });
     }
 
-    public ManageAppKeyAdapter(@NonNull final Context context,
-                               @NonNull final List<ApplicationKey> appKeys,
+    public ManageNetKeyAdapter(@NonNull final Context context,
+                               @NonNull final List<ApplicationKey> networkKeys,
                                @NonNull final List<Integer> appKeyIndexes) {
         this.mContext = context;
         for (Integer index : appKeyIndexes) {
-            for (ApplicationKey applicationKey : appKeys) {
+            for (ApplicationKey applicationKey : networkKeys) {
                 if (index == applicationKey.getKeyIndex()) {
-                    this.appKeys.add(applicationKey);
+                    //this.networkKeys.add(applicationKey);
                 }
             }
         }
-        Collections.sort(this.appKeys, Utils.appKeyComparator);
+        Collections.sort(this.networkKeys, Utils.netKeyComparator);
         notifyDataSetChanged();
     }
 
-    public void setOnItemClickListener(final ManageAppKeyAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(final ManageNetKeyAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
     @NonNull
     @Override
-    public ManageAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+    public ManageNetKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.app_key_item, parent, false);
-        return new ManageAppKeyAdapter.ViewHolder(layoutView);
+        return new ManageNetKeyAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ManageAppKeyAdapter.ViewHolder holder, final int position) {
-        if (appKeys.size() > 0) {
-            final ApplicationKey appKey = appKeys.get(position);
-            holder.appKeyName.setText(appKey.getName());
-            final String key = MeshParserUtils.bytesToHex(appKey.getKey(), false);
-            holder.appKey.setText(key.toUpperCase());
-            holder.getSwipeableView().setTag(appKey);
+    public void onBindViewHolder(@NonNull final ManageNetKeyAdapter.ViewHolder holder, final int position) {
+        if (networkKeys.size() > 0) {
+            final NetworkKey networkKey = networkKeys.get(position);
+            holder.netKeyName.setText(networkKey.getName());
+            final String key = MeshParserUtils.bytesToHex(networkKey.getKey(), false);
+            holder.netKey.setText(key.toUpperCase());
+            holder.getSwipeableView().setTag(networkKey);
 
         }
     }
@@ -108,7 +110,7 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
 
     @Override
     public int getItemCount() {
-        return appKeys.size();
+        return networkKeys.size();
     }
 
     public boolean isEmpty() {
@@ -117,22 +119,22 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final int position, @NonNull final ApplicationKey appKey);
+        void onItemClick(final int position, @NonNull final NetworkKey appKey);
     }
 
     final class ViewHolder extends RemovableViewHolder {
 
         @BindView(R.id.key_id)
-        TextView appKeyName;
+        TextView netKeyName;
         @BindView(R.id.key)
-        TextView appKey;
+        TextView netKey;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
             view.findViewById(R.id.removable).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    final ApplicationKey key = appKeys.get(getAdapterPosition());
+                    final NetworkKey key = networkKeys.get(getAdapterPosition());
                     mOnItemClickListener.onItemClick(getAdapterPosition(), key);
                 }
             });

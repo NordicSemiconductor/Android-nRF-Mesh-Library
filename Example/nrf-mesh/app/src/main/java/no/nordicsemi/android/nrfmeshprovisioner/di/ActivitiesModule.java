@@ -30,7 +30,9 @@ import no.nordicsemi.android.nrfmeshprovisioner.GenericLevelServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.GenericOnOffServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.GroupControlsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MainActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.ManageAppKeysActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.AddAppKeyActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.AddNetKeyActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MeshProvisionerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.NodeConfigurationActivity;
@@ -40,6 +42,9 @@ import no.nordicsemi.android.nrfmeshprovisioner.ReconnectActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.SplashScreenActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.VendorModelActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.EditAppKeyActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.EditNetKeyActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.NetKeysActivity;
 
 @Module
 abstract class ActivitiesModule {
@@ -51,7 +56,22 @@ abstract class ActivitiesModule {
 	abstract MainActivity contributeMainActivity();
 
 	@ContributesAndroidInjector()
-	abstract ManageAppKeysActivity contributeManageAppKeysActivity();
+	abstract NetKeysActivity contributeNetKeysActivity();
+
+	@ContributesAndroidInjector()
+	abstract AddNetKeyActivity contributeAddNetKeyActivity();
+
+	@ContributesAndroidInjector()
+	abstract EditNetKeyActivity contributeEditNetKeyActivity();
+
+	@ContributesAndroidInjector()
+	abstract AppKeysActivity contributeAppKeysActivity();
+
+	@ContributesAndroidInjector()
+	abstract AddAppKeyActivity contributeAddAppKeyActivity();
+
+	@ContributesAndroidInjector()
+	abstract EditAppKeyActivity contributeEditAppKeyActivity();
 
 	@ContributesAndroidInjector()
 	abstract MeshProvisionerActivity contributeMeshProvisionerActivity();
