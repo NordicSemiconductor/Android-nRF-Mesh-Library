@@ -44,7 +44,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentEditAppKey;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentKeyName;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditAppKeyViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddAppKeyViewModel;
 
 public class AddAppKeyActivity extends AppCompatActivity implements Injectable, MeshKeyListener {
 
@@ -55,14 +55,14 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable, 
     private TextView keyView;
     private TextView keyIndexView;
 
-    private EditAppKeyViewModel mViewModel;
+    private AddAppKeyViewModel mViewModel;
     private ApplicationKey appKey;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_app_key);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(EditAppKeyViewModel.class);
+        setContentView(R.layout.activity_edit_key);
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AddAppKeyViewModel.class);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);

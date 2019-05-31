@@ -235,7 +235,7 @@
                             app:layout_constraintBottom_toBottomOf="@id/title_friendship_credential_flag"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="@id/title_friendship_credential_flag"
-                            app:srcCompat="@drawable/ic_account_key_black_24dp_alpha"
+                            app:srcCompat="@drawable/ic_account_key_black_alpha_24dp"
                             tools:ignore="ContentDescription"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>

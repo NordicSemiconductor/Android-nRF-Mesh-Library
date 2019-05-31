@@ -183,7 +183,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         new UpdateProvisionerAsyncTask(dao).execute(provisioner);
     }
 
-    void updateProvisioner(final ProvisionerDao dao, final List<Provisioner> provisioners) {
+    void updateProvisioners(final ProvisionerDao dao, final List<Provisioner> provisioners) {
         new UpdateProvisionersAsyncTask(dao, provisioners).execute();
     }
 
@@ -287,7 +287,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         private final MeshNetworkDao meshNetworkDao;
         private final NetworkKeyDao netKeyDao;
         private final ApplicationKeyDao appKeyDao;
-        private final ProvisionerDao provisionerDao;
+        private final ProvisionerDao provisionersDao;
         private final ProvisionedMeshNodeDao nodeDao;
         private final GroupsDao groupsDao;
         private final SceneDao sceneDao;
@@ -295,7 +295,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         LoadNetworkAsyncTask(final MeshNetworkDao meshNetworkDao,
                              final NetworkKeyDao netKeyDao,
                              final ApplicationKeyDao appKeyDao,
-                             final ProvisionerDao provisionerDao,
+                             final ProvisionerDao provisionersDao,
                              final ProvisionedMeshNodeDao nodeDao,
                              final GroupsDao groupsDao,
                              final SceneDao sceneDao,
@@ -303,7 +303,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             this.meshNetworkDao = meshNetworkDao;
             this.netKeyDao = netKeyDao;
             this.appKeyDao = appKeyDao;
-            this.provisionerDao = provisionerDao;
+            this.provisionersDao = provisionersDao;
             this.nodeDao = nodeDao;
             this.groupsDao = groupsDao;
             this.sceneDao = sceneDao;
@@ -317,9 +317,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 meshNetwork.netKeys = netKeyDao.loadNetworkKeys(meshNetwork.getMeshUUID());
                 meshNetwork.appKeys = appKeyDao.loadApplicationKeys(meshNetwork.getMeshUUID());
                 meshNetwork.nodes = nodeDao.getNodes(meshNetwork.getMeshUUID());
-                final ArrayList<Provisioner> provisioners = new ArrayList<>();
-                provisioners.add(provisionerDao.getProvisioner(meshNetwork.getMeshUUID(), true));
-                meshNetwork.provisioners = provisioners;
+                meshNetwork.provisioners = provisionersDao.getProvisioners(meshNetwork.getMeshUUID());
                 meshNetwork.groups = groupsDao.loadGroups(meshNetwork.getMeshUUID());
             }
             return meshNetwork;

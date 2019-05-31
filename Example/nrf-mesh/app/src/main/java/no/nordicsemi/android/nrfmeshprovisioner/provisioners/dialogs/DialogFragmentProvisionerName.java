@@ -20,19 +20,12 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
-
-import androidx.appcompat.app.AlertDialog;
+package no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -40,26 +33,33 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public class DialogFragmentNetworkName extends DialogFragment {
+public class DialogFragmentProvisionerName extends DialogFragment {
 
-    private static final String NETWORK_NAME = "NETWORK_NAME";
+    private static final String PROVISIONER_NAME = "PROVISIONER_NAME";
 
     //UI Bindings
     @BindView(R.id.text_input_layout)
-    TextInputLayout networkNameInputLayout;
+    TextInputLayout nameInputLayout;
     @BindView(R.id.text_input)
-    TextInputEditText networkNameInput;
+    TextInputEditText nameInput;
 
-    private String mNetworkName;
+    private String mProvisionerName;
 
-    public static DialogFragmentNetworkName newInstance(final String networkName) {
-        DialogFragmentNetworkName fragmentNetworkKey = new DialogFragmentNetworkName();
+    public static DialogFragmentProvisionerName newInstance(final String name) {
+        DialogFragmentProvisionerName fragmentNetworkKey = new DialogFragmentProvisionerName();
         final Bundle args = new Bundle();
-        args.putString(NETWORK_NAME, networkName);
+        args.putString(PROVISIONER_NAME, name);
         fragmentNetworkKey.setArguments(args);
         return fragmentNetworkKey;
     }
@@ -68,7 +68,7 @@ public class DialogFragmentNetworkName extends DialogFragment {
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mNetworkName = getArguments().getString(NETWORK_NAME);
+            mProvisionerName = getArguments().getString(PROVISIONER_NAME);
         }
     }
 
@@ -80,9 +80,9 @@ public class DialogFragmentNetworkName extends DialogFragment {
         //Bind ui
         ButterKnife.bind(this, rootView);
         final TextView summary = rootView.findViewById(R.id.summary);
-        networkNameInputLayout.setHint(getString(R.string.hint_global_network_name));
-        networkNameInput.setText(mNetworkName);
-        networkNameInput.addTextChangedListener(new TextWatcher() {
+        nameInputLayout.setHint(getString(R.string.name));
+        nameInput.setText(mProvisionerName);
+        nameInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -91,9 +91,9 @@ public class DialogFragmentNetworkName extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    networkNameInputLayout.setError(getString(R.string.error_empty_name));
+                    nameInputLayout.setError(getString(R.string.error_empty_name));
                 } else {
-                    networkNameInputLayout.setError(null);
+                    nameInputLayout.setError(null);
                 }
             }
 
@@ -103,41 +103,33 @@ public class DialogFragmentNetworkName extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
-                .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
+                .setView(rootView)
+                .setIcon(R.drawable.ic_lan_black_alpha_24dp)
+                .setTitle(R.string.title_provisioner_name)
+                .setPositiveButton(R.string.ok, null)
+                .setNegativeButton(R.string.cancel, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
-        alertDialogBuilder.setTitle(R.string.title_network_name);
-        summary.setText(R.string.summary_network_name);
+        summary.setText(R.string.provisioner_name_rationale);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String networkKey = networkNameInput.getEditableText().toString();
-            if (validateInput(networkKey)) {
-                if(getParentFragment() == null) {
-                    ((DialogFragmentNetworkNameListener) requireActivity()).onNetworkNameEntered(networkKey);
-                } else {
-                    ((DialogFragmentNetworkNameListener) getParentFragment()).onNetworkNameEntered(networkKey);
+            final String name = nameInput.getEditableText().toString();
+            try {
+                if (((DialogFragmentProvisionerNameListener) requireActivity()).onNameChanged(name)) {
+                    dismiss();
                 }
-                dismiss();
+            } catch (IllegalArgumentException ex) {
+                nameInputLayout.setError(ex.getMessage());
             }
         });
 
         return alertDialog;
     }
 
-    private boolean validateInput(final String input) {
-        if(TextUtils.isEmpty(input)){
-            networkNameInputLayout.setError(getString(R.string.error_empty_name));
-            return false;
-        }
+    public interface DialogFragmentProvisionerNameListener {
 
-        return true;
-    }
-
-    public interface DialogFragmentNetworkNameListener {
-
-        void onNetworkNameEntered(@NonNull final String name);
+        boolean onNameChanged(@NonNull final String name);
 
     }
 }

@@ -74,6 +74,15 @@
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTop"/>
         <activity
+            android:name=".provisioners.ProvisionersActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".provisioners.AddProvisionerActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".provisioners.EditProvisionerActivity"
+            android:launchMode="singleTop"/>
+        <activity
             android:name=".keys.NetKeysActivity"
             android:launchMode="singleTop"/>
         <activity

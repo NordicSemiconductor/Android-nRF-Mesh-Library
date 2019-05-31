@@ -20,9 +20,10 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.keys;
+package no.nordicsemi.android.nrfmeshprovisioner.provisioners;
 
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -37,123 +38,146 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentEditAppKey;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.MeshKeyListener;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentEditNetKey;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentKeyName;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditAppKeyViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddProvisionerViewModel;
 
-public class EditAppKeyActivity extends AppCompatActivity implements Injectable, MeshKeyListener {
+public class AddProvisionerActivity extends AppCompatActivity implements Injectable, MeshKeyListener {
 
+    private static final String APPLICATION_KEY = "APPLICATION_KEY";
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
+    private TextView nameView;
+    private TextView keyView;
+    private TextView keyIndexView;
 
-    private EditAppKeyViewModel mViewModel;
-    private ApplicationKey applicationKey;
+    private AddProvisionerViewModel mViewModel;
+    private NetworkKey netKey;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_key);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(EditAppKeyViewModel.class);
-
-        //noinspection ConstantConditions
-        final int index = getIntent().getExtras().getInt(AppKeysActivity.EDIT_APP_KEY);
-        applicationKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(index);
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AddProvisionerViewModel.class);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //noinspection ConstantConditions
-        getSupportActionBar().setTitle(R.string.title_edit_app_key);
+        getSupportActionBar().setTitle(R.string.title_add_net_key);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final View containerKey = findViewById(R.id.container_key);
         containerKey.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lock_open_black_alpha_24dp));
-        ((TextView) containerKey.findViewById(R.id.title)).setText(R.string.title_app_key);
-        final TextView keyView = containerKey.findViewById(R.id.text);
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
+        ((TextView) containerKey.findViewById(R.id.title)).setText(R.string.title_net_key);
+        keyView = containerKey.findViewById(R.id.text);
         keyView.setVisibility(View.VISIBLE);
 
         final View containerKeyName = findViewById(R.id.container_key_name);
         containerKeyName.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_outline_black_alpha_24dp));
         ((TextView) containerKeyName.findViewById(R.id.title)).setText(R.string.name);
-        final TextView name = containerKeyName.findViewById(R.id.text);
-        name.setVisibility(View.VISIBLE);
+        nameView = containerKeyName.findViewById(R.id.text);
+        nameView.setVisibility(View.VISIBLE);
 
         final View containerKeyIndex = findViewById(R.id.container_key_index);
         containerKeyIndex.setClickable(false);
         containerKeyIndex.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_index));
         ((TextView) containerKeyIndex.findViewById(R.id.title)).setText(R.string.title_key_index);
-        final TextView keyIndexView = containerKeyIndex.findViewById(R.id.text);
+        keyIndexView = containerKeyIndex.findViewById(R.id.text);
         keyIndexView.setVisibility(View.VISIBLE);
 
         containerKey.setOnClickListener(v -> {
-            if (applicationKey != null) {
-                final DialogFragmentEditAppKey fragment = DialogFragmentEditAppKey.newInstance(applicationKey.getKeyIndex(), applicationKey);
+            if (netKey != null) {
+                final DialogFragmentEditNetKey fragment = DialogFragmentEditNetKey.newInstance(netKey.getKeyIndex(), netKey);
                 fragment.show(getSupportFragmentManager(), null);
             }
         });
 
         containerKeyName.setOnClickListener(v -> {
-            if (applicationKey != null) {
-                final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(applicationKey.getName());
+            if (netKey != null) {
+                final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(netKey.getName());
                 fragment.show(getSupportFragmentManager(), null);
             }
         });
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
-            if(applicationKey != null) {
-                this.applicationKey = meshNetworkLiveData.getMeshNetwork().getAppKey(applicationKey.getKeyIndex());
-                keyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
-                name.setText(applicationKey.getName());
-                keyIndexView.setText(String.valueOf(applicationKey.getKeyIndex()));
+        if (savedInstanceState == null) {
+            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+            if (network != null) {
+                netKey = network.createNetworkKey();
             }
-        });
-
-        if(savedInstanceState == null){
-            keyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
-            name.setText(applicationKey.getName());
+        } else {
+            netKey = savedInstanceState.getParcelable(APPLICATION_KEY);
         }
-        keyIndexView.setText(String.valueOf(applicationKey.getKeyIndex()));
+        updateUi();
+    }
 
+    private void updateUi(){
+        if (netKey != null) {
+            keyView.setText(MeshParserUtils.bytesToHex(netKey.getKey(), false));
+            nameView.setText(netKey.getName());
+            keyIndexView.setText(String.valueOf(netKey.getKeyIndex()));
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_save, menu);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            case R.id.action_save:
+                if (save()) {
+                    onBackPressed();
+                }
+                return true;
         }
         return false;
     }
 
-    public void onItemClick(final int position, @NonNull final ApplicationKey appKey) {
-        final DialogFragmentEditAppKey dialogFragmentEditAppKey = DialogFragmentEditAppKey.newInstance(position, appKey);
-        dialogFragmentEditAppKey.show(getSupportFragmentManager(), null);
+    private boolean save() {
+        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        if (network != null) {
+            return network.addNetKey(netKey);
+        }
+        return false;
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(APPLICATION_KEY, netKey);
     }
 
     @Override
     public boolean onKeyNameUpdated(@NonNull final String name) {
-        if(applicationKey != null) {
-            final int index = applicationKey.getKeyIndex();
-            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if(network != null) {
-                return network.updateAppKeyName(index, name);
-            }
+        if (netKey != null) {
+            netKey.setName(name);
+            nameView.setText(name);
+            return true;
         }
         return false;
     }
 
     @Override
     public boolean onKeyUpdated(final int position, @NonNull final String key) {
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-        if(network != null) {
-            return network.updateAppKey(position, key);
+        if(netKey != null) {
+            this.netKey.setKey(MeshParserUtils.toByteArray(key));
+            keyView.setText(key);
+            return true;
         }
         return false;
     }

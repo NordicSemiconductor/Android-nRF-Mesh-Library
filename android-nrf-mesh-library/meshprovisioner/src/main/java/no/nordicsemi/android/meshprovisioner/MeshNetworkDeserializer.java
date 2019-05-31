@@ -229,13 +229,13 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             provisionerJson.addProperty("provisionerName", provisioner.getProvisionerName());
             provisionerJson.addProperty("UUID", provisioner.getProvisionerUuid());
             provisionerJson.add("allocatedUnicastRange",
-                    serializeAllocatedUnicastRanges(context, provisioner.getAllocatedUnicastRanges()));
+                    serializeAllocatedUnicastRanges(context, provisioner.allocatedUnicastRanges));
 
             provisionerJson.add("allocatedGroupRange",
-                    serializeAllocatedGroupRanges(context, provisioner.getAllocatedGroupRanges()));
+                    serializeAllocatedGroupRanges(context, provisioner.allocatedGroupRanges));
 
             provisionerJson.add("allocatedSceneRange",
-                    serializeAllocatedSceneRanges(context, provisioner.getAllocatedSceneRanges()));
+                    serializeAllocatedSceneRanges(context, provisioner.allocatedSceneRanges));
             jsonArray.add(provisionerJson);
         }
         return jsonArray;

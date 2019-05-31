@@ -20,7 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.keys;
+package no.nordicsemi.android.nrfmeshprovisioner.provisioners;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,8 +31,6 @@ import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -51,22 +49,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.ManageNetKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetKeysViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.EditNetKeyActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.adapter.ProvisionerAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionersViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class NetKeysActivity extends AppCompatActivity implements Injectable,
-        ManageNetKeyAdapter.OnItemClickListener,
+public class ProvisionersActivity extends AppCompatActivity implements Injectable,
+        ProvisionerAdapter.OnItemClickListener,
         ItemTouchHelperAdapter {
 
-    public static final String EDIT_NET_KEY = "EDIT_NET_KEY";
+    public static final String EDIT_PROVISIONER = "EDIT_PROVISIONER";
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -76,17 +75,17 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
     View container;
     @BindView(R.id.scroll_container)
     ScrollView scrollView;
-    @BindView(R.id.sub_net_key_card)
-    CardView mSubNetKeyCard;
+    @BindView(R.id.provisioners_card)
+    CardView mProvisionersCard;
 
-    private NetKeysViewModel mViewModel;
-    private ManageNetKeyAdapter mAdapter;
+    private ProvisionersViewModel mViewModel;
+    private ProvisionerAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_net_keys);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(NetKeysViewModel.class);
+        setContentView(R.layout.activity_provisioners);
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ProvisionersViewModel.class);
 
         //Bind ui
         ButterKnife.bind(this);
@@ -94,57 +93,57 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //noinspection ConstantConditions
-        getSupportActionBar().setTitle(R.string.title_manage_net_keys);
+        getSupportActionBar().setTitle(R.string.title_manage_provisioners);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final View containerKey = findViewById(R.id.container_primary_net_key);
-        containerKey.findViewById(R.id.image).
+        final View containerProvisioner = findViewById(R.id.container_current_provisioner);
+        containerProvisioner.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lock_open_black_alpha_24dp));
-        final TextView keyTitle = containerKey.findViewById(R.id.title);
-        final TextView keyView = containerKey.findViewById(R.id.text);
-        keyView.setVisibility(View.VISIBLE);
+        final TextView provisionerTitle = containerProvisioner.findViewById(R.id.title);
+        final TextView provisionerView = containerProvisioner.findViewById(R.id.text);
+        provisionerView.setVisibility(View.VISIBLE);
 
         final ExtendedFloatingActionButton fab = findViewById(R.id.fab);
 
-        final RecyclerView netKeysRecyclerView = findViewById(R.id.recycler_view_keys);
-        netKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        netKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        final RecyclerView provisionersRecyclerView = findViewById(R.id.recycler_view_provisioners);
+        provisionersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        provisionersRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(netKeysRecyclerView);
-        mAdapter = new ManageNetKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
+        itemTouchHelper.attachToRecyclerView(provisionersRecyclerView);
+        mAdapter = new ProvisionerAdapter(this, mViewModel.getMeshNetworkLiveData());
         mAdapter.setOnItemClickListener(this);
-        netKeysRecyclerView.setAdapter(mAdapter);
+        provisionersRecyclerView.setAdapter(mAdapter);
 
         mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
             final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
-            if(network!= null) {
-                final NetworkKey networkKey = network.getPrimaryNetworkKey();
-                keyTitle.setText(networkKey.getName());
-                keyView.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
+            if (network != null) {
+                final Provisioner provisioner = network.getSelectedProvisioner();
+                provisionerTitle.setText(provisioner.getProvisionerName());
+                provisionerView.setText(getString(R.string.unicast_address, MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true)));
 
-                if (network.getNetKeys().size() > 1) {
-                    mSubNetKeyCard.setVisibility(View.VISIBLE);
+                if (network.getProvisioners().size() > 1) {
+                    mProvisionersCard.setVisibility(View.VISIBLE);
                 } else {
-                    mSubNetKeyCard.setVisibility(View.GONE);
+                    mProvisionersCard.setVisibility(View.GONE);
                 }
             }
         });
 
-        containerKey.setOnClickListener(v -> {
-            final Intent intent = new Intent(this, EditNetKeyActivity.class);
-            intent.putExtra(EDIT_NET_KEY, 0);
+        containerProvisioner.setOnClickListener(v -> {
+            final Intent intent = new Intent(this, EditProvisionerActivity.class);
+            intent.putExtra(EDIT_PROVISIONER, 0);
             startActivity(intent);
         });
 
         fab.setOnClickListener(v -> {
-            final Intent intent = new Intent(this, AddNetKeyActivity.class);
+            final Intent intent = new Intent(this, AddProvisionerActivity.class);
             startActivity(intent);
         });
 
         scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
-            if(scrollView.getScrollY() == 0){
+            if (scrollView.getScrollY() == 0) {
                 fab.extend(true);
             } else {
                 fab.shrink(true);
@@ -162,18 +161,21 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
     }
 
     @Override
-    public void onItemClick(final int position, @NonNull final NetworkKey networkKey) {
-        final Intent intent = new Intent(this, EditNetKeyActivity.class);
-        intent.putExtra(EDIT_NET_KEY, networkKey.getKeyIndex());
+    public void onItemClick(final int position, @NonNull final Provisioner provisioner) {
+        final Intent intent = new Intent(this, EditProvisionerActivity.class);
+        intent.putExtra(EDIT_PROVISIONER, position);
         startActivity(intent);
     }
 
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
-        final NetworkKey key = (NetworkKey) viewHolder.getSwipeableView().getTag();
+        final int position = viewHolder.getAdapterPosition();
+        final Provisioner provisioner = mAdapter.getItem(position);
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+
         try {
-            if (removeNetKey(key)) {
-                displaySnackBar(key);
+            if (network.removeProvisioner(provisioner)) {
+                displaySnackBar(provisioner);
             }
         } catch (Exception ex) {
             mAdapter.notifyDataSetChanged();
@@ -186,9 +188,11 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
 
     }
 
-    private void displaySnackBar(final NetworkKey networkKey) {
-        Snackbar.make(container, getString(R.string.net_key_deleted), Snackbar.LENGTH_LONG)
-                .setAction(getString(R.string.undo), view -> addNetKey(networkKey))
+    private void displaySnackBar(@NonNull final Provisioner provisioner) {
+        Snackbar.make(container, getString(R.string.provisioner_deleted), Snackbar.LENGTH_LONG)
+                .setAction(getString(R.string.undo), view -> {
+
+                })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();
     }
@@ -196,15 +200,6 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
     private void displaySnackBar(final String message) {
         Snackbar.make(container, message, Snackbar.LENGTH_LONG)
                 .show();
-    }
-
-    @SuppressWarnings("UnusedReturnValue")
-    private boolean addNetKey(@NonNull final NetworkKey networkKey) {
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-        if (network != null) {
-            return network.addNetKey(networkKey);
-        }
-        return false;
     }
 
     private boolean removeNetKey(@NonNull final NetworkKey networkKey) {

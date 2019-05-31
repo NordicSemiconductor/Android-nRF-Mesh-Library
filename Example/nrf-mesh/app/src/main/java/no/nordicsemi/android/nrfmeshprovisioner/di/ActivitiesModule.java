@@ -45,6 +45,9 @@ import no.nordicsemi.android.nrfmeshprovisioner.VendorModelActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.EditAppKeyActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.EditNetKeyActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.NetKeysActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.AddProvisionerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.EditProvisionerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.ProvisionersActivity;
 
 @Module
 abstract class ActivitiesModule {
@@ -54,6 +57,15 @@ abstract class ActivitiesModule {
 
 	@ContributesAndroidInjector(modules = FragmentBuildersModule.class)
 	abstract MainActivity contributeMainActivity();
+
+	@ContributesAndroidInjector()
+	abstract ProvisionersActivity contributeProvisionersActivity();
+
+	@ContributesAndroidInjector()
+	abstract AddProvisionerActivity contributeAddProvisionersActivity();
+
+	@ContributesAndroidInjector()
+	abstract EditProvisionerActivity contributeEditProvisionersActivity();
 
 	@ContributesAndroidInjector()
 	abstract NetKeysActivity contributeNetKeysActivity();

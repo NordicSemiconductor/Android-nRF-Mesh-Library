@@ -63,7 +63,7 @@
                 android:paddingBottom="@dimen/activity_vertical_margin">
 
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/primary_net_key_card"
+                    android:id="@+id/current_provisioner_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
@@ -77,15 +77,15 @@
                         android:paddingBottom="@dimen/item_padding_bottom">
 
                         <androidx.appcompat.widget.Toolbar
-                            android:id="@+id/primary_net_key_toolbar"
+                            android:id="@+id/current_provisioner_toolbar"
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
                             app:logo="@drawable/ic_vpn_key_black_alpha_24dp"
-                            app:title="@string/title_primary_net_key"
+                            app:title="@string/title_current_provisioner"
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
                         <include
-                            android:id="@+id/container_primary_net_key"
+                            android:id="@+id/container_current_provisioner"
                             layout="@layout/layout_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
@@ -94,7 +94,7 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/sub_net_key_card"
+                    android:id="@+id/provisioners_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/white"
@@ -111,31 +111,31 @@
                         app:layout_constraintTop_toBottomOf="@id/appbar_layout">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
-                            android:id="@+id/sub_net_key_container"
+                            android:id="@+id/provisioner_container"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:orientation="vertical">
 
                             <androidx.appcompat.widget.Toolbar
-                                android:id="@+id/sub_net_key_toolbar"
+                                android:id="@+id/provisioner_toolbar"
                                 android:layout_width="match_parent"
                                 android:layout_height="?actionBarSize"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
                                 app:logo="@drawable/ic_folder_key_black_24dp_alpha"
-                                app:title="@string/title_sub_net_keys"
+                                app:title="@string/title_other_provisioner"
                                 app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
                             <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/recycler_view_keys"
+                                android:id="@+id/recycler_view_provisioners"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
+                                android:layout_height="wrap_content"
                                 android:clipToPadding="false"
                                 android:scrollbars="none"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/sub_net_key_toolbar"/>
+                                app:layout_constraintTop_toBottomOf="@id/provisioner_toolbar"/>
 
                             <include
                                 android:id="@+id/div3"
@@ -144,19 +144,20 @@
                                 android:layout_height="1dp"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/recycler_view_keys"/>
+                                app:layout_constraintTop_toBottomOf="@id/recycler_view_provisioners"/>
 
                             <TextView
                                 android:id="@+id/delete_hint"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="@dimen/item_padding_end"
                                 android:padding="@dimen/activity_horizontal_margin"
-                                android:text="@string/hint_delete_key"
+                                android:text="@string/hint_delete_provisioner"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/div3"
                                 tools:visibility="visible"/>
+
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </androidx.core.widget.NestedScrollView>
@@ -171,7 +172,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/activity_horizontal_margin"
-        android:text="@string/action_add_sub_net_key"
+        android:text="@string/title_add_provisioner"
         app:elevation="@dimen/fab_elevation"
         app:fabSize="normal"
         app:icon="@drawable/ic_add_white"

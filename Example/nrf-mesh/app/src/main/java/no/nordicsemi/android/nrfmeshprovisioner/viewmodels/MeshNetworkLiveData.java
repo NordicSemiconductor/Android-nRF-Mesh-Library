@@ -69,7 +69,7 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
         postValue(this);
     }
 
-    public List<NetworkKey> getNetworkKeys(){
+    public List<NetworkKey> getNetworkKeys() {
         return meshNetwork.getNetKeys();
     }
 
@@ -86,7 +86,7 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      * @param networkKey network key
      */
     public void setPrimaryNetworkKey(@NonNull final String networkKey) {
-        if(meshNetwork != null) {
+        if (meshNetwork != null) {
             meshNetwork.addNetKey(0, networkKey);
         }
         postValue(this);
@@ -155,20 +155,15 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
         postValue(this);
     }
 
-    public Provisioner getProvisioner(){
+    /**
+     * Returns the list of {@link Provisioner}
+     */
+    public List<Provisioner> getProvisioners() {
+        return meshNetwork.getProvisioners();
+    }
+
+    public Provisioner getProvisioner() {
         return meshNetwork.getSelectedProvisioner();
-    }
-
-    public byte[] getProvisionerAddress() {
-        return AddressUtils.getUnicastAddressBytes(meshNetwork.getProvisionerAddress());
-    }
-
-    public boolean setProvisionerAddress(final int address) {
-        final boolean flag = meshNetwork.setProvisionerAddress(address);
-        if (flag) {
-            postValue(this);
-        }
-        return flag;
     }
 
     /**

@@ -1041,8 +1041,8 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         @Override
-        public void onProvisionerUpdated(final List<Provisioner> provisioners) {
-            mMeshNetworkDb.updateProvisioner(mProvisionerDao, provisioners);
+        public void onProvisionersUpdated(final List<Provisioner> provisioners) {
+            mMeshNetworkDb.updateProvisioners(mProvisionerDao, provisioners);
             mTransportCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 

@@ -149,7 +149,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         final View containerUnicastAddress = findViewById(R.id.container_supported_algorithm);
         containerUnicastAddress.findViewById(R.id.image).setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lan_black_alpha_24dp));
         final TextView unicastAddressTitle = containerUnicastAddress.findViewById(R.id.title);
-        unicastAddressTitle.setText(R.string.summary_unicast_address);
+        unicastAddressTitle.setText(R.string.title_unicast_address);
         final TextView unicastAddressView = containerUnicastAddress.findViewById(R.id.text);
         unicastAddressView.setVisibility(View.VISIBLE);
         containerUnicastAddress.setOnClickListener(v -> {

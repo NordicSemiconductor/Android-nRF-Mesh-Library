@@ -58,6 +58,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentPermissionR
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNetwork;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.NetKeysActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.ProvisionersActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
@@ -115,8 +116,9 @@ public class SettingsFragment extends Fragment implements Injectable,
         final TextView provisionerSummary = containerProvisioner.findViewById(R.id.text);
         provisionerSummary.setVisibility(View.VISIBLE);
         provisionerTitle.setText(R.string.title_provisioners);
-        provisionerTitle.setOnClickListener(v -> {
-
+        containerProvisioner.setOnClickListener(v -> {
+            final Intent intent = new Intent(requireContext(), ProvisionersActivity.class);
+            startActivity(intent);
         });
 
         final View containerKey = rootView.findViewById(R.id.container_net_keys);
@@ -158,7 +160,7 @@ public class SettingsFragment extends Fragment implements Injectable,
             if (meshNetworkLiveData != null) {
                 networkNameView.setText(meshNetworkLiveData.getNetworkName());
                 netKeySummary.setText(String.valueOf(meshNetworkLiveData.getNetworkKeys().size()));
-                provisionerSummary.setText(meshNetworkLiveData.getProvisioner().getProvisionerName());
+                provisionerSummary.setText(String.valueOf(meshNetworkLiveData.getProvisioners().size()));
                 appKeySummary.setText(String.valueOf(meshNetworkLiveData.getAppKeys().size()));
             }
         });
@@ -237,8 +239,8 @@ public class SettingsFragment extends Fragment implements Injectable,
     }
 
     @Override
-    public void onNetworkNameEntered(final String networkName) {
-        mViewModel.getMeshNetworkLiveData().setNetworkName(networkName);
+    public void onNetworkNameEntered(@NonNull final String name) {
+        mViewModel.getMeshNetworkLiveData().setNetworkName(name);
     }
 
     @Override

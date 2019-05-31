@@ -1,5 +1,16 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import android.text.TextUtils;
+
+import com.google.gson.annotations.Expose;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -7,15 +18,8 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-
-import com.google.gson.annotations.Expose;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 
 import static androidx.room.ForeignKey.CASCADE;
@@ -50,15 +54,15 @@ public class Provisioner {
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<AllocatedGroupRange> allocatedGroupRanges = new ArrayList<>();
+    protected List<AllocatedGroupRange> allocatedGroupRanges = new ArrayList<>();
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<AllocatedUnicastRange> allocatedUnicastRanges = new ArrayList<>();
+    protected List<AllocatedUnicastRange> allocatedUnicastRanges = new ArrayList<>();
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<AllocatedSceneRange> allocatedSceneRanges = new ArrayList<>();
+    protected List<AllocatedSceneRange> allocatedSceneRanges = new ArrayList<>();
 
     @ColumnInfo(name = "sequence_number")
     @Expose
@@ -102,6 +106,7 @@ public class Provisioner {
      *
      * @return String provisionerUuid
      */
+    @NonNull
     public String getMeshUuid() {
         return meshUuid;
     }
@@ -129,7 +134,9 @@ public class Provisioner {
      *
      * @param provisionerName friendly name
      */
-    public void setProvisionerName(final String provisionerName) {
+    public void setProvisionerName(@NonNull final String provisionerName) throws IllegalArgumentException {
+        if (TextUtils.isEmpty(provisionerName))
+            throw new IllegalArgumentException("Name cannot be empty");
         this.provisionerName = provisionerName;
     }
 
@@ -153,7 +160,7 @@ public class Provisioner {
      * @return allocated range of group addresses
      */
     public List<AllocatedGroupRange> getAllocatedGroupRanges() {
-        return allocatedGroupRanges;
+        return Collections.unmodifiableList(allocatedGroupRanges);
     }
 
     /**
@@ -171,7 +178,7 @@ public class Provisioner {
      * @return allocated range of unicast addresses
      */
     public List<AllocatedUnicastRange> getAllocatedUnicastRanges() {
-        return allocatedUnicastRanges;
+        return Collections.unmodifiableList(allocatedUnicastRanges);
     }
 
     /**
@@ -189,7 +196,7 @@ public class Provisioner {
      * @return allocated range of unicast addresses
      */
     public List<AllocatedSceneRange> getAllocatedSceneRanges() {
-        return allocatedSceneRanges;
+        return Collections.unmodifiableList(allocatedSceneRanges);
     }
 
     /**
@@ -214,9 +221,14 @@ public class Provisioner {
         return provisionerAddress;
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setProvisionerAddress(final int provisionerAddress) {
-        this.provisionerAddress = provisionerAddress;
+    /**
+     * Set provisioner address
+     *
+     * @param address address of the provisioner
+     */
+    public void setProvisionerAddress(final int address) {
+        if(MeshAddress.isValidUnicastAddress(address))
+        this.provisionerAddress = address;
     }
 
     public int getGlobalTtl() {

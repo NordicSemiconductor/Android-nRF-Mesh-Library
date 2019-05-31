@@ -114,7 +114,21 @@
     <string name="summary_network_name">Enter a network name</string>
     <string name="hint_global_network_name">Network Name</string>
 
+    <string name="title_allocated_ranges">Allocated Ranges</string>
+    <string name="summary_ranges">%d ranges</string>
+
     <string name="title_provisioners">Provisioners</string>
+    <string name="title_provisioner">Provisioner</string>
+    <string name="title_provisioner_address">Provisioner Address</string>
+    <string name="provisioner_name_rationale">This is a friendly name that can be used to identify a provisioner.</string>
+    <string name="title_provisioner_name">Provisioner Name</string>
+    <string name="title_current_provisioner">Current Provisioner</string>
+    <string name="title_other_provisioner">Other Provisioners</string>
+    <string name="title_manage_provisioners">Manage Provisioners</string>
+    <string name="title_add_provisioner">Add Provisioner</string>
+    <string name="title_edit_provisioner">Edit Provisioner</string>
+    <string name="provisioner_deleted">Provisioner deleted</string>
+    <string name="hint_delete_provisioner">Hint: Swipe to delete a provisioner.</string>
     <string name="provisioner_authentication_title">Authentication</string>
     <string name="provisioner_input_static_oob">Input the 128-bit Static OOB value provided with the device.</string>
     <string name="provisioner_input_blinks">Input the number of times the device blinked.</string>
@@ -137,7 +151,7 @@
     <string name="summary_flags">Flags</string>
     <string name="title_net_keys">Network Keys</string>
     <string name="summary_index">Key Index</string>
-    <string name="summary_unicast_address">Unicast Address</string>
+    <string name="unicast_address">Unicast Address: %s</string>
 
     <string name="title_node_name">Node name</string>
     <string name="summary_name">Name</string>
@@ -178,8 +192,11 @@
 
     <string name="title_unicast_address">Unicast Address</string>
     <string name="dialog_summary_unicast_address">Enter a unicast address for the node.</string>
+    <string name="title_unicast_addresses">Unicast Addresses</string>
+    <string name="title_group_addresses">Group Addresses</string>
+    <string name="title_scenes">Scenes</string>
     <string name="hint_unicast_address">Unicast address</string>
-    <string name="error_empty_unicast_address">Unicast Address cannot be empty!</string>
+    <string name="error_empty_unicast_address">Address cannot be empty!</string>
     <string name="network">Network</string>
     <string name="action_groups">Groups</string>
     <string name="action_proxy">Proxy Filter</string>

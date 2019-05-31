@@ -170,7 +170,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         adapter.setOnItemClickListener(this);
         mRecyclerViewElements.setAdapter(adapter);
 
-        final RecyclerView recyclerViewAppKeys = findViewById(R.id.recycler_view_keys);
+        final RecyclerView recyclerViewAppKeys = findViewById(R.id.recycler_view_provisioners);
         recyclerViewAppKeys.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewAppKeys.setItemAnimator(new DefaultItemAnimator());
         mViewModel.getMeshNetworkLiveData().getAppKeys();

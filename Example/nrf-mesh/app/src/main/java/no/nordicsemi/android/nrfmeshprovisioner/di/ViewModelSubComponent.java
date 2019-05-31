@@ -23,15 +23,20 @@
 package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import dagger.Subcomponent;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddAppKeyViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddNetKeyViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AppKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditAppKeyViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditNetKeyViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.GroupControlsViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeDetailsViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionersViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ReconnectViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerViewModel;
@@ -54,9 +59,14 @@ public interface ViewModelSubComponent {
 	SharedViewModel commonViewModel();
 	ScannerViewModel scannerViewModel();
 	GroupControlsViewModel groupControlsViewModel();
+	ProvisionersViewModel provisionersViewModel();
+	AddProvisionerViewModel addProvisionerViewModel();
+	EditProvisionerViewModel editProvisionerViewModel();
 	NetKeysViewModel netKeysViewModel();
+	AddNetKeyViewModel addNetKeyViewModel();
 	EditNetKeyViewModel editNetKeyViewModel();
 	AppKeysViewModel appKeysViewModel();
+	AddAppKeyViewModel addAppKeyViewModel();
 	EditAppKeyViewModel editAppKeyViewModel();
 	MeshProvisionerViewModel meshProvisionerViewModel();
 	NodeConfigurationViewModel nodeConfigurationViewModel();

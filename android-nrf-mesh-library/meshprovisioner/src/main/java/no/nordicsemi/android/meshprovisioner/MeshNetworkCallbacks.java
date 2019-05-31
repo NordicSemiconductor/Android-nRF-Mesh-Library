@@ -24,7 +24,7 @@ interface MeshNetworkCallbacks {
 
     void onProvisionerUpdated(final Provisioner provisioner);
 
-    void onProvisionerUpdated(final List<Provisioner> provisioner);
+    void onProvisionersUpdated(final List<Provisioner> provisioner);
 
     void onNodeDeleted(final ProvisionedMeshNode meshNode);
 

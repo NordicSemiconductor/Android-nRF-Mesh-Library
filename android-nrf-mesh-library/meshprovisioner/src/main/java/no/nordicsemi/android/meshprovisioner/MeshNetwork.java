@@ -108,6 +108,35 @@ public final class MeshNetwork extends BaseMeshNetwork {
     }
 
     /**
+     * Returns the list of {@link Provisioner}
+     */
+    public List<Provisioner> getProvisioners() {
+        return Collections.unmodifiableList(provisioners);
+    }
+
+    public boolean removeProvisioner(@NonNull final Provisioner provisioner){
+        return provisioners.remove(provisioner);
+    }
+
+    /**
+     * Update provisioner
+     *
+     * @param provisioner {@link Provisioner}
+     * @return returns true if updated and false otherwise
+     */
+    public boolean updateProvisioner(@NonNull final Provisioner provisioner) {
+        if(provisioners.contains(provisioner)) {
+            final int index = provisioners.indexOf(provisioner);
+            if(index >= 0 ) {
+                provisioners.set(index, provisioner);
+                notifyProvisionerUpdated(provisioner);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns the list of {@link ProvisionedMeshNode}
      */
     public List<ProvisionedMeshNode> getNodes() {
@@ -305,10 +334,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     public void setLastSelected(final boolean lastSelected) {
         this.lastSelected = lastSelected;
-    }
-
-    public List<Provisioner> getProvisioners() {
-        return Collections.unmodifiableList(provisioners);
     }
 
     /**

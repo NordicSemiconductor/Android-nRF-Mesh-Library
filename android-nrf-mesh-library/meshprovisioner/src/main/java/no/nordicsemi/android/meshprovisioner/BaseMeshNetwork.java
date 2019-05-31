@@ -122,7 +122,6 @@ abstract class BaseMeshNetwork {
     @Ignore
     private final Comparator<ApplicationKey> appKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
 
-
     @Ignore
     private final Comparator<NetworkKey> netKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
 
@@ -526,23 +525,6 @@ abstract class BaseMeshNetwork {
     }
 
     /**
-     * Set provisioner address
-     *
-     * @param address Unicast address
-     * @return true if success, false if the address is in use by another device
-     */
-    public boolean setProvisionerAddress(final int address) {
-        if (!isAddressInUse(address)) {
-            final Provisioner provisioner = getSelectedProvisioner();
-            provisioner.setProvisionerAddress(address);
-            notifyProvisionerUpdated(provisioner);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Returns the next available unicast address
      *
      * @return unicast address
@@ -559,7 +541,7 @@ abstract class BaseMeshNetwork {
     /**
      * Set a unicast address, to be assigned to a node
      *
-     * @param unicastAddress unicast address
+     * @param unicastAddress Unicast address
      * @return true if success, false if the address is in use by another device
      */
     public boolean assignUnicastAddress(final int unicastAddress) {
@@ -710,7 +692,7 @@ abstract class BaseMeshNetwork {
 
     final void notifyProvisionerUpdated(final List<Provisioner> provisioner) {
         if (mCallbacks != null) {
-            mCallbacks.onProvisionerUpdated(provisioner);
+            mCallbacks.onProvisionersUpdated(provisioner);
         }
     }
 
