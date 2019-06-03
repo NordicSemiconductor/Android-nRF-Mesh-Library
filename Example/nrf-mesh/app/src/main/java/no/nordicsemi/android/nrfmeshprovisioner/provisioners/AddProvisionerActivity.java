@@ -22,13 +22,13 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.provisioners;
 
+import android.bluetooth.BluetoothAdapter;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,98 +37,118 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+
+import javax.inject.Inject;
+
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.meshprovisioner.Provisioner;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.keys.MeshKeyListener;
-import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentEditNetKey;
-import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentKeyName;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddProvisionerViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerAddress;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerName;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditProvisionerViewModel;
 
-public class AddProvisionerActivity extends AppCompatActivity implements Injectable, MeshKeyListener {
+public class AddProvisionerActivity extends AppCompatActivity implements Injectable,
+        DialogFragmentProvisionerName.DialogFragmentProvisionerNameListener,
+        DialogFragmentProvisionerAddress.DialogFragmentAddressListener {
 
-    private static final String APPLICATION_KEY = "APPLICATION_KEY";
+    private static final String PROVISIONER_KEY = "PROVISIONER";
+
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
-    private TextView nameView;
-    private TextView keyView;
-    private TextView keyIndexView;
 
-    private AddProvisionerViewModel mViewModel;
-    private NetworkKey netKey;
+    private TextView provisionerName;
+    private TextView provisionerUnicast;
+    private TextView unicastRange;
+    private TextView groupRange;
+    private TextView sceneRange;
+
+    private EditProvisionerViewModel mViewModel;
+    private Provisioner provisioner;
+
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_key);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AddProvisionerViewModel.class);
+        setContentView(R.layout.activity_edit_provisioner);
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(EditProvisionerViewModel.class);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //noinspection ConstantConditions
-        getSupportActionBar().setTitle(R.string.title_add_net_key);
+        getSupportActionBar().setTitle(R.string.title_add_provisioner);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final View containerKey = findViewById(R.id.container_key);
-        containerKey.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
-        ((TextView) containerKey.findViewById(R.id.title)).setText(R.string.title_net_key);
-        keyView = containerKey.findViewById(R.id.text);
-        keyView.setVisibility(View.VISIBLE);
-
-        final View containerKeyName = findViewById(R.id.container_key_name);
-        containerKeyName.findViewById(R.id.image).
+        final View containerProvisionerName = findViewById(R.id.container_name);
+        containerProvisionerName.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_outline_black_alpha_24dp));
-        ((TextView) containerKeyName.findViewById(R.id.title)).setText(R.string.name);
-        nameView = containerKeyName.findViewById(R.id.text);
-        nameView.setVisibility(View.VISIBLE);
+        ((TextView) containerProvisionerName.findViewById(R.id.title)).setText(R.string.name);
+        provisionerName = containerProvisionerName.findViewById(R.id.text);
+        provisionerName.setVisibility(View.VISIBLE);
 
-        final View containerKeyIndex = findViewById(R.id.container_key_index);
-        containerKeyIndex.setClickable(false);
-        containerKeyIndex.findViewById(R.id.image).
+        final View containerUnicast = findViewById(R.id.container_unicast);
+        containerUnicast.setClickable(false);
+        containerUnicast.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_index));
-        ((TextView) containerKeyIndex.findViewById(R.id.title)).setText(R.string.title_key_index);
-        keyIndexView = containerKeyIndex.findViewById(R.id.text);
-        keyIndexView.setVisibility(View.VISIBLE);
+        ((TextView) containerUnicast.findViewById(R.id.title)).setText(R.string.title_unicast_address);
+        provisionerUnicast = containerUnicast.findViewById(R.id.text);
+        provisionerUnicast.setVisibility(View.VISIBLE);
 
-        containerKey.setOnClickListener(v -> {
-            if (netKey != null) {
-                final DialogFragmentEditNetKey fragment = DialogFragmentEditNetKey.newInstance(netKey.getKeyIndex(), netKey);
+        final View containerUnicastRange = findViewById(R.id.container_unicast_range);
+        containerUnicastRange.setClickable(false);
+        containerUnicastRange.findViewById(R.id.image).
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lan_black_alpha_24dp));
+        ((TextView) containerUnicastRange.findViewById(R.id.title)).setText(R.string.title_unicast_addresses);
+        unicastRange = containerUnicastRange.findViewById(R.id.text);
+        unicastRange.setVisibility(View.VISIBLE);
+
+        final View containerGroupRange = findViewById(R.id.container_group_range);
+        containerGroupRange.setClickable(false);
+        containerGroupRange.findViewById(R.id.image).
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_outline_group_work_black_alpha_24dp));
+        ((TextView) containerGroupRange.findViewById(R.id.title)).setText(R.string.title_group_addresses);
+        groupRange = containerGroupRange.findViewById(R.id.text);
+        groupRange.setVisibility(View.VISIBLE);
+
+        final View containerSceneRange = findViewById(R.id.container_scene_range);
+        containerSceneRange.setClickable(false);
+        containerSceneRange.findViewById(R.id.image).
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_arrow_collapse_black_alpha_24dp));
+        ((TextView) containerSceneRange.findViewById(R.id.title)).setText(R.string.title_scenes);
+        sceneRange = containerSceneRange.findViewById(R.id.text);
+        sceneRange.setVisibility(View.VISIBLE);
+
+        containerProvisionerName.setOnClickListener(v -> {
+            if (provisioner != null) {
+                final DialogFragmentProvisionerName fragment = DialogFragmentProvisionerName.newInstance(provisioner.getProvisionerName());
                 fragment.show(getSupportFragmentManager(), null);
             }
         });
 
-        containerKeyName.setOnClickListener(v -> {
-            if (netKey != null) {
-                final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(netKey.getName());
+        containerUnicast.setOnClickListener(v -> {
+            if (provisioner != null) {
+                final DialogFragmentProvisionerAddress fragment = DialogFragmentProvisionerAddress.newInstance(provisioner.getProvisionerAddress());
                 fragment.show(getSupportFragmentManager(), null);
             }
         });
 
-        if (savedInstanceState == null) {
+        if(savedInstanceState == null){
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if (network != null) {
-                netKey = network.createNetworkKey();
+            if(network != null) {
+                provisioner = network.createProvisioner();
+                final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+                provisioner.setProvisionerName(adapter.getName());
             }
         } else {
-            netKey = savedInstanceState.getParcelable(APPLICATION_KEY);
+            provisioner = savedInstanceState.getParcelable(PROVISIONER_KEY);
         }
         updateUi();
     }
 
-    private void updateUi(){
-        if (netKey != null) {
-            keyView.setText(MeshParserUtils.bytesToHex(netKey.getKey(), false));
-            nameView.setText(netKey.getName());
-            keyIndexView.setText(String.valueOf(netKey.getKeyIndex()));
-        }
-    }
-
     @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_save, menu);
         return true;
     }
@@ -139,6 +159,7 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
             case android.R.id.home:
                 onBackPressed();
                 return true;
+
             case R.id.action_save:
                 if (save()) {
                     onBackPressed();
@@ -148,36 +169,50 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
         return false;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putParcelable(PROVISIONER_KEY, provisioner);
+    }
+
+    @Override
+    public boolean onNameChanged(@NonNull final String name) {
+        if(provisioner != null) {
+            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+            if(network != null) {
+                provisioner.setProvisionerName(name);
+                return network.updateProvisioner(provisioner);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean setAddress(final int sourceAddress) {
+        if(provisioner != null) {
+            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+            if(network != null) {
+                provisioner.setProvisionerAddress(sourceAddress);
+                return network.updateProvisioner(provisioner);
+            }
+        }
+        return false;
+    }
+
+    private void updateUi(){
+        if(provisioner != null) {
+            provisionerName.setText(provisioner.getProvisionerName());
+            provisionerUnicast.setText(MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true));
+            unicastRange.setText(getString(R.string.summary_ranges, provisioner.getAllocatedUnicastRanges().size()));
+            groupRange.setText(getString(R.string.summary_ranges, provisioner.getAllocatedGroupRanges().size()));
+            sceneRange.setText(getString(R.string.summary_ranges, provisioner.getAllocatedSceneRanges().size()));
+        }
+    }
+
     private boolean save() {
         final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
         if (network != null) {
-            return network.addNetKey(netKey);
-        }
-        return false;
-    }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull final Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(APPLICATION_KEY, netKey);
-    }
-
-    @Override
-    public boolean onKeyNameUpdated(@NonNull final String name) {
-        if (netKey != null) {
-            netKey.setName(name);
-            nameView.setText(name);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean onKeyUpdated(final int position, @NonNull final String key) {
-        if(netKey != null) {
-            this.netKey.setKey(MeshParserUtils.toByteArray(key));
-            keyView.setText(key);
-            return true;
+            return network.addProvisioner(provisioner);
         }
         return false;
     }

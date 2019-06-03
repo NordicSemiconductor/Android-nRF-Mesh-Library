@@ -27,8 +27,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,13 +34,14 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+
+import javax.inject.Inject;
+
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentEditAppKey;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentEditNetKey;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditNetKeyViewModel;
@@ -132,11 +131,6 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
             return true;
         }
         return false;
-    }
-
-    public void onItemClick(final int position, @NonNull final ApplicationKey appKey) {
-        final DialogFragmentEditAppKey dialogFragmentEditAppKey = DialogFragmentEditAppKey.newInstance(position, appKey);
-        dialogFragmentEditAppKey.show(getSupportFragmentManager(), null);
     }
 
     @Override

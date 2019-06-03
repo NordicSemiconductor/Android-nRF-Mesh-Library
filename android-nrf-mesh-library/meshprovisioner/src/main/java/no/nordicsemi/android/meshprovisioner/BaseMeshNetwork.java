@@ -2,6 +2,14 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.text.TextUtils;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.room.ColumnInfo;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -11,14 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.room.ColumnInfo;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
@@ -28,103 +30,78 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 abstract class BaseMeshNetwork {
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({NORMAL_OPERATION, IV_UPDATE_ACTIVE})
-    public @interface IvUpdateStates {
-    }
-
     // Key refresh phases
     public static final int NORMAL_OPERATION = 0; //Distribution of new keys
     public static final int IV_UPDATE_ACTIVE = 1; //Switching to the new keys
-
-    @Ignore
-    @SerializedName("$schema")
-    @Expose
-    String schema = "http://json-schema.org/draft-04/schema#";
-
-    @Ignore
-    @SerializedName("id")
-    @Expose
-    String id = "TBD";
-
-    @Ignore
-    @SerializedName("version")
-    @Expose
-    String version = "1.0";
-
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = "mesh_uuid")
     @SerializedName("meshUUID")
     @Expose
     final String meshUUID;
-
+    @Ignore
+    private final Comparator<ApplicationKey> appKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
+    @Ignore
+    private final Comparator<NetworkKey> netKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
+    @Ignore
+    protected MeshNetworkCallbacks mCallbacks;
+    @Ignore
+    @SerializedName("$schema")
+    @Expose
+    String schema = "http://json-schema.org/draft-04/schema#";
+    @Ignore
+    @SerializedName("id")
+    @Expose
+    String id = "TBD";
+    @Ignore
+    @SerializedName("version")
+    @Expose
+    String version = "1.0";
     @ColumnInfo(name = "mesh_name")
     @SerializedName("meshName")
     @Expose
     String meshName = "nRF Mesh Network";
-
     @ColumnInfo(name = "timestamp")
     @SerializedName("timestamp")
     @Expose
     long timestamp = System.currentTimeMillis();
-
     @ColumnInfo(name = "iv_index")
     @Expose
     int ivIndex = 0;
-
     @ColumnInfo(name = "iv_update_state")
     @Expose
     int ivUpdateState = NORMAL_OPERATION;
-
     @Ignore
     @SerializedName("netKeys")
     @Expose
     List<NetworkKey> netKeys = new ArrayList<>();
-
     @Ignore
     @SerializedName("appKeys")
     @Expose
     List<ApplicationKey> appKeys = new ArrayList<>();
-
     @Ignore
     @SerializedName("provisioners")
     @Expose
     List<Provisioner> provisioners = new ArrayList<>();
-
     @Ignore
     @SerializedName("nodes")
     @Expose
     List<ProvisionedMeshNode> nodes = new ArrayList<>();
-
     @Ignore
     @SerializedName("groups")
     @Expose
     List<Group> groups = new ArrayList<>();
-
     @Ignore
     @SerializedName("scenes")
     @Expose
     List<Scene> scenes = new ArrayList<>();
-
     //Library related attributes
     @ColumnInfo(name = "unicast_address")
     @Expose
     int unicastAddress = 0x0001;
-
     @ColumnInfo(name = "last_selected")
     @Expose
     boolean lastSelected;
-
-    @Ignore
-    protected MeshNetworkCallbacks mCallbacks;
-
-    @Ignore
-    private final Comparator<ApplicationKey> appKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
-
-    @Ignore
-    private final Comparator<NetworkKey> netKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
-
     @Ignore
     @Expose(serialize = false, deserialize = false)
     private ProxyFilter proxyFilter;
@@ -142,7 +119,6 @@ abstract class BaseMeshNetwork {
         }
         return false;
     }
-
 
     /**
      * Creates an Network key
@@ -203,7 +179,6 @@ abstract class BaseMeshNetwork {
      * Adds a Net key to the list of net keys with the given key index
      *
      * @param newNetKey application key
-     * @throws IllegalArgumentException if app key already exists
      */
     public boolean addNetKey(@NonNull final NetworkKey newNetKey) {
         if (isNetKeyExists(MeshParserUtils.bytesToHex(newNetKey.getKey(), false))) {
@@ -567,6 +542,86 @@ abstract class BaseMeshNetwork {
     }
 
     /**
+     * Sets the global ttl of the messages sent by the provisioner
+     *
+     * @param globalTtl ttl
+     */
+    public void setGlobalTtl(final int globalTtl) {
+        final Provisioner provisioner = provisioners.get(0);
+        provisioner.setGlobalTtl(globalTtl);
+        notifyProvisionerUpdated(provisioner);
+    }
+
+    /**
+     * Returns the list of {@link Provisioner}
+     */
+    public List<Provisioner> getProvisioners() {
+        return Collections.unmodifiableList(provisioners);
+    }
+
+    void setProvisioners(List<Provisioner> provisioners) {
+        this.provisioners = provisioners;
+    }
+
+    /**
+     * Creates a provisioner
+     *
+     * @return returns true if updated and false otherwise
+     */
+    public Provisioner createProvisioner() {
+        final List<AllocatedUnicastRange> unicastRange = new ArrayList();
+        final List<AllocatedGroupRange> groupRange = new ArrayList();
+        final List<AllocatedSceneRange> sceneRange = new ArrayList();
+        return new Provisioner(UUID.randomUUID().toString(), unicastRange, groupRange, sceneRange, meshUUID);
+    }
+
+    /**
+     * Created a provisioner
+     *
+     * @return returns true if updated and false otherwise
+     */
+    public boolean addProvisioner(@NonNull final Provisioner provisioner) {
+        if (provisioners.isEmpty() || !provisioners.contains(provisioner)) {
+            provisioners.add(provisioner);
+            notifyProvisionerAdded(provisioner);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Update provisioner
+     *
+     * @param provisioner {@link Provisioner}
+     * @return returns true if updated and false otherwise
+     */
+    public boolean updateProvisioner(@NonNull final Provisioner provisioner) {
+        if (provisioners.contains(provisioner)) {
+            final int index = provisioners.indexOf(provisioner);
+            if (index >= 0) {
+                provisioners.set(index, provisioner);
+                notifyProvisionerUpdated(provisioner);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes a provisioner from the mesh network
+     *
+     * @param provisioner {@link Provisioner}
+     * @return true if the provisioner was deleted or false otherwise
+     */
+    public boolean removeProvisioner(@NonNull final Provisioner provisioner) {
+        if (provisioners.remove(provisioner)) {
+            notifyProvisionerDeleted(provisioner);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Selects a provisioner if there are multiple provisioners.
      *
      * @param provisioner {@link Provisioner}
@@ -613,14 +668,17 @@ abstract class BaseMeshNetwork {
     }
 
     /**
-     * Sets the global ttl of the messages sent by the provisioner
+     * Checks if the provisioner exists
      *
-     * @param globalTtl ttl
+     * @param provisioner {@link Provisioner}
+     * @return True if provisioner exists and false otherwise
      */
-    public void setGlobalTtl(final int globalTtl) {
-        final Provisioner provisioner = provisioners.get(0);
-        provisioner.setGlobalTtl(globalTtl);
-        notifyProvisionerUpdated(provisioner);
+    public final boolean isProvisionerExists(@NonNull final Provisioner provisioner) {
+        for (Provisioner p : provisioners) {
+            if (provisioner.getProvisionerAddress() == p.getProvisionerAddress())
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -648,55 +706,67 @@ abstract class BaseMeshNetwork {
         }
     }
 
-    final void notifyNetKeyAdded(final NetworkKey networkKey) {
+    final void notifyNetKeyAdded(@NonNull final NetworkKey networkKey) {
         if (mCallbacks != null) {
             mCallbacks.onNetworkKeyAdded(networkKey);
         }
     }
 
-    final void notifyNetKeyUpdated(final NetworkKey networkKey) {
+    final void notifyNetKeyUpdated(@NonNull final NetworkKey networkKey) {
         if (mCallbacks != null) {
             mCallbacks.onNetworkKeyUpdated(networkKey);
         }
     }
 
-    final void notifyNetKeyDeleted(final NetworkKey networkKey) {
+    final void notifyNetKeyDeleted(@NonNull final NetworkKey networkKey) {
         if (mCallbacks != null) {
             mCallbacks.onNetworkKeyDeleted(networkKey);
         }
     }
 
-    final void notifyAppKeyAdded(final ApplicationKey appKey) {
+    final void notifyAppKeyAdded(@NonNull final ApplicationKey appKey) {
         if (mCallbacks != null) {
             mCallbacks.onApplicationKeyAdded(appKey);
         }
     }
 
-    final void notifyAppKeyUpdated(final ApplicationKey appKey) {
+    final void notifyAppKeyUpdated(@NonNull final ApplicationKey appKey) {
         if (mCallbacks != null) {
             mCallbacks.onApplicationKeyUpdated(appKey);
         }
     }
 
-    final void notifyAppKeyDeleted(final ApplicationKey appKey) {
+    final void notifyAppKeyDeleted(@NonNull final ApplicationKey appKey) {
         if (mCallbacks != null) {
             mCallbacks.onApplicationKeyDeleted(appKey);
         }
     }
 
-    final void notifyProvisionerUpdated(final Provisioner provisioner) {
+    final void notifyProvisionerAdded(@NonNull final Provisioner provisioner) {
+        if (mCallbacks != null) {
+            mCallbacks.onProvisionerAdded(provisioner);
+        }
+    }
+
+    final void notifyProvisionerUpdated(@NonNull final Provisioner provisioner) {
         if (mCallbacks != null) {
             mCallbacks.onProvisionerUpdated(provisioner);
         }
     }
 
-    final void notifyProvisionerUpdated(final List<Provisioner> provisioner) {
+    final void notifyProvisionerUpdated(@NonNull final List<Provisioner> provisioner) {
         if (mCallbacks != null) {
             mCallbacks.onProvisionersUpdated(provisioner);
         }
     }
 
-    final void notifyNodeDeleted(final ProvisionedMeshNode meshNode) {
+    final void notifyProvisionerDeleted(@NonNull final Provisioner provisioner) {
+        if (mCallbacks != null) {
+            mCallbacks.onProvisionerDeleted(provisioner);
+        }
+    }
+
+    final void notifyNodeDeleted(@NonNull final ProvisionedMeshNode meshNode) {
         if (mCallbacks != null) {
             mCallbacks.onNodeDeleted(meshNode);
         }
@@ -708,39 +778,44 @@ abstract class BaseMeshNetwork {
         }
     }
 
-    final void notifySceneAdded(final Scene scene) {
+    final void notifySceneAdded(@NonNull final Scene scene) {
         if (mCallbacks != null) {
             mCallbacks.onSceneAdded(scene);
         }
     }
 
-    final void notifySceneUpdated(final Scene scene) {
+    final void notifySceneUpdated(@NonNull final Scene scene) {
         if (mCallbacks != null) {
             mCallbacks.onSceneUpdated(scene);
         }
     }
 
-    final void notifySceneDeleted(final Scene scene) {
+    final void notifySceneDeleted(@NonNull final Scene scene) {
         if (mCallbacks != null) {
             mCallbacks.onSceneDeleted(scene);
         }
     }
 
-    final void notifyGroupAdded(final Group group) {
+    final void notifyGroupAdded(@NonNull final Group group) {
         if (mCallbacks != null) {
             mCallbacks.onGroupAdded(group);
         }
     }
 
-    final void notifyGroupUpdated(final Group group) {
+    final void notifyGroupUpdated(@NonNull final Group group) {
         if (mCallbacks != null) {
             mCallbacks.onGroupUpdated(group);
         }
     }
 
-    final void notifyGroupDeleted(final Group group) {
+    final void notifyGroupDeleted(@NonNull final Group group) {
         if (mCallbacks != null) {
             mCallbacks.onGroupDeleted(group);
         }
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({NORMAL_OPERATION, IV_UPDATE_ACTIVE})
+    public @interface IvUpdateStates {
     }
 }

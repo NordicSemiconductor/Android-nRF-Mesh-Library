@@ -29,6 +29,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -38,6 +40,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
+import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
@@ -48,6 +51,8 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     private final List<Provisioner> mProvisioners = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
+    private final Comparator<Provisioner> comparator = (p1, p2) ->
+            Integer.compare(p1.getProvisionerAddress(), p2.getProvisionerAddress());
 
     public ProvisionerAdapter(@NonNull final Context context, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
         this.mContext = context;
@@ -58,6 +63,7 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
             mProvisioners.addAll(provisioners);
             final Provisioner provisioner = network.getSelectedProvisioner();
             mProvisioners.remove(provisioner);
+            Collections.sort(mProvisioners, comparator);
             notifyDataSetChanged();
         });
     }

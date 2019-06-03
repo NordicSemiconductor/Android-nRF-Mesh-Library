@@ -29,11 +29,6 @@ import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -46,15 +41,19 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.keys.EditNetKeyActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.adapter.ProvisionerAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionersViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
@@ -132,8 +131,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
         });
 
         containerProvisioner.setOnClickListener(v -> {
-            final Intent intent = new Intent(this, EditProvisionerActivity.class);
-            intent.putExtra(EDIT_PROVISIONER, 0);
+            final Intent intent = new Intent(this, AddProvisionerActivity.class);
             startActivity(intent);
         });
 
@@ -174,8 +172,10 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
 
         try {
-            if (network.removeProvisioner(provisioner)) {
-                displaySnackBar(provisioner);
+            if(network != null) {
+                if (network.removeProvisioner(provisioner)) {
+                    displaySnackBar(provisioner);
+                }
             }
         } catch (Exception ex) {
             mAdapter.notifyDataSetChanged();
@@ -191,7 +191,10 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
     private void displaySnackBar(@NonNull final Provisioner provisioner) {
         Snackbar.make(container, getString(R.string.provisioner_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
-
+                    final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+                        if(network != null) {
+                            network.addProvisioner(provisioner);
+                        }
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();
@@ -200,13 +203,5 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
     private void displaySnackBar(final String message) {
         Snackbar.make(container, message, Snackbar.LENGTH_LONG)
                 .show();
-    }
-
-    private boolean removeNetKey(@NonNull final NetworkKey networkKey) {
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-        if (network != null) {
-            return network.removeNetKey(networkKey);
-        }
-        return false;
     }
 }

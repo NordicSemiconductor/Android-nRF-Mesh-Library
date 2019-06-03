@@ -183,23 +183,6 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
     }
 
     /**
-     * Returns the global ttl set for the messages sent by the provisioner
-     */
-    public int getGlobalTtl() {
-        return meshNetwork.getGlobalTtl();
-    }
-
-    /**
-     * Sets a global ttl value that would be used on all messages sent from the provisioner
-     *
-     * @param globalTtl ttl value
-     */
-    public void setGlobalTtl(final int globalTtl) {
-        meshNetwork.setGlobalTtl(globalTtl);
-        postValue(this);
-    }
-
-    /**
      * Return the selected app key to be added during the provisioning process.
      *
      * @return app key

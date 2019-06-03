@@ -103,39 +103,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.timestamp = timestamp;
     }
 
-    void setProvisioners(List<Provisioner> provisioners) {
-        this.provisioners = provisioners;
-    }
-
-    /**
-     * Returns the list of {@link Provisioner}
-     */
-    public List<Provisioner> getProvisioners() {
-        return Collections.unmodifiableList(provisioners);
-    }
-
-    public boolean removeProvisioner(@NonNull final Provisioner provisioner){
-        return provisioners.remove(provisioner);
-    }
-
-    /**
-     * Update provisioner
-     *
-     * @param provisioner {@link Provisioner}
-     * @return returns true if updated and false otherwise
-     */
-    public boolean updateProvisioner(@NonNull final Provisioner provisioner) {
-        if(provisioners.contains(provisioner)) {
-            final int index = provisioners.indexOf(provisioner);
-            if(index >= 0 ) {
-                provisioners.set(index, provisioner);
-                notifyProvisionerUpdated(provisioner);
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Returns the list of {@link ProvisionedMeshNode}
      */

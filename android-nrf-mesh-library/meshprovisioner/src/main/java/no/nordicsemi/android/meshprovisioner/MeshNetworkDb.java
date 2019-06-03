@@ -107,14 +107,14 @@ abstract class MeshNetworkDb extends RoomDatabase {
         }
     };
 
-    void insertNetwork(final MeshNetworkDao dao,
-                       final NetworkKeyDao netKeyDao,
-                       final ApplicationKeyDao appKeyDao,
-                       final ProvisionerDao provisionerDao,
-                       final ProvisionedMeshNodeDao nodeDao,
-                       final GroupDao groupDao,
-                       final SceneDao sceneDao,
-                       final MeshNetwork meshNetwork) {
+    void insertNetwork(@NonNull final MeshNetworkDao dao,
+                       @NonNull final NetworkKeyDao netKeyDao,
+                       @NonNull final ApplicationKeyDao appKeyDao,
+                       @NonNull final ProvisionerDao provisionerDao,
+                       @NonNull final ProvisionedMeshNodeDao nodeDao,
+                       @NonNull final GroupDao groupDao,
+                       @NonNull final SceneDao sceneDao,
+                       @NonNull final MeshNetwork meshNetwork) {
         new InsertNetworkAsyncTask(dao,
                 netKeyDao,
                 appKeyDao,
@@ -125,14 +125,14 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 meshNetwork).execute();
     }
 
-    void loadNetwork(final MeshNetworkDao dao,
-                     final NetworkKeyDao netKeyDao,
-                     final ApplicationKeyDao appKeyDao,
-                     final ProvisionerDao provisionerDao,
-                     final ProvisionedMeshNodeDao nodeDao,
-                     final GroupsDao groupsDao,
-                     final SceneDao sceneDao,
-                     final LoadNetworkCallbacks listener) {
+    void loadNetwork(@NonNull final MeshNetworkDao dao,
+                     @NonNull final NetworkKeyDao netKeyDao,
+                     @NonNull final ApplicationKeyDao appKeyDao,
+                     @NonNull final ProvisionerDao provisionerDao,
+                     @NonNull final ProvisionedMeshNodeDao nodeDao,
+                     @NonNull final GroupsDao groupsDao,
+                     @NonNull final SceneDao sceneDao,
+                     @NonNull final LoadNetworkCallbacks listener) {
         new LoadNetworkAsyncTask(dao,
                 netKeyDao,
                 appKeyDao,
@@ -143,91 +143,91 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 listener).execute();
     }
 
-    void updateNetwork(final MeshNetworkDao dao, final MeshNetwork meshNetwork) {
+    void updateNetwork(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork) {
         new UpdateNetworkAsyncTask(dao).execute(meshNetwork);
     }
 
-    void deleteNetwork(final MeshNetworkDao dao, final MeshNetwork meshNetwork) {
+    void deleteNetwork(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork) {
         new DeleteNetworkAsyncTask(dao).execute(meshNetwork);
     }
 
-    void insertNetKey(final NetworkKeyDao dao, final NetworkKey networkKey) {
+    void insertNetKey(@NonNull final NetworkKeyDao dao, @NonNull final NetworkKey networkKey) {
         new InsertNetKeyAsyncTask(dao).execute(networkKey);
     }
 
-    void updateNetKey(final NetworkKeyDao dao, final NetworkKey networkKey) {
+    void updateNetKey(@NonNull final NetworkKeyDao dao, @NonNull final NetworkKey networkKey) {
         new UpdateNetKeyAsyncTask(dao).execute(networkKey);
     }
 
-    void deleteNetKey(final NetworkKeyDao dao, final NetworkKey networkKey) {
+    void deleteNetKey(@NonNull final NetworkKeyDao dao, @NonNull final NetworkKey networkKey) {
         new DeleteNetKeyAsyncTask(dao).execute(networkKey);
     }
 
-    void insertAppKey(final ApplicationKeyDao dao, final ApplicationKey applicationKey) {
+    void insertAppKey(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
         new InsertAppKeyAsyncTask(dao).execute(applicationKey);
     }
 
-    void updateAppKey(final ApplicationKeyDao dao, final ApplicationKey applicationKey) {
+    void updateAppKey(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
         new UpdateAppKeyAsyncTask(dao).execute(applicationKey);
     }
 
-    void deleteAppKey(final ApplicationKeyDao dao, final ApplicationKey applicationKey) {
+    void deleteAppKey(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
         new DeleteAppKeyAsyncTask(dao).execute(applicationKey);
     }
 
-    void insertProvisioner(final ProvisionerDao dao, final Provisioner provisioner) {
-        new InsertProvisionerAsyncTask(dao).execute();
+    void insertProvisioner(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
+        new InsertProvisionerAsyncTask(dao).execute(provisioner);
     }
 
-    void updateProvisioner(final ProvisionerDao dao, final Provisioner provisioner) {
+    void updateProvisioner(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
         new UpdateProvisionerAsyncTask(dao).execute(provisioner);
     }
 
-    void updateProvisioners(final ProvisionerDao dao, final List<Provisioner> provisioners) {
+    void updateProvisioners(@NonNull final ProvisionerDao dao, @NonNull final List<Provisioner> provisioners) {
         new UpdateProvisionersAsyncTask(dao, provisioners).execute();
     }
 
-    void deleteProvisioner(final ProvisionerDao dao, final Provisioner provisioner) {
+    void deleteProvisioner(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
         new DeleteProvisionerAsyncTask(dao).execute(provisioner);
     }
 
-    void insertNode(final ProvisionedMeshNodeDao dao, final ProvisionedMeshNode node) {
+    void insertNode(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
         new InsertNodeAsyncTask(dao).execute(node);
     }
 
-    void updateNode(final ProvisionedMeshNodeDao dao, final ProvisionedMeshNode node) {
+    void updateNode(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
         new UpdateNodeAsyncTask(dao).execute(node);
     }
 
-    void updateNodes(final ProvisionedMeshNodeDao dao, final List<ProvisionedMeshNode> nodes) {
+    void updateNodes(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final List<ProvisionedMeshNode> nodes) {
         new UpdateNodesAsyncTask(dao, nodes).execute();
     }
 
-    void deleteNode(final ProvisionedMeshNodeDao dao, final ProvisionedMeshNode node) {
+    void deleteNode(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
         new DeleteNodeAsyncTask(dao).execute(node);
     }
 
-    void insertGroup(final GroupDao dao, final Group group) {
+    void insertGroup(@NonNull final GroupDao dao, @NonNull final Group group) {
         new InsertGroupAsyncTask(dao).execute(group);
     }
 
-    void updateGroup(final GroupDao dao, final Group group) {
+    void updateGroup(@NonNull final GroupDao dao, @NonNull final Group group) {
         new UpdateGroupAsyncTask(dao).execute(group);
     }
 
-    void deleteGroup(final GroupDao dao, final Group group) {
+    void deleteGroup(@NonNull final GroupDao dao, @NonNull final Group group) {
         new DeleteGroupAsyncTask(dao).execute(group);
     }
 
-    void insertScene(final SceneDao dao, final Scene scene) {
+    void insertScene(@NonNull final SceneDao dao, @NonNull final Scene scene) {
         new InsertSceneAsyncTask(dao).execute(scene);
     }
 
-    void updateScene(final SceneDao dao, final Scene scene) {
+    void updateScene(@NonNull final SceneDao dao, @NonNull final Scene scene) {
         new UpdateSceneKeyAsyncTask(dao).execute(scene);
     }
 
-    void deleteScene(final SceneDao dao, final Scene scene) {
+    void deleteScene(@NonNull final SceneDao dao, @NonNull final Scene scene) {
         new DeleteSceneKeyAsyncTask(dao).execute(scene);
     }
 
@@ -242,14 +242,14 @@ abstract class MeshNetworkDb extends RoomDatabase {
         private final GroupDao groupDao;
         private final SceneDao sceneDao;
 
-        InsertNetworkAsyncTask(final MeshNetworkDao meshNetworkDao,
-                               final NetworkKeyDao netKeyDao,
-                               final ApplicationKeyDao appKeyDao,
-                               final ProvisionerDao provisionerDao,
-                               final ProvisionedMeshNodeDao nodeDao,
-                               final GroupDao groupDao,
-                               final SceneDao sceneDao,
-                               final MeshNetwork meshNetwork) {
+        InsertNetworkAsyncTask(@NonNull final MeshNetworkDao meshNetworkDao,
+                               @NonNull final NetworkKeyDao netKeyDao,
+                               @NonNull final ApplicationKeyDao appKeyDao,
+                               @NonNull final ProvisionerDao provisionerDao,
+                               @NonNull final ProvisionedMeshNodeDao nodeDao,
+                               @NonNull final GroupDao groupDao,
+                               @NonNull final SceneDao sceneDao,
+                               @NonNull final MeshNetwork meshNetwork) {
             this.meshNetworkDao = meshNetworkDao;
             this.netKeyDao = netKeyDao;
             this.appKeyDao = appKeyDao;
@@ -292,14 +292,14 @@ abstract class MeshNetworkDb extends RoomDatabase {
         private final GroupsDao groupsDao;
         private final SceneDao sceneDao;
 
-        LoadNetworkAsyncTask(final MeshNetworkDao meshNetworkDao,
-                             final NetworkKeyDao netKeyDao,
-                             final ApplicationKeyDao appKeyDao,
-                             final ProvisionerDao provisionersDao,
-                             final ProvisionedMeshNodeDao nodeDao,
-                             final GroupsDao groupsDao,
-                             final SceneDao sceneDao,
-                             final LoadNetworkCallbacks listener) {
+        LoadNetworkAsyncTask(@NonNull final MeshNetworkDao meshNetworkDao,
+                             @NonNull final NetworkKeyDao netKeyDao,
+                             @NonNull final ApplicationKeyDao appKeyDao,
+                             @NonNull final ProvisionerDao provisionersDao,
+                             @NonNull final ProvisionedMeshNodeDao nodeDao,
+                             @NonNull final GroupsDao groupsDao,
+                             @NonNull final SceneDao sceneDao,
+                             @NonNull final LoadNetworkCallbacks listener) {
             this.meshNetworkDao = meshNetworkDao;
             this.netKeyDao = netKeyDao;
             this.appKeyDao = appKeyDao;
@@ -334,7 +334,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private MeshNetworkDao mAsyncTaskDao;
 
-        UpdateNetworkAsyncTask(MeshNetworkDao dao) {
+        UpdateNetworkAsyncTask(@NonNull final MeshNetworkDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -349,7 +349,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private MeshNetworkDao mAsyncTaskDao;
 
-        DeleteNetworkAsyncTask(MeshNetworkDao dao) {
+        DeleteNetworkAsyncTask(@NonNull final MeshNetworkDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -364,7 +364,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private NetworkKeyDao mAsyncTaskDao;
 
-        InsertNetKeyAsyncTask(NetworkKeyDao dao) {
+        InsertNetKeyAsyncTask(@NonNull final NetworkKeyDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -379,7 +379,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private NetworkKeyDao mAsyncTaskDao;
 
-        UpdateNetKeyAsyncTask(NetworkKeyDao dao) {
+        UpdateNetKeyAsyncTask(@NonNull final NetworkKeyDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -394,7 +394,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private NetworkKeyDao mAsyncTaskDao;
 
-        DeleteNetKeyAsyncTask(NetworkKeyDao dao) {
+        DeleteNetKeyAsyncTask(@NonNull final NetworkKeyDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -409,7 +409,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private ApplicationKeyDao mAsyncTaskDao;
 
-        InsertAppKeyAsyncTask(ApplicationKeyDao dao) {
+        InsertAppKeyAsyncTask(@NonNull final ApplicationKeyDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -424,7 +424,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private ApplicationKeyDao mAsyncTaskDao;
 
-        UpdateAppKeyAsyncTask(ApplicationKeyDao dao) {
+        UpdateAppKeyAsyncTask(@NonNull final ApplicationKeyDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -439,7 +439,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private ApplicationKeyDao mAsyncTaskDao;
 
-        DeleteAppKeyAsyncTask(ApplicationKeyDao dao) {
+        DeleteAppKeyAsyncTask(@NonNull final ApplicationKeyDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -454,7 +454,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private final ProvisionerDao mAsyncTaskDao;
 
-        InsertProvisionerAsyncTask(final ProvisionerDao dao) {
+        InsertProvisionerAsyncTask(@NonNull final ProvisionerDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -469,7 +469,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private final ProvisionerDao mAsyncTaskDao;
 
-        UpdateProvisionerAsyncTask(final ProvisionerDao dao) {
+        UpdateProvisionerAsyncTask(@NonNull final ProvisionerDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -485,7 +485,8 @@ abstract class MeshNetworkDb extends RoomDatabase {
         private final ProvisionerDao mAsyncTaskDao;
         private final List<Provisioner> provisioners;
 
-        UpdateProvisionersAsyncTask(final ProvisionerDao dao, final List<Provisioner> provisioners) {
+        UpdateProvisionersAsyncTask(@NonNull final ProvisionerDao dao,
+                                    @NonNull final List<Provisioner> provisioners) {
             mAsyncTaskDao = dao;
             this.provisioners = provisioners;
         }
@@ -501,7 +502,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private final ProvisionerDao mAsyncTaskDao;
 
-        DeleteProvisionerAsyncTask(final ProvisionerDao dao) {
+        DeleteProvisionerAsyncTask(@NonNull final ProvisionerDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -516,7 +517,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private ProvisionedMeshNodeDao mAsyncTaskDao;
 
-        InsertNodeAsyncTask(ProvisionedMeshNodeDao dao) {
+        InsertNodeAsyncTask(@NonNull final ProvisionedMeshNodeDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -531,7 +532,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private ProvisionedMeshNodeDao mAsyncTaskDao;
 
-        UpdateNodeAsyncTask(ProvisionedMeshNodeDao dao) {
+        UpdateNodeAsyncTask(@NonNull final ProvisionedMeshNodeDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -547,7 +548,8 @@ abstract class MeshNetworkDb extends RoomDatabase {
         private ProvisionedMeshNodeDao mAsyncTaskDao;
         private List<ProvisionedMeshNode> nodes;
 
-        UpdateNodesAsyncTask(ProvisionedMeshNodeDao dao, final List<ProvisionedMeshNode> nodes) {
+        UpdateNodesAsyncTask(@NonNull final ProvisionedMeshNodeDao dao,
+                             @NonNull final List<ProvisionedMeshNode> nodes) {
             mAsyncTaskDao = dao;
             this.nodes = nodes;
         }
@@ -563,7 +565,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private ProvisionedMeshNodeDao mAsyncTaskDao;
 
-        DeleteNodeAsyncTask(ProvisionedMeshNodeDao dao) {
+        DeleteNodeAsyncTask(@NonNull final ProvisionedMeshNodeDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -578,7 +580,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private final GroupDao mAsyncTaskDao;
 
-        InsertGroupAsyncTask(final GroupDao dao) {
+        InsertGroupAsyncTask(@NonNull final GroupDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -593,7 +595,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private final GroupDao mAsyncTaskDao;
 
-        UpdateGroupAsyncTask(final GroupDao dao) {
+        UpdateGroupAsyncTask(@NonNull final GroupDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -608,7 +610,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private GroupDao mAsyncTaskDao;
 
-        DeleteGroupAsyncTask(final GroupDao dao) {
+        DeleteGroupAsyncTask(@NonNull final GroupDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -623,7 +625,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private SceneDao mAsyncTaskDao;
 
-        InsertSceneAsyncTask(final SceneDao dao) {
+        InsertSceneAsyncTask(@NonNull final SceneDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -638,7 +640,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private final SceneDao mAsyncTaskDao;
 
-        UpdateSceneKeyAsyncTask(final SceneDao dao) {
+        UpdateSceneKeyAsyncTask(@NonNull final SceneDao dao) {
             mAsyncTaskDao = dao;
         }
 
@@ -653,7 +655,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         private final SceneDao mAsyncTaskDao;
 
-        DeleteSceneKeyAsyncTask(final SceneDao dao) {
+        DeleteSceneKeyAsyncTask(@NonNull final SceneDao dao) {
             mAsyncTaskDao = dao;
         }
 

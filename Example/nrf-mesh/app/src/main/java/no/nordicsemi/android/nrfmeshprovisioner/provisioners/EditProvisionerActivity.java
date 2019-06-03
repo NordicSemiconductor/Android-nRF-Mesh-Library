@@ -36,6 +36,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+
+import java.util.Collections;
+
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
@@ -151,11 +154,6 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
             return true;
         }
         return false;
-    }
-
-    public void onItemClick(final int position, @NonNull final ApplicationKey appKey) {
-        final DialogFragmentEditAppKey dialogFragmentEditAppKey = DialogFragmentEditAppKey.newInstance(position, appKey);
-        dialogFragmentEditAppKey.show(getSupportFragmentManager(), null);
     }
 
     @Override

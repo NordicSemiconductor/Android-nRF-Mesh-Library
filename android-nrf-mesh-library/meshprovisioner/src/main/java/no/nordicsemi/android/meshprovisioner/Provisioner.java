@@ -1,15 +1,11 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
-import com.google.gson.annotations.Expose;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -18,7 +14,13 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+
+import com.google.gson.annotations.Expose;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 
@@ -35,7 +37,7 @@ import static androidx.room.ForeignKey.CASCADE;
                 onUpdate = CASCADE, onDelete = CASCADE),
         indices = @Index("mesh_uuid"))
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class Provisioner {
+public class Provisioner implements Parcelable {
 
     @ColumnInfo(name = "mesh_uuid")
     @NonNull
@@ -100,6 +102,28 @@ public class Provisioner {
     public Provisioner() {
 
     }
+
+    protected Provisioner(Parcel in) {
+        meshUuid = in.readString();
+        provisionerUuid = in.readString();
+        provisionerName = in.readString();
+        sequenceNumber = in.readInt();
+        provisionerAddress = in.readInt();
+        globalTtl = in.readInt();
+        lastSelected = in.readByte() != 0;
+    }
+
+    public static final Creator<Provisioner> CREATOR = new Creator<Provisioner>() {
+        @Override
+        public Provisioner createFromParcel(Parcel in) {
+            return new Provisioner(in);
+        }
+
+        @Override
+        public Provisioner[] newArray(int size) {
+            return new Provisioner[size];
+        }
+    };
 
     /**
      * Returns the provisionerUuid of the Mesh network
@@ -252,5 +276,21 @@ public class Provisioner {
     public int incrementSequenceNumber() {
         sequenceNumber = sequenceNumber + 1;
         return sequenceNumber;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(meshUuid);
+        parcel.writeString(provisionerUuid);
+        parcel.writeString(provisionerName);
+        parcel.writeInt(sequenceNumber);
+        parcel.writeInt(provisionerAddress);
+        parcel.writeInt(globalTtl);
+        parcel.writeByte((byte) (lastSelected ? 1 : 0));
     }
 }

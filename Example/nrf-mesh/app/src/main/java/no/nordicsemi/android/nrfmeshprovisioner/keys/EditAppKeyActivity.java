@@ -132,11 +132,6 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
         return false;
     }
 
-    public void onItemClick(final int position, @NonNull final ApplicationKey appKey) {
-        final DialogFragmentEditAppKey dialogFragmentEditAppKey = DialogFragmentEditAppKey.newInstance(position, appKey);
-        dialogFragmentEditAppKey.show(getSupportFragmentManager(), null);
-    }
-
     @Override
     public boolean onKeyNameUpdated(@NonNull final String name) {
         if(applicationKey != null) {
