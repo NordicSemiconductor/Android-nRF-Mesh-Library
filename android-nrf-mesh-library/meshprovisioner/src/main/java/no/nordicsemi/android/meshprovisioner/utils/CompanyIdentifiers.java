@@ -1424,7 +1424,7 @@ public class CompanyIdentifiers {
         vendorModels.append(0x0569, "Audionics System, Inc.");
         vendorModels.append(0x056A, "Flipnavi Co.);Ltd.");
         vendorModels.append(0x056B, "Rion Co.,Ltd.");
-        vendorModels.append(0x056C, "Long Range Systems,LLC");
+        vendorModels.append(0x056C, "Long AddressRange Systems,LLC");
         vendorModels.append(0x056D, "Redmond Industrial Group LLC");
         vendorModels.append(0x056E, "VIZPIN INC.");
         vendorModels.append(0x056F, "BikeFinder AS");

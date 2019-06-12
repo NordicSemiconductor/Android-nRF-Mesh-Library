@@ -115,7 +115,7 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
 
         @BindView(R.id.address_id)
         TextView addressTitle;
-        @BindView(R.id.address)
+        @BindView(R.id.title)
         TextView address;
 
         private ViewHolder(final View view) {

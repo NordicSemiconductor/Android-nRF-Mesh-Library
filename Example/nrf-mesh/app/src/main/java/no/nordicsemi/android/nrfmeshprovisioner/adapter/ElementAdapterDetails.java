@@ -88,8 +88,8 @@ public class ElementAdapterDetails extends RecyclerView.Adapter<ElementAdapterDe
         for(MeshModel model : models) {
             final View modelView = LayoutInflater.from(mContext).inflate(R.layout.model_item_details, holder.mElementContainer, false);
             modelView.setTag(model.getModelId());
-            final TextView modelNameView = modelView.findViewById(R.id.address);
-            final TextView modelIdView = modelView.findViewById(R.id.model_id);
+            final TextView modelNameView = modelView.findViewById(R.id.title);
+            final TextView modelIdView = modelView.findViewById(R.id.subtitle);
             modelNameView.setText(model.getModelName());
             if(model instanceof VendorModel){
                 modelIdView.setText(mContext.getString(R.string.format_vendor_model_id, CompositionDataParser.formatModelIdentifier(model.getModelId(), true)));

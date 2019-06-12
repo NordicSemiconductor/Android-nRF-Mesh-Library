@@ -87,10 +87,12 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
         final TextView summary = rootView.findViewById(R.id.summary);
 
         final KeyListener hexKeyListener = new HexKeyListener();
-        final String unicastAddress = MeshAddress.formatAddress(mUnicastAddress, false);
         unicastAddressInputLayout.setHint(getString((R.string.hint_unicast_address)));
-        unicastAddressInput.setText(unicastAddress);
-        unicastAddressInput.setSelection(unicastAddress.length());
+        if (MeshAddress.isValidUnicastAddress(mUnicastAddress)) {
+            final String unicastAddress = MeshAddress.formatAddress(mUnicastAddress, false);
+            unicastAddressInput.setText(unicastAddress);
+            unicastAddressInput.setSelection(unicastAddress.length());
+        }
         unicastAddressInput.setKeyListener(hexKeyListener);
         unicastAddressInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -149,12 +151,6 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
         try {
             if (input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
                 unicastAddressInputLayout.setError(getString(R.string.invalid_address_value));
-                return false;
-            }
-
-            final int unicastAddress = Integer.parseInt(input, 16);
-            if (!MeshAddress.isValidUnicastAddress(unicastAddress)) {
-                unicastAddressInputLayout.setError("Unicast address must range from 0x0001 - 0x7FFFF");
                 return false;
             }
         } catch (IllegalArgumentException ex) {

@@ -102,7 +102,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
         final TextView provisionerView = containerProvisioner.findViewById(R.id.text);
         provisionerView.setVisibility(View.VISIBLE);
 
-        final ExtendedFloatingActionButton fab = findViewById(R.id.fab);
+        final ExtendedFloatingActionButton fab = findViewById(R.id.fab_add);
 
         final RecyclerView provisionersRecyclerView = findViewById(R.id.recycler_view_provisioners);
         provisionersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -120,7 +120,11 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
             if (network != null) {
                 final Provisioner provisioner = network.getSelectedProvisioner();
                 provisionerTitle.setText(provisioner.getProvisionerName());
-                provisionerView.setText(getString(R.string.unicast_address, MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true)));
+                if(MeshAddress.isValidUnicastAddress(provisioner.getProvisionerAddress())) {
+                    provisionerView.setText(getString(R.string.unicast_address, MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true)));
+                } else {
+                    provisionerView.setText(R.string.not_assigned);
+                }
 
                 if (network.getProvisioners().size() > 1) {
                     mProvisionersCard.setVisibility(View.VISIBLE);
@@ -131,8 +135,13 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
         });
 
         containerProvisioner.setOnClickListener(v -> {
-            final Intent intent = new Intent(this, AddProvisionerActivity.class);
-            startActivity(intent);
+            final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+            if (network != null) {
+                final Provisioner provisioner = network.getSelectedProvisioner();
+                final Intent intent = new Intent(this, EditProvisionerActivity.class);
+                intent.putExtra(EDIT_PROVISIONER, provisioner);
+                startActivity(intent);
+            }
         });
 
         fab.setOnClickListener(v -> {

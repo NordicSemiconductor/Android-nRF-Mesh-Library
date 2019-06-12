@@ -1,16 +1,15 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import com.google.gson.annotations.Expose;
+
+import java.util.List;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-
-import com.google.gson.annotations.Expose;
-
-import java.util.List;
-
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 
 import static androidx.room.ForeignKey.CASCADE;
@@ -99,5 +98,10 @@ public class Scene {
 
     public void setNumber(final int number) {
         this.number = number;
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean isValidScene(final int scene) {
+        return scene >= 0x0000 && scene <= 0xFFFF;
     }
 }

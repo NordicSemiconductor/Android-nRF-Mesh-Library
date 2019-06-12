@@ -32,8 +32,6 @@ import android.widget.TextView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
@@ -51,7 +49,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -104,7 +101,7 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
         final TextView keyView = containerKey.findViewById(R.id.text);
         keyView.setVisibility(View.VISIBLE);
 
-        final ExtendedFloatingActionButton fab = findViewById(R.id.fab);
+        final ExtendedFloatingActionButton fab = findViewById(R.id.fab_add);
 
         final RecyclerView netKeysRecyclerView = findViewById(R.id.recycler_view_keys);
         netKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));

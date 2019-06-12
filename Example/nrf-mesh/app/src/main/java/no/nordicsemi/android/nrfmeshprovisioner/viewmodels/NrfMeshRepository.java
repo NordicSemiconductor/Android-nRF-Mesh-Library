@@ -108,6 +108,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private MutableLiveData<NetworkKey> mSelectedNetKey = new MutableLiveData<>();
     // Holds the selected app key to configure
     private MutableLiveData<ApplicationKey> mSelectedAppKey = new MutableLiveData<>();
+    // Holds the selected provisioner when adding/editing
+    private MutableLiveData<Provisioner> mSelectedProvisioner = new MutableLiveData<>();
 
     private final MutableLiveData<Group> mSelectedGroupLiveData = new MutableLiveData<>();
 
@@ -413,13 +415,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     /**
-     * Returns the selected mesh model
-     */
-    LiveData<MeshModel> getSelectedModel() {
-        return mSelectedModel;
-    }
-
-    /**
      * Set the selected model to be configured
      *
      * @param appKey mesh model
@@ -433,6 +428,29 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      */
     LiveData<ApplicationKey> getSelectedAppKey() {
         return mSelectedAppKey;
+    }
+
+    /**
+     * Selects provisioner for editing or adding
+     *
+     * @param provisioner {@link Provisioner}
+     */
+    void setSelectedProvisioner(@NonNull final Provisioner provisioner) {
+        mSelectedProvisioner.postValue(provisioner);
+    }
+
+    /**
+     * Returns the selected {@link Provisioner}
+     */
+    LiveData<Provisioner> getSelectedProvisioner() {
+        return mSelectedProvisioner;
+    }
+
+    /**
+     * Returns the selected mesh model
+     */
+    LiveData<MeshModel> getSelectedModel() {
+        return mSelectedModel;
     }
 
     /**

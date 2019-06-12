@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:scaleType="center"
-            app:layout_constraintBottom_toBottomOf="@id/address"
+            app:layout_constraintBottom_toBottomOf="@id/title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/address_id"
             app:srcCompat="@drawable/ic_lan_black_alpha_24dp"/>
@@ -75,7 +75,7 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
-            android:id="@+id/address"
+            android:id="@+id/title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:ellipsize="end"

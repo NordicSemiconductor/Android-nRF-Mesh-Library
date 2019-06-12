@@ -115,11 +115,27 @@
     <string name="hint_global_network_name">Network Name</string>
 
     <string name="title_allocated_ranges">Allocated Ranges</string>
-    <string name="summary_ranges">%d ranges</string>
+    <string name="not_allocated">Not Allocated</string>
+    <string name="allocated_to_this">Allocated to this Provisioner</string>
+    <string name="allocated_to_another">Allocated to another Provisioner</string>
+    <string name="conflicting_with_another">Conflicting with another Provisioner</string>
+
+    <string name="title_range">Range</string>
+    <string name="title_edit_unicast_ranges">Edit Unicast Ranges</string>
+    <string name="title_edit_group_ranges">Edit Group Ranges</string>
+    <string name="title_edit_scene_ranges">Edit Scene Ranges</string>
+    <string name="unicast_range_summary">Enter lower and upper bounds as 4–character hexadecimal string.\nValid range: 0x0001 – 0x7FFF</string>
+    <string name="group_range_summary">Enter lower and upper bounds as 4–character hexadecimal string.\nValid range: 0xC000 – 0xFEFF</string>
+    <string name="scene_range_summary">Enter lower and upper bounds as 4–character hexadecimal string.\nValid range: 0x0001 – 0xFFFF</string>
 
     <string name="title_provisioners">Provisioners</string>
     <string name="title_provisioner">Provisioner</string>
     <string name="title_provisioner_address">Provisioner Address</string>
+    <string name="title_unicast_range">Unicast Address Range</string>
+    <string name="action_add_range">Add range</string>
+    <string name="range_adapter_format"> %s - %s</string>
+    <string name="low_address">Low Address</string>
+    <string name="high_address">High Address</string>
     <string name="provisioner_name_rationale">This is a friendly name that can be used to identify a provisioner.</string>
     <string name="title_provisioner_name">Provisioner Name</string>
     <string name="title_current_provisioner">Current Provisioner</string>
@@ -144,7 +160,7 @@
 
     <string name="title_src_address">Source Address</string>
     <string name="summary_src_address">Source address</string>
-    <string name="dialog_summary_src">Enter a unicast address that could be used as an address for the provisioner.</string>
+    <string name="dialog_summary_src">Hexadecimal value in range 0x0001 – 0x7FFF.</string>
     <string name="hint_src_address">Source Address</string>
 
     <string name="network_settings">Network Settings</string>
@@ -507,4 +523,9 @@
     <string name="action_add_app_key">Add App Key</string>
     <string name="action_add_sub_net_key">Add Sub Net Key</string>
     <string name="hint_delete_key">Hint: Swipe to delete a key.</string>
+    <string name="title_error">Error</string>
+    <string name="not_assigned">Not assigned</string>
+    <string name="action_resolve">Resolve</string>
+    <string name="first_scene">First Scene</string>
+    <string name="last_scene">Last Scene</string>
 </resources>

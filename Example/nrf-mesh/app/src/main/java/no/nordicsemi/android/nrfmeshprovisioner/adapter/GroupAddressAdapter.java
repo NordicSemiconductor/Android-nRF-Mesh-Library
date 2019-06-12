@@ -116,7 +116,7 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
         ImageView icon;
         @BindView(R.id.address_id)
         TextView name;
-        @BindView(R.id.address)
+        @BindView(R.id.title)
         TextView address;
 
         private ViewHolder(final View view) {

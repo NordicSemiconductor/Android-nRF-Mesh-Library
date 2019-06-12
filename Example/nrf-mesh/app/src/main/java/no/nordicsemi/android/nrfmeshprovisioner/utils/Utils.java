@@ -69,6 +69,12 @@ public class Utils {
     public static final int CONNECT_TO_NETWORK = 2113;
     public static final String RESULT_APP_KEY = "RESULT_APP_KEY";
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
+    public static final String RANGE_TYPE = "RANGE_TYPE";
+
+    //Manage ranges
+    public static final int UNICAST_RANGE = 0;
+    public static final int GROUP_RANGE = 1;
+    public static final int SCENE_RANGE = 2;
 
     //Manage app keys
     public static final int MANAGE_APP_KEY = 0;
@@ -174,6 +180,7 @@ public class Utils {
      *
      * @return true if permissions are already granted, false otherwise.
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isWriteExternalStoragePermissionsGranted(final Context context) {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }

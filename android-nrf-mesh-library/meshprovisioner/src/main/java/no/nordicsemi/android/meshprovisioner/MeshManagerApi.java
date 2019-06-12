@@ -701,7 +701,7 @@ public class MeshManagerApi implements MeshMngrApi {
         final MeshNetwork network = new MeshNetwork(meshUuid);
         network.netKeys = generateNetKeys(meshUuid);
         network.appKeys = generateAppKeys(meshUuid);
-        network.provisioners = generateProvisioners(meshUuid);
+        network.provisioners.add(network.createProvisioner());
         network.lastSelected = true;
 
         return network;

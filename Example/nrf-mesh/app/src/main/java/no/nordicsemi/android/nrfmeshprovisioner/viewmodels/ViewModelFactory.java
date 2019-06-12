@@ -49,6 +49,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         creators.put(ProvisionersViewModel.class, viewModelSubComponent::provisionersViewModel);
         creators.put(AddProvisionerViewModel.class, viewModelSubComponent::addProvisionerViewModel);
         creators.put(EditProvisionerViewModel.class, viewModelSubComponent::editProvisionerViewModel);
+        creators.put(RangesViewModel.class, viewModelSubComponent::rangesViewModel);
         creators.put(NetKeysViewModel.class, viewModelSubComponent::netKeysViewModel);
         creators.put(AddNetKeyViewModel.class, viewModelSubComponent::addNetKeyViewModel);
         creators.put(EditNetKeyViewModel.class, viewModelSubComponent::editNetKeyViewModel);

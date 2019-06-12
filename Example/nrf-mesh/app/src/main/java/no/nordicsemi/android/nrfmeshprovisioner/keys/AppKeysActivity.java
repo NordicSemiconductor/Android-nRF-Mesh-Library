@@ -97,7 +97,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final ExtendedFloatingActionButton fab = findViewById(R.id.fab);
+        final ExtendedFloatingActionButton fab = findViewById(R.id.fab_add);
         final RecyclerView appKeysRecyclerView = findViewById(R.id.recycler_view_keys);
         appKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration =

@@ -4,8 +4,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.google.gson.annotations.Expose;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -14,13 +20,6 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-
-import com.google.gson.annotations.Expose;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 
@@ -82,6 +81,14 @@ public class Provisioner implements Parcelable {
     @Expose
     private boolean lastSelected;
 
+    @Ignore
+    private final Comparator<AddressRange> addressRangeComparator = (addressRange1, addressRange2) ->
+            Integer.compare(addressRange1.getLowAddress(), addressRange2.getLowAddress());
+
+    @Ignore
+    private final Comparator<AllocatedSceneRange> sceneRangeComparator = (sceneRange1, sceneRange2) ->
+            Integer.compare(sceneRange1.getFirstScene(), sceneRange2.getFirstScene());
+
     /**
      * Constructs {@link Provisioner}
      */
@@ -97,16 +104,13 @@ public class Provisioner implements Parcelable {
         this.meshUuid = meshUuid;
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Ignore
-    public Provisioner() {
-
-    }
-
     protected Provisioner(Parcel in) {
         meshUuid = in.readString();
         provisionerUuid = in.readString();
         provisionerName = in.readString();
+        in.readTypedList(allocatedUnicastRanges, AllocatedUnicastRange.CREATOR);
+        in.readTypedList(allocatedGroupRanges, AllocatedGroupRange.CREATOR);
+        in.readTypedList(allocatedSceneRanges, AllocatedSceneRange.CREATOR);
         sequenceNumber = in.readInt();
         provisionerAddress = in.readInt();
         globalTtl = in.readInt();
@@ -250,8 +254,10 @@ public class Provisioner implements Parcelable {
      *
      * @param address address of the provisioner
      */
-    public void setProvisionerAddress(final int address) {
-        if(MeshAddress.isValidUnicastAddress(address))
+    public void setProvisionerAddress(final int address) throws IllegalArgumentException {
+        /*if (!MeshAddress.isValidUnicastAddress(address)) {
+            //throw new IllegalArgumentException("Unicast address must range between 0x0001 to 0x7FFF");
+        }*/
         this.provisionerAddress = address;
     }
 
@@ -288,9 +294,145 @@ public class Provisioner implements Parcelable {
         parcel.writeString(meshUuid);
         parcel.writeString(provisionerUuid);
         parcel.writeString(provisionerName);
+        parcel.writeTypedList(allocatedUnicastRanges);
+        parcel.writeTypedList(allocatedGroupRanges);
+        parcel.writeTypedList(allocatedSceneRanges);
         parcel.writeInt(sequenceNumber);
         parcel.writeInt(provisionerAddress);
         parcel.writeInt(globalTtl);
         parcel.writeByte((byte) (lastSelected ? 1 : 0));
+    }
+
+    /**
+     * Add a range to the provisioner
+     *
+     * @param allocatedRange {@link Range}
+     */
+    public boolean addRange(@NonNull final Range allocatedRange) {
+        if (allocatedRange instanceof AllocatedUnicastRange) {
+            allocatedUnicastRanges.add((AllocatedUnicastRange) allocatedRange);
+            final ArrayList<AllocatedUnicastRange> ranges = new ArrayList<>(allocatedUnicastRanges);
+            Collections.sort(ranges, addressRangeComparator);
+            allocatedUnicastRanges.clear();
+            allocatedUnicastRanges.addAll(mergeUnicastRanges(ranges));
+            return true;
+        } else if (allocatedRange instanceof AllocatedGroupRange) {
+            allocatedGroupRanges.add((AllocatedGroupRange) allocatedRange);
+            final ArrayList<AllocatedGroupRange> ranges = new ArrayList<>(allocatedGroupRanges);
+            Collections.sort(ranges, addressRangeComparator);
+            allocatedGroupRanges.clear();
+            allocatedGroupRanges.addAll(mergeGroupRanges(ranges));
+            return true;
+        } else if (allocatedRange instanceof AllocatedSceneRange) {
+            allocatedSceneRanges.add((AllocatedSceneRange) allocatedRange);
+            final ArrayList<AllocatedSceneRange> ranges = new ArrayList<>(allocatedSceneRanges);
+            Collections.sort(allocatedSceneRanges, sceneRangeComparator);
+            allocatedSceneRanges.clear();
+            allocatedSceneRanges.addAll(mergeSceneRanges(ranges));
+            return true;
+        }
+        return false;
+    }
+
+    private List<AllocatedUnicastRange> mergeUnicastRanges(@NonNull final List<AllocatedUnicastRange> ranges) {
+        AllocatedUnicastRange accumulator = new AllocatedUnicastRange();
+        final List<AllocatedUnicastRange> result = new ArrayList<>();
+        for (AllocatedUnicastRange range : ranges) {
+            if (accumulator.getLowAddress() == 0 && accumulator.getHighAddress() == 0) {
+                accumulator = range;
+            }
+
+            // Is the range already in accumulator's range?
+            //noinspection StatementWithEmptyBody
+            if (accumulator.getHighAddress() >= range.getHighAddress()) {
+                // Do nothing.
+            }
+
+            // Does the range start inside the accumulator, or just after the accumulator?
+            else if (accumulator.getHighAddress() + 1 >= range.getLowAddress()) {
+                accumulator = new AllocatedUnicastRange(accumulator.getLowAddress(), range.getHighAddress());
+            }
+
+            // There must have been a gap, the accumulator can be appended to result array.
+            else {
+                result.add(accumulator);
+                // Initialize the new accumulator as the new range.
+                accumulator = range;
+            }
+        }
+
+        // Add the last accumulator if it was set above.
+        if (accumulator.getLowAddress() != 0 && accumulator.getHighAddress() != 0) {
+            result.add(accumulator);
+        }
+        return result;
+    }
+
+    private List<AllocatedGroupRange> mergeGroupRanges(@NonNull final List<AllocatedGroupRange> ranges) {
+        AllocatedGroupRange accumulator = new AllocatedGroupRange();
+        final List<AllocatedGroupRange> result = new ArrayList<>();
+        for (AllocatedGroupRange range : ranges) {
+            if (accumulator.getLowAddress() == 0 && accumulator.getHighAddress() == 0) {
+                accumulator = range;
+            }
+
+            // Is the range already in accumulator's range?
+            //noinspection StatementWithEmptyBody
+            if (accumulator.getHighAddress() >= range.getHighAddress()) {
+                // Do nothing.
+            }
+
+            // Does the range start inside the accumulator, or just after the accumulator?
+            else if (accumulator.getHighAddress() + 1 >= range.getLowAddress()) {
+                accumulator = new AllocatedGroupRange(accumulator.getLowAddress(), range.getHighAddress());
+            }
+
+            // There must have been a gap, the accumulator can be appended to result array.
+            else {
+                result.add(accumulator);
+                // Initialize the new accumulator as the new range.
+                accumulator = range;
+            }
+        }
+
+        // Add the last accumulator if it was set above.
+        if (accumulator.getLowAddress() != 0 && accumulator.getHighAddress() != 0) {
+            result.add(accumulator);
+        }
+        return result;
+    }
+
+    private List<AllocatedSceneRange> mergeSceneRanges(@NonNull final List<AllocatedSceneRange> ranges) {
+        AllocatedSceneRange accumulator = new AllocatedSceneRange();
+        final List<AllocatedSceneRange> result = new ArrayList<>();
+        for (AllocatedSceneRange range : ranges) {
+            if (accumulator.getFirstScene() == 0 && accumulator.getLastScene() == 0) {
+                accumulator = range;
+            }
+
+            // Is the range already in accumulator's range?
+            //noinspection StatementWithEmptyBody
+            if (accumulator.getLastScene() >= range.getLastScene()) {
+                // Do nothing.
+            }
+
+            // Does the range start inside the accumulator, or just after the accumulator?
+            else if (accumulator.getLastScene() + 1 >= range.getFirstScene()) {
+                accumulator = new AllocatedSceneRange(accumulator.getFirstScene(), range.getLastScene());
+            }
+
+            // There must have been a gap, the accumulator can be appended to result array.
+            else {
+                result.add(accumulator);
+                // Initialize the new accumulator as the new range.
+                accumulator = range;
+            }
+        }
+
+        // Add the last accumulator if it was set above.
+        if (accumulator.getFirstScene() != 0 && accumulator.getLastScene() != 0) {
+            result.add(accumulator);
+        }
+        return result;
     }
 }

@@ -23,12 +23,14 @@
 package no.nordicsemi.android.nrfmeshprovisioner.provisioners;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,42 +39,40 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-
-import javax.inject.Inject;
-
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerName;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditProvisionerViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddProvisionerViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.RangeView;
 
 public class AddProvisionerActivity extends AppCompatActivity implements Injectable,
         DialogFragmentProvisionerName.DialogFragmentProvisionerNameListener,
         DialogFragmentProvisionerAddress.DialogFragmentAddressListener {
-
-    private static final String PROVISIONER_KEY = "PROVISIONER";
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
     private TextView provisionerName;
     private TextView provisionerUnicast;
-    private TextView unicastRange;
-    private TextView groupRange;
-    private TextView sceneRange;
+    private RangeView unicastRangeView;
+    private RangeView groupRangeView;
+    private RangeView sceneRangeView;
 
-    private EditProvisionerViewModel mViewModel;
-    private Provisioner provisioner;
+    private AddProvisionerViewModel mViewModel;
+    private Provisioner mProvisioner;
 
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_provisioner);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(EditProvisionerViewModel.class);
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AddProvisionerViewModel.class);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -101,50 +101,73 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
         containerUnicastRange.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lan_black_alpha_24dp));
         ((TextView) containerUnicastRange.findViewById(R.id.title)).setText(R.string.title_unicast_addresses);
-        unicastRange = containerUnicastRange.findViewById(R.id.text);
-        unicastRange.setVisibility(View.VISIBLE);
+        unicastRangeView = containerUnicastRange.findViewById(R.id.range_view);
 
         final View containerGroupRange = findViewById(R.id.container_group_range);
         containerGroupRange.setClickable(false);
         containerGroupRange.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_outline_group_work_black_alpha_24dp));
         ((TextView) containerGroupRange.findViewById(R.id.title)).setText(R.string.title_group_addresses);
-        groupRange = containerGroupRange.findViewById(R.id.text);
-        groupRange.setVisibility(View.VISIBLE);
+        groupRangeView = containerGroupRange.findViewById(R.id.range_view);
 
         final View containerSceneRange = findViewById(R.id.container_scene_range);
         containerSceneRange.setClickable(false);
         containerSceneRange.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_arrow_collapse_black_alpha_24dp));
         ((TextView) containerSceneRange.findViewById(R.id.title)).setText(R.string.title_scenes);
-        sceneRange = containerSceneRange.findViewById(R.id.text);
-        sceneRange.setVisibility(View.VISIBLE);
+        sceneRangeView = containerSceneRange.findViewById(R.id.range_view);
 
         containerProvisionerName.setOnClickListener(v -> {
-            if (provisioner != null) {
-                final DialogFragmentProvisionerName fragment = DialogFragmentProvisionerName.newInstance(provisioner.getProvisionerName());
+            if (mProvisioner != null) {
+                final DialogFragmentProvisionerName fragment = DialogFragmentProvisionerName.newInstance(mProvisioner.getProvisionerName());
                 fragment.show(getSupportFragmentManager(), null);
             }
         });
 
         containerUnicast.setOnClickListener(v -> {
-            if (provisioner != null) {
-                final DialogFragmentProvisionerAddress fragment = DialogFragmentProvisionerAddress.newInstance(provisioner.getProvisionerAddress());
+            if (mProvisioner != null) {
+                final DialogFragmentProvisionerAddress fragment = DialogFragmentProvisionerAddress.newInstance(mProvisioner.getProvisionerAddress());
                 fragment.show(getSupportFragmentManager(), null);
             }
         });
 
-        if(savedInstanceState == null){
+        containerUnicastRange.setOnClickListener(v -> {
+            if (mProvisioner != null) {
+                final Intent intent = new Intent(this, RangesActivity.class);
+                intent.putExtra(Utils.RANGE_TYPE, Utils.UNICAST_RANGE);
+                startActivity(intent);
+            }
+        });
+
+        containerGroupRange.setOnClickListener(v -> {
+            if (mProvisioner != null) {
+                final Intent intent = new Intent(this, RangesActivity.class);
+                intent.putExtra(Utils.RANGE_TYPE, Utils.GROUP_RANGE);
+                startActivity(intent);
+            }
+        });
+
+        containerSceneRange.setOnClickListener(v -> {
+            if (mProvisioner != null) {
+                final Intent intent = new Intent(this, RangesActivity.class);
+                intent.putExtra(Utils.RANGE_TYPE, Utils.SCENE_RANGE);
+                startActivity(intent);
+            }
+        });
+
+        if (savedInstanceState == null) {
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if(network != null) {
-                provisioner = network.createProvisioner();
+            if (network != null) {
+                final Provisioner provisioner = network.createProvisioner();
                 final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
                 provisioner.setProvisionerName(adapter.getName());
+                mViewModel.setSelectedProvisioner(provisioner);
             }
-        } else {
-            provisioner = savedInstanceState.getParcelable(PROVISIONER_KEY);
         }
-        updateUi();
+        mViewModel.getSelectedProvisioner().observe(this, provisioner -> {
+            mProvisioner = provisioner;
+            updateUi();
+        });
     }
 
     @Override
@@ -170,18 +193,12 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        outState.putParcelable(PROVISIONER_KEY, provisioner);
-    }
-
-    @Override
     public boolean onNameChanged(@NonNull final String name) {
-        if(provisioner != null) {
+        if (mProvisioner != null) {
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if(network != null) {
-                provisioner.setProvisionerName(name);
-                return network.updateProvisioner(provisioner);
+            if (network != null) {
+                mProvisioner.setProvisionerName(name);
+                return network.updateProvisioner(mProvisioner);
             }
         }
         return false;
@@ -189,30 +206,50 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
 
     @Override
     public boolean setAddress(final int sourceAddress) {
-        if(provisioner != null) {
+        if (mProvisioner != null) {
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if(network != null) {
-                provisioner.setProvisionerAddress(sourceAddress);
-                return network.updateProvisioner(provisioner);
+            if (network != null) {
+                mProvisioner.setProvisionerAddress(sourceAddress);
+                return network.updateProvisioner(mProvisioner);
             }
         }
         return false;
     }
 
-    private void updateUi(){
-        if(provisioner != null) {
-            provisionerName.setText(provisioner.getProvisionerName());
-            provisionerUnicast.setText(MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true));
-            unicastRange.setText(getString(R.string.summary_ranges, provisioner.getAllocatedUnicastRanges().size()));
-            groupRange.setText(getString(R.string.summary_ranges, provisioner.getAllocatedGroupRanges().size()));
-            sceneRange.setText(getString(R.string.summary_ranges, provisioner.getAllocatedSceneRanges().size()));
+    private void updateUi() {
+        if (mProvisioner != null) {
+            provisionerName.setText(mProvisioner.getProvisionerName());
+            if (mProvisioner.getProvisionerAddress() == 0) {
+                provisionerUnicast.setText(R.string.not_assigned);
+            } else {
+                provisionerUnicast.setText(MeshAddress.formatAddress(mProvisioner.getProvisionerAddress(), true));
+            }
+
+            unicastRangeView.addRanges(mProvisioner.getAllocatedUnicastRanges());
+            groupRangeView.addRanges(mProvisioner.getAllocatedGroupRanges());
+            sceneRangeView.addRanges(mProvisioner.getAllocatedSceneRanges());
+
+            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+            if (network != null) {
+                for (Provisioner provisioner : network.getProvisioners()) {
+                    unicastRangeView.addOtherRanges(provisioner.getAllocatedUnicastRanges());
+                    groupRangeView.addOtherRanges(provisioner.getAllocatedGroupRanges());
+                    sceneRangeView.addOtherRanges(provisioner.getAllocatedSceneRanges());
+                }
+            }
         }
     }
 
     private boolean save() {
         final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
         if (network != null) {
-            return network.addProvisioner(provisioner);
+            try {
+                return network.addProvisioner(mProvisioner);
+            } catch (IllegalArgumentException ex) {
+                final DialogFragmentConfigError fragment = DialogFragmentConfigError.
+                        newInstance(getString(R.string.title_error), ex.getMessage());
+                fragment.show(getSupportFragmentManager(), null);
+            }
         }
         return false;
     }

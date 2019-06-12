@@ -48,6 +48,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.keys.NetKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.AddProvisionerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.EditProvisionerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.ProvisionersActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.RangesActivity;
 
 @Module
 abstract class ActivitiesModule {
@@ -66,6 +67,9 @@ abstract class ActivitiesModule {
 
 	@ContributesAndroidInjector()
 	abstract EditProvisionerActivity contributeEditProvisionersActivity();
+
+	@ContributesAndroidInjector()
+	abstract RangesActivity contributeRangesActivity();
 
 	@ContributesAndroidInjector()
 	abstract NetKeysActivity contributeNetKeysActivity();

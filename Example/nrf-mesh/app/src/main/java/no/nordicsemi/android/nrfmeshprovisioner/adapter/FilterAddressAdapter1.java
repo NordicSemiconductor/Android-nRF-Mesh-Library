@@ -85,7 +85,7 @@ public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAda
 
     final class ViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.address)
+        @BindView(R.id.title)
         TextView address;
 
         @BindView(R.id.img_delete)

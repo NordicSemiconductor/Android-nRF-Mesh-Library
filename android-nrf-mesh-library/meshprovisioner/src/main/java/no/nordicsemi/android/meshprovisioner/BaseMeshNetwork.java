@@ -2,14 +2,6 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.text.TextUtils;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.room.ColumnInfo;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -21,6 +13,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.room.ColumnInfo;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
@@ -570,18 +569,23 @@ abstract class BaseMeshNetwork {
      */
     public Provisioner createProvisioner() {
         final List<AllocatedUnicastRange> unicastRange = new ArrayList();
+        final AllocatedUnicastRange range1 = new AllocatedUnicastRange(0x0100, 0x1500);
+        unicastRange.add(range1);
         final List<AllocatedGroupRange> groupRange = new ArrayList();
+        groupRange.add(new AllocatedGroupRange(0xC000, 0xFEFF));
         final List<AllocatedSceneRange> sceneRange = new ArrayList();
+        sceneRange.add(new AllocatedSceneRange(0x0001, 0xFFFF));
         return new Provisioner(UUID.randomUUID().toString(), unicastRange, groupRange, sceneRange, meshUUID);
     }
 
     /**
-     * Created a provisioner
+     * Adds a provisioner
      *
      * @return returns true if updated and false otherwise
      */
     public boolean addProvisioner(@NonNull final Provisioner provisioner) {
-        if (provisioners.isEmpty() || !provisioners.contains(provisioner)) {
+        //Check if the provisioner address exists and also if the given address is in use by any of the nodes
+        if (!isProvisionerExists(provisioner)) {
             provisioners.add(provisioner);
             notifyProvisionerAdded(provisioner);
             return true;
@@ -596,10 +600,10 @@ abstract class BaseMeshNetwork {
      * @return returns true if updated and false otherwise
      */
     public boolean updateProvisioner(@NonNull final Provisioner provisioner) {
-        if (provisioners.contains(provisioner)) {
-            final int index = provisioners.indexOf(provisioner);
-            if (index >= 0) {
-                provisioners.set(index, provisioner);
+        for (int i = 0; i < provisioners.size(); i++) {
+            final Provisioner p = provisioners.get(i);
+            if (p.getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
+                provisioners.set(i, provisioner);
                 notifyProvisionerUpdated(provisioner);
                 return true;
             }
@@ -673,13 +677,39 @@ abstract class BaseMeshNetwork {
      * @param provisioner {@link Provisioner}
      * @return True if provisioner exists and false otherwise
      */
-    public final boolean isProvisionerExists(@NonNull final Provisioner provisioner) {
-        for (Provisioner p : provisioners) {
-            if (provisioner.getProvisionerAddress() == p.getProvisionerAddress())
+    public final boolean isProvisionerExists(@NonNull final Provisioner provisioner) throws IllegalArgumentException {
+        if (provisioners.isEmpty()) {
+            return false;
+        }
+
+        if (isProvisionerUuidInUse(provisioner.getProvisionerUuid())) {
+            throw new IllegalArgumentException("Provisioner uuid already exists!");
+        }
+
+        if (isProvisionerAddressInUse(provisioner.getProvisionerAddress())) {
+            throw new IllegalArgumentException("Provisioner address is already in use!");
+        }
+        return true;
+    }
+
+    private boolean isProvisionerUuidInUse(@NonNull final String uuid) {
+        for (Provisioner provisioner : provisioners) {
+            if (provisioner.getProvisionerUuid().equalsIgnoreCase(uuid)) {
                 return true;
+            }
         }
         return false;
     }
+
+    private boolean isProvisionerAddressInUse(final int address) {
+        for (Provisioner provisioner : provisioners) {
+            if (address == provisioner.getProvisionerAddress()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Returns the {@link ProxyFilter} set on the proxy

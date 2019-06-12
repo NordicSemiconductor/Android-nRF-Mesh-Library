@@ -45,4 +45,9 @@
         <item quantity="other">%d Dimmers</item>
     </plurals>
 
+    <plurals name="range_count">
+        <item quantity="one">%d Range</item>
+        <item quantity="other">%d Ranges</item>
+    </plurals>
+
 </resources>

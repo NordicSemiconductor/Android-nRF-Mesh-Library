@@ -83,6 +83,9 @@
             android:name=".provisioners.EditProvisionerActivity"
             android:launchMode="singleTop"/>
         <activity
+            android:name=".provisioners.RangesActivity"
+            android:launchMode="singleTop"/>
+        <activity
             android:name=".keys.NetKeysActivity"
             android:launchMode="singleTop"/>
         <activity

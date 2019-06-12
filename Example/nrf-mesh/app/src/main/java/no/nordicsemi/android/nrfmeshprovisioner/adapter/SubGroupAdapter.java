@@ -134,7 +134,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
             icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_nordic_medium_gray_48dp));
             view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
             view.findViewById(R.id.container_vendor).setVisibility(View.VISIBLE);
-            final TextView modelIdView = view.findViewById(R.id.model_id);
+            final TextView modelIdView = view.findViewById(R.id.subtitle);
             modelIdView.setText(CompositionDataParser.formatModelIdentifier(modelId, true));
             final TextView companyIdView = view.findViewById(R.id.company_id);
             final int companyIdentifier = MeshParserUtils.getCompanyIdentifier(modelId);

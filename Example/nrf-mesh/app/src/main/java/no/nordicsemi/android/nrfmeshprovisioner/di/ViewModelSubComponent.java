@@ -38,6 +38,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationView
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeDetailsViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionersViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.RangesViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ReconnectViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
@@ -62,6 +63,7 @@ public interface ViewModelSubComponent {
 	ProvisionersViewModel provisionersViewModel();
 	AddProvisionerViewModel addProvisionerViewModel();
 	EditProvisionerViewModel editProvisionerViewModel();
+	RangesViewModel rangesViewModel();
 	NetKeysViewModel netKeysViewModel();
 	AddNetKeyViewModel addNetKeyViewModel();
 	EditNetKeyViewModel editNetKeyViewModel();
