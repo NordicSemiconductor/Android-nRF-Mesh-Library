@@ -21,54 +21,35 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:paddingStart="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/item_padding_top"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:paddingEnd="@dimen/activity_horizontal_margin"
-    android:paddingBottom="@dimen/item_padding_bottom"
+    android:paddingStart="@dimen/activity_horizontal_margin"
     tools:ignore="ContentDescription">
 
     <ImageView
-        android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/group_name"
-        app:layout_constraintBottom_toBottomOf="@id/title"
-        app:srcCompat="@drawable/ic_outline_group_work_black_alpha_24dp"/>
+        android:layout_gravity="center_horizontal"
+        android:padding="@dimen/activity_horizontal_margin"
+        app:srcCompat="@drawable/ic_range_black_alpha_48dp"/>
 
     <TextView
-        android:id="@+id/group_name"
-        android:layout_width="0dp"
+        style="@style/Widget.InfoWarningTitles"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:text="@string/title_group_address"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/icon"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:gravity="center_horizontal"
+        android:text="@string/title_no_ranges"/>
 
     <TextView
-        android:id="@+id/title"
-        android:layout_width="0dp"
+        android:id="@+id/rationale"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:text="0xC000"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@id/group_name"
-        app:layout_constraintTop_toBottomOf="@id/group_name"
-        app:layout_constraintEnd_toEndOf="@id/group_name"
-        tools:ignore="HardcodedText"/>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:gravity="center_horizontal"/>
+</LinearLayout>

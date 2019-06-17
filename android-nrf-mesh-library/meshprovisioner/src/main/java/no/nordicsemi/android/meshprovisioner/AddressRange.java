@@ -2,6 +2,8 @@ package no.nordicsemi.android.meshprovisioner;
 
 import com.google.gson.annotations.Expose;
 
+import androidx.annotation.NonNull;
+
 public abstract class AddressRange extends Range {
 
     @Expose
@@ -24,4 +26,11 @@ public abstract class AddressRange extends Range {
      */
     public abstract int getHighAddress();
 
+    public boolean overlaps(@NonNull final Range otherRange) {
+        if (otherRange instanceof AddressRange) {
+            final AddressRange otherAddressRange = (AddressRange) otherRange;
+            return overlaps(lowAddress, highAddress, otherAddressRange.getLowAddress(), otherAddressRange.getHighAddress());
+        }
+        return false;
+    }
 }

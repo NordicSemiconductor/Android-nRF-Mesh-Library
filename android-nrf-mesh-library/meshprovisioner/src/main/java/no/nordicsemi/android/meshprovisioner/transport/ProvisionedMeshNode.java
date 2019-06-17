@@ -42,6 +42,8 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.Provisioner;
+import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
@@ -96,6 +98,36 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         k2Output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
         mTimeStampInMillis = unprovisionedMeshNode.getTimeStamp();
         numberOfElements = unprovisionedMeshNode.getNumberOfElements();
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Ignore
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public ProvisionedMeshNode(@NonNull final Provisioner provisioner,
+                               @NonNull final List<NetworkKey> netKeys,
+                               @NonNull final List<ApplicationKey> appKeys) {
+        uuid = provisioner.getProvisionerUuid();
+        isConfigured = true;
+        nodeName = provisioner.getProvisionerName();
+        for (NetworkKey key : netKeys) {
+            mAddedNetKeyIndexes.add(key.getKeyIndex());
+        }
+
+        for (ApplicationKey key : appKeys) {
+            mAddedAppKeyIndexes.add(key.getKeyIndex());
+        }
+        unicastAddress = provisioner.getProvisionerAddress();
+        deviceKey = SecureUtils.generateRandomNumber();
+        ttl = provisioner.getGlobalTtl();
+        mTimeStampInMillis = System.currentTimeMillis();
+        numberOfElements = 1;
+        final MeshModel model = SigModelParser.getSigModel(SigModelParser.CONFIGURATION_CLIENT);
+        final HashMap<Integer, MeshModel> models = new HashMap<>();
+        models.put(model.getModelId(), model);
+        final Element element = new Element(unicastAddress, 0, models);
+        final HashMap<Integer, Element> elements = new HashMap<>();
+        elements.put(unicastAddress, element);
+        mElements = elements;
     }
 
     @Ignore
@@ -289,10 +321,9 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return Collections.unmodifiableList(mAddedNetKeyIndexes);
     }
 
-
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setAddedNetKeyIndexes(final List<Integer> addedNetkeyIndexes) {
-        mAddedNetKeyIndexes = addedNetkeyIndexes;
+    public final void setAddedNetKeyIndexes(final List<Integer> addedNetKeyIndexes) {
+        mAddedNetKeyIndexes = addedNetKeyIndexes;
     }
 
     /**
@@ -300,6 +331,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      *
      * @param index NetKey index
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final void setAddedNetKeyIndex(final int index) {
         if (!mAddedNetKeyIndexes.contains(index)) {
             this.mAddedNetKeyIndexes.add(index);
@@ -323,6 +355,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      *
      * @param index AppKey index
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final void setAddedAppKeyIndex(final int index) {
         if (!mAddedAppKeyIndexes.contains(index)) {
             this.mAddedAppKeyIndexes.add(index);

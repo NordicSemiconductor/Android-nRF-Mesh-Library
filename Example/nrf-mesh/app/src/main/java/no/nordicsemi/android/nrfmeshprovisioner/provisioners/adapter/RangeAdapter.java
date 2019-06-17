@@ -36,9 +36,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.AddressRange;
-import no.nordicsemi.android.meshprovisioner.AllocatedGroupRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedSceneRange;
-import no.nordicsemi.android.meshprovisioner.AllocatedUnicastRange;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.Range;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
@@ -63,7 +61,7 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
         mOnItemClickListener = listener;
     }
 
-    public void updateData(@NonNull List<? extends Range> ranges){
+    public void updateData(@NonNull List<? extends Range> ranges) {
         mRanges.clear();
         mRanges.addAll(ranges);
         notifyDataSetChanged();
@@ -90,16 +88,6 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
         holder.rangeValue.setText(mContext.getString(R.string.range_adapter_format, low, high));
         holder.rangeView.clearRanges();
         holder.rangeView.addRange(range);
-
-        /*for (Provisioner provisioner : mProvisioners) {
-            if (range instanceof AllocatedUnicastRange) {
-                holder.rangeView.addOtherRanges(provisioner.getAllocatedUnicastRanges());
-            } else if (range instanceof AllocatedGroupRange) {
-                holder.rangeView.addOtherRanges(provisioner.getAllocatedGroupRanges());
-            } else {
-                holder.rangeView.addOtherRanges(provisioner.getAllocatedSceneRanges());
-            }
-        }*/
     }
 
     @Override
@@ -116,9 +104,22 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
         return getItemCount() == 0;
     }
 
-    @SuppressWarnings("unused")
+    public List<Range> getItems() {
+        return mRanges;
+    }
+
     public Range getItem(final int position) {
         return mRanges.get(position);
+    }
+
+    public void addItem(final int position, @NonNull final Range range) {
+        mRanges.add(position, range);
+        notifyDataSetChanged();
+    }
+
+    public void removeItem(final int position) {
+        mRanges.remove(position);
+        notifyDataSetChanged();
     }
 
     @FunctionalInterface

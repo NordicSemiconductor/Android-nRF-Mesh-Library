@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.provisioners;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,6 +44,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerName;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RangeView;
 
@@ -60,16 +62,14 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
     private RangeView sceneRangeView;
 
     private EditProvisionerViewModel mViewModel;
-    private Provisioner provisioner;
+    private Provisioner mProvisioner;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_provisioner);
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(EditProvisionerViewModel.class);
-
-        //noinspection ConstantConditions
-        provisioner = getIntent().getExtras().getParcelable(ProvisionersActivity.EDIT_PROVISIONER);
+        //mProvisioner = mViewModel.getSelectedProvisioner().getValue();
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -115,25 +115,56 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
         sceneRangeView = containerSceneRange.findViewById(R.id.range_view);
 
         containerProvisionerName.setOnClickListener(v -> {
-            if (provisioner != null) {
-                final DialogFragmentProvisionerName fragment = DialogFragmentProvisionerName.newInstance(provisioner.getProvisionerName());
+            if (mProvisioner != null) {
+                final DialogFragmentProvisionerName fragment = DialogFragmentProvisionerName.newInstance(mProvisioner.getProvisionerName());
                 fragment.show(getSupportFragmentManager(), null);
             }
         });
 
         containerUnicast.setOnClickListener(v -> {
-            if (provisioner != null) {
-                final DialogFragmentProvisionerAddress fragment = DialogFragmentProvisionerAddress.newInstance(provisioner.getProvisionerAddress());
+            if (mProvisioner != null) {
+                final DialogFragmentProvisionerAddress fragment = DialogFragmentProvisionerAddress.newInstance(mProvisioner.getProvisionerAddress());
                 fragment.show(getSupportFragmentManager(), null);
             }
         });
 
-        if (savedInstanceState == null) {
-            provisionerName.setText(provisioner.getProvisionerName());
-            provisionerUnicast.setText(MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true));
-        }
+        containerUnicastRange.setOnClickListener(v -> {
+            if (mProvisioner != null) {
+                mViewModel.setSelectedProvisioner(mProvisioner);
+                final Intent intent = new Intent(this, RangesActivity.class);
+                intent.putExtra(Utils.RANGE_TYPE, Utils.UNICAST_RANGE);
+                startActivity(intent);
+            }
+        });
 
-        updateUi();
+        containerGroupRange.setOnClickListener(v -> {
+            if (mProvisioner != null) {
+                mViewModel.setSelectedProvisioner(mProvisioner);
+                final Intent intent = new Intent(this, RangesActivity.class);
+                intent.putExtra(Utils.RANGE_TYPE, Utils.GROUP_RANGE);
+                startActivity(intent);
+            }
+        });
+
+        containerSceneRange.setOnClickListener(v -> {
+            if (mProvisioner != null) {
+                mViewModel.setSelectedProvisioner(mProvisioner);
+                final Intent intent = new Intent(this, RangesActivity.class);
+                intent.putExtra(Utils.RANGE_TYPE, Utils.SCENE_RANGE);
+                startActivity(intent);
+            }
+        });
+
+        mViewModel.getSelectedProvisioner().observe(this, provisioner -> {
+            mProvisioner = provisioner;
+            updateUi(provisioner);
+        });
+
+        /*if (savedInstanceState == null) {
+            provisionerName.setText(mProvisioner.getProvisionerName());
+            provisionerUnicast.setText(MeshAddress.formatAddress(mProvisioner.getProvisionerAddress(), true));
+        }*/
+
 
     }
 
@@ -148,12 +179,12 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
 
     @Override
     public boolean onNameChanged(@NonNull final String name) {
-        if (provisioner != null) {
+        if (mProvisioner != null) {
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
             if (network != null) {
-                provisioner.setProvisionerName(name);
-                if(network.updateProvisioner(provisioner)) {
-                    provisionerName.setText(provisioner.getProvisionerName());
+                mProvisioner.setProvisionerName(name);
+                if (network.updateProvisioner(mProvisioner)) {
+                    provisionerName.setText(mProvisioner.getProvisionerName());
                     return true;
                 }
             }
@@ -163,12 +194,12 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
 
     @Override
     public boolean setAddress(final int sourceAddress) {
-        if (provisioner != null) {
+        if (mProvisioner != null) {
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
             if (network != null) {
-                provisioner.setProvisionerAddress(sourceAddress);
-                if(network.updateProvisioner(provisioner)){
-                    provisionerUnicast.setText(MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true));
+                mProvisioner.setProvisionerAddress(sourceAddress);
+                if (network.updateProvisioner(mProvisioner)) {
+                    provisionerUnicast.setText(MeshAddress.formatAddress(mProvisioner.getProvisionerAddress(), true));
                     return true;
                 }
             }
@@ -176,27 +207,25 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
         return false;
     }
 
-    private void updateUi() {
-        if (provisioner != null) {
-            provisionerName.setText(provisioner.getProvisionerName());
-            if (provisioner.getProvisionerAddress() == 0) {
-                provisionerUnicast.setText(R.string.not_assigned);
-            } else {
-                provisionerUnicast.setText(MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true));
-            }
+    private void updateUi(@NonNull final Provisioner provisioner) {
+        provisionerName.setText(provisioner.getProvisionerName());
+        if (provisioner.getProvisionerAddress() == 0) {
+            provisionerUnicast.setText(R.string.not_assigned);
+        } else {
+            provisionerUnicast.setText(MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true));
+        }
 
-            unicastRangeView.addRanges(provisioner.getAllocatedUnicastRanges());
-            groupRangeView.addRanges(provisioner.getAllocatedGroupRanges());
-            sceneRangeView.addRanges(provisioner.getAllocatedSceneRanges());
+        unicastRangeView.addRanges(provisioner.getAllocatedUnicastRanges());
+        groupRangeView.addRanges(provisioner.getAllocatedGroupRanges());
+        sceneRangeView.addRanges(provisioner.getAllocatedSceneRanges());
 
-            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if (network != null) {
-                for (Provisioner provisioner : network.getProvisioners()) {
-                    if (!provisioner.getProvisionerUuid().equalsIgnoreCase(this.provisioner.getProvisionerUuid())) {
-                        unicastRangeView.addOtherRanges(provisioner.getAllocatedUnicastRanges());
-                        groupRangeView.addOtherRanges(provisioner.getAllocatedGroupRanges());
-                        sceneRangeView.addOtherRanges(provisioner.getAllocatedSceneRanges());
-                    }
+        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        if (network != null) {
+            for (Provisioner other : network.getProvisioners()) {
+                if (!other.getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
+                    unicastRangeView.addOtherRanges(other.getAllocatedUnicastRanges());
+                    groupRangeView.addOtherRanges(other.getAllocatedGroupRanges());
+                    sceneRangeView.addOtherRanges(other.getAllocatedSceneRanges());
                 }
             }
         }

@@ -15,6 +15,7 @@ public class AddProvisionerViewModel extends BaseViewModel {
     @Inject
     AddProvisionerViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
+        mNrfMeshRepository.clearTransactionStatus();
     }
 
     public void setSelectedProvisioner(@NonNull final Provisioner provisioner) {

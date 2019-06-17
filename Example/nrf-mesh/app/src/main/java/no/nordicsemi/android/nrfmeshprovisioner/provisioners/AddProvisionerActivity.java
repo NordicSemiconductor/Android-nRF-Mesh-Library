@@ -158,16 +158,19 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
         if (savedInstanceState == null) {
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
             if (network != null) {
-                final Provisioner provisioner = network.createProvisioner();
+                final Provisioner provisioner = mProvisioner = network.createProvisioner();
                 final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
                 provisioner.setProvisionerName(adapter.getName());
                 mViewModel.setSelectedProvisioner(provisioner);
             }
         }
+
         mViewModel.getSelectedProvisioner().observe(this, provisioner -> {
             mProvisioner = provisioner;
             updateUi();
         });
+
+        updateUi();
     }
 
     @Override
@@ -198,6 +201,7 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
             if (network != null) {
                 mProvisioner.setProvisionerName(name);
+                updateUi();
                 return network.updateProvisioner(mProvisioner);
             }
         }
@@ -210,31 +214,40 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
             if (network != null) {
                 mProvisioner.setProvisionerAddress(sourceAddress);
-                return network.updateProvisioner(mProvisioner);
+                updateUi();
+                return true;
             }
         }
         return false;
     }
 
     private void updateUi() {
-        if (mProvisioner != null) {
-            provisionerName.setText(mProvisioner.getProvisionerName());
-            if (mProvisioner.getProvisionerAddress() == 0) {
-                provisionerUnicast.setText(R.string.not_assigned);
-            } else {
-                provisionerUnicast.setText(MeshAddress.formatAddress(mProvisioner.getProvisionerAddress(), true));
-            }
+        provisionerName.setText(mProvisioner.getProvisionerName());
+        if (mProvisioner.getProvisionerAddress() == 0) {
+            provisionerUnicast.setText(R.string.not_assigned);
+        } else {
+            provisionerUnicast.setText(MeshAddress.formatAddress(mProvisioner.getProvisionerAddress(), true));
+        }
 
-            unicastRangeView.addRanges(mProvisioner.getAllocatedUnicastRanges());
-            groupRangeView.addRanges(mProvisioner.getAllocatedGroupRanges());
-            sceneRangeView.addRanges(mProvisioner.getAllocatedSceneRanges());
+        unicastRangeView.clearRanges();
+        groupRangeView.clearRanges();
+        sceneRangeView.clearRanges();
 
-            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if (network != null) {
-                for (Provisioner provisioner : network.getProvisioners()) {
-                    unicastRangeView.addOtherRanges(provisioner.getAllocatedUnicastRanges());
-                    groupRangeView.addOtherRanges(provisioner.getAllocatedGroupRanges());
-                    sceneRangeView.addOtherRanges(provisioner.getAllocatedSceneRanges());
+        unicastRangeView.addRanges(mProvisioner.getAllocatedUnicastRanges());
+        groupRangeView.addRanges(mProvisioner.getAllocatedGroupRanges());
+        sceneRangeView.addRanges(mProvisioner.getAllocatedSceneRanges());
+
+        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        if (network != null) {
+            unicastRangeView.clearOtherRanges();
+            groupRangeView.clearOtherRanges();
+            sceneRangeView.clearOtherRanges();
+            for (Provisioner other : network.getProvisioners()) {
+                /*if (!other.getProvisionerUuid().equalsIgnoreCase(mProvisioner.getProvisionerUuid()))*/
+                {
+                    unicastRangeView.addOtherRanges(other.getAllocatedUnicastRanges());
+                    groupRangeView.addOtherRanges(other.getAllocatedGroupRanges());
+                    sceneRangeView.addOtherRanges(other.getAllocatedSceneRanges());
                 }
             }
         }

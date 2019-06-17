@@ -65,6 +65,17 @@
             app:layout_constraintTop_toBottomOf="@id/app_bar_layout"/>
 
         <include
+            android:id="@android:id/empty"
+            layout="@layout/info_no_ranges"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/app_bar_layout"
+            app:layout_constraintBottom_toTopOf="@id/info_ranges"
+            android:visibility="invisible"/>
+
+        <include
             android:id="@+id/info_ranges"
             layout="@layout/info_range_legend"
             android:layout_width="0dp"

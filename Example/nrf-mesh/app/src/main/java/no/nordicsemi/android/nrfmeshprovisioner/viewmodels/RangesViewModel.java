@@ -21,4 +21,8 @@ public class RangesViewModel extends BaseViewModel {
     public LiveData<Provisioner> getSelectedProvisioner() {
         return mNrfMeshRepository.getSelectedProvisioner();
     }
+
+    public void setSelectedProvisioner(@NonNull final Provisioner provisioner) {
+        mNrfMeshRepository.setSelectedProvisioner(provisioner);
+    }
 }

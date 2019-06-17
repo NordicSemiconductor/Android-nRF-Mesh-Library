@@ -4,6 +4,9 @@ import android.os.Parcel;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.List;
+
+import androidx.annotation.NonNull;
 import androidx.room.Ignore;
 
 /**
@@ -26,6 +29,10 @@ public class AllocatedSceneRange extends Range {
     @Override
     public final int getUpperBound() {
         return upperBound;
+    }
+
+    public List<Range> minus(final Range left, final Range right) {
+        return null;
     }
 
     /**
@@ -120,5 +127,14 @@ public class AllocatedSceneRange extends Range {
         dest.writeInt(upperBound);
         dest.writeInt(firstScene);
         dest.writeInt(lastScene);
+    }
+
+    @Override
+    public boolean overlaps(@NonNull final Range otherRange) {
+        if (otherRange instanceof AllocatedSceneRange) {
+            final AllocatedSceneRange otherSceneRange = (AllocatedSceneRange) otherRange;
+            return overlaps(firstScene, lastScene, otherSceneRange.getFirstScene(), otherSceneRange.getLastScene());
+        }
+        return false;
     }
 }

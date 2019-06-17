@@ -20,6 +20,7 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 
@@ -71,7 +72,7 @@ public class Provisioner implements Parcelable {
 
     @ColumnInfo(name = "provisioner_address")
     @Expose
-    private int provisionerAddress = 0x7FFF;
+    private int provisionerAddress;
 
     @ColumnInfo(name = "global_ttl")
     @Expose
@@ -255,9 +256,9 @@ public class Provisioner implements Parcelable {
      * @param address address of the provisioner
      */
     public void setProvisionerAddress(final int address) throws IllegalArgumentException {
-        /*if (!MeshAddress.isValidUnicastAddress(address)) {
-            //throw new IllegalArgumentException("Unicast address must range between 0x0001 to 0x7FFF");
-        }*/
+        if (!MeshAddress.isValidUnicastAddress(address)) {
+            throw new IllegalArgumentException("Unicast address must range between 0x0001 to 0x7FFF");
+        }
         this.provisionerAddress = address;
     }
 
@@ -434,5 +435,80 @@ public class Provisioner implements Parcelable {
             result.add(accumulator);
         }
         return result;
+    }
+
+    /**
+     * Checks if a given Unicast Address is within an allocated unicast address range
+     *
+     * @param address Unicast Address
+     * @return true if it is within a range or false otherwise
+     * @throws IllegalArgumentException if address is invalid or out of range
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    boolean isAddressWithinAllocatedRange(final int address) throws IllegalArgumentException {
+        if (!MeshAddress.isValidUnicastAddress(address)) {
+            throw new IllegalArgumentException("Unicast address must range from 0x0001 - 0x7FFF");
+        }
+
+        for (AllocatedUnicastRange range : allocatedUnicastRanges) {
+            if (address >= range.getLowAddress() && address <= range.getHighAddress())
+                return true;
+        }
+        return false;
+    }
+
+    public boolean hasOverlappingUnicastRanges(@NonNull final List<AllocatedUnicastRange> otherRanges) {
+        for (AllocatedUnicastRange range : allocatedUnicastRanges) {
+            for (AllocatedUnicastRange other : otherRanges) {
+                if (range.overlaps(other)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasOverlappingGroupRanges(@NonNull final List<AllocatedGroupRange> otherRanges) {
+        for (AllocatedGroupRange range : allocatedGroupRanges) {
+            for (AllocatedGroupRange other : otherRanges) {
+                if (range.overlaps(other)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasOverlappingSceneRanges(@NonNull final List<AllocatedSceneRange> otherRanges) {
+        for (AllocatedSceneRange range : allocatedSceneRanges) {
+            for (AllocatedSceneRange other : otherRanges) {
+                if (range.overlaps(other)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    boolean isAddressInUse(@NonNull final List<Provisioner> provisioners) {
+        for (Provisioner provisioner : provisioners) {
+            if (!provisioner.getProvisionerUuid().equalsIgnoreCase(provisionerUuid)) {
+                if (provisioner.getProvisionerAddress() == provisionerAddress) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    boolean isNodeAddressInUse(@NonNull final List<ProvisionedMeshNode> nodes) {
+        for (ProvisionedMeshNode node : nodes) {
+            if (!node.getUuid().equalsIgnoreCase(provisionerUuid)) {
+                if (node.getUnicastAddress() == provisionerAddress) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

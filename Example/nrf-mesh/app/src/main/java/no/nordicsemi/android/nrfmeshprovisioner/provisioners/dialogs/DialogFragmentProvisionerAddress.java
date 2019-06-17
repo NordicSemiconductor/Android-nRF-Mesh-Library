@@ -79,8 +79,7 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_address_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_address_input, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
@@ -127,21 +126,14 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String unicast = unicastAddressInput.getEditableText().toString();
-            if (validateInput(unicast)) {
+            if (validateInput(unicast))
                 try {
-                    if (getParentFragment() == null) {
-                        if (((DialogFragmentAddressListener) requireActivity()).setAddress(Integer.parseInt(unicast, 16))) {
-                            dismiss();
-                        }
-                    } else {
-                        if (((DialogFragmentAddressListener) getParentFragment()).setAddress(Integer.parseInt(unicast, 16))) {
-                            dismiss();
-                        }
+                    if (((DialogFragmentAddressListener) requireActivity()).setAddress(Integer.parseInt(unicast, 16))) {
+                        dismiss();
                     }
                 } catch (IllegalArgumentException ex) {
                     unicastAddressInputLayout.setError(ex.getMessage());
                 }
-            }
         });
 
         return alertDialog;

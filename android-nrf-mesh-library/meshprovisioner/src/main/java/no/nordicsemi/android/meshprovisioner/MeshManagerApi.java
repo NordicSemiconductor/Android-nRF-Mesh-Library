@@ -672,9 +672,9 @@ public class MeshManagerApi implements MeshMngrApi {
     private byte[] getAdvertisedNetworkId(final byte[] serviceData) {
         if (serviceData == null)
             return null;
-        final ByteBuffer advertisedNetowrkID = ByteBuffer.allocate(ADVERTISED_NETWORK_ID_LENGTH).order(ByteOrder.BIG_ENDIAN);
-        advertisedNetowrkID.put(serviceData, ADVERTISED_NETWORK_ID_OFFSET, ADVERTISED_HASH_LENGTH);
-        return advertisedNetowrkID.array();
+        final ByteBuffer advertisedNetworkID = ByteBuffer.allocate(ADVERTISED_NETWORK_ID_LENGTH).order(ByteOrder.BIG_ENDIAN);
+        advertisedNetworkID.put(serviceData, ADVERTISED_NETWORK_ID_OFFSET, ADVERTISED_HASH_LENGTH);
+        return advertisedNetworkID.array();
     }
 
     /**
@@ -723,20 +723,6 @@ public class MeshManagerApi implements MeshMngrApi {
             appKeys.add(appKey);
         }
         return appKeys;
-    }
-
-    private List<Provisioner> generateProvisioners(final String meshUuid) {
-        final String provisionerUuid = UUID.randomUUID().toString().toUpperCase(Locale.US);
-        final AllocatedUnicastRange unicastRange = new AllocatedUnicastRange(0x0001, 0x7FFF);
-        final List<AllocatedUnicastRange> unicastRanges = new ArrayList<>();
-        unicastRanges.add(unicastRange);
-        final List<AllocatedGroupRange> groupRanges = new ArrayList<>();
-        final List<AllocatedSceneRange> sceneRanges = new ArrayList<>();
-        final Provisioner provisioner = new Provisioner(provisionerUuid, unicastRanges, groupRanges, sceneRanges, meshUuid);
-        provisioner.setLastSelected(true);
-        final List<Provisioner> provisioners = new ArrayList<>();
-        provisioners.add(provisioner);
-        return provisioners;
     }
 
     /**

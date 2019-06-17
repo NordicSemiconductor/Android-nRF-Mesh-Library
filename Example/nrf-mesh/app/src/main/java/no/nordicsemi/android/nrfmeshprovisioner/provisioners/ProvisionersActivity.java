@@ -29,6 +29,11 @@ import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,12 +46,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
@@ -138,8 +137,8 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
             final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
             if (network != null) {
                 final Provisioner provisioner = network.getSelectedProvisioner();
+                mViewModel.setSelectedProvisioner(provisioner);
                 final Intent intent = new Intent(this, EditProvisionerActivity.class);
-                intent.putExtra(EDIT_PROVISIONER, provisioner);
                 startActivity(intent);
             }
         });
@@ -169,8 +168,8 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
 
     @Override
     public void onItemClick(final int position, @NonNull final Provisioner provisioner) {
+        mViewModel.setSelectedProvisioner(provisioner);
         final Intent intent = new Intent(this, EditProvisionerActivity.class);
-        intent.putExtra(EDIT_PROVISIONER, position);
         startActivity(intent);
     }
 

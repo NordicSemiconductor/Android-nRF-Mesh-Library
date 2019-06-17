@@ -121,6 +121,8 @@
     <string name="conflicting_with_another">Conflicting with another Provisioner</string>
 
     <string name="title_range">Range</string>
+    <string name="range_deleted">Range deleted.</string>
+    <string name="title_no_ranges">NO RANGES ALLOCATED</string>
     <string name="title_edit_unicast_ranges">Edit Unicast Ranges</string>
     <string name="title_edit_group_ranges">Edit Group Ranges</string>
     <string name="title_edit_scene_ranges">Edit Scene Ranges</string>
@@ -130,6 +132,7 @@
 
     <string name="title_provisioners">Provisioners</string>
     <string name="title_provisioner">Provisioner</string>
+    <string name="provisioner_deleted">Provisioner deleted.</string>
     <string name="title_provisioner_address">Provisioner Address</string>
     <string name="title_unicast_range">Unicast Address Range</string>
     <string name="action_add_range">Add range</string>
@@ -143,7 +146,6 @@
     <string name="title_manage_provisioners">Manage Provisioners</string>
     <string name="title_add_provisioner">Add Provisioner</string>
     <string name="title_edit_provisioner">Edit Provisioner</string>
-    <string name="provisioner_deleted">Provisioner deleted</string>
     <string name="hint_delete_provisioner">Hint: Swipe to delete a provisioner.</string>
     <string name="provisioner_authentication_title">Authentication</string>
     <string name="provisioner_input_static_oob">Input the 128-bit Static OOB value provided with the device.</string>

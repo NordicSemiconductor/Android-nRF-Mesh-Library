@@ -88,12 +88,16 @@ public class DialogFragmentGroupRange extends DialogFragment {
         //Bind ui
         ButterKnife.bind(this, rootView);
         final TextView summary = rootView.findViewById(R.id.summary);
-        final String lowAddress = MeshAddress.formatAddress(mRange.getLowAddress(), false);
-        final String highAddress = MeshAddress.formatAddress(mRange.getHighAddress(), false);
+        if (mRange != null) {
+            final String lowAddress = MeshAddress.formatAddress(mRange.getLowAddress(), false);
+            final String highAddress = MeshAddress.formatAddress(mRange.getHighAddress(), false);
+            lowAddressInput.setText(lowAddress);
+            lowAddressInput.setSelection(lowAddress.length());
+            highAddressInput.setText(highAddress);
+            highAddressInput.setSelection(highAddress.length());
+        }
 
         final KeyListener hexKeyListener = new HexKeyListener();
-        lowAddressInput.setText(lowAddress);
-        lowAddressInput.setSelection(lowAddress.length());
         lowAddressInput.setKeyListener(hexKeyListener);
         lowAddressInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -116,8 +120,6 @@ public class DialogFragmentGroupRange extends DialogFragment {
             }
         });
 
-        highAddressInput.setText(highAddress);
-        highAddressInput.setSelection(highAddress.length());
         highAddressInput.setKeyListener(hexKeyListener);
         highAddressInput.addTextChangedListener(new TextWatcher() {
             @Override
