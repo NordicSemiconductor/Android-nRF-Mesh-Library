@@ -31,6 +31,8 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -48,6 +50,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.AddressRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedGroupRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedSceneRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedUnicastRange;
@@ -88,6 +91,12 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
     private RangesViewModel mViewModel;
     private RangeAdapter mRangeAdapter;
     private Provisioner mProvisioner;
+
+    private final Comparator<AddressRange> addressRangeComparator = (addressRange1, addressRange2) ->
+            Integer.compare(addressRange1.getLowAddress(), addressRange2.getLowAddress());
+
+    private final Comparator<AllocatedSceneRange> sceneRangeComparator = (sceneRange1, sceneRange2) ->
+            Integer.compare(sceneRange1.getFirstScene(), sceneRange2.getFirstScene());
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -343,8 +352,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                 removeConflictingGroupRanges();
                 break;
             case Utils.SCENE_RANGE:
-                final DialogFragmentSceneRange sceneRange = DialogFragmentSceneRange.newInstance(null);
-                sceneRange.show(getSupportFragmentManager(), null);
+                removeConflictingSceneRanges();
                 break;
             default:
             case Utils.UNICAST_RANGE:
@@ -355,16 +363,13 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
 
     private void removeConflictingUnicastRanges() {
         if (mProvisioner != null) {
-            final List<AllocatedUnicastRange> ranges = new ArrayList<>(mProvisioner.getAllocatedUnicastRanges());
-            for (int i = 0; i < ranges.size(); i++) {
-                AllocatedUnicastRange range = ranges.get(i);
-                for (Provisioner p : mViewModel.getMeshNetworkLiveData().getProvisioners()) {
-                    for (AllocatedUnicastRange otherRange : p.getAllocatedUnicastRanges()) {
-                        final AllocatedUnicastRange result = range.minus(otherRange);
-                        if (result != null) {
-                            ranges.set(i, range);
-                        }
-                    }
+            List<AllocatedUnicastRange> ranges = new ArrayList<>(mProvisioner.getAllocatedUnicastRanges());
+            Collections.sort(ranges, addressRangeComparator);
+            for (Provisioner p : mViewModel.getMeshNetworkLiveData().getProvisioners()) {
+                final List<AllocatedUnicastRange> otherRanges = new ArrayList<>(p.getAllocatedUnicastRanges());
+                Collections.sort(otherRanges, addressRangeComparator);
+                for (AllocatedUnicastRange otherRange : otherRanges) {
+                    ranges = AddressRange.minus(ranges, otherRange);
                 }
             }
             mProvisioner.setAllocatedUnicastRanges(ranges);
@@ -377,17 +382,39 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
 
     private void removeConflictingGroupRanges() {
         if (mProvisioner != null) {
-            final List<AllocatedGroupRange> ranges = new ArrayList<>(mProvisioner.getAllocatedGroupRanges());
-            for (int i = 0; i < ranges.size(); i++) {
-                AllocatedGroupRange range = ranges.get(i);
-                for (Provisioner p : mViewModel.getMeshNetworkLiveData().getProvisioners()) {
-                    for (AllocatedGroupRange otherRange : p.getAllocatedGroupRanges()) {
-                        range = range.minus(otherRange);
-                        ranges.set(i, range);
-                    }
+            List<AllocatedGroupRange> ranges = new ArrayList<>(mProvisioner.getAllocatedGroupRanges());
+            Collections.sort(ranges, addressRangeComparator);
+            for (Provisioner p : mViewModel.getMeshNetworkLiveData().getProvisioners()) {
+                final List<AllocatedGroupRange> otherRanges = new ArrayList<>(p.getAllocatedGroupRanges());
+                Collections.sort(otherRanges, addressRangeComparator);
+                for (AllocatedGroupRange otherRange : otherRanges) {
+                    ranges = AddressRange.minus(ranges, otherRange);
                 }
             }
+
+            Collections.sort(ranges, addressRangeComparator);
             mProvisioner.setAllocatedGroupRanges(ranges);
+            mRangeAdapter.updateData(ranges);
+            updateRanges();
+            updateOtherRanges();
+            updateResolveFab();
+        }
+    }
+
+    private void removeConflictingSceneRanges() {
+        if (mProvisioner != null) {
+            List<AllocatedSceneRange> ranges = new ArrayList<>(mProvisioner.getAllocatedSceneRanges());
+            Collections.sort(ranges, sceneRangeComparator);
+            for (Provisioner p : mViewModel.getMeshNetworkLiveData().getProvisioners()) {
+                final List<AllocatedSceneRange> otherRanges = new ArrayList<>(p.getAllocatedSceneRanges());
+                Collections.sort(otherRanges, sceneRangeComparator);
+                for (AllocatedSceneRange otherRange : otherRanges) {
+                    ranges = AllocatedSceneRange.minus(ranges, otherRange);
+                }
+            }
+
+            Collections.sort(ranges, sceneRangeComparator);
+            mProvisioner.setAllocatedSceneRanges(ranges);
             mRangeAdapter.updateData(ranges);
             updateRanges();
             updateOtherRanges();

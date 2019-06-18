@@ -2,8 +2,10 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.os.Parcel;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.room.Ignore;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
@@ -108,69 +110,5 @@ public class AllocatedGroupRange extends AddressRange {
         dest.writeInt(upperBound);
         dest.writeInt(highAddress);
         dest.writeInt(lowAddress);
-    }
-
-    /**
-     * Deducts a range from another
-     *
-     * @param other right {@link AllocatedGroupRange}
-     * @return a resulting {@link AllocatedGroupRange} or null otherwise
-     */
-    public AllocatedGroupRange minus(final AllocatedGroupRange other) {
-        AllocatedGroupRange result = new AllocatedGroupRange();
-        // Left:   |------------|                    |-----------|                 |---------|
-        //                  -                              -                            -
-        // Right:      |-----------------|   or                     |---|   or        |----|
-        //                  =                              =                            =
-        // Result: |---|                             |-----------|                 |--|
-        if (other.lowAddress > lowAddress) {
-            final AllocatedGroupRange leftSlice = new AllocatedGroupRange(lowAddress, (Math.min(highAddress, other.lowAddress - 1)));
-            result.lowAddress = leftSlice.lowAddress;
-            result.highAddress = leftSlice.highAddress;
-        }
-
-        // Left:                |----------|             |-----------|                     |--------|
-        //                         -                          -                             -
-        // Right:      |----------------|           or       |----|          or     |---|
-        //                         =                          =                             =
-        // Result:                      |--|                      |--|                     |--------|
-        if (other.highAddress < highAddress) {
-            return new AllocatedGroupRange(Math.max(other.highAddress + 1, lowAddress), highAddress);
-            //result.highAddress = other.highAddress;
-        }
-        return result;
-    }
-
-    /**
-     * Deducts a range from another
-     *
-     * @param others List of other provisioners' {@link AllocatedGroupRange}
-     * @return a resulting {@link AllocatedGroupRange} or null otherwise
-     */
-    public AllocatedGroupRange minus(final List<AllocatedGroupRange> others) {
-        AllocatedGroupRange result = new AllocatedGroupRange();
-        for (AllocatedGroupRange other : others) {
-            // Left:   |------------|                    |-----------|                 |---------|
-            //                  -                              -                            -
-            // Right:      |-----------------|   or                     |---|   or        |----|
-            //                  =                              =                            =
-            // Result: |---|                             |-----------|                 |--|
-            if (other.lowAddress > lowAddress) {
-                final AllocatedGroupRange leftSlice = new AllocatedGroupRange(lowAddress, (Math.min(highAddress, other.lowAddress - 1)));
-                result.lowAddress = leftSlice.lowAddress;
-                result.highAddress = leftSlice.highAddress;
-            }
-
-            // Left:                |----------|             |-----------|                     |--------|
-            //                         -                          -                             -
-            // Right:      |----------------|           or       |----|          or     |---|
-            //                         =                          =                             =
-            // Result:                      |--|                      |--|                     |--------|
-            if (other.highAddress < highAddress) {
-                return new AllocatedGroupRange(Math.max(other.highAddress + 1, lowAddress), highAddress);
-                //result.highAddress = other.highAddress;
-            }
-        }
-        return result;
     }
 }

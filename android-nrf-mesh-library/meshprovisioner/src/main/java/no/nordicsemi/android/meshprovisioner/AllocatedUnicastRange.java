@@ -2,6 +2,9 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.os.Parcel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import androidx.room.Ignore;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
@@ -96,38 +99,6 @@ public class AllocatedUnicastRange extends AddressRange {
         if (!MeshAddress.isValidUnicastAddress(lowAddress))
             throw new IllegalArgumentException("High address must range from 0x0000 to 0x7FFF");
         this.highAddress = highAddress;
-    }
-
-    /**
-     * Deducts a range from another
-     *
-     * @param other right {@link AllocatedUnicastRange}
-     * @return a resulting {@link AllocatedUnicastRange} or null otherwise
-     */
-    public AllocatedUnicastRange minus(final AllocatedUnicastRange other) {
-        AllocatedUnicastRange result = null;
-        // Left:   |------------|                    |-----------|                 |---------|
-        //                  -                              -                            -
-        // Right:      |-----------------|   or                     |---|   or        |----|
-        //                  =                              =                            =
-        // Result: |---|                             |-----------|                 |--|
-        if (other.lowAddress > lowAddress) {
-            final AllocatedUnicastRange leftSlice = new AllocatedUnicastRange(lowAddress, (Math.min(highAddress, other.lowAddress - 1)));
-            result = new AllocatedUnicastRange();
-            result.lowAddress = leftSlice.lowAddress;
-            result.highAddress = leftSlice.highAddress;
-        }
-
-        // Left:                |----------|             |-----------|                     |--------|
-        //                         -                          -                             -
-        // Right:      |----------------|           or       |----|          or     |---|
-        //                         =                          =                             =
-        // Result:                      |--|                      |--|                     |--------|
-        if (other.highAddress < highAddress) {
-            return new AllocatedUnicastRange(Math.max(other.highAddress + 1, lowAddress), highAddress);
-            //result.highAddress = other.highAddress;
-        }
-        return result;
     }
 
     @Override

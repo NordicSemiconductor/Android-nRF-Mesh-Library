@@ -159,13 +159,6 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
             mProvisioner = provisioner;
             updateUi(provisioner);
         });
-
-        /*if (savedInstanceState == null) {
-            provisionerName.setText(mProvisioner.getProvisionerName());
-            provisionerUnicast.setText(MeshAddress.formatAddress(mProvisioner.getProvisionerAddress(), true));
-        }*/
-
-
     }
 
     @Override

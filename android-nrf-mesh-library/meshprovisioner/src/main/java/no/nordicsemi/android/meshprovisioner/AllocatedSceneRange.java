@@ -4,6 +4,7 @@ import android.os.Parcel;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -136,5 +137,54 @@ public class AllocatedSceneRange extends Range {
             return overlaps(firstScene, lastScene, otherSceneRange.getFirstScene(), otherSceneRange.getLastScene());
         }
         return false;
+    }
+
+    /**
+     * Subtracts a range from a list of ranges
+     *
+     * @param ranges ranges to be subtracted
+     * @param other  {@link AllocatedSceneRange} range
+     * @return a resulting {@link AllocatedSceneRange} or null otherwise
+     */
+    @NonNull
+    public static List<AllocatedSceneRange> minus(@NonNull final List<AllocatedSceneRange> ranges, @NonNull final AllocatedSceneRange other) {
+        List<AllocatedSceneRange> results = new ArrayList<>();
+        for (AllocatedSceneRange range : ranges) {
+            results.addAll(range.minus(other));
+            results = mergeSceneRanges(results);
+        }
+        ranges.clear();
+        ranges.addAll(results);
+        return ranges;
+    }
+
+    /**
+     * Deducts a range from another
+     *
+     * @param other right {@link AllocatedSceneRange}
+     * @return a resulting {@link AllocatedSceneRange} or null otherwise
+     */
+    List<AllocatedSceneRange> minus(final AllocatedSceneRange other) {
+        final List<AllocatedSceneRange> results = new ArrayList<>();
+        // Left:   |------------|                    |-----------|                 |---------|
+        //                  -                              -                            -
+        // Right:      |-----------------|   or                     |---|   or        |----|
+        //                  =                              =                            =
+        // Result: |---|                             |-----------|                 |--|
+        if (other.firstScene > firstScene) {
+            final AllocatedSceneRange leftSlice = new AllocatedSceneRange(firstScene, (Math.min(lastScene, other.firstScene - 1)));
+            results.add(leftSlice);
+        }
+
+        // Left:                |----------|             |-----------|                     |--------|
+        //                         -                          -                             -
+        // Right:      |----------------|           or       |----|          or     |---|
+        //                         =                          =                             =
+        // Result:                      |--|                      |--|                     |--------|
+        if (other.lastScene < lastScene) {
+            final AllocatedSceneRange rightSlice = new AllocatedSceneRange(Math.max(other.lastScene + 1, firstScene), lastScene);
+            results.add(rightSlice);
+        }
+        return results;
     }
 }

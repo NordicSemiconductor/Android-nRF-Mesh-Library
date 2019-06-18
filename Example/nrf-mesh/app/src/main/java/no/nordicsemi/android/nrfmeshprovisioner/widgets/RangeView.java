@@ -177,8 +177,8 @@ public class RangeView extends View {
         final Rect mRect = canvas.getClipBounds();
         final float unit = (mRect.width() / (float) (upperBound - lowerBound));
         final int x = (int) ((lowAddress - lowerBound) * unit);
-        final int y = (int) ((highAddress - lowerBound) * unit);
-        return new Rect(x, 0, y, mRect.height());
+        final int right = (int) ((highAddress - lowerBound) * unit);
+        return new Rect(x, 0, right, mRect.height());
     }
 
     private Paint getRectPaint() {
@@ -188,40 +188,40 @@ public class RangeView extends View {
         return p;
     }
 
-    private Rect getOverlappingAddressRegion(@NonNull final AddressRange range, @NonNull final AddressRange otherRange, final float unit, final int hegith) {
+    private Rect getOverlappingAddressRegion(@NonNull final AddressRange range, @NonNull final AddressRange otherRange, final float unit, final int height) {
         int x;
         int right;
         // Are the ranges are equal
         if (range.getLowAddress() == otherRange.getLowAddress() && range.getHighAddress() == otherRange.getHighAddress()) {
             x = (int) ((range.getLowAddress() - otherRange.getLowerBound()) * unit);
             right = (int) ((range.getHighAddress() - otherRange.getLowerBound()) * unit);
-            return new Rect(x, 0, right, hegith);
+            return new Rect(x, 0, right, height);
         }
         // Is the range greater than the other range?
         else if (range.getLowAddress() < otherRange.getLowAddress() && range.getHighAddress() > otherRange.getHighAddress()) {
             x = (int) ((otherRange.getLowAddress() - otherRange.getLowerBound()) * unit);
             right = (int) ((otherRange.getHighAddress() - otherRange.getLowerBound()) * unit);
-            return new Rect(x, 0, right, hegith);
+            return new Rect(x, 0, right, height);
         }
         // Is the range within the other range?
         else if (range.getLowAddress() > otherRange.getLowAddress() && range.getHighAddress() < otherRange.getHighAddress()) {
             x = (int) ((range.getLowAddress() - range.getLowerBound()) * unit);
             right = (int) ((range.getHighAddress() - range.getLowerBound()) * unit);
-            return new Rect(x, 0, right, hegith);
+            return new Rect(x, 0, right, height);
         }
         // Is the range's lower address lower than the other range's low address
         else if (range.getLowAddress() <= otherRange.getLowAddress() &&
                 range.getHighAddress() >= otherRange.getLowAddress() && range.getHighAddress() <= otherRange.getHighAddress()) {
             x = (int) ((otherRange.getLowAddress() - range.getLowerBound()) * unit);
             right = (int) (range.getHighAddress() * unit);
-            return new Rect(x, 0, right, hegith);
+            return new Rect(x, 0, right, height);
         }
         // Is the range's higher address greater than the other range's high address
         else if (range.getHighAddress() >= otherRange.getHighAddress() &&
                 range.getLowAddress() >= otherRange.getLowAddress() && range.getLowAddress() <= otherRange.getHighAddress()) {
             x = (int) ((range.getLowAddress() - otherRange.getLowerBound()) * unit);
             right = (int) ((otherRange.getHighAddress() - range.getLowerBound()) * unit);
-            return new Rect(x, 0, right, hegith);
+            return new Rect(x, 0, right, height);
         }
         return null;
     }
