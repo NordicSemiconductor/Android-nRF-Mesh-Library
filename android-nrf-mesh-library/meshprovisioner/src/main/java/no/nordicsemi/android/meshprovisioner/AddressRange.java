@@ -7,7 +7,6 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
-@SuppressWarnings("WeakerAccess")
 public abstract class AddressRange extends Range {
 
     @Expose
@@ -52,9 +51,9 @@ public abstract class AddressRange extends Range {
             results.addAll(range.minus(other));
             results = mergeGroupRanges(results);
         }
-        ranges.clear();
-        ranges.addAll(results);
-        return ranges;
+        /*ranges.clear();
+        ranges.addAll(results);*/
+        return results;
     }
 
     /**
@@ -101,9 +100,9 @@ public abstract class AddressRange extends Range {
             results.addAll(range.minus(other));
             results = mergeUnicastRanges(results);
         }
-        ranges.clear();
-        ranges.addAll(results);
-        return ranges;
+        /*ranges.clear();
+        ranges.addAll(results);*/
+        return results;
     }
 
     /**

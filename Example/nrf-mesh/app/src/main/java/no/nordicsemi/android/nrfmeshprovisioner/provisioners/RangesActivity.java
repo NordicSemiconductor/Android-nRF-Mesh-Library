@@ -106,6 +106,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
         ButterKnife.bind(this);
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(RangesViewModel.class);
         mType = getIntent().getExtras().getInt(Utils.RANGE_TYPE);
+
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -126,20 +127,29 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                 startAddress.setText(MeshAddress.formatAddress(MeshAddress.START_GROUP_ADDRESS, true));
                 endAddress.setText(MeshAddress.formatAddress(MeshAddress.END_GROUP_ADDRESS, true));
                 getSupportActionBar().setTitle(R.string.title_edit_group_ranges);
-                mRangeAdapter = new RangeAdapter(this, mProvisioner.getAllocatedGroupRanges(), mViewModel.getMeshNetworkLiveData().getProvisioners());
+                mRangeAdapter = new RangeAdapter(this,
+                        mProvisioner.getProvisionerUuid(),
+                        mProvisioner.getAllocatedGroupRanges(),
+                        mViewModel.getMeshNetworkLiveData().getProvisioners());
                 break;
             case Utils.SCENE_RANGE:
                 startAddress.setText(MeshAddress.formatAddress(0x0000, true));
                 endAddress.setText(MeshAddress.formatAddress(0xFFFF, true));
                 getSupportActionBar().setTitle(R.string.title_edit_scene_ranges);
-                mRangeAdapter = new RangeAdapter(this, mProvisioner.getAllocatedSceneRanges(), mViewModel.getMeshNetworkLiveData().getProvisioners());
+                mRangeAdapter = new RangeAdapter(this,
+                        mProvisioner.getProvisionerUuid(),
+                        mProvisioner.getAllocatedSceneRanges(),
+                        mViewModel.getMeshNetworkLiveData().getProvisioners());
                 break;
             default:
             case Utils.UNICAST_RANGE:
                 startAddress.setText(MeshAddress.formatAddress(MeshAddress.START_UNICAST_ADDRESS, true));
                 endAddress.setText(MeshAddress.formatAddress(MeshAddress.END_UNICAST_ADDRESS, true));
                 getSupportActionBar().setTitle(R.string.title_edit_unicast_ranges);
-                mRangeAdapter = new RangeAdapter(this, mProvisioner.getAllocatedUnicastRanges(), mViewModel.getMeshNetworkLiveData().getProvisioners());
+                mRangeAdapter = new RangeAdapter(this,
+                        mProvisioner.getProvisionerUuid(),
+                        mProvisioner.getAllocatedUnicastRanges(),
+                        mViewModel.getMeshNetworkLiveData().getProvisioners());
                 break;
         }
 
@@ -177,6 +187,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
 
         updateRanges();
         updateOtherRanges();
+        updateEmptyView();
         updateResolveFab();
     }
 
@@ -211,12 +222,13 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public void addRange(@NonNull final Range range) {
-        final Provisioner provisioner = mViewModel.getSelectedProvisioner().getValue();
-        if (provisioner != null) {
-            provisioner.addRange(range);
+        //final Provisioner provisioner = mViewModel.getSelectedProvisioner().getValue();
+        if (mProvisioner != null) {
+            mProvisioner.addRange(range);
             updateData(range);
             updateRanges();
             updateOtherRanges();
+            updateEmptyView();
             updateResolveFab();
         }
     }
@@ -294,6 +306,15 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
         }
     }
 
+    private void updateEmptyView() {
+        // Show the empty view
+        if (mRangeAdapter.isEmpty()) {
+            mEmptyView.setVisibility(View.VISIBLE);
+        } else {
+            mEmptyView.setVisibility(View.GONE);
+        }
+    }
+
     private void updateData(@NonNull final Range range) {
         if (mProvisioner != null) {
             if (range instanceof AllocatedUnicastRange) {
@@ -315,10 +336,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                 mRangeAdapter.removeItem(position);
                 displaySnackBar(position, range);
                 // Show the empty view
-                if (mRangeAdapter.isEmpty()) {
-                    mFabResolve.hide();
-                    mEmptyView.setVisibility(View.VISIBLE);
-                }
+                updateEmptyView();
             } catch (Exception ex) {
                 mRangeAdapter.notifyDataSetChanged();
                 displaySnackBar(ex.getMessage());
@@ -334,8 +352,9 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
     private void displaySnackBar(final int position, final Range range) {
         Snackbar.make(container, getString(R.string.range_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
-                    mEmptyView.setVisibility(View.GONE);
                     mRangeAdapter.addItem(position, range);
+                    updateEmptyView();
+                    updateResolveFab();
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();
@@ -376,6 +395,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
             mRangeAdapter.updateData(ranges);
             updateRanges();
             updateOtherRanges();
+            updateEmptyView();
             updateResolveFab();
         }
     }
@@ -397,6 +417,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
             mRangeAdapter.updateData(ranges);
             updateRanges();
             updateOtherRanges();
+            updateEmptyView();
             updateResolveFab();
         }
     }
@@ -418,6 +439,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
             mRangeAdapter.updateData(ranges);
             updateRanges();
             updateOtherRanges();
+            updateEmptyView();
             updateResolveFab();
         }
     }

@@ -36,7 +36,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.AddressRange;
+import no.nordicsemi.android.meshprovisioner.AllocatedGroupRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedSceneRange;
+import no.nordicsemi.android.meshprovisioner.AllocatedUnicastRange;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.Range;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
@@ -49,10 +51,12 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
     private final ArrayList<Range> mRanges;
     private final List<Provisioner> mProvisioners;
     private final Context mContext;
+    private final String mUuid;
     private OnItemClickListener mOnItemClickListener;
 
-    public RangeAdapter(@NonNull final Context context, @NonNull final List<? extends Range> ranges, @NonNull final List<Provisioner> provisioners) {
-        this.mContext = context;
+    public RangeAdapter(@NonNull final Context context, @NonNull final String uuid, @NonNull final List<? extends Range> ranges, @NonNull final List<Provisioner> provisioners) {
+        mContext = context;
+        mUuid = uuid;
         mRanges = new ArrayList<>(ranges);
         mProvisioners = provisioners;
     }
@@ -88,6 +92,7 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
         holder.rangeValue.setText(mContext.getString(R.string.range_adapter_format, low, high));
         holder.rangeView.clearRanges();
         holder.rangeView.addRange(range);
+        addOverlappingRanges(range, holder.rangeView);
     }
 
     @Override
@@ -104,10 +109,6 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
         return getItemCount() == 0;
     }
 
-    public List<Range> getItems() {
-        return mRanges;
-    }
-
     public Range getItem(final int position) {
         return mRanges.get(position);
     }
@@ -120,6 +121,33 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
     public void removeItem(final int position) {
         mRanges.remove(position);
         notifyDataSetChanged();
+    }
+
+    private void addOverlappingRanges(@NonNull final Range range, @NonNull final RangeView rangeView) {
+        rangeView.clearOtherRanges();
+        for (Provisioner p : mProvisioners) {
+            if (!p.getProvisionerUuid().equalsIgnoreCase(mUuid)) {
+                if (range instanceof AllocatedUnicastRange) {
+                    for (AllocatedUnicastRange otherRange : p.getAllocatedUnicastRanges()) {
+                        if (range.overlaps(otherRange)) {
+                            rangeView.addOtherRange(otherRange);
+                        }
+                    }
+                } else if (range instanceof AllocatedGroupRange) {
+                    for (AllocatedGroupRange otherRange : p.getAllocatedGroupRanges()) {
+                        if (range.overlaps(otherRange)) {
+                            rangeView.addOtherRange(otherRange);
+                        }
+                    }
+                } else {
+                    for (AllocatedSceneRange otherRange : p.getAllocatedSceneRanges()) {
+                        if (range.overlaps(otherRange)) {
+                            rangeView.addOtherRange(otherRange);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @FunctionalInterface

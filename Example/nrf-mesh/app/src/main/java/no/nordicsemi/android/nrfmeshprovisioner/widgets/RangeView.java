@@ -57,8 +57,8 @@ public class RangeView extends View {
         invalidate();
     }
 
-    public void addOtherRange(@NonNull final Range range) {
-        otherRanges.add(range);
+    public void addOtherRange(@NonNull final Range otherRange) {
+        otherRanges.add(otherRange);
         invalidate();
     }
 
@@ -156,7 +156,7 @@ public class RangeView extends View {
                 } else {
                     final AllocatedSceneRange sceneRange = (AllocatedSceneRange) range;
                     final AllocatedSceneRange otherRange = (AllocatedSceneRange) other;
-                    float unit = (rect.width() / (float) range.getUpperBound() - range.getLowerBound());
+                    float unit = (rect.width() / (float) (range.getUpperBound() - range.getLowerBound()));
                     final Rect overlapRegion = getOverlappingSceneRegion(sceneRange, otherRange, unit, rect.height());
                     if (overlapRegion != null) {
                         canvas.drawRect(overlapRegion, paint);

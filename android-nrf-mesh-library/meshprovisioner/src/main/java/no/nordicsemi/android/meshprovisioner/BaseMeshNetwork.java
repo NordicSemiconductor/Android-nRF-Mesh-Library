@@ -613,7 +613,8 @@ abstract class BaseMeshNetwork {
         provisioners.add(provisioner);
         final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, netKeys, appKeys);
         nodes.add(node);
-        notifyNetworkUpdated();
+        notifyProvisionerAdded(provisioner);
+        //notifyNetworkUpdated();
         return true;
     }
 
@@ -720,7 +721,7 @@ abstract class BaseMeshNetwork {
         return null;
     }
 
-    private boolean isProvisionerUuidInUse(@NonNull final String uuid) {
+    public boolean isProvisionerUuidInUse(@NonNull final String uuid) {
         for (Provisioner provisioner : provisioners) {
             if (provisioner.getProvisionerUuid().equalsIgnoreCase(uuid)) {
                 return true;

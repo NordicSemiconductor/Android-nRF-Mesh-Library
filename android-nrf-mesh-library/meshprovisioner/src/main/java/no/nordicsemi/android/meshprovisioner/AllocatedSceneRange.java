@@ -153,9 +153,9 @@ public class AllocatedSceneRange extends Range {
             results.addAll(range.minus(other));
             results = mergeSceneRanges(results);
         }
-        ranges.clear();
-        ranges.addAll(results);
-        return ranges;
+        /*ranges.clear();
+        ranges.addAll(results);*/
+        return results;
     }
 
     /**
@@ -164,7 +164,7 @@ public class AllocatedSceneRange extends Range {
      * @param other right {@link AllocatedSceneRange}
      * @return a resulting {@link AllocatedSceneRange} or null otherwise
      */
-    List<AllocatedSceneRange> minus(final AllocatedSceneRange other) {
+    private List<AllocatedSceneRange> minus(final AllocatedSceneRange other) {
         final List<AllocatedSceneRange> results = new ArrayList<>();
         // Left:   |------------|                    |-----------|                 |---------|
         //                  -                              -                            -
