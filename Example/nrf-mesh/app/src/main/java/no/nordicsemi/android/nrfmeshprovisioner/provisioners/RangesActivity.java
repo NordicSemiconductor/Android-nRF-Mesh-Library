@@ -222,7 +222,6 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public void addRange(@NonNull final Range range) {
-        //final Provisioner provisioner = mViewModel.getSelectedProvisioner().getValue();
         if (mProvisioner != null) {
             mProvisioner.addRange(range);
             updateData(range);
@@ -335,8 +334,11 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                 final Range range = mRangeAdapter.getItem(position);
                 mRangeAdapter.removeItem(position);
                 displaySnackBar(position, range);
-                // Show the empty view
+                mProvisioner.addRange(range);
+                updateRanges();
+                updateOtherRanges();
                 updateEmptyView();
+                updateResolveFab();
             } catch (Exception ex) {
                 mRangeAdapter.notifyDataSetChanged();
                 displaySnackBar(ex.getMessage());
@@ -353,6 +355,9 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
         Snackbar.make(container, getString(R.string.range_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
                     mRangeAdapter.addItem(position, range);
+                    mProvisioner.addRange(range);
+                    updateRanges();
+                    updateOtherRanges();
                     updateEmptyView();
                     updateResolveFab();
                 })

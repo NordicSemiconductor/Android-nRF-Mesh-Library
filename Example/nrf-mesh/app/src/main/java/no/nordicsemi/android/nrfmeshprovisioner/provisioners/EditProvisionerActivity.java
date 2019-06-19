@@ -42,6 +42,7 @@ import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerName;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -170,6 +171,13 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
     }
 
     @Override
+    public void onBackPressed() {
+        if (save()) {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     public boolean onNameChanged(@NonNull final String name) {
         if (mProvisioner != null) {
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
@@ -221,5 +229,19 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
                 }
             }
         }
+    }
+
+    private boolean save() {
+        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        if (network != null) {
+            try {
+                return network.updateProvisioner(mProvisioner);
+            } catch (IllegalArgumentException ex) {
+                final DialogFragmentConfigError fragment = DialogFragmentConfigError.
+                        newInstance(getString(R.string.title_error), ex.getMessage());
+                fragment.show(getSupportFragmentManager(), null);
+            }
+        }
+        return false;
     }
 }

@@ -336,6 +336,22 @@ public class Provisioner implements Parcelable {
     }
 
     /**
+     * Add a range to the provisioner
+     *
+     * @param range {@link Range}
+     */
+    public boolean removeRange(@NonNull final Range range) {
+        if (range instanceof AllocatedUnicastRange) {
+            return allocatedUnicastRanges.remove(range);
+        } else if (range instanceof AllocatedGroupRange) {
+            return allocatedGroupRanges.remove(range);
+        } else if (range instanceof AllocatedSceneRange) {
+            return allocatedSceneRanges.remove(range);
+        }
+        return false;
+    }
+
+    /**
      * Checks if a given Unicast Address is within an allocated unicast address range
      *
      * @param address Unicast Address

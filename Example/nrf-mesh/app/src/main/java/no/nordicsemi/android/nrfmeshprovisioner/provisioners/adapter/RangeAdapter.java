@@ -113,6 +113,10 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
         return mRanges.get(position);
     }
 
+    public List<Range> getItems() {
+        return mRanges;
+    }
+
     public void addItem(final int position, @NonNull final Range range) {
         mRanges.add(position, range);
         notifyDataSetChanged();
