@@ -34,6 +34,8 @@ interface MeshNetworkCallbacks {
 
     void onNodeDeleted(final ProvisionedMeshNode meshNode);
 
+    void onNodeAdded(final ProvisionedMeshNode meshNode);
+
     void onNodesUpdated();
 
     void onGroupAdded(final Group group);

@@ -23,6 +23,7 @@ import androidx.room.PrimaryKey;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -104,6 +105,10 @@ abstract class BaseMeshNetwork {
     @Ignore
     @Expose(serialize = false, deserialize = false)
     private ProxyFilter proxyFilter;
+
+    @Ignore
+    private Comparator<ProvisionedMeshNode> nodeComparator = (node1, node2) ->
+            Integer.compare(node1.getUnicastAddress(), node2.getUnicastAddress());
 
     BaseMeshNetwork(@NonNull final String meshUUID) {
         this.meshUUID = meshUUID;
@@ -503,6 +508,7 @@ abstract class BaseMeshNetwork {
      *
      * @return unicast address
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public int getUnicastAddress() {
         return unicastAddress;
     }
@@ -513,18 +519,67 @@ abstract class BaseMeshNetwork {
     }
 
     /**
-     * Set a unicast address, to be assigned to a node
+     * Assigns a unicast address, to be used by a node
      *
      * @param unicastAddress Unicast address
      * @return true if success, false if the address is in use by another device
      */
-    public boolean assignUnicastAddress(final int unicastAddress) {
-        if (isAddressInUse(unicastAddress))
-            return false;
+    public boolean assignUnicastAddress(final int unicastAddress) throws IllegalArgumentException {
+        if (getNode(unicastAddress) != null)
+            throw new IllegalArgumentException("Unicast address is already in use.");
 
         this.unicastAddress = unicastAddress;
         notifyNetworkUpdated();
         return true;
+    }
+
+    /**
+     * Returns the next unicast address available based on the number of elements
+     *
+     * @param elementCount element count
+     */
+    public int nextAvailableUnicastAddress(final int elementCount) {
+        Collections.sort(nodes, nodeComparator);
+        // Iterate through all nodes just once, while iterating over ranges.
+        int index = 0;
+        final Provisioner p = getSelectedProvisioner();
+        for (AllocatedUnicastRange range : p.getAllocatedUnicastRanges()) {
+            // Start from the beginning of the current range.
+            int address = range.getLowAddress();
+
+            // Iterate through nodes that weren't checked yet.
+            int currentIndex = index;
+            for (int i = currentIndex; i < nodes.size(); i++) {
+                final ProvisionedMeshNode node = nodes.get(i);
+                index += i;
+                final int lastUnicastInNode = node.getUnicastAddress() + (node.getNumberOfElements() - 1);
+
+                // Skip nodes with addresses below the range.
+                if (address > lastUnicastInNode) {
+                    continue;
+                }
+
+                // If we found a space before the current node, return the address.
+                if (node.getUnicastAddress() > address + (elementCount - 1)) {
+                    return address;
+                }
+
+                // Else, move the address to the next available address.
+                address = lastUnicastInNode + 1;
+
+                // If the new address is outside of the range, go to the next one.
+                if (range.highAddress < address + (elementCount - 1)) {
+                    break;
+                }
+            }
+
+            if (range.getHighAddress() >= address + (elementCount - 1)) {
+                return address;
+            }
+        }
+
+        // No address was found :(
+        return -1;
     }
 
     private boolean isAddressInUse(final int address) {
@@ -611,10 +666,10 @@ abstract class BaseMeshNetwork {
 
         provisioner.setProvisionerAddress(provisioner.getProvisionerAddress());
         provisioners.add(provisioner);
-        final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, netKeys, appKeys);
-        nodes.add(node);
         notifyProvisionerAdded(provisioner);
-        //notifyNetworkUpdated();
+        final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
+        nodes.add(node);
+        notifyNodeAdded(node);
         return true;
     }
 
@@ -643,8 +698,12 @@ abstract class BaseMeshNetwork {
             throw new IllegalArgumentException("Unicast address assigned to a provisioner must be within an allocated unicast address range");
         }
 
-        if (isAddressInUse(provisioner.getProvisionerAddress())) {
-            throw new IllegalArgumentException("Unicast address is in use by another node");
+        for (ProvisionedMeshNode node : nodes) {
+            if (!node.getUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
+                if (node.getUnicastAddress() == provisioner.getProvisionerAddress()) {
+                    throw new IllegalArgumentException("Unicast address is in use by another node");
+                }
+            }
         }
 
         if (provisioner.isNodeAddressInUse(nodes)) {
@@ -670,6 +729,10 @@ abstract class BaseMeshNetwork {
     public boolean removeProvisioner(@NonNull final Provisioner provisioner) {
         if (provisioners.remove(provisioner)) {
             notifyProvisionerDeleted(provisioner);
+            final ProvisionedMeshNode node = getNode(provisioner.getProvisionerAddress());
+            if (node != null) {
+                deleteNode(node);
+            }
             return true;
         }
         return false;
@@ -730,6 +793,83 @@ abstract class BaseMeshNetwork {
         return false;
     }
 
+
+    /**
+     * Returns the list of {@link ProvisionedMeshNode}
+     */
+    public List<ProvisionedMeshNode> getNodes() {
+        return Collections.unmodifiableList(nodes);
+    }
+
+    /**
+     * Sets the list of {@link ProvisionedMeshNode}
+     *
+     * @param nodes list of {@link ProvisionedMeshNode}
+     */
+    void setNodes(@NonNull List<ProvisionedMeshNode> nodes) {
+        this.nodes = nodes;
+    }
+
+    /**
+     * Returns the mesh node with the corresponding unicast address
+     *
+     * @param unicastAddress unicast address of the node
+     */
+    public ProvisionedMeshNode getNode(@NonNull final byte[] unicastAddress) {
+        for (ProvisionedMeshNode node : nodes) {
+            if (node.hasUnicastAddress(AddressUtils.getUnicastAddressInt(unicastAddress))) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the mesh node with the corresponding unicast address
+     *
+     * @param unicastAddress unicast address of the node
+     */
+    public ProvisionedMeshNode getNode(final int unicastAddress) {
+        for (ProvisionedMeshNode node : nodes) {
+            if (node.hasUnicastAddress(unicastAddress)) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Deletes a mesh node from the list of provisioned nodes
+     *
+     * <p>
+     * Note that deleting a node manually will not reset the node, but only be deleted from the stored list of provisioned nodes.
+     * However you may still be able to connect to the same node, if it was not reset since the network may still exist. This
+     * would be useful to in case if a node was manually reset and needs to be removed from the mesh network/db
+     * </p>
+     *
+     * @param meshNode node to be deleted
+     * @return true if deleted and false otherwise
+     */
+    public boolean deleteNode(@NonNull final ProvisionedMeshNode meshNode) {
+        for (ProvisionedMeshNode node : nodes) {
+            if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
+                nodes.remove(node);
+                notifyNodeDeleted(meshNode);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean deleteResetNode(@NonNull final ProvisionedMeshNode meshNode) {
+        for (ProvisionedMeshNode node : nodes) {
+            if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
+                nodes.remove(node);
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Returns the {@link ProxyFilter} set on the proxy
@@ -819,6 +959,12 @@ abstract class BaseMeshNetwork {
     final void notifyNodeDeleted(@NonNull final ProvisionedMeshNode meshNode) {
         if (mCallbacks != null) {
             mCallbacks.onNodeDeleted(meshNode);
+        }
+    }
+
+    final void notifyNodeAdded(@NonNull final ProvisionedMeshNode node) {
+        if (mCallbacks != null) {
+            mCallbacks.onNodeAdded(node);
         }
     }
 

@@ -1,4 +1,4 @@
-package no.nordicsemi.android.nrfmeshprovisioner;
+package no.nordicsemi.android.nrfmeshprovisioner.node;
 
 import androidx.lifecycle.ViewModelProvider;
 import android.os.Bundle;
@@ -23,6 +23,7 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
 

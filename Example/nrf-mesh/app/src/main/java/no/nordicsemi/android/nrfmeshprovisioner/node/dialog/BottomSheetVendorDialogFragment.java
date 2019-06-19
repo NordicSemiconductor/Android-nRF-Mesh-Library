@@ -1,4 +1,4 @@
-package no.nordicsemi.android.nrfmeshprovisioner;
+package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -18,6 +18,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
@@ -31,7 +32,7 @@ public class BottomSheetVendorDialogFragment extends BottomSheetDialogFragment {
     private View messageContainer;
     private TextView receivedMessage;
 
-    interface BottomSheetVendorModelControlsListener {
+    public interface BottomSheetVendorModelControlsListener {
         void sendVendorModelMessage(final int modelId, final int keyIndex, final int opCode, final byte[] parameters, final boolean acknowledged);
     }
 

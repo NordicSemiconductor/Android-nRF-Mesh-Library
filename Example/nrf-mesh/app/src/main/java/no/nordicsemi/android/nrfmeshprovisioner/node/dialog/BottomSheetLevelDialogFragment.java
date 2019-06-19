@@ -1,4 +1,4 @@
-package no.nordicsemi.android.nrfmeshprovisioner;
+package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -11,6 +11,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class BottomSheetLevelDialogFragment extends BottomSheetDialogFragment {
     private static final String KEY_INDEX = "KEY_INDEX";
@@ -20,7 +21,7 @@ public class BottomSheetLevelDialogFragment extends BottomSheetDialogFragment {
     private int mTransitionStepResolution;
     private int mTransitionSteps;
 
-    interface BottomSheetLevelListener {
+    public interface BottomSheetLevelListener {
         void toggleLevel(final int keyIndex, final int level, final int mTransitionSteps, final int mTransitionStepResolution, final int progress);
     }
 

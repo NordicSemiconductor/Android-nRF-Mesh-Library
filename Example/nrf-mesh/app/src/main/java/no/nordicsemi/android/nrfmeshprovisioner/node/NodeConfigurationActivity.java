@@ -20,7 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner;
+package no.nordicsemi.android.nrfmeshprovisioner.node;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -71,8 +71,9 @@ import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigAddAddressToFi
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.AddedAppKeyAdapter;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationComplete;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFilterAddAddress;
@@ -194,7 +195,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 mRecyclerViewElements.setVisibility(View.INVISIBLE);
             }
 
-            if (!meshNode.getAddedNetKeyIndexes().isEmpty()) {
+            if (!meshNode.getAddedAppKeyIndexes().isEmpty()) {
                 noAppKeysFound.setVisibility(View.GONE);
                 recyclerViewAppKeys.setVisibility(View.VISIBLE);
             } else {

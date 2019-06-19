@@ -1061,7 +1061,7 @@ public class CompanyIdentifiers {
         vendorModels.append(0x03FE, "Littelfuse");
         vendorModels.append(0x03FF, "Withings");
         vendorModels.append(0x0400, "i-developer IT Beratung UG");
-        vendorModels.append(0x0401, "");
+        vendorModels.append(0x0401, "Unknown");
         vendorModels.append(0x0402, "Sears Holdings Corporation");
         vendorModels.append(0x0403, "Gantner Electronic GmbH");
         vendorModels.append(0x0404, "Authomate Inc");

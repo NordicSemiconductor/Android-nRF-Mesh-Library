@@ -74,85 +74,10 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
     }
 
     /**
-     * Returns the primary network key in the mesh network
-     */
-    public NetworkKey getPrimaryNetworkKey() {
-        return meshNetwork.getPrimaryNetworkKey();
-    }
-
-    /**
-     * Sets primary network key
-     *
-     * @param networkKey network key
-     */
-    public void setPrimaryNetworkKey(@NonNull final String networkKey) {
-        if (meshNetwork != null) {
-            meshNetwork.addNetKey(0, networkKey);
-        }
-        postValue(this);
-    }
-
-    /**
      * Returns the app keys list
      */
     public List<ApplicationKey> getAppKeys() {
         return meshNetwork.getAppKeys();
-    }
-
-    /**
-     * Returns the network key index
-     */
-    public int getKeyIndex() {
-        return meshNetwork.getNetKeys().get(0).getKeyIndex();
-    }
-
-    /**
-     * Set network key index
-     *
-     * @param keyIndex network key index
-     */
-    public void setKeyIndex(final int keyIndex) {
-        meshNetwork.getNetKeys().get(0).setKeyIndex(keyIndex);
-        postValue(this);
-    }
-
-    /**
-     * Returns the IV Index used for provisioning
-     *
-     * @return iv index
-     */
-    public int getIvIndex() {
-        return meshNetwork.getIvIndex();
-    }
-
-    /**
-     * Set IV Index
-     *
-     * @param ivIndex 24-bit iv index
-     */
-    public void setIvIndex(final int ivIndex) {
-        meshNetwork.setIvIndex(ivIndex);
-        postValue(this);
-    }
-
-    /**
-     * Returns unicast address
-     *
-     * @return 16-bit unicast address
-     */
-    public int getUnicastAddress() {
-        final byte[] unicast = AddressUtils.getUnicastAddressBytes(meshNetwork.getUnicastAddress());
-        return AddressUtils.getUnicastAddressInt(unicast);
-    }
-
-    /**
-     * Set unicast address, this would be the address assigned to an unprovisioned node.
-     *
-     * @param unicastAddress 16-bit unicast address
-     */
-    public void setUnicastAddress(final int unicastAddress) {
-        meshNetwork.assignUnicastAddress(unicastAddress);
-        postValue(this);
     }
 
     /**
@@ -164,22 +89,6 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
 
     public Provisioner getProvisioner() {
         return meshNetwork.getSelectedProvisioner();
-    }
-
-    /**
-     * Provisioning flags
-     */
-    public int getFlags() {
-        return meshNetwork.getProvisioningFlags();
-    }
-
-    /**
-     * Provisioning flags
-     *
-     * @param flags provisioning flags
-     */
-    public void setFlags(final int flags) {
-        postValue(this);
     }
 
     /**

@@ -63,8 +63,6 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
         ProvisionerAdapter.OnItemClickListener,
         ItemTouchHelperAdapter {
 
-    public static final String EDIT_PROVISIONER = "EDIT_PROVISIONER";
-
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 

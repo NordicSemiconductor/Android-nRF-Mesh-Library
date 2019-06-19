@@ -104,8 +104,10 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     @Ignore
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedMeshNode(@NonNull final Provisioner provisioner,
+                               @NonNull final String meshUuid,
                                @NonNull final List<NetworkKey> netKeys,
                                @NonNull final List<ApplicationKey> appKeys) {
+        this.meshUuid = meshUuid;
         uuid = provisioner.getProvisionerUuid();
         isConfigured = true;
         nodeName = provisioner.getProvisionerName();

@@ -20,44 +20,46 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner;
+package no.nordicsemi.android.nrfmeshprovisioner.ble;
 
 import android.Manifest;
 import android.app.Activity;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.DevicesAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.MeshProvisionerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
-import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.adapter.DevicesAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerLiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerViewModel;
 
-public class ScannerActivity extends AppCompatActivity implements Injectable, DevicesAdapter.OnItemClickListener {
+public class ScannerActivity extends AppCompatActivity implements Injectable,
+        DevicesAdapter.OnItemClickListener {
     private static final int REQUEST_ACCESS_COARSE_LOCATION = 1022; // random number
 
     @Inject
@@ -93,13 +95,13 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
         mViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.title_scanner);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.title_scanner);
 
         if (getIntent() != null) {
             mScanWithProxyService = getIntent().getBooleanExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, true);
-            if(mScanWithProxyService) {
+            if (mScanWithProxyService) {
                 getSupportActionBar().setSubtitle(R.string.sub_title_scanning_nodes);
             } else {
                 getSupportActionBar().setSubtitle(R.string.sub_title_scanning_proxy_node);
@@ -113,7 +115,7 @@ public class ScannerActivity extends AppCompatActivity implements Injectable, De
         recyclerViewDevices.addItemDecoration(dividerItemDecoration);
 
         final SimpleItemAnimator itemAnimator = (SimpleItemAnimator) recyclerViewDevices.getItemAnimator();
-        if(itemAnimator != null) itemAnimator.setSupportsChangeAnimations(false);
+        if (itemAnimator != null) itemAnimator.setSupportsChangeAnimations(false);
 
         final DevicesAdapter adapter = new DevicesAdapter(this, mViewModel.getScannerRepository().getScannerState());
         adapter.setOnItemClickListener(this);

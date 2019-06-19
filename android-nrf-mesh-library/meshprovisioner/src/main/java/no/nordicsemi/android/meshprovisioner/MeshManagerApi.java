@@ -178,7 +178,7 @@ public class MeshManagerApi implements MeshMngrApi {
         return mMeshNetwork;
     }
 
-    private void initBouncyCastle(){
+    private void initBouncyCastle() {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
     }
 
@@ -207,25 +207,6 @@ public class MeshManagerApi implements MeshMngrApi {
                 mProvisionedNodeDao,
                 mGroupDao, mSceneDao,
                 meshNetwork);
-    }
-
-    /**
-     * Increments the unicast address by 1
-     *
-     * @param currentAddress current unicast address
-     * @param elementCount   number of elements
-     */
-    private void incrementUnicastAddress(final int currentAddress, final int elementCount) {
-        //Since we know the number of elements this node contains we can predict the next available address for the next node.
-        final int unicastAdd = currentAddress + elementCount;
-        //We check if the incremented unicast address is already taken by the app/configurator
-        final int tempSrc = mMeshNetwork.getProvisionerAddress();
-
-        if (unicastAdd == tempSrc) {
-            mMeshNetwork.assignUnicastAddress(unicastAdd + 1);
-        } else {
-            mMeshNetwork.assignUnicastAddress(unicastAdd);
-        }
     }
 
     @Override
@@ -476,7 +457,6 @@ public class MeshManagerApi implements MeshMngrApi {
                 mMeshNetwork.getPrimaryNetworkKey(),
                 mMeshNetwork.getProvisioningFlags(),
                 mMeshNetwork.getIvIndex(),
-                mMeshNetwork.getUnicastAddress(),
                 mMeshNetwork.getGlobalTtl(), mMeshNetwork.getProvisionerAddress(), MeshProvisioningHandler.ATTENTION_TIMER);
     }
 
@@ -488,12 +468,16 @@ public class MeshManagerApi implements MeshMngrApi {
                 mMeshNetwork.getPrimaryNetworkKey(),
                 mMeshNetwork.getProvisioningFlags(),
                 mMeshNetwork.getIvIndex(),
-                mMeshNetwork.getUnicastAddress(),
                 mMeshNetwork.getGlobalTtl(), mMeshNetwork.getProvisionerAddress(), attentionTimer);
     }
 
     @Override
     public void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
+        final int unicast = mMeshNetwork.nextAvailableUnicastAddress(unprovisionedMeshNode.getNumberOfElements());
+        if (!MeshAddress.isValidUnicastAddress(unicast)) {
+            throw new IllegalArgumentException("Invalid address");
+        }
+        unprovisionedMeshNode.setUnicastAddress(mMeshNetwork.getUnicastAddress());
         mMeshProvisioningHandler.startProvisioningNoOOB(unprovisionedMeshNode);
     }
 
@@ -608,7 +592,8 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         //if generated hash is null return false
-        final byte[] generatedHash = SecureUtils.calculateHash(meshNode.getIdentityKey(), random, AddressUtils.getUnicastAddressBytes(meshNode.getUnicastAddress()));
+        final byte[] generatedHash = SecureUtils.
+                calculateHash(meshNode.getIdentityKey(), random, AddressUtils.getUnicastAddressBytes(meshNode.getUnicastAddress()));
 
         return Arrays.equals(advertisedHash, generatedHash);
     }
@@ -701,7 +686,12 @@ public class MeshManagerApi implements MeshMngrApi {
         final MeshNetwork network = new MeshNetwork(meshUuid);
         network.netKeys = generateNetKeys(meshUuid);
         network.appKeys = generateAppKeys(meshUuid);
-        network.provisioners.add(network.createProvisioner());
+        final Provisioner p = network.createProvisioner();
+        final int unicast = p.getAllocatedUnicastRanges().get(0).getLowAddress();
+        p.setProvisionerAddress(unicast);
+        network.addProvisioner(p);
+        final ProvisionedMeshNode node = network.getNode(unicast);
+        network.unicastAddress = node.getUnicastAddress() + (node.getNumberOfElements() - 1);
         network.lastSelected = true;
 
         return network;
@@ -787,7 +777,7 @@ public class MeshManagerApi implements MeshMngrApi {
         public void onMeshPduCreated(final int dst, final byte[] pdu) {
             //We must save the mesh network state for every message that is being sent out.
             //This will specifically save the sequence number for every message sent.
-            final ProvisionedMeshNode meshNode = mMeshNetwork.getProvisionedNode(dst);
+            final ProvisionedMeshNode meshNode = mMeshNetwork.getNode(dst);
             updateNetwork(meshNode);
             final int mtu = mMeshManagerCallbacks.getMtu();
             mMeshManagerCallbacks.onMeshPduCreated(applySegmentation(mtu, pdu));
@@ -805,7 +795,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
         @Override
         public void updateMeshNetwork(final MeshMessage message) {
-            final ProvisionedMeshNode meshNode = mMeshNetwork.getProvisionedNode(message.getSrc());
+            final ProvisionedMeshNode meshNode = mMeshNetwork.getNode(message.getSrc());
             updateNetwork(meshNode);
         }
 
@@ -842,7 +832,7 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
             updateProvisionedNodeList(meshNode);
-            incrementUnicastAddress(meshNode.getUnicastAddress(), meshNode.getNumberOfElements());
+            mMeshNetwork.unicastAddress = mMeshNetwork.nextAvailableUnicastAddress(meshNode.getNumberOfElements());
             //Set the mesh network uuid to the node so we can identify nodes belonging to a network
             meshNode.setMeshUuid(mMeshNetwork.getMeshUUID());
             mMeshNetworkDb.insertNode(mProvisionedNodeDao, meshNode);
@@ -864,7 +854,7 @@ public class MeshManagerApi implements MeshMngrApi {
     };
 
     private ProvisionedMeshNode getMeshNode(final int unicast) {
-        return mMeshNetwork.getProvisionedNode(unicast);
+        return mMeshNetwork.getNode(unicast);
     }
 
     @SuppressWarnings("FieldCanBeLocal")
@@ -1047,6 +1037,12 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onNodeDeleted(final ProvisionedMeshNode meshNode) {
             mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
+            mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
+        }
+
+        @Override
+        public void onNodeAdded(@NonNull final ProvisionedMeshNode meshNode) {
+            mMeshNetworkDb.insertNode(mProvisionedNodeDao, meshNode);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 

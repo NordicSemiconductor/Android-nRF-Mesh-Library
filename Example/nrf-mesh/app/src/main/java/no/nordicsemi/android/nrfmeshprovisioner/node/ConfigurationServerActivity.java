@@ -1,4 +1,4 @@
-package no.nordicsemi.android.nrfmeshprovisioner;
+package no.nordicsemi.android.nrfmeshprovisioner.node;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -22,6 +22,7 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkTransmitSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogRelayRetransmitSettings;
 
@@ -133,17 +134,16 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     protected void updateMeshMessage(final MeshMessage meshMessage) {
         super.updateMeshMessage(meshMessage);
         if (meshMessage instanceof ConfigNetworkTransmitStatus) {
             final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
-            final ProvisionedMeshNode meshNode = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getProvisionedNode(status.getSrc());
+            final ProvisionedMeshNode meshNode = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getNode(status.getSrc());
             updateNetworkTransmitUi(meshNode);
         } else if (meshMessage instanceof ConfigRelayStatus) {
             final ConfigRelayStatus status = (ConfigRelayStatus) meshMessage;
-            final ProvisionedMeshNode meshNode = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getProvisionedNode(status.getSrc());
+            final ProvisionedMeshNode meshNode = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getNode(status.getSrc());
             updateRelayUi(meshNode);
         }
     }

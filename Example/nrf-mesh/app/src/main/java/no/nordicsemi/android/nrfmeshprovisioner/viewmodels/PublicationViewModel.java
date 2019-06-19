@@ -25,7 +25,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.nrfmeshprovisioner.PublicationSettingsActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.PublicationSettingsActivity;
 
 /**
  * View Model class for {@link PublicationSettingsActivity}

@@ -1,4 +1,4 @@
-package no.nordicsemi.android.nrfmeshprovisioner;
+package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -13,14 +13,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class BottomSheetOnOffDialogFragment extends BottomSheetDialogFragment {
     private static final String KEY_INDEX = "KEY_INDEX";
     private int mKeyIndex;
-    protected int mTransitionStepResolution;
-    protected int mTransitionSteps;
+    private int mTransitionStepResolution;
+    private int mTransitionSteps;
 
-    interface BottomSheetOnOffListener {
+    public interface BottomSheetOnOffListener {
         void toggle(final int mKeyIndex, final boolean state, final int mTransitionSteps, final int mTransitionStepResolution, final int progress);
     }
 

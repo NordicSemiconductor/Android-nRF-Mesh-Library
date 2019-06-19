@@ -64,10 +64,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ScannerActivity"
+            android:name=".ble.ScannerActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".ReconnectActivity"
+            android:name=".ble.ReconnectActivity"
             android:launchMode="singleTop"/>
         <activity
             android:name=".GroupControlsActivity"
@@ -107,28 +107,28 @@
             android:name=".MeshProvisionerActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".NodeConfigurationActivity"
+            android:name=".node.NodeConfigurationActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".PublicationSettingsActivity"
+            android:name=".node.PublicationSettingsActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".NodeDetailsActivity"
+            android:name=".node.NodeDetailsActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".GenericLevelServerActivity"
+            android:name=".node.GenericLevelServerActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".GenericOnOffServerActivity"
+            android:name=".node.GenericOnOffServerActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".VendorModelActivity"
+            android:name=".node.VendorModelActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".ConfigurationServerActivity"
+            android:name=".node.ConfigurationServerActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".ModelConfigurationActivity"
+            android:name=".node.ModelConfigurationActivity"
             android:launchMode="singleTop"/>
     </application>
 

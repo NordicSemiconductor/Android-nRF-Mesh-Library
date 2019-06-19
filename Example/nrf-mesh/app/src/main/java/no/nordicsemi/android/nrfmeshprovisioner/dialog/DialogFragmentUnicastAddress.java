@@ -22,17 +22,10 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import androidx.appcompat.app.AlertDialog;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -41,8 +34,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.Locale;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
@@ -54,6 +52,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 public class DialogFragmentUnicastAddress extends DialogFragment {
 
     private static final String UNICAST_ADDRESS = "UNICAST_ADDRESS";
+    private static final String ELEMENT_COUNT = "ELEMENT_COUNT";
+
     //UI Bindings
     @BindView(R.id.text_input_layout)
     TextInputLayout unicastAddressInputLayout;
@@ -61,11 +61,13 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
     TextInputEditText unicastAddressInput;
 
     private int mUnicastAddress;
+    private int mElementCount;
 
-    public static DialogFragmentUnicastAddress newInstance(final int unicastAddress) {
+    public static DialogFragmentUnicastAddress newInstance(final int unicastAddress, final int elementCount) {
         DialogFragmentUnicastAddress fragmentIvIndex = new DialogFragmentUnicastAddress();
         final Bundle args = new Bundle();
         args.putInt(UNICAST_ADDRESS, unicastAddress);
+        args.putInt(ELEMENT_COUNT, elementCount);
         fragmentIvIndex.setArguments(args);
         return fragmentIvIndex;
     }
@@ -75,6 +77,7 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mUnicastAddress = getArguments().getInt(UNICAST_ADDRESS);
+            mElementCount = getArguments().getInt(ELEMENT_COUNT);
         }
     }
 
@@ -87,7 +90,7 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
         ButterKnife.bind(this, rootView);
         final TextView summary = rootView.findViewById(R.id.summary);
         final KeyListener hexKeyListener = new HexKeyListener();
-        final String unicastAddress = String.format(Locale.US, "%04X", mUnicastAddress);
+        final String unicastAddress = MeshAddress.formatAddress(mUnicastAddress, false);
         unicastAddressInputLayout.setHint(getString((R.string.hint_unicast_address)));
         unicastAddressInput.setText(unicastAddress);
         unicastAddressInput.setSelection(unicastAddress.length());
@@ -113,24 +116,33 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
-                .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
+                .setIcon(R.drawable.ic_lan_black_alpha_24dp)
+                .setTitle(R.string.title_unicast_address)
+                .setView(rootView)
+                .setPositiveButton(R.string.ok, null)
+                .setNegativeButton(R.string.cancel, null)
+                .setNeutralButton(R.string.automatic, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
-        alertDialogBuilder.setTitle(R.string.title_unicast_address);
         summary.setText(R.string.dialog_summary_unicast_address);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String unicast = unicastAddressInput.getEditableText().toString();
-            if (validateInput(unicast)) {
-                if (getParentFragment() == null) {
-                    ((DialogFragmentUnicastAddressListener) requireActivity()).setUnicastAddress(Integer.parseInt(unicast, 16));
-                } else {
-                    ((DialogFragmentUnicastAddressListener) getParentFragment()).setUnicastAddress(Integer.parseInt(unicast, 16));
+            try {
+                if (validateInput(unicast)) {
+                    if (((DialogFragmentUnicastAddressListener) requireActivity()).setUnicastAddress(Integer.parseInt(unicast, 16))) {
+                        dismiss();
+                    }
                 }
-                dismiss();
+            } catch (IllegalArgumentException ex) {
+                unicastAddressInputLayout.setError(ex.getMessage());
             }
+        });
+
+        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> {
+            final int unicast = ((DialogFragmentUnicastAddressListener) requireActivity()).getNextUnicastAddress(mElementCount);
+            unicastAddressInput.setText(MeshAddress.formatAddress(unicast, false));
         });
 
         return alertDialog;
@@ -140,13 +152,13 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
 
         try {
 
-            if(input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
+            if (input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
                 unicastAddressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }
 
             final int unicastAddress = Integer.parseInt(input, 16);
-            if(!MeshAddress.isValidUnicastAddress(unicastAddress)) {
+            if (!MeshAddress.isValidUnicastAddress(unicastAddress)) {
                 unicastAddressInputLayout.setError("Unicast address must range from 0x0001 - 0x7FFFF");
                 return false;
             }
@@ -159,7 +171,9 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
 
     public interface DialogFragmentUnicastAddressListener {
 
-        void setUnicastAddress(final int unicastAddress);
+        boolean setUnicastAddress(final int unicastAddress);
+
+        int getNextUnicastAddress(final int elementCount);
 
     }
 }

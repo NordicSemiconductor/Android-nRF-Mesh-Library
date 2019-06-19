@@ -388,17 +388,6 @@ public class Provisioner implements Parcelable {
         return false;
     }
 
-    boolean isAddressInUse(@NonNull final List<Provisioner> provisioners) {
-        for (Provisioner provisioner : provisioners) {
-            if (!provisioner.getProvisionerUuid().equalsIgnoreCase(provisionerUuid)) {
-                if (provisioner.getProvisionerAddress() == provisionerAddress) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     boolean isNodeAddressInUse(@NonNull final List<ProvisionedMeshNode> nodes) {
         for (ProvisionedMeshNode node : nodes) {
             if (!node.getUuid().equalsIgnoreCase(provisionerUuid)) {

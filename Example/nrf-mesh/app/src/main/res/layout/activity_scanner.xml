@@ -27,7 +27,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ScannerActivity"
+    tools:context=".ble.ScannerActivity"
     tools:ignore="ContentDescription">
 
     <com.google.android.material.appbar.AppBarLayout

@@ -92,7 +92,7 @@
                         android:layout_height="match_parent">
 
                         <androidx.appcompat.widget.Toolbar
-                            android:id="@+id/capabilities_bar"
+                            android:id="@+id/tool_bar"
                             android:layout_width="0dp"
                             android:layout_height="?actionBarSize"
                             app:layout_constraintLeft_toLeftOf="parent"
@@ -103,31 +103,33 @@
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
                         <include
-                            android:id="@+id/container_element_count"
+                            android:id="@+id/container_name"
                             layout="@layout/layout_container"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/capabilities_bar"/>
+                            app:layout_constraintTop_toBottomOf="@+id/tool_bar"/>
 
                         <include
-                            android:id="@+id/container_supported_algorithm"
+                            android:id="@+id/container_unicast"
                             layout="@layout/layout_container"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_element_count"/>
+                            app:layout_constraintTop_toBottomOf="@+id/container_name"
+                            android:visibility="gone"
+                            tools:visibility="visible"/>
 
                         <include
-                            android:id="@+id/container_public_key_type"
+                            android:id="@+id/container_app_keys"
                             layout="@layout/layout_container"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_supported_algorithm"/>
+                            app:layout_constraintTop_toBottomOf="@+id/container_unicast"/>
 
                         <View
                             android:id="@+id/div1"
@@ -136,7 +138,7 @@
                             android:background="@drawable/divider"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_public_key_type"/>
+                            app:layout_constraintTop_toBottomOf="@+id/container_app_keys"/>
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/action_provision_device"

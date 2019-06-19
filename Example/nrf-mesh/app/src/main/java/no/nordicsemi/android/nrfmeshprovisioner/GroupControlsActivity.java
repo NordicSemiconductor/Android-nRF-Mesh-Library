@@ -63,7 +63,17 @@ import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageUnacked
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.SubGroupAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.node.ConfigurationServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.GenericLevelServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.GenericOnOffServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.ModelConfigurationActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.VendorModelActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetDetailsDialogFragment;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetLevelDialogFragment;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetOnOffDialogFragment;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetVendorDialogFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.GroupControlsViewModel;
 
@@ -279,7 +289,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
         if (isConnectedToNetwork != null && isConnectedToNetwork) {
             final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-            final ProvisionedMeshNode node = network.getProvisionedNode(element.getElementAddress());
+            final ProvisionedMeshNode node = network.getNode(element.getElementAddress());
             if (node != null) {
                 mViewModel.setSelectedMeshNode(node);
                 mViewModel.setSelectedElement(element);

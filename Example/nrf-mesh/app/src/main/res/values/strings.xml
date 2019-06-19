@@ -530,4 +530,5 @@
     <string name="action_resolve">Resolve</string>
     <string name="first_scene">First Scene</string>
     <string name="last_scene">Last Scene</string>
+    <string name="automatic">Automatic</string>
 </resources>

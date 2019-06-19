@@ -20,18 +20,12 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner;
+package no.nordicsemi.android.nrfmeshprovisioner.node;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -42,6 +36,12 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
@@ -49,7 +49,8 @@ import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.ElementAdapterDetails;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.ElementAdapterDetails;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeDetailsViewModel;
 
@@ -67,7 +68,7 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         ButterKnife.bind(this);
 
         final NodeDetailsViewModel viewModel = ViewModelProviders.of(this, mViewModelFactory).get(NodeDetailsViewModel.class);
-        if(viewModel.getSelectedMeshNode().getValue() == null) {
+        if (viewModel.getSelectedMeshNode().getValue() == null) {
             finish();
         }
 
@@ -102,7 +103,7 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
 
         final View copyDeviceKey = findViewById(R.id.copy);
         copyDeviceKey.setOnClickListener(v -> {
-            if(clipboard != null) {
+            if (clipboard != null) {
                 final ClipData clipDeviceKey = ClipData.newPlainText("Device Key", MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
                 clipboard.setPrimaryClip(clipDeviceKey);
                 Toast.makeText(NodeDetailsActivity.this, R.string.device_key_clipboard_copied, Toast.LENGTH_SHORT).show();
@@ -112,16 +113,16 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         final View containerCompanyIdentifier = findViewById(R.id.container_company_identifier);
         containerCompanyIdentifier.setClickable(false);
         final TextView companyIdentifier = containerCompanyIdentifier.findViewById(R.id.text);
-        if(node.getCompanyIdentifier() != null) {
+        if (node.getCompanyIdentifier() != null) {
             companyIdentifier.setText(CompanyIdentifiers.getCompanyName(node.getCompanyIdentifier().shortValue()));
         } else {
-            companyIdentifier.setText(R.string.unavailable);
+            companyIdentifier.setText(R.string.unknown);
         }
 
         final View containerProductIdentifier = findViewById(R.id.container_product_identifier);
         containerProductIdentifier.setClickable(false);
         final TextView productIdentifier = containerProductIdentifier.findViewById(R.id.text);
-        if(node.getProductIdentifier() != null) {
+        if (node.getProductIdentifier() != null) {
             productIdentifier.setText(CompositionDataParser.formatProductIdentifier(node.getProductIdentifier().shortValue(), false));
         } else {
             productIdentifier.setText(R.string.unavailable);
@@ -130,7 +131,7 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         final View containerProductVersion = findViewById(R.id.container_product_version);
         containerProductVersion.setClickable(false);
         final TextView productVersion = containerProductVersion.findViewById(R.id.text);
-        if(node.getVersionIdentifier() != null) {
+        if (node.getVersionIdentifier() != null) {
             productVersion.setText(CompositionDataParser.formatVersionIdentifier(node.getVersionIdentifier().shortValue(), false));
         } else {
             productVersion.setText(R.string.unavailable);
@@ -139,7 +140,7 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         final View containerCrpl = findViewById(R.id.container_crpl);
         containerCrpl.setClickable(false);
         final TextView crpl = containerCrpl.findViewById(R.id.text);
-        if(node.getCrpl() != null) {
+        if (node.getCrpl() != null) {
             crpl.setText(CompositionDataParser.formatReplayProtectionCount(node.getCrpl().shortValue(), false));
         } else {
             crpl.setText(R.string.unavailable);
@@ -148,15 +149,15 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         final View containerFeatures = findViewById(R.id.container_features);
         containerFeatures.setClickable(false);
         final TextView features = containerFeatures.findViewById(R.id.text);
-        if(node.getNodeFeatures() != null) {
+        if (node.getNodeFeatures() != null) {
             features.setText(parseFeatures(node.getNodeFeatures()));
         } else {
             features.setText(R.string.unavailable);
         }
 
-        final TextView view =  findViewById(R.id.no_elements_view);
+        final TextView view = findViewById(R.id.no_elements_view);
         mRecyclerView = findViewById(R.id.recycler_view_elements);
-        if(node.getElements().isEmpty()){
+        if (node.getElements().isEmpty()) {
             view.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.INVISIBLE);
         } else {
@@ -203,15 +204,15 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
     /**
      * Returns a String representation of the features
      */
-    private String parseFeatures(final Features features){
+    private String parseFeatures(final Features features) {
         return "Friend feature " + parseFeature(features.isFriendFeatureSupported()) + ", " +
                 "Low power feature " + parseFeature(features.isLowPowerFeatureSupported()) + ", " +
                 "Proxy feature " + parseFeature(features.isProxyFeatureSupported()) + ", " +
                 "Relay feature " + parseFeature(features.isRelayFeatureSupported());
     }
 
-    public String parseFeature(final boolean isSupported){
-        if(isSupported){
+    public String parseFeature(final boolean isSupported) {
+        if (isSupported) {
             return "supported";
         } else {
             return "unsupported";

@@ -117,7 +117,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     final int sequenceNo = MeshParserUtils.getSequenceNumber(sequenceNumber);
                     Log.v(TAG, "Sequence number of received access message: " + MeshParserUtils.getSequenceNumber(sequenceNumber));
 
-                    final ProvisionedMeshNode node = network.getProvisionedNode(src);
+                    final ProvisionedMeshNode node = network.getNode(src);
                     if (node != null) {
                         //Check if the sequence number has been incremented since the last message sent and return null if not
                         if (sequenceNo > node.getReceivedSequenceNumber()) {

@@ -103,22 +103,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.timestamp = timestamp;
     }
 
-    /**
-     * Returns the list of {@link ProvisionedMeshNode}
-     */
-    public List<ProvisionedMeshNode> getNodes() {
-        return Collections.unmodifiableList(nodes);
-    }
-
-    /**
-     * Sets the list of {@link ProvisionedMeshNode}
-     *
-     * @param nodes list of {@link ProvisionedMeshNode}
-     */
-    void setNodes(@NonNull List<ProvisionedMeshNode> nodes) {
-        this.nodes = nodes;
-    }
-
     public List<Group> getGroups() {
         return Collections.unmodifiableList(groups);
     }
@@ -334,66 +318,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.appKeys = appKeys;
     }
 
-    /**
-     * Returns the mesh node with the corresponding unicast address
-     *
-     * @param unicastAddress unicast address of the node
-     */
-    public ProvisionedMeshNode getProvisionedNode(@NonNull final byte[] unicastAddress) {
-        for (ProvisionedMeshNode node : nodes) {
-            if (node.hasUnicastAddress(AddressUtils.getUnicastAddressInt(unicastAddress))) {
-                return node;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns the mesh node with the corresponding unicast address
-     *
-     * @param unicastAddress unicast address of the node
-     */
-    public ProvisionedMeshNode getProvisionedNode(final int unicastAddress) {
-        for (ProvisionedMeshNode node : nodes) {
-            if (node.hasUnicastAddress(unicastAddress)) {
-                return node;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Deletes a mesh node from the list of provisioned nodes
-     *
-     * <p>
-     * Note that deleting a node manually will not reset the node, but only be deleted from the stored list of provisioned nodes.
-     * However you may still be able to connect to the same node, if it was not reset since the network may still exist. This
-     * would be useful to in case if a node was manually reset and needs to be removed from the mesh network/db
-     * </p>
-     *
-     * @param meshNode node to be deleted
-     * @return true if deleted and false otherwise
-     */
-    public boolean deleteNode(final ProvisionedMeshNode meshNode) {
-        for (ProvisionedMeshNode node : nodes) {
-            if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
-                nodes.remove(node);
-                notifyNodeDeleted(meshNode);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    boolean deleteResetNode(final ProvisionedMeshNode meshNode) {
-        for (ProvisionedMeshNode node : nodes) {
-            if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
-                nodes.remove(node);
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Returns the current iv update state {@link IvUpdateStates}

@@ -1,4 +1,4 @@
-package no.nordicsemi.android.nrfmeshprovisioner;
+package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.app.Activity;
 import androidx.lifecycle.ViewModelProvider;
@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupModelAdapter;
 
 public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment implements GroupModelAdapter.OnItemClickListener {
@@ -114,7 +115,7 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
         return !TextUtils.isEmpty(groupName);
     }
 
-    public void hideKeyboard() {
+    private void hideKeyboard() {
         final InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         if (imm != null) {
             imm.hideSoftInputFromWindow(mGroupNameTextInput.getWindowToken(), 0);

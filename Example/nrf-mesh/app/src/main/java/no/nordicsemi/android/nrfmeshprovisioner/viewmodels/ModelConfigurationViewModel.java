@@ -25,7 +25,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.nrfmeshprovisioner.ModelConfigurationActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.ModelConfigurationActivity;
 
 /**
  * View Model class for {@link ModelConfigurationActivity}

@@ -20,7 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.adapter;
+package no.nordicsemi.android.nrfmeshprovisioner.node.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -84,7 +84,11 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
             final Map<Integer, Element> elements = node.getElements();
             if (!elements.isEmpty()) {
                 holder.nodeInfoContainer.setVisibility(View.VISIBLE);
-                holder.companyIdentifier.setText(CompanyIdentifiers.getCompanyName(node.getCompanyIdentifier().shortValue()));
+                if(node.getCompanyIdentifier() != null) {
+                    holder.companyIdentifier.setText(CompanyIdentifiers.getCompanyName(node.getCompanyIdentifier().shortValue()));
+                } else {
+                    holder.companyIdentifier.setText(R.string.unknown);
+                }
                 holder.elements.setText(String.valueOf(elements.size()));
                 holder.models.setText(String.valueOf(getModels(elements)));
             } else {
