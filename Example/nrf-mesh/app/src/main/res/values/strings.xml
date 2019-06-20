@@ -92,8 +92,6 @@
 
     <string name="ok">OK</string>
 
-    <string name="global_settings">Global Settings</string>
-
     <string name="title_node_details">Node Details</string>
     <string name="node_name">Name</string>
     <string name="node_prov_timestamp">Provisioned Time</string>
@@ -134,7 +132,6 @@
     <string name="title_provisioner">Provisioner</string>
     <string name="provisioner_deleted">Provisioner deleted.</string>
     <string name="title_provisioner_address">Provisioner Address</string>
-    <string name="title_unicast_range">Unicast Address Range</string>
     <string name="action_add_range">Add range</string>
     <string name="range_adapter_format"> %s - %s</string>
     <string name="low_address">Low Address</string>
@@ -159,15 +156,10 @@
     <string name="hint_ttl">TTL</string>
     <string name="error_empty_ttl">TTL cannot be empty!</string>
 
-    <string name="title_src_address">Source Address</string>
-    <string name="summary_src_address">Source address</string>
     <string name="dialog_summary_src">Hexadecimal value in range 0x0001 – 0x7FFF.</string>
-    <string name="hint_src_address">Source Address</string>
 
     <string name="network_settings">Network Settings</string>
-    <string name="summary_flags">Flags</string>
     <string name="title_net_keys">Network Keys</string>
-    <string name="summary_index">Key Index</string>
     <string name="unicast_address">Unicast Address: %s</string>
 
     <string name="title_node_name">Node name</string>
@@ -175,35 +167,16 @@
     <string name="node_name_rationale">This is a friendly name to be used to identify nodes</string>
     <string name="hint_node_name">Friendly name</string>
 
-    <string name="title_generate_network_key">Network Key</string>
-    <string name="summary_generate_network_key">Enter your own network key or click generate to create a new random network key.</string>
     <string name="title_primary_net_key">Primary Network Key</string>
     <string name="title_sub_net_keys">Sub Network Keys</string>
-    <string name="title_primary_key">Primary Key</string>
-    <string name="primary_key">Primary Key: %s</string>
     <string name="hint_network_key">Network key</string>
     <string name="generate_network_key">Generate Key</string>
     <string name="error_empty_network_key">Network key cannot be empty!</string>
-    <string name="error_invalid_network_key">Network key must be 16 bytes long!</string>
 
     <string name="title_key_index">Key Index</string>
-    <string name="dialog_summary_key_index">Enter the network key index.</string>
-    <string name="hint_key_index">Key index</string>
     <string name="error_empty_key_index">Key index cannot be empty!</string>
     <string name="error_invalid_key_index">Key index must be 0 to 4095!</string>
 
-    <string name="title_flags">Flags</string>
-    <string name="dialog_summary_flags">Select flag types.</string>
-    <string name="title_key_refresh_flag">Key Refresh Flag</string>
-    <string name="key_refresh_phase_0">Key Refresh Phase 0</string>
-    <string name="key_refresh_phase_2">Key Refresh Phase 2</string>
-    <string name="title_iv_update_flag">IV Update Flag</string>
-    <string name="normal_operation">Normal operation</string>
-    <string name="iv_update_active">IV Update active</string>
-
-    <string name="title_iv_index">IV Index</string>
-    <string name="dialog_summary_iv_index">Enter an IV Index value to be shared by all nodes in the mesh network.</string>
-    <string name="hint_iv_index">IV Index</string>
     <string name="error_empty_iv_index">IV Index cannot be empty!</string>
     <string name="error_invalid_iv_index">IV Index must be 0 to 4294967295!</string>
 
@@ -223,8 +196,6 @@
 
     <string name="no_groups_configured_title">NO GROUPS CONFIGURED</string>
     <string name="no_groups_configured_rationale">Create a group to control your devices. All groups listed here can be subscribed to from a model.</string>
-    <string name="group_name">Name</string>
-    <string name="group_address">Address</string>
     <string name="group_address_summary">Address: %s</string>
     <string name="title_edit_group_info">Edit Group</string>
     <string name="select_a_group_rationale">Select an existing group</string>
@@ -243,12 +214,10 @@
     <string name="no_app_key_configured_rationale">No app keys are bound for models in this group. \nClick edit on the options menu to bind an app key to the models.</string>
 
     <string name="title_manage_net_keys">Manage Net Keys</string>
-    <string name="summary_manage_net_keys">Manage your network keys</string>
     <string name="title_net_key">Net Key</string>
     <string name="title_add_net_key">Add Net Key</string>
     <string name="title_edit_net_key">Edit Net Key</string>
     <string name="title_manage_app_keys">Manage App Keys</string>
-    <string name="summary_manage_app_keys">Manage your application keys</string>
     <string name="title_app_key">App Key</string>
     <string name="title_app_keys">App Keys</string>
     <string name="title_key_details">Key Details</string>
@@ -259,11 +228,8 @@
     <string name="title_edit_key_name">Edit Key Name</string>
     <string name="key_name_rationale">This is a friendly name that can be used to identify a key.</string>
     <string name="title_select_app_key">Select App Key</string>
-    <string name="app_key_count">%d keys</string>
     <string name="hint_app_key">App key</string>
     <string name="no_app_keys_title">NO APP KEYS AVAILABLE</string>
-    <string name="no_app_keys_settings_rationale">App keys are required to configure a mesh node.
-        Please click on the add button to add an app key </string>
     <string name="no_app_keys_rationale">App keys are required to configure a mesh node.
         Please add an app key in the network settings.</string>
     <string name="no_added_app_keys_rationale">Binding an app key to a model requires it to be added to a provisioned mesh node.
@@ -281,8 +247,6 @@
     <string name="models">Models:</string>
 
     <string name="title_appkey_status">AppKey Status</string>
-    <string name="app_key_item">App key %d</string>
-    <string name="app_key_index_item">Key Index: %d</string>
     <string name="error_empty_name">Name cannot be empty!</string>
     <string name="element_address">Element: %s</string>
     <string name="model_count">%d Models</string>
@@ -308,7 +272,6 @@
     <string name="action_connect">CONNECT</string>
     <string name="action_disconnect">Disconnect</string>
 
-    <string name="dialog_summary_publish_address">Publish address for this model.</string>
     <string name="hint_publish_address">Publish Address</string>
     <string name="error_empty_publish_address">Publish Address cannot be empty!</string>
     <string name="title_publish_address_status">Publish Address Status</string>
@@ -362,7 +325,6 @@
     <string name="proxy_set_off_rationale_summary">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.
         However, you will still be able to continue sending messages via the other proxy nodes in the network. Do you wish to continue?</string>
 
-    <string name="proxy_filter_settings">Proxy Filter Settings</string>
     <string name="title_proxy_filter">Proxy Filter Type</string>
     <string name="title_filter_addresses">Filter Addresses</string>
     <string name="white_list_filter">Whitelist</string>
