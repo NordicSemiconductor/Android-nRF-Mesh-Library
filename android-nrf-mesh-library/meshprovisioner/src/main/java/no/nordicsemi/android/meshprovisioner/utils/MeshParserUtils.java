@@ -228,28 +228,9 @@ public class MeshParserUtils {
     }
 
     /**
-     * Validates the ttl input
-     *
-     * @param context  context
-     * @param ttlInput ttl input
-     * @return true if the global ttl is a valid value
-     * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
-     */
-    public static boolean validateTtlInput(final Context context, final Integer ttlInput) throws IllegalArgumentException {
-
-        if (ttlInput == null) {
-            throw new IllegalArgumentException(context.getString(R.string.error_empty_global_ttl));
-        } else if (!isValidTtl(ttlInput)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_global_ttl));
-        }
-
-        return true;
-    }
-
-    /**
      * Validates the network key input
      *
-     * @param networkKey   Network Key input
+     * @param networkKey Network Key input
      * @return true if the Network Key is a valid value
      * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
      */

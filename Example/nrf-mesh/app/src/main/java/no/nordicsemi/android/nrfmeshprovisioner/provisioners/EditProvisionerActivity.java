@@ -43,6 +43,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerName;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -51,6 +52,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RangeView;
 
 public class EditProvisionerActivity extends AppCompatActivity implements Injectable,
         DialogFragmentProvisionerName.DialogFragmentProvisionerNameListener,
+        DialogFragmentTtl.DialogFragmentTtlListener,
         DialogFragmentProvisionerAddress.DialogFragmentAddressListener {
 
     @Inject
@@ -58,6 +60,7 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
 
     private TextView provisionerName;
     private TextView provisionerUnicast;
+    private TextView provisionerTtl;
     private RangeView unicastRangeView;
     private RangeView groupRangeView;
     private RangeView sceneRangeView;
@@ -93,6 +96,14 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
         provisionerUnicast = containerUnicast.findViewById(R.id.text);
         provisionerUnicast.setVisibility(View.VISIBLE);
 
+        final View containerTtl = findViewById(R.id.container_ttl);
+        containerTtl.setClickable(false);
+        containerTtl.findViewById(R.id.image).
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_timer));
+        ((TextView) containerTtl.findViewById(R.id.title)).setText(R.string.title_ttl);
+        provisionerTtl = containerTtl.findViewById(R.id.text);
+        provisionerTtl.setVisibility(View.VISIBLE);
+
         final View containerUnicastRange = findViewById(R.id.container_unicast_range);
         containerUnicastRange.setClickable(false);
         containerUnicastRange.findViewById(R.id.image).
@@ -110,7 +121,7 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
         final View containerSceneRange = findViewById(R.id.container_scene_range);
         containerSceneRange.setClickable(false);
         containerSceneRange.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_arrow_collapse_black_alpha_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_scene_black_alpha_24dp));
         ((TextView) containerSceneRange.findViewById(R.id.title)).setText(R.string.title_scenes);
         sceneRangeView = containerSceneRange.findViewById(R.id.range_view);
 
@@ -124,6 +135,13 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
         containerUnicast.setOnClickListener(v -> {
             if (mProvisioner != null) {
                 final DialogFragmentProvisionerAddress fragment = DialogFragmentProvisionerAddress.newInstance(mProvisioner.getProvisionerAddress());
+                fragment.show(getSupportFragmentManager(), null);
+            }
+        });
+
+        containerTtl.setOnClickListener(v -> {
+            if (mProvisioner != null) {
+                final DialogFragmentTtl fragment = DialogFragmentTtl.newInstance(mProvisioner.getGlobalTtl());
                 fragment.show(getSupportFragmentManager(), null);
             }
         });
@@ -156,8 +174,10 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
         });
 
         mViewModel.getSelectedProvisioner().observe(this, provisioner -> {
-            mProvisioner = provisioner;
-            updateUi(provisioner);
+            if (provisioner != null) {
+                mProvisioner = provisioner;
+                updateUi(provisioner);
+            }
         });
     }
 
@@ -180,13 +200,11 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
     @Override
     public boolean onNameChanged(@NonNull final String name) {
         if (mProvisioner != null) {
-            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if (network != null) {
-                mProvisioner.setProvisionerName(name);
-                if (network.updateProvisioner(mProvisioner)) {
-                    provisionerName.setText(mProvisioner.getProvisionerName());
-                    return true;
-                }
+            mProvisioner.setProvisionerName(name);
+            final Provisioner provisioner = mProvisioner;
+            if (save(provisioner)) {
+                provisionerName.setText(mProvisioner.getProvisionerName());
+                return true;
             }
         }
         return false;
@@ -195,14 +213,25 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
     @Override
     public boolean setAddress(final int sourceAddress) {
         if (mProvisioner != null) {
-            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if (network != null) {
-                mProvisioner.setProvisionerAddress(sourceAddress);
-                if (network.updateProvisioner(mProvisioner)) {
-                    provisionerUnicast.setText(MeshAddress.formatAddress(mProvisioner.getProvisionerAddress(), true));
-                    return true;
-                }
+            mProvisioner.setProvisionerAddress(sourceAddress);
+            final Provisioner provisioner = mProvisioner;
+            if (save(provisioner)) {
+                provisionerUnicast.setText(MeshAddress.formatAddress(mProvisioner.getProvisionerAddress(), true));
+                return true;
             }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean setGlobalTtl(final int ttl) {
+        if (mProvisioner != null) {
+            mProvisioner.setGlobalTtl(ttl);
+            final Provisioner provisioner = mProvisioner;
+            if (save(provisioner)) {
+                provisionerTtl.setText(String.valueOf(ttl));
+            }
+            return true;
         }
         return false;
     }
@@ -221,6 +250,8 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
 
         final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
         if (network != null) {
+            final String ttl = String.valueOf(provisioner.getGlobalTtl());
+            provisionerTtl.setText(ttl);
             for (Provisioner other : network.getProvisioners()) {
                 if (!other.getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
                     unicastRangeView.addOtherRanges(other.getAllocatedUnicastRanges());
@@ -241,6 +272,14 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
                         newInstance(getString(R.string.title_error), ex.getMessage());
                 fragment.show(getSupportFragmentManager(), null);
             }
+        }
+        return false;
+    }
+
+    private boolean save(@NonNull final Provisioner provisioner) {
+        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        if (network != null) {
+            return network.updateProvisioner(provisioner);
         }
         return false;
     }

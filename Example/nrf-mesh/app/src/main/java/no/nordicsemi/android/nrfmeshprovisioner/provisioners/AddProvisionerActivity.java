@@ -45,6 +45,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerName;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -53,6 +54,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RangeView;
 
 public class AddProvisionerActivity extends AppCompatActivity implements Injectable,
         DialogFragmentProvisionerName.DialogFragmentProvisionerNameListener,
+        DialogFragmentTtl.DialogFragmentTtlListener,
         DialogFragmentProvisionerAddress.DialogFragmentAddressListener {
 
     @Inject
@@ -60,6 +62,7 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
 
     private TextView provisionerName;
     private TextView provisionerUnicast;
+    private TextView provisionerTtl;
     private RangeView unicastRangeView;
     private RangeView groupRangeView;
     private RangeView sceneRangeView;
@@ -96,6 +99,14 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
         provisionerUnicast = containerUnicast.findViewById(R.id.text);
         provisionerUnicast.setVisibility(View.VISIBLE);
 
+        final View containerTtl = findViewById(R.id.container_ttl);
+        containerTtl.setClickable(false);
+        containerTtl.findViewById(R.id.image).
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_timer));
+        ((TextView) containerTtl.findViewById(R.id.title)).setText(R.string.title_ttl);
+        provisionerTtl = containerTtl.findViewById(R.id.text);
+        provisionerTtl.setVisibility(View.VISIBLE);
+
         final View containerUnicastRange = findViewById(R.id.container_unicast_range);
         containerUnicastRange.setClickable(false);
         containerUnicastRange.findViewById(R.id.image).
@@ -127,6 +138,13 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
         containerUnicast.setOnClickListener(v -> {
             if (mProvisioner != null) {
                 final DialogFragmentProvisionerAddress fragment = DialogFragmentProvisionerAddress.newInstance(mProvisioner.getProvisionerAddress());
+                fragment.show(getSupportFragmentManager(), null);
+            }
+        });
+
+        containerTtl.setOnClickListener(v -> {
+            if (mProvisioner != null) {
+                final DialogFragmentTtl fragment = DialogFragmentTtl.newInstance(mProvisioner.getGlobalTtl());
                 fragment.show(getSupportFragmentManager(), null);
             }
         });
@@ -166,8 +184,10 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
         }
 
         mViewModel.getSelectedProvisioner().observe(this, provisioner -> {
-            mProvisioner = provisioner;
-            updateUi();
+            if (provisioner != null) {
+                mProvisioner = provisioner;
+                updateUi();
+            }
         });
 
         updateUi();
@@ -185,7 +205,6 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
             case android.R.id.home:
                 onBackPressed();
                 return true;
-
             case R.id.action_save:
                 if (save()) {
                     onBackPressed();
@@ -198,12 +217,9 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
     @Override
     public boolean onNameChanged(@NonNull final String name) {
         if (mProvisioner != null) {
-            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if (network != null) {
-                mProvisioner.setProvisionerName(name);
-                updateUi();
-                return network.updateProvisioner(mProvisioner);
-            }
+            mProvisioner.setProvisionerName(name);
+            updateUi();
+            return true;
         }
         return false;
     }
@@ -211,12 +227,18 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
     @Override
     public boolean setAddress(final int sourceAddress) {
         if (mProvisioner != null) {
-            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if (network != null) {
-                mProvisioner.setProvisionerAddress(sourceAddress);
-                updateUi();
-                return true;
-            }
+            mProvisioner.setProvisionerAddress(sourceAddress);
+            updateUi();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean setGlobalTtl(final int ttl) {
+        if (mProvisioner != null) {
+            mProvisioner.setGlobalTtl(ttl);
+            return true;
         }
         return false;
     }
@@ -239,16 +261,15 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
 
         final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
         if (network != null) {
+            final String ttl = String.valueOf(mProvisioner.getGlobalTtl());
+            provisionerTtl.setText(ttl);
             unicastRangeView.clearOtherRanges();
             groupRangeView.clearOtherRanges();
             sceneRangeView.clearOtherRanges();
             for (Provisioner other : network.getProvisioners()) {
-                /*if (!other.getProvisionerUuid().equalsIgnoreCase(mProvisioner.getProvisionerUuid()))*/
-                {
-                    unicastRangeView.addOtherRanges(other.getAllocatedUnicastRanges());
-                    groupRangeView.addOtherRanges(other.getAllocatedGroupRanges());
-                    sceneRangeView.addOtherRanges(other.getAllocatedSceneRanges());
-                }
+                unicastRangeView.addOtherRanges(other.getAllocatedUnicastRanges());
+                groupRangeView.addOtherRanges(other.getAllocatedGroupRanges());
+                sceneRangeView.addOtherRanges(other.getAllocatedSceneRanges());
             }
         }
     }

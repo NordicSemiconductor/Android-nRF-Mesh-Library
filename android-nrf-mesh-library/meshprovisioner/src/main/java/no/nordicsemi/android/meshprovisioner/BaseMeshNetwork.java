@@ -710,12 +710,24 @@ abstract class BaseMeshNetwork {
             throw new IllegalArgumentException("Unicast address is already in use by another provisioner!");
         }
 
+        boolean flag = false;
         for (int i = 0; i < provisioners.size(); i++) {
             if (provisioners.get(i).getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
                 provisioners.set(i, provisioner);
                 notifyProvisionerUpdated(provisioner);
-                return true;
+                flag = true;
             }
+        }
+        if (flag) {
+            for (int i = 0; i < nodes.size(); i++) {
+                if (provisioner.getProvisionerAddress() == nodes.get(i).getUnicastAddress()) {
+                    final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
+                    nodes.set(i, node);
+                    notifyNodeUpdated(node);
+                    break;
+                }
+            }
+            return true;
         }
         return false;
     }
@@ -956,21 +968,27 @@ abstract class BaseMeshNetwork {
         }
     }
 
-    final void notifyNodeDeleted(@NonNull final ProvisionedMeshNode meshNode) {
-        if (mCallbacks != null) {
-            mCallbacks.onNodeDeleted(meshNode);
-        }
-    }
-
     final void notifyNodeAdded(@NonNull final ProvisionedMeshNode node) {
         if (mCallbacks != null) {
             mCallbacks.onNodeAdded(node);
         }
     }
 
+    final void notifyNodeUpdated(@NonNull final ProvisionedMeshNode node) {
+        if (mCallbacks != null) {
+            mCallbacks.onNodeUpdated(node);
+        }
+    }
+
     final void notifyNodesUpdated() {
         if (mCallbacks != null) {
             mCallbacks.onNodesUpdated();
+        }
+    }
+
+    final void notifyNodeDeleted(@NonNull final ProvisionedMeshNode meshNode) {
+        if (mCallbacks != null) {
+            mCallbacks.onNodeDeleted(meshNode);
         }
     }
 

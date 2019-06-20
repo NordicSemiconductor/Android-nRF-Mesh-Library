@@ -155,10 +155,9 @@
     <string name="provisioner_input_numeric">Input the code displayed on the device.</string>
     <string name="provisioner_input_numeric_device">Key in the following code %s on the device.</string>
 
-    <string name="title_global_ttl">Global TTL</string>
-    <string name="summary_global_ttl">Global TTL</string>
-    <string name="summary_ttl">Enter a global TTL value.</string>
-    <string name="hint_global_ttl">Global TTL</string>
+    <string name="summary_ttl">Enter a ttl value ranging from 0 – 127</string>
+    <string name="hint_ttl">TTL</string>
+    <string name="error_empty_ttl">TTL cannot be empty!</string>
 
     <string name="title_src_address">Source Address</string>
     <string name="summary_src_address">Source address</string>

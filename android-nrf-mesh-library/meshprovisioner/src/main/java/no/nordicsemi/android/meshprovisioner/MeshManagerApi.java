@@ -975,37 +975,37 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         @Override
-        public void onNetworkKeyAdded(final NetworkKey networkKey) {
+        public void onNetworkKeyAdded(@NonNull final NetworkKey networkKey) {
             mMeshNetworkDb.insertNetKey(mNetworkKeyDao, networkKey);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
-        public void onNetworkKeyUpdated(final NetworkKey networkKey) {
+        public void onNetworkKeyUpdated(@NonNull final NetworkKey networkKey) {
             mMeshNetworkDb.updateNetKey(mNetworkKeyDao, networkKey);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
-        public void onNetworkKeyDeleted(final NetworkKey networkKey) {
+        public void onNetworkKeyDeleted(@NonNull final NetworkKey networkKey) {
             mMeshNetworkDb.deleteNetKey(mNetworkKeyDao, networkKey);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
-        public void onApplicationKeyAdded(final ApplicationKey applicationKey) {
+        public void onApplicationKeyAdded(@NonNull final ApplicationKey applicationKey) {
             mMeshNetworkDb.insertAppKey(mApplicationKeyDao, applicationKey);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
-        public void onApplicationKeyUpdated(final ApplicationKey applicationKey) {
+        public void onApplicationKeyUpdated(@NonNull final ApplicationKey applicationKey) {
             mMeshNetworkDb.updateAppKey(mApplicationKeyDao, applicationKey);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
-        public void onApplicationKeyDeleted(final ApplicationKey applicationKey) {
+        public void onApplicationKeyDeleted(@NonNull final ApplicationKey applicationKey) {
             mMeshNetworkDb.deleteAppKey(mApplicationKeyDao, applicationKey);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
@@ -1035,7 +1035,7 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         @Override
-        public void onNodeDeleted(final ProvisionedMeshNode meshNode) {
+        public void onNodeDeleted(@NonNull final ProvisionedMeshNode meshNode) {
             mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
@@ -1047,43 +1047,49 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         @Override
+        public void onNodeUpdated(@NonNull final ProvisionedMeshNode meshNode) {
+            mMeshNetworkDb.updateNode(mProvisionedNodeDao, meshNode);
+            mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
+        }
+
+        @Override
         public void onNodesUpdated() {
             mMeshNetworkDb.updateNodes(mProvisionedNodeDao, mMeshNetwork.nodes);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
-        public void onGroupAdded(final Group group) {
+        public void onGroupAdded(@NonNull final Group group) {
             mMeshNetworkDb.insertGroup(mGroupDao, group);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
-        public void onGroupUpdated(final Group group) {
+        public void onGroupUpdated(@NonNull final Group group) {
             mMeshNetworkDb.updateGroup(mGroupDao, group);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
-        public void onGroupDeleted(final Group group) {
+        public void onGroupDeleted(@NonNull final Group group) {
             mMeshNetworkDb.deleteGroup(mGroupDao, group);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
-        public void onSceneAdded(final Scene scene) {
+        public void onSceneAdded(@NonNull final Scene scene) {
             mMeshNetworkDb.insertScene(mSceneDao, scene);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
-        public void onSceneUpdated(final Scene scene) {
+        public void onSceneUpdated(@NonNull final Scene scene) {
             mMeshNetworkDb.updateScene(mSceneDao, scene);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
-        public void onSceneDeleted(final Scene scene) {
+        public void onSceneDeleted(@NonNull final Scene scene) {
             mMeshNetworkDb.deleteScene(mSceneDao, scene);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }

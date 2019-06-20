@@ -22,6 +22,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 
 import static androidx.room.ForeignKey.CASCADE;
@@ -266,8 +267,16 @@ public class Provisioner implements Parcelable {
         return globalTtl;
     }
 
-    public void setGlobalTtl(final int globalTtl) {
-        this.globalTtl = globalTtl;
+    /**
+     * Set the ttl of the provisioner
+     *
+     * @param ttl ttl
+     * @throws IllegalArgumentException if invalid ttl value is set
+     */
+    public void setGlobalTtl(final int ttl) throws IllegalArgumentException {
+        if (!MeshParserUtils.isValidTtl(ttl))
+            throw new IllegalArgumentException("Invalid ttl, ttl must range from 0 - 127");
+        this.globalTtl = ttl;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)

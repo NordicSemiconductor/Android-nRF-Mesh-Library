@@ -22,30 +22,28 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import androidx.appcompat.app.AlertDialog;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public class DialogFragmentGlobalTtl extends DialogFragment {
+public class DialogFragmentTtl extends DialogFragment {
 
     private static final String GLOBAL_TTL = "GLOBAL_TTL";
 
@@ -55,12 +53,12 @@ public class DialogFragmentGlobalTtl extends DialogFragment {
     @BindView(R.id.text_input)
     TextInputEditText ttlInput;
 
-    private String ttl;
+    private int mTtl;
 
-    public static DialogFragmentGlobalTtl newInstance(final String ttl) {
-        DialogFragmentGlobalTtl fragmentNetworkKey = new DialogFragmentGlobalTtl();
+    public static DialogFragmentTtl newInstance(final int ttl) {
+        DialogFragmentTtl fragmentNetworkKey = new DialogFragmentTtl();
         final Bundle args = new Bundle();
-        args.putString(GLOBAL_TTL, ttl);
+        args.putInt(GLOBAL_TTL, ttl);
         fragmentNetworkKey.setArguments(args);
         return fragmentNetworkKey;
     }
@@ -69,19 +67,20 @@ public class DialogFragmentGlobalTtl extends DialogFragment {
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            ttl = getArguments().getString(GLOBAL_TTL);
+            mTtl = getArguments().getInt(GLOBAL_TTL);
         }
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_ttl_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_ttl, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
-        ttlInput.setInputType(InputType.TYPE_CLASS_TEXT);
-        ttlInputLayout.setHint(getString(R.string.hint_global_ttl));
+        final String ttl = String.valueOf(mTtl);
+        ttlInputLayout.setHint(getString(R.string.hint_ttl));
+        //ttlInput.setInputType(InputType.TYPE_CLASS_NUMBER);
         ttlInput.setText(ttl);
         ttlInput.setSelection(ttl.length());
         ttlInput.addTextChangedListener(new TextWatcher() {
@@ -93,7 +92,7 @@ public class DialogFragmentGlobalTtl extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    ttlInputLayout.setError(getString(R.string.error_empty_global_ttl));
+                    ttlInputLayout.setError(getString(R.string.error_empty_ttl));
                 } else {
                     ttlInputLayout.setError(null);
                 }
@@ -109,38 +108,36 @@ public class DialogFragmentGlobalTtl extends DialogFragment {
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_timer);
-        alertDialogBuilder.setTitle(R.string.title_global_ttl);
+        alertDialogBuilder.setTitle(R.string.title_ttl);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String globalTTL = ttlInput.getEditableText().toString();
-            if (validateInput(globalTTL)) {
-                if(getParentFragment() == null) {
-                    ((DialogFragmentGlobalTtlListener) requireActivity()).onGlobalTtlEntered(Integer.parseInt(globalTTL));
-                } else {
-                    ((DialogFragmentGlobalTtlListener) getParentFragment()).onGlobalTtlEntered(Integer.parseInt(globalTTL));
+            try {
+                if (validateInput(globalTTL)) {
+                    if (((DialogFragmentTtlListener) requireActivity()).setGlobalTtl(Integer.parseInt(globalTTL))) {
+                        dismiss();
+                    }
                 }
-                dismiss();
+            } catch (IllegalArgumentException ex) {
+                ttlInputLayout.setError(ex.getMessage());
             }
         });
 
         return alertDialog;
     }
 
-    private boolean validateInput(final String input) {
-        try {
-            if(MeshParserUtils.validateTtlInput(getContext(), Integer.parseInt(input))) {
-                return true;
-            }
-        } catch (IllegalArgumentException ex) {
-            ttlInputLayout.setError(ex.getMessage());
+    private boolean validateInput(@NonNull final String input) {
+        if (TextUtils.isEmpty(input)) {
+            ttlInputLayout.setError("TTL value cannot be empty");
+            return false;
         }
-        return false;
+        return true;
     }
 
-    public interface DialogFragmentGlobalTtlListener {
+    public interface DialogFragmentTtlListener {
 
-        void onGlobalTtlEntered(final int ttl);
+        boolean setGlobalTtl(final int ttl);
 
     }
 }
