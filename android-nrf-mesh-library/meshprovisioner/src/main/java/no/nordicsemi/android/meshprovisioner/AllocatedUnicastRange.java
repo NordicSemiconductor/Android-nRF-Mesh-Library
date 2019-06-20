@@ -2,9 +2,7 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.os.Parcel;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import androidx.annotation.NonNull;
 import androidx.room.Ignore;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 

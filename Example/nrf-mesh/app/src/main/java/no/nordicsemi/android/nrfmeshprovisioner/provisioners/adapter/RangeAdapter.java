@@ -119,12 +119,12 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
 
     public void addItem(final int position, @NonNull final Range range) {
         mRanges.add(position, range);
-        notifyDataSetChanged();
+        notifyItemChanged(position);
     }
 
     public void removeItem(final int position) {
         mRanges.remove(position);
-        notifyDataSetChanged();
+        notifyItemChanged(position);
     }
 
     private void addOverlappingRanges(@NonNull final Range range, @NonNull final RangeView rangeView) {

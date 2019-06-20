@@ -34,7 +34,7 @@ public abstract class Range implements Parcelable {
      * @return true if overlaps or false otherwise
      */
     public abstract boolean overlaps(@NonNull final Range otherRange);
-
+    
     protected boolean overlaps(final int rLow, final int rHigh, final int oLow, final int oHigh) {
         // Are the ranges are equal
         if (rLow == oLow && rHigh == oHigh) {
@@ -59,7 +59,11 @@ public abstract class Range implements Parcelable {
     }
 
 
-
+    /**
+     * Returns a list of merged unicast ranges
+     *
+     * @param ranges list of{@link AllocatedUnicastRange} to merge with
+     */
     public static List<AllocatedUnicastRange> mergeUnicastRanges(@NonNull final List<AllocatedUnicastRange> ranges) {
         AllocatedUnicastRange accumulator = new AllocatedUnicastRange();
         final List<AllocatedUnicastRange> result = new ArrayList<>();
@@ -94,6 +98,11 @@ public abstract class Range implements Parcelable {
         return result;
     }
 
+    /**
+     * Returns a list of merged group ranges
+     *
+     * @param ranges list of{@link AllocatedGroupRange} to merge with
+     */
     public static List<AllocatedGroupRange> mergeGroupRanges(@NonNull final List<AllocatedGroupRange> ranges) {
         AllocatedGroupRange accumulator = new AllocatedGroupRange();
         final List<AllocatedGroupRange> results = new ArrayList<>();
@@ -128,6 +137,11 @@ public abstract class Range implements Parcelable {
         return results;
     }
 
+    /**
+     * Returns a list of merged scene ranges
+     *
+     * @param ranges list of{@link AllocatedSceneRange} to merge with
+     */
     public static List<AllocatedSceneRange> mergeSceneRanges(@NonNull final List<AllocatedSceneRange> ranges) {
         AllocatedSceneRange accumulator = new AllocatedSceneRange();
         final List<AllocatedSceneRange> result = new ArrayList<>();

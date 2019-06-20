@@ -232,6 +232,31 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
         }
     }
 
+    @Override
+    public void onItemDismiss(final RemovableViewHolder viewHolder) {
+        if (mProvisioner != null) {
+            final int position = viewHolder.getAdapterPosition();
+            try {
+                final Range range = mRangeAdapter.getItem(position);
+                mRangeAdapter.removeItem(position);
+                displaySnackBar(position, range);
+                mProvisioner.removeRange(range);
+                updateRanges();
+                updateOtherRanges();
+                updateEmptyView();
+                updateResolveFab();
+            } catch (Exception ex) {
+                mRangeAdapter.notifyDataSetChanged();
+                displaySnackBar(ex.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
+
+    }
+
     private void updateRanges() {
         if (mProvisioner != null) {
             mRangeView.clearRanges();
@@ -327,31 +352,6 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                 mRangeAdapter.updateData(mProvisioner.getAllocatedSceneRanges());
             }
         }
-    }
-
-    @Override
-    public void onItemDismiss(final RemovableViewHolder viewHolder) {
-        if (mProvisioner != null) {
-            final int position = viewHolder.getAdapterPosition();
-            try {
-                final Range range = mRangeAdapter.getItem(position);
-                mRangeAdapter.removeItem(position);
-                displaySnackBar(position, range);
-                mProvisioner.removeRange(range);
-                updateRanges();
-                updateOtherRanges();
-                updateEmptyView();
-                updateResolveFab();
-            } catch (Exception ex) {
-                mRangeAdapter.notifyDataSetChanged();
-                displaySnackBar(ex.getMessage());
-            }
-        }
-    }
-
-    @Override
-    public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
-
     }
 
     private void displaySnackBar(final int position, final Range range) {

@@ -7,6 +7,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
+@SuppressWarnings("unused")
 public abstract class AddressRange extends Range {
 
     @Expose
@@ -100,8 +101,6 @@ public abstract class AddressRange extends Range {
             results.addAll(range.minus(other));
             results = mergeUnicastRanges(results);
         }
-        /*ranges.clear();
-        ranges.addAll(results);*/
         return results;
     }
 
