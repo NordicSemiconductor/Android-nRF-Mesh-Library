@@ -96,7 +96,7 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
 
         final View containerKey = findViewById(R.id.container_primary_net_key);
         containerKey.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lock_open_black_alpha_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
         final TextView keyTitle = containerKey.findViewById(R.id.title);
         final TextView keyView = containerKey.findViewById(R.id.text);
         keyView.setVisibility(View.VISIBLE);

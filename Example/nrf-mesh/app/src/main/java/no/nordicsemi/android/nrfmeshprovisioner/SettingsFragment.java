@@ -48,7 +48,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshExportMsg;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshImport;
@@ -63,7 +62,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
 import static android.app.Activity.RESULT_OK;
-import static no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity.RESULT_APP_KEY_LIST_SIZE;
 import static no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshRepository.EXPORT_PATH;
 
 public class SettingsFragment extends Fragment implements Injectable,
@@ -98,7 +96,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         // Set up views
         final View containerNetworkName = rootView.findViewById(R.id.container_network_name);
         containerNetworkName.findViewById(R.id.image)
-                .setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_lan_black_alpha_24dp));
+                .setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_label_black_alpha_24dp));
         final TextView networkNameTitle = containerNetworkName.findViewById(R.id.title);
         networkNameTitle.setText(R.string.title_network_name);
         final TextView networkNameView = containerNetworkName.findViewById(R.id.text);
@@ -111,7 +109,7 @@ public class SettingsFragment extends Fragment implements Injectable,
 
         final View containerProvisioner = rootView.findViewById(R.id.container_provisioners);
         containerProvisioner.findViewById(R.id.image)
-                .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_lan_black_alpha_24dp));
+                .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_provisioner_black_alpha_24dp));
         final TextView provisionerTitle = containerProvisioner.findViewById(R.id.title);
         final TextView provisionerSummary = containerProvisioner.findViewById(R.id.text);
         provisionerSummary.setVisibility(View.VISIBLE);
@@ -136,7 +134,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         final View containerManageAppKeys = rootView.findViewById(R.id.container_app_keys);
         containerManageAppKeys.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_black_24dp_alpha));
-        ((TextView)containerManageAppKeys.findViewById(R.id.title)).setText(R.string.title_app_keys);
+        ((TextView) containerManageAppKeys.findViewById(R.id.title)).setText(R.string.title_app_keys);
         final TextView appKeySummary = containerManageAppKeys.findViewById(R.id.text);
         appKeySummary.setVisibility(View.VISIBLE);
         containerManageAppKeys.setOnClickListener(v -> {

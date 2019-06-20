@@ -80,7 +80,7 @@ public class AddNetKeyActivity extends AppCompatActivity implements Injectable, 
 
         final View containerKeyName = findViewById(R.id.container_key_name);
         containerKeyName.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_outline_black_alpha_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_black_alpha_24dp));
         ((TextView) containerKeyName.findViewById(R.id.title)).setText(R.string.name);
         nameView = containerKeyName.findViewById(R.id.text);
         nameView.setVisibility(View.VISIBLE);

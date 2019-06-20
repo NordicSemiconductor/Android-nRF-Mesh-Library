@@ -94,7 +94,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
 
         final View containerProvisioner = findViewById(R.id.container_current_provisioner);
         containerProvisioner.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lock_open_black_alpha_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
         final TextView provisionerTitle = containerProvisioner.findViewById(R.id.title);
         final TextView provisionerView = containerProvisioner.findViewById(R.id.text);
         provisionerView.setVisibility(View.VISIBLE);

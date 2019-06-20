@@ -80,7 +80,7 @@
                             android:id="@+id/primary_net_key_toolbar"
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
-                            app:logo="@drawable/ic_vpn_key_black_alpha_24dp"
+                            app:logo="@drawable/ic_shield_key_black_alpha_24dp"
                             app:title="@string/title_primary_net_key"
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 

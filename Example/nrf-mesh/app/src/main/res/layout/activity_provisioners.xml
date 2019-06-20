@@ -80,7 +80,7 @@
                             android:id="@+id/current_provisioner_toolbar"
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
-                            app:logo="@drawable/ic_vpn_key_black_alpha_24dp"
+                            app:logo="@drawable/ic_shield_provisioner_black_alpha_24dp"
                             app:title="@string/title_current_provisioner"
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
@@ -123,7 +123,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
-                                app:logo="@drawable/ic_folder_key_black_24dp_alpha"
+                                app:logo="@drawable/ic_folder_provisioner_black_alpha_24dp"
                                 app:title="@string/title_other_provisioner"
                                 app:titleMarginStart="@dimen/toolbar_title_margin"/>
 

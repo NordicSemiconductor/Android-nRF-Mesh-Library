@@ -75,7 +75,7 @@
                         <androidx.appcompat.widget.Toolbar
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
-                            app:logo="@drawable/ic_info_outline_black_alpha"
+                            app:logo="@drawable/ic_info_black_24dp_alpha"
                             app:title="@string/title_key_details"
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
