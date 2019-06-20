@@ -243,7 +243,9 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
         } else {
             provisionerUnicast.setText(MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true));
         }
-
+        unicastRangeView.clearRanges();
+        groupRangeView.clearRanges();
+        sceneRangeView.clearRanges();
         unicastRangeView.addRanges(provisioner.getAllocatedUnicastRanges());
         groupRangeView.addRanges(provisioner.getAllocatedGroupRanges());
         sceneRangeView.addRanges(provisioner.getAllocatedSceneRanges());
@@ -252,6 +254,10 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
         if (network != null) {
             final String ttl = String.valueOf(provisioner.getGlobalTtl());
             provisionerTtl.setText(ttl);
+
+            unicastRangeView.clearOtherRanges();
+            groupRangeView.clearOtherRanges();
+            sceneRangeView.clearOtherRanges();
             for (Provisioner other : network.getProvisioners()) {
                 if (!other.getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
                     unicastRangeView.addOtherRanges(other.getAllocatedUnicastRanges());
