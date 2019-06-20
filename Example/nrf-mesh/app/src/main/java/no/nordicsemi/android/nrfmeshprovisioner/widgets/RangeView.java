@@ -220,7 +220,7 @@ public class RangeView extends View {
         else if (range.getHighAddress() >= otherRange.getHighAddress() &&
                 range.getLowAddress() >= otherRange.getLowAddress() && range.getLowAddress() <= otherRange.getHighAddress()) {
             x = (int) ((range.getLowAddress() - otherRange.getLowerBound()) * unit);
-            right = (int) ((otherRange.getHighAddress() - range.getLowerBound()) * unit);
+            right = (int) ((otherRange.getHighAddress() - otherRange.getLowerBound()) * unit);
             return new Rect(x, 0, right, height);
         }
         return null;

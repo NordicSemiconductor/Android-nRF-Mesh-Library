@@ -37,6 +37,8 @@ import android.widget.TextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.w3c.dom.Text;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -175,8 +177,13 @@ public class DialogFragmentGroupRange extends DialogFragment {
         return alertDialog;
     }
 
-    private boolean validateLow(final String addressValue) {
+    private boolean validateLow(@NonNull final String addressValue) {
         try {
+
+            if(TextUtils.isEmpty(addressValue)){
+                lowAddressInputLayout.setError(getString(R.string.error_empty_value));
+                return false;
+            }
 
             final int address = Integer.parseInt(addressValue, 16);
             if (!MeshAddress.isValidGroupAddress(address)) {
@@ -192,6 +199,11 @@ public class DialogFragmentGroupRange extends DialogFragment {
 
     private boolean validateHigh(final String addressValue) {
         try {
+
+            if(TextUtils.isEmpty(addressValue)){
+                highAddressInputLayout.setError("High address value cannot be empty");
+                return false;
+            }
 
             final int address = Integer.parseInt(addressValue, 16);
             if (!MeshAddress.isValidGroupAddress(address)) {

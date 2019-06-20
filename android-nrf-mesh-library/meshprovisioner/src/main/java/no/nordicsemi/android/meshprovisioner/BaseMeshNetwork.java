@@ -641,6 +641,10 @@ abstract class BaseMeshNetwork {
      */
     public boolean addProvisioner(@NonNull final Provisioner provisioner) throws IllegalArgumentException {
 
+        if (provisioner.allocatedUnicastRanges.isEmpty()) {
+            throw new IllegalArgumentException("Provisioner has no allocated unicast range assigned");
+        }
+
         for (Provisioner other : provisioners) {
             if (provisioner.hasOverlappingUnicastRanges(other.getAllocatedUnicastRanges())
                     || provisioner.hasOverlappingGroupRanges(other.getAllocatedGroupRanges())
@@ -648,6 +652,7 @@ abstract class BaseMeshNetwork {
                 throw new IllegalArgumentException("Provisioner ranges overlap");
             }
         }
+
         if (!provisioner.isAddressWithinAllocatedRange(provisioner.getProvisionerAddress())) {
             throw new IllegalArgumentException("Unicast address assigned to a provisioner must be within an allocated unicast address range");
         }
@@ -682,6 +687,10 @@ abstract class BaseMeshNetwork {
     public boolean updateProvisioner(@NonNull final Provisioner provisioner) {
         if (!isProvisionerUuidInUse(provisioner.getProvisionerUuid())) {
             throw new IllegalArgumentException("Provisioner does not exist, consider adding a provisioner first!");
+        }
+
+        if (provisioner.allocatedUnicastRanges.isEmpty()) {
+            throw new IllegalArgumentException("Provisioner has no allocated unicast range assigned");
         }
 
         for (Provisioner other : provisioners) {
@@ -720,7 +729,7 @@ abstract class BaseMeshNetwork {
         }
         if (flag) {
             for (int i = 0; i < nodes.size(); i++) {
-                if (provisioner.getProvisionerAddress() == nodes.get(i).getUnicastAddress()) {
+                if (nodes.get(i).getUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
                     final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
                     nodes.set(i, node);
                     notifyNodeUpdated(node);

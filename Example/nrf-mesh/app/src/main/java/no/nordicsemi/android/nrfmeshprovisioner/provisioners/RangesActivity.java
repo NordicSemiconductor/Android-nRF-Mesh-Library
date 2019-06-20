@@ -281,6 +281,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                         case Utils.GROUP_RANGE:
                             if (mProvisioner.hasOverlappingGroupRanges(other.getAllocatedGroupRanges())) {
                                 mFabResolve.show(true);
+                                return;
                             } else {
                                 mFabResolve.hide(true);
                             }
@@ -288,6 +289,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                         case Utils.SCENE_RANGE:
                             if (mProvisioner.hasOverlappingSceneRanges(other.getAllocatedSceneRanges())) {
                                 mFabResolve.show(true);
+                                return;
                             } else {
                                 mFabResolve.hide(true);
                             }
@@ -296,6 +298,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                         case Utils.UNICAST_RANGE:
                             if (mProvisioner.hasOverlappingUnicastRanges(other.getAllocatedUnicastRanges())) {
                                 mFabResolve.show(true);
+                                return;
                             } else {
                                 mFabResolve.hide(true);
                             }
@@ -334,7 +337,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                 final Range range = mRangeAdapter.getItem(position);
                 mRangeAdapter.removeItem(position);
                 displaySnackBar(position, range);
-                mProvisioner.addRange(range);
+                mProvisioner.removeRange(range);
                 updateRanges();
                 updateOtherRanges();
                 updateEmptyView();
@@ -390,10 +393,12 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
             List<AllocatedUnicastRange> ranges = new ArrayList<>(mProvisioner.getAllocatedUnicastRanges());
             Collections.sort(ranges, addressRangeComparator);
             for (Provisioner p : mViewModel.getMeshNetworkLiveData().getProvisioners()) {
-                final List<AllocatedUnicastRange> otherRanges = new ArrayList<>(p.getAllocatedUnicastRanges());
-                Collections.sort(otherRanges, addressRangeComparator);
-                for (AllocatedUnicastRange otherRange : otherRanges) {
-                    ranges = AddressRange.minus(ranges, otherRange);
+                if(!p.getProvisionerUuid().equalsIgnoreCase(mProvisioner.getProvisionerUuid())) {
+                    final List<AllocatedUnicastRange> otherRanges = new ArrayList<>(p.getAllocatedUnicastRanges());
+                    Collections.sort(otherRanges, addressRangeComparator);
+                    for (AllocatedUnicastRange otherRange : otherRanges) {
+                        ranges = AddressRange.minus(ranges, otherRange);
+                    }
                 }
             }
             mProvisioner.setAllocatedUnicastRanges(ranges);
