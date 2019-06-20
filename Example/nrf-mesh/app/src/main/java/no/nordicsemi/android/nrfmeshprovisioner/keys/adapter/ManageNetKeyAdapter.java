@@ -37,7 +37,6 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -72,7 +71,7 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
     @NonNull
     @Override
     public ManageNetKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.app_key_item, parent, false);
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item, parent, false);
         return new ManageNetKeyAdapter.ViewHolder(layoutView);
     }
 
@@ -109,9 +108,9 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
 
     final class ViewHolder extends RemovableViewHolder {
 
-        @BindView(R.id.key_id)
+        @BindView(R.id.title)
         TextView netKeyName;
-        @BindView(R.id.key)
+        @BindView(R.id.subtitle)
         TextView netKey;
 
         private ViewHolder(final View view) {

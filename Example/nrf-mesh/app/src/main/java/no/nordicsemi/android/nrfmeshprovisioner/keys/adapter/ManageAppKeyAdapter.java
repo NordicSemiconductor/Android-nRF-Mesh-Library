@@ -85,7 +85,7 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
     @NonNull
     @Override
     public ManageAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.app_key_item, parent, false);
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item, parent, false);
         return new ManageAppKeyAdapter.ViewHolder(layoutView);
     }
 
@@ -122,9 +122,9 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
 
     final class ViewHolder extends RemovableViewHolder {
 
-        @BindView(R.id.key_id)
+        @BindView(R.id.title)
         TextView appKeyName;
-        @BindView(R.id.key)
+        @BindView(R.id.subtitle)
         TextView appKey;
 
         private ViewHolder(final View view) {

@@ -26,6 +26,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -74,7 +76,7 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     @NonNull
     @Override
     public ProvisionerAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.app_key_item, parent, false);
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item, parent, false);
         return new ProvisionerAdapter.ViewHolder(layoutView);
     }
 
@@ -82,7 +84,7 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     public void onBindViewHolder(@NonNull final ProvisionerAdapter.ViewHolder holder, final int position) {
         final Provisioner provisioner = mProvisioners.get(position);
         holder.provisionerName.setText(provisioner.getProvisionerName());
-        holder.unicastAdd.setText(mContext.getString(R.string.unicast_address,
+        holder.provisionerSummary.setText(mContext.getString(R.string.unicast_address,
                 MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true)));
     }
 
@@ -111,14 +113,17 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
 
     final class ViewHolder extends RemovableViewHolder {
 
-        @BindView(R.id.key_id)
+        @BindView(R.id.title)
         TextView provisionerName;
-        @BindView(R.id.key)
-        TextView unicastAdd;
+        @BindView(R.id.subtitle)
+        TextView provisionerSummary;
+        @BindView(R.id.icon)
+        ImageView icon;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
+            icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_account_key_black_alpha_24dp));
             view.findViewById(R.id.removable).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final Provisioner provisioner = mProvisioners.get(getAdapterPosition());

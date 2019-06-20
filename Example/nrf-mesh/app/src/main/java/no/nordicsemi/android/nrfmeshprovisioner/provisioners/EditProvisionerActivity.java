@@ -83,7 +83,7 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
 
         final View containerProvisionerName = findViewById(R.id.container_name);
         containerProvisionerName.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_outline_black_alpha_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_black_alpha_24dp));
         ((TextView) containerProvisionerName.findViewById(R.id.title)).setText(R.string.name);
         provisionerName = containerProvisionerName.findViewById(R.id.text);
         provisionerName.setVisibility(View.VISIBLE);

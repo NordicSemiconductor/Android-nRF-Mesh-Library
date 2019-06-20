@@ -83,6 +83,7 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
         //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_add_provisioner);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
 
         final View containerProvisionerName = findViewById(R.id.container_name);
         containerProvisionerName.findViewById(R.id.image).
