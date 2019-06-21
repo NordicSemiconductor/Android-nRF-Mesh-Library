@@ -28,7 +28,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused", "WeakerAccess", "UnusedReturnValue"})
 abstract class BaseMeshNetwork {
     // Key refresh phases
     public static final int NORMAL_OPERATION = 0; //Distribution of new keys
@@ -630,7 +630,8 @@ abstract class BaseMeshNetwork {
         groupRange.add(new AllocatedGroupRange(0xC000, 0xFEFF));
         final List<AllocatedSceneRange> sceneRange = new ArrayList();
         sceneRange.add(new AllocatedSceneRange(0x0001, 0xFFFF));
-        return new Provisioner(UUID.randomUUID().toString(), unicastRange, groupRange, sceneRange, meshUUID);
+        return new Provisioner(UUID.randomUUID().toString(),
+                unicastRange, groupRange, sceneRange, meshUUID);
     }
 
     /**
@@ -753,6 +754,7 @@ abstract class BaseMeshNetwork {
             final ProvisionedMeshNode node = getNode(provisioner.getProvisionerAddress());
             if (node != null) {
                 deleteNode(node);
+                notifyNodeDeleted(node);
             }
             return true;
         }

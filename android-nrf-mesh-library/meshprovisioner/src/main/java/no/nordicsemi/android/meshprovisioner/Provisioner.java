@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -99,7 +100,8 @@ public class Provisioner implements Parcelable {
                        @NonNull final List<AllocatedGroupRange> allocatedGroupRanges,
                        @NonNull final List<AllocatedSceneRange> allocatedSceneRanges,
                        @NonNull final String meshUuid) {
-        this.provisionerUuid = provisionerUuid;
+
+        this.provisionerUuid = provisionerUuid.toUpperCase(Locale.US);
         this.allocatedUnicastRanges = allocatedUnicastRanges;
         this.allocatedGroupRanges = allocatedGroupRanges;
         this.allocatedSceneRanges = allocatedSceneRanges;
@@ -257,9 +259,9 @@ public class Provisioner implements Parcelable {
      * @param address address of the provisioner
      */
     public void setProvisionerAddress(final int address) throws IllegalArgumentException {
-        if (!MeshAddress.isValidUnicastAddress(address)) {
+        /*if (!MeshAddress.isValidUnicastAddress(address)) {
             throw new IllegalArgumentException("Unicast address must range between 0x0001 to 0x7FFF");
-        }
+        }*/
         this.provisionerAddress = address;
     }
 
