@@ -767,10 +767,12 @@ abstract class BaseMeshNetwork {
      * @param provisioner {@link Provisioner}
      */
     public final void selectProvisioner(final Provisioner provisioner) {
-        for (Provisioner prov : provisioners) {
-            prov.setLastSelected(false);
-        }
         provisioner.setLastSelected(true);
+        for (Provisioner prov : provisioners) {
+            if (!prov.getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
+                prov.setLastSelected(false);
+            }
+        }
         notifyProvisionerUpdated(provisioners);
     }
 

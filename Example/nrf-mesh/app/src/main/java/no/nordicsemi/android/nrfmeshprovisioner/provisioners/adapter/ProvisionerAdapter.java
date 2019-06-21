@@ -26,6 +26,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -52,6 +53,8 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     private final List<Provisioner> mProvisioners = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
+    private int selectedPosition = -1;
+    private boolean isLongPressed;
     private final Comparator<Provisioner> comparator = (p1, p2) ->
             Integer.compare(p1.getProvisionerAddress(), p2.getProvisionerAddress());
 
@@ -76,7 +79,7 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     @NonNull
     @Override
     public ProvisionerAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item, parent, false);
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item1, parent, false);
         return new ProvisionerAdapter.ViewHolder(layoutView);
     }
 
@@ -86,6 +89,12 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
         holder.provisionerName.setText(provisioner.getProvisionerName());
         holder.provisionerSummary.setText(mContext.getString(R.string.unicast_address,
                 MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true)));
+
+        if (selectedPosition == position) {
+            holder.selectContainer.setVisibility(View.VISIBLE);
+        } else {
+            holder.selectContainer.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -106,28 +115,86 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
         return mProvisioners.get(position);
     }
 
-    @FunctionalInterface
+    public void setSelectedPosition(final int position) {
+        selectedPosition = position;
+    }
+
+    public void hideSelection(final int position) {
+        selectedPosition = -1;
+        isLongPressed = false;
+        notifyItemChanged(position);
+    }
+
+
+    //@FunctionalInterface
     public interface OnItemClickListener {
+
         void onItemClick(final int position, @NonNull final Provisioner provisioner);
+
+        void onItemLongClick(final int position, @NonNull final Provisioner provisioner);
+
+        void onItemSelected(final int position, @NonNull final Provisioner provisioner);
+
+        void onItemDeselected();
     }
 
     final class ViewHolder extends RemovableViewHolder {
 
+        @BindView(R.id.icon)
+        ImageView icon;
         @BindView(R.id.title)
         TextView provisionerName;
         @BindView(R.id.subtitle)
         TextView provisionerSummary;
-        @BindView(R.id.icon)
-        ImageView icon;
+        @BindView(R.id.select_container)
+        View selectContainer;
+        @BindView(R.id.action_yes)
+        Button actionYes;
+        @BindView(R.id.action_no)
+        Button actionNo;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
             icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_account_key_black_alpha_24dp));
+
             view.findViewById(R.id.removable).setOnClickListener(v -> {
+                if (!isLongPressed)
+                    if (mOnItemClickListener != null) {
+                        final Provisioner provisioner = mProvisioners.get(getAdapterPosition());
+                        mOnItemClickListener.onItemClick(getAdapterPosition(), provisioner);
+                    }
+            });
+
+            view.findViewById(R.id.removable).setOnLongClickListener(v -> {
+                if (!isLongPressed) {
+                    isLongPressed = true;
+                    if (mOnItemClickListener != null) {
+                        selectContainer.setVisibility(View.VISIBLE);
+                        selectedPosition = getAdapterPosition();
+                        final Provisioner provisioner = mProvisioners.get(selectedPosition);
+                        mOnItemClickListener.onItemLongClick(getAdapterPosition(), provisioner);
+                    }
+                }
+                return true;
+            });
+
+            actionYes.setOnClickListener(v -> {
+                isLongPressed = false;
                 if (mOnItemClickListener != null) {
+                    selectedPosition = -1;
+                    selectContainer.setVisibility(View.GONE);
                     final Provisioner provisioner = mProvisioners.get(getAdapterPosition());
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), provisioner);
+                    mOnItemClickListener.onItemSelected(getAdapterPosition(), provisioner);
+                }
+            });
+
+            actionNo.setOnClickListener(v -> {
+                isLongPressed = false;
+                if (mOnItemClickListener != null) {
+                    selectedPosition = -1;
+                    selectContainer.setVisibility(View.GONE);
+                    mOnItemClickListener.onItemDeselected();
                 }
             });
         }

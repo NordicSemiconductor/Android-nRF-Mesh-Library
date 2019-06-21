@@ -492,4 +492,5 @@
     <string name="first_scene">First Scene</string>
     <string name="last_scene">Last Scene</string>
     <string name="automatic">Automatic</string>
+    <string name="make_current_provisioner">Make current provisioner?</string>
 </resources>

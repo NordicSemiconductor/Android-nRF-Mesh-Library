@@ -686,10 +686,11 @@ public class MeshManagerApi implements MeshMngrApi {
         final MeshNetwork network = new MeshNetwork(meshUuid);
         network.netKeys = generateNetKeys(meshUuid);
         network.appKeys = generateAppKeys(meshUuid);
-        final Provisioner p = network.createProvisioner();
-        final int unicast = p.getAllocatedUnicastRanges().get(0).getLowAddress();
-        p.setProvisionerAddress(unicast);
-        network.addProvisioner(p);
+        final Provisioner provisioner = network.createProvisioner();
+        final int unicast = provisioner.getAllocatedUnicastRanges().get(0).getLowAddress();
+        provisioner.setProvisionerAddress(unicast);
+        network.selectProvisioner(provisioner);
+        network.addProvisioner(provisioner);
         final ProvisionedMeshNode node = network.getNode(unicast);
         network.unicastAddress = node.getUnicastAddress() + (node.getNumberOfElements() - 1);
         network.lastSelected = true;
