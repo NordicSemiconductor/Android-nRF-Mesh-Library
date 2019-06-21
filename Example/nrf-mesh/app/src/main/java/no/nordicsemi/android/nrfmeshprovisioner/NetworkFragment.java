@@ -29,7 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import javax.inject.Inject;
@@ -45,12 +45,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.NodeAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.node.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.NodeDetailsActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.NodeAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
@@ -74,12 +74,11 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = inflater.inflate(R.layout.fragment_network, null);
+        @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_network, null);
         mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
         ButterKnife.bind(this, rootView);
 
-        final FloatingActionButton fab = rootView.findViewById(R.id.fab_add_node);
+        final ExtendedFloatingActionButton fab = rootView.findViewById(R.id.fab_add_node);
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
 
         // Configure the recycler view
@@ -107,7 +106,23 @@ public class NetworkFragment extends Fragment implements Injectable,
             }
         });
 
+
         mViewModel.getConnectedProxyAddress().observe(this, unicastAddress -> mAdapter.selectConnectedMeshNode(unicastAddress));
+
+        mRecyclerViewNodes.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull final RecyclerView recyclerView, final int dx, final int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                final LinearLayoutManager m = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (m != null) {
+                    if (m.findFirstCompletelyVisibleItemPosition() == 0) {
+                        fab.extend(true);
+                    } else {
+                        fab.shrink(true);
+                    }
+                }
+            }
+        });
 
         fab.setOnClickListener(v -> {
             final Intent intent = new Intent(requireActivity(), ScannerActivity.class);
@@ -128,28 +143,27 @@ public class NetworkFragment extends Fragment implements Injectable,
                     final boolean appKeyAddCompleted = data.getBooleanExtra(Utils.APP_KEY_ADD_COMPLETED, false);
                     final boolean networkRetransmitSetCompleted = data.getBooleanExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, false);
                     final DialogFragmentConfigError fragmentConfigError;
-                    if(compositionDataReceived){
-                            if (appKeyAddCompleted) {
-                                if (!networkRetransmitSetCompleted) {
-                                    fragmentConfigError =
-                                            DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                                    , getString(R.string.init_config_error_net_transmit_msg));
-                                    fragmentConfigError.show(getChildFragmentManager(), null);
-                                }
-                            }
-                            else {
+                    if (compositionDataReceived) {
+                        if (appKeyAddCompleted) {
+                            if (!networkRetransmitSetCompleted) {
                                 fragmentConfigError =
                                         DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                                , getString(R.string.init_config_error_app_key_msg));
+                                                , getString(R.string.init_config_error_net_transmit_msg));
                                 fragmentConfigError.show(getChildFragmentManager(), null);
                             }
+                        } else {
+                            fragmentConfigError =
+                                    DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                            , getString(R.string.init_config_error_app_key_msg));
+                            fragmentConfigError.show(getChildFragmentManager(), null);
+                        }
 
                     } else {
-                                fragmentConfigError =
-                                        DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                                , getString(R.string.init_config_error_all));
-                                fragmentConfigError.show(getChildFragmentManager(), null);
-                            }
+                        fragmentConfigError =
+                                DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                        , getString(R.string.init_config_error_all));
+                        fragmentConfigError.show(getChildFragmentManager(), null);
+                    }
                 }
                 requireActivity().invalidateOptionsMenu();
             }
@@ -175,9 +189,9 @@ public class NetworkFragment extends Fragment implements Injectable,
         requireActivity().startActivity(nodeDetails);
     }
 
-    private void displaySnackBar(@NonNull final String message){
+    private void displaySnackBar(@NonNull final String message) {
         Snackbar.make(container, message, Snackbar.LENGTH_LONG)
-                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();
     }
 }

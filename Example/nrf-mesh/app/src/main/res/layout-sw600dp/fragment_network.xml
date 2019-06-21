@@ -63,7 +63,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        app:layout_anchorGravity="bottom|right|end"
-        app:srcCompat="@drawable/ic_add_white"/>
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:text="@string/action_add_node"
+        app:icon="@drawable/ic_add_white"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -493,4 +493,6 @@
     <string name="last_scene">Last Scene</string>
     <string name="automatic">Automatic</string>
     <string name="make_current_provisioner">Make current provisioner?</string>
+    <string name="action_add_node">Add Node</string>
+    <string name="action_create_group">Create Group</string>
 </resources>

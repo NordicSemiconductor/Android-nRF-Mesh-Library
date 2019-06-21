@@ -29,7 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import javax.inject.Inject;
@@ -67,8 +67,6 @@ public class GroupsFragment extends Fragment implements Injectable,
 
     @BindView(R.id.container)
     View container;
-    @BindView(R.id.fab_add_group)
-    FloatingActionButton fab;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,12 +76,12 @@ public class GroupsFragment extends Fragment implements Injectable,
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = inflater.inflate(R.layout.fragment_groups, null);
+        @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_groups, null);
         mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
         ButterKnife.bind(this, rootView);
 
         final View noGroupsConfiguredView = rootView.findViewById(R.id.no_groups_configured);
+        final ExtendedFloatingActionButton fab = rootView.findViewById(R.id.fab_add_group);
 
         // Configure the recycler view
         final RecyclerView recyclerViewGroups = rootView.findViewById(R.id.recycler_view_groups);
@@ -115,6 +113,21 @@ public class GroupsFragment extends Fragment implements Injectable,
         fab.setOnClickListener(v -> {
             DialogFragmentCreateGroup fragmentCreateGroup = DialogFragmentCreateGroup.newInstance();
             fragmentCreateGroup.show(getChildFragmentManager(), null);
+        });
+
+        recyclerViewGroups.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull final RecyclerView recyclerView, final int dx, final int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                final LinearLayoutManager m = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (m != null) {
+                    if (m.findFirstCompletelyVisibleItemPosition() == 0) {
+                        fab.extend(true);
+                    } else {
+                        fab.shrink(true);
+                    }
+                }
+            }
         });
 
         return rootView;
@@ -151,9 +164,9 @@ public class GroupsFragment extends Fragment implements Injectable,
         return network.addGroup(address, name);
     }
 
-    private void displaySnackBar(final String message){
+    private void displaySnackBar(final String message) {
         Snackbar.make(container, message, Snackbar.LENGTH_LONG)
-                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();
     }
 }
