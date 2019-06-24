@@ -65,6 +65,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.SubGroupAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.node.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.GenericLevelServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.GenericOnOffServerActivity;
@@ -229,18 +230,17 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             return;
 
         final MeshMessage meshMessage;
-
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         final ApplicationKey applicationKey = network.getAppKey(appKeyIndex);
         final int tid = network.getSelectedProvisioner().getSequenceNumber();
         switch (modelId) {
             case SigModelParser.GENERIC_ON_OFF_SERVER:
                 meshMessage = new GenericOnOffSetUnacknowledged(applicationKey, isChecked, tid);
-                mViewModel.getMeshManagerApi().createMeshPdu(group.getAddress(), meshMessage);
+                sendMessage(group.getAddress(), meshMessage);
                 break;
             case SigModelParser.GENERIC_LEVEL_SERVER:
                 meshMessage = new GenericLevelSetUnacknowledged(applicationKey, isChecked ? 32767 : -32768, tid);
-                mViewModel.getMeshManagerApi().createMeshPdu(group.getAddress(), meshMessage);
+                sendMessage(group.getAddress(), meshMessage);
                 break;
         }
     }
@@ -254,8 +254,9 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         final ApplicationKey applicationKey = network.getAppKey(keyIndex);
         final int tid = network.getSelectedProvisioner().getSequenceNumber();
-        final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey, state, tid, transitionSteps, transitionStepResolution, delay);
-        mViewModel.getMeshManagerApi().createMeshPdu(group.getAddress(), meshMessage);
+        final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey,
+                state, tid, transitionSteps, transitionStepResolution, delay);
+        sendMessage(group.getAddress(), meshMessage);
     }
 
     @Override
@@ -270,7 +271,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             final ApplicationKey applicationKey = network.getAppKey(keyIndex);
             final int tid = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
             final MeshMessage meshMessage = new GenericLevelSetUnacknowledged(applicationKey, transitionSteps, transitionStepResolution, delay, level, tid);
-            mViewModel.getMeshManagerApi().createMeshPdu(group.getAddress(), meshMessage);
+            sendMessage(group.getAddress(), meshMessage);
         }
     }
 
@@ -349,7 +350,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             } else {
                 message = new VendorModelMessageUnacked(appKey, modelId, model.getCompanyIdentifier(), opCode, parameters);
             }
-            mViewModel.getMeshManagerApi().createMeshPdu(group.getAddress(), message);
+            sendMessage(group.getAddress(), message);
         }
     }
 
@@ -364,5 +365,15 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         }
         return null;
 
+    }
+
+    private void sendMessage(final int address, final MeshMessage meshMessage) {
+        try {
+            mViewModel.getMeshManagerApi().createMeshPdu(address, meshMessage);
+        } catch (IllegalArgumentException ex) {
+            final DialogFragmentConfigError message = DialogFragmentConfigError.
+                    newInstance(getString(R.string.title_error), ex.getMessage());
+            message.show(getSupportFragmentManager(), null);
+        }
     }
 }

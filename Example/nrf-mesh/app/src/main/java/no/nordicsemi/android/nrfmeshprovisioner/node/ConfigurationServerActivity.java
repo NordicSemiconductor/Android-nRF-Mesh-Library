@@ -126,8 +126,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 ConfigRelayGet message = new ConfigRelayGet();
-                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), message);
                 showProgressbar();
+                sendMessage(node.getUnicastAddress(), message);
             }
         } catch (Exception e) {
             Log.e(TAG, "Exception while constructing ConfigNetworkTransmitGet", e);
@@ -177,10 +177,11 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 ConfigNetworkTransmitGet message = new ConfigNetworkTransmitGet();
-                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), message);
                 showProgressbar();
+                sendMessage(node.getUnicastAddress(), message);
             }
         } catch (Exception e) {
+            hideProgressBar();
             Log.e(TAG, "Exception while constructing ConfigNetworkTransmitGet", e);
         }
     }
@@ -190,10 +191,11 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 final ConfigRelaySet message = new ConfigRelaySet(relay, relayRetransmit, relayRetransmitIntervalSteps);
-                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), message);
                 showProgressbar();
+                sendMessage(node.getUnicastAddress(), message);
             }
         } catch (Exception e) {
+            hideProgressBar();
             Log.e(TAG, "Exception while ConfigNetworkTransmitSet: " + e.getMessage());
         }
     }
@@ -203,10 +205,11 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 final ConfigNetworkTransmitSet message = new ConfigNetworkTransmitSet(networkTransmitCount, networkTransmitIntervalSteps);
-                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), message);
                 showProgressbar();
+                sendMessage(node.getUnicastAddress(), message);
             }
         } catch (Exception e) {
+            hideProgressBar();
             Log.e(TAG, "Error ConfigNetworkTransmitSet: " + e.getMessage());
         }
     }

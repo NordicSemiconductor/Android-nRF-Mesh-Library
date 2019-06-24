@@ -73,6 +73,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -604,6 +605,17 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             mSubscribeHint.setVisibility(View.GONE);
             mSubscribeAddressView.setVisibility(View.VISIBLE);
             recyclerViewAddresses.setVisibility(View.GONE);
+        }
+    }
+
+    protected void sendMessage(final int address, final MeshMessage meshMessage) {
+        try {
+            mViewModel.getMeshManagerApi().createMeshPdu(address, meshMessage);
+        } catch (IllegalArgumentException ex) {
+            hideProgressBar();
+            final DialogFragmentConfigError message = DialogFragmentConfigError.
+                    newInstance(getString(R.string.title_error), ex.getMessage());
+            message.show(getSupportFragmentManager(), null);
         }
     }
 }

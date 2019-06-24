@@ -72,15 +72,16 @@ import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.AddedAppKeyAdapter;
-import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationComplete;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFilterAddAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProxySet;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.AddedAppKeyAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 
@@ -207,8 +208,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         actionGetCompositionData.setOnClickListener(v -> {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
-            mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configCompositionDataGet);
             showProgressbar();
+            sendMessage(node.getUnicastAddress(), configCompositionDataGet);
         });
 
         actionAddAppkey.setOnClickListener(v -> {
@@ -220,7 +221,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         actionGetProxyState.setOnClickListener(v -> {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final ConfigProxyGet configProxyGet = new ConfigProxyGet();
-            mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configProxyGet);
+            sendMessage(node.getUnicastAddress(), configProxyGet);
         });
 
         actionSetProxyState.setOnClickListener(v -> {
@@ -283,10 +284,10 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 if (appKey != null) {
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
                     if (node != null) {
-                        showProgressbar();
                         final NetworkKey networkKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getPrimaryNetworkKey();
                         final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
-                        mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configAppKeyAdd);
+                        showProgressbar();
+                        sendMessage(node.getUnicastAddress(), configAppKeyAdd);
                     }
                 }
             }
@@ -332,7 +333,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             if (node != null) {
                 final ConfigNodeReset configNodeReset = new ConfigNodeReset();
-                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configNodeReset);
+                sendMessage(node.getUnicastAddress(), configNodeReset);
             }
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
@@ -345,8 +346,15 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             if (node != null) {
                 final ConfigProxySet configProxySet = new ConfigProxySet(state);
-                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configProxySet);
-                mRequestedState = state == 1;
+                try {
+                    mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configProxySet);
+                    mRequestedState = state == 1;
+                } catch (IllegalArgumentException ex) {
+                    mRequestedState = true;
+                    final DialogFragmentConfigError message = DialogFragmentConfigError.
+                            newInstance(getString(R.string.title_error), ex.getMessage());
+                    message.show(getSupportFragmentManager(), null);
+                }
             }
         } catch (Exception ex) {
             Log.e(TAG, ex.getMessage());
@@ -450,11 +458,22 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @Override
     public void addAddresses(final List<AddressArray> addresses) {
         final ProxyConfigAddAddressToFilter addAddressToFilter = new ProxyConfigAddAddressToFilter(addresses);
-        mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, addAddressToFilter);
+        sendMessage(MeshAddress.UNASSIGNED_ADDRESS, addAddressToFilter);
     }
 
     @Override
     public void onConfigurationCompleted() {
         //Do nothing
+    }
+
+    private void sendMessage(final int address, final MeshMessage meshMessage) {
+        try {
+            mViewModel.getMeshManagerApi().createMeshPdu(address, meshMessage);
+        } catch (IllegalArgumentException ex) {
+            hideProgressBar();
+            final DialogFragmentConfigError message = DialogFragmentConfigError.
+                    newInstance(getString(R.string.title_error), ex.getMessage());
+            message.show(getSupportFragmentManager(), null);
+        }
     }
 }

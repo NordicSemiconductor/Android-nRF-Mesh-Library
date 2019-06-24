@@ -1,8 +1,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.node;
 
-import androidx.lifecycle.ViewModelProvider;
 import android.os.Bundle;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +11,8 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.ViewModelProvider;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
@@ -202,7 +202,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
      */
     public void sendGenericOnOffGet() {
         final Element element = mViewModel.getSelectedElement().getValue();
-        if(element != null) {
+        if (element != null) {
             final MeshModel model = mViewModel.getSelectedModel().getValue();
             if (model != null) {
                 if (!model.getBoundAppKeyIndexes().isEmpty()) {
@@ -213,8 +213,8 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                     Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
 
                     final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey);
-                    mViewModel.getMeshManagerApi().createMeshPdu(address, genericOnOffSet);
                     showProgressbar();
+                    sendMessage(address, genericOnOffSet);
                 } else {
                     Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
                 }
@@ -230,7 +230,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
      */
     public void sendGenericOnOff(final boolean state, final Integer delay) {
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
-        if(node != null) {
+        if (node != null) {
             final Element element = mViewModel.getSelectedElement().getValue();
             if (element != null) {
                 final MeshModel model = mViewModel.getSelectedModel().getValue();
@@ -239,9 +239,10 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                         final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
                         final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
-                        final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state, node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
-                        mViewModel.getMeshManagerApi().createMeshPdu(address, genericOnOffSet);
+                        final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state,
+                                node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
                         showProgressbar();
+                        sendMessage(address, genericOnOffSet);
                     } else {
                         Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
                     }

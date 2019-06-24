@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
@@ -195,21 +196,19 @@ abstract class NetworkLayer extends LowerTransportLayer {
 
         byte[] encryptedNetworkPayload = null;
         final int pduType = message.getPduType();
-        switch (message.getPduType()) {
-            case MeshManagerApi.PDU_TYPE_NETWORK:
-                final byte[] lowerTransportPdu = lowerTransportPduMap.get(segment);
-                final int sequenceNumber = incrementSequenceNumber(message.getSrc(), message.getSequenceNumber());
-                final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
-                message.setSequenceNumber(sequenceNum);
+        if (message.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
+            final byte[] lowerTransportPdu = lowerTransportPduMap.get(segment);
+            final int sequenceNumber = incrementSequenceNumber(message.getSrc(), message.getSequenceNumber());
+            final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
+            message.setSequenceNumber(sequenceNum);
 
-                Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNum, false));
+            Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNum, false));
 
-                final byte[] nonce = createNetworkNonce(ctlTTL, sequenceNum, src, message.getIvIndex());
-                encryptedNetworkPayload = encryptPdu(lowerTransportPdu, encryptionKey, nonce, message.getDst(), SecureUtils.getNetMicLength(message.getCtl()));
-                if (encryptedNetworkPayload == null)
-                    return null;
-                Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedNetworkPayload, false));
-                break;
+            final byte[] nonce = createNetworkNonce(ctlTTL, sequenceNum, src, message.getIvIndex());
+            encryptedNetworkPayload = encryptPdu(lowerTransportPdu, encryptionKey, nonce, message.getDst(), SecureUtils.getNetMicLength(message.getCtl()));
+            if (encryptedNetworkPayload == null)
+                return null;
+            Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedNetworkPayload, false));
         }
 
         final SparseArray<byte[]> pduArray = new SparseArray<>();
@@ -358,7 +357,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param sequenceNumber          Sequence number of the received message
      * @return a complete {@link ControlMessage} or null if the message was unable to parsed
      */
-    private ControlMessage parseControlMessage(final int provisionerAddress,
+    private ControlMessage parseControlMessage(@Nullable final Integer provisionerAddress,
                                                @NonNull final byte[] data,
                                                @NonNull final byte[] networkHeader,
                                                @NonNull final byte[] decryptedNetworkPayload,
@@ -380,6 +379,12 @@ abstract class NetworkLayer extends LowerTransportLayer {
             final int pduType = data[0];
             switch (pduType) {
                 case MeshManagerApi.PDU_TYPE_NETWORK:
+
+                    //This is not possible however let's return null
+                    if (provisionerAddress == null) {
+                        return null;
+                    }
+
                     //Check if the message is directed to us, if its not ignore the message
                     if (provisionerAddress != dst) {
                         Log.v(TAG, "Received a control message that was not directed to us, so we drop it");
