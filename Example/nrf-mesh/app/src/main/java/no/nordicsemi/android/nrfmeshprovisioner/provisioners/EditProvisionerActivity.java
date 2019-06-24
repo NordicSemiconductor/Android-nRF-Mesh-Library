@@ -46,6 +46,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerName;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentUnassign;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RangeView;
@@ -53,7 +54,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RangeView;
 public class EditProvisionerActivity extends AppCompatActivity implements Injectable,
         DialogFragmentProvisionerName.DialogFragmentProvisionerNameListener,
         DialogFragmentTtl.DialogFragmentTtlListener,
-        DialogFragmentProvisionerAddress.DialogFragmentAddressListener {
+        DialogFragmentProvisionerAddress.DialogFragmentAddressListener,
+        DialogFragmentUnassign.DialogFragmentUnassignListener {
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -64,6 +66,7 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
     private RangeView unicastRangeView;
     private RangeView groupRangeView;
     private RangeView sceneRangeView;
+
 
     private EditProvisionerViewModel mViewModel;
     private Provisioner mProvisioner;
@@ -216,11 +219,32 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
             mProvisioner.setProvisionerAddress(sourceAddress);
             final Provisioner provisioner = mProvisioner;
             if (save(provisioner)) {
-                provisionerUnicast.setText(MeshAddress.formatAddress(mProvisioner.getProvisionerAddress(), true));
+                provisionerUnicast.setText(MeshAddress.formatAddress(sourceAddress, true));
                 return true;
             }
         }
         return false;
+    }
+
+    @Override
+    public void unassignProvisioner() {
+        if (mProvisioner != null) {
+            final DialogFragmentUnassign fragmentUnassign = DialogFragmentUnassign
+                    .newInstance(getString(R.string.title_unassign_provisioner), getString(R.string.summary_unassign_provisioner));
+            fragmentUnassign.show(getSupportFragmentManager(), null);
+        }
+    }
+
+    @Override
+    public void onProvisionerUnassigned() {
+        if (mProvisioner != null) {
+            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+            if (network != null) {
+                provisionerUnicast.setText(R.string.unicast_address_unassigned);
+                mProvisioner.setProvisionerAddress(null);
+                network.disableConfigurationCapabilities(mProvisioner);
+            }
+        }
     }
 
     @Override
@@ -238,8 +262,8 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
 
     private void updateUi(@NonNull final Provisioner provisioner) {
         provisionerName.setText(provisioner.getProvisionerName());
-        if (provisioner.getProvisionerAddress() == 0) {
-            provisionerUnicast.setText(R.string.not_assigned);
+        if (provisioner.getProvisionerAddress() == null) {
+            provisionerUnicast.setText(R.string.unicast_address_unassigned);
         } else {
             provisionerUnicast.setText(MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true));
         }
@@ -273,6 +297,9 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
         if (network != null) {
             try {
                 return network.updateProvisioner(mProvisioner);
+//                } else {
+//                    return network.disableConfigurationCapabilities(mProvisioner);
+//                }
             } catch (IllegalArgumentException ex) {
                 final DialogFragmentConfigError fragment = DialogFragmentConfigError.
                         newInstance(getString(R.string.title_error), ex.getMessage());

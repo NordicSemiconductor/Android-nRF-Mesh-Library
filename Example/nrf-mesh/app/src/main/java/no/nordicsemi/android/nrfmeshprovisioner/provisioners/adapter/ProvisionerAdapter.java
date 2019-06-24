@@ -26,13 +26,11 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -53,10 +51,6 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     private final List<Provisioner> mProvisioners = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
-    private int selectedPosition = -1;
-    private boolean isLongPressed;
-    private final Comparator<Provisioner> comparator = (p1, p2) ->
-            Integer.compare(p1.getProvisionerAddress(), p2.getProvisionerAddress());
 
     public ProvisionerAdapter(@NonNull final Context context, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
         this.mContext = context;
@@ -67,7 +61,6 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
             mProvisioners.addAll(provisioners);
             final Provisioner provisioner = network.getSelectedProvisioner();
             mProvisioners.remove(provisioner);
-            Collections.sort(mProvisioners, comparator);
             notifyDataSetChanged();
         });
     }
@@ -87,14 +80,15 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     public void onBindViewHolder(@NonNull final ProvisionerAdapter.ViewHolder holder, final int position) {
         final Provisioner provisioner = mProvisioners.get(position);
         holder.provisionerName.setText(provisioner.getProvisionerName());
-        holder.provisionerSummary.setText(mContext.getString(R.string.unicast_address,
-                MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true)));
-
-        if (selectedPosition == position) {
-            holder.selectContainer.setVisibility(View.VISIBLE);
+        if (provisioner.getProvisionerAddress() == null) {
+            holder.provisionerSummary.setText(mContext.getString(R.string.unicast_address,
+                    mContext.getString(R.string.address_unassigned)));
         } else {
-            holder.selectContainer.setVisibility(View.GONE);
+            holder.provisionerSummary.setText(mContext.getString(R.string.unicast_address,
+                    MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true)));
         }
+
+        holder.action_current.setOnClickListener(v -> mOnItemClickListener.onItemSelected(position, provisioner));
     }
 
     @Override
@@ -115,27 +109,11 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
         return mProvisioners.get(position);
     }
 
-    public void setSelectedPosition(final int position) {
-        selectedPosition = position;
-    }
-
-    public void hideSelection(final int position) {
-        selectedPosition = -1;
-        isLongPressed = false;
-        notifyItemChanged(position);
-    }
-
-
-    //@FunctionalInterface
     public interface OnItemClickListener {
 
         void onItemClick(final int position, @NonNull final Provisioner provisioner);
 
-        void onItemLongClick(final int position, @NonNull final Provisioner provisioner);
-
         void onItemSelected(final int position, @NonNull final Provisioner provisioner);
-
-        void onItemDeselected();
     }
 
     final class ViewHolder extends RemovableViewHolder {
@@ -146,12 +124,8 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
         TextView provisionerName;
         @BindView(R.id.subtitle)
         TextView provisionerSummary;
-        @BindView(R.id.select_container)
-        View selectContainer;
-        @BindView(R.id.action_yes)
-        Button actionYes;
-        @BindView(R.id.action_no)
-        Button actionNo;
+        @BindView(R.id.action_current)
+        ImageButton action_current;
 
         private ViewHolder(final View view) {
             super(view);
@@ -159,42 +133,9 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
             icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_account_key_black_alpha_24dp));
 
             view.findViewById(R.id.removable).setOnClickListener(v -> {
-                if (!isLongPressed)
-                    if (mOnItemClickListener != null) {
-                        final Provisioner provisioner = mProvisioners.get(getAdapterPosition());
-                        mOnItemClickListener.onItemClick(getAdapterPosition(), provisioner);
-                    }
-            });
-
-            view.findViewById(R.id.removable).setOnLongClickListener(v -> {
-                if (!isLongPressed) {
-                    isLongPressed = true;
-                    if (mOnItemClickListener != null) {
-                        selectContainer.setVisibility(View.VISIBLE);
-                        selectedPosition = getAdapterPosition();
-                        final Provisioner provisioner = mProvisioners.get(selectedPosition);
-                        mOnItemClickListener.onItemLongClick(getAdapterPosition(), provisioner);
-                    }
-                }
-                return true;
-            });
-
-            actionYes.setOnClickListener(v -> {
-                isLongPressed = false;
                 if (mOnItemClickListener != null) {
-                    selectedPosition = -1;
-                    selectContainer.setVisibility(View.GONE);
                     final Provisioner provisioner = mProvisioners.get(getAdapterPosition());
-                    mOnItemClickListener.onItemSelected(getAdapterPosition(), provisioner);
-                }
-            });
-
-            actionNo.setOnClickListener(v -> {
-                isLongPressed = false;
-                if (mOnItemClickListener != null) {
-                    selectedPosition = -1;
-                    selectContainer.setVisibility(View.GONE);
-                    mOnItemClickListener.onItemDeselected();
+                    mOnItemClickListener.onItemClick(getAdapterPosition(), provisioner);
                 }
             });
         }

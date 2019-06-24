@@ -161,6 +161,7 @@
     <string name="network_settings">Network Settings</string>
     <string name="title_net_keys">Network Keys</string>
     <string name="unicast_address">Unicast Address: %s</string>
+    <string name="unicast_address_unassigned">Unicast Address: Unassigned</string>
 
     <string name="title_node_name">Node name</string>
     <string name="summary_name">Name</string>
@@ -492,7 +493,10 @@
     <string name="first_scene">First Scene</string>
     <string name="last_scene">Last Scene</string>
     <string name="automatic">Automatic</string>
-    <string name="make_current_provisioner">Make current provisioner?</string>
+    <string name="action_unassign">Unassign</string>
+    <string name="address_unassigned">Unassigned</string>
     <string name="action_add_node">Add Node</string>
     <string name="action_create_group">Create Group</string>
+    <string name="title_unassign_provisioner">Unassign Provisioner</string>
+    <string name="summary_unassign_provisioner">Unassigning a provisioner will disable its configuration capabilities and delete the corresponding node.</string>
 </resources>

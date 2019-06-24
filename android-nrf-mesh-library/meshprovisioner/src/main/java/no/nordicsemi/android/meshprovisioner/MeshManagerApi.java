@@ -457,7 +457,7 @@ public class MeshManagerApi implements MeshMngrApi {
                 mMeshNetwork.getPrimaryNetworkKey(),
                 mMeshNetwork.getProvisioningFlags(),
                 mMeshNetwork.getIvIndex(),
-                mMeshNetwork.getGlobalTtl(), mMeshNetwork.getProvisionerAddress(), MeshProvisioningHandler.ATTENTION_TIMER);
+                mMeshNetwork.getGlobalTtl(), MeshProvisioningHandler.ATTENTION_TIMER);
     }
 
     @Override
@@ -468,7 +468,7 @@ public class MeshManagerApi implements MeshMngrApi {
                 mMeshNetwork.getPrimaryNetworkKey(),
                 mMeshNetwork.getProvisioningFlags(),
                 mMeshNetwork.getIvIndex(),
-                mMeshNetwork.getGlobalTtl(), mMeshNetwork.getProvisionerAddress(), attentionTimer);
+                mMeshNetwork.getGlobalTtl(), attentionTimer);
     }
 
     @Override
@@ -692,7 +692,11 @@ public class MeshManagerApi implements MeshMngrApi {
         network.selectProvisioner(provisioner);
         network.addProvisioner(provisioner);
         final ProvisionedMeshNode node = network.getNode(unicast);
-        network.unicastAddress = node.getUnicastAddress() + (node.getNumberOfElements() - 1);
+        if (node != null) {
+            network.unicastAddress = node.getUnicastAddress() + (node.getNumberOfElements() - 1);
+        } else {
+            network.unicastAddress = 1;
+        }
         network.lastSelected = true;
 
         return network;
@@ -730,7 +734,12 @@ public class MeshManagerApi implements MeshMngrApi {
         if (!MeshAddress.isAddressInRange(dst)) {
             throw new IllegalArgumentException("Invalid address, destination address must be a valid 16-bit value!");
         }
-        mMeshMessageHandler.createMeshMessage(mMeshNetwork.getSelectedProvisioner().getProvisionerAddress(), dst, meshMessage);
+        final Provisioner provisioner = mMeshNetwork.getSelectedProvisioner();
+        if (provisioner != null && provisioner.getProvisionerAddress() != null) {
+            mMeshMessageHandler.createMeshMessage(provisioner.getProvisionerAddress(), dst, meshMessage);
+        } else {
+            throw new IllegalArgumentException("Provisioner not set, Please assign a address to the provisioner!");
+        }
     }
 
     @Override

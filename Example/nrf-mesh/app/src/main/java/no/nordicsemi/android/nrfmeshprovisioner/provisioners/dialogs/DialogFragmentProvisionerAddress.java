@@ -32,6 +32,7 @@ import android.text.TextWatcher;
 import android.text.method.KeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
@@ -40,6 +41,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,13 +60,15 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
     @BindView(R.id.text_input)
     TextInputEditText unicastAddressInput;
 
-    private int mUnicastAddress;
+    private Integer mUnicastAddress = null;
 
-    public static DialogFragmentProvisionerAddress newInstance(final int unicastAddress) {
-        DialogFragmentProvisionerAddress fragmentIvIndex = new DialogFragmentProvisionerAddress();
-        final Bundle args = new Bundle();
-        args.putInt(UNICAST_ADDRESS, unicastAddress);
-        fragmentIvIndex.setArguments(args);
+    public static DialogFragmentProvisionerAddress newInstance(@Nullable final Integer unicastAddress) {
+        final DialogFragmentProvisionerAddress fragmentIvIndex = new DialogFragmentProvisionerAddress();
+        if (unicastAddress != null) {
+            final Bundle args = new Bundle();
+            args.putInt(UNICAST_ADDRESS, unicastAddress);
+            fragmentIvIndex.setArguments(args);
+        }
         return fragmentIvIndex;
     }
 
@@ -87,7 +91,7 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
 
         final KeyListener hexKeyListener = new HexKeyListener();
         unicastAddressInputLayout.setHint(getString((R.string.hint_unicast_address)));
-        if (MeshAddress.isValidUnicastAddress(mUnicastAddress)) {
+        if (mUnicastAddress != null && MeshAddress.isValidUnicastAddress(mUnicastAddress)) {
             final String unicastAddress = MeshAddress.formatAddress(mUnicastAddress, false);
             unicastAddressInput.setText(unicastAddress);
             unicastAddressInput.setSelection(unicastAddress.length());
@@ -119,6 +123,7 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
                 .setIcon(R.drawable.ic_lan_black_alpha_24dp)
                 .setTitle(R.string.title_provisioner_address)
                 .setPositiveButton(R.string.ok, null)
+                .setNeutralButton(R.string.action_unassign, null)
                 .setNegativeButton(R.string.cancel, null);
 
         summary.setText(R.string.dialog_summary_src);
@@ -134,6 +139,13 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
                 } catch (IllegalArgumentException ex) {
                     unicastAddressInputLayout.setError(ex.getMessage());
                 }
+        });
+
+        final Button unassign = alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL);
+        unassign.setTextColor(ContextCompat.getColor(requireContext(), R.color.nordicRed));
+        unassign.setOnClickListener(v -> {
+            dismiss();
+            ((DialogFragmentAddressListener) requireActivity()).unassignProvisioner();
         });
 
         return alertDialog;
@@ -157,5 +169,6 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
 
         boolean setAddress(final int sourceAddress);
 
+        void unassignProvisioner();
     }
 }

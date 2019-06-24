@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -74,7 +75,7 @@ public class Provisioner implements Parcelable {
 
     @ColumnInfo(name = "provisioner_address")
     @Expose
-    private int provisionerAddress;
+    private Integer provisionerAddress = null;
 
     @ColumnInfo(name = "global_ttl")
     @Expose
@@ -249,7 +250,8 @@ public class Provisioner implements Parcelable {
         this.sequenceNumber = sequenceNumber;
     }
 
-    public int getProvisionerAddress() {
+    @Nullable
+    public Integer getProvisionerAddress() {
         return provisionerAddress;
     }
 
@@ -258,15 +260,22 @@ public class Provisioner implements Parcelable {
      *
      * @param address address of the provisioner
      */
-    public void setProvisionerAddress(final int address) throws IllegalArgumentException {
-        /*if (!MeshAddress.isValidUnicastAddress(address)) {
+    public void setProvisionerAddress(@Nullable final Integer address) throws IllegalArgumentException {
+        if (address != null && !MeshAddress.isValidUnicastAddress(address)) {
             throw new IllegalArgumentException("Unicast address must range between 0x0001 to 0x7FFF");
-        }*/
+        }
         this.provisionerAddress = address;
     }
 
     public int getGlobalTtl() {
         return globalTtl;
+    }
+
+    /**
+     * Returns true if the provisioner is allowed to configure the network
+     */
+    public boolean supportsConfiguration() {
+        return provisionerAddress != null;
     }
 
     /**
@@ -370,7 +379,10 @@ public class Provisioner implements Parcelable {
      * @throws IllegalArgumentException if address is invalid or out of range
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    boolean isAddressWithinAllocatedRange(final int address) throws IllegalArgumentException {
+    boolean isAddressWithinAllocatedRange(final Integer address) throws IllegalArgumentException {
+        if (address == null)
+            return true;
+
         if (!MeshAddress.isValidUnicastAddress(address)) {
             throw new IllegalArgumentException("Unicast address must range from 0x0001 - 0x7FFF");
         }
@@ -416,6 +428,9 @@ public class Provisioner implements Parcelable {
     }
 
     boolean isNodeAddressInUse(@NonNull final List<ProvisionedMeshNode> nodes) {
+        if(provisionerAddress == null)
+            return false;
+
         for (ProvisionedMeshNode node : nodes) {
             if (!node.getUuid().equalsIgnoreCase(provisionerUuid)) {
                 if (node.getUnicastAddress() == provisionerAddress) {

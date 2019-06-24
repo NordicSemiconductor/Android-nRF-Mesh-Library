@@ -236,6 +236,11 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
     }
 
     @Override
+    public void unassignProvisioner() {
+
+    }
+
+    @Override
     public boolean setGlobalTtl(final int ttl) {
         if (mProvisioner != null) {
             mProvisioner.setGlobalTtl(ttl);
@@ -246,7 +251,7 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
 
     private void updateUi() {
         provisionerName.setText(mProvisioner.getProvisionerName());
-        if (mProvisioner.getProvisionerAddress() == 0) {
+        if (mProvisioner.getProvisionerAddress() == null) {
             provisionerUnicast.setText(R.string.not_assigned);
         } else {
             provisionerUnicast.setText(MeshAddress.formatAddress(mProvisioner.getProvisionerAddress(), true));

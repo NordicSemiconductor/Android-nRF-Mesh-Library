@@ -118,7 +118,9 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         for (ApplicationKey key : appKeys) {
             mAddedAppKeyIndexes.add(key.getKeyIndex());
         }
-        unicastAddress = provisioner.getProvisionerAddress();
+        if (provisioner.getProvisionerAddress() != null)
+            unicastAddress = provisioner.getProvisionerAddress();
+
         deviceKey = SecureUtils.generateRandomNumber();
         ttl = provisioner.getGlobalTtl();
         mTimeStampInMillis = System.currentTimeMillis();

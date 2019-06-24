@@ -63,10 +63,6 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
         ProvisionerAdapter.OnItemClickListener,
         ItemTouchHelperAdapter {
 
-    private static final String LONG_PRESSED = "LONG_PRESSED";
-    private static final String POSITION = "POSITION";
-    private static final String PROVISIONER = "PROVISIONER";
-
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
@@ -84,10 +80,6 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
 
     private ProvisionersViewModel mViewModel;
     private ProvisionerAdapter mAdapter;
-    private boolean isLongPressed;
-    private int position;
-    private Provisioner provisioner;
-    private ItemTouchHelper mItemTouchHelper;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -116,7 +108,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
         mRecyclerView.setItemAnimator(null);
 
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
-        mItemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
+        final ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
         mAdapter = new ProvisionerAdapter(this, mViewModel.getMeshNetworkLiveData());
         mAdapter.setOnItemClickListener(this);
@@ -127,10 +119,15 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
             if (network != null) {
                 final Provisioner provisioner = network.getSelectedProvisioner();
                 provisionerTitle.setText(provisioner.getProvisionerName());
-                if (MeshAddress.isValidUnicastAddress(provisioner.getProvisionerAddress())) {
-                    provisionerView.setText(getString(R.string.unicast_address, MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true)));
+                if (provisioner.getProvisionerAddress() == null) {
+                    provisionerView.setText(R.string.unicast_address_unassigned);
                 } else {
-                    provisionerView.setText(R.string.not_assigned);
+                    if (MeshAddress.isValidUnicastAddress(provisioner.getProvisionerAddress())) {
+                        provisionerView.setText(getString(R.string.unicast_address,
+                                MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true)));
+                    } else {
+                        provisionerView.setText(R.string.unicast_address_unassigned);
+                    }
                 }
 
                 if (network.getProvisioners().size() > 1) {
@@ -142,14 +139,12 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
         });
 
         containerProvisioner.setOnClickListener(v -> {
-            if (!isLongPressed) {
-                final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-                if (network != null) {
-                    final Provisioner provisioner = network.getSelectedProvisioner();
-                    mViewModel.setSelectedProvisioner(provisioner);
-                    final Intent intent = new Intent(this, EditProvisionerActivity.class);
-                    startActivity(intent);
-                }
+            final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+            if (network != null) {
+                final Provisioner provisioner = network.getSelectedProvisioner();
+                mViewModel.setSelectedProvisioner(provisioner);
+                final Intent intent = new Intent(this, EditProvisionerActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -182,50 +177,10 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
     }
 
     @Override
-    public void onBackPressed() {
-        if (!isLongPressed) {
-            super.onBackPressed();
-        } else {
-            mAdapter.hideSelection(position);
-            onItemDeselected();
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull final Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (isLongPressed) {
-            outState.putBoolean(LONG_PRESSED, true);
-            outState.putInt(POSITION, position);
-            outState.putParcelable(PROVISIONER, provisioner);
-        }
-    }
-
-    @Override
-    protected void onRestoreInstanceState(final Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        isLongPressed = savedInstanceState.getBoolean(LONG_PRESSED);
-        if (isLongPressed) {
-            position = savedInstanceState.getInt(POSITION);
-            provisioner = savedInstanceState.getParcelable(PROVISIONER);
-            highlightToolbar();
-            mAdapter.setSelectedPosition(position);
-        }
-    }
-
-    @Override
     public void onItemClick(final int position, @NonNull final Provisioner provisioner) {
         mViewModel.setSelectedProvisioner(provisioner);
         final Intent intent = new Intent(this, EditProvisionerActivity.class);
         startActivity(intent);
-    }
-
-    @Override
-    public void onItemLongClick(final int position, @NonNull final Provisioner provisioner) {
-        isLongPressed = true;
-        this.position = position;
-        mItemTouchHelper.attachToRecyclerView(null);
-        highlightToolbar();
     }
 
     @Override
@@ -234,14 +189,6 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
         if (network != null) {
             network.selectProvisioner(provisioner);
         }
-    }
-
-    @Override
-    public void onItemDeselected() {
-        isLongPressed = false;
-        provisioner = null;
-        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
-        highlightToolbar();
     }
 
     @Override
@@ -281,13 +228,5 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
     private void displaySnackBar(final String message) {
         Snackbar.make(container, message, Snackbar.LENGTH_LONG)
                 .show();
-    }
-
-    private void highlightToolbar() {
-        if (isLongPressed) {
-            mToolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.nordicMediumGray));
-        } else {
-            mToolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
-        }
     }
 }

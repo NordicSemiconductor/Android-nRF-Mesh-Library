@@ -499,7 +499,8 @@ abstract class BaseMeshNetwork {
         return false;
     }
 
-    public int getProvisionerAddress() {
+    @Nullable
+    public Integer getProvisionerAddress() {
         return getSelectedProvisioner().getProvisionerAddress();
     }
 
@@ -582,7 +583,10 @@ abstract class BaseMeshNetwork {
         return -1;
     }
 
-    private boolean isAddressInUse(final int address) {
+    private boolean isAddressInUse(@Nullable final Integer address) {
+        if (address == null)
+            return false;
+
         for (ProvisionedMeshNode node : nodes) {
             if (address == node.getUnicastAddress()) {
                 return true;
@@ -624,12 +628,12 @@ abstract class BaseMeshNetwork {
      */
     public Provisioner createProvisioner() {
         final List<AllocatedUnicastRange> unicastRange = new ArrayList();
-        final AllocatedUnicastRange range1 = new AllocatedUnicastRange(0x0100, 0x1500);
+        final AllocatedUnicastRange range1 = new AllocatedUnicastRange(0x0001, 0x1000);
         unicastRange.add(range1);
         final List<AllocatedGroupRange> groupRange = new ArrayList();
-        groupRange.add(new AllocatedGroupRange(0xC000, 0xFEFF));
+        groupRange.add(new AllocatedGroupRange(0xC000, 0xC0FF));
         final List<AllocatedSceneRange> sceneRange = new ArrayList();
-        sceneRange.add(new AllocatedSceneRange(0x0001, 0xFFFF));
+        sceneRange.add(new AllocatedSceneRange(0x0001, 0x1000));
         return new Provisioner(UUID.randomUUID().toString(),
                 unicastRange, groupRange, sceneRange, meshUUID);
     }
@@ -673,9 +677,11 @@ abstract class BaseMeshNetwork {
         provisioner.setProvisionerAddress(provisioner.getProvisionerAddress());
         provisioners.add(provisioner);
         notifyProvisionerAdded(provisioner);
-        final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
-        nodes.add(node);
-        notifyNodeAdded(node);
+        if (provisioner.getProvisionerAddress() != null) {
+            final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
+            nodes.add(node);
+            notifyNodeAdded(node);
+        }
         return true;
     }
 
@@ -710,8 +716,10 @@ abstract class BaseMeshNetwork {
 
         for (ProvisionedMeshNode node : nodes) {
             if (!node.getUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
-                if (node.getUnicastAddress() == provisioner.getProvisionerAddress()) {
-                    throw new IllegalArgumentException("Unicast address is in use by another node");
+                if (provisioner.getProvisionerAddress() != null) {
+                    if (node.getUnicastAddress() == provisioner.getProvisionerAddress()) {
+                        throw new IllegalArgumentException("Unicast address is in use by another node");
+                    }
                 }
             }
         }
@@ -729,14 +737,40 @@ abstract class BaseMeshNetwork {
             }
         }
         if (flag) {
-            for (int i = 0; i < nodes.size(); i++) {
-                if (nodes.get(i).getUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
-                    final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
-                    nodes.set(i, node);
-                    notifyNodeUpdated(node);
-                    break;
+            if (provisioner.getProvisionerAddress() != null) {
+                ProvisionedMeshNode node = getNode(provisioner.getProvisionerUuid());
+                if (node == null) {
+                    node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
+                    nodes.add(node);
+                    notifyNodeAdded(node);
+                } else {
+                    for (int i = 0; i < nodes.size(); i++) {
+                        if (nodes.get(i).getUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
+                            node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
+                            nodes.set(i, node);
+                            notifyNodeUpdated(node);
+                            break;
+                        }
+                    }
                 }
             }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Update provisioner
+     *
+     * @param provisioner {@link Provisioner}
+     * @return returns true if updated and false otherwise
+     */
+    public boolean disableConfigurationCapabilities(@NonNull final Provisioner provisioner) {
+        final ProvisionedMeshNode node = getNode(provisioner.getProvisionerUuid());
+        if(node == null)
+            return true;
+        else if (nodes.remove(node)) {
+            notifyNodeDeleted(node);
             return true;
         }
         return false;
@@ -751,10 +785,12 @@ abstract class BaseMeshNetwork {
     public boolean removeProvisioner(@NonNull final Provisioner provisioner) {
         if (provisioners.remove(provisioner)) {
             notifyProvisionerDeleted(provisioner);
-            final ProvisionedMeshNode node = getNode(provisioner.getProvisionerAddress());
-            if (node != null) {
-                deleteNode(node);
-                notifyNodeDeleted(node);
+            if (provisioner.getProvisionerAddress() != null) {
+                final ProvisionedMeshNode node = getNode(provisioner.getProvisionerAddress());
+                if (node != null) {
+                    deleteNode(node);
+                    notifyNodeDeleted(node);
+                }
             }
             return true;
         }
@@ -857,6 +893,20 @@ abstract class BaseMeshNetwork {
     public ProvisionedMeshNode getNode(final int unicastAddress) {
         for (ProvisionedMeshNode node : nodes) {
             if (node.hasUnicastAddress(unicastAddress)) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the mesh node with the corresponding unicast address
+     *
+     * @param uuid unicast address of the node
+     */
+    public ProvisionedMeshNode getNode(final String uuid) {
+        for (ProvisionedMeshNode node : nodes) {
+            if (node.getUuid().equalsIgnoreCase(uuid)) {
                 return node;
             }
         }

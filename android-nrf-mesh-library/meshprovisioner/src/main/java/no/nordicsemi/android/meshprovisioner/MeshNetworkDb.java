@@ -44,7 +44,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
         ProvisionedMeshNode.class,
         Group.class,
         Scene.class},
-        version = 4)
+        version = 5)
 abstract class MeshNetworkDb extends RoomDatabase {
 
     abstract MeshNetworkDao meshNetworkDao();
@@ -83,6 +83,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                             .addMigrations(MIGRATION_1_2)
                             .addMigrations(MIGRATION_2_3)
                             .addMigrations(MIGRATION_3_4)
+                            .addMigrations(MIGRATION_4_5)
                             .build();
                 }
 
@@ -690,6 +691,13 @@ abstract class MeshNetworkDb extends RoomDatabase {
         }
     };
 
+    private static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            migrateProvisioner4_5(database);
+        }
+    };
+
     private static void migrateMeshNetwork(final SupportSQLiteDatabase database) {
         database.execSQL("CREATE TABLE `mesh_network_temp` " +
                 "(`mesh_uuid` TEXT NOT NULL, " +
@@ -940,5 +948,47 @@ abstract class MeshNetworkDb extends RoomDatabase {
         database.execSQL("DROP TABLE nodes");
         database.execSQL("ALTER TABLE nodes_temp RENAME TO nodes");
         database.execSQL("CREATE INDEX index_nodes_mesh_uuid ON `nodes` (mesh_uuid)");
+    }
+
+    private static void migrateProvisioner4_5(final SupportSQLiteDatabase database) {
+        database.execSQL("CREATE TABLE `provisioner_temp` " +
+                "(`mesh_uuid` TEXT NOT NULL, " +
+                "`provisioner_uuid` TEXT NOT NULL, " +
+                "`name` TEXT, " +
+                "`allocatedGroupRanges` TEXT, " +
+                "`allocatedUnicastRanges` TEXT, " +
+                "`allocatedSceneRanges` TEXT, " +
+                "`sequence_number` INTEGER NOT NULL, " +
+                "`provisioner_address` INTEGER," +
+                "`global_ttl` INTEGER NOT NULL, " +
+                "`last_selected` INTEGER NOT NULL, PRIMARY KEY(`provisioner_uuid`), " +
+                "FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )");
+
+        database.execSQL(
+                "INSERT INTO provisioner_temp (mesh_uuid, provisioner_uuid, name, allocatedGroupRanges, allocatedUnicastRanges, " +
+                        "allocatedSceneRanges, sequence_number, global_ttl, last_selected) " +
+                        "SELECT mesh_uuid, provisioner_uuid, name, allocatedGroupRanges, allocatedUnicastRanges," +
+                        " allocatedSceneRanges, sequence_number, global_ttl, last_selected FROM provisioner");
+
+        final Cursor cursor = database.query("SELECT * FROM provisioner");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                final String uuid = cursor.getString(cursor.getColumnIndex("provisioner_uuid"));
+                final int unicast = cursor.getInt(cursor.getColumnIndex("provisioner_address"));
+                final ContentValues values = new ContentValues();
+                if (unicast == 0) {
+                    final Integer t = null;
+                    values.put("provisioner_address", t);
+                } else {
+                    values.put("provisioner_address", unicast);
+                }
+                database.update("provisioner_temp", SQLiteDatabase.CONFLICT_REPLACE, values, "provisioner_uuid = ?", new String[]{uuid});
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        database.execSQL("DROP TABLE provisioner");
+        database.execSQL("ALTER TABLE provisioner_temp RENAME TO provisioner");
+        database.execSQL("CREATE INDEX index_provisioner_mesh_uuid ON `provisioner` (mesh_uuid)");
     }
 }

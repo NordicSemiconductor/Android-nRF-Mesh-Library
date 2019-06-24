@@ -209,7 +209,6 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
      * @param flags              Flag containing the key refresh or the iv update operations
      * @param ivIndex            32-bit value shared across the network
      * @param globalTtl          Global ttl which is also the number of hops to be used for a message
-     * @param provisionerAddress Address of the provisioner
      * @return {@link MeshModel} to be provisioned
      */
     private UnprovisionedMeshNode initializeMeshNode(@NonNull final UUID uuid,
@@ -217,8 +216,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                                                      @NonNull final NetworkKey networkKey,
                                                      final int flags,
                                                      final int ivIndex,
-                                                     final int globalTtl,
-                                                     final int provisionerAddress) throws IllegalArgumentException {
+                                                     final int globalTtl) throws IllegalArgumentException {
         UnprovisionedMeshNode unprovisionedMeshNode = null;
 
         if (validateProvisioningDataInput(networkKey, flags, ivIndex)) {
@@ -236,7 +234,6 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
             unprovisionedMeshNode.setFlags(flagBytes);
             unprovisionedMeshNode.setIvIndex(ivIndexBytes);
             unprovisionedMeshNode.setTtl(globalTtl);
-            unprovisionedMeshNode.setConfigurationSrc(provisionerAddress);
             mUnprovisionedMeshNode = unprovisionedMeshNode;
         }
         return unprovisionedMeshNode;
@@ -281,7 +278,6 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
      * @param flags              Flag containing the key refresh or the iv update operations
      * @param ivIndex            32-bit value shared across the network
      * @param globalTtl          Global ttl which is also the number of hops to be used for a message
-     * @param provisionerAddress Address of the provisioner
      * @param attentionTimer     Attention timer
      */
     void identify(@NonNull final UUID uuid,
@@ -290,19 +286,18 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
                   final int flags,
                   final int ivIndex,
                   final int globalTtl,
-                  final int provisionerAddress,
                   final int attentionTimer) throws IllegalArgumentException {
         confirmationInputs = null;
         this.attentionTimer = (byte) attentionTimer;
         final UnprovisionedMeshNode unprovisionedMeshNode =
-                initializeMeshNode(uuid, nodeName, networkKey, flags, ivIndex, globalTtl, provisionerAddress);
+                initializeMeshNode(uuid, nodeName, networkKey, flags, ivIndex, globalTtl);
         sendProvisioningInvite(unprovisionedMeshNode);
     }
 
     /**
      * Starts provisioning an unprovisioned mesh node using No OOB
      * <p>
-     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int, int)}.
+     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int)}.
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
@@ -314,7 +309,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     /**
      * Starts provisioning an unprovisioned mesh node using Static OOB
      * <p>
-     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int, int)}.
+     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int)}.
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
@@ -326,7 +321,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     /**
      * Starts provisioning an unprovisioned mesh node using Output OOB
      * <p>
-     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int, int)}.
+     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int)}.
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
@@ -339,7 +334,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     /**
      * Starts provisioning an unprovisioned mesh node using Input OOB
      * <p>
-     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int, int)}.
+     * This method will continue the provisioning process that was started by invoking {@link #identify(UUID, String, NetworkKey, int, int, int, int)}.
      * </p>
      *
      * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}

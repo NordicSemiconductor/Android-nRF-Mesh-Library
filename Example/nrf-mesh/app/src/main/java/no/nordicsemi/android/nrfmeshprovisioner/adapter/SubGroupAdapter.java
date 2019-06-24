@@ -109,8 +109,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
             final int keyIndex = mGroupedKeyModels.keyAt(position);
             holder.groupItemContainer.setTag(keyIndex);
             final ApplicationKey key = mMeshNetwork.getAppKey(keyIndex);
-            final String keyTitle = key.getName() + " " + keyIndex;
-            holder.mGroupAppKeyTitle.setText(keyTitle);
+            holder.mGroupAppKeyTitle.setText(key.getName());
             final SparseIntArray groupedModels = mGroupedKeyModels.valueAt(position);
             holder.mGroupGrid.setRowCount(1);
             //Remove all child views to avoid duplicating

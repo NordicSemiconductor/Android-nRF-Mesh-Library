@@ -943,11 +943,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mMeshNetwork = meshNetwork;
         if (mMeshNetwork != null) {
 
-            /*if (!mMeshNetwork.isProvisionerSelected()) {
+            if (!mMeshNetwork.isProvisionerSelected()) {
                 final Provisioner provisioner = meshNetwork.getProvisioners().get(0);
                 provisioner.setLastSelected(true);
                 mMeshNetwork.selectProvisioner(provisioner);
-            }*/
+            }
 
             //Load live data with mesh network
             mMeshNetworkLiveData.loadNetworkInformation(meshNetwork);

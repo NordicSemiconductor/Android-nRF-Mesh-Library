@@ -41,92 +41,72 @@
         android:id="@+id/removable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:orientation="horizontal"
-        android:paddingStart="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/item_padding_top"
-        android:paddingEnd="@dimen/activity_horizontal_margin"
-        android:paddingBottom="@dimen/item_padding_bottom"
-        tools:ignore="ContentDescription">
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scaleType="center"
-            app:layout_constraintBottom_toBottomOf="@id/subtitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/title"
-            app:srcCompat="@drawable/ic_vpn_key_black_alpha_24dp"/>
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:text="Living Room Key"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/icon"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="HardcodedText"/>
-
-        <TextView
-            android:id="@+id/subtitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:text="00112233445566778899001122334455"
-            android:textColor="@color/textColorSecondary"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/title"
-            app:layout_constraintTop_toBottomOf="@id/title"
-            tools:ignore="HardcodedText"/>
+        android:background="@color/white">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/select_container"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/item_padding_top"
-            android:visibility="gone"
+            android:background="?selectableItemBackground"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/item_padding_top"
+            android:paddingBottom="@dimen/item_padding_bottom"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/title"
-            app:layout_constraintTop_toBottomOf="@id/subtitle"
-            tools:visibility="visible">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription,RtlSymmetry">
 
-            <TextView
-                android:id="@+id/text_view"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/make_current_provisioner"
+                android:scaleType="center"
+                app:layout_constraintBottom_toBottomOf="@id/subtitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/title"
+                app:srcCompat="@drawable/ic_account_key_black_alpha_24dp"/>
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="Nordic's Pixel"
                 android:textColor="@color/black"
-                app:layout_constraintBaseline_toBaselineOf="@id/action_yes"
-                android:layout_marginEnd="@dimen/item_padding_end"
-                app:layout_constraintStart_toStartOf="parent"/>
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@id/action_current"
+                app:layout_constraintStart_toEndOf="@id/icon"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="HardcodedText"/>
 
-            <Button
-                android:id="@+id/action_yes"
-                android:layout_width="80dp"
+            <TextView
+                android:id="@+id/subtitle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/item_padding_end"
-                android:text="@string/yes"
-                app:layout_constraintBottom_toBottomOf="@id/action_no"
-                app:layout_constraintEnd_toStartOf="@id/action_no"
-                app:layout_constraintTop_toTopOf="@id/action_no"/>
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="Unicast Address 0x7FFF"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toStartOf="@id/action_current"
+                app:layout_constraintStart_toStartOf="@id/title"
+                app:layout_constraintTop_toBottomOf="@id/title"
+                tools:ignore="HardcodedText"/>
 
-            <Button
-                android:id="@+id/action_no"
-                android:layout_width="80dp"
+            <ImageButton
+                android:id="@+id/action_current"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/no"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:background="?selectableItemBackgroundBorderless"
+                android:scaleType="fitCenter"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent"
+                android:padding="@dimen/item_padding_top"
+                app:srcCompat="@drawable/ic_shield_provisioner_black_alpha_24dp"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
