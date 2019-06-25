@@ -181,6 +181,7 @@ public class Group implements Parcelable {
             this.address = MeshAddress.generateVirtualAddress(addressLabel);
             generateParentAddressLabel(parentAddressLabel, parentAddress);
         }
+        this.meshUuid = meshUuid;
     }
 
     private void generateParentAddressLabel(@Nullable final UUID parentAddressLabel, final int parentAddress) throws IllegalArgumentException {
