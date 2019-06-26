@@ -473,7 +473,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
-        final int unicast = mMeshNetwork.nextAvailableUnicastAddress(unprovisionedMeshNode.getNumberOfElements());
+        final int unicast = mMeshNetwork.nextAvailableUnicastAddress(unprovisionedMeshNode.getNumberOfElements(), mMeshNetwork.getSelectedProvisioner());
         if (!MeshAddress.isValidUnicastAddress(unicast)) {
             throw new IllegalArgumentException("Invalid address");
         }
@@ -842,7 +842,7 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
             updateProvisionedNodeList(meshNode);
-            mMeshNetwork.unicastAddress = mMeshNetwork.nextAvailableUnicastAddress(meshNode.getNumberOfElements());
+            mMeshNetwork.unicastAddress = mMeshNetwork.nextAvailableUnicastAddress(meshNode.getNumberOfElements(), mMeshNetwork.getSelectedProvisioner());
             //Set the mesh network uuid to the node so we can identify nodes belonging to a network
             meshNode.setMeshUuid(mMeshNetwork.getMeshUUID());
             mMeshNetworkDb.insertNode(mProvisionedNodeDao, meshNode);

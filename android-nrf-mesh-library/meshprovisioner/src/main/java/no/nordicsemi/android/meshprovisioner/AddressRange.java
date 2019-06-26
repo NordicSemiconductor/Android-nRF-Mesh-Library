@@ -30,6 +30,12 @@ public abstract class AddressRange extends Range {
      */
     public abstract int getHighAddress();
 
+    @Override
+    public int range() {
+        return highAddress - lowAddress;
+    }
+
+    @Override
     public boolean overlaps(@NonNull final Range otherRange) {
         if (otherRange instanceof AddressRange) {
             final AddressRange otherAddressRange = (AddressRange) otherRange;

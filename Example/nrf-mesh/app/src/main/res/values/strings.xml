@@ -203,6 +203,7 @@
     <string name="no_available_groups">No available groups.</string>
     <string name="create_a_group_rationale">Create a new group to subscribe</string>
     <string name="title_create_group">Create Group</string>
+    <string name="title_create_group_summary">Select an address type to create a Group</string>
     <string name="title_subscribe_group">Subscribe</string>
     <string name="error_empty_group_name">Group name cannot be empty!</string>
     <string name="error_empty_group_address">Group address cannot be empty!</string>

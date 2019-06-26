@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.room.Entity;
 import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
@@ -16,7 +18,7 @@ import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -112,42 +114,183 @@ public final class MeshNetwork extends BaseMeshNetwork {
     }
 
     /**
-     * Adds a group to the existing group list within the network
+     * Returns the next unicast address for a provisioner based on the allocated range and the number of elements
      *
-     * @param group to be added
-     * @return true if the group was successfully added and false otherwise since a group may already exist with the same group address
+     * @param elementCount Element count
+     * @param provisioner  provisioner
      */
-    public boolean addGroup(@NonNull final Group group) {
-        if (!isGroupExist(group)) {
-            this.groups.add(group);
-            if (mCallbacks != null) {
-                mCallbacks.onGroupAdded(group);
+    public int nextAvailableUnicastAddress(final int elementCount, @NonNull final Provisioner provisioner) {
+        Collections.sort(nodes, nodeComparator);
+        // Iterate through all nodes just once, while iterating over ranges.
+        int index = 0;
+        for (AllocatedUnicastRange range : provisioner.getAllocatedUnicastRanges()) {
+            // Start from the beginning of the current range.
+            int address = range.getLowAddress();
+
+            // Iterate through nodes that weren't checked yet.
+            int currentIndex = index;
+            for (int i = currentIndex; i < nodes.size(); i++) {
+                final ProvisionedMeshNode node = nodes.get(i);
+                index += i;
+                final int lastUnicastInNode = node.getUnicastAddress() + (node.getNumberOfElements() - 1);
+
+                // Skip nodes with addresses below the range.
+                if (address > lastUnicastInNode) {
+                    continue;
+                }
+
+                // If we found a space before the current node, return the address.
+                if (node.getUnicastAddress() > address + (elementCount - 1)) {
+                    return address;
+                }
+
+                // Else, move the address to the next available address.
+                address = lastUnicastInNode + 1;
+
+                // If the new address is outside of the range, go to the next one.
+                if (range.highAddress < address + (elementCount - 1)) {
+                    break;
+                }
             }
-            return true;
+
+            if (range.getHighAddress() >= address + (elementCount - 1)) {
+                return address;
+            }
+        }
+
+        // No address was found :(
+        return -1;
+    }
+
+    /**
+     * Returns the next available group  address for a provisioner based on the allocated group range
+     *
+     * @param provisioner {@link Provisioner}
+     * @return Group address
+     * @throws IllegalStateException if there is no allocated group range to this provisioner
+     */
+    public Integer nextAvailableGroupAddress(@NonNull final Provisioner provisioner) throws IllegalStateException {
+        if (provisioner.getAllocatedGroupRanges().isEmpty()) {
+            throw new IllegalStateException("Provisioner has no group range allocated.");
+        }
+
+        Collections.sort(groups, groupComparator);
+        for (AllocatedGroupRange range : provisioner.getAllocatedGroupRanges()) {
+            //If the list of groups are empty we can start with the lowest address of the range
+            if (groups.isEmpty()) {
+                return range.getLowAddress();
+            }
+
+            for (int address = range.lowAddress; address < range.getHighAddress(); address++) {
+                //if the address is not in use, return it as the next available address to create a group
+                if (!isGroupAddressInUse(address)) {
+                    return address;
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean isGroupAddressInUse(final int address) {
+        for (Group group : groups) {
+            //if the address is not in use, return it as the next available address to create a group
+            if (group.getAddress() == address) {
+                return true;
+            }
         }
         return false;
     }
 
     /**
-     * Adds a group to the existing group list within the network
+     * Creates a group using the next available group address based on the provisioners allocated group range
      *
-     * @param address Address of the group
+     * @param provisioner provisioner
+     * @return a group or null if creation failed
+     */
+    public Group createGroup(@NonNull final Provisioner provisioner) {
+        final Integer address = nextAvailableGroupAddress(provisioner);
+        if (address != null) {
+            return new Group(address, meshUUID);
+        }
+        return null;
+    }
+
+    /**
+     * Creates a group using the next available group address based on the provisioners allocated group range
+     *
+     * @param addressLabel UUID label
+     * @return a group or null if creation failed
+     */
+    public Group createGroup(@NonNull final UUID addressLabel, @Nullable final UUID parentLabel) {
+        final int address = MeshAddress.generateVirtualAddress(addressLabel);
+        return new Group(addressLabel, parentLabel, meshUUID);
+    }
+
+    /**
+     * Creates with a given address and name.
+     *
+     * @param address Address of the group which must be within the allocated range
      * @param name    Friendly name of the group
      * @return true if the group was successfully added and false otherwise since a group may already exist with the same group address
+     * @throws IllegalArgumentException if there is no group range allocated or if the address is out of the range allocated to the provisioner
      */
-    public boolean addGroup(final int address, @NonNull final String name) {
+    public Group createGroup(@NonNull final Provisioner provisioner, final int address, @NonNull final String name) throws IllegalArgumentException {
+        if (MeshAddress.isValidVirtualAddress(address)) {
+            throw new IllegalArgumentException("Call addGroup(@NonNull final Group group) to create a group with group address label");
+        }
+
+        if (provisioner.getAllocatedGroupRanges().isEmpty()) {
+            throw new IllegalArgumentException("Unable to create group," +
+                    " there is no group range allocated to the current provisioner");
+        }
+
+        for (AllocatedGroupRange range : provisioner.getAllocatedGroupRanges()) {
+            if (range.getLowAddress() > address || range.getHighAddress() < address) {
+                throw new IllegalArgumentException("Unable to create group, " +
+                        "the address is outside the range allocated to the provisioner");
+            }
+        }
+
         final Group group = new Group(address, meshUUID);
         if (!TextUtils.isEmpty(name))
             group.setName(name);
+        return group;
+    }
 
+    /**
+     * Adds a group to the existing group list within the network
+     *
+     * @param group to be added
+     * @return true if the group was successfully added and false otherwise since a group may already exist with the same group address
+     * @throws IllegalArgumentException if there is no group range allocated or if the address is out of the range allocated to the provisioner
+     */
+    public boolean addGroup(@NonNull final Group group) throws IllegalArgumentException {
+
+        final Provisioner provisioner = getSelectedProvisioner();
+        if (provisioner.getAllocatedGroupRanges().isEmpty()) {
+            throw new IllegalArgumentException("Unable to create group," +
+                    " there is no group range allocated to the current provisioner");
+        }
+
+        //We check if the group is made of a virtual address
+        if (group.getAddressLabel() == null) {
+            for (AllocatedGroupRange range : provisioner.getAllocatedGroupRanges()) {
+                if (range.getLowAddress() > group.getAddress() || range.getHighAddress() < group.getAddress()) {
+                    throw new IllegalArgumentException("Unable to create group, " +
+                            "the address is outside the range allocated to the provisioner");
+                }
+            }
+        }
+        return saveGroup(group);
+    }
+
+    private boolean saveGroup(@NonNull final Group group) {
         if (!isGroupExist(group)) {
             this.groups.add(group);
-            if (mCallbacks != null) {
-                mCallbacks.onGroupAdded(group);
-            }
+            notifyGroupAdded(group);
             return true;
         }
-        return false;
+        throw new IllegalArgumentException("Group already exists");
     }
 
     public Group getGroup(final int address) {
@@ -166,9 +309,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public boolean updateGroup(@NonNull final Group group) {
         if (isGroupExist(group)) {
-            if (mCallbacks != null) {
-                mCallbacks.onGroupUpdated(group);
-            }
+            notifyGroupUpdated(group);
             return true;
         }
         return false;
@@ -181,9 +322,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public boolean removeGroup(@NonNull final Group group) {
         if (groups.remove(group)) {
-            if (mCallbacks != null) {
-                mCallbacks.onGroupDeleted(group);
-            }
+            notifyGroupDeleted(group);
             return true;
         }
         return false;

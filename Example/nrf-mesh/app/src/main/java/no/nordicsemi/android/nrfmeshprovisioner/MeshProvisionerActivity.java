@@ -227,7 +227,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                     provisioner.setText(R.string.provision_action);
                     containerUnicastAddress.setVisibility(View.VISIBLE);
                     final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-                    network.assignUnicastAddress(network.nextAvailableUnicastAddress(capabilities.getNumberOfElements()));
+                    network.assignUnicastAddress(network.nextAvailableUnicastAddress(capabilities.getNumberOfElements(), network.getSelectedProvisioner()));
                     updateCapabilitiesUi(capabilities);
                 }
             }
@@ -320,7 +320,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     @Override
     public int getNextUnicastAddress(final int elementCount) {
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        return network.nextAvailableUnicastAddress(elementCount);
+        return network.nextAvailableUnicastAddress(elementCount, network.getSelectedProvisioner());
     }
 
     @Override

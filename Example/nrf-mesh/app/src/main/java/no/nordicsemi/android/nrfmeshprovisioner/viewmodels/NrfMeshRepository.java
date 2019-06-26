@@ -11,7 +11,6 @@ import android.util.Log;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import androidx.annotation.NonNull;
@@ -1057,26 +1056,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      * Generates the groups based on the addresses each models have subscribed to
      */
     private void loadGroups() {
-        final String uuid = mMeshNetwork.getMeshUUID();
-        final List<Group> groups = new ArrayList<>();
-        for (final ProvisionedMeshNode node : mMeshNetwork.getNodes()) {
-            for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
-                final Element element = elementEntry.getValue();
-                for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
-                    final MeshModel model = modelEntry.getValue();
-                    if (model != null) {
-                        final List<Integer> subscriptionAddresses = model.getSubscribedAddresses();
-                        for (Integer address : subscriptionAddresses) {
-                            if (MeshAddress.isValidGroupAddress(address) &&
-                                    !mMeshNetwork.isGroupExist(address)) {
-                                final Group group = new Group(address, uuid);
-                                mMeshNetwork.addGroup(group);
-                            }
-                        }
-                    }
-                }
-            }
-        }
         mGroups.postValue(mMeshNetwork.getGroups());
     }
 

@@ -60,36 +60,106 @@
 
         <include
             android:id="@+id/group_container"
-            layout="@layout/layout_group_subscription"
+            layout="@layout/layout_group_subscription1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/address_types"/>
 
-        <TextView
-            android:id="@+id/label_summary"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/label_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/group_container">
+
+            <TextView
+                android:id="@+id/label_summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/item_padding_top"
+                android:text="@string/label_uuid_summary"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/group_container"
+                tools:ignore="RtlSymmetry"/>
+
+            <TextView
+                android:id="@+id/uuid_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/item_padding_top"
+                android:text="EA57D9F1-975D-4EBD-A78A-37D189AC58F4"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@id/label_summary"
+                app:layout_constraintTop_toBottomOf="@id/label_summary"
+                tools:ignore="HardcodedText"/>
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/group_name_layout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:layout_marginTop="@dimen/item_padding_top"
-            android:text="@string/label_uuid_summary"
-            android:textColor="@color/black"
-            android:textSize="14sp"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:hint="@string/name"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/group_container"
-            tools:ignore="RtlSymmetry"/>
+            app:layout_constraintTop_toBottomOf="@id/label_container">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/name_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"
+                android:maxLength="20"
+                android:singleLine="true"
+                android:text="Living Room"
+                android:textSize="16sp"
+                tools:ignore="HardcodedText"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
-            android:id="@+id/uuid_label"
+            android:id="@+id/prefix"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/hex_prefix"
+            android:textSize="16sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/group_address_layout"
+            app:layout_constraintEnd_toStartOf="@id/group_address_layout"
+            app:layout_constraintStart_toStartOf="@id/group_name_layout"
+            app:layout_constraintTop_toTopOf="@id/group_address_layout"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/group_address_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/item_padding_start"
             android:layout_marginTop="@dimen/item_padding_top"
-            android:text="EA57D9F1-975D-4EBD-A78A-37D189AC58F4"
-            android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="@id/label_summary"
-            app:layout_constraintTop_toBottomOf="@id/label_summary"
-            tools:ignore="HardcodedText"/>
+            android:hint="@string/address"
+            app:layout_constraintEnd_toEndOf="@id/group_name_layout"
+            app:layout_constraintStart_toEndOf="@id/prefix"
+            app:layout_constraintTop_toBottomOf="@id/group_name_layout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/address_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text|textCapCharacters"
+                android:maxLength="4"
+                android:singleLine="true"
+                android:text="C000"
+                android:textSize="16sp"
+                tools:ignore="HardcodedText"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

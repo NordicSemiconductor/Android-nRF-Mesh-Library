@@ -72,16 +72,17 @@ import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
+import no.nordicsemi.android.nrfmeshprovisioner.GroupCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
-import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDisconnected;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGroupSubscription;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
@@ -89,7 +90,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelper
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public abstract class BaseModelConfigurationActivity extends AppCompatActivity implements Injectable,
-        DialogFragmentGroupSubscription.DialogFragmentSubscriptionAddressListener,
+        GroupCallbacks,
         ItemTouchHelperAdapter,
         DialogFragmentDisconnected.DialogFragmentDisconnectedListener {
 
@@ -279,22 +280,72 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public void setSubscription(@NonNull final String name, final int address) {
+    public Group createGroup() {
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        final Group group = new Group(address, network.getMeshUUID());
-        group.setName(name);
-        network.addGroup(group);
-        subscribe(address);
+        return network.createGroup(network.getSelectedProvisioner());
     }
 
     @Override
-    public void setSubscription(@NonNull final Group group) {
-        subscribe(group.getAddress());
+    public Group createGroup(@NonNull final UUID uuid) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        return network.createGroup(uuid, null);
     }
 
     @Override
-    public void setSubscription(@NonNull final UUID uuid) {
-        subscribe(uuid);
+    public boolean onGroupAdded(@NonNull final String name, final int address) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final Group group = network.createGroup(network.getSelectedProvisioner(), address, name);
+        if (group != null) {
+            if (network.addGroup(group)) {
+                subscribe(group);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onGroupAdded(@NonNull final Group group) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        if (network.addGroup(group)) {
+            subscribe(group);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onGroupAdded(@NonNull final UUID uuid) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final Group group = network.createGroup(uuid, null);
+        if (network.addGroup(group)) {
+            subscribe(group);
+            return true;
+        }
+        return true;
+    }
+
+    @Override
+    public void subscribe(final Group group) {
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if (meshNode != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final int elementAddress = element.getElementAddress();
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    final int modelIdentifier = model.getModelId();
+                    final MeshMessage configModelSubscriptionAdd;
+                    if (group.getAddressLabel() == null) {
+                        configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, group.getAddress(), modelIdentifier);
+                    } else {
+                        configModelSubscriptionAdd = new ConfigModelSubscriptionVirtualAddressAdd(elementAddress, group.getAddressLabel(), modelIdentifier);
+                    }
+                    mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
+                    showProgressbar();
+                }
+            }
+        }
     }
 
     @Override
@@ -422,42 +473,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                     } else {
                         Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
                     }
-                }
-            }
-        }
-    }
-
-    private void subscribe(final int address) {
-        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
-        if (meshNode != null) {
-            final Element element = mViewModel.getSelectedElement().getValue();
-            if (element != null) {
-                final int elementAddress = element.getElementAddress();
-                final MeshModel model = mViewModel.getSelectedModel().getValue();
-                if (model != null) {
-                    final int modelIdentifier = model.getModelId();
-                    final ConfigModelSubscriptionAdd configModelSubscriptionAdd = new ConfigModelSubscriptionAdd(elementAddress, address, modelIdentifier);
-                    mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
-                    showProgressbar();
-                }
-            }
-        }
-    }
-
-    private void subscribe(final UUID uuid) {
-        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
-        if (meshNode != null) {
-            final Element element = mViewModel.getSelectedElement().getValue();
-            if (element != null) {
-                final int elementAddress = element.getElementAddress();
-                final MeshModel model = mViewModel.getSelectedModel().getValue();
-                if (model != null) {
-                    final int modelIdentifier = model.getModelId();
-                    final ConfigModelSubscriptionVirtualAddressAdd configModelSubscriptionAdd = new ConfigModelSubscriptionVirtualAddressAdd(elementAddress,
-                            uuid,
-                            modelIdentifier);
-                    mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
-                    showProgressbar();
                 }
             }
         }

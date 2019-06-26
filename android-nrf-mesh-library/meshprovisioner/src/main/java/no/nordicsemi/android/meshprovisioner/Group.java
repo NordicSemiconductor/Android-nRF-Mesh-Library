@@ -143,7 +143,7 @@ public class Group implements Parcelable {
      * @param meshUuid           UUID of the mesh network
      */
     @Ignore
-    public Group(@NonNull final UUID addressLabel, @NonNull final UUID parentAddressLabel, @NonNull final String meshUuid) throws IllegalArgumentException {
+    public Group(@NonNull final UUID addressLabel, @Nullable final UUID parentAddressLabel, @NonNull final String meshUuid) throws IllegalArgumentException {
         this(MeshAddress.UNASSIGNED_ADDRESS, addressLabel, MeshAddress.UNASSIGNED_ADDRESS, parentAddressLabel, meshUuid);
     }
 

@@ -34,7 +34,12 @@ public abstract class Range implements Parcelable {
      * @return true if overlaps or false otherwise
      */
     public abstract boolean overlaps(@NonNull final Range otherRange);
-    
+
+    /**
+     * Returns the address range as a int
+     */
+    public abstract int range();
+
     protected boolean overlaps(final int rLow, final int rHigh, final int oLow, final int oHigh) {
         // Are the ranges are equal
         if (rLow == oLow && rHigh == oHigh) {

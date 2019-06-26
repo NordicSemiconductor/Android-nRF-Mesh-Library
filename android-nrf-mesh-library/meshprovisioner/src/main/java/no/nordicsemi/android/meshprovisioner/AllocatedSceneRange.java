@@ -131,6 +131,11 @@ public class AllocatedSceneRange extends Range {
     }
 
     @Override
+    public int range() {
+        return lastScene - firstScene;
+    }
+
+    @Override
     public boolean overlaps(@NonNull final Range otherRange) {
         if (otherRange instanceof AllocatedSceneRange) {
             final AllocatedSceneRange otherSceneRange = (AllocatedSceneRange) otherRange;

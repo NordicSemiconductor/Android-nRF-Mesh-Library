@@ -32,6 +32,8 @@ import android.view.ViewGroup;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.UUID;
+
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
@@ -58,7 +60,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 public class GroupsFragment extends Fragment implements Injectable,
         ItemTouchHelperAdapter,
         GroupAdapter.OnItemClickListener,
-        DialogFragmentCreateGroup.DialogFragmentCreateGroupListener {
+        GroupCallbacks {
 
     private SharedViewModel mViewModel;
 
@@ -67,6 +69,8 @@ public class GroupsFragment extends Fragment implements Injectable,
 
     @BindView(R.id.container)
     View container;
+    @BindView(android.R.id.empty)
+    View mEmptyView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,7 +84,6 @@ public class GroupsFragment extends Fragment implements Injectable,
         mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
         ButterKnife.bind(this, rootView);
 
-        final View noGroupsConfiguredView = rootView.findViewById(R.id.no_groups_configured);
         final ExtendedFloatingActionButton fab = rootView.findViewById(R.id.fab_add_group);
 
         // Configure the recycler view
@@ -98,9 +101,9 @@ public class GroupsFragment extends Fragment implements Injectable,
         mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
                 if (meshNetworkLiveData.getMeshNetwork().getGroups().isEmpty()) {
-                    noGroupsConfiguredView.setVisibility(View.VISIBLE);
+                    mEmptyView.setVisibility(View.VISIBLE);
                 } else {
-                    noGroupsConfiguredView.setVisibility(View.INVISIBLE);
+                    mEmptyView.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -147,8 +150,7 @@ public class GroupsFragment extends Fragment implements Injectable,
         final Group group = network.getGroups().get(position);
         if (network.getModels(group).size() == 0) {
             network.removeGroup(group);
-            final String message = getString(R.string.group_deleted, group.getName());
-            displaySnackBar(message);
+            displaySnackBar(group);
         }
     }
 
@@ -159,9 +161,46 @@ public class GroupsFragment extends Fragment implements Injectable,
     }
 
     @Override
-    public boolean createGroup(@NonNull final String name, final int address) {
+    public Group createGroup() {
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        return network.addGroup(address, name);
+        return network.createGroup(network.getSelectedProvisioner());
+    }
+
+    @Override
+    public Group createGroup(@NonNull final UUID uuid) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        return network.createGroup(uuid, null);
+    }
+
+    @Override
+    public boolean onGroupAdded(@NonNull final String name, final int address) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final Group group = network.createGroup(network.getSelectedProvisioner(), address, name);
+        if (group != null) {
+            return network.addGroup(group);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onGroupAdded(@NonNull final Group group) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        return network.addGroup(group);
+    }
+
+    private void displaySnackBar(final Group group) {
+        final String message = getString(R.string.group_deleted, group.getName());
+        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
+                .setAction(R.string.undo, v -> {
+                    mEmptyView.setVisibility(View.INVISIBLE);
+                    final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+                    if (network != null) {
+                        network.addGroup(group);
+                    }
+
+                })
+                .show();
     }
 
     private void displaySnackBar(final String message) {

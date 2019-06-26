@@ -44,7 +44,7 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <include
-            android:id="@+id/no_groups_configured"
+            android:id="@android:id/empty"
             layout="@layout/info_no_groups_configured"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
