@@ -20,11 +20,10 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
-
-import androidx.appcompat.app.AlertDialog;
+package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.annotation.SuppressLint;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -39,56 +38,57 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.CheckBox;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public class DialogFragmentPublishTtl extends DialogFragment {
 
-    private static final String PUBLISH_TTL = "PUBLISH_TTL";
+public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
+
+    private static final String INTERVAL_STEPS = "INTERVAL_STEPS";
     //UI Bindings
-    @BindView(R.id.chk_default_ttl)
-    CheckBox chkPublishTtl;
     @BindView(R.id.text_input_layout)
-    TextInputLayout ttlInputLayout;
+    TextInputLayout intervalStepsInputLayout;
     @BindView(R.id.text_input)
-    TextInputEditText ttlInput;
+    TextInputEditText intervalStepsInput;
 
-    private int mPulishTtl;
+    private int mRetransmitCount;
 
-    public static DialogFragmentPublishTtl newInstance(final int ttl) {
-        DialogFragmentPublishTtl fragmentNetworkKey = new DialogFragmentPublishTtl();
+    public static DialogFragmentPubRetransmitIntervalSteps newInstance(final int ivIndex) {
+        DialogFragmentPubRetransmitIntervalSteps fragmentIvIndex = new DialogFragmentPubRetransmitIntervalSteps();
         final Bundle args = new Bundle();
-        args.putInt(PUBLISH_TTL, ttl);
-        fragmentNetworkKey.setArguments(args);
-        return fragmentNetworkKey;
+        args.putInt(INTERVAL_STEPS, ivIndex);
+        fragmentIvIndex.setArguments(args);
+        return fragmentIvIndex;
     }
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mPulishTtl = getArguments().getInt(PUBLISH_TTL);
+            mRetransmitCount = getArguments().getInt(INTERVAL_STEPS);
         }
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publish_ttl_input, null);
+        @SuppressLint("InflateParams")
+        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publication_parameters, null);
+
+        //Bind ui
         ButterKnife.bind(this, rootView);
+        ((TextView)rootView.findViewById(R.id.summary)).setText(R.string.dialog_summary_interval_steps);
 
-        chkPublishTtl.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            ttlInputLayout.setVisibility(isChecked ? View.GONE : View.VISIBLE);
-            if(isChecked){
-                ttlInputLayout.setError(null);
-            }
-        });
-
-        ttlInput.addTextChangedListener(new TextWatcher() {
+        final String retransmitCount = String.valueOf(mRetransmitCount);
+        intervalStepsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        intervalStepsInputLayout.setHint(getString(R.string.hint_publication_interval_steps));
+        intervalStepsInput.setText(retransmitCount);
+        intervalStepsInput.setSelection(retransmitCount.length());
+        intervalStepsInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -97,9 +97,9 @@ public class DialogFragmentPublishTtl extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    ttlInputLayout.setError(getString(R.string.error_empty_publish_ttl));
+                    intervalStepsInputLayout.setError(getString(R.string.error_empty_publication_steps));
                 } else {
-                    ttlInputLayout.setError(null);
+                    intervalStepsInputLayout.setError(null);
                 }
             }
 
@@ -112,62 +112,47 @@ public class DialogFragmentPublishTtl extends DialogFragment {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_timer);
-        alertDialogBuilder.setTitle(R.string.title_publish_ttl);
+        alertDialogBuilder.setIcon(R.drawable.ic_index);
+        alertDialogBuilder.setTitle(R.string.title_interval_steps);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            if(chkPublishTtl.isChecked()) {
-                ((DialogFragmentPublishTtlListener) requireActivity()).setPublishTtl(MeshParserUtils.USE_DEFAULT_TTL);
+            final String ivIndexInput = this.intervalStepsInput.getEditableText().toString();
+            if (validateInput(ivIndexInput)) {
+                    ((DialogFragmentIntervalStepsListener) requireActivity()).
+                            setRetransmitIntervalSteps(Integer.parseInt(ivIndexInput, 16));
                 dismiss();
-            } else {
-                final String publishTtl = ttlInput.getEditableText().toString();
-                if (validateInput(publishTtl)) {
-                    ((DialogFragmentPublishTtlListener) requireActivity()).setPublishTtl(Integer.parseInt(publishTtl));
-                    dismiss();
-                }
             }
         });
-
-        if(savedInstanceState == null) {
-
-            //Update ui
-            if(MeshParserUtils.isDefaultPublishTtl(mPulishTtl)){
-                chkPublishTtl.setChecked(true);
-            } else {
-                final String ttl = String.valueOf(mPulishTtl);
-                ttlInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-                ttlInput.setText(ttl);
-                ttlInput.setSelection(ttl.length());
-            }
-            ttlInputLayout.setHint(getString(R.string.hint_publish_ttl));
-        }
 
         return alertDialog;
     }
 
     private boolean validateInput(final String input) {
+
         try {
-            if(TextUtils.isEmpty(input)){
-                ttlInputLayout.setError(getString(R.string.error_empty_publish_ttl));
+
+            if(TextUtils.isEmpty(input)) {
+                intervalStepsInputLayout.setError(getString(R.string.error_empty_pub_retransmit_interval_steps));
                 return false;
             }
-            if(!MeshParserUtils.isValidTtl(Integer.parseInt(input))) {
-                ttlInputLayout.setError(getString(R.string.error_invalid_publish_ttl));
+            if (!MeshParserUtils.validatePublishRetransmitIntervalSteps(Integer.valueOf(input))) {
+                intervalStepsInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_interval_steps));
                 return false;
             }
-        } catch(NumberFormatException ex) {
-            ttlInputLayout.setError(getString(R.string.error_invalid_publish_ttl));
+        } catch (NumberFormatException ex) {
+            intervalStepsInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_interval_steps));
             return false;
         } catch (Exception ex) {
             return false;
         }
+
         return true;
     }
 
-    public interface DialogFragmentPublishTtlListener {
+    public interface DialogFragmentIntervalStepsListener {
 
-        void setPublishTtl(final int ttl);
+        void setRetransmitIntervalSteps(final int intervalSteps);
 
     }
 }

@@ -20,10 +20,11 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
+package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
+
+import androidx.appcompat.app.AlertDialog;
 
 import android.annotation.SuppressLint;
-import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -46,21 +47,21 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 
-public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
+public class DialogFragmentRetransmitCount extends DialogFragment {
 
-    private static final String INTERVAL_STEPS = "INTERVAL_STEPS";
+    private static final String RETRANSMIT_COUNT = "RETRANSMIT_COUNT";
     //UI Bindings
     @BindView(R.id.text_input_layout)
-    TextInputLayout intervalStepsInputLayout;
+    TextInputLayout retransmitCountInputLayout;
     @BindView(R.id.text_input)
-    TextInputEditText intervalStepsInput;
+    TextInputEditText retransmitInput;
 
     private int mRetransmitCount;
 
-    public static DialogFragmentPubRetransmitIntervalSteps newInstance(final int ivIndex) {
-        DialogFragmentPubRetransmitIntervalSteps fragmentIvIndex = new DialogFragmentPubRetransmitIntervalSteps();
+    public static DialogFragmentRetransmitCount newInstance(final int ivIndex) {
+        DialogFragmentRetransmitCount fragmentIvIndex = new DialogFragmentRetransmitCount();
         final Bundle args = new Bundle();
-        args.putInt(INTERVAL_STEPS, ivIndex);
+        args.putInt(RETRANSMIT_COUNT, ivIndex);
         fragmentIvIndex.setArguments(args);
         return fragmentIvIndex;
     }
@@ -69,26 +70,25 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mRetransmitCount = getArguments().getInt(INTERVAL_STEPS);
+            mRetransmitCount = getArguments().getInt(RETRANSMIT_COUNT);
         }
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publication_parameters, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publication_parameters, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
-        ((TextView)rootView.findViewById(R.id.summary)).setText(R.string.dialog_summary_interval_steps);
+        ((TextView)rootView.findViewById(R.id.summary)).setText(R.string.dialog_summary_retransmit_count);
 
-        final String retransmitCount = String.valueOf(mRetransmitCount);
-        intervalStepsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-        intervalStepsInputLayout.setHint(getString(R.string.hint_publication_interval_steps));
-        intervalStepsInput.setText(retransmitCount);
-        intervalStepsInput.setSelection(retransmitCount.length());
-        intervalStepsInput.addTextChangedListener(new TextWatcher() {
+        final String ivIndex = String.valueOf(mRetransmitCount);
+        retransmitInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        retransmitCountInputLayout.setHint(getString(R.string.hint_retransmit_count));
+        retransmitInput.setText(ivIndex);
+        retransmitInput.setSelection(ivIndex.length());
+        retransmitInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -97,9 +97,9 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    intervalStepsInputLayout.setError(getString(R.string.error_empty_publication_steps));
+                    retransmitCountInputLayout.setError(getString(R.string.error_empty_pub_retransmit_count));
                 } else {
-                    intervalStepsInputLayout.setError(null);
+                    retransmitCountInputLayout.setError(null);
                 }
             }
 
@@ -112,15 +112,18 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_index);
-        alertDialogBuilder.setTitle(R.string.title_interval_steps);
+        alertDialogBuilder.setIcon(R.drawable.ic_numeric);
+        alertDialogBuilder.setTitle(R.string.title_retransmit_count);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String ivIndexInput = this.intervalStepsInput.getEditableText().toString();
+            final String ivIndexInput = this.retransmitInput.getEditableText().toString();
             if (validateInput(ivIndexInput)) {
-                    ((DialogFragmentIntervalStepsListener) requireActivity()).
-                            setRetransmitIntervalSteps(Integer.parseInt(ivIndexInput, 16));
+                if (getParentFragment() == null) {
+                    ((DialogFragmentRetransmitCountListener) requireActivity()).setRetransmitCount(Integer.parseInt(ivIndexInput, 16));
+                } else {
+                    ((DialogFragmentRetransmitCountListener) getParentFragment()).setRetransmitCount(Integer.parseInt(ivIndexInput, 16));
+                }
                 dismiss();
             }
         });
@@ -133,15 +136,15 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
         try {
 
             if(TextUtils.isEmpty(input)) {
-                intervalStepsInputLayout.setError(getString(R.string.error_empty_pub_retransmit_interval_steps));
+                retransmitCountInputLayout.setError(getString(R.string.error_empty_pub_retransmit_count));
                 return false;
             }
-            if (!MeshParserUtils.validatePublishRetransmitIntervalSteps(Integer.valueOf(input))) {
-                intervalStepsInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_interval_steps));
+            if (!MeshParserUtils.validateRetransmitCount(Integer.valueOf(input))) {
+                retransmitCountInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_count));
                 return false;
             }
         } catch (NumberFormatException ex) {
-            intervalStepsInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_interval_steps));
+            retransmitCountInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_count));
             return false;
         } catch (Exception ex) {
             return false;
@@ -150,9 +153,9 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
         return true;
     }
 
-    public interface DialogFragmentIntervalStepsListener {
+    public interface DialogFragmentRetransmitCountListener {
 
-        void setRetransmitIntervalSteps(final int intervalSteps);
+        void setRetransmitCount(final int retransmitCount);
 
     }
 }

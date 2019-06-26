@@ -1,4 +1,4 @@
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
+package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.annotation.SuppressLint;
 import androidx.appcompat.app.AlertDialog;

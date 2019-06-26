@@ -45,7 +45,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTtl;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerName;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentUnassign;

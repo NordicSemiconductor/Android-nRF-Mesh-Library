@@ -1,4 +1,4 @@
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
+package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 
 import androidx.appcompat.app.AlertDialog;

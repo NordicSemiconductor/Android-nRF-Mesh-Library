@@ -24,7 +24,7 @@ import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkTransmitSettings;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogRelayRetransmitSettings;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogRelayRetransmitSettings;
 
 public class ConfigurationServerActivity extends BaseModelConfigurationActivity implements
         DialogFragmentNetworkTransmitSettings.DialogFragmentNetworkTransmitSettingsListener,

@@ -20,7 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
+package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMessage;
 
 public class DialogFragmentResetNode extends DialogFragmentMessage {
 
@@ -52,11 +53,11 @@ public class DialogFragmentResetNode extends DialogFragmentMessage {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder = new AlertDialog.Builder(requireActivity());
         alertDialogBuilder.setIcon(R.drawable.ic_reset_black_24dp_alpha);
         alertDialogBuilder.setNegativeButton(getString(R.string.no), null);
         alertDialogBuilder.setPositiveButton(getString(R.string.yes), (dialog, which) -> (
-                (DialogFragmentNodeResetListener)getActivity()).onNodeReset());
+                (DialogFragmentNodeResetListener)requireActivity()).onNodeReset());
 
         return super.onCreateDialog(savedInstanceState);
     }

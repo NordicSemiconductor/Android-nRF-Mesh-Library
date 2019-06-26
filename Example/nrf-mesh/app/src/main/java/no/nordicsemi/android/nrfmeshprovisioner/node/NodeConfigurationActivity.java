@@ -77,7 +77,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationComplete;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFilterAddAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProxySet;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentResetNode;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.AddedAppKeyAdapter;

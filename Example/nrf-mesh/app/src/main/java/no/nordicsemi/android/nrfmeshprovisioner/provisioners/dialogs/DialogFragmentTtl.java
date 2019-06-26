@@ -20,7 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
+package no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
