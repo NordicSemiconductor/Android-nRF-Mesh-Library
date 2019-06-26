@@ -530,7 +530,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         for (Provisioner provisioner : network.provisioners) {
             for (ProvisionedMeshNode node : network.nodes) {
                 if (provisioner.getProvisionerUuid().equalsIgnoreCase(node.getUuid())) {
-                    provisioner.setProvisionerAddress(node.getUnicastAddress());
+                    provisioner.assignProvisionerAddress(node.getUnicastAddress());
                     provisioner.setGlobalTtl(node.getTtl());
                 }
             }

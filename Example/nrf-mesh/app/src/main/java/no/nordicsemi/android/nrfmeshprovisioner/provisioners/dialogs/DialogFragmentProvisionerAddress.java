@@ -133,7 +133,7 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
             final String unicast = unicastAddressInput.getEditableText().toString();
             if (validateInput(unicast))
                 try {
-                    if (((DialogFragmentAddressListener) requireActivity()).setAddress(Integer.parseInt(unicast, 16))) {
+                    if (((ProvisionerAddressListener) requireActivity()).setAddress(Integer.parseInt(unicast, 16))) {
                         dismiss();
                     }
                 } catch (IllegalArgumentException ex) {
@@ -145,7 +145,7 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
         unassign.setTextColor(ContextCompat.getColor(requireContext(), R.color.nordicRed));
         unassign.setOnClickListener(v -> {
             dismiss();
-            ((DialogFragmentAddressListener) requireActivity()).unassignProvisioner();
+            ((ProvisionerAddressListener) requireActivity()).unassignProvisioner();
         });
 
         return alertDialog;
@@ -165,7 +165,7 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
     }
 
 
-    public interface DialogFragmentAddressListener {
+    public interface ProvisionerAddressListener {
 
         boolean setAddress(final int sourceAddress);
 

@@ -600,34 +600,36 @@ abstract class BaseMeshNetwork {
     public boolean addProvisioner(@NonNull final Provisioner provisioner) throws IllegalArgumentException {
 
         if (provisioner.allocatedUnicastRanges.isEmpty()) {
-            throw new IllegalArgumentException("Provisioner has no allocated unicast range assigned");
+            if (provisioner.getProvisionerAddress() != null) {
+                throw new IllegalArgumentException("Provisioner has no allocated unicast range assigned.");
+            }
         }
 
         for (Provisioner other : provisioners) {
             if (provisioner.hasOverlappingUnicastRanges(other.getAllocatedUnicastRanges())
                     || provisioner.hasOverlappingGroupRanges(other.getAllocatedGroupRanges())
                     || provisioner.hasOverlappingSceneRanges(other.getAllocatedSceneRanges())) {
-                throw new IllegalArgumentException("Provisioner ranges overlap");
+                throw new IllegalArgumentException("Provisioner ranges overlap.");
             }
         }
 
         if (!provisioner.isAddressWithinAllocatedRange(provisioner.getProvisionerAddress())) {
-            throw new IllegalArgumentException("Unicast address assigned to a provisioner must be within an allocated unicast address range");
+            throw new IllegalArgumentException("Unicast address assigned to a provisioner must be within an allocated unicast address range.");
         }
 
         if (isAddressInUse(provisioner.getProvisionerAddress())) {
-            throw new IllegalArgumentException("Unicast address is in use by another node");
+            throw new IllegalArgumentException("Unicast address is in use by another node.");
         }
 
         if (provisioner.isNodeAddressInUse(nodes)) {
-            throw new IllegalArgumentException("Unicast address is already in use!");
+            throw new IllegalArgumentException("Unicast address is already in use.");
         }
 
         if (isProvisionerUuidInUse(provisioner.getProvisionerUuid())) {
-            throw new IllegalArgumentException("Provisioner uuid already in use!");
+            throw new IllegalArgumentException("Provisioner uuid already in use.");
         }
 
-        provisioner.setProvisionerAddress(provisioner.getProvisionerAddress());
+        provisioner.assignProvisionerAddress(provisioner.getProvisionerAddress());
         provisioners.add(provisioner);
         notifyProvisionerAdded(provisioner);
         if (provisioner.getProvisionerAddress() != null) {
@@ -646,11 +648,13 @@ abstract class BaseMeshNetwork {
      */
     public boolean updateProvisioner(@NonNull final Provisioner provisioner) {
         if (!isProvisionerUuidInUse(provisioner.getProvisionerUuid())) {
-            throw new IllegalArgumentException("Provisioner does not exist, consider adding a provisioner first!");
+            throw new IllegalArgumentException("Provisioner does not exist, consider adding a provisioner first.");
         }
 
         if (provisioner.allocatedUnicastRanges.isEmpty()) {
-            throw new IllegalArgumentException("Provisioner has no allocated unicast range assigned");
+            if (provisioner.getProvisionerAddress() != null) {
+                throw new IllegalArgumentException("Provisioner has no allocated unicast range assigned.");
+            }
         }
 
         for (Provisioner other : provisioners) {
@@ -658,27 +662,27 @@ abstract class BaseMeshNetwork {
                 if (provisioner.hasOverlappingUnicastRanges(other.getAllocatedUnicastRanges())
                         || provisioner.hasOverlappingGroupRanges(other.getAllocatedGroupRanges())
                         || provisioner.hasOverlappingSceneRanges(other.getAllocatedSceneRanges())) {
-                    throw new IllegalArgumentException("Provisioner ranges overlap");
+                    throw new IllegalArgumentException("Provisioner ranges overlap.");
                 }
             }
         }
 
         if (!provisioner.isAddressWithinAllocatedRange(provisioner.getProvisionerAddress())) {
-            throw new IllegalArgumentException("Unicast address assigned to a provisioner must be within an allocated unicast address range");
+            throw new IllegalArgumentException("Unicast address assigned to a provisioner must be within an allocated unicast address range.");
         }
 
         for (ProvisionedMeshNode node : nodes) {
             if (!node.getUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
                 if (provisioner.getProvisionerAddress() != null) {
                     if (node.getUnicastAddress() == provisioner.getProvisionerAddress()) {
-                        throw new IllegalArgumentException("Unicast address is in use by another node");
+                        throw new IllegalArgumentException("Unicast address is in use by another node.");
                     }
                 }
             }
         }
 
         if (provisioner.isNodeAddressInUse(nodes)) {
-            throw new IllegalArgumentException("Unicast address is already in use by another provisioner!");
+            throw new IllegalArgumentException("Unicast address is already in use by another provisioner.");
         }
 
         boolean flag = false;
@@ -723,6 +727,7 @@ abstract class BaseMeshNetwork {
         if (node == null)
             return true;
         else if (nodes.remove(node)) {
+            provisioner.assignProvisionerAddress(null);
             notifyNodeDeleted(node);
             return true;
         }

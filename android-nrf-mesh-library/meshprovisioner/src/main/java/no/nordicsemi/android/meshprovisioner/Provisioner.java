@@ -260,11 +260,29 @@ public class Provisioner implements Parcelable {
      *
      * @param address address of the provisioner
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setProvisionerAddress(@Nullable final Integer address) throws IllegalArgumentException {
         if (address != null && !MeshAddress.isValidUnicastAddress(address)) {
-            throw new IllegalArgumentException("Unicast address must range between 0x0001 to 0x7FFF");
+            throw new IllegalArgumentException("Unicast address must range between 0x0001 to 0x7FFF.");
         }
         this.provisionerAddress = address;
+    }
+
+    /**
+     * Assigns provisioner address
+     *
+     * @param address address of the provisioner
+     */
+    public boolean assignProvisionerAddress(@Nullable final Integer address) throws IllegalArgumentException {
+        if (address != null && !MeshAddress.isValidUnicastAddress(address)) {
+            throw new IllegalArgumentException("Unicast address must range between 0x0001 to 0x7FFF.");
+        }
+        if (isAddressWithinAllocatedRange(address)) {
+            this.provisionerAddress = address;
+            return true;
+        } else {
+            throw new IllegalArgumentException("Address must be within the allocated address range.");
+        }
     }
 
     public int getGlobalTtl() {
@@ -378,7 +396,6 @@ public class Provisioner implements Parcelable {
      * @return true if it is within a range or false otherwise
      * @throws IllegalArgumentException if address is invalid or out of range
      */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean isAddressWithinAllocatedRange(final Integer address) throws IllegalArgumentException {
         if (address == null)
             return true;
@@ -428,7 +445,7 @@ public class Provisioner implements Parcelable {
     }
 
     boolean isNodeAddressInUse(@NonNull final List<ProvisionedMeshNode> nodes) {
-        if(provisionerAddress == null)
+        if (provisionerAddress == null)
             return false;
 
         for (ProvisionedMeshNode node : nodes) {

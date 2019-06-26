@@ -54,7 +54,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RangeView;
 public class EditProvisionerActivity extends AppCompatActivity implements Injectable,
         DialogFragmentProvisionerName.DialogFragmentProvisionerNameListener,
         DialogFragmentTtl.DialogFragmentTtlListener,
-        DialogFragmentProvisionerAddress.DialogFragmentAddressListener,
+        DialogFragmentProvisionerAddress.ProvisionerAddressListener,
         DialogFragmentUnassign.DialogFragmentUnassignListener {
 
     @Inject
@@ -216,11 +216,12 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
     @Override
     public boolean setAddress(final int sourceAddress) {
         if (mProvisioner != null) {
-            mProvisioner.setProvisionerAddress(sourceAddress);
-            final Provisioner provisioner = mProvisioner;
-            if (save(provisioner)) {
-                provisionerUnicast.setText(MeshAddress.formatAddress(sourceAddress, true));
-                return true;
+            if (mProvisioner.assignProvisionerAddress(sourceAddress)) {
+                final Provisioner provisioner = mProvisioner;
+                if (save(provisioner)) {
+                    provisionerUnicast.setText(MeshAddress.formatAddress(sourceAddress, true));
+                    return true;
+                }
             }
         }
         return false;
@@ -241,7 +242,7 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
             if (network != null) {
                 provisionerUnicast.setText(R.string.unicast_address_unassigned);
-                mProvisioner.setProvisionerAddress(null);
+                mProvisioner.assignProvisionerAddress(null);
                 network.disableConfigurationCapabilities(mProvisioner);
             }
         }

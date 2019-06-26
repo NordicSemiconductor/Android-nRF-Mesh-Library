@@ -48,6 +48,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerName;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentUnassign;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RangeView;
@@ -55,7 +56,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RangeView;
 public class AddProvisionerActivity extends AppCompatActivity implements Injectable,
         DialogFragmentProvisionerName.DialogFragmentProvisionerNameListener,
         DialogFragmentTtl.DialogFragmentTtlListener,
-        DialogFragmentProvisionerAddress.DialogFragmentAddressListener {
+        DialogFragmentProvisionerAddress.ProvisionerAddressListener,
+        DialogFragmentUnassign.DialogFragmentUnassignListener {
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -228,16 +230,33 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
     @Override
     public boolean setAddress(final int sourceAddress) {
         if (mProvisioner != null) {
-            mProvisioner.setProvisionerAddress(sourceAddress);
-            updateUi();
-            return true;
+            if(mProvisioner.assignProvisionerAddress(sourceAddress)) {
+                updateUi();
+                return true;
+            }
         }
         return false;
     }
 
     @Override
     public void unassignProvisioner() {
+        if (mProvisioner != null) {
+            final DialogFragmentUnassign fragmentUnassign = DialogFragmentUnassign
+                    .newInstance(getString(R.string.title_unassign_provisioner), getString(R.string.summary_unassign_provisioner));
+            fragmentUnassign.show(getSupportFragmentManager(), null);
+        }
+    }
 
+    @Override
+    public void onProvisionerUnassigned() {
+        if (mProvisioner != null) {
+            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+            if (network != null) {
+                provisionerUnicast.setText(R.string.unicast_address_unassigned);
+                mProvisioner.assignProvisionerAddress(null);
+                network.disableConfigurationCapabilities(mProvisioner);
+            }
+        }
     }
 
     @Override
