@@ -10,7 +10,7 @@ import androidx.annotation.RestrictTo;
 
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("unused")

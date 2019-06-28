@@ -53,7 +53,7 @@ import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningFailedState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.AlgorithmType;
 import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
 import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
@@ -70,10 +70,10 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisionin
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSelectOOBType;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.ProvisionerStates;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionerProgress;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningStatusLiveData;
 
 public class MeshProvisionerActivity extends AppCompatActivity implements Injectable,
         DialogFragmentSelectOOBType.DialogFragmentSelectOOBTypeListener,
@@ -348,7 +348,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 final ProvisionerProgress provisionerProgress = provisioningStateLiveData.getProvisionerProgress();
                 adapter.refresh(provisioningStateLiveData.getStateList());
                 if (provisionerProgress != null) {
-                    final ProvisioningStatusLiveData.ProvisioningLiveDataState state = provisionerProgress.getState();
+                    final ProvisionerStates state = provisionerProgress.getState();
                     switch (state) {
                         case PROVISIONING_FAILED:
                             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_PROVISIONING_FAILED) == null) {
@@ -391,6 +391,11 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                                 fragmentConfigComplete.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
                             }
                             break;
+                        case PROVISIONER_UNASSIGNED:
+                            setResultIntent();
+                            break;
+                        default:
+                            break;
                     }
 
                 }
@@ -410,12 +415,17 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         if (mViewModel.isProvisioningComplete()) {
             returnIntent.putExtra(Utils.PROVISIONING_COMPLETED, true);
             setResult(Activity.RESULT_OK, returnIntent);
-            if (mViewModel.isCompositionDataStatusReceived()) {
-                returnIntent.putExtra(Utils.COMPOSITION_DATA_COMPLETED, true);
-                if (mViewModel.isAppKeyAddCompleted()) {
-                    returnIntent.putExtra(Utils.APP_KEY_ADD_COMPLETED, true);
-                    if (mViewModel.isNetworkRetransmitSetCompleted()) {
-                        returnIntent.putExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, true);
+            final ProvisionerProgress progress = mViewModel.getProvisioningStatus().getProvisionerProgress();
+            if (progress.getState() == ProvisionerStates.PROVISIONER_UNASSIGNED) {
+                returnIntent.putExtra(Utils.PROVISIONER_UNASSIGNED, true);
+            } else {
+                if (mViewModel.isCompositionDataStatusReceived()) {
+                    returnIntent.putExtra(Utils.COMPOSITION_DATA_COMPLETED, true);
+                    if (mViewModel.isAppKeyAddCompleted()) {
+                        returnIntent.putExtra(Utils.APP_KEY_ADD_COMPLETED, true);
+                        if (mViewModel.isNetworkRetransmitSetCompleted()) {
+                            returnIntent.putExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, true);
+                        }
                     }
                 }
             }

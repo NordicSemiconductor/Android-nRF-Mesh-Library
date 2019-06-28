@@ -47,9 +47,7 @@ import no.nordicsemi.android.meshprovisioner.data.ProvisionedMeshNodeDao;
 import no.nordicsemi.android.meshprovisioner.data.ProvisionerDao;
 import no.nordicsemi.android.meshprovisioner.data.SceneDao;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
@@ -473,27 +471,34 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
-        final int unicast = mMeshNetwork.nextAvailableUnicastAddress(unprovisionedMeshNode.getNumberOfElements(), mMeshNetwork.getSelectedProvisioner());
-        if (!MeshAddress.isValidUnicastAddress(unicast)) {
-            throw new IllegalArgumentException("Invalid address");
+        if (isAddressValid(unprovisionedMeshNode)) {
+            mMeshProvisioningHandler.startProvisioningNoOOB(unprovisionedMeshNode);
         }
-        unprovisionedMeshNode.setUnicastAddress(mMeshNetwork.getUnicastAddress());
-        mMeshProvisioningHandler.startProvisioningNoOOB(unprovisionedMeshNode);
     }
 
     @Override
     public void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException {
-        mMeshProvisioningHandler.startProvisioningWithStaticOOB(unprovisionedMeshNode);
+        if (isAddressValid(unprovisionedMeshNode)) {
+            mMeshProvisioningHandler.startProvisioningWithStaticOOB(unprovisionedMeshNode);
+        }
     }
 
     @Override
-    public void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final OutputOOBAction oobAction) throws IllegalArgumentException {
-        mMeshProvisioningHandler.startProvisioningWithOutputOOB(unprovisionedMeshNode, oobAction);
+    public void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode,
+                                               @NonNull final OutputOOBAction oobAction) throws IllegalArgumentException {
+
+        if (isAddressValid(unprovisionedMeshNode)) {
+            mMeshProvisioningHandler.startProvisioningWithOutputOOB(unprovisionedMeshNode, oobAction);
+        }
     }
 
     @Override
-    public void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final InputOOBAction oobAction) throws IllegalArgumentException {
-        mMeshProvisioningHandler.startProvisioningWithInputOOB(unprovisionedMeshNode, oobAction);
+    public void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode,
+                                              @NonNull final InputOOBAction oobAction) throws IllegalArgumentException {
+
+        if (isAddressValid(unprovisionedMeshNode)) {
+            mMeshProvisioningHandler.startProvisioningWithInputOOB(unprovisionedMeshNode, oobAction);
+        }
     }
 
     @Override
@@ -732,13 +737,13 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public void createMeshPdu(final int dst, @NonNull final MeshMessage meshMessage) {
         if (!MeshAddress.isAddressInRange(dst)) {
-            throw new IllegalArgumentException("Invalid address, destination address must be a valid 16-bit value!");
+            throw new IllegalArgumentException("Invalid address, destination address must be a valid 16-bit value.");
         }
         final Provisioner provisioner = mMeshNetwork.getSelectedProvisioner();
         if (provisioner != null && provisioner.getProvisionerAddress() != null) {
             mMeshMessageHandler.createMeshMessage(provisioner.getProvisionerAddress(), dst, meshMessage);
         } else {
-            throw new IllegalArgumentException("Provisioner not set, Please assign a address to the provisioner!");
+            throw new IllegalArgumentException("Provisioner address not set, please assign an address to the provisioner.");
         }
     }
 
@@ -1104,4 +1109,16 @@ public class MeshManagerApi implements MeshMngrApi {
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
     };
+
+    private boolean isAddressValid(@NonNull final UnprovisionedMeshNode node) {
+        final int unicast = mMeshNetwork.nextAvailableUnicastAddress(node.getNumberOfElements(), mMeshNetwork.getSelectedProvisioner());
+        if (!MeshAddress.isValidUnicastAddress(unicast)) {
+            throw new IllegalArgumentException("Invalid address");
+        }
+        if (!mMeshNetwork.getSelectedProvisioner().isAddressWithinAllocatedRange(mMeshNetwork.getUnicastAddress())) {
+            throw new IllegalArgumentException("Address assigned to node is outside of provisioner's allocated unicast range.");
+        }
+        node.setUnicastAddress(mMeshNetwork.getUnicastAddress());
+        return true;
+    }
 }

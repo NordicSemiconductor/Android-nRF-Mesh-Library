@@ -1,12 +1,14 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+
 import android.util.Log;
 
 /**
  * State class for handling VendorModelMessageAckedState messages.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 class VendorModelMessageAckedState extends GenericMessageState {
 
     private static final String TAG = VendorModelMessageAckedState.class.getSimpleName();

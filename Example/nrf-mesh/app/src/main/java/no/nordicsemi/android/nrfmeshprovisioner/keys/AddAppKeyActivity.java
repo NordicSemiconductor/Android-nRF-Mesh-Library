@@ -28,6 +28,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
@@ -37,23 +39,35 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.ManageBoundNetKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentEditAppKey;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddAppKeyViewModel;
 
-public class AddAppKeyActivity extends AppCompatActivity implements Injectable, MeshKeyListener {
+public class AddAppKeyActivity extends AppCompatActivity implements Injectable,
+        MeshKeyListener,
+        ManageBoundNetKeyAdapter.OnItemClickListener {
 
     private static final String APPLICATION_KEY = "APPLICATION_KEY";
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
-    private TextView nameView;
-    private TextView keyView;
-    private TextView keyIndexView;
+
+    @BindView(R.id.container)
+    View container;
+    TextView nameView;
+    TextView keyView;
+    TextView keyIndexView;
 
     private AddAppKeyViewModel mViewModel;
     private ApplicationKey appKey;
@@ -63,6 +77,16 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_key);
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AddAppKeyViewModel.class);
+        ButterKnife.bind(this);
+
+        if (savedInstanceState == null) {
+            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+            if (network != null) {
+                appKey = network.createAppKey();
+            }
+        } else {
+            appKey = savedInstanceState.getParcelable(APPLICATION_KEY);
+        }
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -93,6 +117,15 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable, 
         keyIndexView = containerKeyIndex.findViewById(R.id.text);
         keyIndexView.setVisibility(View.VISIBLE);
 
+        findViewById(R.id.net_key_container).setVisibility(View.VISIBLE);
+
+        final RecyclerView netKeysRecyclerView = findViewById(R.id.recycler_view_keys);
+        netKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        netKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        final ManageBoundNetKeyAdapter adapter = new ManageBoundNetKeyAdapter(this, mViewModel.getMeshNetworkLiveData().getNetworkKeys(), appKey);
+        adapter.setOnItemClickListener(this);
+        netKeysRecyclerView.setAdapter(adapter);
+
         containerKey.setOnClickListener(v -> {
             if (appKey != null) {
                 final DialogFragmentEditAppKey fragment = DialogFragmentEditAppKey.newInstance(appKey.getKeyIndex(), appKey);
@@ -107,18 +140,10 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable, 
             }
         });
 
-        if (savedInstanceState == null) {
-            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if (network != null) {
-                appKey = network.createAppKey();
-            }
-        } else {
-            appKey = savedInstanceState.getParcelable(APPLICATION_KEY);
-        }
         updateUi();
     }
 
-    private void updateUi(){
+    private void updateUi() {
         if (appKey != null) {
             keyView.setText(MeshParserUtils.bytesToHex(appKey.getKey(), false));
             nameView.setText(appKey.getName());
@@ -173,11 +198,34 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable, 
 
     @Override
     public boolean onKeyUpdated(final int position, @NonNull final String key) {
-        if(appKey != null) {
+        if (appKey != null) {
             this.appKey.setKey(MeshParserUtils.toByteArray(key));
             keyView.setText(key);
             return true;
         }
         return false;
+    }
+
+    @Override
+    public ApplicationKey updateBoundNetKeyIndex(final int position, @NonNull final NetworkKey networkKey) {
+        final ApplicationKey key = appKey;
+        key.setBoundNetKeyIndex(networkKey.getKeyIndex());
+        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+        if (network != null) {
+            try {
+                if (network.updateAppKey(key)) {
+                    appKey = key;
+                    return key;
+                }
+            } catch (IllegalArgumentException ex) {
+                displaySnackBar(ex.getMessage());
+            }
+        }
+        return appKey;
+    }
+
+    private void displaySnackBar(final String message) {
+        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
+                .show();
     }
 }

@@ -51,7 +51,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppUnbind;
@@ -341,7 +341,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                     } else {
                         configModelSubscriptionAdd = new ConfigModelSubscriptionVirtualAddressAdd(elementAddress, group.getAddressLabel(), modelIdentifier);
                     }
-                    mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
+                    sendMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
                     showProgressbar();
                 }
             }
@@ -385,7 +385,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                 final MeshModel model = mViewModel.getSelectedModel().getValue();
                 if (model != null) {
                     final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(element.getElementAddress(), model.getModelId(), appKeyIndex);
-                    mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), configModelAppUnbind);
+                    sendMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
                     showProgressbar();
                 }
             }
@@ -403,7 +403,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                     final MeshModel model = mViewModel.getSelectedModel().getValue();
                     if (model != null) {
                         final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(element.getElementAddress(), model.getModelId(), keyIndex);
-                        mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), configModelAppUnbind);
+                        sendMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
                         showProgressbar();
                     }
                 }
@@ -444,7 +444,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                                         labelUuid, appKeyIndex, credentialFlag, publishTtl,
                                         publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId());
                             }
-                            mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configModelPublicationSet);
+                            sendMessage(node.getUnicastAddress(), configModelPublicationSet);
                             showProgressbar();
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -468,7 +468,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                         final boolean credentialFlag = model.getPublicationSettings().getCredentialFlag();
                         final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), address, appKeyIndex,
                                 credentialFlag, 0, 0, 0, 0, 0, model.getModelId());
-                        mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), configModelPublicationSet);
+                        sendMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
                         showProgressbar();
                     } else {
                         Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
@@ -497,7 +497,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                         }
 
                         if (subscriptionDelete != null) {
-                            mViewModel.getMeshManagerApi().createMeshPdu(meshNode.getUnicastAddress(), subscriptionDelete);
+                            sendMessage(meshNode.getUnicastAddress(), subscriptionDelete);
                             showProgressbar();
                         }
                     }

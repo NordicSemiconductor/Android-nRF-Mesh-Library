@@ -26,6 +26,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
+
 @SuppressWarnings({"WeakerAccess", "unused"})
 abstract class Message implements Parcelable {
 

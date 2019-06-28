@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import java.util.List;
 
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 
 public interface NetworkLayerCallbacks {

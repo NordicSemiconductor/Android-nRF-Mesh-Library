@@ -26,11 +26,10 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 
 /**
  * LiveData class for storing {@link MeshNetwork}
@@ -112,54 +111,6 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
 
     public void resetSelectedAppKey() {
         this.selectedAppKey = null;
-    }
-
-    /**
-     * Adds an application key to the next available index in the global app key list
-     *
-     * @param appKey key {@link ApplicationKey}
-     */
-    public boolean addAppKey(@NonNull final String appKey) throws IllegalArgumentException {
-        if (meshNetwork != null) {
-            return meshNetwork.addAppKey(appKey);
-        }
-        return false;
-    }
-
-    /**
-     * Adds an application key to the mesh network
-     */
-    @SuppressWarnings("UnusedReturnValue")
-    public boolean addAppKey(final ApplicationKey applicationKey) {
-        if (meshNetwork != null) {
-            return meshNetwork.addAppKey(applicationKey);
-        }
-        return false;
-    }
-
-    /**
-     * Update the application key in a particular position
-     *
-     * @param keyIndex       update app key in given key index
-     * @param applicationKey app key
-     */
-    public boolean updateAppKey(final int keyIndex, final String applicationKey) throws IllegalArgumentException {
-        if (meshNetwork != null) {
-            return meshNetwork.updateAppKey(keyIndex, applicationKey);
-        }
-        return false;
-    }
-
-    /**
-     * Remove app key from the list of application keys in the mesh network
-     *
-     * @param appKey key {@link ApplicationKey}
-     */
-    public boolean removeAppKey(@NonNull final ApplicationKey appKey) throws IllegalArgumentException {
-        if (meshNetwork != null) {
-            return meshNetwork.removeAppKey(appKey);
-        }
-        return false;
     }
 
     /**

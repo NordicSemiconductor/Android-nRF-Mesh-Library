@@ -49,7 +49,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -69,7 +70,6 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
     public static final String RESULT_APP_KEY_LIST_SIZE = "RESULT_APP_KEY_LIST_SIZE";
     public static final String EDIT_APP_KEY = "EDIT_APP_KEY";
     public static final int SELECT_APP_KEY = 2011; //Random number
-    public static final int MANAGE_APP_KEYS = 2012; //Random number
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -220,7 +220,8 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         final ApplicationKey key = (ApplicationKey) viewHolder.getSwipeableView().getTag();
         try {
-            if (mViewModel.getMeshNetworkLiveData().removeAppKey(key)) {
+            final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+            if (network.removeAppKey(key)) {
                 displaySnackBar(key);
                 // Show the empty view
                 final boolean empty = mAdapter.getItemCount() == 0;
@@ -254,7 +255,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
         Snackbar.make(container, getString(R.string.app_key_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
                     mEmptyView.setVisibility(View.INVISIBLE);
-                    mViewModel.getMeshNetworkLiveData().addAppKey(appKey);
+                    mViewModel.getMeshNetworkLiveData().getMeshNetwork().addAppKey(appKey);
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();

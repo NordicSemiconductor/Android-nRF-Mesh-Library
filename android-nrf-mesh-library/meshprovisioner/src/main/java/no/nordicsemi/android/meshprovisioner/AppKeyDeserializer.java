@@ -13,7 +13,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 final class AppKeyDeserializer implements JsonSerializer<List<ApplicationKey>>, JsonDeserializer<List<ApplicationKey>> {

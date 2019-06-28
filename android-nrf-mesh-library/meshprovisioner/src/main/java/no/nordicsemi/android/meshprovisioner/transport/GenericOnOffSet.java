@@ -7,6 +7,7 @@ import java.nio.ByteOrder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -52,7 +53,6 @@ public class GenericOnOffSet extends GenericMessage {
      * @param delay                Delay for this message to be executed 0 - 1275 milliseconds
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    @SuppressWarnings("WeakerAccess")
     public GenericOnOffSet(@NonNull final ApplicationKey appKey,
                            final boolean state,
                            final int tId,

@@ -22,12 +22,11 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import androidx.lifecycle.LiveData;
-
 import java.util.ArrayList;
 
-import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
+import androidx.lifecycle.LiveData;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.ProvisionerStates;
 
 public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveData> {
 
@@ -36,53 +35,6 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
     public void clear() {
         mProvisioningProgress.clear();
         postValue(this);
-    }
-
-    public enum ProvisioningLiveDataState {
-        PROVISIONING_INVITE(0),
-        PROVISIONING_CAPABILITIES(1),
-        PROVISIONING_START(2),
-        PROVISIONING_PUBLIC_KEY_SENT(3),
-        PROVISIONING_PUBLIC_KEY_RECEIVED(4),
-        PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING(5),
-        PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING(6),
-        PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING(7),
-        PROVISIONING_AUTHENTICATION_INPUT_ENTERED(8),
-        PROVISIONING_INPUT_COMPLETE(9),
-        PROVISIONING_CONFIRMATION_SENT(10),
-        PROVISIONING_CONFIRMATION_RECEIVED(11),
-        PROVISIONING_RANDOM_SENT(12),
-        PROVISIONING_RANDOM_RECEIVED(13),
-        PROVISIONING_DATA_SENT(14),
-        PROVISIONING_COMPLETE(15),
-        PROVISIONING_FAILED(16),
-        COMPOSITION_DATA_GET_SENT(17),
-        COMPOSITION_DATA_STATUS_RECEIVED(18),
-        SENDING_BLOCK_ACKNOWLEDGEMENT(19),
-        SENDING_APP_KEY_ADD(20),
-        BLOCK_ACKNOWLEDGEMENT_RECEIVED(21),
-        APP_KEY_STATUS_RECEIVED(22),
-        SENDING_NETWORK_TRANSMIT_SET(23),
-        NETWORK_TRANSMIT_STATUS_RECEIVED(24);
-
-        private final int state;
-
-        ProvisioningLiveDataState(final int state) {
-            this.state = state;
-        }
-
-        int getState() {
-            return state;
-        }
-
-        static ProvisioningLiveDataState fromStatusCode(final int statusCode) {
-            for (ProvisioningLiveDataState state : ProvisioningLiveDataState.values()) {
-                if (state.getState() == statusCode) {
-                    return state;
-                }
-            }
-            throw new IllegalStateException("Invalid state");
-        }
     }
 
     public ArrayList<ProvisionerProgress> getStateList() {
@@ -96,10 +48,9 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
         return mProvisioningProgress.get(mProvisioningProgress.size() - 1);
     }
 
-    void onMeshNodeStateUpdated(final ProvisioningState.States provisionerState) {
+    void onMeshNodeStateUpdated(final ProvisionerStates state) {
         final ProvisionerProgress provisioningProgress;
-        final ProvisioningLiveDataState state = ProvisioningLiveDataState.fromStatusCode(provisionerState.getState());
-        switch (provisionerState) {
+        switch (state) {
             case PROVISIONING_INVITE:
                 provisioningProgress = new ProvisionerProgress(state, "Sending provisioning invite...", R.drawable.ic_arrow_forward_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
@@ -193,6 +144,10 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
                 break;
             case NETWORK_TRANSMIT_STATUS_RECEIVED:
                 provisioningProgress = new ProvisionerProgress(state, "Network transmit status received...", R.drawable.ic_arrow_forward_black_alpha);
+                mProvisioningProgress.add(provisioningProgress);
+                break;
+            case PROVISIONER_UNASSIGNED:
+                provisioningProgress = new ProvisionerProgress(state, "Provisioner unassigned...", R.drawable.ic_arrow_forward_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
         }

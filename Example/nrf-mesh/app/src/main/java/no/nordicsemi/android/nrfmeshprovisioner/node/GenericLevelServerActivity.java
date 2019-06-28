@@ -1,8 +1,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.node;
 
-import androidx.lifecycle.ViewModelProvider;
 import android.os.Bundle;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +10,10 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.ViewModelProvider;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelGet;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSet;
@@ -24,7 +24,6 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 
 public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
 

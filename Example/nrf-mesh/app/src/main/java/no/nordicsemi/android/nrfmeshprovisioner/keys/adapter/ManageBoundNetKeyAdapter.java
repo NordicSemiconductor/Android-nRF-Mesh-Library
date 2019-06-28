@@ -26,65 +26,66 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
-public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapter.ViewHolder> {
+public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNetKeyAdapter.ViewHolder> {
 
-    private final ArrayList<ApplicationKey> appKeys = new ArrayList<>();
+    private final List<NetworkKey> mNetworkKeys;
     private final Context mContext;
+    private ApplicationKey mAppKey;
+    private OnItemClickListener mOnItemClickListener;
 
-    public BoundAppKeysAdapter(@NonNull final Context context,
-                               @NonNull final List<ApplicationKey> appKeys,
-                               @NonNull final LiveData<MeshModel> meshModelLiveData) {
-        this.mContext = context;
-        meshModelLiveData.observe((LifecycleOwner) context, meshModel -> {
-            if (meshModel != null) {
-                this.appKeys.clear();
-                for (Integer index : meshModel.getBoundAppKeyIndexes()) {
-                    for (ApplicationKey applicationKey : appKeys) {
-                        if (index == applicationKey.getKeyIndex()) {
-                            this.appKeys.add(applicationKey);
-                        }
-                    }
-                }
-                Collections.sort(this.appKeys, Utils.appKeyComparator);
-                notifyDataSetChanged();
-            }
-        });
+    public ManageBoundNetKeyAdapter(@NonNull final Context context,
+                                    @NonNull final List<NetworkKey> networkKeys,
+                                    @NonNull final ApplicationKey appKey) {
+        mContext = context;
+        mNetworkKeys = networkKeys;
+        mAppKey = appKey;
+    }
+
+    public void setOnItemClickListener(final ManageBoundNetKeyAdapter.OnItemClickListener listener) {
+        mOnItemClickListener = listener;
     }
 
     @NonNull
     @Override
-    public BoundAppKeysAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item, parent, false);
-        return new BoundAppKeysAdapter.ViewHolder(layoutView);
+    public ManageBoundNetKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item2, parent, false);
+        return new ManageBoundNetKeyAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final BoundAppKeysAdapter.ViewHolder holder, final int position) {
-        if (appKeys.size() > 0) {
-            final ApplicationKey applicationKey = appKeys.get(position);
-            final String appKey = MeshParserUtils.bytesToHex(applicationKey.getKey(), false);
-            holder.appKeyName.setText(applicationKey.getName());
-            holder.appKey.setText(appKey.toUpperCase());
+    public void onBindViewHolder(@NonNull final ManageBoundNetKeyAdapter.ViewHolder holder, final int position) {
+        if (mNetworkKeys.size() > 0) {
+            final NetworkKey networkKey = mNetworkKeys.get(position);
+            holder.netKeyName.setText(networkKey.getName());
+            final String key = MeshParserUtils.bytesToHex(networkKey.getKey(), false);
+            holder.netKey.setText(key.toUpperCase());
+            holder.getSwipeableView().setTag(networkKey);
+
+            if (checkRadio(networkKey)) {
+                holder.bound.setChecked(true);
+            } else {
+                holder.bound.setChecked(false);
+            }
         }
+    }
+
+    private boolean checkRadio(@NonNull final NetworkKey key) {
+        return key.getKeyIndex() == mAppKey.getBoundNetKeyIndex();
     }
 
     @Override
@@ -94,35 +95,40 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
 
     @Override
     public int getItemCount() {
-        return appKeys.size();
+        return mNetworkKeys.size();
     }
 
     public boolean isEmpty() {
         return getItemCount() == 0;
     }
 
-    public ApplicationKey getAppKey(final int position) {
-        if (!appKeys.isEmpty()) {
-            return appKeys.get(position);
-        }
-        return null;
-    }
-
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final int position, final ApplicationKey appKey);
+        ApplicationKey updateBoundNetKeyIndex(final int position, @NonNull final NetworkKey networkKey);
     }
 
-    public final class ViewHolder extends RemovableViewHolder {
+    final class ViewHolder extends RemovableViewHolder {
 
         @BindView(R.id.title)
-        TextView appKeyName;
+        TextView netKeyName;
         @BindView(R.id.subtitle)
-        TextView appKey;
+        TextView netKey;
+        @BindView(R.id.radio)
+        RadioButton bound;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
+            view.findViewById(R.id.removable).setOnClickListener(v -> {
+                if (mOnItemClickListener != null) {
+                    final NetworkKey netKey = mNetworkKeys.get(getAdapterPosition());
+                    final ApplicationKey appKey = mOnItemClickListener.updateBoundNetKeyIndex(getAdapterPosition(), netKey);
+                    if (appKey != null) {
+                        mAppKey = appKey;
+                        notifyItemChanged(getAdapterPosition());
+                    }
+                }
+            });
         }
     }
 }

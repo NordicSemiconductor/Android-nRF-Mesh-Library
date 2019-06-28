@@ -135,39 +135,7 @@ public class NetworkFragment extends Fragment implements Injectable,
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        if (requestCode == Utils.PROVISIONING_SUCCESS) {
-            if (resultCode == RESULT_OK) {
-                final boolean provisioningSuccess = data.getBooleanExtra(Utils.PROVISIONING_COMPLETED, false);
-                if (provisioningSuccess) {
-                    final boolean compositionDataReceived = data.getBooleanExtra(Utils.COMPOSITION_DATA_COMPLETED, false);
-                    final boolean appKeyAddCompleted = data.getBooleanExtra(Utils.APP_KEY_ADD_COMPLETED, false);
-                    final boolean networkRetransmitSetCompleted = data.getBooleanExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, false);
-                    final DialogFragmentConfigError fragmentConfigError;
-                    if (compositionDataReceived) {
-                        if (appKeyAddCompleted) {
-                            if (!networkRetransmitSetCompleted) {
-                                fragmentConfigError =
-                                        DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                                , getString(R.string.init_config_error_net_transmit_msg));
-                                fragmentConfigError.show(getChildFragmentManager(), null);
-                            }
-                        } else {
-                            fragmentConfigError =
-                                    DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                            , getString(R.string.init_config_error_app_key_msg));
-                            fragmentConfigError.show(getChildFragmentManager(), null);
-                        }
-
-                    } else {
-                        fragmentConfigError =
-                                DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                        , getString(R.string.init_config_error_all));
-                        fragmentConfigError.show(getChildFragmentManager(), null);
-                    }
-                }
-                requireActivity().invalidateOptionsMenu();
-            }
-        }
+        handleActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -193,5 +161,49 @@ public class NetworkFragment extends Fragment implements Injectable,
         Snackbar.make(container, message, Snackbar.LENGTH_LONG)
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();
+    }
+
+    private void handleActivityResult(final int requestCode, final int resultCode, @NonNull final Intent data) {
+        if (requestCode == Utils.PROVISIONING_SUCCESS) {
+            if (resultCode == RESULT_OK) {
+                final boolean provisioningSuccess = data.getBooleanExtra(Utils.PROVISIONING_COMPLETED, false);
+                final DialogFragmentConfigError fragmentConfigError;
+                if (provisioningSuccess) {
+                    final boolean provisionerUnassigned = data.getBooleanExtra(Utils.PROVISIONER_UNASSIGNED, false);
+                    if (provisionerUnassigned) {
+                        fragmentConfigError =
+                                DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                        , getString(R.string.provisioner_unassigned_msg));
+                        fragmentConfigError.show(getChildFragmentManager(), null);
+                    } else {
+                        final boolean compositionDataReceived = data.getBooleanExtra(Utils.COMPOSITION_DATA_COMPLETED, false);
+                        final boolean appKeyAddCompleted = data.getBooleanExtra(Utils.APP_KEY_ADD_COMPLETED, false);
+                        final boolean networkRetransmitSetCompleted = data.getBooleanExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, false);
+                        if (compositionDataReceived) {
+                            if (appKeyAddCompleted) {
+                                if (!networkRetransmitSetCompleted) {
+                                    fragmentConfigError =
+                                            DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                                    , getString(R.string.init_config_error_net_transmit_msg));
+                                    fragmentConfigError.show(getChildFragmentManager(), null);
+                                }
+                            } else {
+                                fragmentConfigError =
+                                        DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                                , getString(R.string.init_config_error_app_key_msg));
+                                fragmentConfigError.show(getChildFragmentManager(), null);
+                            }
+
+                        } else {
+                            fragmentConfigError =
+                                    DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                            , getString(R.string.init_config_error_all));
+                            fragmentConfigError.show(getChildFragmentManager(), null);
+                        }
+                    }
+                }
+                requireActivity().invalidateOptionsMenu();
+            }
+        }
     }
 }

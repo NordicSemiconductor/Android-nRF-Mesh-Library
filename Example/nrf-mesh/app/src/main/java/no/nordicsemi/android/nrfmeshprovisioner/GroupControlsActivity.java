@@ -43,6 +43,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.models.ConfigurationServerModel;
@@ -50,7 +51,6 @@ import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSetUnacknowledged;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSetUnacknowledged;
@@ -252,7 +252,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             return;
 
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        final ApplicationKey applicationKey = network.getAppKey(keyIndex);
+        final ApplicationKey applicationKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(keyIndex);
         final int tid = network.getSelectedProvisioner().getSequenceNumber();
         final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey,
                 state, tid, transitionSteps, transitionStepResolution, delay);
@@ -268,7 +268,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         if (network != null) {
-            final ApplicationKey applicationKey = network.getAppKey(keyIndex);
+            final ApplicationKey applicationKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(keyIndex);
             final int tid = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
             final MeshMessage meshMessage = new GenericLevelSetUnacknowledged(applicationKey, transitionSteps, transitionStepResolution, delay, level, tid);
             sendMessage(group.getAddress(), meshMessage);

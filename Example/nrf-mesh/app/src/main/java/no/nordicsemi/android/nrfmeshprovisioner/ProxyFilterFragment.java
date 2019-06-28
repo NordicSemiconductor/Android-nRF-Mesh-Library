@@ -48,6 +48,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigAddAddressToFilter;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigRemoveAddressFromFilter;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigSetFilterType;
@@ -57,6 +58,7 @@ import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.FilterAddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFilterAddAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
@@ -233,7 +235,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
     @Override
     public void addAddresses(final List<AddressArray> addresses) {
         final ProxyConfigAddAddressToFilter addAddressToFilter = new ProxyConfigAddAddressToFilter(addresses);
-        mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, addAddressToFilter);
+        sendMessage(addAddressToFilter);
     }
 
     private void removeAddress(final int position) {
@@ -247,7 +249,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
                 addresses.add(addressArr);
                 addressAdapter.clearRow(position);
                 final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = new ProxyConfigRemoveAddressFromFilter(addresses);
-                mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, removeAddressFromFilter);
+                sendMessage(removeAddressFromFilter);
             }
         }
     }
@@ -259,7 +261,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
             if (proxyFilter != null) {
                 if (!proxyFilter.getAddresses().isEmpty()) {
                     final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = new ProxyConfigRemoveAddressFromFilter(proxyFilter.getAddresses());
-                    mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, removeAddressFromFilter);
+                    sendMessage(removeAddressFromFilter);
                 }
             }
         }
@@ -267,7 +269,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
 
     private void setFilter(final ProxyFilterType filterType) {
         final ProxyConfigSetFilterType setFilterType = new ProxyConfigSetFilterType(filterType);
-        mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, setFilterType);
+        sendMessage(setFilterType);
     }
 
     @Override
@@ -281,5 +283,15 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
     @Override
     public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
 
+    }
+
+    private void sendMessage(final MeshMessage meshMessage) {
+        try {
+            mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, meshMessage);
+        } catch (IllegalArgumentException ex) {
+            final DialogFragmentConfigError message = DialogFragmentConfigError.
+                    newInstance(getString(R.string.title_error), ex.getMessage());
+            message.show(getChildFragmentManager(), null);
+        }
     }
 }

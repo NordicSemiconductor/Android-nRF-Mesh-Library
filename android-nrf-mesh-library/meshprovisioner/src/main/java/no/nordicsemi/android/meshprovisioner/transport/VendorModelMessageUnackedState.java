@@ -1,9 +1,11 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+
 import android.util.Log;
 
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings({"unused"})
 class VendorModelMessageUnackedState extends GenericMessageState {
 
     private static final String TAG = VendorModelMessageUnackedState.class.getSimpleName();

@@ -27,6 +27,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
@@ -36,32 +38,43 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.ManageBoundNetKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentEditAppKey;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditAppKeyViewModel;
 
-public class EditAppKeyActivity extends AppCompatActivity implements Injectable, MeshKeyListener {
+public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
+        MeshKeyListener,
+        ManageBoundNetKeyAdapter.OnItemClickListener {
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
+    @BindView(R.id.container)
+    View container;
 
     private EditAppKeyViewModel mViewModel;
-    private ApplicationKey applicationKey;
+    private ApplicationKey appKey;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_key);
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(EditAppKeyViewModel.class);
-
+        ButterKnife.bind(this);
         //noinspection ConstantConditions
         final int index = getIntent().getExtras().getInt(AppKeysActivity.EDIT_APP_KEY);
-        applicationKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(index);
+        appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(index);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -92,34 +105,42 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
         final TextView keyIndexView = containerKeyIndex.findViewById(R.id.text);
         keyIndexView.setVisibility(View.VISIBLE);
 
+        findViewById(R.id.net_key_container).setVisibility(View.VISIBLE);
+        final RecyclerView netKeysRecyclerView = findViewById(R.id.recycler_view_keys);
+        netKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        netKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        final ManageBoundNetKeyAdapter mAdapter = new ManageBoundNetKeyAdapter(this, mViewModel.getMeshNetworkLiveData().getNetworkKeys(), appKey);
+        mAdapter.setOnItemClickListener(this);
+        netKeysRecyclerView.setAdapter(mAdapter);
+
         containerKey.setOnClickListener(v -> {
-            if (applicationKey != null) {
-                final DialogFragmentEditAppKey fragment = DialogFragmentEditAppKey.newInstance(applicationKey.getKeyIndex(), applicationKey);
+            if (appKey != null) {
+                final DialogFragmentEditAppKey fragment = DialogFragmentEditAppKey.newInstance(appKey.getKeyIndex(), appKey);
                 fragment.show(getSupportFragmentManager(), null);
             }
         });
 
         containerKeyName.setOnClickListener(v -> {
-            if (applicationKey != null) {
-                final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(applicationKey.getName());
+            if (appKey != null) {
+                final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(appKey.getName());
                 fragment.show(getSupportFragmentManager(), null);
             }
         });
 
         mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
-            if(applicationKey != null) {
-                this.applicationKey = meshNetworkLiveData.getMeshNetwork().getAppKey(applicationKey.getKeyIndex());
-                keyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
-                name.setText(applicationKey.getName());
-                keyIndexView.setText(String.valueOf(applicationKey.getKeyIndex()));
+            if (appKey != null) {
+                this.appKey = meshNetworkLiveData.getMeshNetwork().getAppKey(appKey.getKeyIndex());
+                keyView.setText(MeshParserUtils.bytesToHex(appKey.getKey(), false));
+                name.setText(appKey.getName());
+                keyIndexView.setText(String.valueOf(appKey.getKeyIndex()));
             }
         });
 
-        if(savedInstanceState == null){
-            keyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
-            name.setText(applicationKey.getName());
+        if (savedInstanceState == null) {
+            keyView.setText(MeshParserUtils.bytesToHex(appKey.getKey(), false));
+            name.setText(appKey.getName());
         }
-        keyIndexView.setText(String.valueOf(applicationKey.getKeyIndex()));
+        keyIndexView.setText(String.valueOf(appKey.getKeyIndex()));
 
     }
 
@@ -134,11 +155,11 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public boolean onKeyNameUpdated(@NonNull final String name) {
-        if(applicationKey != null) {
-            final int index = applicationKey.getKeyIndex();
+        if (appKey != null) {
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if(network != null) {
-                return network.updateAppKeyName(index, name);
+            if (network != null) {
+                appKey.setName(name);
+                return network.updateAppKey(appKey);
             }
         }
         return false;
@@ -147,9 +168,36 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
     @Override
     public boolean onKeyUpdated(final int position, @NonNull final String key) {
         final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-        if(network != null) {
-            return network.updateAppKey(position, key);
+        if (network != null) {
+            return network.updateAppKey(appKey, key);
         }
         return false;
+    }
+
+    @Override
+    public ApplicationKey updateBoundNetKeyIndex(final int position, @NonNull final NetworkKey networkKey) {
+        try {
+            final ApplicationKey key = appKey.clone();
+            key.setBoundNetKeyIndex(networkKey.getKeyIndex());
+            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+            if (network != null) {
+                try {
+                    if (network.updateAppKey(key)) {
+                        appKey = key;
+                        return key;
+                    }
+                } catch (IllegalArgumentException ex) {
+                    displaySnackBar(ex.getMessage());
+                }
+            }
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return appKey;
+    }
+
+    private void displaySnackBar(final String message) {
+        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
+                .show();
     }
 }

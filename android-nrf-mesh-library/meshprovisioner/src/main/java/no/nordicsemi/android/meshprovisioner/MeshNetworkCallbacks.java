@@ -4,8 +4,6 @@ import androidx.annotation.NonNull;
 
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 interface MeshNetworkCallbacks {

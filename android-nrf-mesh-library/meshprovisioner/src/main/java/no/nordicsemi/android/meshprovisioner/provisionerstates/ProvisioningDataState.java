@@ -22,11 +22,11 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.InternalProvisioningCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
@@ -37,13 +37,16 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 public class ProvisioningDataState extends ProvisioningState {
 
-    private final String TAG = ProvisioningRandomConfirmationState.class.getSimpleName();
+    private final String TAG = ProvisioningDataState.class.getSimpleName();
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
     private final MeshProvisioningStatusCallbacks mStatusCallbacks;
     private final InternalProvisioningCallbacks provisioningCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
-    public ProvisioningDataState(final InternalProvisioningCallbacks callbacks, final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    public ProvisioningDataState(@NonNull final InternalProvisioningCallbacks callbacks,
+                                 @NonNull final UnprovisionedMeshNode unprovisionedMeshNode,
+                                 @NonNull final InternalTransportCallbacks mInternalTransportCallbacks,
+                                 @NonNull final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
         this.provisioningCallbacks = callbacks;
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;

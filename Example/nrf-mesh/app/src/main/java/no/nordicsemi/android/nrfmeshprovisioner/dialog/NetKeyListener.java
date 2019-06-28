@@ -1,7 +1,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 
 public interface NetKeyListener {
 

@@ -27,6 +27,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,11 +36,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-
-import javax.inject.Inject;
-
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -108,7 +107,7 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
         });
 
         mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
-            if(networkKey != null) {
+            if (networkKey != null) {
                 this.networkKey = meshNetworkLiveData.getMeshNetwork().getNetKey(networkKey.getKeyIndex());
                 keyView.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
                 name.setText(networkKey.getName());
@@ -116,7 +115,7 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
             }
         });
 
-        if(savedInstanceState == null){
+        if (savedInstanceState == null) {
             keyView.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
             name.setText(networkKey.getName());
         }
@@ -135,11 +134,10 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public boolean onKeyNameUpdated(@NonNull final String name) {
-        if(networkKey != null) {
-            final int index = networkKey.getKeyIndex();
+        if (networkKey != null) {
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if(network != null) {
-                return network.updateNetKeyName(index, name);
+            if (network != null) {
+                return network.updateNetKey(networkKey, name);
             }
         }
         return false;
@@ -148,8 +146,8 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
     @Override
     public boolean onKeyUpdated(final int position, @NonNull final String key) {
         final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-        if(network != null) {
-            return network.updateNetKey(position, key);
+        if (network != null) {
+            return network.updateNetKey(networkKey, key);
         }
         return false;
     }
