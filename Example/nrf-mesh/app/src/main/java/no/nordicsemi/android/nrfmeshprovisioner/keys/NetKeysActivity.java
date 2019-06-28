@@ -118,13 +118,15 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
             final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
             if(network!= null) {
                 final NetworkKey networkKey = network.getPrimaryNetworkKey();
-                keyTitle.setText(networkKey.getName());
-                keyView.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
+                if (networkKey != null) {
+                    keyTitle.setText(networkKey.getName());
+                    keyView.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
 
-                if (network.getNetKeys().size() > 1) {
-                    mSubNetKeyCard.setVisibility(View.VISIBLE);
-                } else {
-                    mSubNetKeyCard.setVisibility(View.GONE);
+                    if (network.getNetKeys().size() > 1) {
+                        mSubNetKeyCard.setVisibility(View.VISIBLE);
+                    } else {
+                        mSubNetKeyCard.setVisibility(View.GONE);
+                    }
                 }
             }
         });

@@ -474,25 +474,16 @@ abstract class NetworkLayer extends LowerTransportLayer {
 
     /**
      * Returns the master credentials {@link SecureUtils.K2Output}
-     */
-    private SecureUtils.K2Output getK2Output() {
-        final NetworkKey networkKey = mNetworkLayerCallbacks.getPrimaryNetworkKey();
-        return SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
-    }
-
-    /**
-     * Returns the master credentials {@link SecureUtils.K2Output}
      *
      * @param message Message
      */
     private SecureUtils.K2Output getK2Output(final Message message) {
         final NetworkKey networkKey;
-        if (APPLICATION_KEY_IDENTIFIER == message.getAkf()) {
+        if (message.getAkf() == APPLICATION_KEY_IDENTIFIER) {
             networkKey = mNetworkLayerCallbacks.getPrimaryNetworkKey();
         } else {
-            final List<NetworkKey> networkKeys = mNetworkLayerCallbacks.getNetworkKeys();
             final int netKeyIndex = message.getApplicationKey().getBoundNetKeyIndex();
-            networkKey = networkKeys.get(netKeyIndex);
+            networkKey = mNetworkLayerCallbacks.getNetworkKey(netKeyIndex);
         }
         return SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
     }
@@ -630,43 +621,5 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 .put(lowerTransportPdu).array();
         //Network layer encryption
         return SecureUtils.encryptCCM(unencryptedNetworkPayload, encryptionKey, nonce, micLength);
-    }
-
-    /**
-     * Decrypts the pdu
-     *
-     * @param pdu          PDU received
-     * @param nonce        Nonce depending on the PDU type
-     * @param nid          7-bit network identifier
-     * @param headerLength Length of the de-obfuscated bytes
-     * @param micLength    Message integrity check length
-     * @throws ExtendedInvalidCipherTextException if the decryption failed
-     */
-    byte[] decryptPdu(@NonNull final byte[] pdu,
-                      @NonNull final byte[] nonce,
-                      final int nid,
-                      final int headerLength,
-                      final int micLength) throws ExtendedInvalidCipherTextException {
-        final int networkPayloadLength = pdu.length - (2 + headerLength);
-        final byte[] transportPdu = new byte[networkPayloadLength];
-        System.arraycopy(pdu, 8, transportPdu, 0, networkPayloadLength);
-
-        final List<NetworkKey> networkKeys = mNetworkLayerCallbacks.getNetworkKeys();
-        //Here we go through all the network keys and filter out network keys based on the nid.
-        for (int i = 0; i < networkKeys.size(); i++) {
-            NetworkKey networkKey = networkKeys.get(i);
-            final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
-            if (nid == k2Output.getNid()) {
-                final byte[] encryptionKey = k2Output.getEncryptionKey();
-                try {
-                    return SecureUtils.decryptCCM(transportPdu, encryptionKey, nonce, micLength);
-                } catch (InvalidCipherTextException ex) {
-                    if (i == networkKeys.size() - 1) {
-                        throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
-                    }
-                }
-            }
-        }
-        return null;
     }
 }

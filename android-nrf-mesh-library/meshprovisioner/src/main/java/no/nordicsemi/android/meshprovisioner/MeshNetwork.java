@@ -17,8 +17,6 @@ import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 @SuppressWarnings({"WeakerAccess", "unused", "UnusedReturnValue"})
 @Entity(tableName = "mesh_network")
@@ -437,10 +435,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
                 return networkKey;
             }
         }
-
-        final NetworkKey networkKey = new NetworkKey(0, MeshParserUtils.toByteArray(SecureUtils.generateRandomNetworkKey()));
-        netKeys.add(networkKey);
-        return networkKey;
+        return null;
     }
 
     void setNetKeys(List<NetworkKey> netKeys) {
@@ -484,12 +479,15 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public final int getProvisioningFlags() {
         int flags = 0;
-        if (getPrimaryNetworkKey().getPhase() == NetworkKey.PHASE_2) {
-            flags |= 1 << 7;
-        }
+        final NetworkKey key = getPrimaryNetworkKey();
+        if (key != null) {
+            if (key.getPhase() == NetworkKey.PHASE_2) {
+                flags |= 1 << 7;
+            }
 
-        if (ivUpdateState == IV_UPDATE_ACTIVE) {
-            flags |= 1 << 6;
+            if (ivUpdateState == IV_UPDATE_ACTIVE) {
+                flags |= 1 << 6;
+            }
         }
 
         return flags;

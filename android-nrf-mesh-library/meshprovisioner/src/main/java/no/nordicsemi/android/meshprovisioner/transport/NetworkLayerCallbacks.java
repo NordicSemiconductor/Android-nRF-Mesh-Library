@@ -55,6 +55,13 @@ public interface NetworkLayerCallbacks {
     NetworkKey getPrimaryNetworkKey();
 
     /**
+     * Callback to retrieve the network key of the mesh network.
+     *
+     * @param keyIndex Index of the network key
+     */
+    NetworkKey getNetworkKey(final int keyIndex);
+
+    /**
      * Callback to retrieve the list of {@link NetworkKey} belonging to this network.
      */
     List<NetworkKey> getNetworkKeys();

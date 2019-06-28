@@ -255,13 +255,16 @@ public class MeshManagerApi implements MeshMngrApi {
                     break;
                 case PDU_TYPE_MESH_BEACON:
                     //Mesh beacon
-                    final byte[] n = mMeshNetwork.getPrimaryNetworkKey().getKey();
-                    final byte[] flags = {(byte) mMeshNetwork.getProvisioningFlags()};
-                    final byte[] networkId = SecureUtils.calculateK3(n);
-                    final byte[] ivIndex = ByteBuffer.allocate(4).putInt(mMeshNetwork.getIvIndex()).array();
-                    Log.v(TAG, "Generated mesh beacon: " +
-                            MeshParserUtils.bytesToHex(SecureUtils.calculateSecureNetworkBeacon(n, 1, flags, networkId, ivIndex), true));
-                    Log.v(TAG, "Received mesh beacon: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
+                    final NetworkKey networkKey = mMeshNetwork.getPrimaryNetworkKey();
+                    if (networkKey != null) {
+                        final byte[] n = networkKey.getKey();
+                        final byte[] flags = {(byte) mMeshNetwork.getProvisioningFlags()};
+                        final byte[] networkId = SecureUtils.calculateK3(n);
+                        final byte[] ivIndex = ByteBuffer.allocate(4).putInt(mMeshNetwork.getIvIndex()).array();
+                        Log.v(TAG, "Generated mesh beacon: " +
+                                MeshParserUtils.bytesToHex(SecureUtils.calculateSecureNetworkBeacon(n, 1, flags, networkId, ivIndex), true));
+                        Log.v(TAG, "Received mesh beacon: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
+                    }
                     break;
                 case PDU_TYPE_PROXY_CONFIGURATION:
                     //Proxy configuration
@@ -451,22 +454,22 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public void identifyNode(@NonNull final UUID deviceUUID, @Nullable final String nodeName) throws IllegalArgumentException {
-        mMeshProvisioningHandler.identify(deviceUUID, nodeName,
-                mMeshNetwork.getPrimaryNetworkKey(),
-                mMeshNetwork.getProvisioningFlags(),
-                mMeshNetwork.getIvIndex(),
-                mMeshNetwork.getGlobalTtl(), MeshProvisioningHandler.ATTENTION_TIMER);
+        final NetworkKey networkKey = mMeshNetwork.getPrimaryNetworkKey();
+        if (networkKey != null) {
+            mMeshProvisioningHandler.identify(deviceUUID, nodeName, networkKey, mMeshNetwork.getProvisioningFlags(),
+                    mMeshNetwork.getIvIndex(), mMeshNetwork.getGlobalTtl(), MeshProvisioningHandler.ATTENTION_TIMER);
+        }
     }
 
     @Override
     public void identifyNode(@NonNull final UUID deviceUuid,
                              final String nodeName,
                              final int attentionTimer) throws IllegalArgumentException {
-        mMeshProvisioningHandler.identify(deviceUuid, nodeName,
-                mMeshNetwork.getPrimaryNetworkKey(),
-                mMeshNetwork.getProvisioningFlags(),
-                mMeshNetwork.getIvIndex(),
-                mMeshNetwork.getGlobalTtl(), attentionTimer);
+        final NetworkKey networkKey = mMeshNetwork.getPrimaryNetworkKey();
+        if (networkKey != null) {
+            mMeshProvisioningHandler.identify(deviceUuid, nodeName, networkKey, mMeshNetwork.getProvisioningFlags(),
+                    mMeshNetwork.getIvIndex(), mMeshNetwork.getGlobalTtl(), attentionTimer);
+        }
     }
 
     @Override
@@ -486,7 +489,6 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode,
                                                @NonNull final OutputOOBAction oobAction) throws IllegalArgumentException {
-
         if (isAddressValid(unprovisionedMeshNode)) {
             mMeshProvisioningHandler.startProvisioningWithOutputOOB(unprovisionedMeshNode, oobAction);
         }
@@ -495,7 +497,6 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode,
                                               @NonNull final InputOOBAction oobAction) throws IllegalArgumentException {
-
         if (isAddressValid(unprovisionedMeshNode)) {
             mMeshProvisioningHandler.startProvisioningWithInputOOB(unprovisionedMeshNode, oobAction);
         }
@@ -896,6 +897,11 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public NetworkKey getPrimaryNetworkKey() {
             return mMeshNetwork.getPrimaryNetworkKey();
+        }
+
+        @Override
+        public NetworkKey getNetworkKey(final int keyIndex) {
+            return mMeshNetwork.getNetKey(keyIndex);
         }
 
         @Override
