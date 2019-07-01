@@ -22,19 +22,9 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import androidx.appcompat.app.AlertDialog;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
@@ -44,12 +34,23 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -168,16 +169,14 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
     }
 
     private boolean validateInput(final String input) {
-
         try {
-
             if (input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
                 addressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }
 
             final byte[] address = MeshParserUtils.toByteArray(input);
-            if (!MeshParserUtils.isValidUnicastAddress(address) && !MeshParserUtils.isValidFilterAddress(address)) {
+            if (!MeshAddress.isValidUnicastAddress(address) && !MeshAddress.isValidFilterAddress(address)) {
                 addressInputLayout.setError(getString(R.string.invalid_filter_address));
                 return false;
             }

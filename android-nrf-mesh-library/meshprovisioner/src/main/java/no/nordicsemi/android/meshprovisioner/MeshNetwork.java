@@ -203,10 +203,16 @@ public final class MeshNetwork extends BaseMeshNetwork {
      * @param provisioner provisioner
      * @return a group or null if creation failed
      */
-    public Group createGroup(@NonNull final Provisioner provisioner) {
+    public Group createGroup(@NonNull final Provisioner provisioner, @NonNull final String name) {
+        if (TextUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("Group name cannot be empty");
+        }
+
         final Integer address = nextAvailableGroupAddress(provisioner);
         if (address != null) {
-            return new Group(address, meshUUID);
+            final Group group = new Group(address, meshUUID);
+            group.setName(name);
+            return group;
         }
         return null;
     }
@@ -214,12 +220,20 @@ public final class MeshNetwork extends BaseMeshNetwork {
     /**
      * Creates a group using the next available group address based on the provisioners allocated group range
      *
-     * @param addressLabel UUID label
+     * @param addressLabel Label UUID
+     * @param parentLabel  Label UUID for parent address
+     * @param name         Group name
      * @return a group or null if creation failed
      */
-    public Group createGroup(@NonNull final UUID addressLabel, @Nullable final UUID parentLabel) {
+    public Group createGroup(@NonNull final UUID addressLabel, @Nullable final UUID parentLabel, @NonNull final String name) {
+        if (TextUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("Group name cannot be empty");
+        }
+
         final int address = MeshAddress.generateVirtualAddress(addressLabel);
-        return new Group(addressLabel, parentLabel, meshUUID);
+        final Group group = new Group(addressLabel, parentLabel, meshUUID);
+        group.setName(name);
+        return group;
     }
 
     /**

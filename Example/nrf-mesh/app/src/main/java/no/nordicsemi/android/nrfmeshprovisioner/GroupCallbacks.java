@@ -20,10 +20,33 @@ public interface GroupCallbacks {
     /**
      * Creates a group
      *
-     * @param uuid virtual label
+     * @param name Group name
      * @return {@link Group}
      */
-    default Group createGroup(@NonNull final UUID uuid) {
+    default Group createGroup(@NonNull final String name) {
+        //Default implementation
+        return null;
+    }
+
+    /**
+     * Creates a group
+     *
+     * @param name Group name
+     * @return {@link Group}
+     */
+    default Group createGroup(@NonNull final String name, final int address) {
+        //Default implementation
+        return null;
+    }
+
+    /**
+     * Creates a group
+     *
+     * @param uuid virtual label
+     * @param name group name
+     * @return {@link Group}
+     */
+    default Group createGroup(@NonNull final UUID uuid, final String name) {
         //Default implementation
         return null;
     }
@@ -47,17 +70,6 @@ public interface GroupCallbacks {
      * @return true if successful or false otherwise
      */
     default boolean onGroupAdded(@NonNull final Group group) {
-        //Default implementation
-        return false;
-    }
-
-    /**
-     * Adds a group
-     *
-     * @param uuid uuid label
-     * @return true if successful or false otherwise
-     */
-    default boolean onGroupAdded(@NonNull final UUID uuid) {
         //Default implementation
         return false;
     }

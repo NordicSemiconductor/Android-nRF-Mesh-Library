@@ -23,15 +23,9 @@
 package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.annotation.SuppressLint;
-import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -44,16 +38,24 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.utils.AddressType;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
+import no.nordicsemi.android.nrfmeshprovisioner.GroupCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressTypeAdapterSpinner;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAdapterSpinner;
@@ -69,20 +71,19 @@ public class DialogFragmentPublishAddress extends DialogFragment {
 
     private static final String PUBLICATION_SETTINGS = "PUBLICATION_SETTINGS";
     private static final String GROUPS = "GROUPS";
+    private static final String GROUP = "GROUP";
     private static final String UUID_KEY = "UUID";
     private ArrayList<Group> mGroups = new ArrayList<>();
     private PublicationSettings mPublicationSettings;
     private static final AddressType[] addressTypes = {UNASSIGNED_ADDRESS, UNICAST_ADDRESS, GROUP_ADDRESS, VIRTUAL_ADDRESS};
 
     //UI Bindings
+    @BindView(R.id.summary)
+    TextView summary;
     @BindView(R.id.address_types)
     Spinner addressTypesSpinnerView;
-    @BindView(R.id.prefix)
-    TextView prefix;
-    @BindView(R.id.text_input_layout)
-    TextInputLayout unicastAddressInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText unicastAddressInput;
+    @BindView(R.id.label_container)
+    View labelContainer;
     @BindView(R.id.uuid_label)
     TextView labelUuidView;
     @BindView(R.id.group_container)
@@ -106,20 +107,18 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     private Button mGenerateLabelUUID;
 
     private AddressTypeAdapterSpinner mAdapterSpinner;
+    private Group mGroup;
 
-    public interface DialogFragmentPublishAddressListener {
+    public interface DialogFragmentPublicationListener {
 
-        void setPublishAddress(@NonNull final AddressType addressType, final int publishAddress);
+        void onPublishAddressSet(final int publishAddress);
 
-        void setPublishAddress(@NonNull final AddressType addressType, @NonNull final String name, final int address);
-
-        void setPublishAddress(@NonNull final AddressType addressType, @NonNull final Group group);
-
-        void setPublishAddress(@NonNull final AddressType addressType, @NonNull final UUID labelUuid);
+        void onPublishAddressSet(@NonNull final Group group);
 
     }
 
-    public static DialogFragmentPublishAddress newInstance(final PublicationSettings publicationSettings, final ArrayList<Group> groups) {
+    public static DialogFragmentPublishAddress newInstance(@NonNull final PublicationSettings publicationSettings,
+                                                           @NonNull final ArrayList<Group> groups) {
         DialogFragmentPublishAddress fragmentPublishAddress = new DialogFragmentPublishAddress();
         final Bundle args = new Bundle();
         args.putParcelable(PUBLICATION_SETTINGS, publicationSettings);
@@ -140,18 +139,20 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = LayoutInflater.from(getContext()).
-                inflate(R.layout.dialog_fragment_publish_address_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).
+                inflate(R.layout.dialog_fragment_group_subscription, null);
 
         //Bind ui
         ButterKnife.bind(this, rootView);
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             labelUuidView.setText(savedInstanceState.getString(UUID_KEY));
+            mGroup = savedInstanceState.getParcelable(GROUP);
+        } else {
+            mGroup = ((GroupCallbacks) requireActivity()).createGroup();
         }
 
         setAddressType();
-
+        summary.setText(R.string.publish_address_dialog_summary);
         addressTypesSpinnerView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
@@ -204,33 +205,11 @@ public class DialogFragmentPublishAddress extends DialogFragment {
 
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+                mGroup = null;
                 if (TextUtils.isEmpty(s.toString())) {
                     addressInputLayout.setError(getString(R.string.error_empty_group_address));
                 } else {
                     addressInputLayout.setError(null);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(final Editable s) {
-
-            }
-        });
-
-        unicastAddressInputLayout.setHint(getString((R.string.hint_publish_address)));
-        unicastAddressInput.setKeyListener(hexKeyListener);
-        unicastAddressInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                if (TextUtils.isEmpty(s.toString())) {
-                    unicastAddressInputLayout.setError(getString(R.string.error_empty_publish_address));
-                } else {
-                    unicastAddressInputLayout.setError(null);
                 }
             }
 
@@ -252,7 +231,11 @@ public class DialogFragmentPublishAddress extends DialogFragment {
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> setPublishAddress());
 
         mGenerateLabelUUID = alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL);
-        mGenerateLabelUUID.setOnClickListener(v -> labelUuidView.setText(MeshAddress.generateRandomLabelUUID().toString().toUpperCase()));
+        mGenerateLabelUUID.setOnClickListener(v -> {
+            final UUID uuid = MeshAddress.generateRandomLabelUUID();
+            labelUuidView.setText(uuid.toString().toUpperCase(Locale.US));
+            generateVirtualAddress(uuid);
+        });
 
         return alertDialog;
     }
@@ -261,10 +244,11 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     public void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(UUID_KEY, labelUuidView.getText().toString());
+        outState.putParcelable(GROUP, mGroup);
     }
 
     private void setPublishAddress() {
-        final String input = unicastAddressInput.getEditableText().toString();
+        final String input = addressInput.getEditableText().toString();
         final int address;
         final AddressType type = (AddressType) addressTypesSpinnerView.getSelectedItem();
         switch (type) {
@@ -272,42 +256,64 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             case UNASSIGNED_ADDRESS:
                 if (validateInput(input)) {
                     address = Integer.parseInt(input, 16);
-                    ((DialogFragmentPublishAddressListener) requireActivity()).
-                            setPublishAddress(type, address);
+                    ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(address);
                     dismiss();
                 }
                 break;
             case UNICAST_ADDRESS:
                 if (validateInput(input)) {
                     address = Integer.parseInt(input, 16);
-                    ((DialogFragmentPublishAddressListener) requireActivity()).
-                            setPublishAddress(type, address);
+                    ((DialogFragmentPublicationListener) requireActivity())
+                            .onPublishAddressSet(address);
                     dismiss();
                 }
                 break;
             case GROUP_ADDRESS:
-                if (createGroup.isChecked()) {
-                    final String name = groupNameInput.getEditableText().toString();
-                    final String add = addressInput.getEditableText().toString();
-                    if (validateInput(name, add)) {
-                        ((DialogFragmentPublishAddressListener) requireActivity()).
-                                setPublishAddress(type, name, Integer.valueOf(add, 16));
+                try {
+                    if (createGroup.isChecked()) {
+                        final String name = groupNameInput.getEditableText().toString();
+                        final String groupAddress = addressInput.getEditableText().toString();
+                        if (validateInput(name, groupAddress)) {
+                            if (mGroup != null) {
+                                ((DialogFragmentPublicationListener) requireActivity()).
+                                        onPublishAddressSet(mGroup);
+                                dismiss();
+                            } else {
+                                if (((GroupCallbacks) requireActivity())
+                                        .onGroupAdded(name, Integer.parseInt(groupAddress, 16))) {
+                                    dismiss();
+                                }
+                            }
+                        }
+                    } else {
+                        final Group group = (Group) groups.getSelectedItem();
+                        ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(group);
                         dismiss();
                     }
-                } else {
-                    final Group group = (Group) groups.getSelectedItem();
-                    ((DialogFragmentPublishAddressListener) requireActivity()).setPublishAddress(type, group);
-                    dismiss();
+                } catch (IllegalArgumentException ex) {
+                    addressInputLayout.setError(ex.getMessage());
                 }
                 break;
             case VIRTUAL_ADDRESS:
+                Group group = null;
+                try {
                     final UUID uuid = UUID.fromString(labelUuidView.getText().toString());
-                    ((DialogFragmentPublishAddressListener) requireActivity()).
-                            setPublishAddress(type, uuid);
-                    dismiss();
+                    final String name = groupNameInput.getEditableText().toString();
+                    group = ((GroupCallbacks) requireActivity()).createGroup(uuid, name);
+                    if (group != null) {
+                        if (((GroupCallbacks) requireActivity()).onGroupAdded(group)) {
+                            ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(group);
+                            dismiss();
+                        }
+                    }
+                } catch (IllegalArgumentException ex) {
+                    if (group != null) {
+                        ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(group);
+                        dismiss();
+                    }
+                }
                 break;
         }
-
     }
 
     private void setAddressType() {
@@ -338,7 +344,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
         }
     }
 
-    private void updateAddress(final AddressType addressType) {
+    private void updateAddress(@NonNull final AddressType addressType) {
         int address = 0;
         if (mPublicationSettings != null) {
             address = mPublicationSettings.getPublishAddress();
@@ -348,41 +354,55 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             default:
             case UNASSIGNED_ADDRESS:
                 publishAddress = MeshAddress.formatAddress(MeshAddress.UNASSIGNED_ADDRESS, false);
-                unicastAddressInput.setText(publishAddress);
-                prefix.setVisibility(View.VISIBLE);
-                unicastAddressInputLayout.setVisibility(View.VISIBLE);
+                addressInput.setText(publishAddress);
+                addressInputLayout.setEnabled(true);
+                groupNameInputLayout.setVisibility(View.GONE);
                 groupContainer.setVisibility(View.GONE);
-                labelUuidView.setVisibility(View.GONE);
+                labelContainer.setVisibility(View.GONE);
                 mGenerateLabelUUID.setVisibility(View.GONE);
                 break;
             case UNICAST_ADDRESS:
                 publishAddress = MeshAddress.formatAddress(address, false);
-                unicastAddressInput.setText(publishAddress);
-                prefix.setVisibility(View.VISIBLE);
-                unicastAddressInputLayout.setVisibility(View.VISIBLE);
+                addressInput.setText(publishAddress);
+                addressInputLayout.setEnabled(true);
+                groupNameInputLayout.setVisibility(View.GONE);
                 groupContainer.setVisibility(View.GONE);
-                labelUuidView.setVisibility(View.GONE);
+                labelContainer.setVisibility(View.GONE);
                 mGenerateLabelUUID.setVisibility(View.GONE);
                 break;
             case GROUP_ADDRESS:
                 final int index = getGroupIndex(address);
                 groups.setSelection(index);
+                addressInputLayout.setEnabled(true);
+                groupNameInputLayout.setVisibility(View.VISIBLE);
                 groupContainer.setVisibility(View.VISIBLE);
-                prefix.setVisibility(View.GONE);
-                unicastAddressInputLayout.setVisibility(View.GONE);
-                labelUuidView.setVisibility(View.GONE);
+                labelContainer.setVisibility(View.GONE);
                 mGenerateLabelUUID.setVisibility(View.GONE);
+                final Group group = ((GroupCallbacks) requireActivity())
+                        .createGroup(groupNameInput.getEditableText().toString());
+                if (group != null) {
+                    addressInput.setText(MeshAddress.formatAddress(group.getAddress(), false));
+                }
                 break;
             case VIRTUAL_ADDRESS:
-                if(mPublicationSettings != null && mPublicationSettings.getLabelUUID() != null){
+                if (mPublicationSettings != null && mPublicationSettings.getLabelUUID() != null) {
                     labelUuidView.setText(mPublicationSettings.getLabelUUID().toString().toUpperCase(Locale.US));
                 }
-                labelUuidView.setVisibility(View.VISIBLE);
+                labelContainer.setVisibility(View.VISIBLE);
                 mGenerateLabelUUID.setVisibility(View.VISIBLE);
-                prefix.setVisibility(View.GONE);
-                unicastAddressInputLayout.setVisibility(View.GONE);
+                addressInputLayout.setEnabled(false);
+                groupNameInputLayout.setVisibility(View.VISIBLE);
+                groupContainer.setVisibility(View.VISIBLE);
                 groupContainer.setVisibility(View.GONE);
+                generateVirtualAddress(UUID.fromString(labelUuidView.getText().toString()));
                 break;
+        }
+    }
+
+    private void generateVirtualAddress(@NonNull final UUID uuid) {
+        final Group group1 = ((GroupCallbacks) requireActivity()).createGroup(uuid, groupNameInput.getEditableText().toString());
+        if (group1 != null) {
+            addressInput.setText(MeshAddress.formatAddress(group1.getAddress(), false));
         }
     }
 
@@ -399,7 +419,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
 
         try {
             if (input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
-                unicastAddressInputLayout.setError(getString(R.string.invalid_address_value));
+                addressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }
             final AddressType type = (AddressType) addressTypesSpinnerView.getSelectedItem();
@@ -409,13 +429,13 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 default:
                 case UNASSIGNED_ADDRESS:
                     if (!MeshAddress.isValidUnassignedAddress(address)) {
-                        unicastAddressInputLayout.setError(getString(R.string.invalid_address_value));
+                        addressInputLayout.setError(getString(R.string.invalid_address_value));
                         return false;
                     }
                     return true;
                 case UNICAST_ADDRESS:
                     if (!MeshAddress.isValidUnicastAddress(address)) {
-                        unicastAddressInputLayout.setError(getString(R.string.invalid_unicast_address));
+                        addressInputLayout.setError(getString(R.string.invalid_unicast_address));
                         return false;
                     }
                     return true;
@@ -436,12 +456,13 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                     return true;
             }
         } catch (IllegalArgumentException ex) {
-            unicastAddressInputLayout.setError(ex.getMessage());
+            addressInputLayout.setError(ex.getMessage());
             return false;
         }
     }
 
-    private boolean validateInput(@NonNull final String name, @NonNull final String address) {
+    private boolean validateInput(@NonNull final String name,
+                                  @NonNull final String address) {
         try {
             if (TextUtils.isEmpty(name)) {
                 groupNameInputLayout.setError(getString(R.string.error_empty_group_name));

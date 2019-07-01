@@ -20,6 +20,7 @@
   ~ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
+
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -54,8 +55,9 @@
             android:id="@+id/address_types"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="@dimen/item_padding_top"
+            app:layout_constraintEnd_toEndOf="@id/summary"
+            app:layout_constraintStart_toStartOf="@id/summary"
             app:layout_constraintTop_toBottomOf="@id/summary"/>
 
         <include
@@ -130,12 +132,11 @@
             android:id="@+id/prefix"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:text="@string/hex_prefix"
             android:textSize="16sp"
             app:layout_constraintBaseline_toBaselineOf="@id/group_address_layout"
             app:layout_constraintEnd_toStartOf="@id/group_address_layout"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@id/group_name_layout"
             app:layout_constraintTop_toTopOf="@id/group_address_layout"/>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -144,9 +145,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/item_padding_start"
             android:layout_marginTop="@dimen/item_padding_top"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:hint="@string/address"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/group_name_layout"
             app:layout_constraintStart_toEndOf="@id/prefix"
             app:layout_constraintTop_toBottomOf="@id/group_name_layout">
 

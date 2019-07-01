@@ -195,11 +195,8 @@ public class DialogFragmentCreateGroup extends DialogFragment {
                 } else {
 
                     final UUID uuid = UUID.fromString(labelUuidView.getText().toString());
-                    final Group group = ((GroupCallbacks) requireParentFragment()).createGroup(uuid);
+                    final Group group = ((GroupCallbacks) requireParentFragment()).createGroup(uuid, name);
                     if (group != null) {
-                        if (!TextUtils.isEmpty(name)) {
-                            group.setName(name);
-                        }
                         if (((GroupCallbacks) requireParentFragment()).onGroupAdded(group)) {
                             dismiss();
                         }
@@ -215,7 +212,7 @@ public class DialogFragmentCreateGroup extends DialogFragment {
             final UUID uuid = MeshAddress.generateRandomLabelUUID();
             labelUuidView.setText(uuid.toString().toUpperCase(Locale.US));
             final Integer add = MeshAddress.generateVirtualAddress(uuid);
-            addressInput.setText(Integer.toHexString(add).toUpperCase(Locale.US));
+            addressInput.setText(MeshAddress.formatAddress(add, false));
         });
         return alertDialog;
     }
@@ -266,7 +263,7 @@ public class DialogFragmentCreateGroup extends DialogFragment {
             }
 
             final byte[] groupAddress = MeshParserUtils.toByteArray(address);
-            if (!MeshParserUtils.isValidSubscriptionAddress(groupAddress)) {
+            if (!MeshAddress.isValidSubscriptionAddress(groupAddress)) {
                 addressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }

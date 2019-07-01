@@ -161,15 +161,20 @@ public class GroupsFragment extends Fragment implements Injectable,
     }
 
     @Override
-    public Group createGroup() {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        return network.createGroup(network.getSelectedProvisioner());
+    public Group createGroup() {final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        return network.createGroup(network.getSelectedProvisioner(), "Mesh Group");
     }
 
     @Override
-    public Group createGroup(@NonNull final UUID uuid) {
+    public Group createGroup(@NonNull final String name) {
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        return network.createGroup(uuid, null);
+        return network.createGroup(network.getSelectedProvisioner(), name);
+    }
+
+    @Override
+    public Group createGroup(@NonNull final UUID uuid, final String name) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        return network.createGroup(uuid, null, name);
     }
 
     @Override

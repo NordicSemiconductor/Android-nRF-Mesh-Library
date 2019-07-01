@@ -30,7 +30,7 @@ import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 /**
  * To be used as a wrapper class for when creating the ConfigRelaySet message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public final class ConfigRelaySet extends ConfigMessage {
     // Key refresh phases
     public static final int RELAY_FEATURE_DISABLED = 0x00; //Distribution of new keys
@@ -69,8 +69,10 @@ public final class ConfigRelaySet extends ConfigMessage {
 
     @Override
     final void assembleMessageParameters() {
-        mParameters = new byte[]{(byte) mRelay,
-                (byte) (((mRelayRetransmitCount << 3) & 0xFF) | (mRelayRetransmitIntervalSteps & 0xFF))};
+        mParameters = new byte[] {
+                (byte) mRelay,
+                (byte) ((mRelayRetransmitCount << 3) | mRelayRetransmitIntervalSteps)
+        };
     }
 
     @Override

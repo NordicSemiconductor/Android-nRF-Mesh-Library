@@ -246,12 +246,9 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
                     }
                 } else {
                     final UUID uuid = UUID.fromString(labelUuidView.getText().toString());
-                    final Group group = ((GroupCallbacks) requireActivity()).createGroup(uuid);
+                    final String name = groupNameInput.getEditableText().toString();
+                    final Group group = ((GroupCallbacks) requireActivity()).createGroup(uuid, name);
                     if (group != null) {
-                        final String name = groupNameInput.getEditableText().toString();
-                        if (!TextUtils.isEmpty(name)) {
-                            group.setName(name);
-                        }
                         if (((GroupCallbacks) requireActivity()).onGroupAdded(group)) {
                             dismiss();
                         }
@@ -266,8 +263,7 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
         mGenerateLabelUUID.setOnClickListener(v -> {
             final UUID uuid = MeshAddress.generateRandomLabelUUID();
             labelUuidView.setText(uuid.toString().toUpperCase(Locale.US));
-            final Integer add = MeshAddress.generateVirtualAddress(uuid);
-            addressInput.setText(Integer.toHexString(add).toUpperCase(Locale.US));
+            generateVirtualAddress(uuid);
         });
 
         return alertDialog;
@@ -287,11 +283,9 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
             groupContainer.setVisibility(GONE);
             groupNameInputLayout.setEnabled(true);
             groupNameInputLayout.setError(null);
-            final UUID uuid = UUID.fromString(labelUuidView.getText().toString());
-            final Integer add = MeshAddress.generateVirtualAddress(uuid);
-            addressInput.setText(String.valueOf(add));
             addressInputLayout.setError(null);
             addressInputLayout.setEnabled(false);
+            generateVirtualAddress(UUID.fromString(labelUuidView.getText().toString()));
         } else {
             groupContainer.setVisibility(VISIBLE);
             labelSummary.setVisibility(GONE);
@@ -301,12 +295,20 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
         }
     }
 
+    private void generateVirtualAddress(@NonNull final UUID uuid) {
+        final Integer add = MeshAddress.generateVirtualAddress(uuid);
+        addressInput.setText(MeshAddress.formatAddress(add, false));
+    }
+
     private void updateGroup() {
         if (mGroup == null) {
             mGroup = ((GroupCallbacks) requireActivity()).createGroup();
         }
-        groupNameInput.setText(mGroup.getName());
-        addressInput.setText(MeshAddress.formatAddress(mGroup.getAddress(), false));
+
+        if (mGroup != null) {
+            groupNameInput.setText(mGroup.getName());
+            addressInput.setText(MeshAddress.formatAddress(mGroup.getAddress(), false));
+        }
     }
 
     private boolean validateInput(@NonNull final String name, @NonNull final String address) {

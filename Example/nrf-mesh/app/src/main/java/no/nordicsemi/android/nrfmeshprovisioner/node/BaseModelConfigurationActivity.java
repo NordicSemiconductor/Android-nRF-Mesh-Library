@@ -49,9 +49,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppUnbind;
@@ -265,7 +265,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                 break;
             case PublicationSettingsActivity.SET_PUBLICATION_SETTINGS:
                 if (resultCode == RESULT_OK) {
-                    setPublication(data);
+                    showProgressbar();
                 }
                 break;
         }
@@ -280,15 +280,15 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public Group createGroup() {
+    public Group createGroup(@NonNull final String name) {
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        return network.createGroup(network.getSelectedProvisioner());
+        return network.createGroup(network.getSelectedProvisioner(), name);
     }
 
     @Override
-    public Group createGroup(@NonNull final UUID uuid) {
+    public Group createGroup(@NonNull final UUID uuid, final String name) {
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        return network.createGroup(uuid, null);
+        return network.createGroup(uuid, null, name);
     }
 
     @Override
@@ -312,17 +312,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             return true;
         }
         return false;
-    }
-
-    @Override
-    public boolean onGroupAdded(@NonNull final UUID uuid) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        final Group group = network.createGroup(uuid, null);
-        if (network.addGroup(group)) {
-            subscribe(group);
-            return true;
-        }
-        return true;
     }
 
     @Override
@@ -418,36 +407,38 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (element != null) {
                 final MeshModel model = mViewModel.getSelectedModel().getValue();
                 if (model != null) {
-                    final AddressType type = AddressType.fromValue(data.getIntExtra(PublicationSettingsActivity.RESULT_ADDRESS_TYPE, -1));
-                    final UUID labelUuid = (UUID) data.getSerializableExtra(PublicationSettingsActivity.RESULT_LABEL_UUID);
-                    final int publishAddress = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_ADDRESS, 0);
-                    final int appKeyIndex = data.getIntExtra(PublicationSettingsActivity.RESULT_APP_KEY_INDEX, -1);
-                    final boolean credentialFlag = data.getBooleanExtra(PublicationSettingsActivity.RESULT_CREDENTIAL_FLAG, false);
-                    final int publishTtl = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_TTL, 0);
-                    final int publicationSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_STEPS, 0);
-                    final int resolution = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_RESOLUTION, 0);
-                    final int publishRetransmitCount = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_COUNT, 0);
-                    final int publishRetransmitIntervalSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS, 0);
-                    if (appKeyIndex > -1) {
-                        try {
-                            if (model.getBoundAppKeyIndexes().isEmpty()) {
-                                Toast.makeText(this, getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
-                                return;
+                    if (data.getExtras() != null) {
+                        final AddressType type = AddressType.fromValue(data.getIntExtra(PublicationSettingsActivity.RESULT_ADDRESS_TYPE, -1));
+                        final UUID labelUuid = (UUID) data.getSerializableExtra(PublicationSettingsActivity.RESULT_LABEL_UUID);
+                        final int publishAddress = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_ADDRESS, 0);
+                        final int appKeyIndex = data.getIntExtra(PublicationSettingsActivity.RESULT_APP_KEY_INDEX, -1);
+                        final boolean credentialFlag = data.getBooleanExtra(PublicationSettingsActivity.RESULT_CREDENTIAL_FLAG, false);
+                        final int publishTtl = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_TTL, 0);
+                        final int publicationSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_STEPS, 0);
+                        final int resolution = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLICATION_RESOLUTION, 0);
+                        final int publishRetransmitCount = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_COUNT, 0);
+                        final int publishRetransmitIntervalSteps = data.getIntExtra(PublicationSettingsActivity.RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS, 0);
+                        if (appKeyIndex > -1) {
+                            try {
+                                if (model.getBoundAppKeyIndexes().isEmpty()) {
+                                    Toast.makeText(this, getString(R.string.error_no_app_keys_bound), Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                final MeshMessage configModelPublicationSet;
+                                if (type != null && type != AddressType.VIRTUAL_ADDRESS) {
+                                    configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(),
+                                            publishAddress, appKeyIndex, credentialFlag, publishTtl,
+                                            publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId());
+                                } else {
+                                    configModelPublicationSet = new ConfigModelPublicationVirtualAddressSet(element.getElementAddress(),
+                                            labelUuid, appKeyIndex, credentialFlag, publishTtl,
+                                            publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId());
+                                }
+                                sendMessage(node.getUnicastAddress(), configModelPublicationSet);
+                                showProgressbar();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
                             }
-                            final MeshMessage configModelPublicationSet;
-                            if (type != null && type != AddressType.VIRTUAL_ADDRESS) {
-                                configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(),
-                                        publishAddress, appKeyIndex, credentialFlag, publishTtl,
-                                        publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId());
-                            } else {
-                                configModelPublicationSet = new ConfigModelPublicationVirtualAddressSet(element.getElementAddress(),
-                                        labelUuid, appKeyIndex, credentialFlag, publishTtl,
-                                        publicationSteps, resolution, publishRetransmitCount, publishRetransmitIntervalSteps, model.getModelId());
-                            }
-                            sendMessage(node.getUnicastAddress(), configModelPublicationSet);
-                            showProgressbar();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
                         }
                     }
                 }
@@ -491,7 +482,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                         if (MeshAddress.isValidGroupAddress(address)) {
                             subscriptionDelete = new ConfigModelSubscriptionDelete(element.getElementAddress(), address, model.getModelId());
                         } else {
-                            final UUID uuid = model.getLabelUUID(address);//MeshAddress.getLabelUuid(model.getLabelUUID(), address);
+                            final UUID uuid = model.getLabelUUID(address);
                             if (uuid != null)
                                 subscriptionDelete = new ConfigModelSubscriptionVirtualAddressDelete(element.getElementAddress(), uuid, model.getModelId());
                         }

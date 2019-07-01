@@ -1,14 +1,8 @@
 package no.nordicsemi.android.nrfmeshprovisioner.node;
 
 import android.app.Activity;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,30 +16,44 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigModelPublicationSet;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigModelPublicationVirtualAddressSet;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
+import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressType;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
+import no.nordicsemi.android.nrfmeshprovisioner.GroupCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentPubRetransmitIntervalSteps;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentPublicationResolution;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentPublicationSteps;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentPublishTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentRetransmitCount;
-import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
 
 public class PublicationSettingsActivity extends AppCompatActivity implements Injectable,
-        DialogFragmentPublishAddress.DialogFragmentPublishAddressListener,
+        GroupCallbacks,
+        DialogFragmentPublishAddress.DialogFragmentPublicationListener,
         DialogFragmentPublicationSteps.DialogFragmentPublicationStepsListener,
         DialogFragmentPublicationResolution.DialogFragmentPublicationResolutionListener,
         DialogFragmentRetransmitCount.DialogFragmentRetransmitCountListener,
@@ -120,6 +128,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         setSupportActionBar(toolbar);
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
         getSupportActionBar().setTitle(R.string.title_publication_settings);
 
         final View actionPublishAddress = findViewById(R.id.container_publish_address);
@@ -195,7 +204,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
                 onBackPressed();
                 return true;
             case R.id.action_apply:
-                setReturnIntent();
+                setPublication();
                 return true;
         }
         return false;
@@ -252,38 +261,63 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     }
 
     @Override
-    public void setPublishAddress(@NonNull final AddressType addressType, final int address) {
-        mLabelUUID = null;
-        mAddressType = addressType;
-        mPublishAddress = address;
-        mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
-    }
-
-    @Override
-    public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final String name, final int address) {
-        mLabelUUID = null;
-        mAddressType = addressType;
-        mPublishAddress = address;
-        mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
+    public Group createGroup(@NonNull final String name) {
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        final Group group = new Group(address, network.getMeshUUID());
-        group.setName(name);
-        network.addGroup(group);
+        if (network != null) {
+            return network.createGroup(network.getSelectedProvisioner(), name);
+        }
+        return null;
     }
 
     @Override
-    public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final Group group) {
+    public Group createGroup(@NonNull final UUID uuid, final String name) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        if (network != null) {
+            return network.createGroup(uuid, null, name);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean onGroupAdded(@NonNull final Group group) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        if (network != null) {
+            if (network.addGroup(group)) {
+                onPublishAddressSet(group);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onGroupAdded(@NonNull final String name, final int address) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        if (network != null) {
+            final Group group = network.createGroup(network.getSelectedProvisioner(), address, name);
+            if (group != null) {
+                if (network.addGroup(group)) {
+                    onPublishAddressSet(group);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void onPublishAddressSet(final int address) {
         mLabelUUID = null;
-        mAddressType = addressType;
+        mAddressType = MeshAddress.getAddressType(address);
+        mPublishAddress = address;
+        mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
+    }
+
+    @Override
+    public void onPublishAddressSet(@NonNull final Group group) {
+        mLabelUUID = group.getAddressLabel();
+        mAddressType = MeshAddress.getAddressType(group.getAddress());
         mPublishAddress = group.getAddress();
         mPublishAddressView.setText(MeshAddress.formatAddress(group.getAddress(), true));
-    }
-
-    @Override
-    public void setPublishAddress(@NonNull final AddressType addressType, @NonNull final UUID labelUuid) {
-        mAddressType = addressType;
-        mLabelUUID = labelUuid;
-        mPublishAddressView.setText(labelUuid.toString().toUpperCase(Locale.US));
     }
 
     @Override
@@ -330,7 +364,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         if (publicationSettings != null) {
             mPublishAddress = publicationSettings.getPublishAddress();
             mLabelUUID = publicationSettings.getLabelUUID();
-            if(MeshAddress.isValidVirtualAddress(mPublishAddress)){
+            if (MeshAddress.isValidVirtualAddress(mPublishAddress)) {
                 //noinspection ConstantConditions
                 mPublishAddressView.setText(publicationSettings.getLabelUUID().toString().toUpperCase(Locale.US));
             } else {
@@ -402,31 +436,35 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
             case MeshParserUtils.RESOLUTION_10_M:
                 return getString(R.string.resolution_summary_100_m);
         }
-
     }
 
-    private void setReturnIntent() {
-        Intent returnIntent = new Intent();
-        int type = -1;
-        if (mLabelUUID != null) {
-            type = AddressType.VIRTUAL_ADDRESS.ordinal();
-        } else {
+    private void setPublication() {
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        final Element element = mViewModel.getSelectedElement().getValue();
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
+        final MeshMessage configModelPublicationSet;
+        if (node != null && element != null && model != null) {
+            mPublishAddress = 0xFFFF;
             mAddressType = MeshAddress.getAddressType(mPublishAddress);
-            if(mAddressType != null) {
-                type = mAddressType.ordinal();
+            if (mAddressType != null && mAddressType != AddressType.VIRTUAL_ADDRESS) {
+                configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(),
+                        mPublishAddress, mAppKeyIndex, mActionFriendshipCredentialSwitch.isChecked(), mPublishTtl,
+                        mPublicationSteps, mPublicationResolution, mPublishRetransmitCount, mPublishRetransmitIntervalSteps, model.getModelId());
+            } else {
+                configModelPublicationSet = new ConfigModelPublicationVirtualAddressSet(element.getElementAddress(),
+                        mLabelUUID, mAppKeyIndex, mActionFriendshipCredentialSwitch.isChecked(), mPublishTtl,
+                        mPublicationSteps, mPublicationResolution, mPublishRetransmitCount, mPublishRetransmitIntervalSteps, model.getModelId());
+            }
+            try {
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configModelPublicationSet);
+            } catch (IllegalArgumentException ex) {
+                final DialogFragmentConfigError message = DialogFragmentConfigError.
+                        newInstance(getString(R.string.title_error), ex.getMessage());
+                message.show(getSupportFragmentManager(), null);
+                return;
             }
         }
-
-        returnIntent.putExtra(RESULT_ADDRESS_TYPE, type);
-        returnIntent.putExtra(RESULT_LABEL_UUID, mLabelUUID);
-        returnIntent.putExtra(RESULT_PUBLISH_ADDRESS, mPublishAddress);
-        returnIntent.putExtra(RESULT_APP_KEY_INDEX, mAppKeyIndex);
-        returnIntent.putExtra(RESULT_CREDENTIAL_FLAG, mActionFriendshipCredentialSwitch.isChecked());
-        returnIntent.putExtra(RESULT_PUBLISH_TTL, mPublishTtl);
-        returnIntent.putExtra(RESULT_PUBLICATION_STEPS, mPublicationSteps);
-        returnIntent.putExtra(RESULT_PUBLICATION_RESOLUTION, mPublicationResolution);
-        returnIntent.putExtra(RESULT_PUBLISH_RETRANSMIT_COUNT, mPublishRetransmitCount);
-        returnIntent.putExtra(RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS, mPublishRetransmitIntervalSteps);
+        final Intent returnIntent = new Intent();
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
     }

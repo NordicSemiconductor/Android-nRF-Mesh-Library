@@ -1,13 +1,13 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Abstract class for bluetooth mesh addresses
@@ -134,7 +134,6 @@ public final class MeshAddress {
         return false;
     }
 
-
     private static boolean isValidGroupAddress(final byte[] address) {
         if (!isAddressInRange(address))
             return false;
@@ -150,12 +149,12 @@ public final class MeshAddress {
     }
 
     /**
-     * Validates a unicast address
+     * Returns true if the its a valid group address
      *
      * @param address 16-bit address
      * @return true if the address is valid and false otherwise
      */
-    @SuppressWarnings({"ConstantConditions", "BooleanMethodIsAlwaysInverted"})
+    @SuppressWarnings({"ConstantConditions"})
     public static boolean isValidGroupAddress(final int address) {
         if (!isAddressInRange(address))
             return false;
@@ -168,6 +167,83 @@ public final class MeshAddress {
         final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
 
         return groupRange && !rfu && !allNodes;
+    }
+
+    /**
+     * Returns true if the address is a valid subscription address
+     *
+     * @param address 16-bit address
+     * @return true if the address is valid and false otherwise
+     */
+    public static boolean isValidSubscriptionAddress(final int address) {
+
+        if (isValidUnassignedAddress(address) || isValidUnicastAddress(address) || isValidVirtualAddress(address) || address == 0xFFFF) {
+            throw new IllegalArgumentException("The value of the Address field shall not be an unassigned address, unicast address, " +
+                    "all-nodes address or virtual address.");
+        }
+
+        final int b0 = address >> 8 & 0xFF;
+        final int b1 = address & 0xFF;
+
+        final boolean groupRange = b0 >= 0xC0;
+        final boolean rfu = b0 == 0xFF && b1 <= 0xFB;
+        final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
+        return groupRange && !rfu && !allNodes;
+    }
+
+    /**
+     * Validates a given address for subscriptions
+     *
+     * @param address group address
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidSubscriptionAddress(@NonNull final byte[] address) {
+        if (!isAddressInRange(address))
+            return false;
+        final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
+        final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
+
+        final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
+        final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
+        final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
+        return groupRange && !rfu && !allNodes;
+    }
+
+    /**
+     * Validates a given group address
+     *
+     * @param address group address
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidFilterAddress(final int address) {
+        if (!isAddressInRange(address))
+            return false;
+        final int b0 = address >> 8 & 0xFF;
+        final int b1 = address & 0xFF;
+
+        final boolean groupRange = b0 >= 0xC0;
+        final boolean rfu = b0 == 0xFF && b1 <= 0xFB;
+        final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
+        return groupRange && !rfu && allNodes;
+    }
+
+    /**
+     * Validates a given group address
+     *
+     * @param address group address
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidFilterAddress(@NonNull final byte[] address) {
+        if (address.length == 2) {
+            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
+            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
+
+            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
+            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
+            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
+            return groupRange && !rfu && allNodes;
+        }
+        return false;
     }
 
     /**
