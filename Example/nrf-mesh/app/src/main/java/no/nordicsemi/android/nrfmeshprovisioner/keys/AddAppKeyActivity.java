@@ -94,6 +94,7 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable,
         //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_add_app_key);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
 
         final View containerKey = findViewById(R.id.container_key);
         containerKey.findViewById(R.id.image).
