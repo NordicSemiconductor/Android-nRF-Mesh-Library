@@ -57,15 +57,19 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.GroupCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressTypeAdapterSpinner;
+import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressTypeAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAdapterSpinner;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.AddressTypes;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
-import static no.nordicsemi.android.meshprovisioner.utils.AddressType.GROUP_ADDRESS;
-import static no.nordicsemi.android.meshprovisioner.utils.AddressType.UNASSIGNED_ADDRESS;
-import static no.nordicsemi.android.meshprovisioner.utils.AddressType.UNICAST_ADDRESS;
-import static no.nordicsemi.android.meshprovisioner.utils.AddressType.VIRTUAL_ADDRESS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.AddressTypes.ALL_FRIENDS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.AddressTypes.ALL_NODES;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.AddressTypes.ALL_PROXIES;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.AddressTypes.ALL_RELAYS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.AddressTypes.GROUP_ADDRESS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.AddressTypes.UNICAST_ADDRESS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.AddressTypes.VIRTUAL_ADDRESS;
 
 public class DialogFragmentPublishAddress extends DialogFragment {
 
@@ -75,7 +79,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     private static final String UUID_KEY = "UUID";
     private ArrayList<Group> mGroups = new ArrayList<>();
     private PublicationSettings mPublicationSettings;
-    private static final AddressType[] addressTypes = {UNASSIGNED_ADDRESS, UNICAST_ADDRESS, GROUP_ADDRESS, VIRTUAL_ADDRESS};
+    private static final AddressTypes[] addressTypes = {UNICAST_ADDRESS, GROUP_ADDRESS, ALL_PROXIES, ALL_FRIENDS, ALL_RELAYS, ALL_NODES, VIRTUAL_ADDRESS};
 
     //UI Bindings
     @BindView(R.id.summary)
@@ -106,7 +110,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     TextView noGroups;
     private Button mGenerateLabelUUID;
 
-    private AddressTypeAdapterSpinner mAdapterSpinner;
+    private AddressTypeAdapter mAdapterSpinner;
     private Group mGroup;
 
     public interface DialogFragmentPublicationListener {
@@ -250,16 +254,8 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     private void setPublishAddress() {
         final String input = addressInput.getEditableText().toString();
         final int address;
-        final AddressType type = (AddressType) addressTypesSpinnerView.getSelectedItem();
+        final AddressTypes type = (AddressTypes) addressTypesSpinnerView.getSelectedItem();
         switch (type) {
-            default:
-            case UNASSIGNED_ADDRESS:
-                if (validateInput(input)) {
-                    address = Integer.parseInt(input, 16);
-                    ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(address);
-                    dismiss();
-                }
-                break;
             case UNICAST_ADDRESS:
                 if (validateInput(input)) {
                     address = Integer.parseInt(input, 16);
@@ -294,6 +290,22 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                     addressInputLayout.setError(ex.getMessage());
                 }
                 break;
+            case ALL_PROXIES:
+                ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(MeshAddress.ALL_PROXIES_ADDRESS);
+                dismiss();
+                break;
+            case ALL_FRIENDS:
+                ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(MeshAddress.ALL_FRIENDS_ADDRESS);
+                dismiss();
+                break;
+            case ALL_RELAYS:
+                ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(MeshAddress.ALL_RELAYS_ADDRESS);
+                dismiss();
+                break;
+            case ALL_NODES:
+                ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(MeshAddress.ALL_NODES_ADDRESS);
+                dismiss();
+                break;
             case VIRTUAL_ADDRESS:
                 Group group = null;
                 try {
@@ -322,58 +334,51 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             address = mPublicationSettings.getPublishAddress();
         }
 
-        mAdapterSpinner = new AddressTypeAdapterSpinner(requireContext(), addressTypes);
+        mAdapterSpinner = new AddressTypeAdapter(requireContext(), addressTypes);
         addressTypesSpinnerView.setAdapter(mAdapterSpinner);
         final AddressType type = MeshAddress.getAddressType(address);
         if (type != null) {
             switch (type) {
                 default:
-                case UNASSIGNED_ADDRESS:
-                    addressTypesSpinnerView.setSelection(0);
+                    if (address == MeshAddress.ALL_PROXIES_ADDRESS) {
+                        addressTypesSpinnerView.setSelection(2);
+                    } else if (address == MeshAddress.ALL_FRIENDS_ADDRESS) {
+                        addressTypesSpinnerView.setSelection(3);
+                    } else if (address == MeshAddress.ALL_RELAYS_ADDRESS) {
+                        addressTypesSpinnerView.setSelection(4);
+                    } else {
+                        addressTypesSpinnerView.setSelection(5);
+                    }
                     break;
                 case UNICAST_ADDRESS:
-                    addressTypesSpinnerView.setSelection(1);
+                    addressTypesSpinnerView.setSelection(0);
                     break;
                 case GROUP_ADDRESS:
-                    addressTypesSpinnerView.setSelection(2);
+                    addressTypesSpinnerView.setSelection(1);
                     break;
                 case VIRTUAL_ADDRESS:
-                    addressTypesSpinnerView.setSelection(3);
+                    addressTypesSpinnerView.setSelection(addressTypes.length - 1);
                     break;
             }
         }
     }
 
-    private void updateAddress(@NonNull final AddressType addressType) {
+    private void updateAddress(@NonNull final AddressTypes addressType) {
         int address = 0;
         if (mPublicationSettings != null) {
             address = mPublicationSettings.getPublishAddress();
         }
-        final String publishAddress;
+
         switch (addressType) {
             default:
-            case UNASSIGNED_ADDRESS:
-                publishAddress = MeshAddress.formatAddress(MeshAddress.UNASSIGNED_ADDRESS, false);
-                addressInput.setText(publishAddress);
-                addressInputLayout.setEnabled(true);
-                groupNameInputLayout.setVisibility(View.GONE);
-                groupContainer.setVisibility(View.GONE);
-                labelContainer.setVisibility(View.GONE);
-                mGenerateLabelUUID.setVisibility(View.GONE);
-                break;
             case UNICAST_ADDRESS:
-                publishAddress = MeshAddress.formatAddress(address, false);
-                addressInput.setText(publishAddress);
-                addressInputLayout.setEnabled(true);
-                groupNameInputLayout.setVisibility(View.GONE);
-                groupContainer.setVisibility(View.GONE);
-                labelContainer.setVisibility(View.GONE);
-                mGenerateLabelUUID.setVisibility(View.GONE);
+                addressInput.getEditableText().clear();
+                updateFixedGroupAddressVisibility(MeshAddress.ALL_PROXIES_ADDRESS, true);
                 break;
             case GROUP_ADDRESS:
                 final int index = getGroupIndex(address);
                 groups.setSelection(index);
-                addressInputLayout.setEnabled(true);
+                addressInputLayout.setEnabled(false);
                 groupNameInputLayout.setVisibility(View.VISIBLE);
                 groupContainer.setVisibility(View.VISIBLE);
                 labelContainer.setVisibility(View.GONE);
@@ -383,6 +388,18 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 if (group != null) {
                     addressInput.setText(MeshAddress.formatAddress(group.getAddress(), false));
                 }
+                break;
+            case ALL_PROXIES:
+                updateFixedGroupAddressVisibility(MeshAddress.ALL_PROXIES_ADDRESS, false);
+                break;
+            case ALL_FRIENDS:
+                updateFixedGroupAddressVisibility(MeshAddress.ALL_FRIENDS_ADDRESS, false);
+                break;
+            case ALL_RELAYS:
+                updateFixedGroupAddressVisibility(MeshAddress.ALL_RELAYS_ADDRESS, false);
+                break;
+            case ALL_NODES:
+                updateFixedGroupAddressVisibility(MeshAddress.ALL_NODES_ADDRESS, false);
                 break;
             case VIRTUAL_ADDRESS:
                 if (mPublicationSettings != null && mPublicationSettings.getLabelUUID() != null) {
@@ -397,6 +414,15 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 generateVirtualAddress(UUID.fromString(labelUuidView.getText().toString()));
                 break;
         }
+    }
+
+    private void updateFixedGroupAddressVisibility(final int address, final boolean enabled) {
+        addressInput.setText(MeshAddress.formatAddress(address, false));
+        addressInputLayout.setEnabled(enabled);
+        groupNameInputLayout.setVisibility(View.GONE);
+        groupContainer.setVisibility(View.GONE);
+        labelContainer.setVisibility(View.GONE);
+        mGenerateLabelUUID.setVisibility(View.GONE);
     }
 
     private void generateVirtualAddress(@NonNull final UUID uuid) {

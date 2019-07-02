@@ -105,7 +105,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
         mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
         ButterKnife.bind(this, rootView);
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             clearAddressPressed = savedInstanceState.getBoolean(CLEAR_ADDRESS_PRESSED);
             isProxyFilterDisabled = savedInstanceState.getBoolean(PROXY_FILTER_DISABLED);
         }
@@ -144,9 +144,9 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
                 actionAddFilterAddress.setEnabled(isConnected);
                 actionClearFilterAddress.setVisibility(View.GONE);
             }
+            actionDisable.setEnabled(false);
             actionEnableWhiteList.setEnabled(isConnected);
             actionEnableBlackList.setEnabled(isConnected);
-            actionDisable.setEnabled(isConnected);
         });
 
         mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
@@ -159,10 +159,10 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
             if (filter == null) {
                 addressAdapter.clearData();
                 return;
-            } else if(clearAddressPressed){
+            } else if (clearAddressPressed) {
                 clearAddressPressed = false;
                 return;
-            } else if(isProxyFilterDisabled){
+            } else if (isProxyFilterDisabled) {
                 actionDisable.setSelected(true);
             }
 
@@ -189,6 +189,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
             v.setSelected(true);
             actionEnableBlackList.setSelected(false);
             actionDisable.setSelected(false);
+            actionDisable.setEnabled(true);
             setFilter(new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER));
         });
 
@@ -197,6 +198,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
             v.setSelected(true);
             actionEnableWhiteList.setSelected(false);
             actionDisable.setSelected(false);
+            actionDisable.setEnabled(true);
             setFilter(new ProxyFilterType(ProxyFilterType.BLACK_LIST_FILTER));
         });
 
@@ -206,6 +208,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
             actionEnableWhiteList.setSelected(false);
             actionEnableBlackList.setSelected(false);
             addressAdapter.clearData();
+            actionDisable.setEnabled(false);
             setFilter(new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER));
         });
 

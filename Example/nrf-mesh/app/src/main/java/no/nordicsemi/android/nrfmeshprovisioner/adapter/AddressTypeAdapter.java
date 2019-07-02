@@ -23,24 +23,25 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.meshprovisioner.utils.AddressType;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.AddressTypes;
 
-public class AddressTypeAdapterSpinner extends BaseAdapter {
+public class AddressTypeAdapter extends BaseAdapter {
 
-    private final AddressType[] mAddressTypes;
+    private final AddressTypes[] mAddressTypes;
     private final Context mContext;
 
-    public AddressTypeAdapterSpinner(@NonNull final Context context, @NonNull final AddressType[] addressTypes) {
+    public AddressTypeAdapter(@NonNull final Context context,
+                              @NonNull final AddressTypes[] addressTypes) {
         this.mContext = context;
         mAddressTypes = addressTypes;
         notifyDataSetChanged();
@@ -52,7 +53,7 @@ public class AddressTypeAdapterSpinner extends BaseAdapter {
     }
 
     @Override
-    public AddressType getItem(final int position) {
+    public AddressTypes getItem(final int position) {
         return mAddressTypes[position];
     }
 
@@ -74,8 +75,12 @@ public class AddressTypeAdapterSpinner extends BaseAdapter {
                 viewHolder = (ViewHolder) view.getTag();
             }
 
-            final AddressType addressType = mAddressTypes[position];
-            viewHolder.addressName.setText(AddressType.getTypeName(addressType));
+            final AddressTypes addressType = mAddressTypes[position];
+            if (addressType == AddressTypes.GROUP_ADDRESS) {
+                viewHolder.addressName.setText(R.string.action_groups);
+            } else {
+                viewHolder.addressName.setText(AddressTypes.getTypeName(addressType));
+            }
             return view;
         } else {
             view = LayoutInflater.from(mContext).inflate(R.layout.no_groups_layout, parent, false);

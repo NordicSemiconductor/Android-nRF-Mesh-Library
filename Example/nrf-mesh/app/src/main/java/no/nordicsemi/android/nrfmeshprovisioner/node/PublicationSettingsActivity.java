@@ -248,7 +248,6 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @Override
     protected void onRestoreInstanceState(final Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mAddressType = AddressType.fromValue(savedInstanceState.getInt(RESULT_ADDRESS_TYPE, -1));
         mLabelUUID = (UUID) savedInstanceState.getSerializable(RESULT_LABEL_UUID);
         mPublishAddress = savedInstanceState.getInt(RESULT_PUBLISH_ADDRESS);
         mAppKeyIndex = savedInstanceState.getInt(RESULT_APP_KEY_INDEX);
@@ -307,7 +306,6 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @Override
     public void onPublishAddressSet(final int address) {
         mLabelUUID = null;
-        mAddressType = MeshAddress.getAddressType(address);
         mPublishAddress = address;
         mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
     }
@@ -315,7 +313,6 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @Override
     public void onPublishAddressSet(@NonNull final Group group) {
         mLabelUUID = group.getAddressLabel();
-        mAddressType = MeshAddress.getAddressType(group.getAddress());
         mPublishAddress = group.getAddress();
         mPublishAddressView.setText(MeshAddress.formatAddress(group.getAddress(), true));
     }
@@ -444,13 +441,13 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         final MeshMessage configModelPublicationSet;
         if (node != null && element != null && model != null) {
-            mPublishAddress = 0xFFFF;
-            mAddressType = MeshAddress.getAddressType(mPublishAddress);
-            if (mAddressType != null && mAddressType != AddressType.VIRTUAL_ADDRESS) {
+            final AddressType type = MeshAddress.getAddressType(mPublishAddress);
+            if (type != null && type != AddressType.VIRTUAL_ADDRESS) {
                 configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(),
                         mPublishAddress, mAppKeyIndex, mActionFriendshipCredentialSwitch.isChecked(), mPublishTtl,
                         mPublicationSteps, mPublicationResolution, mPublishRetransmitCount, mPublishRetransmitIntervalSteps, model.getModelId());
             } else {
+
                 configModelPublicationSet = new ConfigModelPublicationVirtualAddressSet(element.getElementAddress(),
                         mLabelUUID, mAppKeyIndex, mActionFriendshipCredentialSwitch.isChecked(), mPublishTtl,
                         mPublicationSteps, mPublicationResolution, mPublishRetransmitCount, mPublishRetransmitIntervalSteps, model.getModelId());

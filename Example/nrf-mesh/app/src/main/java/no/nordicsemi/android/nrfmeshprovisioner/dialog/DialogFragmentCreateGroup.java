@@ -50,24 +50,24 @@ import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
-import no.nordicsemi.android.meshprovisioner.utils.AddressType;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.GroupCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressTypeAdapterSpinner;
+import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressTypeAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.AddressTypes;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static no.nordicsemi.android.meshprovisioner.utils.AddressType.GROUP_ADDRESS;
-import static no.nordicsemi.android.meshprovisioner.utils.AddressType.VIRTUAL_ADDRESS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.AddressTypes.GROUP_ADDRESS;
+import static no.nordicsemi.android.nrfmeshprovisioner.utils.AddressTypes.VIRTUAL_ADDRESS;
 
 
 public class DialogFragmentCreateGroup extends DialogFragment {
 
-    private static final AddressType[] addressTypes = {GROUP_ADDRESS, VIRTUAL_ADDRESS};
+    private static final AddressTypes[] addressTypes = {GROUP_ADDRESS, VIRTUAL_ADDRESS};
     private static final String GROUP = "GROUP";
 
     //UI Bindings
@@ -92,7 +92,7 @@ public class DialogFragmentCreateGroup extends DialogFragment {
 
     private Button mGenerateLabelUUID;
 
-    private AddressTypeAdapterSpinner mAdapterSpinner;
+    private AddressTypeAdapter mAdapterSpinner;
     private Group mGroup;
 
     public static DialogFragmentCreateGroup newInstance() {
@@ -124,7 +124,7 @@ public class DialogFragmentCreateGroup extends DialogFragment {
         }
         updateGroup();
 
-        mAdapterSpinner = new AddressTypeAdapterSpinner(requireContext(), addressTypes);
+        mAdapterSpinner = new AddressTypeAdapter(requireContext(), addressTypes);
         addressTypesSpinnerView.setAdapter(mAdapterSpinner);
 
         groupContainer.setVisibility(View.GONE);
@@ -176,7 +176,7 @@ public class DialogFragmentCreateGroup extends DialogFragment {
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String name = groupNameInput.getEditableText().toString();
             try {
-                final AddressType type = (AddressType) addressTypesSpinnerView.getSelectedItem();
+                final AddressTypes type = (AddressTypes) addressTypesSpinnerView.getSelectedItem();
                 if (type == GROUP_ADDRESS) {
                     if (mGroup == null) {
                         final String address = addressInput.getEditableText().toString();
@@ -223,7 +223,7 @@ public class DialogFragmentCreateGroup extends DialogFragment {
         outState.putParcelable(GROUP, mGroup);
     }
 
-    private void updateAddress(final AddressType addressType) {
+    private void updateAddress(final AddressTypes addressType) {
         if (addressType == VIRTUAL_ADDRESS) {
             labelSummary.setVisibility(VISIBLE);
             labelUuidView.setVisibility(VISIBLE);

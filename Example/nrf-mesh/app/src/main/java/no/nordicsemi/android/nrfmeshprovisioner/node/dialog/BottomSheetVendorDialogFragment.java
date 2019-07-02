@@ -1,11 +1,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -17,6 +12,12 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
@@ -110,8 +111,8 @@ public class BottomSheetVendorDialogFragment extends BottomSheetDialogFragment {
         actionSend.setOnClickListener(v -> {
             messageContainer.setVisibility(View.GONE);
             receivedMessage.setText("");
-            final String opCode = opCodeEditText.getText().toString().trim();
-            final String parameters = parametersEditText.getText().toString().trim();
+            final String opCode = opCodeEditText.getEditableText().toString().trim();
+            final String parameters = parametersEditText.getEditableText().toString().trim();
 
             if (!validateOpcode(opCode, opCodeLayout))
                 return;
