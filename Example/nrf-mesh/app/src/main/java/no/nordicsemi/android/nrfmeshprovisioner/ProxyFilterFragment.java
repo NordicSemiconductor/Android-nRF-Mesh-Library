@@ -24,6 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,7 +112,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
         }
 
         final TextView noAddressesAdded = rootView.findViewById(R.id.no_addresses);
-        final RecyclerView recyclerViewAddresses = rootView.findViewById(R.id.recycler_view_addresses);
+        final RecyclerView recyclerViewAddresses = rootView.findViewById(R.id.recycler_view_filter_addresses);
         actionEnableWhiteList.setEnabled(false);
         actionEnableBlackList.setEnabled(false);
         actionDisable.setEnabled(false);
@@ -123,7 +124,6 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
         itemTouchHelper.attachToRecyclerView(recyclerViewAddresses);
         addressAdapter = new FilterAddressAdapter(requireContext());
         recyclerViewAddresses.setAdapter(addressAdapter);
-        addressAdapter.notifyDataSetChanged();
 
         mViewModel.isConnectedToProxy().observe(this, isConnected -> {
             if (!isConnected) {
@@ -170,19 +170,16 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
             actionEnableBlackList.setSelected(mFilter.getFilterType().getType() == ProxyFilterType.BLACK_LIST_FILTER);
 
             if (!mFilter.getAddresses().isEmpty()) {
+                Log.v("Adapter", "size: " + addressAdapter.getItemCount());
                 noAddressesAdded.setVisibility(View.GONE);
-                recyclerViewAddresses.setVisibility(View.VISIBLE);
                 actionClearFilterAddress.setVisibility(View.VISIBLE);
             } else {
                 noAddressesAdded.setVisibility(View.VISIBLE);
-                recyclerViewAddresses.setVisibility(View.GONE);
                 actionClearFilterAddress.setVisibility(View.GONE);
             }
-
             actionAddFilterAddress.setEnabled(!actionDisable.isSelected());
             addressAdapter.updateData(filter);
         });
-
 
         actionEnableWhiteList.setOnClickListener(v -> {
             isProxyFilterDisabled = false;
@@ -241,6 +238,19 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
         sendMessage(addAddressToFilter);
     }
 
+    @Override
+    public void onItemDismiss(final RemovableViewHolder viewHolder) {
+        final int position = viewHolder.getAdapterPosition();
+        if (viewHolder instanceof FilterAddressAdapter.ViewHolder) {
+            removeAddress(position);
+        }
+    }
+
+    @Override
+    public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
+
+    }
+
     private void removeAddress(final int position) {
         final MeshNetwork meshNetwork = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         if (meshNetwork != null) {
@@ -273,19 +283,6 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
     private void setFilter(final ProxyFilterType filterType) {
         final ProxyConfigSetFilterType setFilterType = new ProxyConfigSetFilterType(filterType);
         sendMessage(setFilterType);
-    }
-
-    @Override
-    public void onItemDismiss(final RemovableViewHolder viewHolder) {
-        final int position = viewHolder.getAdapterPosition();
-        if (viewHolder instanceof FilterAddressAdapter.ViewHolder) {
-            removeAddress(position);
-        }
-    }
-
-    @Override
-    public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
-
     }
 
     private void sendMessage(final MeshMessage meshMessage) {

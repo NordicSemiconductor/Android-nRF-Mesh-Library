@@ -27,19 +27,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="@dimen/alert_dialog_padding_bottom"
-    android:paddingEnd="@dimen/alert_dialog_padding_right"
     android:paddingStart="@dimen/alert_dialog_padding_left"
-    android:paddingTop="@dimen/alert_dialog_padding">
+    android:paddingTop="@dimen/alert_dialog_padding"
+    android:paddingEnd="@dimen/alert_dialog_padding_right"
+    android:paddingBottom="@dimen/alert_dialog_padding_bottom">
 
     <TextView
         android:id="@+id/summary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:text=""
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:text=""/>
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/prefix"
@@ -55,24 +55,24 @@
         android:id="@+id/text_input_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingEnd="@dimen/item_padding_end"
-        android:layout_marginTop="@dimen/item_padding_top"
         android:layout_marginStart="@dimen/item_padding_start"
+        android:layout_marginTop="@dimen/item_padding_top"
+        android:hint="@string/hint_filter_address"
+        android:paddingEnd="@dimen/item_padding_end"
         app:layout_constraintEnd_toStartOf="@id/action_add"
         app:layout_constraintStart_toEndOf="@id/prefix"
         app:layout_constraintTop_toBottomOf="@id/summary"
-        android:hint="@string/hint_filter_address"
         tools:ignore="RtlSymmetry">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/text_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:inputType="text|textCapCharacters"
-                android:maxLength="4"
-                android:singleLine="true"
-                android:textSize="16sp"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/text_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="text|textCapCharacters"
+            android:maxLength="4"
+            android:singleLine="true"
+            android:textSize="16sp"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -81,16 +81,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/action_add"
-        app:layout_constraintTop_toTopOf="@id/text_input_layout"
-        app:layout_constraintBottom_toBottomOf="@id/text_input_layout"
-        app:layout_constraintStart_toEndOf="@id/text_input_layout"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintBaseline_toBaselineOf="@id/text_input_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/text_input_layout"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:id="@+id/recycler_view_addresses"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:clipToPadding="false"
         android:scrollbars="none"
         app:layout_constraintEnd_toEndOf="parent"

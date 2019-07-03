@@ -47,7 +47,7 @@ public final class MeshAddress {
     }
 
     public static boolean isAddressInRange(@NonNull final byte[] address) {
-        return address.length != 2;
+        return address.length == 2 && isAddressInRange((address[0] & 0xFF) << 8 | address[1] & 0xFF);
     }
 
     /**
@@ -134,7 +134,7 @@ public final class MeshAddress {
         return false;
     }
 
-    private static boolean isValidGroupAddress(final byte[] address) {
+    public static boolean isValidGroupAddress(final byte[] address) {
         if (!isAddressInRange(address))
             return false;
 
@@ -200,22 +200,16 @@ public final class MeshAddress {
     public static boolean isValidSubscriptionAddress(@NonNull final byte[] address) {
         if (!isAddressInRange(address))
             return false;
-        final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
-        final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
-
-        final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
-        final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
-        final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
-        return groupRange && !rfu && !allNodes;
+        return isValidSubscriptionAddress((address[0] & 0xFF) << 8 | address[1] & 0xFF);
     }
 
     /**
-     * Validates a given group address
+     * Validates if the given address is a valid address that can be used as a proxy filter
      *
-     * @param address group address
+     * @param address Unicast/Virtual or Group address
      * @return true if is valid and false otherwise
      */
-    public static boolean isValidFilterAddress(final int address) {
+    public static boolean isValidProxyFilterAddress(final int address) {
         if (!isAddressInRange(address))
             return false;
         final int b0 = address >> 8 & 0xFF;
@@ -223,27 +217,21 @@ public final class MeshAddress {
 
         final boolean groupRange = b0 >= 0xC0;
         final boolean rfu = b0 == 0xFF && b1 <= 0xFB;
-        final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
-        return groupRange && !rfu && allNodes;
+        final boolean unicast = isValidUnicastAddress(address);
+        final boolean virtual = isValidVirtualAddress(address);
+        return unicast || virtual || (groupRange && !rfu);
     }
 
     /**
-     * Validates a given group address
+     * Validates if the given address is a valid address that can be used as a proxy filter
      *
-     * @param address group address
+     * @param address Unicast/Virtual or Group address
      * @return true if is valid and false otherwise
      */
-    public static boolean isValidFilterAddress(@NonNull final byte[] address) {
-        if (address.length == 2) {
-            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
-            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
-
-            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
-            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
-            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
-            return groupRange && !rfu && allNodes;
-        }
-        return false;
+    public static boolean isValidProxyFilterAddress(@NonNull final byte[] address) {
+        if (!isAddressInRange(address))
+            return false;
+        return isValidProxyFilterAddress((address[0] & 0xFF) << 8 | address[1] & 0xFF);
     }
 
     /**

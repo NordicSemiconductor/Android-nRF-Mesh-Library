@@ -57,7 +57,8 @@
             android:name=".MainActivity"
             android:icon="@drawable/ic_feature_mesh"
             android:label="@string/feature_name"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="no.nordicsemi.android.nrftoolbox.LAUNCHER"/>

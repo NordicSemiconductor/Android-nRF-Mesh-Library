@@ -147,11 +147,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
         return new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.confirm, (dialog, which) -> {
                     if (!addresses.isEmpty()) {
-                        if (getParentFragment() == null) {
-                            ((DialogFragmentFilterAddressListener) requireActivity()).addAddresses(addresses);
-                        } else {
-                            ((DialogFragmentFilterAddressListener) getParentFragment()).addAddresses(addresses);
-                        }
+                        ((DialogFragmentFilterAddressListener) requireParentFragment()).addAddresses(addresses);
                     } else {
                         Toast.makeText(requireContext(), R.string.error_empty_filter_address, Toast.LENGTH_SHORT).show();
                     }
@@ -176,7 +172,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
             }
 
             final byte[] address = MeshParserUtils.toByteArray(input);
-            if (!MeshAddress.isValidUnicastAddress(address) && !MeshAddress.isValidFilterAddress(address)) {
+            if (!MeshAddress.isValidProxyFilterAddress(address)) {
                 addressInputLayout.setError(getString(R.string.invalid_filter_address));
                 return false;
             }

@@ -502,4 +502,5 @@
     <string name="action_create_group">Create Group</string>
     <string name="title_unassign_provisioner">Unassign Provisioner</string>
     <string name="summary_unassign_provisioner">Unassigning a provisioner will disable its configuration capabilities and delete the corresponding node.</string>
+    <string name="virtual_address">Virtual Address</string>
 </resources>
