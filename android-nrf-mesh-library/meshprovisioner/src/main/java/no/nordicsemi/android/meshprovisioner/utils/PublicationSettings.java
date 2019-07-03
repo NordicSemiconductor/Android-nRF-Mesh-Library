@@ -1,6 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.os.Parcel;
+import android.os.ParcelUuid;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
 
@@ -13,7 +14,7 @@ import java.util.UUID;
 /**
  * Contains the publication settings of a mesh model
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public class PublicationSettings implements Parcelable {
 
     private static final int DEFAULT_PUBLISH_TTL = 0x7F;
@@ -131,6 +132,10 @@ public class PublicationSettings implements Parcelable {
 
     private PublicationSettings(Parcel in) {
         publishAddress = in.readInt();
+        final ParcelUuid parcelUuid = in.readParcelable(ParcelUuid.class.getClassLoader());
+        if(parcelUuid != null) {
+            labelUUID = parcelUuid.getUuid();
+        }
         appKeyIndex = in.readInt();
         credentialFlag = in.readInt() == 1;
         publishTtl = in.readInt();
@@ -310,6 +315,7 @@ public class PublicationSettings implements Parcelable {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeInt(publishAddress);
+        dest.writeParcelable(new ParcelUuid(labelUUID), flags);
         dest.writeInt(appKeyIndex);
         dest.writeInt(credentialFlag ? 1 : 0);
         dest.writeInt(publishTtl);
