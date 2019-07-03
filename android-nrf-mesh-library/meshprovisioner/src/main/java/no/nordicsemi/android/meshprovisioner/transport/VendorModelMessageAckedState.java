@@ -1,9 +1,12 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.annotation.NonNull;
-import no.nordicsemi.android.meshprovisioner.ApplicationKey;
-
 import android.util.Log;
+
+import java.util.UUID;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 
 /**
  * State class for handling VendorModelMessageAckedState messages.
@@ -28,9 +31,27 @@ class VendorModelMessageAckedState extends GenericMessageState {
                                  @NonNull final VendorModelMessageAcked vendorModelMessageAcked,
                                  @NonNull final MeshTransport meshTransport,
                                  @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(src, dst, vendorModelMessageAcked, meshTransport, callbacks);
-        this.mSrc = src;
-        this.mDst = dst;
+        this(src, dst, null, vendorModelMessageAcked, meshTransport, callbacks);
+    }
+
+    /**
+     * Constructs {@link VendorModelMessageAckedState}
+     *
+     * @param src                     Source address
+     * @param dst                     Destination address to which the message must be sent to
+     * @param label                   Label UUID of destination address
+     * @param vendorModelMessageAcked Wrapper class {@link VendorModelMessageStatus} containing the
+     *                                opcode and parameters for {@link VendorModelMessageStatus} message
+     * @param callbacks               {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @throws IllegalArgumentException exception for invalid arguments
+     */
+    VendorModelMessageAckedState(final int src,
+                                 final int dst,
+                                 @Nullable UUID label,
+                                 @NonNull final VendorModelMessageAcked vendorModelMessageAcked,
+                                 @NonNull final MeshTransport meshTransport,
+                                 @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+        super(src, dst, label, vendorModelMessageAcked, meshTransport, callbacks);
         createAccessMessage();
     }
 
@@ -49,7 +70,7 @@ class VendorModelMessageAckedState extends GenericMessageState {
         final int opCode = vendorModelMessageAcked.getOpCode();
         final byte[] parameters = vendorModelMessageAcked.getParameters();
         final int companyIdentifier = vendorModelMessageAcked.getCompanyIdentifier();
-        message = mMeshTransport.createVendorMeshMessage(companyIdentifier, mSrc, mDst, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createVendorMeshMessage(companyIdentifier, mSrc, mDst, mLabel, key, akf, aid, aszmic, opCode, parameters);
         vendorModelMessageAcked.setMessage(message);
     }
 

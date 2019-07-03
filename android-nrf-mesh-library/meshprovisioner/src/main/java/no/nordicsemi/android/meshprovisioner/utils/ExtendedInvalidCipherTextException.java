@@ -2,6 +2,9 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import org.spongycastle.crypto.InvalidCipherTextException;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public class ExtendedInvalidCipherTextException extends InvalidCipherTextException {
 
     private final String tag;
@@ -15,7 +18,7 @@ public class ExtendedInvalidCipherTextException extends InvalidCipherTextExcepti
      * @param cause   Throwable cause
      * @param tag     class tag name
      */
-    public ExtendedInvalidCipherTextException(final String message, final Throwable cause, final String tag) {
+    public ExtendedInvalidCipherTextException(@NonNull final String message, @Nullable final Throwable cause, final String tag) {
         this.message = message;
         this.cause = cause;
         this.tag = tag;

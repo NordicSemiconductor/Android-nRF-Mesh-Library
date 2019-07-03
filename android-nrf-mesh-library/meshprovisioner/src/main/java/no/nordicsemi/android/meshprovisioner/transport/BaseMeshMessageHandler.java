@@ -31,6 +31,7 @@ import org.spongycastle.crypto.InvalidCipherTextException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
+import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -226,13 +227,17 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     }
 
     @Override
-    public void createMeshMessage(final int src, final int dst, @NonNull final MeshMessage meshMessage) {
+    public void createMeshMessage(final int src, final int dst, @Nullable final UUID label, @NonNull final MeshMessage meshMessage) {
         if (meshMessage instanceof ProxyConfigMessage) {
             createProxyConfigMeshMessage(src, dst, (ProxyConfigMessage) meshMessage);
         } else if (meshMessage instanceof ConfigMessage) {
             createConfigMeshMessage(src, dst, (ConfigMessage) meshMessage);
         } else if (meshMessage instanceof GenericMessage) {
-            createAppMeshMessage(src, dst, (GenericMessage) meshMessage);
+            if (label == null) {
+                createAppMeshMessage(src, dst, (GenericMessage) meshMessage);
+            } else {
+                createAppMeshMessage(src, dst, label, (GenericMessage) meshMessage);
+            }
         }
     }
 
@@ -269,7 +274,6 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         currentState.executeSend();
     }
 
-
     /**
      * Sends a mesh message specified within the {@link GenericMessage} object
      * <p> This method can be used specifically when sending an application message with a unicast address or a group address.
@@ -289,6 +293,36 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             currentState = new VendorModelMessageUnackedState(src, dst, (VendorModelMessageUnacked) genericMessage, getTransport(dst), this);
         } else {
             currentState = new GenericMessageState(src, dst, genericMessage, getTransport(dst), this);
+        }
+        currentState.setTransportCallbacks(mInternalTransportCallbacks);
+        currentState.setStatusCallbacks(mStatusCallbacks);
+        if (MeshAddress.isValidUnicastAddress(dst)) {
+            stateSparseArray.put(dst, toggleState(getTransport(dst), genericMessage));
+        }
+        currentState.executeSend();
+    }
+
+
+    /**
+     * Sends a mesh message specified within the {@link GenericMessage} object
+     * <p> This method can be used specifically when sending an application message with a unicast address or a group address.
+     * Application messages currently supported in the library are {@link GenericOnOffGet},{@link GenericOnOffSet}, {@link GenericOnOffSetUnacknowledged},
+     * {@link GenericLevelGet},  {@link GenericLevelSet},  {@link GenericLevelSetUnacknowledged},
+     * {@link VendorModelMessageAcked} and {@link VendorModelMessageUnacked}</p>
+     *
+     * @param src            source address where the message is originating from
+     * @param dst            Destination to which the message must be sent to, this could be a unicast address or a group address.
+     * @param label          Label UUID of destination address
+     * @param genericMessage Mesh message containing the message opcode and message parameters.
+     */
+    private void createAppMeshMessage(final int src, final int dst, @NonNull UUID label, @NonNull final GenericMessage genericMessage) {
+        final GenericMessageState currentState;
+        if (genericMessage instanceof VendorModelMessageAcked) {
+            currentState = new VendorModelMessageAckedState(src, dst, label, (VendorModelMessageAcked) genericMessage, getTransport(dst), this);
+        } else if (genericMessage instanceof VendorModelMessageUnacked) {
+            currentState = new VendorModelMessageUnackedState(src, dst, label, (VendorModelMessageUnacked) genericMessage, getTransport(dst), this);
+        } else {
+            currentState = new GenericMessageState(src, dst, label, genericMessage, getTransport(dst), this);
         }
         currentState.setTransportCallbacks(mInternalTransportCallbacks);
         currentState.setStatusCallbacks(mStatusCallbacks);

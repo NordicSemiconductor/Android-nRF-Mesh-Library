@@ -24,7 +24,6 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.google.gson.annotations.Expose;
@@ -43,6 +42,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
+
+import androidx.annotation.NonNull;
 
 @SuppressWarnings("WeakerAccess")
 public class SecureUtils {
@@ -153,7 +154,10 @@ public class SecureUtils {
         return cmac;
     }
 
-    public static byte[] encryptCCM(final byte[] data, final byte[] key, final byte[] nonce, final int micSize) {
+    public static byte[] encryptCCM(@NonNull final byte[] data,
+                                    @NonNull final byte[] key,
+                                    @NonNull final byte[] nonce,
+                                    final int micSize) {
         final byte[] ccm = new byte[data.length + micSize];
 
         final CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
@@ -169,11 +173,49 @@ public class SecureUtils {
         }
     }
 
-    public static byte[] decryptCCM(final byte[] data, final byte[] key, final byte[] nonce, final int micSize) throws InvalidCipherTextException {
+    public static byte[] encryptCCM(@NonNull final byte[] data,
+                                    @NonNull final byte[] key,
+                                    @NonNull final byte[] nonce,
+                                    @NonNull final byte[] additionalData,
+                                    final int micSize) {
+        final byte[] ccm = new byte[data.length + micSize];
+
+        final CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
+        final AEADParameters aeadParameters = new AEADParameters(new KeyParameter(key), micSize * 8, nonce, additionalData);
+        ccmBlockCipher.init(true, aeadParameters);
+        ccmBlockCipher.processBytes(data, 0, data.length, ccm, data.length);
+        try {
+            ccmBlockCipher.doFinal(ccm, 0);
+            return ccm;
+        } catch (InvalidCipherTextException e) {
+            Log.e(TAG, "Error wile encrypting: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static byte[] decryptCCM(@NonNull final byte[] data,
+                                    @NonNull final byte[] key,
+                                    @NonNull final byte[] nonce,
+                                    final int micSize) throws InvalidCipherTextException {
         final byte[] ccm = new byte[data.length - micSize];
 
         final CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
         final AEADParameters aeadParameters = new AEADParameters(new KeyParameter(key), micSize * 8, nonce);
+        ccmBlockCipher.init(false, aeadParameters);
+        ccmBlockCipher.processBytes(data, 0, data.length, ccm, 0);
+        ccmBlockCipher.doFinal(ccm, 0);
+        return ccm;
+    }
+
+    public static byte[] decryptCCM(@NonNull final byte[] data,
+                                    @NonNull final byte[] key,
+                                    @NonNull final byte[] nonce,
+                                    @NonNull final byte[] additionalData,
+                                    final int micSize) throws InvalidCipherTextException {
+        final byte[] ccm = new byte[data.length - micSize];
+
+        final CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
+        final AEADParameters aeadParameters = new AEADParameters(new KeyParameter(key), micSize * 8, nonce, additionalData);
         ccmBlockCipher.init(false, aeadParameters);
         ccmBlockCipher.processBytes(data, 0, data.length, ccm, 0);
         ccmBlockCipher.doFinal(ccm, 0);

@@ -742,7 +742,14 @@ public class MeshManagerApi implements MeshMngrApi {
         }
         final Provisioner provisioner = mMeshNetwork.getSelectedProvisioner();
         if (provisioner != null && provisioner.getProvisionerAddress() != null) {
-            mMeshMessageHandler.createMeshMessage(provisioner.getProvisionerAddress(), dst, meshMessage);
+            UUID label = null;
+            if (MeshAddress.isValidVirtualAddress(dst)) {
+                label = mMeshNetwork.getLabelUuid(dst);
+                if (label == null) {
+                    throw new IllegalArgumentException("Label UUID unavailable for the virtual address provided");
+                }
+            }
+            mMeshMessageHandler.createMeshMessage(provisioner.getProvisionerAddress(), dst, label, meshMessage);
         } else {
             throw new IllegalArgumentException("Provisioner address not set, please assign an address to the provisioner.");
         }
@@ -928,6 +935,12 @@ public class MeshManagerApi implements MeshMngrApi {
                 }
             }
             return null;
+        }
+
+        @Nullable
+        @Override
+        public UUID getLabel(final int address) {
+            return mMeshNetwork.getLabelUuid(address);
         }
     };
 

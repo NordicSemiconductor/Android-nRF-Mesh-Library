@@ -506,4 +506,41 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
         return flags;
     }
+
+    /**
+     * Returns the uuid for a given virtual address
+     *
+     * @param address virtual address
+     * @return The label uuid if it's known to the provisioner or null otherwise
+     */
+    public UUID getLabelUuid(final int address) throws IllegalArgumentException {
+        if (!MeshAddress.isValidVirtualAddress(address)) {
+            throw new IllegalArgumentException("Address type must be a virtual address ");
+        }
+
+        for (ProvisionedMeshNode node : nodes) {
+            for (Map.Entry<Integer, Element> elementEntry : node.getElements().entrySet()) {
+                final Element element = elementEntry.getValue();
+                for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                    final MeshModel model = modelEntry.getValue();
+                    if (model != null) {
+                        if (model.getPublicationSettings() != null) {
+                            if (model.getPublicationSettings().getLabelUUID() != null) {
+                                if (address == MeshAddress.generateVirtualAddress(model.getPublicationSettings().getLabelUUID())) {
+                                    return model.getPublicationSettings().getLabelUUID();
+                                }
+                            }
+                        }
+                        final UUID label = model.getLabelUUID(address);
+                        if(label != null) {
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
 }
