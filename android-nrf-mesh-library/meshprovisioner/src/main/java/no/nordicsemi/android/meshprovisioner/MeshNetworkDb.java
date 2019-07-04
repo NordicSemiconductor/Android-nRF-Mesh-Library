@@ -982,10 +982,14 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 } else {
                     values.put("provisioner_address", unicast);
                 }
+                final List<AllocatedGroupRange> groupRange = new ArrayList<>();
+                final List<AllocatedSceneRange> sceneRange = new ArrayList<>();
+                groupRange.add(new AllocatedGroupRange(0xC000, 0xCC9A));
+                sceneRange.add(new AllocatedSceneRange(0x0001, 0x3333));
                 values.put("allocated_group_ranges", groupRanges.equalsIgnoreCase("null") ?
-                        MeshTypeConverters.allocatedGroupRangeToJson(new ArrayList<>()) : groupRanges);
+                        MeshTypeConverters.allocatedGroupRangeToJson(groupRange) : groupRanges);
                 values.put("allocated_scene_ranges", sceneRanges.equalsIgnoreCase("null") ?
-                        MeshTypeConverters.allocatedSceneRangeToJson(new ArrayList<>()) : sceneRanges);
+                        MeshTypeConverters.allocatedSceneRangeToJson(sceneRange) : sceneRanges);
                 database.update("provisioner_temp", SQLiteDatabase.CONFLICT_REPLACE, values, "provisioner_uuid = ?", new String[]{uuid});
             } while (cursor.moveToNext());
             cursor.close();
