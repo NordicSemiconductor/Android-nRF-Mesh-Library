@@ -79,7 +79,7 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public String allocatedUnicastRangeToJson(final List<AllocatedUnicastRange> ranges) {
+    public static String allocatedUnicastRangeToJson(final List<AllocatedUnicastRange> ranges) {
         return new Gson().toJson(ranges);
     }
 

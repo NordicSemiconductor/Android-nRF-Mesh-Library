@@ -59,16 +59,19 @@ public class Provisioner implements Parcelable {
 
     @ColumnInfo(name = "allocated_unicast_ranges")
     @TypeConverters(MeshTypeConverters.class)
+    @NonNull
     @Expose
     List<AllocatedUnicastRange> allocatedUnicastRanges = new ArrayList<>();
 
     @ColumnInfo(name = "allocated_group_ranges")
     @TypeConverters(MeshTypeConverters.class)
+    @NonNull
     @Expose
     List<AllocatedGroupRange> allocatedGroupRanges = new ArrayList<>();
 
     @ColumnInfo(name = "allocated_scene_ranges")
     @TypeConverters(MeshTypeConverters.class)
+    @NonNull
     @Expose
     List<AllocatedSceneRange> allocatedSceneRanges = new ArrayList<>();
 
@@ -204,7 +207,7 @@ public class Provisioner implements Parcelable {
      *
      * @param allocatedGroupRanges allocated range of group addresses
      */
-    public void setAllocatedGroupRanges(final List<AllocatedGroupRange> allocatedGroupRanges) {
+    public void setAllocatedGroupRanges(@NonNull final List<AllocatedGroupRange> allocatedGroupRanges) {
         this.allocatedGroupRanges = allocatedGroupRanges;
     }
 
@@ -222,7 +225,7 @@ public class Provisioner implements Parcelable {
      *
      * @param allocatedUnicastRanges allocated range of unicast addresses
      */
-    public void setAllocatedUnicastRanges(final List<AllocatedUnicastRange> allocatedUnicastRanges) {
+    public void setAllocatedUnicastRanges(@NonNull final List<AllocatedUnicastRange> allocatedUnicastRanges) {
         this.allocatedUnicastRanges = allocatedUnicastRanges;
     }
 
@@ -240,7 +243,7 @@ public class Provisioner implements Parcelable {
      *
      * @param allocatedSceneRanges allocated range of unicast addresses
      */
-    public void setAllocatedSceneRanges(final List<AllocatedSceneRange> allocatedSceneRanges) {
+    public void setAllocatedSceneRanges(@NonNull final List<AllocatedSceneRange> allocatedSceneRanges) {
         this.allocatedSceneRanges = allocatedSceneRanges;
     }
 
@@ -350,6 +353,7 @@ public class Provisioner implements Parcelable {
      *
      * @param allocatedRange {@link Range}
      */
+    @SuppressWarnings("UnusedReturnValue")
     public boolean addRange(@NonNull final Range allocatedRange) {
         if (allocatedRange instanceof AllocatedUnicastRange) {
             allocatedUnicastRanges.add((AllocatedUnicastRange) allocatedRange);
@@ -381,6 +385,7 @@ public class Provisioner implements Parcelable {
      *
      * @param range {@link Range}
      */
+    @SuppressWarnings("UnusedReturnValue")
     public boolean removeRange(@NonNull final Range range) {
         if (range instanceof AllocatedUnicastRange) {
             return allocatedUnicastRanges.remove(range);

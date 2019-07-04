@@ -949,6 +949,16 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     private static void migrateProvisioner4_5(final SupportSQLiteDatabase database) {
+        final List<AllocatedUnicastRange> unicastRange = new ArrayList<>();
+        final List<AllocatedGroupRange> groupRange = new ArrayList<>();
+        final List<AllocatedSceneRange> sceneRange = new ArrayList<>();
+        unicastRange.add(new AllocatedUnicastRange(0x0001, 0x199A));
+        groupRange.add(new AllocatedGroupRange(0xC000, 0xCC9A));
+        sceneRange.add(new AllocatedSceneRange(0x0001, 0x3333));
+        /*final String unicastRangeDefault = MeshTypeConverters.allocatedUnicastRangeToJson(unicastRange);
+        final String groupRangeDefault = MeshTypeConverters.allocatedGroupRangeToJson(groupRange);
+        final String sceneRangeDefault = MeshTypeConverters.allocatedSceneRangeToJson(sceneRange);*/
+
         database.execSQL("CREATE TABLE `provisioner_temp` " +
                 "(`mesh_uuid` TEXT NOT NULL, " +
                 "`provisioner_uuid` TEXT NOT NULL, " +
@@ -963,29 +973,41 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 "FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )");
 
         database.execSQL(
-                "INSERT INTO provisioner_temp (mesh_uuid, provisioner_uuid, name, allocated_unicast_ranges, " +
+                "INSERT INTO provisioner_temp (mesh_uuid, provisioner_uuid, name, " +
+                        "allocated_unicast_ranges, allocated_group_ranges, allocated_scene_ranges, " +
                         "sequence_number, global_ttl, last_selected) " +
-                        "SELECT mesh_uuid, provisioner_uuid, name, allocatedUnicastRanges," +
+                        "SELECT mesh_uuid, provisioner_uuid, name, " +
+                        "allocatedUnicastRanges, allocatedGroupRanges, allocatedSceneRanges," +
                         "sequence_number, global_ttl, last_selected FROM provisioner");
 
-        final Cursor cursor = database.query("SELECT * FROM provisioner");
+        Cursor cursor = database.query("SELECT * FROM provisioner");
         if (cursor != null && cursor.moveToFirst()) {
             do {
+                final String meshUuid = cursor.getString(cursor.getColumnIndex("mesh_uuid"));
                 final String uuid = cursor.getString(cursor.getColumnIndex("provisioner_uuid"));
-                final int unicast = cursor.getInt(cursor.getColumnIndex("provisioner_address"));
+                final String name = cursor.getString(cursor.getColumnIndex("name"));
+                final String unicastRanges = cursor.getString(cursor.getColumnIndex("allocatedUnicastRanges"));
                 final String groupRanges = cursor.getString(cursor.getColumnIndex("allocatedGroupRanges"));
                 final String sceneRanges = cursor.getString(cursor.getColumnIndex("allocatedSceneRanges"));
+                final int sequenceNumber = cursor.getInt(cursor.getColumnIndex("sequence_number"));
+                final int globalTtl = cursor.getInt(cursor.getColumnIndex("global_ttl"));
+                final boolean lastSelected = cursor.getInt(cursor.getColumnIndex("last_selected")) == 1;
+                final int unicast = cursor.getInt(cursor.getColumnIndex("provisioner_address"));
                 final ContentValues values = new ContentValues();
+                values.put("mesh_uuid", meshUuid);
+                values.put("provisioner_uuid", uuid);
+                values.put("name", name);
+                values.put("sequence_number", sequenceNumber);
+                values.put("global_ttl", globalTtl);
+                values.put("last_selected", lastSelected);
                 if (unicast == 0) {
                     final Integer t = null;
                     values.put("provisioner_address", t);
                 } else {
                     values.put("provisioner_address", unicast);
                 }
-                final List<AllocatedGroupRange> groupRange = new ArrayList<>();
-                final List<AllocatedSceneRange> sceneRange = new ArrayList<>();
-                groupRange.add(new AllocatedGroupRange(0xC000, 0xCC9A));
-                sceneRange.add(new AllocatedSceneRange(0x0001, 0x3333));
+                values.put("allocated_unicast_ranges", unicastRanges.equalsIgnoreCase("null") ?
+                        MeshTypeConverters.allocatedUnicastRangeToJson(unicastRange) : unicastRanges);
                 values.put("allocated_group_ranges", groupRanges.equalsIgnoreCase("null") ?
                         MeshTypeConverters.allocatedGroupRangeToJson(groupRange) : groupRanges);
                 values.put("allocated_scene_ranges", sceneRanges.equalsIgnoreCase("null") ?
