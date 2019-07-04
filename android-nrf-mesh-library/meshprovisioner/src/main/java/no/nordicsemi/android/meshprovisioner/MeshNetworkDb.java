@@ -953,9 +953,9 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 "(`mesh_uuid` TEXT NOT NULL, " +
                 "`provisioner_uuid` TEXT NOT NULL, " +
                 "`name` TEXT, " +
-                "`allocatedGroupRanges` TEXT, " +
-                "`allocatedUnicastRanges` TEXT, " +
-                "`allocatedSceneRanges` TEXT, " +
+                "`allocated_unicast_ranges` TEXT NOT NULL, " +
+                "`allocated_group_ranges` TEXT NOT NULL, " +
+                "`allocated_scene_ranges` TEXT NOT NULL, " +
                 "`sequence_number` INTEGER NOT NULL, " +
                 "`provisioner_address` INTEGER," +
                 "`global_ttl` INTEGER NOT NULL, " +
@@ -963,16 +963,18 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 "FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )");
 
         database.execSQL(
-                "INSERT INTO provisioner_temp (mesh_uuid, provisioner_uuid, name, allocatedGroupRanges, allocatedUnicastRanges, " +
-                        "allocatedSceneRanges, sequence_number, global_ttl, last_selected) " +
-                        "SELECT mesh_uuid, provisioner_uuid, name, allocatedGroupRanges, allocatedUnicastRanges," +
-                        " allocatedSceneRanges, sequence_number, global_ttl, last_selected FROM provisioner");
+                "INSERT INTO provisioner_temp (mesh_uuid, provisioner_uuid, name, allocated_unicast_ranges, " +
+                        "sequence_number, global_ttl, last_selected) " +
+                        "SELECT mesh_uuid, provisioner_uuid, name, allocatedUnicastRanges," +
+                        "sequence_number, global_ttl, last_selected FROM provisioner");
 
         final Cursor cursor = database.query("SELECT * FROM provisioner");
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 final String uuid = cursor.getString(cursor.getColumnIndex("provisioner_uuid"));
                 final int unicast = cursor.getInt(cursor.getColumnIndex("provisioner_address"));
+                final String groupRanges = cursor.getString(cursor.getColumnIndex("allocatedGroupRanges"));
+                final String sceneRanges = cursor.getString(cursor.getColumnIndex("allocatedSceneRanges"));
                 final ContentValues values = new ContentValues();
                 if (unicast == 0) {
                     final Integer t = null;
@@ -980,6 +982,10 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 } else {
                     values.put("provisioner_address", unicast);
                 }
+                values.put("allocated_group_ranges", groupRanges.equalsIgnoreCase("null") ?
+                        MeshTypeConverters.allocatedGroupRangeToJson(new ArrayList<>()) : groupRanges);
+                values.put("allocated_scene_ranges", sceneRanges.equalsIgnoreCase("null") ?
+                        MeshTypeConverters.allocatedSceneRangeToJson(new ArrayList<>()) : sceneRanges);
                 database.update("provisioner_temp", SQLiteDatabase.CONFLICT_REPLACE, values, "provisioner_uuid = ?", new String[]{uuid});
             } while (cursor.moveToNext());
             cursor.close();

@@ -55,7 +55,7 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public String allocatedGroupRangeToJson(final List<AllocatedGroupRange> ranges) {
+    public static String allocatedGroupRangeToJson(final List<AllocatedGroupRange> ranges) {
         return new Gson().toJson(ranges);
     }
 
@@ -67,7 +67,7 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public String allocatedSceneRangeToJson(final List<AllocatedSceneRange> ranges) {
+    public static String allocatedSceneRangeToJson(final List<AllocatedSceneRange> ranges) {
         return new Gson().toJson(ranges);
     }
 

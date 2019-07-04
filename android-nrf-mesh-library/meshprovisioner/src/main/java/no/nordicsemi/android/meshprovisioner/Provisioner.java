@@ -57,17 +57,20 @@ public class Provisioner implements Parcelable {
     @Expose
     private String provisionerName = "nRF Mesh Provisioner";
 
+    @ColumnInfo(name = "allocated_unicast_ranges")
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    protected List<AllocatedGroupRange> allocatedGroupRanges = new ArrayList<>();
+    List<AllocatedUnicastRange> allocatedUnicastRanges = new ArrayList<>();
 
+    @ColumnInfo(name = "allocated_group_ranges")
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    protected List<AllocatedUnicastRange> allocatedUnicastRanges = new ArrayList<>();
+    List<AllocatedGroupRange> allocatedGroupRanges = new ArrayList<>();
 
+    @ColumnInfo(name = "allocated_scene_ranges")
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    protected List<AllocatedSceneRange> allocatedSceneRanges = new ArrayList<>();
+    List<AllocatedSceneRange> allocatedSceneRanges = new ArrayList<>();
 
     @ColumnInfo(name = "sequence_number")
     @Expose
