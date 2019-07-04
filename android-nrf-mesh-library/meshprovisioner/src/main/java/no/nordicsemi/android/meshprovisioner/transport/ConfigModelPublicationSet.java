@@ -121,7 +121,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
         Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(modelIdentifier), false));
 
         final int rfu = 0; // We ignore the rfu here
-        final int octet5 = (applicationKeyIndex[0] | (credentialFlag ? 0b01 : 0b00) << 3);
+        final int octet5 = (applicationKeyIndex[0] | (credentialFlag ? 0b01 : 0b00) << 4);
         final byte publishPeriod = (byte) ((publicationResolution << 6) | (publicationSteps & 0x3F));
         final int octet8 = (publishRetransmitCount << 5) | (publishRetransmitIntervalSteps & 0x1F);
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sig model
