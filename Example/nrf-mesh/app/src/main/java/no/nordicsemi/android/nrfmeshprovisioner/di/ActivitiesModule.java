@@ -96,9 +96,6 @@ abstract class ActivitiesModule {
 	abstract NodeConfigurationActivity contributeElementConfigurationActivity();
 
 	@ContributesAndroidInjector()
-	abstract BaseModelConfigurationActivity contributeBaseModelConfigurationActivity();
-
-	@ContributesAndroidInjector()
 	abstract ScannerActivity contributeScannerActivity();
 
 	@ContributesAndroidInjector()
