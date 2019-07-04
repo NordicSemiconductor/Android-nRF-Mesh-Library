@@ -125,7 +125,7 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
                     final ApplicationKey appKey = mOnItemClickListener.updateBoundNetKeyIndex(getAdapterPosition(), netKey);
                     if (appKey != null) {
                         mAppKey = appKey;
-                        notifyItemChanged(getAdapterPosition());
+                        notifyDataSetChanged();
                     }
                 }
             });
