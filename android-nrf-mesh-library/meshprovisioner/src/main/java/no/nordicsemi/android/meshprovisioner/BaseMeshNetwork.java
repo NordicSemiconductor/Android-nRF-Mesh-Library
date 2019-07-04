@@ -1,5 +1,6 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.annotations.Expose;
@@ -106,11 +107,20 @@ abstract class BaseMeshNetwork {
     @Expose(serialize = false, deserialize = false)
     private ProxyFilter proxyFilter;
     @Ignore
-    protected Comparator<ProvisionedMeshNode> nodeComparator = (node1, node2) ->
+    protected final Comparator<ProvisionedMeshNode> nodeComparator = (node1, node2) ->
             Integer.compare(node1.getUnicastAddress(), node2.getUnicastAddress());
     @Ignore
-    protected Comparator<Group> groupComparator = (group1, group2) ->
+    protected final Comparator<Group> groupComparator = (group1, group2) ->
             Integer.compare(group1.getAddress(), group2.getAddress());
+    @Ignore
+    protected final Comparator<AllocatedUnicastRange> unicastRangeComparator = (range1, range2) ->
+            Integer.compare(range1.getLowAddress(), range2.getLowAddress());
+    @Ignore
+    protected final Comparator<AllocatedGroupRange> groupRangeComparator = (range1, range2) ->
+            Integer.compare(range1.getLowAddress(), range2.getLowAddress());
+    @Ignore
+    protected final Comparator<AllocatedSceneRange> sceneRangeComparator = (range1, range2) ->
+            Integer.compare(range1.getFirstScene(), range2.getFirstScene());
 
     BaseMeshNetwork(@NonNull final String meshUUID) {
         this.meshUUID = meshUUID;
@@ -502,20 +512,46 @@ abstract class BaseMeshNetwork {
     }
 
     /**
+     * Creates a provisioner with a given name
+     *
+     * @param name Provisioner name
+     * @return {@link Provisioner}
+     * @throws IllegalArgumentException if the name is empty
+     */
+    public Provisioner createProvisioner(@NonNull final String name) throws IllegalArgumentException {
+        return createProvisioner(name,
+                new AllocatedUnicastRange(0x0001, 0x199A),
+                new AllocatedGroupRange(0xC000, 0xCC9A),
+                new AllocatedSceneRange(0x0001, 0x3333));
+    }
+
+    /**
      * Creates a provisioner
      *
-     * @return returns true if updated and false otherwise
+     * @param name         Provisioner name
+     * @param unicastRange {@link AllocatedUnicastRange} for the provisioner
+     * @param groupRange   {@link AllocatedGroupRange} for the provisioner
+     * @param sceneRange   {@link AllocatedSceneRange} for the provisioner
+     * @return {@link Provisioner}
+     * @throws IllegalArgumentException if the name is empty
      */
-    public Provisioner createProvisioner() {
-        final List<AllocatedUnicastRange> unicastRange = new ArrayList();
-        final AllocatedUnicastRange range1 = new AllocatedUnicastRange(0x0001, 0x1000);
-        unicastRange.add(range1);
-        final List<AllocatedGroupRange> groupRange = new ArrayList();
-        groupRange.add(new AllocatedGroupRange(0xC000, 0xC0FF));
-        final List<AllocatedSceneRange> sceneRange = new ArrayList();
-        sceneRange.add(new AllocatedSceneRange(0x0001, 0x1000));
-        return new Provisioner(UUID.randomUUID().toString(),
-                unicastRange, groupRange, sceneRange, meshUUID);
+    @SuppressWarnings("ConstantConditions")
+    public Provisioner createProvisioner(@NonNull final String name,
+                                         @NonNull final AllocatedUnicastRange unicastRange,
+                                         @NonNull final AllocatedGroupRange groupRange,
+                                         @NonNull final AllocatedSceneRange sceneRange) throws IllegalArgumentException {
+        if (TextUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("Name cannot be empty.");
+        }
+        final List<AllocatedUnicastRange> unicastRanges = new ArrayList();
+        final List<AllocatedGroupRange> groupRanges = new ArrayList();
+        final List<AllocatedSceneRange> sceneRanges = new ArrayList();
+        unicastRanges.add(unicastRange != null ? unicastRange : new AllocatedUnicastRange(0x0001, 0x7FFF));
+        groupRanges.add(groupRange != null ? groupRange : new AllocatedGroupRange(0xC000, 0xFEFF));
+        sceneRanges.add(sceneRange != null ? sceneRange : new AllocatedSceneRange(0x0001, 0xFFFF));
+        final Provisioner provisioner = new Provisioner(UUID.randomUUID().toString(), unicastRanges, groupRanges, sceneRanges, meshUUID);
+        provisioner.setProvisionerName(name);
+        return provisioner;
     }
 
     /**

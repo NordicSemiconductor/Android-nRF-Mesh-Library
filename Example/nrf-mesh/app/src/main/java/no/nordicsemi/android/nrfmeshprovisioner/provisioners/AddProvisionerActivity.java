@@ -39,15 +39,18 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import no.nordicsemi.android.meshprovisioner.AllocatedGroupRange;
+import no.nordicsemi.android.meshprovisioner.AllocatedSceneRange;
+import no.nordicsemi.android.meshprovisioner.AllocatedUnicastRange;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
-import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerName;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentUnassign;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddProvisionerViewModel;
@@ -179,7 +182,10 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
         if (savedInstanceState == null) {
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
             if (network != null) {
-                final Provisioner provisioner = mProvisioner = network.createProvisioner();
+                final AllocatedUnicastRange unicastRange = network.nextAvailableUnicastAddressRange(0x199A);
+                final AllocatedGroupRange groupRange = network.nextAvailableGroupAddressRange(0x0C9A);
+                final AllocatedSceneRange sceneRange = network.nextAvailableSceneAddressRange(0x3334);
+                final Provisioner provisioner = network.createProvisioner("nRF Mesh Provisioner", unicastRange, groupRange, sceneRange);
                 final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
                 provisioner.setProvisionerName(adapter.getName());
                 mViewModel.setSelectedProvisioner(provisioner);
@@ -230,7 +236,7 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
     @Override
     public boolean setAddress(final int sourceAddress) {
         if (mProvisioner != null) {
-            if(mProvisioner.assignProvisionerAddress(sourceAddress)) {
+            if (mProvisioner.assignProvisionerAddress(sourceAddress)) {
                 updateUi();
                 return true;
             }
@@ -269,32 +275,34 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
     }
 
     private void updateUi() {
-        provisionerName.setText(mProvisioner.getProvisionerName());
-        if (mProvisioner.getProvisionerAddress() == null) {
-            provisionerUnicast.setText(R.string.not_assigned);
-        } else {
-            provisionerUnicast.setText(MeshAddress.formatAddress(mProvisioner.getProvisionerAddress(), true));
-        }
+        if (mProvisioner != null) {
+            provisionerName.setText(mProvisioner.getProvisionerName());
+            if (mProvisioner.getProvisionerAddress() == null) {
+                provisionerUnicast.setText(R.string.not_assigned);
+            } else {
+                provisionerUnicast.setText(MeshAddress.formatAddress(mProvisioner.getProvisionerAddress(), true));
+            }
 
-        unicastRangeView.clearRanges();
-        groupRangeView.clearRanges();
-        sceneRangeView.clearRanges();
+            unicastRangeView.clearRanges();
+            groupRangeView.clearRanges();
+            sceneRangeView.clearRanges();
 
-        unicastRangeView.addRanges(mProvisioner.getAllocatedUnicastRanges());
-        groupRangeView.addRanges(mProvisioner.getAllocatedGroupRanges());
-        sceneRangeView.addRanges(mProvisioner.getAllocatedSceneRanges());
+            unicastRangeView.addRanges(mProvisioner.getAllocatedUnicastRanges());
+            groupRangeView.addRanges(mProvisioner.getAllocatedGroupRanges());
+            sceneRangeView.addRanges(mProvisioner.getAllocatedSceneRanges());
 
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-        if (network != null) {
-            final String ttl = String.valueOf(mProvisioner.getGlobalTtl());
-            provisionerTtl.setText(ttl);
-            unicastRangeView.clearOtherRanges();
-            groupRangeView.clearOtherRanges();
-            sceneRangeView.clearOtherRanges();
-            for (Provisioner other : network.getProvisioners()) {
-                unicastRangeView.addOtherRanges(other.getAllocatedUnicastRanges());
-                groupRangeView.addOtherRanges(other.getAllocatedGroupRanges());
-                sceneRangeView.addOtherRanges(other.getAllocatedSceneRanges());
+            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+            if (network != null) {
+                final String ttl = String.valueOf(mProvisioner.getGlobalTtl());
+                provisionerTtl.setText(ttl);
+                unicastRangeView.clearOtherRanges();
+                groupRangeView.clearOtherRanges();
+                sceneRangeView.clearOtherRanges();
+                for (Provisioner other : network.getProvisioners()) {
+                    unicastRangeView.addOtherRanges(other.getAllocatedUnicastRanges());
+                    groupRangeView.addOtherRanges(other.getAllocatedGroupRanges());
+                    sceneRangeView.addOtherRanges(other.getAllocatedSceneRanges());
+                }
             }
         }
     }

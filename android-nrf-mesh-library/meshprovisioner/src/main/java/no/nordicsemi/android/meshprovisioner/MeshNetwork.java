@@ -159,6 +159,148 @@ public final class MeshNetwork extends BaseMeshNetwork {
     }
 
     /**
+     * Returns the next unicast address for a provisioner based on the allocated range and the number of elements
+     *
+     * @param rangeSize Element count
+     */
+    public AllocatedUnicastRange nextAvailableUnicastAddressRange(final int rangeSize) {
+        final List<AllocatedUnicastRange> ranges = new ArrayList<>();
+        for (Provisioner provisioner : provisioners) {
+            ranges.addAll(provisioner.getAllocatedUnicastRanges());
+        }
+        Collections.sort(ranges, unicastRangeComparator);
+        return getNextAvailableUnicastRange(rangeSize,
+                new AllocatedUnicastRange(MeshAddress.START_UNICAST_ADDRESS, MeshAddress.END_UNICAST_ADDRESS), ranges);
+    }
+
+    /**
+     * Returns the next unicast address for a provisioner based on the allocated range and the number of elements
+     *
+     * @param rangeSize Range size
+     */
+    public AllocatedGroupRange nextAvailableGroupAddressRange(final int rangeSize) {
+        final List<AllocatedGroupRange> ranges = new ArrayList<>();
+        for (Provisioner provisioner : provisioners) {
+            ranges.addAll(provisioner.getAllocatedGroupRanges());
+        }
+        Collections.sort(ranges, groupRangeComparator);
+        return getNextAvailableGroupRange(rangeSize,
+                new AllocatedGroupRange(MeshAddress.START_GROUP_ADDRESS, MeshAddress.END_GROUP_ADDRESS), ranges);
+    }
+
+    /**
+     * Returns the next available scene range for a given size
+     *
+     * @param rangeSize Range size
+     */
+    public AllocatedSceneRange nextAvailableSceneAddressRange(final int rangeSize) {
+        final List<AllocatedSceneRange> ranges = new ArrayList<>();
+        for (Provisioner provisioner : provisioners) {
+            ranges.addAll(provisioner.getAllocatedSceneRanges());
+        }
+        Collections.sort(ranges, sceneRangeComparator);
+        return getNextAvailableSceneRange(rangeSize, new AllocatedSceneRange(0x0001, 0xFFFF), ranges);
+    }
+
+    @Nullable
+    private AllocatedUnicastRange getNextAvailableUnicastRange(final int size,
+                                                               @NonNull final AllocatedUnicastRange bound,
+                                                               @NonNull final List<AllocatedUnicastRange> ranges) {
+        AllocatedUnicastRange bestRange = null;
+        int lastUpperBound = bound.lowAddress - 1;
+
+        // Go through all ranges looking for a gaps.
+        for (AllocatedUnicastRange range : ranges) {
+            // If there is a space available before this range, return it.
+            if (lastUpperBound + size < range.lowAddress) {
+                return new AllocatedUnicastRange(lastUpperBound + 1, lastUpperBound + size);
+            }
+
+            // If the space exists, but it's not as big as requested, compare
+            // it with the best range so far and replace if it's bigger.
+            if (range.lowAddress - lastUpperBound > 1) {
+                final AllocatedUnicastRange newRange = new AllocatedUnicastRange(lastUpperBound + 1, range.lowAddress - 1);
+                if (bestRange == null || newRange.range() > bestRange.range()) {
+                    bestRange = newRange;
+                }
+            }
+            lastUpperBound = range.highAddress;
+        }
+
+        // If if we didn't return earlier, check after the last range.
+        if (lastUpperBound + size < bound.highAddress) {
+            return new AllocatedUnicastRange(lastUpperBound + 1, lastUpperBound + size - 1);
+        }
+        // The gap of requested size hasn't been found. Return the best found.
+        return bestRange;
+    }
+
+    @Nullable
+    private AllocatedGroupRange getNextAvailableGroupRange(final int size,
+                                                           @NonNull final AllocatedGroupRange bound,
+                                                           @NonNull final List<AllocatedGroupRange> ranges) {
+        AllocatedGroupRange bestRange = null;
+        int lastUpperBound = bound.lowAddress - 1;
+
+        // Go through all ranges looking for a gaps.
+        for (AllocatedGroupRange range : ranges) {
+            if (lastUpperBound + size < range.lowAddress) {
+                return new AllocatedGroupRange(lastUpperBound + 1, lastUpperBound + size);
+            }
+
+            // If the space exists, but it's not as big as requested, compare
+            // it with the best range so far and replace if it's bigger.
+            if (range.lowAddress - lastUpperBound > 1) {
+                final AllocatedGroupRange newRange = new AllocatedGroupRange(lastUpperBound + 1, range.lowAddress - 1);
+                if (bestRange == null || newRange.range() > bestRange.range()) {
+                    bestRange = newRange;
+                }
+            }
+            lastUpperBound = range.highAddress;
+        }
+
+        // If if we didn't return earlier, check after the last range.
+        if (lastUpperBound + size < bound.highAddress) {
+            return new AllocatedGroupRange(lastUpperBound + 1, lastUpperBound + size - 1);
+        }
+        // The gap of requested size hasn't been found. Return the best found.
+        return bestRange;
+    }
+
+    @Nullable
+    private AllocatedSceneRange getNextAvailableSceneRange(final int size,
+                                                           @NonNull final AllocatedSceneRange bound,
+                                                           @NonNull final List<AllocatedSceneRange> ranges) {
+        AllocatedSceneRange bestRange = null;
+        int lastUpperBound = bound.getFirstScene() - 1;
+
+        // Go through all ranges looking for a gaps.
+        for (AllocatedSceneRange range : ranges) {
+            // If there is a space available before this range, return it.
+            if (lastUpperBound + size < range.getFirstScene()) {
+                return new AllocatedSceneRange(lastUpperBound + 1, lastUpperBound + size);
+            }
+
+            // If the space exists, but it's not as big as requested, compare
+            // it with the best range so far and replace if it's bigger.
+            if (range.getFirstScene() - lastUpperBound > 1) {
+                final AllocatedSceneRange newRange = new AllocatedSceneRange(lastUpperBound + 1, range.getFirstScene() - 1);
+                if (bestRange == null || newRange.range() > bestRange.range()) {
+                    bestRange = newRange;
+                }
+            }
+            lastUpperBound = range.getLastScene();
+        }
+
+        // If if we didn't return earlier, check after the last range.
+        if (lastUpperBound + size < bound.getLastScene()) {
+            return new AllocatedSceneRange(lastUpperBound + 1, lastUpperBound + size - 1);
+        }
+        // The gap of requested size hasn't been found. Return the best found.
+        return bestRange;
+    }
+
+    /**
      * Returns the next available group  address for a provisioner based on the allocated group range
      *
      * @param provisioner {@link Provisioner}
@@ -532,7 +674,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
                             }
                         }
                         final UUID label = model.getLabelUUID(address);
-                        if(label != null) {
+                        if (label != null) {
                             return label;
                         }
                     }
