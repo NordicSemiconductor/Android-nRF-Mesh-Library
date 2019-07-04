@@ -68,8 +68,8 @@ dependencies {
     implementation 'com.madgag.spongycastle:prov:1.56.0.0'
     implementation 'com.google.code.gson:gson:2.8.5'
 
-    implementation 'androidx.room:room-runtime:2.1.0-rc01'
-    annotationProcessor 'androidx.room:room-compiler:2.1.0-rc01'
-    androidTestImplementation 'androidx.room:room-testing:2.1.0-rc01'
+    implementation 'androidx.room:room-runtime:2.1.0'
+    annotationProcessor 'androidx.room:room-compiler:2.1.0'
+    androidTestImplementation 'androidx.room:room-testing:2.1.0'
 
 }
