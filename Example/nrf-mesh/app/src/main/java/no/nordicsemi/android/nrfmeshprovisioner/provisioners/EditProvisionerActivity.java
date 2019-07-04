@@ -298,9 +298,6 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
         if (network != null) {
             try {
                 return network.updateProvisioner(mProvisioner);
-//                } else {
-//                    return network.disableConfigurationCapabilities(mProvisioner);
-//                }
             } catch (IllegalArgumentException ex) {
                 final DialogFragmentConfigError fragment = DialogFragmentConfigError.
                         newInstance(getString(R.string.title_error), ex.getMessage());
