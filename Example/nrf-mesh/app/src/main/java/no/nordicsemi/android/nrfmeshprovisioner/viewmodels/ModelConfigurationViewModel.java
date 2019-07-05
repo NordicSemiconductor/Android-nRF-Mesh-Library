@@ -25,10 +25,14 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.nrfmeshprovisioner.node.ConfigurationServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.GenericLevelServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.GenericOnOffServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.ModelConfigurationActivity;
 
 /**
- * View Model class for {@link ModelConfigurationActivity}
+ * Generic View Model class for {@link ConfigurationServerActivity}, {@link GenericOnOffServerActivity},
+ * {@link GenericLevelServerActivity}, {@link ModelConfigurationActivity}
  */
 public class ModelConfigurationViewModel extends BaseViewModel {
 

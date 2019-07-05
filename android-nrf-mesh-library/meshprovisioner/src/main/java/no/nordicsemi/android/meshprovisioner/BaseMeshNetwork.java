@@ -775,7 +775,6 @@ abstract class BaseMeshNetwork {
         return false;
     }
 
-
     /**
      * Returns the list of {@link ProvisionedMeshNode}
      */
@@ -832,6 +831,24 @@ abstract class BaseMeshNetwork {
             }
         }
         return null;
+    }
+
+    /**
+     * Update node name
+     *
+     * @param node {@link ProvisionedMeshNode}
+     * @param name Name
+     * @return true if successful and false otherwise
+     */
+    public boolean updateNodeName(@NonNull ProvisionedMeshNode node, @NonNull final String name) {
+        if (TextUtils.isEmpty(name))
+            return false;
+        final ProvisionedMeshNode meshNode = getNode(node.getUuid());
+        if (meshNode == null)
+            return false;
+        meshNode.setNodeName(name);
+        notifyNodeUpdated(meshNode);
+        return true;
     }
 
     /**

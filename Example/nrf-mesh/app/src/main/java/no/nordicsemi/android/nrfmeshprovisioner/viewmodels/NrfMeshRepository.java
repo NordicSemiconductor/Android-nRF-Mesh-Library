@@ -18,18 +18,19 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshManagerCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.UnprovisionedBeacon;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataGet;
@@ -48,7 +49,6 @@ import no.nordicsemi.android.meshprovisioner.transport.GenericLevelStatus;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
@@ -306,7 +306,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mIsCompositionDataReceived = false;
         mIsAppKeyAddCompleted = false;
         mIsNetworkRetransmitSetCompleted = false;
-        clearExtendedMeshNode();
+        //clearExtendedMeshNode();
         final LogSession logSession = Logger.newSession(context, null, device.getAddress(), device.getName());
         mBleMeshManager.setLogger(logSession);
         final BluetoothDevice bluetoothDevice = device.getDevice();
@@ -512,7 +512,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 network.setProxyFilter(null);
 
             }
-            clearExtendedMeshNode();
+            //clearExtendedMeshNode();
         }
         mSetupProvisionedNode = false;
         mConnectedProxyAddress.postValue(null);
@@ -954,11 +954,15 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 provisioner.setLastSelected(true);
                 mMeshNetwork.selectProvisioner(provisioner);
             }
-
             //Load live data with mesh network
             mMeshNetworkLiveData.loadNetworkInformation(meshNetwork);
             //Load live data with provisioned nodes
             loadNodes();
+
+            final ProvisionedMeshNode node = getSelectedMeshNode().getValue();
+            if (node != null) {
+                mExtendedMeshNode.postValue(mMeshNetwork.getNode(node.getUuid()));
+            }
         }
     }
 

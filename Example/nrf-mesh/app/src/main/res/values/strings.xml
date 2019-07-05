@@ -298,7 +298,10 @@
     <string name="title_about">About</string>
     <string name="summary_version">App Version</string>
     <string name="title_node_configuration">Node Configuration</string>
+    <string name="title_added_net_keys">Added Net Keys</string>
     <string name="title_added_app_keys">Added App Keys</string>
+    <string name="title_added_keys">Added Keys</string>
+    <string name="title_keys">Keys</string>
 
     <string name="title_network_transmit_info">Network Transmit</string>
     <string name="title_network_transmit">Network Transmit Settings</string>
@@ -346,7 +349,7 @@
     <string name="invalid_filter_address">Address must be a Unicast, Group or a Virtual Address!</string>
     <string name="error_empty_filter_address">Add at least one address to confirm!</string>
 
-    <string name="no_app_keys_added">No app keys are added to this node!</string>
+    <string name="no_app_keys_added">No app keys are added to this node.</string>
     <string name="error_no_app_keys_bound">No app keys are bound for this model. Please bind an app key first!</string>
     <string name="action_generic_read_state">READ STATE</string>
     <string name="action_generic_on">ON</string>
@@ -439,7 +442,7 @@
     <string name="hint_publication_steps">Publication steps</string>
     <string name="model_id">Model ID: %s</string>
     <string name="title_disconnected_error">Error</string>
-    <string name="disconnected_network_rationale">Connect to proxy node to continue.</string>
+    <string name="disconnected_network_rationale">Connect to proxy node to configure.</string>
     <string name="remaining_time">Rem. Time: %s</string>
     <string name="generic_level">Level</string>
     <string name="generic_level_percent">%d%%</string>
@@ -503,4 +506,7 @@
     <string name="title_unassign_provisioner">Unassign Provisioner</string>
     <string name="summary_unassign_provisioner">Unassigning a provisioner will disable its configuration capabilities and delete the corresponding node.</string>
     <string name="virtual_address">Virtual Address</string>
+    <string name="no_allocated_group_range">Please allocate a range of group addresses for the provisioner.</string>
+    <string name="title_details">Details</string>
+    <string name="more">more</string>
 </resources>

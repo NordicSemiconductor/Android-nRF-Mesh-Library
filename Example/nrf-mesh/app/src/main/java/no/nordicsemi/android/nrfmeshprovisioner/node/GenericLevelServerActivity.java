@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -67,10 +66,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
             mLevelSeekBar.setMax(100);
 
             mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
-            mActionRead.setOnClickListener(v -> {
-                sendGenericLevelGet();
-                showProgressbar();
-            });
+            mActionRead.setOnClickListener(v -> sendGenericLevelGet());
 
             mTransitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 int lastValue = 0;
@@ -157,7 +153,6 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
 
                 @Override
                 public void onStopTrackingTouch(final SeekBar seekBar) {
-                    showProgressbar();
                     final int level = seekBar.getProgress();
                     final int delay = mDelaySeekBar.getProgress();
                     final int genericLevel = ((level * 65535) / 100) - 32768;
@@ -213,6 +208,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
      * Send generic on off get to mesh node
      */
     public void sendGenericLevelGet() {
+        if (!checkConnectivity()) return;
         final Element element = mViewModel.getSelectedElement().getValue();
         if (element != null) {
             final MeshModel model = mViewModel.getSelectedModel().getValue();
@@ -226,7 +222,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                     final GenericLevelGet genericLevelGet = new GenericLevelGet(appKey);
                     sendMessage(address, genericLevelGet);
                 } else {
-                    Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
                 }
             }
         }
@@ -239,6 +235,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
      * @param delay message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      */
     public void sendGenericLevel(final int level, final Integer delay) {
+        if (!checkConnectivity()) return;
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         if (node != null) {
             final Element element = mViewModel.getSelectedElement().getValue();
@@ -253,7 +250,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                                 node.getReceivedSequenceNumber());
                         sendMessage(address, genericLevelSet);
                     } else {
-                        Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+                        mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
                     }
                 }
             }

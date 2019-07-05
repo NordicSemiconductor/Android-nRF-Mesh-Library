@@ -46,9 +46,6 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.models.ConfigurationServerModel;
-import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
-import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
@@ -66,11 +63,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.SubGroupAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
-import no.nordicsemi.android.nrfmeshprovisioner.node.ConfigurationServerActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.node.GenericLevelServerActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.node.GenericOnOffServerActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.node.ModelConfigurationActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.node.VendorModelActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetDetailsDialogFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetLevelDialogFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetOnOffDialogFragment;
@@ -295,7 +287,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
                 mViewModel.setSelectedMeshNode(node);
                 mViewModel.setSelectedElement(element);
                 mViewModel.setSelectedModel(model);
-                startActivity(model);
+                mViewModel.navigateToModelActivity(this, model);
             }
         } else {
             Toast.makeText(this, R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();
@@ -306,29 +298,6 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
     public void onGroupNameChanged(@NonNull final Group group) {
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         network.updateGroup(group);
-    }
-
-    /**
-     * Start activity based on the type of the model
-     *
-     * <p> This way we can seperate the ui logic for different activities</p>
-     *
-     * @param model model
-     */
-    private void startActivity(final MeshModel model) {
-        final Intent intent;
-        if (model instanceof ConfigurationServerModel) {
-            intent = new Intent(this, ConfigurationServerActivity.class);
-        } else if (model instanceof GenericOnOffServerModel) {
-            intent = new Intent(this, GenericOnOffServerActivity.class);
-        } else if (model instanceof GenericLevelServerModel) {
-            intent = new Intent(this, GenericLevelServerActivity.class);
-        } else if (model instanceof VendorModel) {
-            intent = new Intent(this, VendorModelActivity.class);
-        } else {
-            intent = new Intent(this, ModelConfigurationActivity.class);
-        }
-        startActivity(intent);
     }
 
     @Override

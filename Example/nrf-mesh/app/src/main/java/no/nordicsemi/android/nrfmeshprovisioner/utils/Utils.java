@@ -32,15 +32,15 @@ import android.os.Build;
 import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import android.widget.Toast;
 
 import java.util.Comparator;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.support.v18.scanner.ScanRecord;
@@ -72,6 +72,8 @@ public class Utils {
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
     public static final String RANGE_TYPE = "RANGE_TYPE";
 
+    //Message timeout in case the message fails to lost/received
+    public static final int MESSAGE_TIME_OUT = 10000;
     //Manage ranges
     public static final int UNICAST_RANGE = 0;
     public static final int GROUP_RANGE = 1;

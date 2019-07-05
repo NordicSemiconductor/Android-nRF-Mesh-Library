@@ -1,15 +1,15 @@
 package no.nordicsemi.android.nrfmeshprovisioner.node;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.cardview.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import no.nordicsemi.android.meshprovisioner.models.ConfigurationServerModel;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNetworkTransmitGet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNetworkTransmitSet;
@@ -35,7 +35,6 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private static final int NETWORK_TRANSMIT_SETTING_UNKNOWN = -1;
     private static final int RELAY_RETRANSMIT_SETTINGS_UNKNOWN = -1;
 
-    private Button mActionReadRelayState;
     private Button mActionSetRelayState;
     private TextView mRelayRetransmitCountText;
     private TextView mRelayRetransmitIntervalStepsText;
@@ -72,11 +71,15 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                     mRelayRetransmitCountText = nodeControlsContainer.findViewById(R.id.relay_retransmit_count);
                     mRelayRetransmitIntervalStepsText = nodeControlsContainer.findViewById(R.id.relay_retransmit_interval_steps);
 
-                    mActionReadRelayState = nodeControlsContainer.findViewById(R.id.action_relay_retransmit_get);
-                    mActionReadRelayState.setOnClickListener(v -> getRelayRetransmit());
+                    final Button actionReadRelayState = nodeControlsContainer.findViewById(R.id.action_relay_retransmit_get);
+                    actionReadRelayState.setOnClickListener(v -> {
+                        if (!checkConnectivity()) return;
+                        getRelayRetransmit();
+                    });
 
                     mActionSetRelayState = nodeControlsContainer.findViewById(R.id.action_relay_retransmit_configure);
                     mActionSetRelayState.setOnClickListener(v -> {
+                        if (!checkConnectivity()) return;
                         final RelaySettings relaySettings = meshNode.getRelaySettings();
                         if (relaySettings != null) {
                             mRelayRetransmitCount = meshNode.getRelaySettings().getRelayTransmitCount();
@@ -94,10 +97,14 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mNetworkTransmitIntervalStepsText = nodeControlsContainer.findViewById(R.id.network_transmit_interval_steps);
 
             mReadNetworkTransmitStateButton = nodeControlsContainer.findViewById(R.id.action_network_transmit_get);
-            mReadNetworkTransmitStateButton.setOnClickListener(v -> getNetworkTransmit());
+            mReadNetworkTransmitStateButton.setOnClickListener(v -> {
+                if (!checkConnectivity()) return;
+                getNetworkTransmit();
+            });
 
             mSetNetworkTransmitStateButton = nodeControlsContainer.findViewById(R.id.action_network_transmit_configure);
             mSetNetworkTransmitStateButton.setOnClickListener(v -> {
+                if (!checkConnectivity()) return;
                 if (meshNode != null && meshNode.getNetworkTransmitSettings() != null) {
                     mNetworkTransmitCount = meshNode.getNetworkTransmitSettings().getNetworkTransmitCount();
                     mNetworkTransmitIntervalSteps = meshNode.getNetworkTransmitSettings().getNetworkIntervalSteps();
@@ -126,7 +133,6 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 ConfigRelayGet message = new ConfigRelayGet();
-                showProgressbar();
                 sendMessage(node.getUnicastAddress(), message);
             }
         } catch (Exception e) {
@@ -177,7 +183,6 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 ConfigNetworkTransmitGet message = new ConfigNetworkTransmitGet();
-                showProgressbar();
                 sendMessage(node.getUnicastAddress(), message);
             }
         } catch (Exception e) {
@@ -191,7 +196,6 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 final ConfigRelaySet message = new ConfigRelaySet(relay, relayRetransmit, relayRetransmitIntervalSteps);
-                showProgressbar();
                 sendMessage(node.getUnicastAddress(), message);
             }
         } catch (Exception e) {
@@ -205,7 +209,6 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 final ConfigNetworkTransmitSet message = new ConfigNetworkTransmitSet(networkTransmitCount, networkTransmitIntervalSteps);
-                showProgressbar();
                 sendMessage(node.getUnicastAddress(), message);
             }
         } catch (Exception e) {

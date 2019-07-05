@@ -48,18 +48,18 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
-    private Integer mUnicastAddress;
-    private int mNodeIndex = -1;
     private final Context mContext;
     private final List<ProvisionedMeshNode> mNodes = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
 
-    public NodeAdapter(@NonNull final Context context, @NonNull final LiveData<List<ProvisionedMeshNode>> provisionedNodesLiveData) {
+    public NodeAdapter(@NonNull final Context context,
+                       @NonNull final LiveData<List<ProvisionedMeshNode>> provisionedNodesLiveData) {
         this.mContext = context;
         provisionedNodesLiveData.observe((LifecycleOwner) context, nodes -> {
             if (nodes != null) {
                 mNodes.clear();
                 mNodes.addAll(nodes);
+                notifyDataSetChanged();
             }
         });
     }
@@ -78,13 +78,13 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final ProvisionedMeshNode node = mNodes.get(position);
-        if(node != null) {
+        if (node != null) {
             holder.name.setText(node.getNodeName());
             holder.unicastAddress.setText(MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(node.getUnicastAddress()), false));
             final Map<Integer, Element> elements = node.getElements();
             if (!elements.isEmpty()) {
                 holder.nodeInfoContainer.setVisibility(View.VISIBLE);
-                if(node.getCompanyIdentifier() != null) {
+                if (node.getCompanyIdentifier() != null) {
                     holder.companyIdentifier.setText(CompanyIdentifiers.getCompanyName(node.getCompanyIdentifier().shortValue()));
                 } else {
                     holder.companyIdentifier.setText(R.string.unknown);
@@ -116,31 +116,9 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
         return models;
     }
 
-    public void selectConnectedMeshNode(final Integer unicastAddress) {
-        if (unicastAddress != null) {
-            final int index = mNodeIndex = getMeshNodeIndex(unicastAddress);
-            if (index > -1) {
-                notifyItemChanged(mNodeIndex);
-            }
-        } else {
-            notifyItemChanged(mNodeIndex);
-        }
-        mUnicastAddress = unicastAddress;
-    }
-
-    private int getMeshNodeIndex(final int unicastAddress) {
-        for (int i = 0; i < mNodes.size(); i++) {
-            if (unicastAddress == mNodes.get(i).getUnicastAddress()) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
+    @FunctionalInterface
     public interface OnItemClickListener {
         void onConfigureClicked(final ProvisionedMeshNode node);
-
-        void onDetailsClicked(final ProvisionedMeshNode node);
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder {
@@ -159,25 +137,13 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
         TextView elements;
         @BindView(R.id.models)
         TextView models;
-        @BindView(R.id.action_configure)
-        AppCompatImageButton configure;
 
         private ViewHolder(final View provisionedView) {
             super(provisionedView);
             ButterKnife.bind(this, provisionedView);
-
-            configure.setOnClickListener(v -> {
-
+            container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onConfigureClicked(mNodes.get(getAdapterPosition()));
-                }
-
-            });
-
-            container.setOnClickListener(v -> {
-
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onDetailsClicked(mNodes.get(getAdapterPosition()));
                 }
             });
         }

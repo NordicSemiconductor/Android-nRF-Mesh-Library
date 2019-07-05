@@ -25,12 +25,12 @@ package no.nordicsemi.android.nrfmeshprovisioner.node;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +42,7 @@ import javax.inject.Inject;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -98,6 +99,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
+    @BindView(R.id.container)
+    CoordinatorLayout mContainer;
     @BindView(R.id.app_key_card)
     View mContainerAppKeyBinding;
     @BindView(R.id.action_bind_app_key)
@@ -135,6 +138,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected BoundAppKeysAdapter mBoundAppKeyAdapter;
     protected Button mActionRead;
     private RecyclerView recyclerViewBoundKeys, recyclerViewAddresses;
+    protected boolean mIsConnected;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -174,6 +178,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         recyclerViewBoundKeys.setAdapter(mBoundAppKeyAdapter);
 
         mActionBindAppKey.setOnClickListener(v -> {
+            if (!checkConnectivity()) return;
             final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, AppKeysActivity.class);
             bindAppKeysIntent.putExtra(Utils.EXTRA_DATA, Utils.BIND_APP_KEY);
             startActivityForResult(bindAppKeysIntent, AppKeysActivity.SELECT_APP_KEY);
@@ -181,6 +186,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
         mPublishAddressView.setText(R.string.none);
         mActionSetPublication.setOnClickListener(v -> {
+            if (!checkConnectivity()) return;
             final MeshModel model = mViewModel.getSelectedModel().getValue();
             handleAppKeyBind(model);
         });
@@ -188,6 +194,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mActionClearPublication.setOnClickListener(v -> clearPublication());
 
         mActionSubscribe.setOnClickListener(v -> {
+            if (!checkConnectivity()) return;
             //noinspection ConstantConditions
             final ArrayList<Group> groups = new ArrayList<>(mViewModel.getGroups().getValue());
             final DialogFragmentGroupSubscription fragmentSubscriptionAddress = DialogFragmentGroupSubscription.newInstance(groups);
@@ -211,24 +218,48 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             }
         });
 
-        mViewModel.isConnectedToProxy().observe(this, aBoolean -> {
-            if (aBoolean != null && !aBoolean) {
-                final DialogFragmentDisconnected dialogFragmentDisconnected = DialogFragmentDisconnected.newInstance(getString(R.string.title_disconnected_error),
-                        getString(R.string.disconnected_network_rationale));
-                dialogFragmentDisconnected.show(getSupportFragmentManager(), null);
+        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
+            if (isConnected != null) {
+                mIsConnected = isConnected;
+                hideProgressBar();
             }
+            invalidateOptionsMenu();
         });
 
         mViewModel.getMeshMessage().observe(this, this::updateMeshMessage);
+
+        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
+        if (isConnectedToNetwork != null) {
+            mIsConnected = isConnectedToNetwork;
+        }
+        invalidateOptionsMenu();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        if (mIsConnected) {
+            getMenuInflater().inflate(R.menu.disconnect, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.connect, menu);
+        }
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            case R.id.action_connect:
+                mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
+                return true;
+            case R.id.action_disconnect:
+                mViewModel.disconnect();
+                return true;
+            default:
+                return false;
         }
-        return false;
     }
 
     @Override
@@ -329,7 +360,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                         configModelSubscriptionAdd = new ConfigModelSubscriptionVirtualAddressAdd(elementAddress, group.getAddressLabel(), modelIdentifier);
                     }
                     sendMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
-                    showProgressbar();
                 }
             }
         }
@@ -360,7 +390,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
             startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
         } else {
-            Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
+            mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
         }
     }
 
@@ -373,7 +403,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                 if (model != null) {
                     final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(element.getElementAddress(), model.getModelId(), appKeyIndex);
                     sendMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
-                    showProgressbar();
                 }
             }
         }
@@ -391,7 +420,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                     if (model != null) {
                         final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(element.getElementAddress(), model.getModelId(), keyIndex);
                         sendMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
-                        showProgressbar();
                     }
                 }
             }
@@ -412,9 +440,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                         final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), address, appKeyIndex,
                                 credentialFlag, 0, 0, 0, 0, 0, model.getModelId());
                         sendMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
-                        showProgressbar();
                     } else {
-                        Toast.makeText(this, R.string.no_app_keys_bound, Toast.LENGTH_LONG).show();
+                        mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
                     }
                 }
             }
@@ -441,7 +468,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
                         if (subscriptionDelete != null) {
                             sendMessage(meshNode.getUnicastAddress(), subscriptionDelete);
-                            showProgressbar();
                         }
                     }
                 }
@@ -450,6 +476,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     protected final void showProgressbar() {
+        mHandler.postDelayed(mOperationTimeout, Utils.MESSAGE_TIME_OUT);
         disableClickableViews();
         mProgressbar.setVisibility(View.VISIBLE);
     }
@@ -566,9 +593,21 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    protected final boolean checkConnectivity() {
+        if (!mIsConnected) {
+            mViewModel.displayDisconnectedSnackBar(this, mContainer);
+            return false;
+        }
+        return true;
+    }
+
     protected void sendMessage(final int address, final MeshMessage meshMessage) {
         try {
+            if (!checkConnectivity())
+                return;
             mViewModel.getMeshManagerApi().createMeshPdu(address, meshMessage);
+            showProgressbar();
         } catch (IllegalArgumentException ex) {
             hideProgressBar();
             final DialogFragmentConfigError message = DialogFragmentConfigError.

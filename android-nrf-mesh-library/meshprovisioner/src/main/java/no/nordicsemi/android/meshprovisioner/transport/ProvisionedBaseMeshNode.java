@@ -198,6 +198,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         return nodeName;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setNodeName(final String nodeName) {
         if (!TextUtils.isEmpty(nodeName))
             this.nodeName = nodeName;

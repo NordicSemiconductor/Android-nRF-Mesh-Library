@@ -7,14 +7,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
-import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffGet;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSet;
@@ -68,7 +67,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                         sendGenericOnOff(false, delaySeekBar.getProgress());
                     }
                 } catch (IllegalArgumentException ex) {
-                    Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
+                    mViewModel.displaySnackBar(this, mContainer, ex.getMessage());
                 }
             });
 
@@ -201,6 +200,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
      * Send generic on off get to mesh node
      */
     public void sendGenericOnOffGet() {
+        if (!checkConnectivity()) return;
         final Element element = mViewModel.getSelectedElement().getValue();
         if (element != null) {
             final MeshModel model = mViewModel.getSelectedModel().getValue();
@@ -213,10 +213,9 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                     Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
 
                     final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey);
-                    showProgressbar();
                     sendMessage(address, genericOnOffSet);
                 } else {
-                    Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
                 }
             }
         }
@@ -229,6 +228,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
      * @param delay message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      */
     public void sendGenericOnOff(final boolean state, final Integer delay) {
+        if (!checkConnectivity()) return;
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         if (node != null) {
             final Element element = mViewModel.getSelectedElement().getValue();
@@ -241,10 +241,9 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                         final int address = element.getElementAddress();
                         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state,
                                 node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
-                        showProgressbar();
                         sendMessage(address, genericOnOffSet);
                     } else {
-                        Toast.makeText(this, R.string.error_no_app_keys_bound, Toast.LENGTH_SHORT).show();
+                        mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
                     }
                 }
             }

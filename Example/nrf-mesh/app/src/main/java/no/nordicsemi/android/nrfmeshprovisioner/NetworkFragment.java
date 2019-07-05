@@ -30,7 +30,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import javax.inject.Inject;
 
@@ -45,11 +44,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.node.NodeConfigurationActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.node.NodeDetailsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.NodeAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
@@ -69,8 +66,6 @@ public class NetworkFragment extends Fragment implements Injectable,
     @BindView(R.id.recycler_view_provisioned_nodes)
     RecyclerView mRecyclerViewNodes;
 
-    private NodeAdapter mAdapter;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
@@ -82,12 +77,12 @@ public class NetworkFragment extends Fragment implements Injectable,
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
 
         // Configure the recycler view
-        mAdapter = new NodeAdapter(requireContext(), mViewModel.getNodes());
-        mAdapter.setOnItemClickListener(this);
+        final NodeAdapter nodeAdapter = new NodeAdapter(requireContext(), mViewModel.getNodes());
+        nodeAdapter.setOnItemClickListener(this);
         mRecyclerViewNodes.setLayoutManager(new LinearLayoutManager(getContext()));
         final DividerItemDecoration decoration = new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
         mRecyclerViewNodes.addItemDecoration(decoration);
-        mRecyclerViewNodes.setAdapter(mAdapter);
+        mRecyclerViewNodes.setAdapter(nodeAdapter);
 
         // Create view model containing utility methods for scanning
         mViewModel.getNodes().observe(this, nodes -> {
@@ -96,7 +91,6 @@ public class NetworkFragment extends Fragment implements Injectable,
             } else {
                 noNetworksConfiguredView.setVisibility(View.VISIBLE);
             }
-            mAdapter.notifyDataSetChanged();
             requireActivity().invalidateOptionsMenu();
         });
 
@@ -105,9 +99,6 @@ public class NetworkFragment extends Fragment implements Injectable,
                 requireActivity().invalidateOptionsMenu();
             }
         });
-
-
-        mViewModel.getConnectedProxyAddress().observe(this, unicastAddress -> mAdapter.selectConnectedMeshNode(unicastAddress));
 
         mRecyclerViewNodes.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -124,11 +115,8 @@ public class NetworkFragment extends Fragment implements Injectable,
             }
         });
 
-        fab.setOnClickListener(v -> {
-            final Intent intent = new Intent(requireActivity(), ScannerActivity.class);
-            intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, true);
-            startActivityForResult(intent, Utils.PROVISIONING_SUCCESS);
-        });
+        fab.setOnClickListener(v ->
+                mViewModel.navigateToScannerActivity(requireActivity(), true, Utils.PROVISIONING_SUCCESS, true));
 
         return rootView;
     }
@@ -140,27 +128,9 @@ public class NetworkFragment extends Fragment implements Injectable,
 
     @Override
     public void onConfigureClicked(final ProvisionedMeshNode node) {
-        final Boolean isConnectedToProxy = mViewModel.isConnectedToProxy().getValue();
-        if (isConnectedToProxy != null && isConnectedToProxy) {
-            mViewModel.setSelectedMeshNode(node);
-            final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
-            requireActivity().startActivity(meshConfigurationIntent);
-        } else {
-            displaySnackBar(getString(R.string.disconnected_network_rationale));
-        }
-    }
-
-    @Override
-    public void onDetailsClicked(final ProvisionedMeshNode node) {
-        final Intent nodeDetails = new Intent(getActivity(), NodeDetailsActivity.class);
         mViewModel.setSelectedMeshNode(node);
-        requireActivity().startActivity(nodeDetails);
-    }
-
-    private void displaySnackBar(@NonNull final String message) {
-        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
-                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
-                .show();
+        final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
+        requireActivity().startActivity(meshConfigurationIntent);
     }
 
     private void handleActivityResult(final int requestCode, final int resultCode, @NonNull final Intent data) {

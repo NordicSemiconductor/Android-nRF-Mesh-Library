@@ -40,9 +40,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toTopOf="parent">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -64,22 +64,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/appbar_layout">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:paddingBottom="@dimen/activity_vertical_margin">
 
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/node_details_card"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_horizontal_margin"
                     android:background="@color/white"
-                    app:cardElevation="1dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:cardElevation="1dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/network_settings_container"
@@ -98,22 +96,13 @@
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
                         <include
-                            android:id="@+id/container_element_count"
-                            layout="@layout/info_node_name"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/node_details_tool_bar"/>
-
-                        <include
                             android:id="@+id/container_timestamp"
                             layout="@layout/info_node_prov_timestamp"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/container_element_count"/>
+                            app:layout_constraintTop_toBottomOf="@id/node_details_tool_bar"/>
 
                         <include
                             android:id="@+id/container_identifier"
@@ -139,22 +128,22 @@
                             layout="@layout/info_node_device_key"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/copy"
+                            app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/container_supported_algorithm"/>
 
                         <ImageView
                             android:id="@+id/copy"
                             android:layout_width="wrap_content"
                             android:layout_height="0dp"
-                            android:paddingStart="@dimen/activity_horizontal_margin"
-                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:layout_marginEnd="@dimen/activity_horizontal_margin"
                             android:background="?selectableItemBackgroundBorderless"
+                            android:paddingStart="@dimen/activity_horizontal_margin"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
+                            app:layout_constraintBottom_toBottomOf="@id/container_device_key"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/container_device_key"
                             app:layout_constraintTop_toTopOf="@id/container_device_key"
-                            app:layout_constraintBottom_toBottomOf="@id/container_device_key"
                             app:srcCompat="@drawable/ic_content_copy_black_24dp_alpha"/>
 
                         <include
@@ -204,67 +193,7 @@
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/elements_card"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:layout_marginBottom="@dimen/item_padding_bottom"
-                    android:background="@color/white"
-                    app:cardElevation="1dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/node_details_card">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/elements_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <androidx.appcompat.widget.Toolbar
-                            android:id="@+id/elements_tool_bar"
-                            android:layout_width="0dp"
-                            android:layout_height="?actionBarSize"
-                            app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:logo="@drawable/ic_widgets_black_24dp_alpha"
-                            app:title="@string/title_node_element_details"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
-
-                        <TextView
-                            android:id="@+id/no_elements_view"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:text="@string/no_elements_guide_info"
-                            android:textColor="@color/black"
-                            android:textSize="14sp"
-                            android:paddingTop="@dimen/item_padding_top"
-                            android:paddingBottom="@dimen/activity_vertical_margin"
-                            android:paddingEnd="@dimen/activity_horizontal_margin"
-                            android:paddingStart="@dimen/activity_horizontal_margin"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/elements_tool_bar"
-                            android:visibility="gone"
-                            tools:visibility="visible"/>
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recycler_view_elements"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:clipToPadding="false"
-                            android:scrollbars="none"
-                            android:visibility="visible"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/elements_tool_bar"/>
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-                </androidx.cardview.widget.CardView>
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
         </ScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

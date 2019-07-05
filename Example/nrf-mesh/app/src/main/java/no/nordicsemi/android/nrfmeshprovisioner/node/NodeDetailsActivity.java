@@ -32,7 +32,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -40,8 +39,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
@@ -50,16 +47,13 @@ import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.ElementAdapterDetails;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeDetailsViewModel;
 
-public class NodeDetailsActivity extends AppCompatActivity implements Injectable, ElementAdapterDetails.OnItemClickListener {
+public class NodeDetailsActivity extends AppCompatActivity implements Injectable {
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
-
-    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -79,11 +73,6 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(node.getNodeName());
-
-        final View containerNodeName = findViewById(R.id.container_element_count);
-        containerNodeName.setClickable(false);
-        final TextView nodeName = containerNodeName.findViewById(R.id.text);
-        nodeName.setText(node.getNodeName());
 
         final View containerProvisioningTimeStamp = findViewById(R.id.container_timestamp);
         containerProvisioningTimeStamp.setClickable(false);
@@ -154,21 +143,6 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         } else {
             features.setText(R.string.unavailable);
         }
-
-        final TextView view = findViewById(R.id.no_elements_view);
-        mRecyclerView = findViewById(R.id.recycler_view_elements);
-        if (node.getElements().isEmpty()) {
-            view.setVisibility(View.VISIBLE);
-            mRecyclerView.setVisibility(View.INVISIBLE);
-        } else {
-            view.setVisibility(View.GONE);
-            mRecyclerView.setVisibility(View.VISIBLE);
-            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-            mRecyclerView.setLayoutManager(linearLayoutManager);
-            final ElementAdapterDetails adapter = new ElementAdapterDetails(this, new ArrayList<>(node.getElements().values()));
-            adapter.setOnItemClickListener(this);
-            mRecyclerView.setAdapter(adapter);
-        }
     }
 
     @Override
@@ -193,11 +167,6 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-    }
-
-    @Override
-    public void onItemClick(final int position) {
-        mRecyclerView.scrollToPosition(position);
     }
 
 
