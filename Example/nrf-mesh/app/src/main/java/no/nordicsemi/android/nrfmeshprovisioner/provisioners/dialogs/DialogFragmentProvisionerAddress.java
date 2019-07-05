@@ -130,7 +130,7 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String unicast = unicastAddressInput.getEditableText().toString();
+            final String unicast = unicastAddressInput.getEditableText().toString().trim();
             if (validateInput(unicast))
                 try {
                     if (((ProvisionerAddressListener) requireActivity()).setAddress(Integer.parseInt(unicast, 16))) {

@@ -113,7 +113,7 @@ public class DialogFragmentNetworkName extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String networkKey = networkNameInput.getEditableText().toString();
+            final String networkKey = networkNameInput.getEditableText().toString().trim();
             if (validateInput(networkKey)) {
                 if(getParentFragment() == null) {
                     ((DialogFragmentNetworkNameListener) requireActivity()).onNetworkNameEntered(networkKey);

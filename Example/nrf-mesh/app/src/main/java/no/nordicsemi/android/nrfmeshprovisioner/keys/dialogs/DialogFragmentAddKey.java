@@ -114,7 +114,7 @@ public class DialogFragmentAddKey extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String appKey = appKeyInput.getEditableText().toString();
+            final String appKey = appKeyInput.getEditableText().toString().trim();
             if (validateInput(appKey)) {
                 try {
                     ((DialogFragmentAddAppKeysListener) requireContext()).onAppKeyAdded(appKey);

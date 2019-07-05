@@ -156,8 +156,8 @@ public class DialogFragmentSceneRange extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String low = firstSceneInput.getEditableText().toString();
-            final String high = lastSceneInput.getEditableText().toString();
+            final String low = firstSceneInput.getEditableText().toString().trim();
+            final String high = lastSceneInput.getEditableText().toString().trim();
             if (validateFirstScene(low) && validateLastScene(high)) {
                 try {
                     AllocatedSceneRange range = mRange;

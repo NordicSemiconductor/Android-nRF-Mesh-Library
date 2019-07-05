@@ -128,7 +128,7 @@ public class DialogFragmentEditAppKey extends DialogFragment {
         summary.setText(R.string.summary_edit_key);
 
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String appKey = appKeyInput.getEditableText().toString();
+            final String appKey = appKeyInput.getEditableText().toString().trim();
             try {
                 if (((MeshKeyListener) requireContext()).onKeyUpdated(mPosition, appKey))
                     dismiss();

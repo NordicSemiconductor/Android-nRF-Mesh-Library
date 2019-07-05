@@ -113,7 +113,7 @@ public class DialogFragmentKeyName extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String nodeName = keyNameInput.getEditableText().toString();
+            final String nodeName = keyNameInput.getEditableText().toString().trim();
             try {
                 if (((MeshKeyListener) requireContext()).onKeyNameUpdated(nodeName)) {
                     dismiss();

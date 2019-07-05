@@ -112,7 +112,7 @@ public class DialogFragmentTtl extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String globalTTL = ttlInput.getEditableText().toString();
+            final String globalTTL = ttlInput.getEditableText().toString().trim();
             try {
                 if (validateInput(globalTTL)) {
                     if (((DialogFragmentTtlListener) requireActivity()).setGlobalTtl(Integer.parseInt(globalTTL))) {

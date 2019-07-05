@@ -230,8 +230,8 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
                                 dismiss();
                             }
                         } else {
-                            final String name = groupNameInput.getEditableText().toString();
-                            final String address = addressInput.getEditableText().toString();
+                            final String name = groupNameInput.getEditableText().toString().trim();
+                            final String address = addressInput.getEditableText().toString().trim();
                             if (validateInput(name, address)) {
                                 if ((((GroupCallbacks) requireActivity())).
                                         onGroupAdded(name, Integer.valueOf(address, 16))) {
@@ -245,8 +245,8 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
                         dismiss();
                     }
                 } else {
-                    final UUID uuid = UUID.fromString(labelUuidView.getText().toString());
-                    final String name = groupNameInput.getEditableText().toString();
+                    final UUID uuid = UUID.fromString(labelUuidView.getText().toString().trim());
+                    final String name = groupNameInput.getEditableText().toString().trim();
                     final Group group = ((GroupCallbacks) requireActivity()).createGroup(uuid, name);
                     if (group != null) {
                         if (((GroupCallbacks) requireActivity()).onGroupAdded(group)) {

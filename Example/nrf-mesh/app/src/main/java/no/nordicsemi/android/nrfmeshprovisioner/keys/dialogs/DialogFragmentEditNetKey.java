@@ -128,7 +128,7 @@ public class DialogFragmentEditNetKey extends DialogFragment {
         summary.setText(R.string.summary_edit_key);
 
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String networkKey = networkKeyInput.getEditableText().toString();
+            final String networkKey = networkKeyInput.getEditableText().toString().trim();
             try {
                 if (((MeshKeyListener) requireActivity()).onKeyUpdated(mPosition, networkKey))
                     dismiss();

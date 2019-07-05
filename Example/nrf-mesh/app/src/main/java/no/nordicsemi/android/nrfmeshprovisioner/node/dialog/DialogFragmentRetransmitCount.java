@@ -117,7 +117,7 @@ public class DialogFragmentRetransmitCount extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String ivIndexInput = this.retransmitInput.getEditableText().toString();
+            final String ivIndexInput = this.retransmitInput.getEditableText().toString().trim();
             if (validateInput(ivIndexInput)) {
                 if (getParentFragment() == null) {
                     ((DialogFragmentRetransmitCountListener) requireActivity()).setRetransmitCount(Integer.parseInt(ivIndexInput, 16));

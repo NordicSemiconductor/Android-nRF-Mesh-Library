@@ -117,7 +117,7 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String ivIndexInput = this.intervalStepsInput.getEditableText().toString();
+            final String ivIndexInput = this.intervalStepsInput.getEditableText().toString().trim();
             if (validateInput(ivIndexInput)) {
                     ((DialogFragmentIntervalStepsListener) requireActivity()).
                             setRetransmitIntervalSteps(Integer.parseInt(ivIndexInput, 16));

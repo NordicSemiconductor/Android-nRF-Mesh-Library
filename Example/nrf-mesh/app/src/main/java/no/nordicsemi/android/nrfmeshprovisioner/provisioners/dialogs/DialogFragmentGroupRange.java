@@ -155,8 +155,8 @@ public class DialogFragmentGroupRange extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String low = lowAddressInput.getEditableText().toString();
-            final String high = highAddressInput.getEditableText().toString();
+            final String low = lowAddressInput.getEditableText().toString().trim();
+            final String high = highAddressInput.getEditableText().toString().trim();
             if (validateLow(low) && validateHigh(high)) {
                 try {
                     AllocatedGroupRange range = mRange;

@@ -85,7 +85,7 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
 
         final Button actionApply = rootView.findViewById(R.id.action_apply);
         actionApply.setOnClickListener(v -> {
-            final String groupName = mGroupNameTextInput.getEditableText().toString();
+            final String groupName = mGroupNameTextInput.getEditableText().toString().trim();
             if (validateInput(groupName)) {
                 hideKeyboard();
                 mGroupNameTextInput.clearFocus();

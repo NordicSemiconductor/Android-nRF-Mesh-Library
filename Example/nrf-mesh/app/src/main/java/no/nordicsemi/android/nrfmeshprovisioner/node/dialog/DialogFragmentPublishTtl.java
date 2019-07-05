@@ -121,7 +121,7 @@ public class DialogFragmentPublishTtl extends DialogFragment {
                 ((DialogFragmentPublishTtlListener) requireActivity()).setPublishTtl(MeshParserUtils.USE_DEFAULT_TTL);
                 dismiss();
             } else {
-                final String publishTtl = ttlInput.getEditableText().toString();
+                final String publishTtl = ttlInput.getEditableText().toString().trim();
                 if (validateInput(publishTtl)) {
                     ((DialogFragmentPublishTtlListener) requireActivity()).setPublishTtl(Integer.parseInt(publishTtl));
                     dismiss();

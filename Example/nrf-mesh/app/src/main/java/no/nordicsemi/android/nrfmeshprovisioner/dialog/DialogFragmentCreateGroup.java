@@ -174,12 +174,12 @@ public class DialogFragmentCreateGroup extends DialogFragment {
         summary.setText(R.string.title_create_group_summary);
 
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String name = groupNameInput.getEditableText().toString();
+            final String name = groupNameInput.getEditableText().toString().trim();
             try {
                 final AddressTypes type = (AddressTypes) addressTypesSpinnerView.getSelectedItem();
                 if (type == GROUP_ADDRESS) {
                     if (mGroup == null) {
-                        final String address = addressInput.getEditableText().toString();
+                        final String address = addressInput.getEditableText().toString().trim();
                         if (validateInput(name, address)) {
                             if (((GroupCallbacks) requireParentFragment()).onGroupAdded(name, Integer.valueOf(address, 16))) {
                                 dismiss();

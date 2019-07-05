@@ -252,7 +252,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     }
 
     private void setPublishAddress() {
-        final String input = addressInput.getEditableText().toString();
+        final String input = addressInput.getEditableText().toString().trim();
         final int address;
         final AddressTypes type = (AddressTypes) addressTypesSpinnerView.getSelectedItem();
         switch (type) {
@@ -267,8 +267,8 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             case GROUP_ADDRESS:
                 try {
                     if (createGroup.isChecked()) {
-                        final String name = groupNameInput.getEditableText().toString();
-                        final String groupAddress = addressInput.getEditableText().toString();
+                        final String name = groupNameInput.getEditableText().toString().trim();
+                        final String groupAddress = addressInput.getEditableText().toString().trim();
                         if (validateInput(name, groupAddress)) {
                             if (mGroup != null) {
                                 ((DialogFragmentPublicationListener) requireActivity()).
@@ -309,8 +309,8 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             case VIRTUAL_ADDRESS:
                 Group group = null;
                 try {
-                    final UUID uuid = UUID.fromString(labelUuidView.getText().toString());
-                    final String name = groupNameInput.getEditableText().toString();
+                    final UUID uuid = UUID.fromString(labelUuidView.getText().toString().trim());
+                    final String name = groupNameInput.getEditableText().toString().trim();
                     group = ((GroupCallbacks) requireActivity()).createGroup(uuid, name);
                     if (group != null) {
                         if (((GroupCallbacks) requireActivity()).onGroupAdded(group)) {
@@ -384,7 +384,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 labelContainer.setVisibility(View.GONE);
                 mGenerateLabelUUID.setVisibility(View.GONE);
                 final Group group = ((GroupCallbacks) requireActivity())
-                        .createGroup(groupNameInput.getEditableText().toString());
+                        .createGroup(groupNameInput.getEditableText().toString().trim());
                 if (group != null) {
                     addressInput.setText(MeshAddress.formatAddress(group.getAddress(), false));
                 }
@@ -426,7 +426,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     }
 
     private void generateVirtualAddress(@NonNull final UUID uuid) {
-        final Group group1 = ((GroupCallbacks) requireActivity()).createGroup(uuid, groupNameInput.getEditableText().toString());
+        final Group group1 = ((GroupCallbacks) requireActivity()).createGroup(uuid, groupNameInput.getEditableText().toString().trim());
         if (group1 != null) {
             addressInput.setText(MeshAddress.formatAddress(group1.getAddress(), false));
         }

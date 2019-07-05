@@ -118,7 +118,7 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String publicationStepsInput = this.publicationStepsInput.getEditableText().toString();
+            final String publicationStepsInput = this.publicationStepsInput.getEditableText().toString().trim();
             if (validateInput(publicationStepsInput)) {
                 ((DialogFragmentPublicationStepsListener) requireActivity()).
                         setPublicationSteps(Integer.valueOf(publicationStepsInput));

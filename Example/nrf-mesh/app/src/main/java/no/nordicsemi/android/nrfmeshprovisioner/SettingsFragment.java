@@ -96,7 +96,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         // Set up views
         final View containerNetworkName = rootView.findViewById(R.id.container_network_name);
         containerNetworkName.findViewById(R.id.image)
-                .setBackground(ContextCompat.getDrawable(getContext(), R.drawable.ic_label_black_alpha_24dp));
+                .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_label_black_alpha_24dp));
         final TextView networkNameTitle = containerNetworkName.findViewById(R.id.title);
         networkNameTitle.setText(R.string.title_network_name);
         final TextView networkNameView = containerNetworkName.findViewById(R.id.text);
@@ -119,25 +119,25 @@ public class SettingsFragment extends Fragment implements Injectable,
             startActivity(intent);
         });
 
-        final View containerKey = rootView.findViewById(R.id.container_net_keys);
-        containerKey.findViewById(R.id.image)
+        final View containerNetKey = rootView.findViewById(R.id.container_net_keys);
+        containerNetKey.findViewById(R.id.image)
                 .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_black_24dp_alpha));
-        final TextView keyTitle = containerKey.findViewById(R.id.title);
+        final TextView keyTitle = containerNetKey.findViewById(R.id.title);
         keyTitle.setText(R.string.title_net_keys);
-        final TextView netKeySummary = containerKey.findViewById(R.id.text);
+        final TextView netKeySummary = containerNetKey.findViewById(R.id.text);
         netKeySummary.setVisibility(View.VISIBLE);
-        containerKey.setOnClickListener(v -> {
+        containerNetKey.setOnClickListener(v -> {
             final Intent intent = new Intent(requireContext(), NetKeysActivity.class);
             startActivity(intent);
         });
 
-        final View containerManageAppKeys = rootView.findViewById(R.id.container_app_keys);
-        containerManageAppKeys.findViewById(R.id.image).
+        final View containerAppKey = rootView.findViewById(R.id.container_app_keys);
+        containerAppKey.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_black_24dp_alpha));
-        ((TextView) containerManageAppKeys.findViewById(R.id.title)).setText(R.string.title_app_keys);
-        final TextView appKeySummary = containerManageAppKeys.findViewById(R.id.text);
+        ((TextView) containerAppKey.findViewById(R.id.title)).setText(R.string.title_app_keys);
+        final TextView appKeySummary = containerAppKey.findViewById(R.id.text);
         appKeySummary.setVisibility(View.VISIBLE);
-        containerManageAppKeys.setOnClickListener(v -> {
+        containerAppKey.setOnClickListener(v -> {
             final Intent intent = new Intent(requireContext(), AppKeysActivity.class);
             startActivity(intent);
         });

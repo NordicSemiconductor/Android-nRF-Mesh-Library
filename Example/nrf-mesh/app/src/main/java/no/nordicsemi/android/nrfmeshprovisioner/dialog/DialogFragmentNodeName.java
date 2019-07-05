@@ -22,17 +22,10 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
-import androidx.appcompat.app.AlertDialog;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -40,6 +33,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -90,7 +90,7 @@ public class DialogFragmentNodeName extends DialogFragment {
 
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                if (TextUtils.isEmpty(s.toString())) {
+                if (TextUtils.isEmpty(s.toString().trim())) {
                     nodeNameInputLayout.setError(getString(R.string.error_empty_name));
                 } else {
                     nodeNameInputLayout.setError(null);
@@ -106,16 +106,17 @@ public class DialogFragmentNodeName extends DialogFragment {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
+        alertDialogBuilder.setIcon(R.drawable.ic_label_black_alpha_24dp);
         alertDialogBuilder.setTitle(R.string.title_node_name);
         summary.setText(R.string.node_name_rationale);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String nodeName = nodeNameInput.getEditableText().toString();
+            final String nodeName = nodeNameInput.getEditableText().toString().trim();
             if (!TextUtils.isEmpty(nodeName)) {
-                ((DialogFragmentNodeNameListener) requireContext()).onNodeNameUpdated(nodeName);
-                dismiss();
+                if (((DialogFragmentNodeNameListener) requireContext()).onNodeNameUpdated(nodeName)) {
+                    dismiss();
+                }
             }
         });
 
@@ -124,7 +125,7 @@ public class DialogFragmentNodeName extends DialogFragment {
 
     public interface DialogFragmentNodeNameListener {
 
-        void onNodeNameUpdated(final String nodeName);
+        boolean onNodeNameUpdated(@NonNull final String nodeName);
 
     }
 }

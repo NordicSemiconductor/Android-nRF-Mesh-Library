@@ -113,7 +113,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
 
         final Button actionAdd = rootView.findViewById(R.id.action_add);
         actionAdd.setOnClickListener(v -> {
-            final String addressVal = addressInput.getEditableText().toString();
+            final String addressVal = addressInput.getEditableText().toString().trim();
             if (validateInput(addressVal)) {
                 addressInput.getEditableText().clear();
                 final byte[] address = MeshParserUtils.toByteArray(addressVal);
