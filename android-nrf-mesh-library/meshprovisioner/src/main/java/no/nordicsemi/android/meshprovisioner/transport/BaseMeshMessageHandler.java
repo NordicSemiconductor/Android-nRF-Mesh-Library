@@ -122,11 +122,11 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     final ProvisionedMeshNode node = network.getNode(src);
                     if (node != null) {
                         //Check if the sequence number has been incremented since the last message sent and return null if not
-                        if (sequenceNo > node.getReceivedSequenceNumber()) {
+                        if (sequenceNo > node.getSequenceNumber()) {
                             if (!MeshParserUtils.isValidSequenceNumber(sequenceNo)) {
                                 return;
                             }
-                            node.setReceivedSequenceNumber(sequenceNo);
+                            node.setSequenceNumber(sequenceNo);
                         }
                     } else {
                         return;

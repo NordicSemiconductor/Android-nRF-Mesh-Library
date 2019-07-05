@@ -707,7 +707,8 @@ public class MeshManagerApi implements MeshMngrApi {
             network.unicastAddress = 1;
         }
         network.lastSelected = true;
-
+        network.sequenceNumbers.clear(); //Clear the sequence numbers first
+        network.loadSequenceNumbers();
         return network;
     }
 
@@ -790,7 +791,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
         @Override
         public ProvisionedMeshNode getProvisionedNode(final int unicast) {
-            return getMeshNode(unicast);
+            return mMeshNetwork.getNode(unicast);
         }
 
         @Override
@@ -829,6 +830,7 @@ public class MeshManagerApi implements MeshMngrApi {
         public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
             if (meshNode != null) {
                 if (mMeshNetwork.deleteResetNode(meshNode)) {
+                    mMeshNetwork.sequenceNumbers.delete(meshNode.getUnicastAddress());
                     mMeshMessageHandler.resetState(meshNode.getUnicastAddress());
                     mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
                     mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
@@ -847,6 +849,8 @@ public class MeshManagerApi implements MeshMngrApi {
                 }
             }
             mMeshNetworkDb.updateProvisioner(mProvisionerDao, mMeshNetwork.getSelectedProvisioner());
+            mMeshNetworkDb.updateNode(mProvisionedNodeDao, mMeshNetwork.getNode(mMeshNetwork.getSelectedProvisioner().getProvisionerUuid()));
+            mMeshNetwork.loadSequenceNumbers();
             mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
             mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
@@ -858,6 +862,7 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
             updateProvisionedNodeList(meshNode);
+            mMeshNetwork.sequenceNumbers.put(meshNode.getUnicastAddress(), meshNode.getSequenceNumber());
             mMeshNetwork.unicastAddress = mMeshNetwork.nextAvailableUnicastAddress(meshNode.getNumberOfElements(), mMeshNetwork.getSelectedProvisioner());
             //Set the mesh network uuid to the node so we can identify nodes belonging to a network
             meshNode.setMeshUuid(mMeshNetwork.getMeshUUID());
@@ -879,15 +884,11 @@ public class MeshManagerApi implements MeshMngrApi {
         }
     };
 
-    private ProvisionedMeshNode getMeshNode(final int unicast) {
-        return mMeshNetwork.getNode(unicast);
-    }
-
     @SuppressWarnings("FieldCanBeLocal")
     private final NetworkLayerCallbacks networkLayerCallbacks = new NetworkLayerCallbacks() {
         @Override
-        public ProvisionedMeshNode getProvisionedNode(final int unicastAddress) {
-            return getMeshNode(unicastAddress);
+        public ProvisionedMeshNode getNode(final int unicastAddress) {
+            return mMeshNetwork.getNode(unicastAddress);
         }
 
         @Override
@@ -960,6 +961,7 @@ public class MeshManagerApi implements MeshMngrApi {
                 insertNetwork(network);
             } else {
                 network = meshNetwork;
+                network.loadSequenceNumbers();
             }
             network.setCallbacks(callbacks);
             mMeshNetwork = network;

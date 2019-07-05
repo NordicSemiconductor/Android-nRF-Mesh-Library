@@ -5,10 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.util.SparseIntArray;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -30,7 +34,6 @@ import no.nordicsemi.android.meshprovisioner.data.ScenesDao;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("unused")
@@ -42,7 +45,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
         ProvisionedMeshNode.class,
         Group.class,
         Scene.class},
-        version = 5)
+        version = 6)
 abstract class MeshNetworkDb extends RoomDatabase {
 
     abstract MeshNetworkDao meshNetworkDao();
@@ -82,6 +85,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                             .addMigrations(MIGRATION_2_3)
                             .addMigrations(MIGRATION_3_4)
                             .addMigrations(MIGRATION_4_5)
+                            .addMigrations(MIGRATION_5_6)
                             .build();
                 }
 
@@ -696,6 +700,13 @@ abstract class MeshNetworkDb extends RoomDatabase {
         }
     };
 
+    private static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            migrateMeshNetwork5_6(database);
+        }
+    };
+
     private static void migrateMeshNetwork(final SupportSQLiteDatabase database) {
         database.execSQL("CREATE TABLE `mesh_network_temp` " +
                 "(`mesh_uuid` TEXT NOT NULL, " +
@@ -955,9 +966,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
         unicastRange.add(new AllocatedUnicastRange(0x0001, 0x199A));
         groupRange.add(new AllocatedGroupRange(0xC000, 0xCC9A));
         sceneRange.add(new AllocatedSceneRange(0x0001, 0x3333));
-        /*final String unicastRangeDefault = MeshTypeConverters.allocatedUnicastRangeToJson(unicastRange);
-        final String groupRangeDefault = MeshTypeConverters.allocatedGroupRangeToJson(groupRange);
-        final String sceneRangeDefault = MeshTypeConverters.allocatedSceneRangeToJson(sceneRange);*/
 
         database.execSQL("CREATE TABLE `provisioner_temp` " +
                 "(`mesh_uuid` TEXT NOT NULL, " +
@@ -1020,5 +1028,63 @@ abstract class MeshNetworkDb extends RoomDatabase {
         database.execSQL("DROP TABLE provisioner");
         database.execSQL("ALTER TABLE provisioner_temp RENAME TO provisioner");
         database.execSQL("CREATE INDEX index_provisioner_mesh_uuid ON `provisioner` (mesh_uuid)");
+    }
+
+    private static void migrateMeshNetwork5_6(final SupportSQLiteDatabase database) {
+
+        database.execSQL("ALTER TABLE mesh_network RENAME TO mesh_network_temp");
+        final HashMap<UUID, SparseIntArray> nodesMap = new HashMap<>();
+        final Cursor cursor1 = database.query("SELECT * FROM nodes");
+        if (cursor1 != null && cursor1.moveToFirst()) {
+            final UUID meshUuid = UUID.fromString(cursor1.getString(cursor1.getColumnIndex("mesh_uuid")).toUpperCase(Locale.US));
+            do {
+                final int unicast = cursor1.getInt(cursor1.getColumnIndex("unicast_address"));
+                final int seqNumber = cursor1.getInt(cursor1.getColumnIndex("seq_number"));
+                SparseIntArray sparseIntArray = nodesMap.get(meshUuid);
+                if (sparseIntArray != null) {
+                    sparseIntArray.put(unicast, seqNumber);
+                } else {
+                    sparseIntArray = new SparseIntArray();
+                    sparseIntArray.put(unicast, seqNumber);
+                }
+                nodesMap.put(meshUuid, sparseIntArray);
+            } while (cursor1.moveToNext());
+            cursor1.close();
+        }
+
+        database.execSQL("CREATE TABLE `mesh_network` " +
+                "(`mesh_uuid` TEXT NOT NULL, " +
+                "`mesh_name` TEXT, " +
+                "`timestamp` INTEGER NOT NULL, " +
+                "`iv_index` INTEGER NOT NULL, " +
+                "`iv_update_state` INTEGER NOT NULL, " +
+                "`sequence_numbers` TEXT NOT NULL, " +
+                "`last_selected` INTEGER NOT NULL, " +
+                "PRIMARY KEY(`mesh_uuid`))");
+        final Cursor cursor = database.query("SELECT * FROM mesh_network_temp");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                final String meshUuid = cursor.getString(cursor.getColumnIndex("mesh_uuid")).toUpperCase(Locale.US);
+                final String meshName = cursor.getString(cursor.getColumnIndex("mesh_name"));
+                final long timestamp = cursor.getLong(cursor.getColumnIndex("timestamp"));
+                final int ivIndex = cursor.getInt(cursor.getColumnIndex("iv_index"));
+                final int ivUpdateState = cursor.getInt(cursor.getColumnIndex("iv_update_state"));
+                final boolean lastSelected = cursor.getInt(cursor.getColumnIndex("last_selected")) == 1;
+                final SparseIntArray sequenceNumbersArray = nodesMap.get(UUID.fromString(meshUuid));
+                final ContentValues values = new ContentValues();
+                values.put("mesh_uuid", meshUuid);
+                values.put("mesh_name", meshName);
+                values.put("timestamp", timestamp);
+                values.put("iv_index", ivIndex);
+                values.put("iv_update_state", ivUpdateState);
+                if (sequenceNumbersArray != null) {
+                    values.put("sequence_numbers", MeshTypeConverters.sparseIntArrayToJson(sequenceNumbersArray));
+                }
+                values.put("last_selected", lastSelected);
+                database.insert("mesh_network", SQLiteDatabase.CONFLICT_REPLACE, values);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        database.execSQL("DROP TABLE mesh_network_temp");
     }
 }

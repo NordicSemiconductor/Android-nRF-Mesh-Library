@@ -2,6 +2,7 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.SparseIntArray;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -22,6 +23,7 @@ import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -97,12 +99,17 @@ abstract class BaseMeshNetwork {
     @Expose
     List<Scene> scenes = new ArrayList<>();
     //Library related attributes
+    @Ignore
     @ColumnInfo(name = "unicast_address")
     @Expose
     int unicastAddress = 0x0001;
     @ColumnInfo(name = "last_selected")
     @Expose
     boolean lastSelected;
+    @NonNull
+    @TypeConverters(MeshTypeConverters.class)
+    @ColumnInfo(name = "sequence_numbers")
+    protected SparseIntArray sequenceNumbers = new SparseIntArray();
     @Ignore
     @Expose(serialize = false, deserialize = false)
     private ProxyFilter proxyFilter;
@@ -648,24 +655,34 @@ abstract class BaseMeshNetwork {
             throw new IllegalArgumentException("Unicast address is already in use by another provisioner.");
         }
 
-        boolean flag = false;
+        boolean provisionerExists = false;
         for (int i = 0; i < provisioners.size(); i++) {
-            if (provisioners.get(i).getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
+            final Provisioner p = provisioners.get(i);
+            if (p.getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
                 provisioners.set(i, provisioner);
-                notifyProvisionerUpdated(provisioner);
-                flag = true;
+                provisionerExists = true;
             }
         }
-        if (flag) {
+        boolean nodeExists = false;
+        if (provisionerExists) {
             if (provisioner.getProvisionerAddress() != null) {
                 ProvisionedMeshNode node = getNode(provisioner.getProvisionerUuid());
                 if (node == null) {
                     node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
+                    provisioner.setSequenceNumber(node.getSequenceNumber());
                     nodes.add(node);
                     notifyNodeAdded(node);
                 } else {
                     for (int i = 0; i < nodes.size(); i++) {
-                        if (nodes.get(i).getUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
+                        final ProvisionedMeshNode meshNode = nodes.get(i);
+                        if (meshNode.getUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
+                            final int sequenceNumber;
+                            if (meshNode.getUnicastAddress() != provisioner.getProvisionerAddress()) {
+                                sequenceNumber = sequenceNumbers.get(provisioner.getProvisionerAddress());
+                            } else {
+                                sequenceNumber = sequenceNumbers.get(node.getUnicastAddress(), 0);
+                            }
+                            provisioner.setSequenceNumber(sequenceNumber);
                             node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
                             nodes.set(i, node);
                             notifyNodeUpdated(node);
@@ -674,6 +691,7 @@ abstract class BaseMeshNetwork {
                     }
                 }
             }
+            notifyProvisionerUpdated(provisioner);
             return true;
         }
         return false;
@@ -882,6 +900,42 @@ abstract class BaseMeshNetwork {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns the sequence numbers used by the network where key is the address and the value being the sequence number.
+     */
+    public SparseIntArray getSequenceNumbers() {
+        return sequenceNumbers.clone();
+    }
+
+    /**
+     * Sets the sequence number. This method is used for internal use only, changing will result messages to fail
+     *
+     * @param sequenceNumbers Sequence numbers used in the network
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setSequenceNumbers(@NonNull final SparseIntArray sequenceNumbers) {
+        this.sequenceNumbers = sequenceNumbers;
+    }
+
+    /**
+     * Returns the sequence number for a given address
+     *
+     * @param address Address
+     * @return sequence number or zero if address not found
+     */
+    protected Integer getSequenceNumber(final int address) {
+        return sequenceNumbers.get(address, 0);
+    }
+
+    /**
+     * Loads the sequence numbers known to the network
+     */
+    protected void loadSequenceNumbers() {
+        for (ProvisionedMeshNode node : nodes) {
+            sequenceNumbers.put(node.getUnicastAddress(), node.getSequenceNumber());
+        }
     }
 
     /**

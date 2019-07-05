@@ -1,4 +1,6 @@
-package no.nordicsemi.android.meshprovisioner.utils;
+package no.nordicsemi.android.meshprovisioner;
+
+import android.util.SparseIntArray;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -9,30 +11,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.room.TypeConverter;
-import no.nordicsemi.android.meshprovisioner.AllocatedGroupRange;
-import no.nordicsemi.android.meshprovisioner.AllocatedSceneRange;
-import no.nordicsemi.android.meshprovisioner.AllocatedUnicastRange;
-import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.ElementDbMigrator;
 import no.nordicsemi.android.meshprovisioner.transport.InternalMeshModelDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.NetworkKey;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeshTypeConverters {
 
     @TypeConverter
-    public static Map<Integer, ApplicationKey> fromJsonToAddedAppKeys(final String appKeyJson) {
+    static Map<Integer, ApplicationKey> fromJsonToAddedAppKeys(final String appKeyJson) {
         Type addedAppKeys = new TypeToken<Map<Integer, ApplicationKey>>() {
         }.getType();
         return new Gson().fromJson(appKeyJson, addedAppKeys);
     }
 
     @TypeConverter
-    public static List<NetworkKey> fromJsonToAddedNetKeys(final String networkKeyJson) {
+    static List<NetworkKey> fromJsonToAddedNetKeys(final String networkKeyJson) {
         Type addedNetKeys = new TypeToken<List<NetworkKey>>() {
         }.getType();
         return new Gson().fromJson(networkKeyJson, addedNetKeys);
@@ -114,5 +112,17 @@ public class MeshTypeConverters {
         Type uuid = new TypeToken<UUID>() {
         }.getType();
         return new Gson().fromJson(addressesJson, uuid);
+    }
+
+    @TypeConverter
+    public static String sparseIntArrayToJson(@NonNull final SparseIntArray array) {
+        return new Gson().toJson(array);
+    }
+
+    @TypeConverter
+    public static SparseIntArray fromJsonToSparseIntArray(final String integerListJson) {
+        Type addresses = new TypeToken<SparseIntArray>() {
+        }.getType();
+        return new Gson().fromJson(integerListJson, addresses);
     }
 }

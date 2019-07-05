@@ -45,8 +45,8 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.Features;
+import no.nordicsemi.android.meshprovisioner.MeshTypeConverters;
 import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
-import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
@@ -105,7 +105,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     byte[] deviceKey;
     @ColumnInfo(name = "seq_number")
     @Expose
-    int mReceivedSequenceNumber;
+    int sequenceNumber;
     @Ignore
     @Expose
     String bluetoothAddress;
@@ -131,7 +131,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Embedded
     @Expose
     Features nodeFeatures = null;
-    @Embedded
+    @Ignore
     @Expose
     SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
     @TypeConverters(MeshTypeConverters.class)

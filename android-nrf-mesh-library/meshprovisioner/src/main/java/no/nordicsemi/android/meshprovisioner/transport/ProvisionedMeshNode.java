@@ -122,7 +122,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         }
         if (provisioner.getProvisionerAddress() != null)
             unicastAddress = provisioner.getProvisionerAddress();
-
+        sequenceNumber = provisioner.getSequenceNumber();
         deviceKey = SecureUtils.generateRandomNumber();
         ttl = provisioner.getGlobalTtl();
         mTimeStampInMillis = System.currentTimeMillis();
@@ -147,7 +147,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         deviceKey = in.createByteArray();
         ttl = (Integer) in.readValue(Integer.class.getClassLoader());
         numberOfElements = in.readInt();
-        mReceivedSequenceNumber = in.readInt();
+        sequenceNumber = in.readInt();
         k2Output = in.readParcelable(SecureUtils.K2Output.class.getClassLoader());
         companyIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         productIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
@@ -177,7 +177,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeByteArray(deviceKey);
         dest.writeValue(ttl);
         dest.writeInt(numberOfElements);
-        dest.writeInt(mReceivedSequenceNumber);
+        dest.writeInt(sequenceNumber);
         dest.writeParcelable(k2Output, flags);
         dest.writeValue(companyIdentifier);
         dest.writeValue(productIdentifier);
@@ -234,19 +234,19 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         this.deviceKey = deviceKey;
     }
 
-    public final int getReceivedSequenceNumber() {
-        return mReceivedSequenceNumber;
+    public final int getSequenceNumber() {
+        return sequenceNumber;
     }
 
     /**
-     * Sets the received sequence number
-     * <p>This is only meant to be used internally within the library, hence the Restricted annotation</p>
+     * Sets the sequence number
+     * <p>This is only meant to be used internally within the library, hence the Restricted</p>
      *
-     * @param receivedSequenceNumber sequence number of the message received from a node
+     * @param sequenceNumber sequence number of the node
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setReceivedSequenceNumber(final int receivedSequenceNumber) {
-        mReceivedSequenceNumber = receivedSequenceNumber;
+    public final void setSequenceNumber(final int sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
     }
 
     public final SecureUtils.K2Output getK2Output() {

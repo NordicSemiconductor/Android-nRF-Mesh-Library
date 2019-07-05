@@ -10,7 +10,6 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 
 import static androidx.room.ForeignKey.CASCADE;
 

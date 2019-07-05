@@ -25,7 +25,6 @@ import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 
 import static androidx.room.ForeignKey.CASCADE;
 

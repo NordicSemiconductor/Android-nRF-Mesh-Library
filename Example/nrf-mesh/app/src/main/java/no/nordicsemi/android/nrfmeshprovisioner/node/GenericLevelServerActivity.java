@@ -247,7 +247,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                         final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level,
-                                node.getReceivedSequenceNumber());
+                                node.getSequenceNumber());
                         sendMessage(address, genericLevelSet);
                     } else {
                         mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));

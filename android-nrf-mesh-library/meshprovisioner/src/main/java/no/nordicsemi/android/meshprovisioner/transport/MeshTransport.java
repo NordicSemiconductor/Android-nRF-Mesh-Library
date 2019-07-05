@@ -90,18 +90,25 @@ final class MeshTransport extends NetworkLayer {
         this.mUpperTransportLayerCallbacks = callbacks;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected final int incrementSequenceNumber(final int src) {
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
-        return provisioner.incrementSequenceNumber();
+        final int seqNumber = provisioner.incrementSequenceNumber();
+        final ProvisionedMeshNode node = mNetworkLayerCallbacks.getNode(provisioner.getProvisionerAddress());
+        node.setSequenceNumber(seqNumber);
+        return seqNumber;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected final int incrementSequenceNumber(final int src, @NonNull final byte[] sequenceNumber) {
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
-        final int seqNumber = MeshParserUtils.getSequenceNumber(sequenceNumber);
-        provisioner.setSequenceNumber(seqNumber);
-        return provisioner.incrementSequenceNumber();
+        provisioner.setSequenceNumber(MeshParserUtils.getSequenceNumber(sequenceNumber));
+        final int seqNumber = provisioner.incrementSequenceNumber();
+        final ProvisionedMeshNode node = mNetworkLayerCallbacks.getNode(provisioner.getProvisionerAddress());
+        node.setSequenceNumber(seqNumber);
+        return seqNumber;
     }
 
     /**

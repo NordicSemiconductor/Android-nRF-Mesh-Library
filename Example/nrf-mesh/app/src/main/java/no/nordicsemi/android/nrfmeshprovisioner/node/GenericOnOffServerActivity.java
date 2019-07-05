@@ -240,7 +240,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                         final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state,
-                                node.getReceivedSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
+                                node.getSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
                         sendMessage(address, genericOnOffSet);
                     } else {
                         mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
