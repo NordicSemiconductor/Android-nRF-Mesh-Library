@@ -2,16 +2,17 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 
 import java.nio.ByteBuffer;
+
+import androidx.annotation.NonNull;
 
 /**
  * Contains the information related to a secure network beacon.
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class SecureNetworkBeacon extends MeshBeacon {
-    public static final int BEACON_DATA_LENGTH = 23;
+    public static final int BEACON_DATA_LENGTH = 22;
     private final int flags;
     private final byte[] networkId = new byte[8];
     private final int ivIndex;
@@ -23,9 +24,9 @@ public class SecureNetworkBeacon extends MeshBeacon {
      * @param beaconData beacon data advertised by the mesh beacon
      * @throws IllegalArgumentException if service data provide is invalid
      */
-    SecureNetworkBeacon(@NonNull final byte[] beaconData) {
+    public SecureNetworkBeacon(@NonNull final byte[] beaconData) {
         super(beaconData);
-        if(beaconData.length != SecureNetworkBeacon.BEACON_DATA_LENGTH)
+        if (beaconData.length != SecureNetworkBeacon.BEACON_DATA_LENGTH)
             throw new IllegalArgumentException("Invalid secure network beacon data");
 
         final ByteBuffer byteBuffer = ByteBuffer.wrap(beaconData);

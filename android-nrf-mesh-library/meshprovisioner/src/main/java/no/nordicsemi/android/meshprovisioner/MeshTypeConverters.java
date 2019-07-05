@@ -23,14 +23,14 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 public class MeshTypeConverters {
 
     @TypeConverter
-    static Map<Integer, ApplicationKey> fromJsonToAddedAppKeys(final String appKeyJson) {
+    public static Map<Integer, ApplicationKey> fromJsonToAddedAppKeys(final String appKeyJson) {
         Type addedAppKeys = new TypeToken<Map<Integer, ApplicationKey>>() {
         }.getType();
         return new Gson().fromJson(appKeyJson, addedAppKeys);
     }
 
     @TypeConverter
-    static List<NetworkKey> fromJsonToAddedNetKeys(final String networkKeyJson) {
+    public static List<NetworkKey> fromJsonToAddedNetKeys(final String networkKeyJson) {
         Type addedNetKeys = new TypeToken<List<NetworkKey>>() {
         }.getType();
         return new Gson().fromJson(networkKeyJson, addedNetKeys);

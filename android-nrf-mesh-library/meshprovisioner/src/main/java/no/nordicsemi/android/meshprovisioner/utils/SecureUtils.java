@@ -44,6 +44,7 @@ import java.nio.charset.Charset;
 import java.security.SecureRandom;
 
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
 
 @SuppressWarnings("WeakerAccess")
 public class SecureUtils {
@@ -356,6 +357,32 @@ public class SecureUtils {
         pBuffer.put(ivIndex);
         final byte[] beaconKey = calculateBeaconKey(n);
         return calculateCMAC(pBuffer.array(), beaconKey);
+    }
+
+    /**
+     * Creates the secure network beacon
+     *
+     * @param n         network key
+     * @param flags     network flags, this represents the current state of hte network if key refresh/iv update is ongoing or complete
+     * @param networkId unique id of the network
+     * @param ivIndex   iv index of the network
+     */
+    public static SecureNetworkBeacon createSecureNetworkBeacon(@NonNull final byte[] n,
+                                                         @NonNull final byte[] flags,
+                                                         @NonNull final byte[] networkId,
+                                                         @NonNull final byte[] ivIndex) {
+        final byte[] authentication = calculateAuthValueSecureNetBeacon(n, flags, networkId, ivIndex);
+
+        final int inputLength = flags.length + networkId.length + ivIndex.length;
+        final ByteBuffer pBuffer = ByteBuffer.allocate(inputLength);
+        pBuffer.put(flags);
+        pBuffer.put(networkId);
+        pBuffer.put(ivIndex);
+        final ByteBuffer secNetBeaconBuffer = ByteBuffer.allocate(1 + inputLength + 8);
+        secNetBeaconBuffer.put((byte) 0x01);
+        secNetBeaconBuffer.put(pBuffer.array());
+        secNetBeaconBuffer.put(authentication, 0, 8);
+        return new SecureNetworkBeacon(secNetBeaconBuffer.array());
     }
 
     /**

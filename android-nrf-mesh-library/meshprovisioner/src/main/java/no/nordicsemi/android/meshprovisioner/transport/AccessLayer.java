@@ -43,7 +43,6 @@ abstract class AccessLayer {
 
     private static final String TAG = AccessLayer.class.getSimpleName();
     protected Context mContext;
-    protected int sequenceNumber;
     Handler mHandler;
     ProvisionedMeshNode mMeshNode;
 

@@ -261,9 +261,17 @@ public class MeshManagerApi implements MeshMngrApi {
                         final byte[] flags = {(byte) mMeshNetwork.getProvisioningFlags()};
                         final byte[] networkId = SecureUtils.calculateK3(n);
                         final byte[] ivIndex = ByteBuffer.allocate(4).putInt(mMeshNetwork.getIvIndex()).array();
-                        Log.v(TAG, "Generated mesh beacon: " +
-                                MeshParserUtils.bytesToHex(SecureUtils.calculateSecureNetworkBeacon(n, 1, flags, networkId, ivIndex), true));
-                        Log.v(TAG, "Received mesh beacon: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
+                        final byte[] receivedBeaconData = new byte[unsegmentedPdu.length - 1];
+                        System.arraycopy(unsegmentedPdu, 1, receivedBeaconData, 0, receivedBeaconData.length);
+                        final SecureNetworkBeacon receivedBeacon = new SecureNetworkBeacon(receivedBeaconData);
+                        final SecureNetworkBeacon localSecureNetworkBeacon = SecureUtils.createSecureNetworkBeacon(n, flags, networkId, ivIndex);
+                        if (Arrays.equals(receivedBeacon.getAuthenticationValue(), localSecureNetworkBeacon.getAuthenticationValue())) {
+                            mMeshNetwork.ivIndex = receivedBeacon.getIvIndex();
+                            //TODO set iv update state
+                            Log.v(TAG, "Generated mesh beacon: " +
+                                    MeshParserUtils.bytesToHex(SecureUtils.calculateSecureNetworkBeacon(n, 1, flags, networkId, ivIndex), true));
+                            Log.v(TAG, "Received mesh beacon: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
+                        }
                     }
                     break;
                 case PDU_TYPE_PROXY_CONFIGURATION:

@@ -100,6 +100,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      */
     protected void parseMeshPduNotifications(@NonNull final byte[] pdu, @NonNull final MeshNetwork network) throws ExtendedInvalidCipherTextException {
         final List<NetworkKey> networkKeys = network.getNetKeys();
+        final int ivi = ((pdu[1] & 0xFF) >>> 7) & 0x01;
         final int nid = pdu[1] & 0x7F;
         //Here we go through all the network keys and filter out network keys based on the nid.
         for (int i = 0; i < networkKeys.size(); i++) {
@@ -131,7 +132,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     } else {
                         return;
                     }
-
+                    //TODO validate ivi
                     byte[] nonce;
                     final byte[] ivIndex = MeshParserUtils.intToBytes(network.getIvIndex());
                     try {
