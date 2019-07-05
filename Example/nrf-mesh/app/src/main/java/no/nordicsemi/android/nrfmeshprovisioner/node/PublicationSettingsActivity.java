@@ -447,7 +447,6 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
                         mPublishAddress, mAppKeyIndex, mActionFriendshipCredentialSwitch.isChecked(), mPublishTtl,
                         mPublicationSteps, mPublicationResolution, mPublishRetransmitCount, mPublishRetransmitIntervalSteps, model.getModelId());
             } else {
-
                 configModelPublicationSet = new ConfigModelPublicationVirtualAddressSet(element.getElementAddress(),
                         mLabelUUID, mAppKeyIndex, mActionFriendshipCredentialSwitch.isChecked(), mPublishTtl,
                         mPublicationSteps, mPublicationResolution, mPublishRetransmitCount, mPublishRetransmitIntervalSteps, model.getModelId());

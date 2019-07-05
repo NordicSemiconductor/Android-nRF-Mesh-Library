@@ -137,15 +137,7 @@ public final class MeshAddress {
     public static boolean isValidGroupAddress(final byte[] address) {
         if (!isAddressInRange(address))
             return false;
-
-        final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
-        final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
-
-        final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
-        final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
-        final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
-
-        return groupRange && !rfu && !allNodes;
+        return isValidGroupAddress(MeshParserUtils.unsignedBytesToInt(address[0], address[1]));
     }
 
     /**
@@ -167,6 +159,26 @@ public final class MeshAddress {
         final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
 
         return groupRange && !rfu && !allNodes;
+    }
+
+    /**
+     * Returns true if the its a valid group address
+     *
+     * @param address 16-bit address
+     * @return true if the address is valid and false otherwise
+     */
+    @SuppressWarnings({"ConstantConditions"})
+    public static boolean isValidFixedGroupAddress(final int address) {
+        if (!isAddressInRange(address))
+            return false;
+
+        final int b0 = address >> 8 & 0xFF;
+        final int b1 = address & 0xFF;
+
+        final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
+        final boolean allNodes = b0 == 0xFF && b1 > 0xFB && b1 <= 0xFF;
+
+        return !rfu && allNodes;
     }
 
     /**
@@ -246,7 +258,7 @@ public final class MeshAddress {
                 return AddressType.UNASSIGNED_ADDRESS;
             } else if (isValidUnicastAddress(address)) {
                 return AddressType.UNICAST_ADDRESS;
-            } else if (isValidGroupAddress(address)) {
+            } else if (isValidGroupAddress(address) || isValidFixedGroupAddress(address)) {
                 return AddressType.GROUP_ADDRESS;
             } else {
                 return AddressType.VIRTUAL_ADDRESS;
