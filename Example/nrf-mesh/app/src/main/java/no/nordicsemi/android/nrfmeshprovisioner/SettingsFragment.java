@@ -148,6 +148,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         final TextView versionTitle = containerAbout.findViewById(R.id.title);
         versionTitle.setText(R.string.summary_version);
         final TextView version = containerAbout.findViewById(R.id.text);
+        version.setVisibility(View.VISIBLE);
         try {
             version.setText(getContext().getPackageManager().getPackageInfo(requireContext().getPackageName(), 0).versionName);
         } catch (PackageManager.NameNotFoundException e) {
