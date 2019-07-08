@@ -286,7 +286,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 Log.v(TAG, "Received a segmented access message from: " + MeshAddress.formatAddress(src, false));
 
                 //Check if the received segmented message is from the same src as the previous segment
-                if (src != mMeshNode.getUnicastAddress()) {
+                //Ideal case this check is not needed but let's leave it for now.
+                if (mMeshNode.hasUnicastAddress(src)) {
                     Log.v(TAG, "Segment received is from a different src than the one we are processing, let's drop it");
                     return null;
                 }
