@@ -1032,9 +1032,8 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
     private static void migrateMeshNetwork5_6(final SupportSQLiteDatabase database) {
 
-        database.execSQL("ALTER TABLE mesh_network RENAME TO mesh_network_temp");
         final HashMap<UUID, SparseIntArray> nodesMap = new HashMap<>();
-        final Cursor cursor1 = database.query("SELECT * FROM nodes");
+        final Cursor cursor1 = database.query("SELECT mesh_uuid, unicast_address, seq_number FROM nodes");
         if (cursor1 != null && cursor1.moveToFirst()) {
             final UUID meshUuid = UUID.fromString(cursor1.getString(cursor1.getColumnIndex("mesh_uuid")).toUpperCase(Locale.US));
             do {
@@ -1052,6 +1051,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             cursor1.close();
         }
 
+        database.execSQL("ALTER TABLE mesh_network RENAME TO mesh_network_temp");
         database.execSQL("CREATE TABLE `mesh_network` " +
                 "(`mesh_uuid` TEXT NOT NULL, " +
                 "`mesh_name` TEXT, " +
