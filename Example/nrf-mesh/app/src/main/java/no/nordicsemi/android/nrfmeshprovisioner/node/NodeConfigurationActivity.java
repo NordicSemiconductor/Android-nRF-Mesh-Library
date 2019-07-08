@@ -126,7 +126,11 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     private boolean mRequestedState = true;
     private boolean mIsConnected;
 
-    private final Runnable mOperationTimeout = this::hideProgressBar;
+    private final Runnable mOperationTimeout = () -> {
+        hideProgressBar();
+        DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
+        fragmentMessage.show(getSupportFragmentManager(), null);
+    };
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -428,15 +432,15 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     private void showProgressbar() {
-        //mHandler.postDelayed(mOperationTimeout, Utils.MESSAGE_TIME_OUT);
-        //disableClickableViews();
+        mHandler.postDelayed(mOperationTimeout, Utils.MESSAGE_TIME_OUT);
+        disableClickableViews();
         mProgressbar.setVisibility(View.VISIBLE);
     }
 
     private void hideProgressBar() {
-        mHandler.removeCallbacks(mOperationTimeout);
         enableClickableViews();
         mProgressbar.setVisibility(View.INVISIBLE);
+        mHandler.removeCallbacks(mOperationTimeout);
     }
 
     private void enableClickableViews() {
