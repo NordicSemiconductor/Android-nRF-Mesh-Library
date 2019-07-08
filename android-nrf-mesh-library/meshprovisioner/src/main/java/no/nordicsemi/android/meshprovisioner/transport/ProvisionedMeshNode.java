@@ -467,4 +467,17 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
         return mSeqAuth.get(src);
     }
+
+    public boolean isExist(final int modelId) {
+        for (Map.Entry<Integer, Element> elementEntry : mElements.entrySet()) {
+            final Element element = elementEntry.getValue();
+            for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                final MeshModel model = modelEntry.getValue();
+                if (model != null && model.getModelId() == modelId) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

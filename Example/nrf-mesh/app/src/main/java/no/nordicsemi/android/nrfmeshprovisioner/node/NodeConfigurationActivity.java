@@ -52,6 +52,7 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataGet;
@@ -290,6 +291,9 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 mIsConnected = isConnected;
                 hideProgressBar();
             }
+
+            if (!mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))
+                disableClickableViews();
             invalidateOptionsMenu();
         });
 

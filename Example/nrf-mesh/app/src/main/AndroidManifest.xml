@@ -129,6 +129,9 @@
             android:name=".node.ConfigurationServerActivity"
             android:launchMode="singleTop"/>
         <activity
+            android:name=".node.ConfigurationClientActivity"
+            android:launchMode="singleTop"/>
+        <activity
             android:name=".node.ModelConfigurationActivity"
             android:launchMode="singleTop"/>
     </application>

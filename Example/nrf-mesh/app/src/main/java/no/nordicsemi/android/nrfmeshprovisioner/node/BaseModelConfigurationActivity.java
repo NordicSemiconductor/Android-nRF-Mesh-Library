@@ -53,6 +53,7 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppUnbind;
@@ -178,6 +179,10 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         recyclerViewBoundKeys.setAdapter(mBoundAppKeyAdapter);
 
         mActionBindAppKey.setOnClickListener(v -> {
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+            if (node != null && !node.isExist(SigModelParser.CONFIGURATION_SERVER)) {
+                return;
+            }
             if (!checkConnectivity()) return;
             final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, AppKeysActivity.class);
             bindAppKeysIntent.putExtra(Utils.EXTRA_DATA, Utils.BIND_APP_KEY);
@@ -222,6 +227,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (isConnected != null) {
                 mIsConnected = isConnected;
                 hideProgressBar();
+
+                if (!mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))
+                    disableClickableViews();
             }
             invalidateOptionsMenu();
         });

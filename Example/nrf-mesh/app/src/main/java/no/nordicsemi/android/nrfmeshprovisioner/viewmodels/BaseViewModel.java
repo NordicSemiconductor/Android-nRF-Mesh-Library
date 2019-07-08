@@ -14,9 +14,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.models.ConfigurationClientModel;
 import no.nordicsemi.android.meshprovisioner.models.ConfigurationServerModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
+import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
@@ -26,6 +28,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.ConfigurationClientActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.GenericLevelServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.GenericOnOffServerActivity;
@@ -98,6 +101,8 @@ abstract class BaseViewModel extends ViewModel {
         final Intent intent;
         if (model instanceof ConfigurationServerModel) {
             intent = new Intent(context, ConfigurationServerActivity.class);
+        } else if (model instanceof ConfigurationClientModel) {
+            intent = new Intent(context, ConfigurationClientActivity.class);
         } else if (model instanceof GenericOnOffServerModel) {
             intent = new Intent(context, GenericOnOffServerActivity.class);
         } else if (model instanceof GenericLevelServerModel) {
@@ -262,9 +267,16 @@ abstract class BaseViewModel extends ViewModel {
         return mNrfMeshRepository.getTransactionStatus();
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean isModelExists(final int modelId) {
+        final ProvisionedMeshNode node = getSelectedMeshNode().getValue();
+        return node != null && node.isExist(modelId);
+    }
+
     /**
      * Display disconnected snack bar
-     *  @param context   Activity context
+     *
+     * @param context   Activity context
      * @param container container
      */
     public void displayDisconnectedSnackBar(@NonNull final Activity context, @NonNull final CoordinatorLayout container) {
@@ -277,7 +289,8 @@ abstract class BaseViewModel extends ViewModel {
 
     /**
      * Display snack bar
-     *  @param context   Activity context
+     *
+     * @param context   Activity context
      * @param container container
      * @param message   message
      */
