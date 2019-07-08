@@ -97,7 +97,6 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
             final String key = MeshParserUtils.bytesToHex(appKey.getKey(), false);
             holder.appKey.setText(key.toUpperCase());
             holder.getSwipeableView().setTag(appKey);
-
         }
     }
 
