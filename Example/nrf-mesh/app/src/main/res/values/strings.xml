@@ -509,4 +509,8 @@
     <string name="no_allocated_group_range">Please allocate a range of group addresses for the provisioner.</string>
     <string name="title_details">Details</string>
     <string name="more">more</string>
+    <string name="title_delete_node">Delete Node</string>
+    <string name="delete_node_rationale">Deleting a node manually will not reset the node and will be removed from the list of nodes.
+        Would you like to continue? /nThis step cannot be undone and you will have to manually reset the node.</string>
+    <string name="node_deleted">Node deleted.</string>
 </resources>

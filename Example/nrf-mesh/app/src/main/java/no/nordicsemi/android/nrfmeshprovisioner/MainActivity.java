@@ -96,16 +96,13 @@ public class MainActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
-        if (mViewModel.getNodes().getValue() != null && !mViewModel.getNodes().getValue().isEmpty()) {
-            final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-            if (isConnectedToNetwork != null && isConnectedToNetwork) {
-                getMenuInflater().inflate(R.menu.disconnect, menu);
-            } else {
-                getMenuInflater().inflate(R.menu.connect, menu);
-            }
-            return true;
+        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
+        if (isConnectedToNetwork != null && isConnectedToNetwork) {
+            getMenuInflater().inflate(R.menu.disconnect, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.connect, menu);
         }
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override

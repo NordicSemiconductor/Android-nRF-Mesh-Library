@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
@@ -46,6 +45,7 @@ import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
     private final Context mContext;
@@ -96,12 +96,20 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
                 holder.elements.setText(String.valueOf(node.getNumberOfElements()));
                 holder.models.setText(R.string.unknown);
             }
+            //holder.getSwipeableView().setTag(node);
         }
     }
 
     @Override
     public int getItemCount() {
         return mNodes.size();
+    }
+
+    public ProvisionedMeshNode getItem(final int position) {
+        if (mNodes.size() > 0 && position > -1) {
+            return mNodes.get(position);
+        }
+        return null;
     }
 
     public boolean isEmpty() {
@@ -121,7 +129,7 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
         void onConfigureClicked(final ProvisionedMeshNode node);
     }
 
-    final class ViewHolder extends RecyclerView.ViewHolder {
+    final class ViewHolder extends RemovableViewHolder {
 
         @BindView(R.id.container)
         FrameLayout container;

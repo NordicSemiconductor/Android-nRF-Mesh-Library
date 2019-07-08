@@ -35,10 +35,12 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -46,25 +48,32 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDeleteNode;
 import no.nordicsemi.android.nrfmeshprovisioner.node.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.NodeAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 import static android.app.Activity.RESULT_OK;
 
 public class NetworkFragment extends Fragment implements Injectable,
-        NodeAdapter.OnItemClickListener {
+        NodeAdapter.OnItemClickListener,
+        ItemTouchHelperAdapter,
+        DialogFragmentDeleteNode.DialogFragmentDeleteNodeListener {
 
     private SharedViewModel mViewModel;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
-    @BindView(R.id.main_content)
-    View container;
+    @BindView(R.id.container)
+    CoordinatorLayout container;
     @BindView(R.id.recycler_view_provisioned_nodes)
     RecyclerView mRecyclerViewNodes;
+    private NodeAdapter mNodeAdapter;
 
     @Nullable
     @Override
@@ -77,12 +86,15 @@ public class NetworkFragment extends Fragment implements Injectable,
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
 
         // Configure the recycler view
-        final NodeAdapter nodeAdapter = new NodeAdapter(requireContext(), mViewModel.getNodes());
-        nodeAdapter.setOnItemClickListener(this);
+        mNodeAdapter = new NodeAdapter(requireContext(), mViewModel.getNodes());
+        mNodeAdapter.setOnItemClickListener(this);
         mRecyclerViewNodes.setLayoutManager(new LinearLayoutManager(getContext()));
         final DividerItemDecoration decoration = new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
         mRecyclerViewNodes.addItemDecoration(decoration);
-        mRecyclerViewNodes.setAdapter(nodeAdapter);
+        final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
+        final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
+        itemTouchHelper.attachToRecyclerView(mRecyclerViewNodes);
+        mRecyclerViewNodes.setAdapter(mNodeAdapter);
 
         // Create view model containing utility methods for scanning
         mViewModel.getNodes().observe(this, nodes -> {
@@ -131,6 +143,33 @@ public class NetworkFragment extends Fragment implements Injectable,
         mViewModel.setSelectedMeshNode(node);
         final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
         requireActivity().startActivity(meshConfigurationIntent);
+    }
+
+    @Override
+    public void onItemDismiss(final RemovableViewHolder viewHolder) {
+        final int position = viewHolder.getAdapterPosition();
+        if (!mNodeAdapter.isEmpty()) {
+            final DialogFragmentDeleteNode fragmentDeleteNode = DialogFragmentDeleteNode.newInstance(position);
+            fragmentDeleteNode.show(getChildFragmentManager(), null);
+        }
+    }
+
+    @Override
+    public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
+        //Do nothing
+    }
+
+    @Override
+    public void onNodeDeleteConfirmed(final int position) {
+        final ProvisionedMeshNode node = mNodeAdapter.getItem(position);
+        if (mViewModel.getMeshNetworkLiveData().getMeshNetwork().deleteNode(node)) {
+            mViewModel.displaySnackBar(requireActivity(), container, getString(R.string.node_deleted));
+        }
+    }
+
+    @Override
+    public void onNodeDeleteCancelled(final int position) {
+        mNodeAdapter.notifyItemChanged(position);
     }
 
     private void handleActivityResult(final int requestCode, final int resultCode, @NonNull final Intent data) {
