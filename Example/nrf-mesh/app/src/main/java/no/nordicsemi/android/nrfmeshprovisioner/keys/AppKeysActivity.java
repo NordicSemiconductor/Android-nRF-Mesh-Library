@@ -40,6 +40,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -49,8 +50,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -78,7 +79,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
     @BindView(android.R.id.empty)
     View mEmptyView;
     @BindView(R.id.container)
-    View container;
+    CoordinatorLayout container;
 
     private AppKeysViewModel mViewModel;
     private ManageAppKeyAdapter mAdapter;
@@ -231,7 +232,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
             }
         } catch (Exception ex) {
             mAdapter.notifyDataSetChanged();
-            displaySnackBar(ex.getMessage());
+            mViewModel.displaySnackBar(this, container, ex.getMessage());
         }
     }
 
@@ -251,18 +252,13 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
         });
     }
 
-    private void displaySnackBar(final ApplicationKey appKey) {
+    private void displaySnackBar(@NonNull final ApplicationKey appKey) {
         Snackbar.make(container, getString(R.string.app_key_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
                     mEmptyView.setVisibility(View.INVISIBLE);
                     mViewModel.getMeshNetworkLiveData().getMeshNetwork().addAppKey(appKey);
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
-                .show();
-    }
-
-    private void displaySnackBar(final String message) {
-        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
                 .show();
     }
 }

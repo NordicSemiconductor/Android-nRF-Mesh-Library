@@ -38,6 +38,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
@@ -68,7 +69,7 @@ public class GroupsFragment extends Fragment implements Injectable,
     ViewModelProvider.Factory mViewModelFactory;
 
     @BindView(R.id.container)
-    View container;
+    CoordinatorLayout container;
     @BindView(android.R.id.empty)
     View mEmptyView;
 
@@ -157,11 +158,12 @@ public class GroupsFragment extends Fragment implements Injectable,
     @Override
     public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
         final String message = getString(R.string.error_group_unsubscribe_to_delete);
-        displaySnackBar(message);
+        mViewModel.displaySnackBar(requireActivity(), container, message);
     }
 
     @Override
-    public Group createGroup() {final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+    public Group createGroup() {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         return network.createGroup(network.getSelectedProvisioner(), "Mesh Group");
     }
 
@@ -205,12 +207,6 @@ public class GroupsFragment extends Fragment implements Injectable,
                     }
 
                 })
-                .show();
-    }
-
-    private void displaySnackBar(final String message) {
-        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
-                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();
     }
 }

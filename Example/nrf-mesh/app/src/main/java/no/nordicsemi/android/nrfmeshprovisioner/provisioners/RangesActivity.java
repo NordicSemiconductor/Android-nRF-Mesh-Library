@@ -41,6 +41,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -83,7 +84,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
     @BindView(android.R.id.empty)
     View mEmptyView;
     @BindView(R.id.container)
-    View container;
+    CoordinatorLayout container;
     @BindView(R.id.fab_resolve)
     ExtendedFloatingActionButton mFabResolve;
     private RangeView mRangeView;
@@ -247,7 +248,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                 updateResolveFab();
             } catch (Exception ex) {
                 mRangeAdapter.notifyDataSetChanged();
-                displaySnackBar(ex.getMessage());
+                mViewModel.displaySnackBar(this, container, ex.getMessage());
             }
         }
     }
@@ -365,11 +366,6 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                     updateResolveFab();
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
-                .show();
-    }
-
-    private void displaySnackBar(final String message) {
-        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
                 .show();
     }
 

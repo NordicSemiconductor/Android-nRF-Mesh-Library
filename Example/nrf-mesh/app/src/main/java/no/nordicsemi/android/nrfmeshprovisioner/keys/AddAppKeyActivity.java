@@ -36,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
@@ -64,7 +65,7 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable,
     ViewModelProvider.Factory mViewModelFactory;
 
     @BindView(R.id.container)
-    View container;
+    CoordinatorLayout container;
     TextView nameView;
     TextView keyView;
     TextView keyIndexView;
@@ -219,14 +220,9 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable,
                     return key;
                 }
             } catch (IllegalArgumentException ex) {
-                displaySnackBar(ex.getMessage());
+                mViewModel.displaySnackBar(this, container, ex.getMessage());
             }
         }
         return appKey;
-    }
-
-    private void displaySnackBar(final String message) {
-        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
-                .show();
     }
 }

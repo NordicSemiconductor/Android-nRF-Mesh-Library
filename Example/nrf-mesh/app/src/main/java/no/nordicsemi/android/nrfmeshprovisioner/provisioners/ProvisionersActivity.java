@@ -40,6 +40,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
@@ -70,7 +71,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
     @BindView(R.id.container)
-    View container;
+    CoordinatorLayout container;
     @BindView(R.id.scroll_container)
     ScrollView scrollView;
     @BindView(R.id.provisioners_card)
@@ -204,7 +205,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
             }
         } catch (Exception ex) {
             mAdapter.notifyDataSetChanged();
-            displaySnackBar(ex.getMessage());
+            mViewModel.displaySnackBar(this, container, ex.getMessage());
         }
     }
 
@@ -222,11 +223,6 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
                     }
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
-                .show();
-    }
-
-    private void displaySnackBar(final String message) {
-        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
                 .show();
     }
 }

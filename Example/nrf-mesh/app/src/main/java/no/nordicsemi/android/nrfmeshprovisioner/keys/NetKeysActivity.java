@@ -39,6 +39,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
@@ -70,7 +71,7 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
 
     //UI Bindings
     @BindView(R.id.container)
-    View container;
+    CoordinatorLayout container;
     @BindView(R.id.scroll_container)
     ScrollView scrollView;
     @BindView(R.id.sub_net_key_card)
@@ -176,7 +177,7 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
             }
         } catch (Exception ex) {
             mAdapter.notifyDataSetChanged();
-            displaySnackBar(ex.getMessage());
+            mViewModel.displaySnackBar(this, container, ex.getMessage());
         }
     }
 
@@ -185,15 +186,10 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
 
     }
 
-    private void displaySnackBar(final NetworkKey networkKey) {
+    private void displaySnackBar(@NonNull final NetworkKey networkKey) {
         Snackbar.make(container, getString(R.string.net_key_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> addNetKey(networkKey))
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
-                .show();
-    }
-
-    private void displaySnackBar(final String message) {
-        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
                 .show();
     }
 
