@@ -411,7 +411,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     private void unbindAppKey(final int position) {
         if (mBoundAppKeyAdapter.getItemCount() != 0) {
             final ApplicationKey appKey = mBoundAppKeyAdapter.getAppKey(position);
-            final int keyIndex = appKey.getKeyIndex();//getAppKeyIndex(appKey);
+            final int keyIndex = appKey.getKeyIndex();
             final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
             if (meshNode != null) {
                 final Element element = mViewModel.getSelectedElement().getValue();
