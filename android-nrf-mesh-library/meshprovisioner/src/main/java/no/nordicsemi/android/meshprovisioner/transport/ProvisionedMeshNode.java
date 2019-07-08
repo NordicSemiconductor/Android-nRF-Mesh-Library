@@ -84,6 +84,11 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     public ProvisionedMeshNode() {
     }
 
+    /**
+     * Constructor to be used only by hte library
+     *
+     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
+     */
     @Ignore
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedMeshNode(final UnprovisionedMeshNode unprovisionedMeshNode) {
@@ -102,14 +107,20 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         numberOfElements = unprovisionedMeshNode.getNumberOfElements();
     }
 
+    /**
+     * Constructor to be used only by the library
+     *
+     * @param provisioner {@link Provisioner}
+     * @param netKeys     List of {@link NetworkKey}
+     * @param appKeys     List of {@link ApplicationKey}
+     */
     @SuppressWarnings("ConstantConditions")
     @Ignore
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedMeshNode(@NonNull final Provisioner provisioner,
-                               @NonNull final String meshUuid,
                                @NonNull final List<NetworkKey> netKeys,
                                @NonNull final List<ApplicationKey> appKeys) {
-        this.meshUuid = meshUuid;
+        this.meshUuid = provisioner.getMeshUuid();
         uuid = provisioner.getProvisionerUuid();
         isConfigured = true;
         nodeName = provisioner.getProvisionerName();

@@ -138,7 +138,6 @@ public class MeshManagerApi implements MeshMngrApi {
         mHandler = new Handler();
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, internalTransportCallbacks, internalMeshMgrCallbacks);
         mMeshMessageHandler = new MeshMessageHandler(context, internalTransportCallbacks, networkLayerCallbacks, upperTransportLayerCallbacks);
-
         initBouncyCastle();
         //Init database
         initDb(context);

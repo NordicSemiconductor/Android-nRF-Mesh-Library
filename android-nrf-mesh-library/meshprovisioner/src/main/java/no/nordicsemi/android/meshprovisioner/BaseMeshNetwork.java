@@ -603,7 +603,7 @@ abstract class BaseMeshNetwork {
         provisioners.add(provisioner);
         notifyProvisionerAdded(provisioner);
         if (provisioner.getProvisionerAddress() != null) {
-            final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
+            final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, netKeys, appKeys);
             nodes.add(node);
             notifyNodeAdded(node);
         }
@@ -668,7 +668,7 @@ abstract class BaseMeshNetwork {
             if (provisioner.getProvisionerAddress() != null) {
                 ProvisionedMeshNode node = getNode(provisioner.getProvisionerUuid());
                 if (node == null) {
-                    node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
+                    node = new ProvisionedMeshNode(provisioner, netKeys, appKeys);
                     provisioner.setSequenceNumber(node.getSequenceNumber());
                     nodes.add(node);
                     notifyNodeAdded(node);
@@ -683,7 +683,7 @@ abstract class BaseMeshNetwork {
                                 sequenceNumber = sequenceNumbers.get(node.getUnicastAddress(), 0);
                             }
                             provisioner.setSequenceNumber(sequenceNumber);
-                            node = new ProvisionedMeshNode(provisioner, meshUUID, netKeys, appKeys);
+                            node = new ProvisionedMeshNode(provisioner, netKeys, appKeys);
                             nodes.set(i, node);
                             notifyNodeUpdated(node);
                             break;

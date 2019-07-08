@@ -916,11 +916,11 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
         database.execSQL(
                 "INSERT INTO nodes_temp (timestamp, name, blacklisted, secureNetworkBeacon, mesh_uuid, " +
-                        "security, configured, device_key, seq_number, cid, pid, vid, crpl, mElements, " +
+                        "security, unicast_address, configured, device_key, seq_number, cid, pid, vid, crpl, mElements, " +
                         "networkTransmitCount, networkIntervalSteps, relayTransmitCount, relayIntervalSteps, " +
                         "friend, lowPower, proxy, relay, uuid, mesh_uuid) " +
                         "SELECT timestamp, name, blacklisted, secureNetworkBeacon, mesh_uuid, " +
-                        "security, configured, device_key, seq_number, cid, pid, vid, crpl, mElements, " +
+                        "security, unicast_address, configured, device_key, seq_number, cid, pid, vid, crpl, mElements, " +
                         "networkTransmitCount, networkIntervalSteps, relayTransmitCount, relayIntervalSteps," +
                         "friend, lowPower, proxy, relay, uuid, mesh_uuid FROM nodes");
 
@@ -988,6 +988,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                         "allocatedUnicastRanges, allocatedGroupRanges, allocatedSceneRanges," +
                         "sequence_number, global_ttl, last_selected FROM provisioner");
 
+        final List<Provisioner> provisioners = new ArrayList<>();
         Cursor cursor = database.query("SELECT * FROM provisioner");
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -1021,6 +1022,17 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 values.put("allocated_scene_ranges", sceneRanges.equalsIgnoreCase("null") ?
                         MeshTypeConverters.allocatedSceneRangeToJson(sceneRange) : sceneRanges);
                 database.update("provisioner_temp", SQLiteDatabase.CONFLICT_REPLACE, values, "provisioner_uuid = ?", new String[]{uuid});
+                final Provisioner provisioner = new Provisioner(uuid,
+                        unicastRanges.equalsIgnoreCase("null") ? unicastRange : MeshTypeConverters.fromJsonToAllocatedUnicastRanges(unicastRanges),
+                        groupRanges.equalsIgnoreCase("null") ? groupRange : MeshTypeConverters.fromJsonToAllocatedGroupRanges(groupRanges),
+                        sceneRanges.equalsIgnoreCase("null") ? sceneRange : MeshTypeConverters.fromJsonToAllocatedSceneRanges(sceneRanges),
+                        meshUuid);
+                provisioner.setProvisionerName(name);
+                provisioner.setProvisionerAddress(unicast);
+                provisioner.setSequenceNumber(sequenceNumber);
+                provisioner.setLastSelected(lastSelected);
+                provisioner.setGlobalTtl(globalTtl);
+                provisioners.add(provisioner);
             } while (cursor.moveToNext());
             cursor.close();
         }
@@ -1028,6 +1040,85 @@ abstract class MeshNetworkDb extends RoomDatabase {
         database.execSQL("DROP TABLE provisioner");
         database.execSQL("ALTER TABLE provisioner_temp RENAME TO provisioner");
         database.execSQL("CREATE INDEX index_provisioner_mesh_uuid ON `provisioner` (mesh_uuid)");
+
+        updateNodesTable(database, provisioners);
+    }
+
+    private static HashMap<UUID, ArrayList<Integer>> getKeyIndexes(@NonNull final SupportSQLiteDatabase database, final String tableName) {
+        Cursor cursor = database.query("SELECT * FROM " + tableName);
+        final HashMap<UUID, ArrayList<Integer>> netKeyIndexMap = new HashMap<>();
+        if (cursor != null && cursor.moveToFirst()) {
+            final UUID meshUuid = UUID.fromString(cursor.getString(cursor.getColumnIndex("mesh_uuid")).toUpperCase(Locale.US));
+            do {
+                final int index = cursor.getInt(cursor.getColumnIndex("index"));
+                ArrayList<Integer> indexes = netKeyIndexMap.get(meshUuid);
+                if (indexes != null) {
+                    indexes.add(index);
+                } else {
+                    indexes = new ArrayList<>();
+                    indexes.add(index);
+                }
+                netKeyIndexMap.put(meshUuid, indexes);
+            } while (cursor.moveToNext());
+        }
+        return netKeyIndexMap;
+    }
+
+    private static List<NetworkKey> getNetKeys(@NonNull final SupportSQLiteDatabase database) {
+        final List<NetworkKey> keys = new ArrayList<>();
+        final Cursor cursor = database.query("SELECT * FROM network_key");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                final String meshUuid = cursor.getString(cursor.getColumnIndex("mesh_uuid")).toUpperCase(Locale.US);
+                final int index = cursor.getInt(cursor.getColumnIndex("index"));
+                final byte[] key = cursor.getBlob(cursor.getColumnIndex("key"));
+                final NetworkKey networkKey = new NetworkKey(index, key);
+                keys.add(networkKey);
+            } while (cursor.moveToNext());
+        }
+        return keys;
+    }
+
+    private static List<ApplicationKey> getAppKeys(@NonNull final SupportSQLiteDatabase database) {
+        final List<ApplicationKey> keys = new ArrayList<>();
+        final Cursor cursor = database.query("SELECT * FROM application_key");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                final String meshUuid = cursor.getString(cursor.getColumnIndex("mesh_uuid")).toUpperCase(Locale.US);
+                final int index = cursor.getInt(cursor.getColumnIndex("index"));
+                final byte[] key = cursor.getBlob(cursor.getColumnIndex("key"));
+                final ApplicationKey applicationKey = new ApplicationKey(index, key);
+                keys.add(applicationKey);
+            } while (cursor.moveToNext());
+        }
+        return keys;
+    }
+
+    private static void updateNodesTable(@NonNull final SupportSQLiteDatabase database, @NonNull final List<Provisioner> provisioners) {
+        if (!provisioners.isEmpty()) {
+            final List<NetworkKey> netKeys = getNetKeys(database);
+            final List<ApplicationKey> appKeys = getAppKeys(database);
+            final List<ProvisionedMeshNode> nodes = new ArrayList<>();
+            for (Provisioner provisioner : provisioners) {
+                final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, netKeys, appKeys);
+                final ContentValues values = new ContentValues();
+                values.put("timestamp", node.getTimeStamp());
+                values.put("name", node.getNodeName());
+                values.put("mesh_uuid", node.getMeshUuid());
+                values.put("uuid", node.getUuid());
+                values.put("ttl", node.getTtl());
+                values.put("blacklisted", node.isBlackListed());
+                values.put("security", node.getSecurity());
+                values.put("unicast_address", node.getUnicastAddress());
+                values.put("configured", node.isConfigured());
+                values.put("device_key", node.getDeviceKey());
+                values.put("seq_number", node.getSequenceNumber());
+                values.put("mElements", MeshTypeConverters.elementsToJson(node.getElements()));
+                values.put("netKeys", MeshTypeConverters.integerToJson(node.getAddedNetKeyIndexes()));
+                values.put("appKeys", MeshTypeConverters.integerToJson(node.getAddedAppKeyIndexes()));
+                database.insert("nodes", SQLiteDatabase.CONFLICT_REPLACE, values);
+            }
+        }
     }
 
     private static void migrateMeshNetwork5_6(final SupportSQLiteDatabase database) {

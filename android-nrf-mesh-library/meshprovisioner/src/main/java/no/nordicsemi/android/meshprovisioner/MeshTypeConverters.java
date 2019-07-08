@@ -19,6 +19,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ElementDbMigrator;
 import no.nordicsemi.android.meshprovisioner.transport.InternalMeshModelDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 
+@SuppressWarnings("WeakerAccess")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeshTypeConverters {
 
@@ -37,7 +38,7 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public String elementsToJson(final Map<Integer, Element> elements) {
+    public static String elementsToJson(final Map<Integer, Element> elements) {
         return new Gson().toJson(elements);
     }
 
@@ -58,7 +59,7 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public List<AllocatedGroupRange> fromJsonToAllocatedGroupRanges(final String rangesJson) {
+    public static List<AllocatedGroupRange> fromJsonToAllocatedGroupRanges(final String rangesJson) {
         Type ranges = new TypeToken<List<AllocatedGroupRange>>() {
         }.getType();
         return new Gson().fromJson(rangesJson, ranges);
@@ -70,7 +71,7 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public List<AllocatedSceneRange> fromJsonToAllocatedSceneRanges(final String rangesJson) {
+    public static List<AllocatedSceneRange> fromJsonToAllocatedSceneRanges(final String rangesJson) {
         Type ranges = new TypeToken<List<AllocatedSceneRange>>() {
         }.getType();
         return new Gson().fromJson(rangesJson, ranges);
@@ -82,7 +83,7 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public List<AllocatedUnicastRange> fromJsonToAllocatedUnicastRanges(final String rangesJson) {
+    public static List<AllocatedUnicastRange> fromJsonToAllocatedUnicastRanges(final String rangesJson) {
         Type ranges = new TypeToken<List<AllocatedUnicastRange>>() {
         }.getType();
         return new Gson().fromJson(rangesJson, ranges);
