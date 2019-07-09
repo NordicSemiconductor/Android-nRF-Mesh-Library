@@ -26,7 +26,7 @@ import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import no.nordicsemi.android.nrfmeshprovisioner.GroupControlsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.MainActivity;
-import no.nordicsemi.android.nrfmeshprovisioner.MeshProvisionerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.ProvisioningActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.SplashScreenActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.ReconnectActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
@@ -90,7 +90,7 @@ abstract class ActivitiesModule {
 	abstract EditAppKeyActivity contributeEditAppKeyActivity();
 
 	@ContributesAndroidInjector()
-	abstract MeshProvisionerActivity contributeMeshProvisionerActivity();
+	abstract ProvisioningActivity contributeMeshProvisionerActivity();
 
 	@ContributesAndroidInjector()
 	abstract NodeConfigurationActivity contributeElementConfigurationActivity();

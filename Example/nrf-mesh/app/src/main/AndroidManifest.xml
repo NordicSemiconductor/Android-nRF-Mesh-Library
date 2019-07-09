@@ -105,7 +105,7 @@
             android:name=".keys.EditAppKeyActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".MeshProvisionerActivity"
+            android:name=".ProvisioningActivity"
             android:launchMode="singleTop"/>
         <activity
             android:name=".node.NodeConfigurationActivity"

@@ -27,15 +27,15 @@ import javax.inject.Inject;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.MeshProvisionerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.ProvisioningActivity;
 
 /**
- * ViewModel for {@link MeshProvisionerActivity}
+ * ViewModel for {@link ProvisioningActivity}
  */
-public class MeshProvisionerViewModel extends BaseViewModel {
+public class ProvisioningViewModel extends BaseViewModel {
 
     @Inject
-    MeshProvisionerViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
+    ProvisioningViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }
 

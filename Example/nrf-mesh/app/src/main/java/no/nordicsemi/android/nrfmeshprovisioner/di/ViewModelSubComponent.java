@@ -31,7 +31,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditAppKeyViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditNetKeyViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.GroupControlsViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
@@ -70,7 +70,7 @@ public interface ViewModelSubComponent {
 	AppKeysViewModel appKeysViewModel();
 	AddAppKeyViewModel addAppKeyViewModel();
 	EditAppKeyViewModel editAppKeyViewModel();
-	MeshProvisionerViewModel meshProvisionerViewModel();
+	ProvisioningViewModel meshProvisionerViewModel();
 	NodeConfigurationViewModel nodeConfigurationViewModel();
 	NodeDetailsViewModel nodeDetailsViewModel();
 	ModelConfigurationViewModel modelConfigurationViewModel();

@@ -52,6 +52,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningFailedState;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
@@ -73,10 +74,10 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddr
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.ProvisionerStates;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshProvisionerViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionerProgress;
 
-public class MeshProvisionerActivity extends AppCompatActivity implements Injectable,
+public class ProvisioningActivity extends AppCompatActivity implements Injectable,
         DialogFragmentSelectOOBType.DialogFragmentSelectOOBTypeListener,
         DialogFragmentAuthenticationInput.ProvisionerInputFragmentListener,
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
@@ -102,7 +103,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
-    private MeshProvisionerViewModel mViewModel;
+    private ProvisioningViewModel mViewModel;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -122,14 +123,14 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         getSupportActionBar().setSubtitle(deviceAddress);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(MeshProvisionerViewModel.class);
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ProvisioningViewModel.class);
         if (savedInstanceState == null)
             mViewModel.connect(this, device, false);
 
         // Set up views
         final LinearLayout connectivityProgressContainer = findViewById(R.id.connectivity_progress_container);
         final TextView connectionState = findViewById(R.id.connection_state);
-        final Button provisioner = findViewById(R.id.action_provision_device);
+        final Button action_provision = findViewById(R.id.action_provision_device);
 
         final View containerName = findViewById(R.id.container_name);
         containerName.findViewById(R.id.image)
@@ -169,7 +170,7 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
         final TextView appKeyView = containerAppKey.findViewById(R.id.text);
         appKeyView.setVisibility(View.VISIBLE);
         containerAppKey.setOnClickListener(v -> {
-            final Intent manageAppKeys = new Intent(MeshProvisionerActivity.this, AppKeysActivity.class);
+            final Intent manageAppKeys = new Intent(ProvisioningActivity.this, AppKeysActivity.class);
             manageAppKeys.putExtra(Utils.EXTRA_DATA, Utils.ADD_APP_KEY);
             startActivityForResult(manageAppKeys, AppKeysActivity.SELECT_APP_KEY);
         });
@@ -225,16 +226,25 @@ public class MeshProvisionerActivity extends AppCompatActivity implements Inject
                 final ProvisioningCapabilities capabilities = meshNode.getProvisioningCapabilities();
                 if (capabilities != null) {
                     mProvisioningProgressBar.setVisibility(View.INVISIBLE);
-                    provisioner.setText(R.string.provision_action);
+                    action_provision.setText(R.string.provision_action);
                     containerUnicastAddress.setVisibility(View.VISIBLE);
                     final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-                    network.assignUnicastAddress(network.nextAvailableUnicastAddress(capabilities.getNumberOfElements(), network.getSelectedProvisioner()));
-                    updateCapabilitiesUi(capabilities);
+                    if(network != null) {
+                        try {
+                            final int elementCount = capabilities.getNumberOfElements();
+                            final Provisioner provisioner = network.getSelectedProvisioner();
+                            final int unicast = network.nextAvailableUnicastAddress(elementCount, provisioner);
+                            network.assignUnicastAddress(unicast);
+                            updateCapabilitiesUi(capabilities);
+                        } catch (IllegalArgumentException ex) {
+                            mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage());
+                        }
+                    }
                 }
             }
         });
 
-        provisioner.setOnClickListener(v -> {
+        action_provision.setOnClickListener(v -> {
             final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
             if (node == null) {
                 device.setName(mViewModel.getMeshNetworkLiveData().getNodeName());
