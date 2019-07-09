@@ -363,6 +363,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     void clearProvisioningLiveData() {
+        mSetupProvisionedNode = false;
         mIsReconnectingFlag = false;
         mUnprovisionedMeshNodeLiveData.setValue(null);
         mProvisionedMeshNodeLiveData.setValue(null);
@@ -537,10 +538,14 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         if (mBleMeshManager.isProvisioningComplete()) {
             if (mSetupProvisionedNode) {
                 if (mMeshNetwork.getSelectedProvisioner().getProvisionerAddress() != null) {
-                    //Adding a slight delay here so we don't send anything before we receive the mesh beacon message
-                    final ProvisionedMeshNode node = mProvisionedMeshNodeLiveData.getValue();
-                    final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet();
-                    mHandler.postDelayed(() -> mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), compositionDataGet), 2000);
+                    mHandler.postDelayed(() -> {
+                        //Adding a slight delay here so we don't send anything before we receive the mesh beacon message
+                        final ProvisionedMeshNode node = mProvisionedMeshNodeLiveData.getValue();
+                        if(node != null) {
+                            final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet();
+                            mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), compositionDataGet);
+                        }
+                    }, 2000);
                 } else {
                     mSetupProvisionedNode = false;
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.PROVISIONER_UNASSIGNED);
