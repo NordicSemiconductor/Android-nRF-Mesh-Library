@@ -91,8 +91,6 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
 
         // Create view model containing utility methods for scanning
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ScannerViewModel.class);
-        mViewModel.getScannerRepository().getScannerState().startScanning();
-        mViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.title_scanner);
@@ -122,6 +120,12 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
         recyclerViewDevices.setAdapter(adapter);
 
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        startScanning();
     }
 
     @Override
@@ -208,6 +212,11 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
         final Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         intent.setData(Uri.fromParts("package", getPackageName(), null));
         startActivity(intent);
+    }
+
+    private void startScanning(){
+        mViewModel.getScannerRepository().getScannerState().startScanning();
+        mViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
     }
 
     /**
