@@ -227,9 +227,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (isConnected != null) {
                 mIsConnected = isConnected;
                 hideProgressBar();
-
-                if (!mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))
-                    disableClickableViews();
+                updateClickableViews();
             }
             invalidateOptionsMenu();
         });
@@ -622,5 +620,12 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                     newInstance(getString(R.string.title_error), ex.getMessage());
             message.show(getSupportFragmentManager(), null);
         }
+    }
+
+    private void updateClickableViews(){
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if (meshNode != null && meshNode.isConfigured() &&
+                !mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))
+            disableClickableViews();
     }
 }

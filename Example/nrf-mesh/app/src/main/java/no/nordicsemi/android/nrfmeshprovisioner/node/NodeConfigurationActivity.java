@@ -33,8 +33,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -47,6 +45,9 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
@@ -213,6 +214,9 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             }
             getSupportActionBar().setSubtitle(meshNode.getNodeName());
             nodeNameView.setText(meshNode.getNodeName());
+
+            updateClickableViews();
+
             if (!meshNode.getElements().isEmpty()) {
                 compositionActionContainer.setVisibility(View.GONE);
                 noElementsFound.setVisibility(View.INVISIBLE);
@@ -291,9 +295,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 mIsConnected = isConnected;
                 hideProgressBar();
             }
-
-            if (!mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))
-                disableClickableViews();
+            updateClickableViews();
             invalidateOptionsMenu();
         });
 
@@ -510,5 +512,12 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                     newInstance(getString(R.string.title_error), ex.getMessage());
             message.show(getSupportFragmentManager(), null);
         }
+    }
+
+    private void updateClickableViews(){
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if (meshNode != null && meshNode.isConfigured() &&
+                !mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))
+            disableClickableViews();
     }
 }

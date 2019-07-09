@@ -25,6 +25,9 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+
+import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.node.NodeConfigurationActivity;
 
 /**
