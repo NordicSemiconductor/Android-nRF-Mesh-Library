@@ -340,9 +340,17 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      */
     void disconnect() {
         clearProvisioningLiveData();
-        removeCallbacks();
         mIsProvisioningComplete = false;
         mBleMeshManager.disconnect();
+    }
+
+    void clearProvisioningLiveData() {
+        stopScan();
+        mHandler.removeCallbacks(mReconnectRunnable);
+        mSetupProvisionedNode = false;
+        mIsReconnectingFlag = false;
+        mUnprovisionedMeshNodeLiveData.setValue(null);
+        mProvisionedMeshNodeLiveData.setValue(null);
     }
 
     private void removeCallbacks() {
@@ -360,13 +368,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 mMeshManagerApi.identifyNode(uuid, ATTENTION_TIMER);
             }
         }
-    }
-
-    void clearProvisioningLiveData() {
-        mSetupProvisionedNode = false;
-        mIsReconnectingFlag = false;
-        mUnprovisionedMeshNodeLiveData.setValue(null);
-        mProvisionedMeshNodeLiveData.setValue(null);
     }
 
     private void clearExtendedMeshNode() {
@@ -540,7 +541,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     mHandler.postDelayed(() -> {
                         //Adding a slight delay here so we don't send anything before we receive the mesh beacon message
                         final ProvisionedMeshNode node = mProvisionedMeshNodeLiveData.getValue();
-                        if(node != null) {
+                        if (node != null) {
                             final ConfigCompositionDataGet compositionDataGet = new ConfigCompositionDataGet();
                             mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), compositionDataGet);
                         }
