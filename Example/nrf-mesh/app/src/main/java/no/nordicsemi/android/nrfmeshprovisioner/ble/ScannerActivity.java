@@ -49,7 +49,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import no.nordicsemi.android.nrfmeshprovisioner.MeshProvisionerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.ProvisioningActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.adapter.DevicesAdapter;
@@ -95,6 +95,7 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
         final Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.title_scanner);
         setSupportActionBar(toolbar);
+        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if (getIntent() != null) {
@@ -125,7 +126,8 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
     @Override
     protected void onStart() {
         super.onStart();
-        startScanning();
+        mViewModel.getScannerRepository().getScannerState().startScanning();
+        mViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
     }
 
     @Override
@@ -171,7 +173,7 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
         final Intent intent;
         stopScan();
         if (mScanWithProxyService) {
-            intent = new Intent(this, MeshProvisionerActivity.class);
+            intent = new Intent(this, ProvisioningActivity.class);
             intent.putExtra(Utils.EXTRA_DEVICE, device);
             startActivityForResult(intent, Utils.PROVISIONING_SUCCESS);
         } else {
@@ -212,11 +214,6 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
         final Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         intent.setData(Uri.fromParts("package", getPackageName(), null));
         startActivity(intent);
-    }
-
-    private void startScanning(){
-        mViewModel.getScannerRepository().getScannerState().startScanning();
-        mViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
     }
 
     /**
@@ -265,6 +262,10 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
             mGrantPermissionButton.setVisibility(deniedForever ? View.GONE : View.VISIBLE);
             mPermissionSettingsButton.setVisibility(deniedForever ? View.VISIBLE : View.GONE);
         }
+    }
+
+    private void startScan(){
+
     }
 
     /**
