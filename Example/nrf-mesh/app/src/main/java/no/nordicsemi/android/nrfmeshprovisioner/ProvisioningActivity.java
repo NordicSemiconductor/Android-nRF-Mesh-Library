@@ -541,10 +541,14 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     public void onNoOOBSelected() {
         final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
-            node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
-            setupProvisionerStateObservers(provisioningStatusContainer);
-            mProvisioningProgressBar.setVisibility(View.VISIBLE);
-            mViewModel.getMeshManagerApi().startProvisioning(node);
+            try {
+                node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
+                setupProvisionerStateObservers(provisioningStatusContainer);
+                mProvisioningProgressBar.setVisibility(View.VISIBLE);
+                mViewModel.getMeshManagerApi().startProvisioning(node);
+            } catch (IllegalArgumentException ex) {
+                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage());
+            }
         }
     }
 
@@ -552,10 +556,14 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     public void onStaticOOBSelected(final StaticOOBType staticOOBType) {
         final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
-            node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
-            setupProvisionerStateObservers(provisioningStatusContainer);
-            mProvisioningProgressBar.setVisibility(View.VISIBLE);
-            mViewModel.getMeshManagerApi().startProvisioningWithStaticOOB(node);
+            try {
+                node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
+                setupProvisionerStateObservers(provisioningStatusContainer);
+                mProvisioningProgressBar.setVisibility(View.VISIBLE);
+                mViewModel.getMeshManagerApi().startProvisioningWithStaticOOB(node);
+            } catch (IllegalArgumentException ex) {
+                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage());
+            }
         }
     }
 
@@ -563,10 +571,14 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     public void onOutputOOBActionSelected(final OutputOOBAction action) {
         final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
-            node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
-            setupProvisionerStateObservers(provisioningStatusContainer);
-            mProvisioningProgressBar.setVisibility(View.VISIBLE);
-            mViewModel.getMeshManagerApi().startProvisioningWithOutputOOB(node, action);
+            try {
+                node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
+                setupProvisionerStateObservers(provisioningStatusContainer);
+                mProvisioningProgressBar.setVisibility(View.VISIBLE);
+                mViewModel.getMeshManagerApi().startProvisioningWithOutputOOB(node, action);
+            } catch (IllegalArgumentException ex) {
+                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage());
+            }
         }
     }
 
@@ -574,10 +586,14 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     public void onInputOOBActionSelected(final InputOOBAction action) {
         final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
-            node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
-            setupProvisionerStateObservers(provisioningStatusContainer);
-            mProvisioningProgressBar.setVisibility(View.VISIBLE);
-            mViewModel.getMeshManagerApi().startProvisioningWithInputOOB(node, action);
+            try {
+                node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
+                setupProvisionerStateObservers(provisioningStatusContainer);
+                mProvisioningProgressBar.setVisibility(View.VISIBLE);
+                mViewModel.getMeshManagerApi().startProvisioningWithInputOOB(node, action);
+            } catch (IllegalArgumentException ex) {
+                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage());
+            }
         }
     }
 }
