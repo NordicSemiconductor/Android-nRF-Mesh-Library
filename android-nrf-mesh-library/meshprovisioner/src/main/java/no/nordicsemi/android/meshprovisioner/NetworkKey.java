@@ -13,7 +13,9 @@ import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Ignore;
 import androidx.room.Index;
+import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 import static androidx.room.ForeignKey.CASCADE;
 
@@ -48,6 +50,9 @@ public final class NetworkKey extends MeshKey {
     @Expose
     private long timestamp = 0x0;
 
+    @Ignore
+    private byte[] identityKey;
+
     /**
      * Constructs a NetworkKey object with a given key index and network key
      *
@@ -58,6 +63,7 @@ public final class NetworkKey extends MeshKey {
     public NetworkKey(final int keyIndex, @NonNull final byte[] key) {
         super(keyIndex, key);
         name = "Network Key " + (keyIndex + 1);
+        identityKey = SecureUtils.calculateIdentityKey(key);
     }
 
     protected NetworkKey(Parcel in) {
@@ -121,6 +127,13 @@ public final class NetworkKey extends MeshKey {
      */
     public boolean isMinSecurity() {
         return minSecurity;
+    }
+
+    /**
+     * Returns the identity key derived
+     */
+    public byte[] getIdentityKey() {
+        return identityKey;
     }
 
     /**

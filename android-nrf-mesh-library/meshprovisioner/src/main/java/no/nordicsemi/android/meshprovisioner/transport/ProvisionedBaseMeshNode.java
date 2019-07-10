@@ -146,9 +146,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
     @Ignore
     @Expose
-    byte[] identityKey;
-    @Ignore
-    @Expose
     byte[] mFlags;
     @TypeConverters(MeshTypeConverters.class)
     @Expose
@@ -165,7 +162,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedBaseMeshNode() {
-
     }
 
     public String getMeshUuid() {
@@ -218,10 +214,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     public final void setTtl(final Integer ttl) {
         this.ttl = ttl;
-    }
-
-    public final byte[] getIdentityKey() {
-        return identityKey;
     }
 
     public final byte[] getFlags() {

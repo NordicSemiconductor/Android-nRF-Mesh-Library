@@ -96,7 +96,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         isConfigured = unprovisionedMeshNode.isConfigured();
         nodeName = unprovisionedMeshNode.getNodeName();
         mAddedNetKeyIndexes.add(unprovisionedMeshNode.getKeyIndex());
-        identityKey = unprovisionedMeshNode.getIdentityKey();
         mFlags = unprovisionedMeshNode.getFlags();
         unicastAddress = unprovisionedMeshNode.getUnicastAddress();
         deviceKey = unprovisionedMeshNode.getDeviceKey();
@@ -124,13 +123,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         uuid = provisioner.getProvisionerUuid();
         isConfigured = true;
         nodeName = provisioner.getProvisionerName();
-        for (NetworkKey key : netKeys) {
-            mAddedNetKeyIndexes.add(key.getKeyIndex());
-            if (key.getKeyIndex() == 0) {
-                identityKey = SecureUtils.calculateIdentityKey(key.getKey());
-            }
-        }
-
         for (ApplicationKey key : appKeys) {
             mAddedAppKeyIndexes.add(key.getKeyIndex());
         }

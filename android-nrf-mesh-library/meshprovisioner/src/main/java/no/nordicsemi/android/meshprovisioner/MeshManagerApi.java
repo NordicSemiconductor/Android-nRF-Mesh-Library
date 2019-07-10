@@ -599,11 +599,14 @@ public class MeshManagerApi implements MeshMngrApi {
             return false;
         }
 
-        //if generated hash is null return false
-        final byte[] generatedHash = SecureUtils.
-                calculateHash(meshNode.getIdentityKey(), random, AddressUtils.getUnicastAddressBytes(meshNode.getUnicastAddress()));
-
-        return Arrays.equals(advertisedHash, generatedHash);
+        for (NetworkKey key : mMeshNetwork.netKeys) {
+            //if generated hash is null return false
+            final byte[] generatedHash = SecureUtils.
+                    calculateHash(key.getIdentityKey(), random, AddressUtils.getUnicastAddressBytes(meshNode.getUnicastAddress()));
+            if (Arrays.equals(advertisedHash, generatedHash))
+                return true;
+        }
+        return false;
     }
 
 
