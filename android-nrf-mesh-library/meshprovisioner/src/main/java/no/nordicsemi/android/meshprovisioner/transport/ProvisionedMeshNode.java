@@ -126,6 +126,9 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         nodeName = provisioner.getProvisionerName();
         for (NetworkKey key : netKeys) {
             mAddedNetKeyIndexes.add(key.getKeyIndex());
+            if (key.getKeyIndex() == 0) {
+                identityKey = SecureUtils.calculateIdentityKey(key.getKey());
+            }
         }
 
         for (ApplicationKey key : appKeys) {

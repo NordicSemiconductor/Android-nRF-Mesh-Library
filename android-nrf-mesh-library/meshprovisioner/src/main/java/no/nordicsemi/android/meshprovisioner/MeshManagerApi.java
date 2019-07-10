@@ -460,21 +460,16 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
-    public void identifyNode(@NonNull final UUID deviceUUID, @Nullable final String nodeName) throws IllegalArgumentException {
-        final NetworkKey networkKey = mMeshNetwork.getPrimaryNetworkKey();
-        if (networkKey != null) {
-            mMeshProvisioningHandler.identify(deviceUUID, nodeName, networkKey, mMeshNetwork.getProvisioningFlags(),
-                    mMeshNetwork.getIvIndex(), mMeshNetwork.getGlobalTtl(), MeshProvisioningHandler.ATTENTION_TIMER);
-        }
+    public void identifyNode(@NonNull final UUID deviceUUID) throws IllegalArgumentException {
+        identifyNode(deviceUUID, MeshProvisioningHandler.ATTENTION_TIMER);
     }
 
     @Override
     public void identifyNode(@NonNull final UUID deviceUuid,
-                             final String nodeName,
                              final int attentionTimer) throws IllegalArgumentException {
         final NetworkKey networkKey = mMeshNetwork.getPrimaryNetworkKey();
         if (networkKey != null) {
-            mMeshProvisioningHandler.identify(deviceUuid, nodeName, networkKey, mMeshNetwork.getProvisioningFlags(),
+            mMeshProvisioningHandler.identify(deviceUuid, networkKey, mMeshNetwork.getProvisioningFlags(),
                     mMeshNetwork.getIvIndex(), mMeshNetwork.getGlobalTtl(), attentionTimer);
         }
     }

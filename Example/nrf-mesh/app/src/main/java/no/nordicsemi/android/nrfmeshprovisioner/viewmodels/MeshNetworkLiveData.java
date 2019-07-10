@@ -135,8 +135,8 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      *
      * @param nodeName node name
      */
-    public void setNodeName(final String nodeName) {
-        if (nodeName != null && !nodeName.isEmpty()) {
+    public void setNodeName(@NonNull final String nodeName) {
+        if (!nodeName.isEmpty()) {
             this.nodeName = nodeName;
             postValue(this);
         }

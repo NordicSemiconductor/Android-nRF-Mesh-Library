@@ -74,8 +74,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddr
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.ProvisionerStates;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionerProgress;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningViewModel;
 
 public class ProvisioningActivity extends AppCompatActivity implements Injectable,
         DialogFragmentSelectOOBType.DialogFragmentSelectOOBTypeListener,
@@ -229,7 +229,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
                     action_provision.setText(R.string.provision_action);
                     containerUnicastAddress.setVisibility(View.VISIBLE);
                     final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-                    if(network != null) {
+                    if (network != null) {
                         try {
                             final int elementCount = capabilities.getNumberOfElements();
                             final Provisioner provisioner = network.getSelectedProvisioner();
@@ -551,6 +551,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     public void onStaticOOBSelected(final StaticOOBType staticOOBType) {
         final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
+            node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
             setupProvisionerStateObservers(provisioningStatusContainer);
             mProvisioningProgressBar.setVisibility(View.VISIBLE);
             mViewModel.getMeshManagerApi().startProvisioningWithStaticOOB(node);

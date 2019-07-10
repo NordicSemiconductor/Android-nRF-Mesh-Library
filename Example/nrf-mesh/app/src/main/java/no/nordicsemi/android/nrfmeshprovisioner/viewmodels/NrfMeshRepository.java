@@ -352,12 +352,12 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void identifyNode(final ExtendedBluetoothDevice device) {
         final UnprovisionedBeacon beacon = (UnprovisionedBeacon) device.getBeacon();
         if (beacon != null) {
-            mMeshManagerApi.identifyNode(beacon.getUuid(), device.getName(), ATTENTION_TIMER);
+            mMeshManagerApi.identifyNode(beacon.getUuid(), ATTENTION_TIMER);
         } else {
             final byte[] serviceData = Utils.getServiceData(device.getScanResult(), BleMeshManager.MESH_PROVISIONING_UUID);
             if (serviceData != null) {
                 final UUID uuid = mMeshManagerApi.getDeviceUuid(serviceData);
-                mMeshManagerApi.identifyNode(uuid, device.getName(), ATTENTION_TIMER);
+                mMeshManagerApi.identifyNode(uuid, ATTENTION_TIMER);
             }
         }
     }
@@ -530,7 +530,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mConnectionState.postValue("Initializing...");
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void onDeviceReady(final BluetoothDevice device) {
         mOnDeviceReady.postValue(null);
