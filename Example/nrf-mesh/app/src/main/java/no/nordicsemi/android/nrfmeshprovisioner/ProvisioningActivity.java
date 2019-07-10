@@ -541,6 +541,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     public void onNoOOBSelected() {
         final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
+            node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
             setupProvisionerStateObservers(provisioningStatusContainer);
             mProvisioningProgressBar.setVisibility(View.VISIBLE);
             mViewModel.getMeshManagerApi().startProvisioning(node);
@@ -562,6 +563,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     public void onOutputOOBActionSelected(final OutputOOBAction action) {
         final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
+            node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
             setupProvisionerStateObservers(provisioningStatusContainer);
             mProvisioningProgressBar.setVisibility(View.VISIBLE);
             mViewModel.getMeshManagerApi().startProvisioningWithOutputOOB(node, action);
@@ -572,6 +574,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     public void onInputOOBActionSelected(final InputOOBAction action) {
         final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
+            node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
             setupProvisionerStateObservers(provisioningStatusContainer);
             mProvisioningProgressBar.setVisibility(View.VISIBLE);
             mViewModel.getMeshManagerApi().startProvisioningWithInputOOB(node, action);
