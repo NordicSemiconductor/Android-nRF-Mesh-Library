@@ -121,7 +121,9 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
                 mesh.has("meshName") &&
                 mesh.has("timestamp") &&
                 mesh.has("provisioners") &&
-                mesh.has("netKeys");
+                mesh.has("netKeys") &&
+                mesh.has("appKeys") &&
+                mesh.has("nodes");
     }
 
     /**
