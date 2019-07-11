@@ -24,7 +24,6 @@ package no.nordicsemi.android.nrfmeshprovisioner;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -170,7 +169,6 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
             actionEnableBlackList.setSelected(mFilter.getFilterType().getType() == ProxyFilterType.BLACK_LIST_FILTER);
 
             if (!mFilter.getAddresses().isEmpty()) {
-                Log.v("Adapter", "size: " + addressAdapter.getItemCount());
                 noAddressesAdded.setVisibility(View.GONE);
                 actionClearFilterAddress.setVisibility(View.VISIBLE);
             } else {

@@ -81,7 +81,6 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
 
     @Override
     public void onBindViewHolder(@NonNull final FilterAddressAdapter.ViewHolder holder, int position) {
-        Log.v("Adapter", "onBindViewHolder");
         final byte[] address = mAddresses.get(position).getAddress();
         holder.address.setText(MeshParserUtils.bytesToHex(address, true));
         if (MeshAddress.isValidGroupAddress(address)) {
