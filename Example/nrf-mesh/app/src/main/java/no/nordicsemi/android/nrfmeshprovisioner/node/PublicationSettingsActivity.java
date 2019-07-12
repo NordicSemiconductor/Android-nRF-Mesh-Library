@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -135,9 +136,18 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
         getSupportActionBar().setTitle(R.string.title_publication_settings);
 
+        final ScrollView scrollView = findViewById(R.id.scroll_view);
         final View actionPublishAddress = findViewById(R.id.container_publish_address);
         final View actionKeyIndex = findViewById(R.id.container_app_key_index);
         final View actionPublishTtl = findViewById(R.id.container_publication_ttl);
+
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
+            if (scrollView.getScrollY() == 0) {
+                fabApply.extend(true);
+            } else {
+                fabApply.shrink(true);
+            }
+        });
 
         actionPublishAddress.setOnClickListener(v -> {
             List<Group> groups = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getGroups();
@@ -232,7 +242,8 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
                 } else {
                     if (!mRetransmitIntervalSeekBar.isEnabled())
                         mRetransmitIntervalSeekBar.setEnabled(true);
-                    mRetransmitInterval.setText(getString(R.string.time_ms, PublicationSettings.getRetransmissionInterval(mRetransmitIntervalSteps)));
+                    mRetransmitInterval.setText(getString(R.string.time_ms, PublicationSettings.
+                            parseRetransmitIntervalSteps(mRetransmitIntervalSeekBar.getProgress())));
                     mRetransmitCountView.setText(getResources().getQuantityString(R.plurals.retransmit_count,
                             progress, mRetransmitCount));
                 }
@@ -255,7 +266,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
             public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
                 mRetransmitInterval.setText(getString(R.string.time_ms, progress));
                 if (fromUser) {
-                    mRetransmitIntervalSteps = PublicationSettings.getRetransmissionInterval(progress);
+                    mRetransmitIntervalSteps = PublicationSettings.parseRetransmitIntervalSteps(progress);
                 }
             }
 

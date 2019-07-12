@@ -30,6 +30,7 @@
         </com.google.android.material.appbar.AppBarLayout>
 
         <ScrollView
+            android:id="@+id/scroll_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:clipChildren="false"
@@ -152,7 +153,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:paddingStart="@dimen/activity_horizontal_margin"
-                                android:text="@string/title_app_key_index"
+                                android:text="@string/title_key"
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 app:layout_constraintEnd_toEndOf="parent"

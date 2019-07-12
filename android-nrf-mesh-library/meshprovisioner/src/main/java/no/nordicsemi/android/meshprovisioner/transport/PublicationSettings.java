@@ -376,7 +376,7 @@ public class PublicationSettings implements Parcelable {
     /**
      * Returns the retransmit interval steps from the retransmit interval
      *
-     * @param retransmitInterval Retransmit interval steps in milliseconds
+     * @param retransmitInterval Retransmit interval in milliseconds
      */
     public static int parseRetransmitIntervalSteps(final int retransmitInterval) {
         if (retransmitInterval >= 0 && retransmitInterval <= getMaxRetransmissionInterval()) {
