@@ -137,7 +137,7 @@ public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
         mTransmitIntervalSteps = transmitIntervalSteps;
         final int transmitIntervalMilliseconds = (mTransmitIntervalSteps + 1) * 10;
         networkTransmitIntervalStepsText.setText(getResources().getString(
-                R.string.text_network_transmit_interval_steps, transmitIntervalMilliseconds));
+                R.string.time_ms, transmitIntervalMilliseconds));
     }
 
     public interface DialogFragmentNetworkTransmitSettingsListener {

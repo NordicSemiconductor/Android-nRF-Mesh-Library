@@ -22,7 +22,6 @@ import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
 /**
  * Class for deserializing a list of elements stored in the Mesh Configuration Database
@@ -195,7 +194,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         }
         publicationJson.addProperty("index", settings.getAppKeyIndex());
         publicationJson.addProperty("ttl", settings.getPublishTtl());
-        publicationJson.addProperty("period", settings.calculatePublicationPeriod());
+        publicationJson.addProperty("period", settings.encodePublicationPeriod());
 
         final JsonObject retransmitJson = new JsonObject();
         retransmitJson.addProperty("count", settings.getPublishRetransmitCount());

@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
+import android.text.TextUtils;
+
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -136,7 +138,7 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      * @param nodeName node name
      */
     public void setNodeName(@NonNull final String nodeName) {
-        if (!nodeName.isEmpty()) {
+        if (!TextUtils.isEmpty(nodeName)) {
             this.nodeName = nodeName;
             postValue(this);
         }

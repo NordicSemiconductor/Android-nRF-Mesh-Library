@@ -224,7 +224,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mNetworkTransmitCountText.setText(getResources().getQuantityString(R.plurals.network_transmit_count,
                     networkTransmitSettings.getTransmissionCount(),
                     networkTransmitSettings.getTransmissionCount()));
-            mNetworkTransmitIntervalStepsText.setText(getString(R.string.text_network_transmit_interval_steps,
+            mNetworkTransmitIntervalStepsText.setText(getString(R.string.time_ms,
                     networkTransmitSettings.getNetworkTransmissionInterval()));
         } else {
             mSetNetworkTransmitStateButton.setEnabled(false);
@@ -241,7 +241,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                     relaySettings.getRelayTransmitCount(),
                     relaySettings.getRelayTransmitCount(),
                     relaySettings.getTotalTransmissionsCount()));
-            mRelayRetransmitIntervalStepsText.setText(getString(R.string.text_network_transmit_interval_steps,
+            mRelayRetransmitIntervalStepsText.setText(getString(R.string.time_ms,
                     relaySettings.getRetransmissionIntervals()));
         } else {
             mActionSetRelayState.setEnabled(false);

@@ -1,15 +1,15 @@
-package no.nordicsemi.android.meshprovisioner.utils;
+package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.os.Parcel;
 import android.os.ParcelUuid;
 import android.os.Parcelable;
-import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.Expose;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.UUID;
+
+import androidx.annotation.Nullable;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
  * Contains the publication settings of a mesh model
@@ -21,7 +21,9 @@ public class PublicationSettings implements Parcelable {
     private static final int DEFAULT_PUBLICATION_STEPS = 0;
     private static final int DEFAULT_PUBLICATION_RESOLUTION = 0b00;
     private static final int DEFAULT_PUBLICATION_RETRANSMIT_COUNT = 0b000;
-    private static final int DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS = 0;
+    public static final int MAX_PUBLICATION_RETRANSMIT_COUNT = 0b111;
+    private static final int DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS = 0b00000;
+    private static final int MAX_PUBLICATION_RETRANSMIT_INTERVAL_STEPS = 0b11111;
 
     @Expose
     private int publishAddress;
@@ -42,7 +44,7 @@ public class PublicationSettings implements Parcelable {
     @Expose
     private int publishRetransmitIntervalSteps = DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS;
 
-    public PublicationSettings() {
+    PublicationSettings() {
     }
 
     /**
@@ -81,22 +83,16 @@ public class PublicationSettings implements Parcelable {
      * @param publishRetransmitCount         Number of publication retransmits
      * @param publishRetransmitIntervalSteps Publish retransmit interval steps
      */
-    public PublicationSettings(final int publishAddress,
-                               final int appKeyIndex,
-                               final boolean credentialFlag,
-                               final int publishTtl,
-                               final int publicationSteps,
-                               final int publicationResolution,
-                               final int publishRetransmitCount,
-                               final int publishRetransmitIntervalSteps) {
-        this.publishAddress = publishAddress;
-        this.appKeyIndex = appKeyIndex;
-        this.credentialFlag = credentialFlag;
-        this.publishTtl = publishTtl;
-        this.publicationSteps = publicationSteps;
-        this.publicationResolution = publicationResolution;
-        this.publishRetransmitCount = publishRetransmitCount;
-        this.publishRetransmitIntervalSteps = publishRetransmitIntervalSteps;
+    PublicationSettings(final int publishAddress,
+                        final int appKeyIndex,
+                        final boolean credentialFlag,
+                        final int publishTtl,
+                        final int publicationSteps,
+                        final int publicationResolution,
+                        final int publishRetransmitCount,
+                        final int publishRetransmitIntervalSteps) {
+        this(publishAddress, null, appKeyIndex, credentialFlag, publishTtl,
+                publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
     }
 
     /**
@@ -112,17 +108,18 @@ public class PublicationSettings implements Parcelable {
      * @param publishRetransmitCount         Number of publication retransmits
      * @param publishRetransmitIntervalSteps Publish retransmit interval steps
      */
-    public PublicationSettings(final int publishAddress,
-                               final byte[] appKeyIndex,
-                               final int credentialFlag,
-                               final int publishTtl,
-                               final int publicationSteps,
-                               final int publicationResolution,
-                               final int publishRetransmitCount,
-                               final int publishRetransmitIntervalSteps) {
+    PublicationSettings(final int publishAddress,
+                        @Nullable final UUID labelUUID,
+                        final int appKeyIndex,
+                        final boolean credentialFlag,
+                        final int publishTtl,
+                        final int publicationSteps,
+                        final int publicationResolution,
+                        final int publishRetransmitCount,
+                        final int publishRetransmitIntervalSteps) {
         this.publishAddress = publishAddress;
-        this.appKeyIndex = ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
-        this.credentialFlag = credentialFlag == 1;
+        this.appKeyIndex = appKeyIndex;
+        this.credentialFlag = credentialFlag;
         this.publishTtl = publishTtl;
         this.publicationSteps = publicationSteps;
         this.publicationResolution = publicationResolution;
@@ -133,7 +130,7 @@ public class PublicationSettings implements Parcelable {
     private PublicationSettings(Parcel in) {
         publishAddress = in.readInt();
         final ParcelUuid parcelUuid = in.readParcelable(ParcelUuid.class.getClassLoader());
-        if(parcelUuid != null) {
+        if (parcelUuid != null) {
             labelUUID = parcelUuid.getUuid();
         }
         appKeyIndex = in.readInt();
@@ -188,7 +185,7 @@ public class PublicationSettings implements Parcelable {
      *
      * @param labelUUID 16-byte label uuid
      */
-    public void setLabelUUID(@Nullable final UUID labelUUID) {
+    void setLabelUUID(@Nullable final UUID labelUUID) {
         this.labelUUID = labelUUID;
     }
 
@@ -219,7 +216,7 @@ public class PublicationSettings implements Parcelable {
      *
      * @param credentialFlag credential flag
      */
-    public void setCredentialFlag(final boolean credentialFlag) {
+    void setCredentialFlag(final boolean credentialFlag) {
         this.credentialFlag = credentialFlag;
     }
 
@@ -235,7 +232,7 @@ public class PublicationSettings implements Parcelable {
     /**
      * Sets the ttl used for publication.
      */
-    public void setPublishTtl(final int publishTtl) {
+    void setPublishTtl(final int publishTtl) {
         this.publishTtl = publishTtl;
     }
 
@@ -251,7 +248,7 @@ public class PublicationSettings implements Parcelable {
     /**
      * Sets the retransmit count used in publication
      */
-    public void setPublishRetransmitCount(final int publishRetransmitCount) {
+    void setPublishRetransmitCount(final int publishRetransmitCount) {
         this.publishRetransmitCount = publishRetransmitCount;
     }
 
@@ -267,7 +264,7 @@ public class PublicationSettings implements Parcelable {
     /**
      * Sets the retransmit interval steps used in publication
      */
-    public void setPublishRetransmitIntervalSteps(final int publishRetransmitIntervalSteps) {
+    void setPublishRetransmitIntervalSteps(final int publishRetransmitIntervalSteps) {
         this.publishRetransmitIntervalSteps = publishRetransmitIntervalSteps;
     }
 
@@ -283,7 +280,7 @@ public class PublicationSettings implements Parcelable {
     /**
      * Sets the publication steps used for publication
      */
-    public void setPublicationSteps(final int publicationSteps) {
+    void setPublicationSteps(final int publicationSteps) {
         this.publicationSteps = publicationSteps;
     }
 
@@ -296,15 +293,96 @@ public class PublicationSettings implements Parcelable {
         return publicationResolution;
     }
 
-    public void setPublicationResolution(final int publicationResolution) {
+    void setPublicationResolution(final int publicationResolution) {
         this.publicationResolution = publicationResolution;
     }
 
     /**
-     * Returns the publication period
+     * Encodes the publication period
      */
-    public int calculatePublicationPeriod() {
+    int encodePublicationPeriod() {
         return ((publicationSteps << 6) | publicationResolution);
+    }
+
+    /**
+     * Encodes the publication steps and publication resolution in to publication period
+     *
+     * @param publicationSteps      Publication steps
+     * @param publicationResolution Publication resolution
+     */
+    public static int encodePublicationPeriod(final int publicationSteps, final int publicationResolution) {
+        return ((publicationSteps << 6) | publicationResolution);
+    }
+
+    /**
+     * Returns the publish period in seconds
+     */
+    public int getPublishPeriod() {
+        switch (publicationResolution) {
+            default:
+            case MeshParserUtils.RESOLUTION_100_MS:
+                return ((100 * publicationSteps) / 1000);
+            case MeshParserUtils.RESOLUTION_1_S:
+                return publicationSteps;
+            case MeshParserUtils.RESOLUTION_10_S:
+                return (10 * publicationSteps);
+            case MeshParserUtils.RESOLUTION_10_M:
+                return (10 * publicationSteps) * 60;
+        }
+    }
+
+    /**
+     * Returns the publish period in seconds
+     */
+    public static int getPublishPeriod(final int publicationResolution, final int publicationSteps) {
+        switch (publicationResolution) {
+            default:
+            case 0b00:
+                return 100 * publicationSteps;
+            case 0b01:
+                return publicationSteps;
+            case 0b10:
+                return 10 * publicationSteps;
+            case 0b11:
+                return 10 * publicationSteps;
+        }
+    }
+
+    /**
+     * Returns the retransmission interval in milliseconds
+     */
+    public int getRetransmissionInterval() {
+        return (publishRetransmitIntervalSteps + 1) * 50;
+    }
+
+    /**
+     * Returns the retransmit interval for a given number of retransmit interval steps in milliseconds
+     *
+     * @param intervalSteps Retransmit interval steps
+     */
+    public static int getRetransmissionInterval(final int intervalSteps) {
+        if (intervalSteps >= DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS && intervalSteps <= MAX_PUBLICATION_RETRANSMIT_INTERVAL_STEPS)
+            return (intervalSteps + 1) * 50;
+        return 0;
+    }
+
+    /**
+     * Returns the maximum retransmit interval supported in milliseconds
+     */
+    public static int getMaxRetransmissionInterval() {
+        return (MAX_PUBLICATION_RETRANSMIT_INTERVAL_STEPS + 1) * 50;
+    }
+
+    /**
+     * Returns the retransmit interval steps from the retransmit interval
+     *
+     * @param retransmitInterval Retransmit interval steps in milliseconds
+     */
+    public static int parseRetransmitIntervalSteps(final int retransmitInterval) {
+        if (retransmitInterval >= 0 && retransmitInterval <= getMaxRetransmissionInterval()) {
+            return ((retransmitInterval - 1) / 50);
+        }
+        throw new IllegalArgumentException("Invalid retransmit interval");
     }
 
     @Override

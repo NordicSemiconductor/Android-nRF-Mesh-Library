@@ -310,7 +310,9 @@
     <string name="title_network_transmit_interval_steps">Transmit Interval</string>
     <string name="action_network_transmit_get">READ STATE</string>
     <string name="action_network_transmit_set">SET NETWORK TRANSMIT</string>
-    <string name="text_network_transmit_interval_steps">%d ms</string>
+    <string name="time_ms">%d ms</string>
+    <string name="time_s">%d s</string>
+    <string name="time_m">%d min</string>
 
     <string name="title_relay_retransmit_info">Relay</string>
     <string name="title_relay_retransmit">Relay Settings</string>
@@ -340,6 +342,7 @@
     \n\nThe black list filter accepts all destination addresses except those that have been added to the black list.</string>
 
     <string name="action_disable">Disable</string>
+    <string name="disabled">Disabled</string>
     <string name="hint_remove">Hint: Swipe address to remove.</string>
     <string name="hint_filter_address">Unicast/Group Address</string>
     <string name="no_addresses_added">No addresses are added to this filter!</string>
@@ -403,7 +406,7 @@
     <string name="title_publication_resolution">Resolution</string>
     <string name="title_security_credentials">Security Credentials</string>
     <string name="title_friendship_credentials_flag">Friendship Credentials Flag</string>
-    <string name="title_ttl">TTL</string>
+    <string name="title_ttl">Time To Live</string>
     <string name="title_publish_ttl">Publish TTL</string>
     <string name="title_publication_settings">Publication Settings</string>
     <string name="hint_retransmit_count">Retransmit count</string>
@@ -427,6 +430,7 @@
     <string name="resolution_summary_100_m">10 minutes</string>
 
     <string name="app_key_index">App key index %d</string>
+    <string name="app_key_name_and_index">%s %d</string>
 
     <string name="action_apply">Apply</string>
     <string name="action_save">Save</string>
@@ -513,4 +517,5 @@
     <string name="delete_node_rationale">Deleting a node manually will not reset the node and will be removed from the list of nodes.
         Would you like to continue? /nThis step cannot be undone and you will have to manually reset the node.</string>
     <string name="node_deleted">Node deleted.</string>
+    <string name="interval">Interval</string>
 </resources>

@@ -113,9 +113,9 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
         Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
         Log.v(TAG, "Credential Flag: " + credentialFlag);
         Log.v(TAG, "Publish TTL: " + publishTtl);
-        Log.v(TAG, "Publish Period: " + publishPeriod + " where steps: " + publicationSteps + " and resolution: " + publicationResolution);
+        Log.v(TAG, "Publish Period where steps: " + publicationSteps + " and resolution: " + publicationResolution);
         Log.v(TAG, "Publish Retransmit Count: " + publishRetransmitCount);
-        Log.v(TAG, "Publish Publish Interval Steps: " + publishRetransmitIntervalSteps);
+        Log.v(TAG, "Publish Retransmit Interval Steps: " + publishRetransmitIntervalSteps);
         Log.v(TAG, "Model Identifier: " + Integer.toHexString(mModelIdentifier));
         Log.v(TAG, "Publication status: " + MeshParserUtils.bytesToHex(mParameters, false));
     }

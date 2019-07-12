@@ -22,14 +22,19 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
+import android.content.Intent;
+
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
+import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.node.ConfigurationClientActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.GenericLevelServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.GenericOnOffServerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.ModelConfigurationActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.PublicationSettingsActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.VendorModelActivity;
 
 /**

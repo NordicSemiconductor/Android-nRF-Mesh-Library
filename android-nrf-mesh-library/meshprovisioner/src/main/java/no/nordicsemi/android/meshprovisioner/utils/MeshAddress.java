@@ -66,11 +66,10 @@ public final class MeshAddress {
      * @param address 16-bit address
      * @return true if the address is a valid unassigned address or false otherwise
      */
-    public static boolean isUnassignedAddress(@NonNull final byte[] address) {
+    public static boolean isValidUnassignedAddress(@NonNull final byte[] address) {
         if (isAddressInRange(address)) {
             return false;
         }
-
         return isValidUnassignedAddress(MeshParserUtils.unsignedBytesToInt(address[0], address[1]));
     }
 

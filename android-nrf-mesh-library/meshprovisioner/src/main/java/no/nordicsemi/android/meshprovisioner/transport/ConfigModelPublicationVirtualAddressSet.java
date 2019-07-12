@@ -22,13 +22,13 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
@@ -60,17 +60,17 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
     /**
      * Constructs a ConfigModelPublicationVirtualAddressSet message
      *
-     * @param elementAddress                 Element address that should publish
-     * @param labelUuid                      Value of the Label UUID publish address
-     * @param appKeyIndex                    Index of the application key
-     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false
-     *                                       for master credentials. Currently supports only master credentials
-     * @param publishTtl                     Publication ttl
-     * @param publicationSteps               Publication steps for the publication period
-     * @param publicationResolution          Publication resolution of the publication period
-     * @param publishRetransmitCount         Number of publication retransmits
-     * @param publishRetransmitIntervalSteps Publish retransmit interval steps
-     * @param modelIdentifier                identifier for this model that will do publication
+     * @param elementAddress          Element address that should publish
+     * @param labelUuid               Value of the Label UUID publish address
+     * @param appKeyIndex             Index of the application key
+     * @param credentialFlag          Credentials flag define which credentials to be used, set true to use friendship credentials and false
+     *                                for master credentials. Currently supports only master credentials
+     * @param publishTtl              Publication ttl
+     * @param publicationSteps        Publication steps for the publication period
+     * @param publicationResolution   Publication resolution of the publication period
+     * @param retransmitCount         Number of publication retransmits
+     * @param retransmitIntervalSteps Publish retransmit interval steps
+     * @param modelIdentifier         identifier for this model that will do publication
      * @throws IllegalArgumentException for invalid arguments
      */
     public ConfigModelPublicationVirtualAddressSet(final int elementAddress,
@@ -80,8 +80,8 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
                                                    final int publishTtl,
                                                    final int publicationSteps,
                                                    final int publicationResolution,
-                                                   final int publishRetransmitCount,
-                                                   final int publishRetransmitIntervalSteps,
+                                                   final int retransmitCount,
+                                                   final int retransmitIntervalSteps,
                                                    final int modelIdentifier) throws IllegalArgumentException {
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
             throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
@@ -91,8 +91,8 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
         this.publishTtl = publishTtl;
         this.publicationSteps = publicationSteps;
         this.publicationResolution = publicationResolution;
-        this.publishRetransmitCount = publishRetransmitCount;
-        this.publishRetransmitIntervalSteps = publishRetransmitIntervalSteps;
+        this.publishRetransmitCount = retransmitCount;
+        this.publishRetransmitIntervalSteps = retransmitIntervalSteps;
         this.modelIdentifier = modelIdentifier;
         this.appKeyIndex = appKeyIndex;
         assembleMessageParameters();

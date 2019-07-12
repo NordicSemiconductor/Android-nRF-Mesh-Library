@@ -68,10 +68,9 @@ import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.transport.PublicationSettings;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.GroupCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAddressAdapter;
@@ -115,7 +114,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     View mContainerPublication;
     @BindView(R.id.action_set_publication)
     Button mActionSetPublication;
-    @BindView(R.id.action_clear_publication_set)
+    @BindView(R.id.action_clear_publication)
     Button mActionClearPublication;
     @BindView(R.id.publish_address)
     TextView mPublishAddressView;
@@ -190,11 +189,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         });
 
         mPublishAddressView.setText(R.string.none);
-        mActionSetPublication.setOnClickListener(v -> {
-            if (!checkConnectivity()) return;
-            final MeshModel model = mViewModel.getSelectedModel().getValue();
-            handleAppKeyBind(model);
-        });
+        mActionSetPublication.setOnClickListener(v -> navigateToPublication());
 
         mActionClearPublication.setOnClickListener(v -> clearPublication());
 
@@ -391,7 +386,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         finish();
     }
 
-    protected void handleAppKeyBind(final MeshModel model) {
+    protected void navigateToPublication() {
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model != null && !model.getBoundAppKeyIndexes().isEmpty()) {
             final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
             startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
@@ -440,11 +436,16 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                 final MeshModel model = mViewModel.getSelectedModel().getValue();
                 if (model != null) {
                     if (!model.getBoundAppKeyIndexes().isEmpty()) {
-                        final int address = MeshParserUtils.DISABLED_PUBLICATION_ADDRESS;
+                        final int address = MeshAddress.UNASSIGNED_ADDRESS;
                         final int appKeyIndex = model.getPublicationSettings().getAppKeyIndex();
                         final boolean credentialFlag = model.getPublicationSettings().getCredentialFlag();
+                        final int ttl = model.getPublicationSettings().getPublishTtl();
+                        final int publicationSteps = model.getPublicationSettings().getPublicationSteps();
+                        final int publicationResolution = model.getPublicationSettings().getPublicationResolution();
+                        final int retransmitCount = model.getPublicationSettings().getPublishRetransmitCount();
+                        final int retransmitIntervalSteps = model.getPublicationSettings().getPublishRetransmitIntervalSteps();
                         final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), address, appKeyIndex,
-                                credentialFlag, 0, 0, 0, 0, 0, model.getModelId());
+                                credentialFlag, ttl, publicationSteps, publicationResolution, retransmitCount, retransmitIntervalSteps, model.getModelId());
                         sendMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
                     } else {
                         mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
@@ -569,7 +570,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final PublicationSettings publicationSettings = meshModel.getPublicationSettings();
         if (publicationSettings != null) {
             final int publishAddress = publicationSettings.getPublishAddress();
-            if (publishAddress != MeshParserUtils.DISABLED_PUBLICATION_ADDRESS) {
+            if (publishAddress != MeshAddress.UNASSIGNED_ADDRESS) {
                 if (MeshAddress.isValidVirtualAddress(publishAddress)) {
                     //noinspection ConstantConditions
                     mPublishAddressView.setText(publicationSettings.getLabelUUID().toString().toUpperCase(Locale.US));
@@ -622,7 +623,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
-    private void updateClickableViews(){
+    private void updateClickableViews() {
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
         if (meshNode != null && meshNode.isConfigured() &&
                 !mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))

@@ -150,7 +150,7 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
         mTransmitIntervalSteps = transmitIntervalSteps;
         final int transmitIntervalMilliseconds = transmitIntervalSteps * 10;
         relayRetransmitIntervalStepsText.setText(getResources().getString(
-                R.string.text_network_transmit_interval_steps, transmitIntervalMilliseconds));
+                R.string.time_ms, transmitIntervalMilliseconds));
     }
 
     public interface DialogFragmentRelaySettingsListener {

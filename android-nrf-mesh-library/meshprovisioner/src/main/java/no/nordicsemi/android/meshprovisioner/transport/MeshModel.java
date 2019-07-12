@@ -37,7 +37,6 @@ import java.util.UUID;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
 /**
  * Base mesh model class
@@ -168,6 +167,7 @@ public abstract class MeshModel implements Parcelable {
                                         @Nullable final UUID labelUUID) {
         if (status.isSuccessful()) {
             mPublicationSettings = new PublicationSettings(status.getPublishAddress(),
+                    labelUUID,
                     status.getAppKeyIndex(),
                     status.getCredentialFlag(),
                     status.getPublishTtl(),
@@ -175,7 +175,6 @@ public abstract class MeshModel implements Parcelable {
                     status.getPublicationResolution(),
                     status.getPublishRetransmitCount(),
                     status.getPublishRetransmitIntervalSteps());
-            mPublicationSettings.setLabelUUID(labelUUID);
         }
     }
 
