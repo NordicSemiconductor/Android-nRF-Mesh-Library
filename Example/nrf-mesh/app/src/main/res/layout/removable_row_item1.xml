@@ -101,11 +101,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:background="?selectableItemBackgroundBorderless"
+                android:padding="@dimen/item_padding_top"
                 android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:padding="@dimen/item_padding_top"
                 app:srcCompat="@drawable/ic_shield_provisioner_black_alpha_24dp"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

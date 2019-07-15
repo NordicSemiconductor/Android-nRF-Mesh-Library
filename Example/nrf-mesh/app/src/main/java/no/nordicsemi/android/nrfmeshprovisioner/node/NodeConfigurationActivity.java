@@ -33,6 +33,8 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -45,9 +47,6 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
@@ -71,22 +70,25 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationComplete;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProxySet;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.AddedAppKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.AddedNetKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.ElementAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentElementName;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 
 public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
+        DialogFragmentElementName.DialogFragmentElementNameListener,
         ElementAdapter.OnItemClickListener,
         DialogFragmentResetNode.DialogFragmentNodeResetListener,
-        AddedAppKeyAdapter.OnItemClickListener, DialogFragmentConfigurationComplete.ConfigurationCompleteListener {
+        AddedAppKeyAdapter.OnItemClickListener,
+        DialogFragmentConfigurationComplete.ConfigurationCompleteListener {
 
     private final static String TAG = NodeConfigurationActivity.class.getSimpleName();
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
@@ -379,7 +381,13 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     @Override
-    public void onElementItemClick(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model) {
+    public void onElementClicked(@NonNull final Element element) {
+        final DialogFragmentElementName fragmentElementName = DialogFragmentElementName.newInstance(element);
+        fragmentElementName.show(getSupportFragmentManager(), null);
+    }
+
+    @Override
+    public void onModelClicked(@NonNull final ProvisionedMeshNode meshNode, @NonNull final Element element, @NonNull final MeshModel model) {
         mViewModel.setSelectedElement(element);
         mViewModel.setSelectedModel(model);
         mViewModel.navigateToModelActivity(this, model);
@@ -514,10 +522,20 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         }
     }
 
-    private void updateClickableViews(){
+    private void updateClickableViews() {
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
         if (meshNode != null && meshNode.isConfigured() &&
                 !mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))
             disableClickableViews();
+    }
+
+    @Override
+    public boolean onElementNameUpdated(@NonNull final Element element, @NonNull final String name) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        if (network != null) {
+            network.updateElementName(element, name);
+        }
+
+        return true;
     }
 }

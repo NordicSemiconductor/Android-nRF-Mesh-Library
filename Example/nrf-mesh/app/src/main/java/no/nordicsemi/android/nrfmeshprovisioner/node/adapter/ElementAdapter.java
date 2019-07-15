@@ -26,6 +26,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -45,7 +46,6 @@ import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
-import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHolder> {
@@ -83,7 +83,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final Element element = mElements.get(position);
         final int modelCount = element.getMeshModels().size();
-        holder.mElementTitle.setText(mContext.getString(R.string.element_address, MeshAddress.formatAddress(element.getElementAddress(), true)));
+        holder.mElementTitle.setText(element.getName());
         holder.mElementSubtitle.setText(mContext.getString(R.string.model_count, modelCount));
 
         final List<MeshModel> models = new ArrayList<>(element.getMeshModels().values());
@@ -109,7 +109,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
             modelView.setOnClickListener(v -> {
                 final int position = holder.getAdapterPosition();
                 final Element element = mElements.get(position);
-                mOnItemClickListener.onElementItemClick(mProvisionedMeshNode, element, model);
+                mOnItemClickListener.onModelClicked(mProvisionedMeshNode, element, model);
             });
             holder.mModelContainer.addView(modelView);
         }
@@ -129,9 +129,10 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         return getItemCount() == 0;
     }
 
-    @FunctionalInterface
     public interface OnItemClickListener {
-        void onElementItemClick(final ProvisionedMeshNode meshNode, final Element element, final MeshModel model);
+        void onElementClicked(@NonNull final Element element);
+
+        void onModelClicked(@NonNull final ProvisionedMeshNode meshNode, @NonNull final Element element, @NonNull final MeshModel model);
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -144,20 +145,22 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         @BindView(R.id.element_subtitle)
         TextView mElementSubtitle;
         @BindView(R.id.element_expand)
-        ImageView mElementExpand;
+        ImageButton mElementExpand;
+        @BindView(R.id.edit)
+        ImageButton mEdit;
         @BindView(R.id.model_container)
         LinearLayout mModelContainer;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            mElementContainer.setOnClickListener(this);
-
+            mElementExpand.setOnClickListener(this);
+            mEdit.setOnClickListener(this);
         }
 
         @Override
         public void onClick(final View v) {
-            if (v.getId() == R.id.element_item_container) {
+            if (v.getId() == R.id.element_expand) {
                 if (mModelContainer.getVisibility() == View.VISIBLE) {
                     mElementExpand.setImageResource(R.drawable.ic_round_expand_more_black_alpha_24dp);
                     mModelContainer.setVisibility(View.GONE);
@@ -165,6 +168,8 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
                     mElementExpand.setImageResource(R.drawable.ic_round_expand_less_black_alpha_24dp);
                     mModelContainer.setVisibility(View.VISIBLE);
                 }
+            } else if (v.getId() == R.id.edit) {
+                mOnItemClickListener.onElementClicked(mElements.get(getAdapterPosition()));
             }
         }
     }

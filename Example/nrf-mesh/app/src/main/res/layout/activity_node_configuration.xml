@@ -176,6 +176,7 @@
                             android:paddingBottom="@dimen/activity_vertical_margin"
                             android:scrollbars="none"
                             android:visibility="gone"
+                            android:overScrollMode="never"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/composition_data_tool_bar"/>

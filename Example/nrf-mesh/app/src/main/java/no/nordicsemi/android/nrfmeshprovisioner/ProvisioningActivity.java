@@ -67,7 +67,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.ProvisioningProgressAdap
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAuthenticationInput;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationComplete;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNodeName;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisioningFailedError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSelectOOBType;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;

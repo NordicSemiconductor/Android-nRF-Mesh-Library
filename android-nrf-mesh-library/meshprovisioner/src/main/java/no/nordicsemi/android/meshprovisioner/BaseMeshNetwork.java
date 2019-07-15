@@ -24,6 +24,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
+import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -909,6 +910,28 @@ abstract class BaseMeshNetwork {
         for (ProvisionedMeshNode node : nodes) {
             if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
                 nodes.remove(node);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param element {@link Element}
+     * @param name    Name
+     * @return true if successful and false otherwise
+     * @throws IllegalArgumentException if name is empty
+     */
+    public boolean updateElementName(@NonNull final Element element, @NonNull final String name) throws IllegalArgumentException {
+        if (TextUtils.isEmpty(name))
+            throw new IllegalArgumentException("Element name cannot be empty.");
+
+        final ProvisionedMeshNode node = getNode(element.getElementAddress());
+        if (node != null) {
+            if (node.getElements().containsKey(element.getElementAddress())) {
+                element.setName(name);
+                node.getElements().put(element.getElementAddress(), element);
+                notifyNodeUpdated(node);
                 return true;
             }
         }

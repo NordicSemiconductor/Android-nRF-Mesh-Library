@@ -20,7 +20,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
+package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -80,7 +80,7 @@ public class DialogFragmentNodeName extends DialogFragment {
         //Bind ui
         ButterKnife.bind(this, rootView);
         final TextView summary = rootView.findViewById(R.id.summary);
-        nodeNameInputLayout.setHint(getString(R.string.hint_node_name));
+        nodeNameInputLayout.setHint(getString(R.string.hint_friendly_name));
         nodeNameInput.setText(mNodeName);
         nodeNameInput.addTextChangedListener(new TextWatcher() {
             @Override
