@@ -58,7 +58,7 @@ public class BottomSheetLevelDialogFragment extends BottomSheetDialogFragment {
         final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
 
         final TextView level = nodeControlsContainer.findViewById(R.id.level);
-        final SeekBar levelSeekBar = nodeControlsContainer.findViewById(R.id.level_seekbar);
+        final SeekBar levelSeekBar = nodeControlsContainer.findViewById(R.id.level_seek_bar);
         levelSeekBar.setProgress(0);
         levelSeekBar.setMax(100);
 
