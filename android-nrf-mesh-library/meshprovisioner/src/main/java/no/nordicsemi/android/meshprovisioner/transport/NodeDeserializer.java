@@ -1,5 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.text.TextUtils;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -20,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
@@ -269,7 +272,10 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 address = address + 1;
                 element.elementAddress = address;
             }
-            elements.put(element.getElementAddress(), element);
+            if (TextUtils.isEmpty(element.name)) {
+                element.name = "Element: " + MeshAddress.formatAddress(element.elementAddress, true);
+            }
+            elements.put(element.elementAddress, element);
         }
         return elements;
     }

@@ -30,7 +30,14 @@ public final class InternalElementListDeserializer implements JsonSerializer<Lis
                 final JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
                 final int location = Integer.parseInt(jsonObject.get("location").getAsString(), 16);
                 final List<MeshModel> models = deserializeModels(context, jsonObject);
-                final Element element = new Element(location, populateModels(models));
+                final Element element;
+                if (jsonObject.has("name")) {
+                    final String name = jsonObject.get("name").getAsString();
+                    element = new Element(location, populateModels(models));
+                    element.setName(name);
+                } else {
+                    element = new Element(location, populateModels(models));
+                }
                 elements.add(element);
             }
         }
@@ -43,6 +50,7 @@ public final class InternalElementListDeserializer implements JsonSerializer<Lis
         int i = 0;
         for (Element element : elements) {
             final JsonObject elementJson = new JsonObject();
+            elementJson.addProperty("name", element.getName());
             elementJson.addProperty("index", i);
             elementJson.addProperty("location", String.format(Locale.US, "%04X", element.getLocationDescriptor()));
             elementJson.add("models", serializeModels(context, element.getMeshModels()));

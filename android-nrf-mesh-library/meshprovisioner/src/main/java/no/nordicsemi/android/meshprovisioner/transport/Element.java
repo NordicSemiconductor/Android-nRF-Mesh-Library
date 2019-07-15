@@ -73,7 +73,7 @@ public final class Element implements Parcelable {
      * @param locationDescriptor location descriptor
      * @param models             models belonging to this element
      */
-    Element(final int elementAddress, final int locationDescriptor, final Map<Integer, MeshModel> models) {
+    Element(final int elementAddress, final int locationDescriptor, @NonNull final Map<Integer, MeshModel> models) {
         this(elementAddress, locationDescriptor, models, "Element: " + MeshAddress.formatAddress(elementAddress, true));
     }
 
@@ -84,14 +84,14 @@ public final class Element implements Parcelable {
      * @param locationDescriptor location descriptor
      * @param models             models belonging to this element
      */
-    Element(final int elementAddress, final int locationDescriptor, final Map<Integer, MeshModel> models, @NonNull final String name) {
+    Element(final int elementAddress, final int locationDescriptor, @NonNull final Map<Integer, MeshModel> models, @NonNull final String name) {
         this.elementAddress = elementAddress;
         this.locationDescriptor = locationDescriptor;
         this.meshModels = models;
         this.name = name;
     }
 
-    Element(final int locationDescriptor, final Map<Integer, MeshModel> models) {
+    Element(final int locationDescriptor, @NonNull final Map<Integer, MeshModel> models) {
         this.locationDescriptor = locationDescriptor;
         this.meshModels = models;
     }
