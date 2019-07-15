@@ -264,9 +264,9 @@
                                 android:id="@+id/recycler_view_added_app_keys"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
+                                android:overScrollMode="never"
                                 android:scrollbars="none"
                                 android:visibility="gone"
-                                android:overScrollMode="never"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
@@ -282,6 +282,20 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/container_app_keys"/>
+
+                        <TextView
+                            android:id="@+id/delete_hint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/item_padding_end"
+                            android:padding="@dimen/activity_horizontal_margin"
+                            android:text="@string/hint_delete"
+                            android:visibility="invisible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/div2"
+                            tools:visibility="visible"/>
+
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/action_add_app_keys"
