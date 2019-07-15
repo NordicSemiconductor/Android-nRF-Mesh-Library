@@ -120,7 +120,6 @@ public class RemovableItemTouchHelperCallback extends ItemTouchHelper.Callback {
         } else if (recyclerView.getId() == R.id.recycler_view_provisioned_nodes) {
             final NodeAdapter adapter = (NodeAdapter) recyclerView.getAdapter();
             if (adapter != null) {
-                final int width = recyclerView.getWidth();
                 if (dX > -800.0f && dX < 800.0f && dX != 0) {
                     getDefaultUIUtil().onDraw(c, recyclerView, ((RemovableViewHolder) viewHolder).getSwipeableView(), dX, dY, actionState, isCurrentlyActive);
                     //swipeBack = true;
