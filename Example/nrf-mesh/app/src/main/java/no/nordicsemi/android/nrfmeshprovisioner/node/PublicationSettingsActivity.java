@@ -164,9 +164,15 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
         actionPublishTtl.setOnClickListener(v -> {
             if (meshModel != null) {
-                final DialogFragmentPublishTtl fragmentPublishTtl = DialogFragmentPublishTtl
-                        .newInstance(meshModel.getPublicationSettings().getPublishTtl());
-                fragmentPublishTtl.show(getSupportFragmentManager(), null);
+                if (meshModel.getPublicationSettings() != null) {
+                    final DialogFragmentPublishTtl fragmentPublishTtl = DialogFragmentPublishTtl
+                            .newInstance(meshModel.getPublicationSettings().getPublishTtl());
+                    fragmentPublishTtl.show(getSupportFragmentManager(), null);
+                } else {
+                    final DialogFragmentPublishTtl fragmentPublishTtl = DialogFragmentPublishTtl
+                            .newInstance(MeshParserUtils.USE_DEFAULT_TTL);
+                    fragmentPublishTtl.show(getSupportFragmentManager(), null);
+                }
             }
         });
 
@@ -461,8 +467,8 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
                 mAppKeyIndex = publicationSettings.getAppKeyIndex();
             }
             updateUi(publicationSettings.getCredentialFlag());
-            updateTtlUi(mPublishTtl);
         }
+        updateTtlUi(mPublishTtl);
     }
 
     private void updateUi(final boolean credentialFlag) {
