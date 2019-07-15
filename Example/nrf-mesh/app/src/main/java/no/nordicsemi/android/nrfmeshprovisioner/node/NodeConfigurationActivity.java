@@ -25,7 +25,6 @@ package no.nordicsemi.android.nrfmeshprovisioner.node;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,6 +44,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -54,6 +54,7 @@ import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyAdd;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyDelete;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataStatus;
@@ -81,6 +82,9 @@ import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentNodeNa
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
+import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
@@ -88,6 +92,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         ElementAdapter.OnItemClickListener,
         DialogFragmentResetNode.DialogFragmentNodeResetListener,
         AddedAppKeyAdapter.OnItemClickListener,
+        ItemTouchHelperAdapter,
         DialogFragmentConfigurationComplete.ConfigurationCompleteListener {
 
     private final static String TAG = NodeConfigurationActivity.class.getSimpleName();
@@ -103,7 +108,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     CoordinatorLayout mContainer;
     @BindView(R.id.nested_scroll_view)
     NestedScrollView mNestedScrollView;
-    @BindView(R.id.action_get_compostion_data)
+    @BindView(R.id.action_get_composition_data)
     Button actionGetCompositionData;
     @BindView(R.id.action_add_app_keys)
     Button actionAddAppkey;
@@ -129,6 +134,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     private boolean mProxyState;
     private boolean mRequestedState = true;
     private boolean mIsConnected;
+    private AddedAppKeyAdapter appKeyAdapter;
 
     private final Runnable mOperationTimeout = () -> {
         hideProgressBar();
@@ -193,13 +199,17 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         adapter.setOnItemClickListener(this);
         mRecyclerViewElements.setAdapter(adapter);
 
-        final RecyclerView recyclerViewAppKeys = findViewById(R.id.recycler_view_app_keys);
+        final RecyclerView recyclerViewAppKeys = findViewById(R.id.recycler_view_added_app_keys);
         recyclerViewAppKeys.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewAppKeys.setItemAnimator(new DefaultItemAnimator());
         mViewModel.getMeshNetworkLiveData().getAppKeys();
-        final AddedAppKeyAdapter appKeyAdapter = new AddedAppKeyAdapter(this,
-                mViewModel.getMeshNetworkLiveData().getAppKeys(), mViewModel.getSelectedMeshNode());
+        appKeyAdapter = new AddedAppKeyAdapter(this,
+                mViewModel.getMeshNetworkLiveData().getAppKeys(), mViewModel.getSelectedMeshNode().getValue());
         recyclerViewAppKeys.setAdapter(appKeyAdapter);
+
+        final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
+        final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerViewAppKeys);
 
         final RecyclerView recyclerViewNetKeys = findViewById(R.id.recycler_view_net_keys);
         recyclerViewNetKeys.setLayoutManager(new LinearLayoutManager(this));
@@ -240,9 +250,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
         actionGetCompositionData.setOnClickListener(v -> {
             if (!checkConnectivity()) return;
-            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
-            sendMessage(node.getUnicastAddress(), configCompositionDataGet);
+            sendMessage(configCompositionDataGet);
         });
 
         actionAddAppkey.setOnClickListener(v -> {
@@ -254,9 +263,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
         actionGetProxyState.setOnClickListener(v -> {
             if (!checkConnectivity()) return;
-            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final ConfigProxyGet configProxyGet = new ConfigProxyGet();
-            sendMessage(node.getUnicastAddress(), configProxyGet);
+            sendMessage(configProxyGet);
         });
 
         actionSetProxyState.setOnClickListener(v -> {
@@ -346,13 +354,10 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             if (resultCode == RESULT_OK) {
                 final ApplicationKey appKey = data.getParcelableExtra(Utils.RESULT_APP_KEY);
                 if (appKey != null) {
-                    final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
-                    if (node != null) {
-                        final NetworkKey networkKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getPrimaryNetworkKey();
-                        if (networkKey != null) {
-                            final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
-                            sendMessage(node.getUnicastAddress(), configAppKeyAdd);
-                        }
+                    final NetworkKey networkKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getPrimaryNetworkKey();
+                    if (networkKey != null) {
+                        final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
+                        sendMessage(configAppKeyAdd);
                     }
                 }
             }
@@ -400,15 +405,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     @Override
     public void onNodeReset() {
-        try {
-            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
-            if (node != null) {
-                final ConfigNodeReset configNodeReset = new ConfigNodeReset();
-                sendMessage(node.getUnicastAddress(), configNodeReset);
-            }
-        } catch (Exception ex) {
-            Log.e(TAG, ex.getMessage());
-        }
+        final ConfigNodeReset configNodeReset = new ConfigNodeReset();
+        sendMessage(configNodeReset);
     }
 
     @Override
@@ -425,6 +423,26 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             return network.updateNodeName(node, nodeName);
         }
         return false;
+    }
+
+    @Override
+    public boolean onElementNameUpdated(@NonNull final Element element, @NonNull final String name) {
+        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        if (network != null) {
+            network.updateElementName(element, name);
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onItemDismiss(final RemovableViewHolder viewHolder) {
+        deleteAppKey(viewHolder.getAdapterPosition());
+    }
+
+    @Override
+    public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
+
     }
 
     private void updateProxySettingsCardUi() {
@@ -480,11 +498,16 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         if (meshMessage instanceof ConfigCompositionDataStatus) {
             hideProgressBar();
         } else if (meshMessage instanceof ConfigAppKeyStatus) {
-            if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_APP_KEY_STATUS) == null) {
-                if (!((ConfigAppKeyStatus) meshMessage).isSuccessful()) {
+            if (!((ConfigAppKeyStatus) meshMessage).isSuccessful()) {
+                if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_APP_KEY_STATUS) == null) {
                     final DialogFragmentConfigurationComplete fragmentAppKeyAddStatus = DialogFragmentConfigurationComplete.
                             newInstance(getString(R.string.title_appkey_status), ((ConfigAppKeyStatus) meshMessage).getStatusCodeName());
                     fragmentAppKeyAddStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_APP_KEY_STATUS);
+                }
+            } else {
+                final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+                if (node != null) {
+                    appKeyAdapter.updateAppKeyAdapter(node, mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKeys());
                 }
             }
             hideProgressBar();
@@ -508,20 +531,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         return true;
     }
 
-    private void sendMessage(final int address, final MeshMessage meshMessage) {
-        try {
-            if (!checkConnectivity())
-                return;
-            mViewModel.getMeshManagerApi().createMeshPdu(address, meshMessage);
-            showProgressbar();
-        } catch (IllegalArgumentException ex) {
-            hideProgressBar();
-            final DialogFragmentConfigError message = DialogFragmentConfigError.
-                    newInstance(getString(R.string.title_error), ex.getMessage());
-            message.show(getSupportFragmentManager(), null);
-        }
-    }
-
     private void updateClickableViews() {
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
         if (meshNode != null && meshNode.isConfigured() &&
@@ -529,13 +538,37 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             disableClickableViews();
     }
 
-    @Override
-    public boolean onElementNameUpdated(@NonNull final Element element, @NonNull final String name) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        if (network != null) {
-            network.updateElementName(element, name);
+    private void deleteAppKey(final int position) {
+        if (!checkConnectivity()) {
+            appKeyAdapter.notifyItemChanged(position);
+            return;
         }
 
-        return true;
+        final ApplicationKey applicationKey = appKeyAdapter.getItem(position);
+        if (applicationKey != null) {
+            final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+            if (network != null) {
+                final NetworkKey networkKey = network.getNetKey(applicationKey.getBoundNetKeyIndex());
+                final ConfigAppKeyDelete configAppKeyDelete = new ConfigAppKeyDelete(networkKey, applicationKey);
+                sendMessage(configAppKeyDelete);
+            }
+        }
+    }
+
+    private void sendMessage(final MeshMessage meshMessage) {
+        try {
+            if (!checkConnectivity())
+                return;
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+            if (node != null) {
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), meshMessage);
+                showProgressbar();
+            }
+        } catch (IllegalArgumentException ex) {
+            hideProgressBar();
+            final DialogFragmentConfigError message = DialogFragmentConfigError.
+                    newInstance(getString(R.string.title_error), ex.getMessage());
+            message.show(getSupportFragmentManager(), null);
+        }
     }
 }
