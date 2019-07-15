@@ -166,7 +166,7 @@
     <string name="title_node_name">Node name</string>
     <string name="summary_name">Name</string>
     <string name="node_name_rationale">This is a friendly name to be used to identify a node.</string>
-    <string name="title_element_name">Node name</string>
+    <string name="title_element_name">Element name</string>
     <string name="element_name_rationale">This is a friendly name to be used to identify an element.</string>
     <string name="hint_friendly_name">Friendly name</string>
 
