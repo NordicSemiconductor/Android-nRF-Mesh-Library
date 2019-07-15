@@ -37,7 +37,14 @@ public interface InternalTransportCallbacks {
      *
      * @param unicast unicast address
      */
-    ProvisionedMeshNode getProvisionedNode(final int unicast);
+    ProvisionedMeshNode getNode(final int unicast);
+
+    /**
+     * Returns the Provisioner with the corresponding unicast address
+     *
+     * @param unicast unicast address
+     */
+    Provisioner getProvisioner(final int unicast);
 
     /**
      * Send mesh pdu

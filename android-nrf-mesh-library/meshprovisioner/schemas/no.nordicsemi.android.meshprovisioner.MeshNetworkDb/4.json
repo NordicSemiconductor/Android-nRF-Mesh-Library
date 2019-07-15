@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "3ed2f199e0d2eac83cce2cd2ad91c0eb",
+    "identityHash": "5a77d0dea685bf5da0b999ab0c2bb95b",
     "entities": [
       {
         "tableName": "mesh_network",
@@ -228,7 +228,7 @@
       },
       {
         "tableName": "provisioner",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `provisioner_uuid` TEXT NOT NULL, `name` TEXT, `allocatedGroupRanges` TEXT, `allocatedUnicastRanges` TEXT, `allocatedSceneRanges` TEXT, `sequence_number` INTEGER NOT NULL, `provisioner_address` INTEGER NOT NULL, `global_ttl` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`provisioner_uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `provisioner_uuid` TEXT NOT NULL, `name` TEXT, `allocatedGroupRanges` TEXT, `allocatedUnicastRanges` TEXT, `allocatedSceneRanges` TEXT, `sequence_number` INTEGER NOT NULL, `provisioner_address` INTEGER, `global_ttl` INTEGER NOT NULL, `last_selected` INTEGER NOT NULL, PRIMARY KEY(`provisioner_uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "meshUuid",
@@ -276,7 +276,7 @@
             "fieldPath": "provisionerAddress",
             "columnName": "provisioner_address",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "globalTtl",
@@ -658,7 +658,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"3ed2f199e0d2eac83cce2cd2ad91c0eb\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5a77d0dea685bf5da0b999ab0c2bb95b')"
     ]
   }
 }

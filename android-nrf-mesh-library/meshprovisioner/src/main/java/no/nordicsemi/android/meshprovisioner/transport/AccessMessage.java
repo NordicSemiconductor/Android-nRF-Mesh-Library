@@ -23,11 +23,17 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.os.Parcel;
+import android.os.ParcelUuid;
 import android.util.SparseArray;
+
+import java.util.UUID;
+
+import androidx.annotation.NonNull;
 
 @SuppressWarnings("WeakerAccess")
 public final class AccessMessage extends Message {
 
+    private UUID label;                                // Label UUID for destination address
     protected SparseArray<byte[]> lowerTransportAccessPdu = new SparseArray<>();
     private byte[] accessPdu;
     private byte[] transportPdu;
@@ -50,6 +56,10 @@ public final class AccessMessage extends Message {
 
     protected AccessMessage(final Parcel source) {
         super(source);
+        final ParcelUuid parcelUuid = source.readParcelable(ParcelUuid.class.getClassLoader());
+        if (parcelUuid != null) {
+            label = parcelUuid.getUuid();
+        }
         lowerTransportAccessPdu = readSparseArrayToParcelable(source);
         accessPdu = source.createByteArray();
         transportPdu = source.createByteArray();
@@ -63,6 +73,7 @@ public final class AccessMessage extends Message {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         super.writeToParcel(dest, flags);
+        dest.writeParcelable(new ParcelUuid(label), flags);
         writeSparseArrayToParcelable(dest, lowerTransportAccessPdu);
         dest.writeByteArray(accessPdu);
         dest.writeByteArray(transportPdu);
@@ -71,6 +82,14 @@ public final class AccessMessage extends Message {
     @Override
     public int getCtl() {
         return ctl;
+    }
+
+    public UUID getLabel() {
+        return label;
+    }
+
+    public void setLabel(@NonNull final UUID label) {
+        this.label = label;
     }
 
     public final byte[] getAccessPdu() {

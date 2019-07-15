@@ -1,11 +1,11 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -22,13 +22,13 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
     private static final String TAG = MeshMessageState.class.getSimpleName();
 
+    MeshMessage mMeshMessage;
     final MeshTransport mMeshTransport;
     private final InternalMeshMsgHandlerCallbacks meshMessageHandlerCallbacks;
-    MeshMessage mMeshMessage;
-    int mSrc;
-    int mDst;
     protected InternalTransportCallbacks mInternalTransportCallbacks;
     MeshStatusCallbacks mMeshStatusCallbacks;
+    int mSrc;
+    int mDst;
     protected Message message;
 
     /**

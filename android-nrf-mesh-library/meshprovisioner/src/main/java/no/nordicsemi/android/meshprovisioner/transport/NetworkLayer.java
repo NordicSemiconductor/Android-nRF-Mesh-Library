@@ -32,8 +32,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
@@ -195,21 +197,19 @@ abstract class NetworkLayer extends LowerTransportLayer {
 
         byte[] encryptedNetworkPayload = null;
         final int pduType = message.getPduType();
-        switch (message.getPduType()) {
-            case MeshManagerApi.PDU_TYPE_NETWORK:
-                final byte[] lowerTransportPdu = lowerTransportPduMap.get(segment);
-                final int sequenceNumber = incrementSequenceNumber(message.getSrc(), message.getSequenceNumber());
-                final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
-                message.setSequenceNumber(sequenceNum);
+        if (message.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
+            final byte[] lowerTransportPdu = lowerTransportPduMap.get(segment);
+            final int sequenceNumber = incrementSequenceNumber(message.getSrc(), message.getSequenceNumber());
+            final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
+            message.setSequenceNumber(sequenceNum);
 
-                Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNum, false));
+            Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNum, false));
 
-                final byte[] nonce = createNetworkNonce(ctlTTL, sequenceNum, src, message.getIvIndex());
-                encryptedNetworkPayload = encryptPdu(lowerTransportPdu, encryptionKey, nonce, message.getDst(), SecureUtils.getNetMicLength(message.getCtl()));
-                if (encryptedNetworkPayload == null)
-                    return null;
-                Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedNetworkPayload, false));
-                break;
+            final byte[] nonce = createNetworkNonce(ctlTTL, sequenceNum, src, message.getIvIndex());
+            encryptedNetworkPayload = encryptPdu(lowerTransportPdu, encryptionKey, nonce, message.getDst(), SecureUtils.getNetMicLength(message.getCtl()));
+            if (encryptedNetworkPayload == null)
+                return null;
+            Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedNetworkPayload, false));
         }
 
         final SparseArray<byte[]> pduArray = new SparseArray<>();
@@ -286,7 +286,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 Log.v(TAG, "Received a segmented access message from: " + MeshAddress.formatAddress(src, false));
 
                 //Check if the received segmented message is from the same src as the previous segment
-                if (src != mMeshNode.getUnicastAddress()) {
+                //Ideal case this check is not needed but let's leave it for now.
+                if (!mMeshNode.hasUnicastAddress(src)) {
                     Log.v(TAG, "Segment received is from a different src than the one we are processing, let's drop it");
                     return null;
                 }
@@ -358,7 +359,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param sequenceNumber          Sequence number of the received message
      * @return a complete {@link ControlMessage} or null if the message was unable to parsed
      */
-    private ControlMessage parseControlMessage(final int provisionerAddress,
+    private ControlMessage parseControlMessage(@Nullable final Integer provisionerAddress,
                                                @NonNull final byte[] data,
                                                @NonNull final byte[] networkHeader,
                                                @NonNull final byte[] decryptedNetworkPayload,
@@ -380,6 +381,12 @@ abstract class NetworkLayer extends LowerTransportLayer {
             final int pduType = data[0];
             switch (pduType) {
                 case MeshManagerApi.PDU_TYPE_NETWORK:
+
+                    //This is not possible however let's return null
+                    if (provisionerAddress == null) {
+                        return null;
+                    }
+
                     //Check if the message is directed to us, if its not ignore the message
                     if (provisionerAddress != dst) {
                         Log.v(TAG, "Received a control message that was not directed to us, so we drop it");
@@ -468,25 +475,16 @@ abstract class NetworkLayer extends LowerTransportLayer {
 
     /**
      * Returns the master credentials {@link SecureUtils.K2Output}
-     */
-    private SecureUtils.K2Output getK2Output() {
-        final NetworkKey networkKey = mNetworkLayerCallbacks.getPrimaryNetworkKey();
-        return SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
-    }
-
-    /**
-     * Returns the master credentials {@link SecureUtils.K2Output}
      *
      * @param message Message
      */
     private SecureUtils.K2Output getK2Output(final Message message) {
         final NetworkKey networkKey;
-        if (APPLICATION_KEY_IDENTIFIER == message.getAkf()) {
+        if (message.getAkf() == APPLICATION_KEY_IDENTIFIER) {
             networkKey = mNetworkLayerCallbacks.getPrimaryNetworkKey();
         } else {
-            final List<NetworkKey> networkKeys = mNetworkLayerCallbacks.getNetworkKeys();
             final int netKeyIndex = message.getApplicationKey().getBoundNetKeyIndex();
-            networkKey = networkKeys.get(netKeyIndex);
+            networkKey = mNetworkLayerCallbacks.getNetworkKey(netKeyIndex);
         }
         return SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
     }
@@ -624,43 +622,5 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 .put(lowerTransportPdu).array();
         //Network layer encryption
         return SecureUtils.encryptCCM(unencryptedNetworkPayload, encryptionKey, nonce, micLength);
-    }
-
-    /**
-     * Decrypts the pdu
-     *
-     * @param pdu          PDU received
-     * @param nonce        Nonce depending on the PDU type
-     * @param nid          7-bit network identifier
-     * @param headerLength Length of the de-obfuscated bytes
-     * @param micLength    Message integrity check length
-     * @throws ExtendedInvalidCipherTextException if the decryption failed
-     */
-    byte[] decryptPdu(@NonNull final byte[] pdu,
-                      @NonNull final byte[] nonce,
-                      final int nid,
-                      final int headerLength,
-                      final int micLength) throws ExtendedInvalidCipherTextException {
-        final int networkPayloadLength = pdu.length - (2 + headerLength);
-        final byte[] transportPdu = new byte[networkPayloadLength];
-        System.arraycopy(pdu, 8, transportPdu, 0, networkPayloadLength);
-
-        final List<NetworkKey> networkKeys = mNetworkLayerCallbacks.getNetworkKeys();
-        //Here we go through all the network keys and filter out network keys based on the nid.
-        for (int i = 0; i < networkKeys.size(); i++) {
-            NetworkKey networkKey = networkKeys.get(i);
-            final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
-            if (nid == k2Output.getNid()) {
-                final byte[] encryptionKey = k2Output.getEncryptionKey();
-                try {
-                    return SecureUtils.decryptCCM(transportPdu, encryptionKey, nonce, micLength);
-                } catch (InvalidCipherTextException ex) {
-                    if (i == networkKeys.size() - 1) {
-                        throw new ExtendedInvalidCipherTextException(ex.getMessage(), ex.getCause(), TAG);
-                    }
-                }
-            }
-        }
-        return null;
     }
 }

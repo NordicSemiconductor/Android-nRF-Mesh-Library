@@ -99,7 +99,7 @@ public class GroupAdapterSpinner extends BaseAdapter {
 
         @BindView(R.id.group_name)
         TextView groupName;
-        @BindView(R.id.address)
+        @BindView(R.id.title)
         TextView address;
 
         private ViewHolder(final View view) {

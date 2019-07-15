@@ -22,13 +22,13 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
@@ -37,7 +37,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 /**
  * This is the message class for setting a virtual address as a publication address
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
 
     private static final String TAG = ConfigModelPublicationVirtualAddressSet.class.getSimpleName();
@@ -60,17 +60,17 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
     /**
      * Constructs a ConfigModelPublicationVirtualAddressSet message
      *
-     * @param elementAddress                 Element address that should publish
-     * @param labelUuid                      Value of the Label UUID publish address
-     * @param appKeyIndex                    Index of the application key
-     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false
-     *                                       for master credentials. Currently supports only master credentials
-     * @param publishTtl                     Publication ttl
-     * @param publicationSteps               Publication steps for the publication period
-     * @param publicationResolution          Publication resolution of the publication period
-     * @param publishRetransmitCount         Number of publication retransmits
-     * @param publishRetransmitIntervalSteps Publish retransmit interval steps
-     * @param modelIdentifier                identifier for this model that will do publication
+     * @param elementAddress          Element address that should publish
+     * @param labelUuid               Value of the Label UUID publish address
+     * @param appKeyIndex             Index of the application key
+     * @param credentialFlag          Credentials flag define which credentials to be used, set true to use friendship credentials and false
+     *                                for master credentials. Currently supports only master credentials
+     * @param publishTtl              Publication ttl
+     * @param publicationSteps        Publication steps for the publication period
+     * @param publicationResolution   Publication resolution of the publication period
+     * @param retransmitCount         Number of publication retransmits
+     * @param retransmitIntervalSteps Publish retransmit interval steps
+     * @param modelIdentifier         identifier for this model that will do publication
      * @throws IllegalArgumentException for invalid arguments
      */
     public ConfigModelPublicationVirtualAddressSet(final int elementAddress,
@@ -80,8 +80,8 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
                                                    final int publishTtl,
                                                    final int publicationSteps,
                                                    final int publicationResolution,
-                                                   final int publishRetransmitCount,
-                                                   final int publishRetransmitIntervalSteps,
+                                                   final int retransmitCount,
+                                                   final int retransmitIntervalSteps,
                                                    final int modelIdentifier) throws IllegalArgumentException {
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
             throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
@@ -91,8 +91,8 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
         this.publishTtl = publishTtl;
         this.publicationSteps = publicationSteps;
         this.publicationResolution = publicationResolution;
-        this.publishRetransmitCount = publishRetransmitCount;
-        this.publishRetransmitIntervalSteps = publishRetransmitIntervalSteps;
+        this.publishRetransmitCount = retransmitCount;
+        this.publishRetransmitIntervalSteps = retransmitIntervalSteps;
         this.modelIdentifier = modelIdentifier;
         this.appKeyIndex = appKeyIndex;
         assembleMessageParameters();
@@ -119,9 +119,9 @@ public class ConfigModelPublicationVirtualAddressSet extends ConfigMessage {
         Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(modelIdentifier), false));
         final byte[] publishAddress = MeshParserUtils.uuidToBytes(labelUuid);
         final int rfu = 0; // We ignore the rfu here
-        final int octet5 = applicationKeyIndex[0] | ((credentialFlag ? 0b01 : 0b00) << 3);
+        final int octet5 = applicationKeyIndex[0] | ((credentialFlag ? 0b01 : 0b00) << 4);
         final byte publishPeriod = (byte) ((publicationResolution << 6) | (publicationSteps & 0x3F));
-        final int octet8 = (publishRetransmitCount << 5) | (publishRetransmitIntervalSteps & 0x1F);
+        final int octet8 = (publishRetransmitIntervalSteps << 5) | (publishRetransmitCount & 0x07);
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sig model
         if (modelIdentifier >= Short.MIN_VALUE && modelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_PUBLISH_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);

@@ -21,412 +21,417 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MeshProvisionerActivity"
+    tools:context=".node.BaseModelConfigurationActivity"
     tools:ignore="ContentDescription">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay"/>
-
-        <ProgressBar
-            android:id="@+id/configuration_progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar_layout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-8dp"
-            android:layout_marginBottom="-7dp"
-            android:indeterminate="true"
-            android:indeterminateTint="@color/white"
-            android:visibility="invisible"
-            tools:ignore="UnusedAttribute"/>
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    </com.google.android.material.appbar.AppBarLayout>
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appbar_layout">
+            <ProgressBar
+                android:id="@+id/configuration_progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-8dp"
+                android:layout_marginBottom="-7dp"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/white"
+                android:visibility="invisible"
+                tools:ignore="UnusedAttribute"/>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:clipToPadding="false"
-            android:paddingBottom="@dimen/activity_vertical_margin">
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/app_key_card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                android:background="@color/white"
-                app:cardElevation="1dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <androidx.appcompat.widget.Toolbar
-                        android:id="@+id/app_key_tool_bar"
-                        android:layout_width="0dp"
-                        android:layout_height="?actionBarSize"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:logo="@drawable/ic_folder_key_black_24dp_alpha"
-                        app:title="@string/title_bound_app_keys"
-                        app:titleMarginStart="@dimen/toolbar_title_margin"/>
-
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/container_app_key_bind"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="?selectableItemBackground"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/app_key_tool_bar">
-
-                        <TextView
-                            android:id="@+id/bound_keys"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="@dimen/activity_horizontal_margin"
-                            android:paddingTop="@dimen/item_padding_top"
-                            android:paddingEnd="@dimen/activity_horizontal_margin"
-                            android:paddingBottom="@dimen/item_padding_bottom"
-                            android:text="@string/no_app_keys_bound"
-                            android:textColor="@color/black"
-                            android:textSize="14sp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"/>
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recycler_view_bound_keys"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:clipToPadding="false"
-                            android:scrollbars="none"
-                            android:visibility="gone"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"/>
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <include
-                        android:id="@+id/div1"
-                        layout="@layout/layout_divider"
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/container_app_key_bind"/>
-
-                    <TextView
-                        android:id="@+id/unbind_hint"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/item_padding_end"
-                        android:padding="@dimen/activity_horizontal_margin"
-                        android:text="@string/hint_unbind"
-                        android:visibility="invisible"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/div1"
-                        tools:visibility="visible"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/action_bind_app_key"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginStart="@dimen/item_padding_end"
-                        android:layout_marginEnd="@dimen/item_padding_start"
-                        android:padding="@dimen/activity_horizontal_margin"
-                        android:text="@string/action_bind_app_key"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/div1"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/action_unbind_app_key"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginStart="@dimen/item_padding_end"
-                        android:layout_marginEnd="@dimen/item_padding_start"
-                        android:padding="@dimen/activity_horizontal_margin"
-                        android:text="@string/action_unbind_app_key"
-                        android:visibility="gone"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/action_bind_app_key"
-                        app:layout_constraintTop_toBottomOf="@id/div1"/>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/publish_address_card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                android:background="@color/white"
-                app:cardElevation="1dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/app_key_card">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?selectableItemBackground">
-
-                    <androidx.appcompat.widget.Toolbar
-                        android:id="@+id/publish_address_tool_bar"
-                        android:layout_width="match_parent"
-                        android:layout_height="?actionBarSize"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:logo="@drawable/ic_publish_black_alpha_24dp"
-                        app:title="@string/title_publish_address_configuration"
-                        app:titleMarginStart="@dimen/toolbar_title_margin"/>
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/container_publish_address"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:background="?selectableItemBackground"
-                        android:paddingStart="@dimen/activity_horizontal_margin"
-                        android:paddingTop="@dimen/item_padding_top"
-                        android:paddingEnd="@dimen/activity_horizontal_margin"
-                        android:paddingBottom="@dimen/item_padding_bottom"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/publish_address_tool_bar">
-
-                        <TextView
-                            android:id="@+id/publish_address_title"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="@dimen/activity_horizontal_margin"
-                            android:paddingEnd="@dimen/activity_horizontal_margin"
-                            android:text="@string/title_publish_address"
-                            android:textColor="@color/black"
-                            android:textSize="16sp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/image_pub_address"
-                            app:layout_constraintTop_toTopOf="parent"/>
-
-                        <TextView
-                            android:id="@+id/publish_address"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="@dimen/activity_horizontal_margin"
-                            android:text="None"
-                            android:textSize="12sp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/image_pub_address"
-                            app:layout_constraintTop_toBottomOf="@id/publish_address_title"
-                            tools:ignore="HardcodedText,RtlSymmetry"/>
-
-                        <ImageView
-                            android:id="@+id/image_pub_address"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintBottom_toBottomOf="@+id/publish_address"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="@+id/publish_address_title"
-                            app:srcCompat="@drawable/ic_lan_black_alpha_24dp"/>
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <include
-                        android:id="@+id/div2"
-                        layout="@layout/layout_divider"
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/container_publish_address"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/action_set_publication"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginStart="@dimen/item_padding_end"
-                        android:layout_marginEnd="@dimen/item_padding_start"
-                        android:padding="@dimen/activity_horizontal_margin"
-                        android:text="@string/action_set_publish_address"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/div2"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/action_clear_publication_set"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginStart="@dimen/item_padding_end"
-                        android:layout_marginEnd="@dimen/item_padding_start"
-                        android:padding="@dimen/activity_horizontal_margin"
-                        android:text="@string/action_clear_publication"
-                        android:visibility="gone"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/action_set_publication"
-                        app:layout_constraintTop_toBottomOf="@id/div2"
-                        tools:visibility="visible"/>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/subscription_address_card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:background="@color/white"
-                app:cardElevation="1dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/publish_address_card">
-
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?selectableItemBackground">
-
-                    <androidx.appcompat.widget.Toolbar
-                        android:id="@+id/subscribe_address_tool_bar"
-                        android:layout_width="match_parent"
-                        android:layout_height="?actionBarSize"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:logo="@drawable/ic_subscribe_black_alpha_24dp"
-                        app:title="@string/title_subscription_addresses_configuration"
-                        app:titleMarginStart="@dimen/toolbar_title_margin"/>
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/container_subscribe_address"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="?selectableItemBackground"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/subscribe_address_tool_bar">
-
-                        <TextView
-                            android:id="@+id/subscribe_addresses"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="@dimen/activity_horizontal_margin"
-                            android:paddingTop="@dimen/item_padding_top"
-                            android:paddingEnd="@dimen/activity_horizontal_margin"
-                            android:paddingBottom="@dimen/item_padding_bottom"
-                            android:text="@string/not_subscribed_to_groups"
-                            android:textColor="@color/black"
-                            android:textSize="14sp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"/>
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recycler_view_addresses"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:clipToPadding="false"
-                            android:scrollbars="none"
-                            android:visibility="gone"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"/>
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <include
-                        android:id="@+id/div3"
-                        layout="@layout/layout_divider"
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/container_subscribe_address"/>
-
-                    <TextView
-                        android:id="@+id/subscribe_hint"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/item_padding_end"
-                        android:padding="@dimen/activity_horizontal_margin"
-                        android:text="@string/hint_unsubscribe"
-                        android:visibility="invisible"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/div3"
-                        tools:visibility="visible"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/action_subscribe_address"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginStart="@dimen/item_padding_end"
-                        android:layout_marginEnd="@dimen/item_padding_start"
-                        android:padding="@dimen/activity_horizontal_margin"
-                        android:text="@string/action_subscribe_address"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/div3"/>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.cardview.widget.CardView>
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/appbar_layout">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/node_controls_container"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/subscription_address_card"
-                app:layout_constraintBottom_toBottomOf="parent">
+                android:paddingBottom="@dimen/activity_vertical_margin">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/app_key_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    android:background="@color/white"
+                    app:cardElevation="1dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <androidx.appcompat.widget.Toolbar
+                            android:id="@+id/app_key_tool_bar"
+                            android:layout_width="0dp"
+                            android:layout_height="?actionBarSize"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:logo="@drawable/ic_folder_key_black_24dp_alpha"
+                            app:title="@string/title_bound_app_keys"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/container_app_key_bind"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?selectableItemBackground"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/app_key_tool_bar">
+
+                            <TextView
+                                android:id="@+id/bound_keys"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:paddingTop="@dimen/item_padding_top"
+                                android:paddingEnd="@dimen/activity_horizontal_margin"
+                                android:paddingBottom="@dimen/item_padding_bottom"
+                                android:text="@string/no_app_keys_bound"
+                                android:textColor="@color/black"
+                                android:textSize="14sp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"/>
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/recycler_view_bound_keys"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:clipToPadding="false"
+                                android:scrollbars="none"
+                                android:visibility="gone"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <include
+                            android:id="@+id/div1"
+                            layout="@layout/layout_divider"
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/container_app_key_bind"/>
+
+                        <TextView
+                            android:id="@+id/unbind_hint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/item_padding_end"
+                            android:padding="@dimen/activity_horizontal_margin"
+                            android:text="@string/hint_unbind"
+                            android:visibility="invisible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/div1"
+                            tools:visibility="visible"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_bind_app_key"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/activity_horizontal_margin"
+                            android:text="@string/action_bind_app_key"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/div1"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_unbind_app_key"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/activity_horizontal_margin"
+                            android:text="@string/action_unbind_app_key"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/action_bind_app_key"
+                            app:layout_constraintTop_toBottomOf="@id/div1"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/publish_address_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    android:background="@color/white"
+                    app:cardElevation="1dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/app_key_card">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?selectableItemBackground">
+
+                        <androidx.appcompat.widget.Toolbar
+                            android:id="@+id/publish_address_tool_bar"
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:logo="@drawable/ic_publish_black_alpha_24dp"
+                            app:title="@string/title_publish_address_configuration"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/container_publish_address"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:background="?selectableItemBackground"
+                            android:paddingStart="@dimen/activity_horizontal_margin"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
+                            android:paddingBottom="@dimen/item_padding_bottom"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/publish_address_tool_bar">
+
+                            <TextView
+                                android:id="@+id/publish_address_title"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:paddingEnd="@dimen/activity_horizontal_margin"
+                                android:text="@string/title_publish_address"
+                                android:textColor="@color/black"
+                                android:textSize="16sp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_pub_address"
+                                app:layout_constraintTop_toTopOf="parent"/>
+
+                            <TextView
+                                android:id="@+id/publish_address"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:text="None"
+                                android:textSize="12sp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_pub_address"
+                                app:layout_constraintTop_toBottomOf="@id/publish_address_title"
+                                tools:ignore="HardcodedText,RtlSymmetry"/>
+
+                            <ImageView
+                                android:id="@+id/image_pub_address"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintBottom_toBottomOf="@+id/publish_address"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="@+id/publish_address_title"
+                                app:srcCompat="@drawable/ic_lan_black_alpha_24dp"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <include
+                            android:id="@+id/div2"
+                            layout="@layout/layout_divider"
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/container_publish_address"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_set_publication"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/activity_horizontal_margin"
+                            android:text="@string/action_set_publish_address"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_clear_publication"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/activity_horizontal_margin"
+                            android:text="@string/action_clear"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/action_set_publication"
+                            app:layout_constraintTop_toBottomOf="@id/div2"
+                            tools:visibility="visible"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/subscription_address_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:background="@color/white"
+                    app:cardElevation="1dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/publish_address_card">
+
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?selectableItemBackground">
+
+                        <androidx.appcompat.widget.Toolbar
+                            android:id="@+id/subscribe_address_tool_bar"
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:logo="@drawable/ic_subscribe_black_alpha_24dp"
+                            app:title="@string/title_subscription_addresses_configuration"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/container_subscribe_address"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?selectableItemBackground"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/subscribe_address_tool_bar">
+
+                            <TextView
+                                android:id="@+id/subscribe_addresses"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:paddingTop="@dimen/item_padding_top"
+                                android:paddingEnd="@dimen/activity_horizontal_margin"
+                                android:paddingBottom="@dimen/item_padding_bottom"
+                                android:text="@string/not_subscribed_to_groups"
+                                android:textColor="@color/black"
+                                android:textSize="14sp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"/>
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/recycler_view_addresses"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:clipToPadding="false"
+                                android:scrollbars="none"
+                                android:visibility="gone"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <include
+                            android:id="@+id/div3"
+                            layout="@layout/layout_divider"
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/container_subscribe_address"/>
+
+                        <TextView
+                            android:id="@+id/subscribe_hint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/item_padding_end"
+                            android:padding="@dimen/activity_horizontal_margin"
+                            android:text="@string/hint_unsubscribe"
+                            android:visibility="invisible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/div3"
+                            tools:visibility="visible"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_subscribe_address"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/activity_horizontal_margin"
+                            android:text="@string/action_subscribe_address"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/div3"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/node_controls_container"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:clipToPadding="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/subscription_address_card">
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

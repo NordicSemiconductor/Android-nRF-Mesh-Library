@@ -74,7 +74,6 @@ public class MeshParserUtils {
     public static final int RESOLUTION_10_S = 0b10;
     public static final int RESOLUTION_10_M = 0b11;
 
-    public static final int DISABLED_PUBLICATION_ADDRESS = 0x0000;
     public static final int GENERIC_ON_OFF_5_MS = 5;
 
     public static String bytesToHex(final byte[] bytes, final boolean add0x) {
@@ -111,77 +110,6 @@ public class MeshParserUtils {
 
     private static boolean isValidKeyIndex(final Integer value) {
         return value == null || value != (value & 0xFFF);
-    }
-
-    /**
-     * Checks if the unicast address is valid
-     *
-     * @param address address to be validated
-     * @return true if is valid and false otherwise
-     */
-    public static boolean isValidUnicastAddress(final byte[] address) {
-        if (address == null || address.length != 2)
-            return false;
-        final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
-
-        return addressVal > 0x0000 && addressVal <= 0x7FFF;
-    }
-
-    /**
-     * Validates a given address for subscriptions
-     *
-     * @param address group address
-     * @return true if is valid and false otherwise
-     */
-    public static boolean isValidSubscriptionAddress(@NonNull final byte[] address) {
-        if (address.length == 2) {
-            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
-            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
-
-            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
-            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
-            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
-            return groupRange && !rfu && !allNodes;
-        }
-        return false;
-    }
-
-    /**
-     * Validates a given group address
-     *
-     * @param address group address
-     * @return true if is valid and false otherwise
-     */
-    public static boolean isValidGroupAddress(@NonNull final byte[] address) {
-        if (address.length == 2) {
-            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
-            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
-
-            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
-            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
-            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
-            return groupRange && !rfu && allNodes;
-        }
-        return false;
-    }
-
-    /**
-     * Validates a given group address
-     *
-     * @param address group address
-     * @return true if is valid and false otherwise
-     */
-    public static boolean isValidFilterAddress(@NonNull final byte[] address) {
-        if (address.length == 2) {
-            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
-            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
-
-            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
-            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
-            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
-            return groupRange && !rfu && allNodes;
-        }
-        return false;
     }
 
     /**
@@ -228,28 +156,9 @@ public class MeshParserUtils {
     }
 
     /**
-     * Validates the ttl input
-     *
-     * @param context  context
-     * @param ttlInput ttl input
-     * @return true if the global ttl is a valid value
-     * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
-     */
-    public static boolean validateTtlInput(final Context context, final Integer ttlInput) throws IllegalArgumentException {
-
-        if (ttlInput == null) {
-            throw new IllegalArgumentException(context.getString(R.string.error_empty_global_ttl));
-        } else if (!isValidTtl(ttlInput)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_global_ttl));
-        }
-
-        return true;
-    }
-
-    /**
      * Validates the network key input
      *
-     * @param networkKey   Network Key input
+     * @param networkKey Network Key input
      * @return true if the Network Key is a valid value
      * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
      */
@@ -352,7 +261,7 @@ public class MeshParserUtils {
         if (TextUtils.isEmpty(appKey)) {
             throw new IllegalArgumentException("App key cannot be empty!");
         } else if (!appKey.matches(PATTERN_KEY)) {
-            throw new IllegalArgumentException("App key must be 16 bytes long and must be a valid hex value!");
+            throw new IllegalArgumentException("The key must be a 32-character hexadecimal string!");
         }
 
         return true;

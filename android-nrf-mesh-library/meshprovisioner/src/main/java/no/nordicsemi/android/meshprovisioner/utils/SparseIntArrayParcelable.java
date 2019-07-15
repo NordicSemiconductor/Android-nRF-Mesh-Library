@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseIntArray;
 
-public class SparseIntArrayParcelable extends SparseIntArray  implements Parcelable{
+public class SparseIntArrayParcelable extends SparseIntArray implements Parcelable {
 
     public static Creator<SparseIntArrayParcelable> CREATOR = new Creator<SparseIntArrayParcelable>() {
         @Override
@@ -33,12 +33,6 @@ public class SparseIntArrayParcelable extends SparseIntArray  implements Parcela
 
     public SparseIntArrayParcelable() {
 
-    }
-
-    public SparseIntArrayParcelable(SparseIntArray sparseIntArray) {
-        for (int i = 0; i < sparseIntArray.size(); i++) {
-            this.put(sparseIntArray.keyAt(i), sparseIntArray.valueAt(i));
-        }
     }
 
     @Override

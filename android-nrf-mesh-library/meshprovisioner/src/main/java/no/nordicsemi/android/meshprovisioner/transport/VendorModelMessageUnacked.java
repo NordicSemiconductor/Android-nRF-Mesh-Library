@@ -3,6 +3,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 /**

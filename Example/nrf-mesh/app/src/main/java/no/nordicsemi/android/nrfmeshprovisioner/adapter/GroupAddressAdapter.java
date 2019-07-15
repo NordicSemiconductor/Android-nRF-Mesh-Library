@@ -22,12 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,8 +31,12 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
@@ -52,14 +51,12 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
     private final Context mContext;
     private final MeshNetwork network;
     private final ArrayList<Integer> mAddresses = new ArrayList<>();
-    private MeshModel model;
 
     public GroupAddressAdapter(@NonNull final Context context, @NonNull final MeshNetwork network, @NonNull final LiveData<MeshModel> meshModelLiveData) {
         this.mContext = context;
         this.network = network;
         meshModelLiveData.observe((LifecycleOwner) context, meshModel -> {
-            if(meshModel != null) {
-                model = meshModel;
+            if (meshModel != null) {
                 final List<Integer> tempAddresses = meshModel.getSubscribedAddresses();
                 if (tempAddresses != null) {
                     mAddresses.clear();
@@ -79,20 +76,20 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
 
     @Override
     public void onBindViewHolder(@NonNull final GroupAddressAdapter.ViewHolder holder, final int position) {
-        if(mAddresses.size() > 0) {
+        if (mAddresses.size() > 0) {
             final int address = mAddresses.get(position);
             final Group group = network.getGroup(address);
-            if(group != null) {
+            if (group != null) {
                 holder.icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_outline_group_work_black_alpha_24dp));
                 holder.name.setText(group.getName());
                 holder.address.setText(MeshAddress.formatAddress(address, true));
-            } else {
+            }/* else {
                 if(MeshAddress.isValidVirtualAddress(address)) {
                     holder.icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_label_outline_black_alpha_24dp));
-                    holder.name.setText(R.string.label_uuid);
+                    holder.name.setText(group.getName());
                     holder.address.setText(model.getLabelUUID(address).toString().toUpperCase(Locale.US));
                 }
-            }
+            }*/
         }
     }
 
@@ -116,7 +113,7 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
         ImageView icon;
         @BindView(R.id.address_id)
         TextView name;
-        @BindView(R.id.address)
+        @BindView(R.id.title)
         TextView address;
 
         private ViewHolder(final View view) {

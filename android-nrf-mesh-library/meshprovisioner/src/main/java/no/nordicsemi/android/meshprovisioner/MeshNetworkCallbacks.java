@@ -1,44 +1,52 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 
 interface MeshNetworkCallbacks {
 
     void onMeshNetworkUpdated();
 
-    void onNetworkKeyAdded(final NetworkKey networkKey);
+    void onNetworkKeyAdded(@NonNull final NetworkKey networkKey);
 
-    void onNetworkKeyUpdated(final NetworkKey networkKey);
+    void onNetworkKeyUpdated(@NonNull final NetworkKey networkKey);
 
-    void onNetworkKeyDeleted(final NetworkKey networkKey);
+    void onNetworkKeyDeleted(@NonNull final NetworkKey networkKey);
 
-    void onApplicationKeyAdded(final ApplicationKey applicationKey);
+    void onApplicationKeyAdded(@NonNull final ApplicationKey applicationKey);
 
-    void onApplicationKeyUpdated(final ApplicationKey applicationKey);
+    void onApplicationKeyUpdated(@NonNull final ApplicationKey applicationKey);
 
-    void onApplicationKeyDeleted(final ApplicationKey applicationKey);
+    void onApplicationKeyDeleted(@NonNull final ApplicationKey applicationKey);
 
-    void onProvisionerUpdated(final Provisioner provisioner);
+    void onProvisionerAdded(@NonNull final Provisioner provisioner);
 
-    void onProvisionerUpdated(final List<Provisioner> provisioner);
+    void onProvisionerUpdated(@NonNull final Provisioner provisioner);
 
-    void onNodeDeleted(final ProvisionedMeshNode meshNode);
+    void onProvisionersUpdated(@NonNull final List<Provisioner> provisioner);
+
+    void onProvisionerDeleted(@NonNull final Provisioner provisioner);
+
+    void onNodeDeleted(@NonNull final ProvisionedMeshNode meshNode);
+
+    void onNodeAdded(@NonNull final ProvisionedMeshNode meshNode);
+
+    void onNodeUpdated(@NonNull final ProvisionedMeshNode meshNode);
 
     void onNodesUpdated();
 
-    void onGroupAdded(final Group group);
+    void onGroupAdded(@NonNull final Group group);
 
-    void onGroupUpdated(final Group group);
+    void onGroupUpdated(@NonNull final Group group);
 
-    void onGroupDeleted(final Group group);
+    void onGroupDeleted(@NonNull final Group group);
 
-    void onSceneAdded(final Scene scene);
+    void onSceneAdded(@NonNull final Scene scene);
 
-    void onSceneUpdated(final Scene scene);
+    void onSceneUpdated(@NonNull final Scene scene);
 
-    void onSceneDeleted(final Scene scene);
+    void onSceneDeleted(@NonNull final Scene scene);
 }

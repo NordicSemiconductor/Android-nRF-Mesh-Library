@@ -22,17 +22,19 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 
 import org.spongycastle.crypto.InvalidCipherTextException;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -220,11 +222,11 @@ abstract class UpperTransportLayer extends AccessLayer {
 
         byte[] nonce;
         if (akf == APPLICATION_KEY_IDENTIFIER) {
-             key= message.getDeviceKey();
+            key = message.getDeviceKey();
             nonce = createDeviceNonce(aszmic, sequenceNumber, src, dst, ivIndex);
             Log.v(TAG, "Device nonce: " + MeshParserUtils.bytesToHex(nonce, false));
         } else {
-             key = message.getApplicationKey().getKey();
+            key = message.getApplicationKey().getKey();
             nonce = createApplicationNonce(aszmic, sequenceNumber, src, dst, ivIndex);
             Log.v(TAG, "Application nonce: " + MeshParserUtils.bytesToHex(nonce, false));
         }
@@ -237,8 +239,11 @@ abstract class UpperTransportLayer extends AccessLayer {
         } else {
             transMicLength = SecureUtils.getTransMicLength(message.getAszmic());
         }
-
-        return SecureUtils.encryptCCM(accessPDU, key, nonce, transMicLength);
+        if (MeshAddress.isValidVirtualAddress(dst)) {
+            return SecureUtils.encryptCCM(accessPDU, key, nonce, MeshParserUtils.uuidToBytes(message.getLabel()), transMicLength);
+        } else {
+            return SecureUtils.encryptCCM(accessPDU, key, nonce, transMicLength);
+        }
     }
 
     /**
@@ -265,13 +270,20 @@ abstract class UpperTransportLayer extends AccessLayer {
                 throw new IllegalArgumentException("Unable to decrypt the message, invalid application key identifier");
             }
             //If its an application key that was used to encrypt the message we need to create a application nonce to decrypt it
-            nonce = createApplicationNonce(accessMessage.getAszmic(), accessMessage.getSequenceNumber(), accessMessage.getSrc(), accessMessage.getDst(), accessMessage.getIvIndex());
+            nonce = createApplicationNonce(accessMessage.getAszmic(), accessMessage.getSequenceNumber(), accessMessage.getSrc(),
+                    accessMessage.getDst(), accessMessage.getIvIndex());
         }
-
-        if (accessMessage.getAszmic() == SZMIC) {
-            decryptedUpperTransportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, MAXIMUM_TRANSMIC_LENGTH);
+        final int transportMicLength = accessMessage.getAszmic() == SZMIC ? MAXIMUM_TRANSMIC_LENGTH : MINIMUM_TRANSMIC_LENGTH;
+        if (MeshAddress.isValidVirtualAddress(accessMessage.getDst())) {
+            final UUID label = mUpperTransportLayerCallbacks.getLabel(accessMessage.getDst());
+            if (label != null) {
+                decryptedUpperTransportPDU = SecureUtils
+                        .decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, MeshParserUtils.uuidToBytes(label), transportMicLength);
+            } else {
+                throw new ExtendedInvalidCipherTextException("Label UUID unknown", null, TAG);
+            }
         } else {
-            decryptedUpperTransportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, MINIMUM_TRANSMIC_LENGTH);
+            decryptedUpperTransportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, transportMicLength);
         }
 
         final byte[] tempBytes = new byte[decryptedUpperTransportPDU.length];

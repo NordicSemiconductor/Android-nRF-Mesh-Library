@@ -92,7 +92,7 @@
     </style>
 
     <style name="BlueTextButton" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/nordicLake</item>
+        <item name="android:textColor">@drawable/blue_button_states</item>
     </style>
 
     <style name="RedButton" parent="Widget.MaterialComponents.Button.TextButton">

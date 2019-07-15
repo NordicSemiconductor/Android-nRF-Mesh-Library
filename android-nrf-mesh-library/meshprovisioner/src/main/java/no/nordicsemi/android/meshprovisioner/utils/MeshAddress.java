@@ -1,13 +1,13 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Abstract class for bluetooth mesh addresses
@@ -47,7 +47,7 @@ public final class MeshAddress {
     }
 
     public static boolean isAddressInRange(@NonNull final byte[] address) {
-        return address.length != 2;
+        return address.length == 2 && isAddressInRange((address[0] & 0xFF) << 8 | address[1] & 0xFF);
     }
 
     /**
@@ -66,11 +66,10 @@ public final class MeshAddress {
      * @param address 16-bit address
      * @return true if the address is a valid unassigned address or false otherwise
      */
-    public static boolean isUnassignedAddress(@NonNull final byte[] address) {
+    public static boolean isValidUnassignedAddress(@NonNull final byte[] address) {
         if (isAddressInRange(address)) {
             return false;
         }
-
         return isValidUnassignedAddress(MeshParserUtils.unsignedBytesToInt(address[0], address[1]));
     }
 
@@ -134,28 +133,19 @@ public final class MeshAddress {
         return false;
     }
 
-
-    private static boolean isValidGroupAddress(final byte[] address) {
+    public static boolean isValidGroupAddress(final byte[] address) {
         if (!isAddressInRange(address))
             return false;
-
-        final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
-        final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
-
-        final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
-        final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
-        final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
-
-        return groupRange && !rfu && !allNodes;
+        return isValidGroupAddress(MeshParserUtils.unsignedBytesToInt(address[0], address[1]));
     }
 
     /**
-     * Validates a unicast address
+     * Returns true if the its a valid group address
      *
      * @param address 16-bit address
      * @return true if the address is valid and false otherwise
      */
-    @SuppressWarnings({"ConstantConditions", "BooleanMethodIsAlwaysInverted"})
+    @SuppressWarnings({"ConstantConditions"})
     public static boolean isValidGroupAddress(final int address) {
         if (!isAddressInRange(address))
             return false;
@@ -171,6 +161,91 @@ public final class MeshAddress {
     }
 
     /**
+     * Returns true if the its a valid group address
+     *
+     * @param address 16-bit address
+     * @return true if the address is valid and false otherwise
+     */
+    @SuppressWarnings({"ConstantConditions"})
+    public static boolean isValidFixedGroupAddress(final int address) {
+        if (!isAddressInRange(address))
+            return false;
+
+        final int b0 = address >> 8 & 0xFF;
+        final int b1 = address & 0xFF;
+
+        final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
+        final boolean allNodes = b0 == 0xFF && b1 > 0xFB && b1 <= 0xFF;
+
+        return !rfu && allNodes;
+    }
+
+    /**
+     * Returns true if the address is a valid subscription address
+     *
+     * @param address 16-bit address
+     * @return true if the address is valid and false otherwise
+     */
+    public static boolean isValidSubscriptionAddress(final int address) {
+
+        if (isValidUnassignedAddress(address) || isValidUnicastAddress(address) || isValidVirtualAddress(address) || address == 0xFFFF) {
+            throw new IllegalArgumentException("The value of the Address field shall not be an unassigned address, unicast address, " +
+                    "all-nodes address or virtual address.");
+        }
+
+        final int b0 = address >> 8 & 0xFF;
+        final int b1 = address & 0xFF;
+
+        final boolean groupRange = b0 >= 0xC0;
+        final boolean rfu = b0 == 0xFF && b1 <= 0xFB;
+        final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
+        return groupRange && !rfu && !allNodes;
+    }
+
+    /**
+     * Validates a given address for subscriptions
+     *
+     * @param address group address
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidSubscriptionAddress(@NonNull final byte[] address) {
+        if (!isAddressInRange(address))
+            return false;
+        return isValidSubscriptionAddress((address[0] & 0xFF) << 8 | address[1] & 0xFF);
+    }
+
+    /**
+     * Validates if the given address is a valid address that can be used as a proxy filter
+     *
+     * @param address Unicast/Virtual or Group address
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidProxyFilterAddress(final int address) {
+        if (!isAddressInRange(address))
+            return false;
+        final int b0 = address >> 8 & 0xFF;
+        final int b1 = address & 0xFF;
+
+        final boolean groupRange = b0 >= 0xC0;
+        final boolean rfu = b0 == 0xFF && b1 <= 0xFB;
+        final boolean unicast = isValidUnicastAddress(address);
+        final boolean virtual = isValidVirtualAddress(address);
+        return unicast || virtual || (groupRange && !rfu);
+    }
+
+    /**
+     * Validates if the given address is a valid address that can be used as a proxy filter
+     *
+     * @param address Unicast/Virtual or Group address
+     * @return true if is valid and false otherwise
+     */
+    public static boolean isValidProxyFilterAddress(@NonNull final byte[] address) {
+        if (!isAddressInRange(address))
+            return false;
+        return isValidProxyFilterAddress((address[0] & 0xFF) << 8 | address[1] & 0xFF);
+    }
+
+    /**
      * Returns the {@link AddressType}
      *
      * @param address 16-bit mesh address
@@ -182,7 +257,7 @@ public final class MeshAddress {
                 return AddressType.UNASSIGNED_ADDRESS;
             } else if (isValidUnicastAddress(address)) {
                 return AddressType.UNICAST_ADDRESS;
-            } else if (isValidGroupAddress(address)) {
+            } else if (isValidGroupAddress(address) || isValidFixedGroupAddress(address)) {
                 return AddressType.GROUP_ADDRESS;
             } else {
                 return AddressType.VIRTUAL_ADDRESS;

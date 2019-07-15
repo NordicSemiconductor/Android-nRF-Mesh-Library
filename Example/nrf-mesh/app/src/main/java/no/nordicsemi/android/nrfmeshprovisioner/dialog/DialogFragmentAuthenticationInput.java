@@ -105,7 +105,7 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
         ButterKnife.bind(this, rootView);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).
-                setIcon(R.drawable.ic_lock_open).
+                setIcon(R.drawable.ic_lock_open_black_alpha_24dp).
                 setTitle(getString(R.string.provisioner_authentication_title)).
                 setView(rootView);
 

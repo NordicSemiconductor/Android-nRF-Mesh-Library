@@ -1,47 +1,39 @@
 package no.nordicsemi.android.meshprovisioner;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Ignore;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
+import android.os.Parcel;
 
 import com.google.gson.annotations.Expose;
 
-import static androidx.room.ForeignKey.CASCADE;
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.room.Ignore;
 
 /**
  * Class definition for allocating group range for provisioners.
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
-@Entity(tableName = "allocated_scene_range",
-        foreignKeys = @ForeignKey(entity = Provisioner.class,
-                parentColumns = "provisioner_uuid",
-                childColumns = "provisioner_uuid",
-                onUpdate = CASCADE, onDelete =
-                CASCADE),
-indices = @Index("provisioner_uuid"))
-public class AllocatedSceneRange {
+@SuppressWarnings({"unused"})
+public class AllocatedSceneRange extends Range {
 
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    int id;
-
-    @ColumnInfo(name = "provisioner_uuid")
-    String provisionerUuid;
-
-    @ColumnInfo(name = "first_scene")
     @Expose
     private int firstScene;
 
-    @ColumnInfo(name = "last_scene")
     @Expose
     private int lastScene;
 
-    @Ignore
-    public AllocatedSceneRange() {
+    @Override
+    public final int getLowerBound() {
+        return lowerBound;
+    }
 
+    @Override
+    public final int getUpperBound() {
+        return upperBound;
+    }
+
+    public List<Range> minus(final Range left, final Range right) {
+        return null;
     }
 
     /**
@@ -51,33 +43,43 @@ public class AllocatedSceneRange {
      * @param lastScene  low address of group range
      */
     public AllocatedSceneRange(final int firstScene, final int lastScene) {
+        lowerBound = 0x0001;
+        upperBound = 0xFFFF;
+        if (firstScene < lowerBound || firstScene > upperBound)
+            throw new IllegalArgumentException("firstScene value must range from 0x0000 to 0xFFFF");
+
+        if (lastScene < lowerBound || lastScene > upperBound)
+            throw new IllegalArgumentException("lastScene value must range from 0x0000 to 0xFFFF");
+
+        /*if (firstScene > lastScene)
+            throw new IllegalArgumentException("firstScene value must be lower than the lastScene value");*/
+
         this.firstScene = firstScene;
         this.lastScene = lastScene;
     }
 
-    public int getId() {
-        return id;
+    @Ignore
+    AllocatedSceneRange() {
     }
 
-    public void setId(final int id) {
-        this.id = id;
+    protected AllocatedSceneRange(Parcel in) {
+        lowerBound = in.readInt();
+        upperBound = in.readInt();
+        firstScene = in.readInt();
+        lastScene = in.readInt();
     }
 
-    /**
-     * Returns the provisionerUuid of the Mesh network
-     * @return String provisionerUuid
-     */
-    public String getProvisionerUuid() {
-        return provisionerUuid;
-    }
+    public static final Creator<AllocatedSceneRange> CREATOR = new Creator<AllocatedSceneRange>() {
+        @Override
+        public AllocatedSceneRange createFromParcel(Parcel in) {
+            return new AllocatedSceneRange(in);
+        }
 
-    /**
-     * Sets the provisionerUuid of the mesh network to this application key
-     * @param provisionerUuid mesh network provisionerUuid
-     */
-    public void setProvisionerUuid(final String provisionerUuid) {
-        this.provisionerUuid = provisionerUuid;
-    }
+        @Override
+        public AllocatedSceneRange[] newArray(int size) {
+            return new AllocatedSceneRange[size];
+        }
+    };
 
     /**
      * Returns the low address of the allocated group address
@@ -113,5 +115,81 @@ public class AllocatedSceneRange {
      */
     public void setFirstScene(final int firstScene) {
         this.firstScene = firstScene;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeInt(lowerBound);
+        dest.writeInt(upperBound);
+        dest.writeInt(firstScene);
+        dest.writeInt(lastScene);
+    }
+
+    @Override
+    public int range() {
+        return lastScene - firstScene;
+    }
+
+    @Override
+    public boolean overlaps(@NonNull final Range otherRange) {
+        if (otherRange instanceof AllocatedSceneRange) {
+            final AllocatedSceneRange otherSceneRange = (AllocatedSceneRange) otherRange;
+            return overlaps(firstScene, lastScene, otherSceneRange.getFirstScene(), otherSceneRange.getLastScene());
+        }
+        return false;
+    }
+
+    /**
+     * Subtracts a range from a list of ranges
+     *
+     * @param ranges ranges to be subtracted
+     * @param other  {@link AllocatedSceneRange} range
+     * @return a resulting {@link AllocatedSceneRange} or null otherwise
+     */
+    @NonNull
+    public static List<AllocatedSceneRange> minus(@NonNull final List<AllocatedSceneRange> ranges, @NonNull final AllocatedSceneRange other) {
+        List<AllocatedSceneRange> results = new ArrayList<>();
+        for (AllocatedSceneRange range : ranges) {
+            results.addAll(range.minus(other));
+            results = mergeSceneRanges(results);
+        }
+        /*ranges.clear();
+        ranges.addAll(results);*/
+        return results;
+    }
+
+    /**
+     * Deducts a range from another
+     *
+     * @param other right {@link AllocatedSceneRange}
+     * @return a resulting {@link AllocatedSceneRange} or null otherwise
+     */
+    private List<AllocatedSceneRange> minus(final AllocatedSceneRange other) {
+        final List<AllocatedSceneRange> results = new ArrayList<>();
+        // Left:   |------------|                    |-----------|                 |---------|
+        //                  -                              -                            -
+        // Right:      |-----------------|   or                     |---|   or        |----|
+        //                  =                              =                            =
+        // Result: |---|                             |-----------|                 |--|
+        if (other.firstScene > firstScene) {
+            final AllocatedSceneRange leftSlice = new AllocatedSceneRange(firstScene, (Math.min(lastScene, other.firstScene - 1)));
+            results.add(leftSlice);
+        }
+
+        // Left:                |----------|             |-----------|                     |--------|
+        //                         -                          -                             -
+        // Right:      |----------------|           or       |----|          or     |---|
+        //                         =                          =                             =
+        // Result:                      |--|                      |--|                     |--------|
+        if (other.lastScene < lastScene) {
+            final AllocatedSceneRange rightSlice = new AllocatedSceneRange(Math.max(other.lastScene + 1, firstScene), lastScene);
+            results.add(rightSlice);
+        }
+        return results;
     }
 }

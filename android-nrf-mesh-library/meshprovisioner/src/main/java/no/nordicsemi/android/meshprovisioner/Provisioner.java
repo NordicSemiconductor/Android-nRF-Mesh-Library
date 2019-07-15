@@ -1,5 +1,20 @@
 package no.nordicsemi.android.meshprovisioner;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.text.TextUtils;
+
+import com.google.gson.annotations.Expose;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -7,16 +22,9 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-
-import com.google.gson.annotations.Expose;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 import static androidx.room.ForeignKey.CASCADE;
 
@@ -31,7 +39,7 @@ import static androidx.room.ForeignKey.CASCADE;
                 onUpdate = CASCADE, onDelete = CASCADE),
         indices = @Index("mesh_uuid"))
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class Provisioner {
+public class Provisioner implements Parcelable {
 
     @ColumnInfo(name = "mesh_uuid")
     @NonNull
@@ -48,17 +56,23 @@ public class Provisioner {
     @Expose
     private String provisionerName = "nRF Mesh Provisioner";
 
+    @ColumnInfo(name = "allocated_unicast_ranges")
     @TypeConverters(MeshTypeConverters.class)
+    @NonNull
     @Expose
-    private List<AllocatedGroupRange> allocatedGroupRanges = new ArrayList<>();
+    List<AllocatedUnicastRange> allocatedUnicastRanges = new ArrayList<>();
 
+    @ColumnInfo(name = "allocated_group_ranges")
     @TypeConverters(MeshTypeConverters.class)
+    @NonNull
     @Expose
-    private List<AllocatedUnicastRange> allocatedUnicastRanges = new ArrayList<>();
+    List<AllocatedGroupRange> allocatedGroupRanges = new ArrayList<>();
 
+    @ColumnInfo(name = "allocated_scene_ranges")
     @TypeConverters(MeshTypeConverters.class)
+    @NonNull
     @Expose
-    private List<AllocatedSceneRange> allocatedSceneRanges = new ArrayList<>();
+    List<AllocatedSceneRange> allocatedSceneRanges = new ArrayList<>();
 
     @ColumnInfo(name = "sequence_number")
     @Expose
@@ -66,7 +80,7 @@ public class Provisioner {
 
     @ColumnInfo(name = "provisioner_address")
     @Expose
-    private int provisionerAddress = 0x7FFF;
+    private Integer provisionerAddress = null;
 
     @ColumnInfo(name = "global_ttl")
     @Expose
@@ -76,6 +90,14 @@ public class Provisioner {
     @Expose
     private boolean lastSelected;
 
+    @Ignore
+    private final Comparator<AddressRange> addressRangeComparator = (addressRange1, addressRange2) ->
+            Integer.compare(addressRange1.getLowAddress(), addressRange2.getLowAddress());
+
+    @Ignore
+    private final Comparator<AllocatedSceneRange> sceneRangeComparator = (sceneRange1, sceneRange2) ->
+            Integer.compare(sceneRange1.getFirstScene(), sceneRange2.getFirstScene());
+
     /**
      * Constructs {@link Provisioner}
      */
@@ -84,24 +106,45 @@ public class Provisioner {
                        @NonNull final List<AllocatedGroupRange> allocatedGroupRanges,
                        @NonNull final List<AllocatedSceneRange> allocatedSceneRanges,
                        @NonNull final String meshUuid) {
-        this.provisionerUuid = provisionerUuid;
+
+        this.provisionerUuid = provisionerUuid.toUpperCase(Locale.US);
         this.allocatedUnicastRanges = allocatedUnicastRanges;
         this.allocatedGroupRanges = allocatedGroupRanges;
         this.allocatedSceneRanges = allocatedSceneRanges;
         this.meshUuid = meshUuid;
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Ignore
-    public Provisioner() {
-
+    protected Provisioner(Parcel in) {
+        meshUuid = in.readString();
+        provisionerUuid = in.readString();
+        provisionerName = in.readString();
+        in.readTypedList(allocatedUnicastRanges, AllocatedUnicastRange.CREATOR);
+        in.readTypedList(allocatedGroupRanges, AllocatedGroupRange.CREATOR);
+        in.readTypedList(allocatedSceneRanges, AllocatedSceneRange.CREATOR);
+        sequenceNumber = in.readInt();
+        provisionerAddress = in.readInt();
+        globalTtl = in.readInt();
+        lastSelected = in.readByte() != 0;
     }
+
+    public static final Creator<Provisioner> CREATOR = new Creator<Provisioner>() {
+        @Override
+        public Provisioner createFromParcel(Parcel in) {
+            return new Provisioner(in);
+        }
+
+        @Override
+        public Provisioner[] newArray(int size) {
+            return new Provisioner[size];
+        }
+    };
 
     /**
      * Returns the provisionerUuid of the Mesh network
      *
      * @return String provisionerUuid
      */
+    @NonNull
     public String getMeshUuid() {
         return meshUuid;
     }
@@ -129,7 +172,9 @@ public class Provisioner {
      *
      * @param provisionerName friendly name
      */
-    public void setProvisionerName(final String provisionerName) {
+    public void setProvisionerName(@NonNull final String provisionerName) throws IllegalArgumentException {
+        if (TextUtils.isEmpty(provisionerName))
+            throw new IllegalArgumentException("Name cannot be empty");
         this.provisionerName = provisionerName;
     }
 
@@ -153,7 +198,7 @@ public class Provisioner {
      * @return allocated range of group addresses
      */
     public List<AllocatedGroupRange> getAllocatedGroupRanges() {
-        return allocatedGroupRanges;
+        return Collections.unmodifiableList(allocatedGroupRanges);
     }
 
     /**
@@ -161,7 +206,7 @@ public class Provisioner {
      *
      * @param allocatedGroupRanges allocated range of group addresses
      */
-    public void setAllocatedGroupRanges(final List<AllocatedGroupRange> allocatedGroupRanges) {
+    public void setAllocatedGroupRanges(@NonNull final List<AllocatedGroupRange> allocatedGroupRanges) {
         this.allocatedGroupRanges = allocatedGroupRanges;
     }
 
@@ -171,7 +216,7 @@ public class Provisioner {
      * @return allocated range of unicast addresses
      */
     public List<AllocatedUnicastRange> getAllocatedUnicastRanges() {
-        return allocatedUnicastRanges;
+        return Collections.unmodifiableList(allocatedUnicastRanges);
     }
 
     /**
@@ -179,7 +224,7 @@ public class Provisioner {
      *
      * @param allocatedUnicastRanges allocated range of unicast addresses
      */
-    public void setAllocatedUnicastRanges(final List<AllocatedUnicastRange> allocatedUnicastRanges) {
+    public void setAllocatedUnicastRanges(@NonNull final List<AllocatedUnicastRange> allocatedUnicastRanges) {
         this.allocatedUnicastRanges = allocatedUnicastRanges;
     }
 
@@ -189,7 +234,7 @@ public class Provisioner {
      * @return allocated range of unicast addresses
      */
     public List<AllocatedSceneRange> getAllocatedSceneRanges() {
-        return allocatedSceneRanges;
+        return Collections.unmodifiableList(allocatedSceneRanges);
     }
 
     /**
@@ -197,7 +242,7 @@ public class Provisioner {
      *
      * @param allocatedSceneRanges allocated range of unicast addresses
      */
-    public void setAllocatedSceneRanges(final List<AllocatedSceneRange> allocatedSceneRanges) {
+    public void setAllocatedSceneRanges(@NonNull final List<AllocatedSceneRange> allocatedSceneRanges) {
         this.allocatedSceneRanges = allocatedSceneRanges;
     }
 
@@ -210,21 +255,62 @@ public class Provisioner {
         this.sequenceNumber = sequenceNumber;
     }
 
-    public int getProvisionerAddress() {
+    @Nullable
+    public Integer getProvisionerAddress() {
         return provisionerAddress;
     }
 
+    /**
+     * Set provisioner address
+     *
+     * @param address address of the provisioner
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setProvisionerAddress(final int provisionerAddress) {
-        this.provisionerAddress = provisionerAddress;
+    public void setProvisionerAddress(@Nullable final Integer address) throws IllegalArgumentException {
+        if (address != null && !MeshAddress.isValidUnicastAddress(address)) {
+            throw new IllegalArgumentException("Unicast address must range between 0x0001 to 0x7FFF.");
+        }
+        this.provisionerAddress = address;
+    }
+
+    /**
+     * Assigns provisioner address
+     *
+     * @param address address of the provisioner
+     */
+    public boolean assignProvisionerAddress(@Nullable final Integer address) throws IllegalArgumentException {
+        if (address != null && !MeshAddress.isValidUnicastAddress(address)) {
+            throw new IllegalArgumentException("Unicast address must range between 0x0001 to 0x7FFF.");
+        }
+        if (isAddressWithinAllocatedRange(address)) {
+            this.provisionerAddress = address;
+            return true;
+        } else {
+            throw new IllegalArgumentException("Address must be within the allocated address range.");
+        }
     }
 
     public int getGlobalTtl() {
         return globalTtl;
     }
 
-    public void setGlobalTtl(final int globalTtl) {
-        this.globalTtl = globalTtl;
+    /**
+     * Returns true if the provisioner is allowed to configure the network
+     */
+    public boolean supportsConfiguration() {
+        return provisionerAddress != null;
+    }
+
+    /**
+     * Set the ttl of the provisioner
+     *
+     * @param ttl ttl
+     * @throws IllegalArgumentException if invalid ttl value is set
+     */
+    public void setGlobalTtl(final int ttl) throws IllegalArgumentException {
+        if (!MeshParserUtils.isValidTtl(ttl))
+            throw new IllegalArgumentException("Invalid ttl, ttl must range from 0 - 127");
+        this.globalTtl = ttl;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -240,5 +326,142 @@ public class Provisioner {
     public int incrementSequenceNumber() {
         sequenceNumber = sequenceNumber + 1;
         return sequenceNumber;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(meshUuid);
+        parcel.writeString(provisionerUuid);
+        parcel.writeString(provisionerName);
+        parcel.writeTypedList(allocatedUnicastRanges);
+        parcel.writeTypedList(allocatedGroupRanges);
+        parcel.writeTypedList(allocatedSceneRanges);
+        parcel.writeInt(sequenceNumber);
+        parcel.writeInt(provisionerAddress);
+        parcel.writeInt(globalTtl);
+        parcel.writeByte((byte) (lastSelected ? 1 : 0));
+    }
+
+    /**
+     * Add a range to the provisioner
+     *
+     * @param allocatedRange {@link Range}
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    public boolean addRange(@NonNull final Range allocatedRange) {
+        if (allocatedRange instanceof AllocatedUnicastRange) {
+            allocatedUnicastRanges.add((AllocatedUnicastRange) allocatedRange);
+            final ArrayList<AllocatedUnicastRange> ranges = new ArrayList<>(allocatedUnicastRanges);
+            Collections.sort(ranges, addressRangeComparator);
+            allocatedUnicastRanges.clear();
+            allocatedUnicastRanges.addAll(Range.mergeUnicastRanges(ranges));
+            return true;
+        } else if (allocatedRange instanceof AllocatedGroupRange) {
+            allocatedGroupRanges.add((AllocatedGroupRange) allocatedRange);
+            final ArrayList<AllocatedGroupRange> ranges = new ArrayList<>(allocatedGroupRanges);
+            Collections.sort(ranges, addressRangeComparator);
+            allocatedGroupRanges.clear();
+            allocatedGroupRanges.addAll(Range.mergeGroupRanges(ranges));
+            return true;
+        } else if (allocatedRange instanceof AllocatedSceneRange) {
+            allocatedSceneRanges.add((AllocatedSceneRange) allocatedRange);
+            final ArrayList<AllocatedSceneRange> ranges = new ArrayList<>(allocatedSceneRanges);
+            Collections.sort(allocatedSceneRanges, sceneRangeComparator);
+            allocatedSceneRanges.clear();
+            allocatedSceneRanges.addAll(Range.mergeSceneRanges(ranges));
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Add a range to the provisioner
+     *
+     * @param range {@link Range}
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    public boolean removeRange(@NonNull final Range range) {
+        if (range instanceof AllocatedUnicastRange) {
+            return allocatedUnicastRanges.remove(range);
+        } else if (range instanceof AllocatedGroupRange) {
+            return allocatedGroupRanges.remove(range);
+        } else if (range instanceof AllocatedSceneRange) {
+            return allocatedSceneRanges.remove(range);
+        }
+        return false;
+    }
+
+    /**
+     * Checks if a given Unicast Address is within an allocated unicast address range
+     *
+     * @param address Unicast Address
+     * @return true if it is within a range or false otherwise
+     * @throws IllegalArgumentException if address is invalid or out of range
+     */
+    boolean isAddressWithinAllocatedRange(final Integer address) throws IllegalArgumentException {
+        if (address == null)
+            return true;
+
+        if (!MeshAddress.isValidUnicastAddress(address)) {
+            throw new IllegalArgumentException("Unicast address must range from 0x0001 - 0x7FFF");
+        }
+
+        for (AllocatedUnicastRange range : allocatedUnicastRanges) {
+            if (address >= range.getLowAddress() && address <= range.getHighAddress())
+                return true;
+        }
+        return false;
+    }
+
+    public boolean hasOverlappingUnicastRanges(@NonNull final List<AllocatedUnicastRange> otherRanges) {
+        for (AllocatedUnicastRange range : allocatedUnicastRanges) {
+            for (AllocatedUnicastRange other : otherRanges) {
+                if (range.overlaps(other)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasOverlappingGroupRanges(@NonNull final List<AllocatedGroupRange> otherRanges) {
+        for (AllocatedGroupRange range : allocatedGroupRanges) {
+            for (AllocatedGroupRange other : otherRanges) {
+                if (range.overlaps(other)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasOverlappingSceneRanges(@NonNull final List<AllocatedSceneRange> otherRanges) {
+        for (AllocatedSceneRange range : allocatedSceneRanges) {
+            for (AllocatedSceneRange other : otherRanges) {
+                if (range.overlaps(other)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    boolean isNodeAddressInUse(@NonNull final List<ProvisionedMeshNode> nodes) {
+        if (provisionerAddress == null)
+            return false;
+
+        for (ProvisionedMeshNode node : nodes) {
+            if (!node.getUuid().equalsIgnoreCase(provisionerUuid)) {
+                if (node.getUnicastAddress() == provisionerAddress) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

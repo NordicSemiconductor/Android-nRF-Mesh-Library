@@ -1,5 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.text.TextUtils;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -20,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
@@ -34,7 +37,11 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
             final ProvisionedMeshNode node = new ProvisionedMeshNode();
-            node.uuid = jsonObject.get("UUID").getAsString();
+            final String uuid = MeshParserUtils.formatUuid(jsonObject.get("UUID").getAsString());
+            if (uuid == null)
+                throw new IllegalArgumentException("Invalid Mesh Provisioning/Configuration " +
+                        "Database JSON file, invalid node UUID");
+            node.uuid = uuid;
             node.deviceKey = MeshParserUtils.toByteArray(jsonObject.get("deviceKey").getAsString());
             final int unicastAddress = Integer.parseInt(jsonObject.get("unicastAddress").getAsString(), 16);
             node.unicastAddress = unicastAddress;
@@ -111,7 +118,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
         final JsonArray jsonArray = new JsonArray();
         for (ProvisionedMeshNode node : nodes) {
             final JsonObject nodeJson = new JsonObject();
-            nodeJson.addProperty("UUID", node.getUuid());
+            nodeJson.addProperty("UUID", MeshParserUtils.uuidToHex(node.getUuid()));
             nodeJson.addProperty("name", node.getNodeName());
             nodeJson.addProperty("deviceKey", MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
             nodeJson.addProperty("unicastAddress", MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(node.getUnicastAddress()), false));
@@ -265,7 +272,10 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 address = address + 1;
                 element.elementAddress = address;
             }
-            elements.put(element.getElementAddress(), element);
+            if (TextUtils.isEmpty(element.name)) {
+                element.name = "Element: " + MeshAddress.formatAddress(element.elementAddress, true);
+            }
+            elements.put(element.elementAddress, element);
         }
         return elements;
     }

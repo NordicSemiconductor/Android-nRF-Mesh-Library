@@ -9,7 +9,7 @@ import androidx.room.Update;
 
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 
 @SuppressWarnings("unused")
 @Dao

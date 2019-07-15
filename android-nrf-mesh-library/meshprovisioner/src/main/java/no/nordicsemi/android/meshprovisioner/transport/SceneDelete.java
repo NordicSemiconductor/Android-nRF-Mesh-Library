@@ -6,6 +6,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -28,7 +29,6 @@ public class SceneDelete extends GenericMessage {
      * @param sceneNumber Scene number of SceneDelete message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    @SuppressWarnings("WeakerAccess")
     public SceneDelete(@NonNull final ApplicationKey appKey,
                        final int sceneNumber) {
         super(appKey);

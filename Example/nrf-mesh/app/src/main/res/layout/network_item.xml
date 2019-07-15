@@ -28,151 +28,154 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:foreground="?selectableItemBackgroundBorderless">
+    android:background="@color/nordicRed">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/icon_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        app:srcCompat="@drawable/ic_delete_white"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/removable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/icon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/item_padding_top"
-            android:background="@drawable/ic_device_bg"
-            android:importantForAccessibility="no"
-            android:padding="@dimen/mesh_list_icon_padding"
-            android:scaleType="centerInside"
-            app:layout_constraintEnd_toStartOf="@id/node_name"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/node_name"
-            app:srcCompat="@drawable/ic_mesh_48dp"/>
-
-        <TextView
-            android:id="@+id/node_name"
-            style="@style/Widget.GroupTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/activity_horizontal_margin"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:text="@string/nrf_mesh_node"
-            app:layout_constraintEnd_toStartOf="@id/action_configure"
-            app:layout_constraintStart_toEndOf="@id/icon"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <ImageButton
-            android:id="@+id/action_configure"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:background="?selectableItemBackgroundBorderless"
-            android:padding="@dimen/item_padding_end"
-            android:layout_marginTop="@dimen/item_padding_top"
-            app:layout_constraintBottom_toBottomOf="@id/node_name"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/node_name"
-            app:srcCompat="@drawable/ic_settings_nordic_gray_24dp"
-            tools:ignore="ContentDescription"/>
-
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/configured_node_info_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:background="?selectableItemBackground"
             android:paddingBottom="@dimen/activity_vertical_margin"
-            android:visibility="visible"
-            app:layout_constraintEnd_toStartOf="@id/action_configure"
-            app:layout_constraintStart_toStartOf="@id/node_name"
-            app:layout_constraintTop_toBottomOf="@id/node_name"
-            tools:visibility="invisible">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/unicast_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Address:"
-                android:textSize="14sp"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/icon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:background="@drawable/ic_device_bg"
+                android:importantForAccessibility="no"
+                android:padding="@dimen/mesh_list_icon_padding"
+                android:scaleType="centerInside"
+                app:layout_constraintBottom_toBottomOf="@id/configured_node_info_container"
+                app:layout_constraintEnd_toStartOf="@id/node_name"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="HardcodedText"/>
+                app:layout_constraintTop_toTopOf="@id/node_name"
+                app:srcCompat="@drawable/ic_mesh_48dp"/>
 
             <TextView
-                android:id="@+id/unicast"
+                android:id="@+id/node_name"
+                style="@style/Widget.GroupTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="0x0001"
-                android:textSize="14sp"
+                android:layout_margin="@dimen/activity_horizontal_margin"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:text="@string/nrf_mesh_node"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/unicast_title"
-                app:layout_constraintTop_toTopOf="@id/unicast_title"
-                tools:ignore="HardcodedText"/>
+                app:layout_constraintStart_toEndOf="@id/icon"
+                app:layout_constraintTop_toTopOf="parent"/>
 
-            <TextView
-                android:id="@+id/company_identifier_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/company"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/unicast_title"
-                app:layout_constraintTop_toBottomOf="@+id/unicast"/>
-
-            <TextView
-                android:id="@+id/company_identifier"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/configured_node_info_container"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:paddingEnd="@dimen/item_padding_end"
-                android:text="@string/nordic_semiconductor_asa"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/unicast"
-                app:layout_constraintTop_toBottomOf="@+id/unicast"
-                tools:ignore="RtlSymmetry"/>
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="@id/node_name"
+                app:layout_constraintStart_toStartOf="@id/node_name"
+                app:layout_constraintTop_toBottomOf="@id/node_name">
 
-            <TextView
-                android:id="@+id/elements_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/elements"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/unicast_title"
-                app:layout_constraintTop_toBottomOf="@+id/company_identifier"/>
+                <TextView
+                    android:id="@+id/unicast_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Address:"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="HardcodedText"/>
 
-            <TextView
-                android:id="@+id/elements"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="4"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/unicast"
-                app:layout_constraintTop_toBottomOf="@+id/company_identifier"
-                tools:ignore="HardcodedText"/>
+                <TextView
+                    android:id="@+id/unicast"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="0x0001"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/unicast_title"
+                    app:layout_constraintTop_toTopOf="@id/unicast_title"
+                    tools:ignore="HardcodedText"/>
 
-            <TextView
-                android:id="@+id/models_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/models"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/unicast_title"
-                app:layout_constraintTop_toBottomOf="@+id/elements"/>
+                <TextView
+                    android:id="@+id/company_identifier_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/company"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="@+id/unicast_title"
+                    app:layout_constraintTop_toBottomOf="@+id/unicast"/>
 
-            <TextView
-                android:id="@+id/models"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="29"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@+id/unicast"
-                app:layout_constraintTop_toBottomOf="@+id/elements"
-                tools:ignore="HardcodedText"/>
+                <TextView
+                    android:id="@+id/company_identifier"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/nordic_semiconductor_asa"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/unicast"
+                    app:layout_constraintTop_toBottomOf="@+id/unicast"
+                    tools:ignore="RtlSymmetry"/>
 
+                <TextView
+                    android:id="@+id/elements_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/elements"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="@+id/unicast_title"
+                    app:layout_constraintTop_toBottomOf="@+id/company_identifier"/>
+
+                <TextView
+                    android:id="@+id/elements"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="4"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="@+id/unicast"
+                    app:layout_constraintTop_toBottomOf="@+id/company_identifier"
+                    tools:ignore="HardcodedText"/>
+
+                <TextView
+                    android:id="@+id/models_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/models"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="@+id/unicast_title"
+                    app:layout_constraintTop_toBottomOf="@+id/elements"/>
+
+                <TextView
+                    android:id="@+id/models"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="29"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="@+id/unicast"
+                    app:layout_constraintTop_toBottomOf="@+id/elements"
+                    tools:ignore="HardcodedText"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

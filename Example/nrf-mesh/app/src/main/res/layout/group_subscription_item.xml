@@ -25,7 +25,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/removable"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
@@ -41,7 +40,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/group_name"
-        app:layout_constraintBottom_toBottomOf="@id/address"
+        app:layout_constraintBottom_toBottomOf="@id/title"
         app:srcCompat="@drawable/ic_outline_group_work_black_alpha_24dp"/>
 
     <TextView
@@ -60,7 +59,7 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
-        android:id="@+id/address"
+        android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ellipsize="end"

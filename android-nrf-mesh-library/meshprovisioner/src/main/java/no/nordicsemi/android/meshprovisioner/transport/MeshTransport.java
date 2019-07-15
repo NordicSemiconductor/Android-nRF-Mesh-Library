@@ -26,17 +26,17 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.util.UUID;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 /**
  * MeshTransport class is responsible for building the configuration and application layer mesh messages.
@@ -90,18 +90,25 @@ final class MeshTransport extends NetworkLayer {
         this.mUpperTransportLayerCallbacks = callbacks;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected final int incrementSequenceNumber(final int src) {
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
-        return provisioner.incrementSequenceNumber();
+        final int seqNumber = provisioner.incrementSequenceNumber();
+        final ProvisionedMeshNode node = mNetworkLayerCallbacks.getNode(provisioner.getProvisionerAddress());
+        node.setSequenceNumber(seqNumber);
+        return seqNumber;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected final int incrementSequenceNumber(final int src, @NonNull final byte[] sequenceNumber) {
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
-        final int seqNumber = MeshParserUtils.getSequenceNumber(sequenceNumber);
-        provisioner.setSequenceNumber(seqNumber);
-        return provisioner.incrementSequenceNumber();
+        provisioner.setSequenceNumber(MeshParserUtils.getSequenceNumber(sequenceNumber));
+        final int seqNumber = provisioner.incrementSequenceNumber();
+        final ProvisionedMeshNode node = mNetworkLayerCallbacks.getNode(provisioner.getProvisionerAddress());
+        node.setSequenceNumber(seqNumber);
+        return seqNumber;
     }
 
     /**
@@ -177,6 +184,7 @@ final class MeshTransport extends NetworkLayer {
      *
      * @param src                     Source address of the provisioner/configurator.
      * @param dst                     Destination address to be sent to
+     * @param label                   Label UUID for destination address
      * @param key                     Application Key
      * @param akf                     Application key flag defines which key to be used to decrypt the message i.e device key or application key.
      * @param aid                     Identifier of the application key.
@@ -187,12 +195,13 @@ final class MeshTransport extends NetworkLayer {
      */
     final AccessMessage createMeshMessage(final int src,
                                           final int dst,
-                                          final ApplicationKey key,
+                                          @Nullable final UUID label,
+                                          @NonNull final ApplicationKey key,
                                           final int akf,
                                           final int aid,
                                           final int aszmic,
                                           final int accessOpCode,
-                                          final byte[] accessMessageParameters) {
+                                          @Nullable final byte[] accessMessageParameters) {
         final int sequenceNumber = incrementSequenceNumber(src);
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
@@ -209,6 +218,9 @@ final class MeshTransport extends NetworkLayer {
         final AccessMessage message = new AccessMessage();
         message.setSrc(src);
         message.setDst(dst);
+        if (label != null) {
+            message.setLabel(label);
+        }
         message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         message.setSequenceNumber(sequenceNum);
         message.setApplicationKey(key);
@@ -230,7 +242,8 @@ final class MeshTransport extends NetworkLayer {
      * </p>
      *
      * @param src                     Source address of the provisioner/configurator.
-     * @param dst                     destination address to be sent to
+     * @param dst                     Destination address to be sent to
+     * @param label                   Label UUID
      * @param key                     Application key
      * @param akf                     Application key flag defines which key to be used to decrypt the message i.e device key or application key.
      * @param aid                     Identifier of the application key.
@@ -242,11 +255,13 @@ final class MeshTransport extends NetworkLayer {
     final AccessMessage createVendorMeshMessage(final int companyIdentifier,
                                                 final int src,
                                                 final int dst,
-                                                final ApplicationKey key,
+                                                @Nullable final UUID label,
+                                                @NonNull final ApplicationKey key,
                                                 final int akf,
                                                 final int aid,
                                                 final int aszmic,
-                                                final int accessOpCode, final byte[] accessMessageParameters) {
+                                                final int accessOpCode,
+                                                @Nullable final byte[] accessMessageParameters) {
         final int sequenceNumber = incrementSequenceNumber(src);
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
@@ -264,6 +279,9 @@ final class MeshTransport extends NetworkLayer {
         message.setCompanyIdentifier(companyIdentifier);
         message.setSrc(src);
         message.setDst(dst);
+        if (label != null) {
+            message.setLabel(label);
+        }
         message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         message.setSequenceNumber(sequenceNum);
         message.setApplicationKey(key);

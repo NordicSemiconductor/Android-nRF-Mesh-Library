@@ -113,7 +113,7 @@
                 tools:visibility="visible">
 
                 <TextView
-                    android:id="@+id/model_id"
+                    android:id="@+id/subtitle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="00001234"
@@ -132,7 +132,7 @@
                     android:gravity="center"
                     android:ellipsize="marquee"
                     android:singleLine="true"
-                    app:layout_constraintTop_toBottomOf="@id/model_id"
+                    app:layout_constraintTop_toBottomOf="@id/subtitle"
                     app:layout_constraintStart_toStartOf="parent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>

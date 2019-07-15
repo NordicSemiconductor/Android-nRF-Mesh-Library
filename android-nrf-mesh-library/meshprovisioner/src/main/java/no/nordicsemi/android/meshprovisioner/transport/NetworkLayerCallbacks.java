@@ -24,6 +24,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import java.util.List;
 
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 
 public interface NetworkLayerCallbacks {
@@ -33,7 +34,7 @@ public interface NetworkLayerCallbacks {
      *
      * @param unicastAddress unicast address of the mesh node
      */
-    ProvisionedMeshNode getProvisionedNode(final int unicastAddress);
+    ProvisionedMeshNode getNode(final int unicastAddress);
 
     /**
      * Callback to retrieve the current provisioner of the network
@@ -52,6 +53,13 @@ public interface NetworkLayerCallbacks {
      * <p>This usually is the key with the 0th index in the netkey list</p>
      */
     NetworkKey getPrimaryNetworkKey();
+
+    /**
+     * Callback to retrieve the network key of the mesh network.
+     *
+     * @param keyIndex Index of the network key
+     */
+    NetworkKey getNetworkKey(final int keyIndex);
 
     /**
      * Callback to retrieve the list of {@link NetworkKey} belonging to this network.

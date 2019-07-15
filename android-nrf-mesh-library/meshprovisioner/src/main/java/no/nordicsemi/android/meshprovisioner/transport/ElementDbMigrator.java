@@ -10,9 +10,8 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -33,7 +32,13 @@ public final class ElementDbMigrator implements JsonDeserializer<Element>, Type 
         } else {
             address = jsonElement.get("elementAddress").getAsInt();
             final int location = Integer.parseInt(jsonElement.get("locationDescriptor").getAsString(), 16);
-            return new Element(address, location, deserializeModels(context, jsonElement));
+            final String name;
+            if (jsonElement.has("name")) {
+                name = jsonElement.get("name").getAsString();
+            } else {
+                name = "Element: " + MeshAddress.formatAddress(address, true);
+            }
+            return new Element(address, location, deserializeModels(context, jsonElement), name);
         }
         return null;
     }
@@ -49,19 +54,5 @@ public final class ElementDbMigrator implements JsonDeserializer<Element>, Type 
         Type models = new TypeToken<LinkedHashMap<Integer, MeshModel>>() {
         }.getType();
         return context.deserialize(json.getAsJsonObject("meshModels"), models);
-    }
-
-    /**
-     * Populates the require map of {@link MeshModel} where key is the model identifier and model is the value
-     *
-     * @param models list of MeshModels
-     * @return Map of mesh models
-     */
-    private Map<Integer, MeshModel> populateModels(final List<MeshModel> models) {
-        final LinkedHashMap<Integer, MeshModel> meshModels = new LinkedHashMap<>();
-        for (MeshModel model : models) {
-            meshModels.put(model.getModelId(), model);
-        }
-        return meshModels;
     }
 }

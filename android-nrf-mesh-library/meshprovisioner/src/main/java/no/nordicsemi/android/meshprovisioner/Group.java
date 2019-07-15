@@ -19,7 +19,6 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 
 import static androidx.room.ForeignKey.CASCADE;
 
@@ -143,7 +142,7 @@ public class Group implements Parcelable {
      * @param meshUuid           UUID of the mesh network
      */
     @Ignore
-    public Group(@NonNull final UUID addressLabel, @NonNull final UUID parentAddressLabel, @NonNull final String meshUuid) throws IllegalArgumentException {
+    public Group(@NonNull final UUID addressLabel, @Nullable final UUID parentAddressLabel, @NonNull final String meshUuid) throws IllegalArgumentException {
         this(MeshAddress.UNASSIGNED_ADDRESS, addressLabel, MeshAddress.UNASSIGNED_ADDRESS, parentAddressLabel, meshUuid);
     }
 
@@ -181,6 +180,7 @@ public class Group implements Parcelable {
             this.address = MeshAddress.generateVirtualAddress(addressLabel);
             generateParentAddressLabel(parentAddressLabel, parentAddress);
         }
+        this.meshUuid = meshUuid;
     }
 
     private void generateParentAddressLabel(@Nullable final UUID parentAddressLabel, final int parentAddress) throws IllegalArgumentException {

@@ -30,8 +30,8 @@ import java.util.Locale;
 public class SigModelParser {
     private static final String TAG = SigModelParser.class.getSimpleName();
 
-    private static final short CONFIGURATION_SERVER = 0x0000;
-    private static final short CONFIGURATION_CLIENT = 0x0001;
+    public static final short CONFIGURATION_SERVER = 0x0000;
+    public static final short CONFIGURATION_CLIENT = 0x0001;
     private static final short HEALTH_SERVER_MODEL = 0x0002;
     private static final short HEALTH_CLIENT_MODEL = 0x0003;
 

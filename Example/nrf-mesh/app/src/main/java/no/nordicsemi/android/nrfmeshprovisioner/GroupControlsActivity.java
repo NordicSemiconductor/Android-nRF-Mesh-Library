@@ -43,14 +43,11 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
-import no.nordicsemi.android.meshprovisioner.models.ConfigurationServerModel;
-import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
-import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.GenericLevelSetUnacknowledged;
 import no.nordicsemi.android.meshprovisioner.transport.GenericOnOffSetUnacknowledged;
@@ -63,7 +60,13 @@ import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageUnacked
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.SubGroupAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetDetailsDialogFragment;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetLevelDialogFragment;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetOnOffDialogFragment;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetVendorDialogFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.GroupControlsViewModel;
 
@@ -219,18 +222,17 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             return;
 
         final MeshMessage meshMessage;
-
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         final ApplicationKey applicationKey = network.getAppKey(appKeyIndex);
         final int tid = network.getSelectedProvisioner().getSequenceNumber();
         switch (modelId) {
             case SigModelParser.GENERIC_ON_OFF_SERVER:
                 meshMessage = new GenericOnOffSetUnacknowledged(applicationKey, isChecked, tid);
-                mViewModel.getMeshManagerApi().createMeshPdu(group.getAddress(), meshMessage);
+                sendMessage(group.getAddress(), meshMessage);
                 break;
             case SigModelParser.GENERIC_LEVEL_SERVER:
                 meshMessage = new GenericLevelSetUnacknowledged(applicationKey, isChecked ? 32767 : -32768, tid);
-                mViewModel.getMeshManagerApi().createMeshPdu(group.getAddress(), meshMessage);
+                sendMessage(group.getAddress(), meshMessage);
                 break;
         }
     }
@@ -242,10 +244,11 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             return;
 
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        final ApplicationKey applicationKey = network.getAppKey(keyIndex);
+        final ApplicationKey applicationKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(keyIndex);
         final int tid = network.getSelectedProvisioner().getSequenceNumber();
-        final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey, state, tid, transitionSteps, transitionStepResolution, delay);
-        mViewModel.getMeshManagerApi().createMeshPdu(group.getAddress(), meshMessage);
+        final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey,
+                state, tid, transitionSteps, transitionStepResolution, delay);
+        sendMessage(group.getAddress(), meshMessage);
     }
 
     @Override
@@ -257,10 +260,10 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         if (network != null) {
-            final ApplicationKey applicationKey = network.getAppKey(keyIndex);
+            final ApplicationKey applicationKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(keyIndex);
             final int tid = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
             final MeshMessage meshMessage = new GenericLevelSetUnacknowledged(applicationKey, transitionSteps, transitionStepResolution, delay, level, tid);
-            mViewModel.getMeshManagerApi().createMeshPdu(group.getAddress(), meshMessage);
+            sendMessage(group.getAddress(), meshMessage);
         }
     }
 
@@ -279,12 +282,12 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
         if (isConnectedToNetwork != null && isConnectedToNetwork) {
             final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-            final ProvisionedMeshNode node = network.getProvisionedNode(element.getElementAddress());
+            final ProvisionedMeshNode node = network.getNode(element.getElementAddress());
             if (node != null) {
                 mViewModel.setSelectedMeshNode(node);
                 mViewModel.setSelectedElement(element);
                 mViewModel.setSelectedModel(model);
-                startActivity(model);
+                mViewModel.navigateToModelActivity(this, model);
             }
         } else {
             Toast.makeText(this, R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();
@@ -295,29 +298,6 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
     public void onGroupNameChanged(@NonNull final Group group) {
         final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
         network.updateGroup(group);
-    }
-
-    /**
-     * Start activity based on the type of the model
-     *
-     * <p> This way we can seperate the ui logic for different activities</p>
-     *
-     * @param model model
-     */
-    private void startActivity(final MeshModel model) {
-        final Intent intent;
-        if (model instanceof ConfigurationServerModel) {
-            intent = new Intent(this, ConfigurationServerActivity.class);
-        } else if (model instanceof GenericOnOffServerModel) {
-            intent = new Intent(this, GenericOnOffServerActivity.class);
-        } else if (model instanceof GenericLevelServerModel) {
-            intent = new Intent(this, GenericLevelServerActivity.class);
-        } else if (model instanceof VendorModel) {
-            intent = new Intent(this, VendorModelActivity.class);
-        } else {
-            intent = new Intent(this, ModelConfigurationActivity.class);
-        }
-        startActivity(intent);
     }
 
     @Override
@@ -339,7 +319,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             } else {
                 message = new VendorModelMessageUnacked(appKey, modelId, model.getCompanyIdentifier(), opCode, parameters);
             }
-            mViewModel.getMeshManagerApi().createMeshPdu(group.getAddress(), message);
+            sendMessage(group.getAddress(), message);
         }
     }
 
@@ -354,5 +334,15 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         }
         return null;
 
+    }
+
+    private void sendMessage(final int address, final MeshMessage meshMessage) {
+        try {
+            mViewModel.getMeshManagerApi().createMeshPdu(address, meshMessage);
+        } catch (IllegalArgumentException ex) {
+            final DialogFragmentConfigError message = DialogFragmentConfigError.
+                    newInstance(getString(R.string.title_error), ex.getMessage());
+            message.show(getSupportFragmentManager(), null);
+        }
     }
 }

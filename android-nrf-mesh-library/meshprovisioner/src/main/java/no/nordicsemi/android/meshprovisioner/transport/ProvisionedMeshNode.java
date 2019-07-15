@@ -40,8 +40,12 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.Provisioner;
+import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
@@ -80,6 +84,11 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     public ProvisionedMeshNode() {
     }
 
+    /**
+     * Constructor to be used only by hte library
+     *
+     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
+     */
     @Ignore
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedMeshNode(final UnprovisionedMeshNode unprovisionedMeshNode) {
@@ -87,7 +96,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         isConfigured = unprovisionedMeshNode.isConfigured();
         nodeName = unprovisionedMeshNode.getNodeName();
         mAddedNetKeyIndexes.add(unprovisionedMeshNode.getKeyIndex());
-        identityKey = unprovisionedMeshNode.getIdentityKey();
         mFlags = unprovisionedMeshNode.getFlags();
         unicastAddress = unprovisionedMeshNode.getUnicastAddress();
         deviceKey = unprovisionedMeshNode.getDeviceKey();
@@ -96,6 +104,42 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         k2Output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
         mTimeStampInMillis = unprovisionedMeshNode.getTimeStamp();
         numberOfElements = unprovisionedMeshNode.getNumberOfElements();
+    }
+
+    /**
+     * Constructor to be used only by the library
+     *
+     * @param provisioner {@link Provisioner}
+     * @param netKeys     List of {@link NetworkKey}
+     * @param appKeys     List of {@link ApplicationKey}
+     */
+    @SuppressWarnings("ConstantConditions")
+    @Ignore
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public ProvisionedMeshNode(@NonNull final Provisioner provisioner,
+                               @NonNull final List<NetworkKey> netKeys,
+                               @NonNull final List<ApplicationKey> appKeys) {
+        this.meshUuid = provisioner.getMeshUuid();
+        uuid = provisioner.getProvisionerUuid();
+        isConfigured = true;
+        nodeName = provisioner.getProvisionerName();
+        for (ApplicationKey key : appKeys) {
+            mAddedAppKeyIndexes.add(key.getKeyIndex());
+        }
+        if (provisioner.getProvisionerAddress() != null)
+            unicastAddress = provisioner.getProvisionerAddress();
+        sequenceNumber = provisioner.getSequenceNumber();
+        deviceKey = SecureUtils.generateRandomNumber();
+        ttl = provisioner.getGlobalTtl();
+        mTimeStampInMillis = System.currentTimeMillis();
+        numberOfElements = 1;
+        final MeshModel model = SigModelParser.getSigModel(SigModelParser.CONFIGURATION_CLIENT);
+        final HashMap<Integer, MeshModel> models = new HashMap<>();
+        models.put(model.getModelId(), model);
+        final Element element = new Element(unicastAddress, 0, models);
+        final HashMap<Integer, Element> elements = new HashMap<>();
+        elements.put(unicastAddress, element);
+        mElements = elements;
     }
 
     @Ignore
@@ -109,7 +153,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         deviceKey = in.createByteArray();
         ttl = (Integer) in.readValue(Integer.class.getClassLoader());
         numberOfElements = in.readInt();
-        mReceivedSequenceNumber = in.readInt();
+        sequenceNumber = in.readInt();
         k2Output = in.readParcelable(SecureUtils.K2Output.class.getClassLoader());
         companyIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         productIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
@@ -139,7 +183,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeByteArray(deviceKey);
         dest.writeValue(ttl);
         dest.writeInt(numberOfElements);
-        dest.writeInt(mReceivedSequenceNumber);
+        dest.writeInt(sequenceNumber);
         dest.writeParcelable(k2Output, flags);
         dest.writeValue(companyIdentifier);
         dest.writeValue(productIdentifier);
@@ -196,19 +240,19 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         this.deviceKey = deviceKey;
     }
 
-    public final int getReceivedSequenceNumber() {
-        return mReceivedSequenceNumber;
+    public final int getSequenceNumber() {
+        return sequenceNumber;
     }
 
     /**
-     * Sets the received sequence number
-     * <p>This is only meant to be used internally within the library, hence the Restricted annotation</p>
+     * Sets the sequence number
+     * <p>This is only meant to be used internally within the library, hence the Restricted</p>
      *
-     * @param receivedSequenceNumber sequence number of the message received from a node
+     * @param sequenceNumber sequence number of the node
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setReceivedSequenceNumber(final int receivedSequenceNumber) {
-        mReceivedSequenceNumber = receivedSequenceNumber;
+    public final void setSequenceNumber(final int sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
     }
 
     public final SecureUtils.K2Output getK2Output() {
@@ -289,10 +333,9 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return Collections.unmodifiableList(mAddedNetKeyIndexes);
     }
 
-
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setAddedNetKeyIndexes(final List<Integer> addedNetkeyIndexes) {
-        mAddedNetKeyIndexes = addedNetkeyIndexes;
+    public final void setAddedNetKeyIndexes(final List<Integer> addedNetKeyIndexes) {
+        mAddedNetKeyIndexes = addedNetKeyIndexes;
     }
 
     /**
@@ -300,6 +343,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      *
      * @param index NetKey index
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final void setAddedNetKeyIndex(final int index) {
         if (!mAddedNetKeyIndexes.contains(index)) {
             this.mAddedNetKeyIndexes.add(index);
@@ -323,6 +367,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      *
      * @param index AppKey index
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final void setAddedAppKeyIndex(final int index) {
         if (!mAddedAppKeyIndexes.contains(index)) {
             this.mAddedAppKeyIndexes.add(index);
@@ -416,5 +461,18 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         }
 
         return mSeqAuth.get(src);
+    }
+
+    public boolean isExist(final int modelId) {
+        for (Map.Entry<Integer, Element> elementEntry : mElements.entrySet()) {
+            final Element element = elementEntry.getValue();
+            for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                final MeshModel model = modelEntry.getValue();
+                if (model != null && model.getModelId() == modelId) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -26,7 +26,7 @@ import androidx.annotation.NonNull;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.nrfmeshprovisioner.ReconnectActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.ReconnectActivity;
 
 /**
  * ViewModel for {@link ReconnectActivity}

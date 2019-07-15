@@ -39,16 +39,14 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.Features;
-import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.MeshTypeConverters;
 import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
-import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
@@ -107,7 +105,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     byte[] deviceKey;
     @ColumnInfo(name = "seq_number")
     @Expose
-    int mReceivedSequenceNumber;
+    int sequenceNumber;
     @Ignore
     @Expose
     String bluetoothAddress;
@@ -133,7 +131,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Embedded
     @Expose
     Features nodeFeatures = null;
-    @Embedded
+    @Ignore
     @Expose
     SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
     @TypeConverters(MeshTypeConverters.class)
@@ -146,9 +144,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @ColumnInfo(name = "appKeys")
     @Expose
     List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
-    @Ignore
-    @Expose
-    byte[] identityKey;
     @Ignore
     @Expose
     byte[] mFlags;
@@ -167,7 +162,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedBaseMeshNode() {
-
     }
 
     public String getMeshUuid() {
@@ -200,6 +194,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         return nodeName;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setNodeName(final String nodeName) {
         if (!TextUtils.isEmpty(nodeName))
             this.nodeName = nodeName;
@@ -209,8 +204,20 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         return unicastAddress;
     }
 
+    /**
+     * Sets the unicast address of the node
+     * <p>This is to be used only by the library</p>
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setUnicastAddress(final int unicastAddress) {
         this.unicastAddress = unicastAddress;
+    }
+
+    /**
+     * Returns the unicast address used by the last element in the node
+     */
+    public int getLastUnicastAddress() {
+        return numberOfElements == 1 ? unicastAddress : (unicastAddress + (numberOfElements - 1));
     }
 
     public final Integer getTtl() {
@@ -219,10 +226,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     public final void setTtl(final Integer ttl) {
         this.ttl = ttl;
-    }
-
-    public final byte[] getIdentityKey() {
-        return identityKey;
     }
 
     public final byte[] getFlags() {

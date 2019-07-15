@@ -22,14 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -43,17 +36,25 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
 
 public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHolder> {
 
@@ -109,8 +110,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
             final int keyIndex = mGroupedKeyModels.keyAt(position);
             holder.groupItemContainer.setTag(keyIndex);
             final ApplicationKey key = mMeshNetwork.getAppKey(keyIndex);
-            final String keyTitle = key.getName() + " " + keyIndex;
-            holder.mGroupAppKeyTitle.setText(keyTitle);
+            holder.mGroupAppKeyTitle.setText(key.getName());
             final SparseIntArray groupedModels = mGroupedKeyModels.valueAt(position);
             holder.mGroupGrid.setRowCount(1);
             //Remove all child views to avoid duplicating
@@ -134,7 +134,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
             icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_nordic_medium_gray_48dp));
             view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
             view.findViewById(R.id.container_vendor).setVisibility(View.VISIBLE);
-            final TextView modelIdView = view.findViewById(R.id.model_id);
+            final TextView modelIdView = view.findViewById(R.id.subtitle);
             modelIdView.setText(CompositionDataParser.formatModelIdentifier(modelId, true));
             final TextView companyIdView = view.findViewById(R.id.company_id);
             final int companyIdentifier = MeshParserUtils.getCompanyIdentifier(modelId);
@@ -199,11 +199,11 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         return super.getItemId(position);
     }
 
-    public int getModelCount(){
+    public int getModelCount() {
         return mModels.size();
     }
 
-    public List<MeshModel> getModels(){
+    public List<MeshModel> getModels() {
         return mModels;
     }
 

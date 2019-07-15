@@ -31,6 +31,7 @@ import org.spongycastle.crypto.InvalidCipherTextException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
+import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,6 +39,7 @@ import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.MeshStatusCallbacks;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -98,6 +100,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      */
     protected void parseMeshPduNotifications(@NonNull final byte[] pdu, @NonNull final MeshNetwork network) throws ExtendedInvalidCipherTextException {
         final List<NetworkKey> networkKeys = network.getNetKeys();
+        final int ivi = ((pdu[1] & 0xFF) >>> 7) & 0x01;
         final int nid = pdu[1] & 0x7F;
         //Here we go through all the network keys and filter out network keys based on the nid.
         for (int i = 0; i < networkKeys.size(); i++) {
@@ -117,19 +120,19 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     final int sequenceNo = MeshParserUtils.getSequenceNumber(sequenceNumber);
                     Log.v(TAG, "Sequence number of received access message: " + MeshParserUtils.getSequenceNumber(sequenceNumber));
 
-                    final ProvisionedMeshNode node = network.getProvisionedNode(src);
+                    final ProvisionedMeshNode node = network.getNode(src);
                     if (node != null) {
                         //Check if the sequence number has been incremented since the last message sent and return null if not
-                        if (sequenceNo > node.getReceivedSequenceNumber()) {
+                        if (sequenceNo > node.getSequenceNumber()) {
                             if (!MeshParserUtils.isValidSequenceNumber(sequenceNo)) {
                                 return;
                             }
-                            node.setReceivedSequenceNumber(sequenceNo);
+                            node.setSequenceNumber(sequenceNo);
                         }
                     } else {
                         return;
                     }
-
+                    //TODO validate ivi
                     byte[] nonce;
                     final byte[] ivIndex = MeshParserUtils.intToBytes(network.getIvIndex());
                     try {
@@ -225,13 +228,17 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     }
 
     @Override
-    public void createMeshMessage(final int src, final int dst, @NonNull final MeshMessage meshMessage) {
+    public void createMeshMessage(final int src, final int dst, @Nullable final UUID label, @NonNull final MeshMessage meshMessage) {
         if (meshMessage instanceof ProxyConfigMessage) {
             createProxyConfigMeshMessage(src, dst, (ProxyConfigMessage) meshMessage);
         } else if (meshMessage instanceof ConfigMessage) {
             createConfigMeshMessage(src, dst, (ConfigMessage) meshMessage);
         } else if (meshMessage instanceof GenericMessage) {
-            createAppMeshMessage(src, dst, (GenericMessage) meshMessage);
+            if (label == null) {
+                createAppMeshMessage(src, dst, (GenericMessage) meshMessage);
+            } else {
+                createAppMeshMessage(src, dst, label, (GenericMessage) meshMessage);
+            }
         }
     }
 
@@ -254,7 +261,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param configurationMessage {@link ConfigMessage} Mesh message containing the message opcode and message parameters
      */
     private void createConfigMeshMessage(final int src, final int dst, @NonNull final ConfigMessage configurationMessage) {
-        final ProvisionedMeshNode node = mInternalTransportCallbacks.getProvisionedNode(dst);
+        final ProvisionedMeshNode node = mInternalTransportCallbacks.getNode(dst);
         if (node == null) {
             return;
         }
@@ -267,7 +274,6 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         }
         currentState.executeSend();
     }
-
 
     /**
      * Sends a mesh message specified within the {@link GenericMessage} object
@@ -288,6 +294,36 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             currentState = new VendorModelMessageUnackedState(src, dst, (VendorModelMessageUnacked) genericMessage, getTransport(dst), this);
         } else {
             currentState = new GenericMessageState(src, dst, genericMessage, getTransport(dst), this);
+        }
+        currentState.setTransportCallbacks(mInternalTransportCallbacks);
+        currentState.setStatusCallbacks(mStatusCallbacks);
+        if (MeshAddress.isValidUnicastAddress(dst)) {
+            stateSparseArray.put(dst, toggleState(getTransport(dst), genericMessage));
+        }
+        currentState.executeSend();
+    }
+
+
+    /**
+     * Sends a mesh message specified within the {@link GenericMessage} object
+     * <p> This method can be used specifically when sending an application message with a unicast address or a group address.
+     * Application messages currently supported in the library are {@link GenericOnOffGet},{@link GenericOnOffSet}, {@link GenericOnOffSetUnacknowledged},
+     * {@link GenericLevelGet},  {@link GenericLevelSet},  {@link GenericLevelSetUnacknowledged},
+     * {@link VendorModelMessageAcked} and {@link VendorModelMessageUnacked}</p>
+     *
+     * @param src            source address where the message is originating from
+     * @param dst            Destination to which the message must be sent to, this could be a unicast address or a group address.
+     * @param label          Label UUID of destination address
+     * @param genericMessage Mesh message containing the message opcode and message parameters.
+     */
+    private void createAppMeshMessage(final int src, final int dst, @NonNull UUID label, @NonNull final GenericMessage genericMessage) {
+        final GenericMessageState currentState;
+        if (genericMessage instanceof VendorModelMessageAcked) {
+            currentState = new VendorModelMessageAckedState(src, dst, label, (VendorModelMessageAcked) genericMessage, getTransport(dst), this);
+        } else if (genericMessage instanceof VendorModelMessageUnacked) {
+            currentState = new VendorModelMessageUnackedState(src, dst, label, (VendorModelMessageUnacked) genericMessage, getTransport(dst), this);
+        } else {
+            currentState = new GenericMessageState(src, dst, label, genericMessage, getTransport(dst), this);
         }
         currentState.setTransportCallbacks(mInternalTransportCallbacks);
         currentState.setStatusCallbacks(mStatusCallbacks);

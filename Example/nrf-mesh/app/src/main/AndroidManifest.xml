@@ -45,9 +45,9 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".SplashScreenActivity"
-            android:theme="@style/AppTheme.SplashScreen"
+            android:launchMode="singleTop"
             android:noHistory="true"
-            android:launchMode="singleTop">
+            android:theme="@style/AppTheme.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -57,50 +57,83 @@
             android:name=".MainActivity"
             android:icon="@drawable/ic_feature_mesh"
             android:label="@string/feature_name"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="no.nordicsemi.android.nrftoolbox.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
-            android:name=".ScannerActivity"
+            android:name=".ble.ScannerActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".ReconnectActivity"
+            android:name=".ble.ReconnectActivity"
             android:launchMode="singleTop"/>
         <activity
             android:name=".GroupControlsActivity"
-            android:launchMode="singleTop"
-            android:configChanges="orientation|screenSize"/>
-        <activity
-            android:name=".ManageAppKeysActivity"
+            android:configChanges="orientation|screenSize"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".MeshProvisionerActivity"
+            android:name=".provisioners.ProvisionersActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".NodeConfigurationActivity"
+            android:name=".provisioners.AddProvisionerActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".PublicationSettingsActivity"
+            android:name=".provisioners.EditProvisionerActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".NodeDetailsActivity"
+            android:name=".provisioners.RangesActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".GenericLevelServerActivity"
+            android:name=".keys.NetKeysActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".GenericOnOffServerActivity"
+            android:name=".keys.EditNetKeyActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".VendorModelActivity"
+            android:name=".keys.AddNetKeyActivity"
             android:launchMode="singleTop"/>
         <activity
-            android:name=".ConfigurationServerActivity"
+            android:name=".keys.AppKeysActivity"
             android:launchMode="singleTop"/>
-        <activity android:name=".ModelConfigurationActivity"/>
+        <activity
+            android:name=".keys.AddAppKeyActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".keys.EditAppKeyActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".ProvisioningActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".node.NodeConfigurationActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".node.PublicationSettingsActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".node.NodeDetailsActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".node.GenericLevelServerActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".node.GenericOnOffServerActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".node.VendorModelActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".node.ConfigurationServerActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".node.ConfigurationClientActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".node.ModelConfigurationActivity"
+            android:launchMode="singleTop"/>
     </application>
 
 </manifest>

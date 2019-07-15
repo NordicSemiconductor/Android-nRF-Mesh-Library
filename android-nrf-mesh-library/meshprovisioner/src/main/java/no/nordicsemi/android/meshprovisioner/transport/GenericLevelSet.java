@@ -8,6 +8,7 @@ import java.nio.ByteOrder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -53,7 +54,6 @@ public class GenericLevelSet extends GenericMessage {
      * @param tId                  Transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    @SuppressWarnings("WeakerAccess")
     public GenericLevelSet(@NonNull final ApplicationKey appKey,
                            @Nullable final Integer transitionSteps,
                            @Nullable final Integer transitionResolution,

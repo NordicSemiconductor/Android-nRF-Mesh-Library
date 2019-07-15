@@ -1,6 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 
 abstract class GenericMessage extends MeshMessage {
 

@@ -54,13 +54,6 @@
     <string name="yes">YES</string>
     <string name="no">NO</string>
 
-    <string name="provisioner_authentication_title">Authentication</string>
-    <string name="provisioner_input_static_oob">Input the 128-bit Static OOB value provided with the device.</string>
-    <string name="provisioner_input_blinks">Input the number of times the device blinked.</string>
-    <string name="provisioner_input_beeps">Input the number of times the device beeped.</string>
-    <string name="provisioner_input_vibrations">Input the number of times the device vibrated.</string>
-    <string name="provisioner_input_numeric">Input the code displayed on the device.</string>
-    <string name="provisioner_input_numeric_device">Key in the following code %s on the device.</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
 
@@ -99,8 +92,6 @@
 
     <string name="ok">OK</string>
 
-    <string name="global_settings">Global Settings</string>
-
     <string name="title_node_details">Node Details</string>
     <string name="node_name">Name</string>
     <string name="node_prov_timestamp">Provisioned Time</string>
@@ -115,66 +106,90 @@
     <string name="title_elements">Elements</string>
     <string name="title_node_element_details">Element Details</string>
 
-    <string name="generate_app_key">Generate app key</string>
+    <string name="generate_new_key">Generate New key</string>
 
     <string name="title_network_name">Network Name</string>
-    <string name="summary_global_network_name">Network name</string>
     <string name="summary_network_name">Enter a network name</string>
     <string name="hint_global_network_name">Network Name</string>
 
-    <string name="title_global_ttl">Global TTL</string>
-    <string name="summary_global_ttl">Global TTL</string>
-    <string name="summary_ttl">Enter a global TTL value.</string>
-    <string name="hint_global_ttl">Global TTL</string>
+    <string name="title_allocated_ranges">Allocated Ranges</string>
+    <string name="not_allocated">Not Allocated</string>
+    <string name="allocated_to_this">Allocated to this Provisioner</string>
+    <string name="allocated_to_another">Allocated to another Provisioner</string>
+    <string name="conflicting_with_another">Conflicting with another Provisioner</string>
 
-    <string name="title_src_address">Source Address</string>
-    <string name="summary_src_address">Source address</string>
-    <string name="dialog_summary_src">Enter a unicast address that could be used as an address for the provisioner.</string>
-    <string name="hint_src_address">Source Address</string>
+    <string name="title_range">Range</string>
+    <string name="range_deleted">Range deleted.</string>
+    <string name="title_no_ranges">NO RANGES ALLOCATED</string>
+    <string name="title_edit_unicast_ranges">Edit Unicast Ranges</string>
+    <string name="title_edit_group_ranges">Edit Group Ranges</string>
+    <string name="title_edit_scene_ranges">Edit Scene Ranges</string>
+    <string name="unicast_range_summary">Enter lower and upper bounds as 4–character hexadecimal string.\nValid range: 0x0001 – 0x7FFF</string>
+    <string name="group_range_summary">Enter lower and upper bounds as 4–character hexadecimal string.\nValid range: 0xC000 – 0xFEFF</string>
+    <string name="scene_range_summary">Enter lower and upper bounds as 4–character hexadecimal string.\nValid range: 0x0001 – 0xFFFF</string>
+
+    <string name="title_provisioners">Provisioners</string>
+    <string name="title_provisioner">Provisioner</string>
+    <string name="provisioner_deleted">Provisioner deleted.</string>
+    <string name="title_provisioner_address">Provisioner Address</string>
+    <string name="action_add_range">Add range</string>
+    <string name="range_adapter_format"> %s - %s</string>
+    <string name="low_address">Low Address</string>
+    <string name="high_address">High Address</string>
+    <string name="provisioner_name_rationale">This is a friendly name that can be used to identify a provisioner.</string>
+    <string name="title_provisioner_name">Provisioner Name</string>
+    <string name="title_current_provisioner">Current Provisioner</string>
+    <string name="title_other_provisioner">Other Provisioners</string>
+    <string name="title_manage_provisioners">Manage Provisioners</string>
+    <string name="title_add_provisioner">Add Provisioner</string>
+    <string name="title_edit_provisioner">Edit Provisioner</string>
+    <string name="hint_delete_provisioner">Hint: Swipe to delete a provisioner.</string>
+    <string name="provisioner_authentication_title">Authentication</string>
+    <string name="provisioner_input_static_oob">Input the 128-bit Static OOB value provided with the device.</string>
+    <string name="provisioner_input_blinks">Input the number of times the device blinked.</string>
+    <string name="provisioner_input_beeps">Input the number of times the device beeped.</string>
+    <string name="provisioner_input_vibrations">Input the number of times the device vibrated.</string>
+    <string name="provisioner_input_numeric">Input the code displayed on the device.</string>
+    <string name="provisioner_input_numeric_device">Key in the following code %s on the device.</string>
+
+    <string name="summary_ttl">Enter a ttl value ranging from 0 – 127</string>
+    <string name="hint_ttl">TTL</string>
+    <string name="error_empty_ttl">TTL cannot be empty!</string>
+
+    <string name="dialog_summary_src">Hexadecimal value in range 0x0001 – 0x7FFF.</string>
 
     <string name="network_settings">Network Settings</string>
-    <string name="summary_flags">Flags</string>
-    <string name="summary_key">Key</string>
-    <string name="summary_index">Key Index</string>
-    <string name="summary_unicast_address">Unicast Address</string>
+    <string name="title_net_keys">Network Keys</string>
+    <string name="unicast_address">Unicast Address: %s</string>
+    <string name="unicast_address_unassigned">Unicast Address: Unassigned</string>
 
     <string name="title_node_name">Node name</string>
     <string name="summary_name">Name</string>
-    <string name="name_rationale">This is a friendly name to be used to identify nodes by naming them</string>
-    <string name="hint_node_name">Friendly name</string>
+    <string name="node_name_rationale">This is a friendly name to be used to identify a node.</string>
+    <string name="title_element_name">Element name</string>
+    <string name="element_name_rationale">This is a friendly name to be used to identify an element.</string>
+    <string name="hint_friendly_name">Friendly name</string>
 
-    <string name="title_generate_network_key">Network Key</string>
-    <string name="summary_generate_network_key">Enter your own network key or click generate to create a new random network key.</string>
+    <string name="title_primary_net_key">Primary Network Key</string>
+    <string name="title_sub_net_keys">Sub Network Keys</string>
     <string name="hint_network_key">Network key</string>
     <string name="generate_network_key">Generate Key</string>
     <string name="error_empty_network_key">Network key cannot be empty!</string>
-    <string name="error_invalid_network_key">Network key must be 16 bytes long!</string>
 
     <string name="title_key_index">Key Index</string>
-    <string name="dialog_summary_key_index">Enter the network key index.</string>
-    <string name="hint_key_index">Key index</string>
     <string name="error_empty_key_index">Key index cannot be empty!</string>
     <string name="error_invalid_key_index">Key index must be 0 to 4095!</string>
 
-    <string name="title_flags">Flags</string>
-    <string name="dialog_summary_flags">Select flag types.</string>
-    <string name="title_key_refresh_flag">Key Refresh Flag</string>
-    <string name="key_refresh_phase_0">Key Refresh Phase 0</string>
-    <string name="key_refresh_phase_2">Key Refresh Phase 2</string>
-    <string name="title_iv_update_flag">IV Update Flag</string>
-    <string name="normal_operation">Normal operation</string>
-    <string name="iv_update_active">IV Update active</string>
-
-    <string name="title_iv_index">IV Index</string>
-    <string name="dialog_summary_iv_index">Enter an IV Index value to be shared by all nodes in the mesh network.</string>
-    <string name="hint_iv_index">IV Index</string>
     <string name="error_empty_iv_index">IV Index cannot be empty!</string>
     <string name="error_invalid_iv_index">IV Index must be 0 to 4294967295!</string>
 
     <string name="title_unicast_address">Unicast Address</string>
     <string name="dialog_summary_unicast_address">Enter a unicast address for the node.</string>
+    <string name="title_unicast_addresses">Unicast Addresses</string>
+    <string name="title_group_addresses">Group Addresses</string>
+    <string name="title_scenes">Scenes</string>
     <string name="hint_unicast_address">Unicast address</string>
-    <string name="error_empty_unicast_address">Unicast Address cannot be empty!</string>
+    <string name="error_empty_unicast_address">Address cannot be empty!</string>
     <string name="network">Network</string>
     <string name="action_groups">Groups</string>
     <string name="action_proxy">Proxy Filter</string>
@@ -184,14 +199,13 @@
 
     <string name="no_groups_configured_title">NO GROUPS CONFIGURED</string>
     <string name="no_groups_configured_rationale">Create a group to control your devices. All groups listed here can be subscribed to from a model.</string>
-    <string name="group_name">Name</string>
-    <string name="group_address">Address</string>
     <string name="group_address_summary">Address: %s</string>
     <string name="title_edit_group_info">Edit Group</string>
     <string name="select_a_group_rationale">Select an existing group</string>
     <string name="no_available_groups">No available groups.</string>
     <string name="create_a_group_rationale">Create a new group to subscribe</string>
     <string name="title_create_group">Create Group</string>
+    <string name="title_create_group_summary">Select an address type to create a Group</string>
     <string name="title_subscribe_group">Subscribe</string>
     <string name="error_empty_group_name">Group name cannot be empty!</string>
     <string name="error_empty_group_address">Group address cannot be empty!</string>
@@ -203,18 +217,29 @@
     <string name="no_app_key_configured_title">NO APP KEYS BOUND</string>
     <string name="no_app_key_configured_rationale">No app keys are bound for models in this group. \nClick edit on the options menu to bind an app key to the models.</string>
 
+    <string name="title_manage_net_keys">Manage Net Keys</string>
+    <string name="title_net_key">Net Key</string>
+    <string name="title_add_net_key">Add Net Key</string>
+    <string name="title_edit_net_key">Edit Net Key</string>
     <string name="title_manage_app_keys">Manage App Keys</string>
+    <string name="title_app_key">App Key</string>
+    <string name="title_app_keys">App Keys</string>
+    <string name="title_key_details">Key Details</string>
+    <string name="title_add_app_key">Add App Key</string>
+    <string name="title_edit_app_key">Edit App Key</string>
+    <string name="title_bound_net_key">Bound Net Key</string>
+    <string name="summary_edit_key">The key must be a 32-character hexadecimal string.</string>
+    <string name="title_edit_key">Edit Key</string>
+    <string name="title_edit_key_name">Edit Key Name</string>
+    <string name="key_name_rationale">This is a friendly name that can be used to identify a key.</string>
     <string name="title_select_app_key">Select App Key</string>
-    <string name="summary_app_keys">App Keys</string>
-    <string name="app_key_count">%d keys</string>
     <string name="hint_app_key">App key</string>
     <string name="no_app_keys_title">NO APP KEYS AVAILABLE</string>
-    <string name="no_app_keys_settings_rationale">App keys are required to configure a mesh node.
-        Please click on the add button to add an app key </string>
     <string name="no_app_keys_rationale">App keys are required to configure a mesh node.
         Please add an app key in the network settings.</string>
     <string name="no_added_app_keys_rationale">Binding an app key to a model requires it to be added to a provisioned mesh node.
         Navigate back to the node configuration view add a new app key</string>
+    <string name="net_key_deleted">Net key deleted.</string>
     <string name="app_key_deleted">App key deleted.</string>
     <string name="undo">Undo</string>
     <string name="title_error_provisioning_failed">Provisioning Failed</string>
@@ -227,9 +252,7 @@
     <string name="models">Models:</string>
 
     <string name="title_appkey_status">AppKey Status</string>
-    <string name="app_key_item">App key %d</string>
-    <string name="app_key_index_item">Key Index: %d</string>
-    <string name="error_node_name">Node name cannot be empty!</string>
+    <string name="error_empty_name">Name cannot be empty!</string>
     <string name="element_address">Element: %s</string>
     <string name="model_count">%d Models</string>
     <string name="format_sig_model_id">SIG Model ID: %s</string>
@@ -254,7 +277,6 @@
     <string name="action_connect">CONNECT</string>
     <string name="action_disconnect">Disconnect</string>
 
-    <string name="dialog_summary_publish_address">Publish address for this model.</string>
     <string name="hint_publish_address">Publish Address</string>
     <string name="error_empty_publish_address">Publish Address cannot be empty!</string>
     <string name="title_publish_address_status">Publish Address Status</string>
@@ -278,7 +300,11 @@
     <string name="title_about">About</string>
     <string name="summary_version">App Version</string>
     <string name="title_node_configuration">Node Configuration</string>
+    <string name="title_added_net_keys">Added Net Keys</string>
     <string name="title_added_app_keys">Added App Keys</string>
+    <string name="title_added_keys">Added Keys</string>
+    <string name="title_keys">Keys</string>
+    <string name="title_key">Key</string>
 
     <string name="title_network_transmit_info">Network Transmit</string>
     <string name="title_network_transmit">Network Transmit Settings</string>
@@ -287,7 +313,9 @@
     <string name="title_network_transmit_interval_steps">Transmit Interval</string>
     <string name="action_network_transmit_get">READ STATE</string>
     <string name="action_network_transmit_set">SET NETWORK TRANSMIT</string>
-    <string name="text_network_transmit_interval_steps">%d ms</string>
+    <string name="time_ms">%d ms</string>
+    <string name="time_s">%d s</string>
+    <string name="time_m">%d min</string>
 
     <string name="title_relay_retransmit_info">Relay</string>
     <string name="title_relay_retransmit">Relay Settings</string>
@@ -308,7 +336,6 @@
     <string name="proxy_set_off_rationale_summary">Turning off the proxy feature will set this node to a non-connectable state and disable the proxy server.
         However, you will still be able to continue sending messages via the other proxy nodes in the network. Do you wish to continue?</string>
 
-    <string name="proxy_filter_settings">Proxy Filter Settings</string>
     <string name="title_proxy_filter">Proxy Filter Type</string>
     <string name="title_filter_addresses">Filter Addresses</string>
     <string name="white_list_filter">Whitelist</string>
@@ -318,6 +345,7 @@
     \n\nThe black list filter accepts all destination addresses except those that have been added to the black list.</string>
 
     <string name="action_disable">Disable</string>
+    <string name="disabled">Disabled</string>
     <string name="hint_remove">Hint: Swipe address to remove.</string>
     <string name="hint_filter_address">Unicast/Group Address</string>
     <string name="no_addresses_added">No addresses are added to this filter!</string>
@@ -327,7 +355,7 @@
     <string name="invalid_filter_address">Address must be a Unicast, Group or a Virtual Address!</string>
     <string name="error_empty_filter_address">Add at least one address to confirm!</string>
 
-    <string name="no_app_keys_added">No app keys are added to this node!</string>
+    <string name="no_app_keys_added">No app keys are added to this node.</string>
     <string name="error_no_app_keys_bound">No app keys are bound for this model. Please bind an app key first!</string>
     <string name="action_generic_read_state">READ STATE</string>
     <string name="action_generic_on">ON</string>
@@ -381,7 +409,7 @@
     <string name="title_publication_resolution">Resolution</string>
     <string name="title_security_credentials">Security Credentials</string>
     <string name="title_friendship_credentials_flag">Friendship Credentials Flag</string>
-    <string name="title_ttl">TTL</string>
+    <string name="title_ttl">Time To Live</string>
     <string name="title_publish_ttl">Publish TTL</string>
     <string name="title_publication_settings">Publication Settings</string>
     <string name="hint_retransmit_count">Retransmit count</string>
@@ -403,9 +431,12 @@
     <string name="resolution_summary_1_s">1 second</string>
     <string name="resolution_summary_10_s">10 seconds</string>
     <string name="resolution_summary_100_m">10 minutes</string>
+
     <string name="app_key_index">App key index %d</string>
+    <string name="app_key_name_and_index">Name: %s\nIndex: %d</string>
 
     <string name="action_apply">Apply</string>
+    <string name="action_save">Save</string>
 
     <string-array name="arr_publication_resolution">
         <item>100 milliseconds</item>
@@ -418,7 +449,7 @@
     <string name="hint_publication_steps">Publication steps</string>
     <string name="model_id">Model ID: %s</string>
     <string name="title_disconnected_error">Error</string>
-    <string name="disconnected_network_rationale">Connect to proxy node to continue.</string>
+    <string name="disconnected_network_rationale">Connect to proxy node to configure.</string>
     <string name="remaining_time">Rem. Time: %s</string>
     <string name="generic_level">Level</string>
     <string name="generic_level_percent">%d%%</string>
@@ -439,6 +470,7 @@
     <string name="settings">Settings</string>
     <string name="ext_storage_permission_denied">Unable to export network, external storage permission denied!</string>
     <string name="title_init_config_error">Initial Configuration Failed</string>
+    <string name="provisioner_unassigned_msg">Unable to configure node. Please assign an address to the provisioner to continue configuration.</string>
     <string name="init_config_error_net_transmit_msg">Initial configuration of the node has failed.
         Continue with the following steps to configure the node\n\n
         Step 1. Connect to the network.\n\n
@@ -465,4 +497,28 @@
     <string name="label_uuid_summary">Label UUID:</string>
     <string name="label_uuid">Label UUID</string>
     <string name="name">Name</string>
+    <string name="action_add_app_key">Add App Key</string>
+    <string name="action_add_sub_net_key">Add Sub Net Key</string>
+    <string name="hint_delete_key">Hint: Swipe to delete a key.</string>
+    <string name="title_error">Error</string>
+    <string name="not_assigned">Not assigned</string>
+    <string name="action_resolve">Resolve</string>
+    <string name="first_scene">First Scene</string>
+    <string name="last_scene">Last Scene</string>
+    <string name="automatic">Automatic</string>
+    <string name="action_unassign">Unassign</string>
+    <string name="address_unassigned">Unassigned</string>
+    <string name="action_add_node">Add Node</string>
+    <string name="action_create_group">Create Group</string>
+    <string name="title_unassign_provisioner">Unassign Provisioner</string>
+    <string name="summary_unassign_provisioner">Unassigning a provisioner will disable its configuration capabilities and delete the corresponding node.</string>
+    <string name="virtual_address">Virtual Address</string>
+    <string name="no_allocated_group_range">Please allocate a range of group addresses for the provisioner.</string>
+    <string name="title_details">Details</string>
+    <string name="more">more</string>
+    <string name="title_delete_node">Delete Node</string>
+    <string name="delete_node_rationale">Deleting a node manually will not reset the node and will be removed from the list of nodes.
+        Would you like to continue? /nThis step cannot be undone and you will have to manually reset the node.</string>
+    <string name="node_deleted">Node deleted.</string>
+    <string name="interval">Interval</string>
 </resources>

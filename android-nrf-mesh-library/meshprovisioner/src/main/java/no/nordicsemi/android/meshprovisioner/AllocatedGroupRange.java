@@ -1,47 +1,29 @@
 package no.nordicsemi.android.meshprovisioner;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
+import android.os.Parcel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.annotation.NonNull;
 import androidx.room.Ignore;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
-
-import com.google.gson.annotations.Expose;
-
-import static androidx.room.ForeignKey.CASCADE;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 
 /**
  * Class definition for allocating group range for provisioners.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
-@Entity(tableName = "allocated_group_range",
-        foreignKeys = @ForeignKey(entity = Provisioner.class,
-                parentColumns = "provisioner_uuid",
-                childColumns = "provisioner_uuid",
-                onUpdate = CASCADE,
-                onDelete = CASCADE),
-        indices = @Index("provisioner_uuid"))
-public class AllocatedGroupRange {
+@SuppressWarnings({"unused"})
+public class AllocatedGroupRange extends AddressRange {
 
-    @PrimaryKey(autoGenerate = true)
-    int id;
+    @Override
+    public final int getLowerBound() {
+        return MeshAddress.START_GROUP_ADDRESS;
+    }
 
-    @ColumnInfo(name = "provisioner_uuid")
-    @Expose
-    private String provisionerUuid;
-
-    @Expose
-    private int highAddress;
-
-    @ColumnInfo(name = "low_address")
-    @Expose
-    private int lowAddress;
-
-    @Ignore
-    public AllocatedGroupRange() {
-
+    @Override
+    public final int getUpperBound() {
+        return MeshAddress.END_GROUP_ADDRESS;
     }
 
     /**
@@ -51,39 +33,45 @@ public class AllocatedGroupRange {
      * @param highAddress high address of group range
      */
     public AllocatedGroupRange(final int lowAddress, final int highAddress) {
+        lowerBound = MeshAddress.START_GROUP_ADDRESS;
+        upperBound = MeshAddress.END_GROUP_ADDRESS;
+        if (!MeshAddress.isValidGroupAddress(lowAddress))
+            throw new IllegalArgumentException("Low address must range from 0xC000 to 0xFEFF");
+
+        if (!MeshAddress.isValidGroupAddress(highAddress))
+            throw new IllegalArgumentException("High address must range from 0xC000 to 0xFEFF");
+
+        /*if(lowAddress > highAddress)
+            throw new IllegalArgumentException("low address must be lower than the high address");*/
+
         this.lowAddress = lowAddress;
         this.highAddress = highAddress;
     }
 
-    public int getId() {
-        return id;
+    @Ignore
+    AllocatedGroupRange() {
     }
 
-    public void setId(final int id) {
-        this.id = id;
+    protected AllocatedGroupRange(Parcel in) {
+        lowerBound = in.readInt();
+        upperBound = in.readInt();
+        highAddress = in.readInt();
+        lowAddress = in.readInt();
     }
 
-    /**
-     * Returns the provisionerUuid of the Mesh network
-     * @return String provisionerUuid
-     */
-    public String getProvisionerUuid() {
-        return provisionerUuid;
-    }
+    public static final Creator<AllocatedGroupRange> CREATOR = new Creator<AllocatedGroupRange>() {
+        @Override
+        public AllocatedGroupRange createFromParcel(Parcel in) {
+            return new AllocatedGroupRange(in);
+        }
 
-    /**
-     * Sets the provisionerUuid of the mesh network to this application key
-     * @param provisionerUuid mesh network provisionerUuid
-     */
-    public void setProvisionerUuid(final String provisionerUuid) {
-        this.provisionerUuid = provisionerUuid;
-    }
+        @Override
+        public AllocatedGroupRange[] newArray(int size) {
+            return new AllocatedGroupRange[size];
+        }
+    };
 
-    /**
-     * Returns the low address of the allocated group address
-     *
-     * @return low address
-     */
+    @Override
     public int getLowAddress() {
         return lowAddress;
     }
@@ -97,11 +85,7 @@ public class AllocatedGroupRange {
         this.lowAddress = lowAddress;
     }
 
-    /**
-     * Returns the high address of the allocated group range
-     *
-     * @return highAddress of the group range
-     */
+    @Override
     public int getHighAddress() {
         return highAddress;
     }
@@ -113,5 +97,18 @@ public class AllocatedGroupRange {
      */
     public void setHighAddress(final int highAddress) {
         this.highAddress = highAddress;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeInt(lowerBound);
+        dest.writeInt(upperBound);
+        dest.writeInt(highAddress);
+        dest.writeInt(lowAddress);
     }
 }

@@ -11,11 +11,9 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 
 import java.lang.reflect.Type;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 final class NetKeyDeserializer implements JsonSerializer<List<NetworkKey>>, JsonDeserializer<List<NetworkKey>> {

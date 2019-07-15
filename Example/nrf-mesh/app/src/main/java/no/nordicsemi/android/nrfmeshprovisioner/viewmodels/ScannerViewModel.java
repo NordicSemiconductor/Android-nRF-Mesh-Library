@@ -25,7 +25,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.nrfmeshprovisioner.ScannerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
 
 /**
  * ViewModel for {@link ScannerActivity}

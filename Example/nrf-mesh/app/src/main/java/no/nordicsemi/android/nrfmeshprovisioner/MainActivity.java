@@ -96,16 +96,13 @@ public class MainActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
-        if (mViewModel.getNodes().getValue() != null && !mViewModel.getNodes().getValue().isEmpty()) {
-            final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-            if (isConnectedToNetwork != null && isConnectedToNetwork) {
-                getMenuInflater().inflate(R.menu.disconnect, menu);
-            } else {
-                getMenuInflater().inflate(R.menu.connect, menu);
-            }
-            return true;
+        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
+        if (isConnectedToNetwork != null && isConnectedToNetwork) {
+            getMenuInflater().inflate(R.menu.disconnect, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.connect, menu);
         }
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override
@@ -113,9 +110,7 @@ public class MainActivity extends AppCompatActivity implements Injectable,
         final int id = item.getItemId();
         switch (id) {
             case R.id.action_connect:
-                final Intent intent = new Intent(this, ScannerActivity.class);
-                intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, false);
-                startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
+                mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
                 return true;
             case R.id.action_disconnect:
                 mViewModel.disconnect();

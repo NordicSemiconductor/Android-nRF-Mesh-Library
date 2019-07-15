@@ -222,17 +222,14 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             final int opCode = message.getOpCode();
             final byte[] data;
             final int length;
-            switch (opCode) {
-                case TransportLayerOpCodes.SAR_ACK_OPCODE:
-                    data = messages.get(0);
-                    length = data.length - UNSEGMENTED_ACK_MESSAGE_HEADER_LENGTH; //header size of unsegmented acknowledgement messages is 3;
-                    messages.put(0, removeHeader(data, UNSEGMENTED_ACK_MESSAGE_HEADER_LENGTH, length));
-                    break;
-                default:
-                    data = messages.get(0);
-                    length = data.length - UNSEGMENTED_MESSAGE_HEADER_LENGTH; //header size of unsegmented messages is 1;
-                    messages.put(0, removeHeader(data, UNSEGMENTED_MESSAGE_HEADER_LENGTH, length));
-                    break;
+            if (opCode == TransportLayerOpCodes.SAR_ACK_OPCODE) {
+                data = messages.get(0);
+                length = data.length - UNSEGMENTED_ACK_MESSAGE_HEADER_LENGTH; //header size of unsegmented acknowledgement messages is 3;
+                messages.put(0, removeHeader(data, UNSEGMENTED_ACK_MESSAGE_HEADER_LENGTH, length));
+            } else {
+                data = messages.get(0);
+                length = data.length - UNSEGMENTED_MESSAGE_HEADER_LENGTH; //header size of unsegmented messages is 1;
+                messages.put(0, removeHeader(data, UNSEGMENTED_MESSAGE_HEADER_LENGTH, length));
             }
         }
         return messages;
@@ -479,7 +476,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             initIncompleteTimer();
 
             //Start acknowledgement timer only for messages directed to a unicast address.
-            if (MeshParserUtils.isValidUnicastAddress(dst)) {
+            if (MeshAddress.isValidUnicastAddress(dst)) {
                 //Start the block acknowledgement timer irrespective of which segment was received first
                 initSegmentedAccessAcknowledgementTimer(seqZero, ttl, blockAckSrc, blockAckDst, segN);
             }
@@ -498,7 +495,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
 
                         //Start acknowledgement timer only for messages directed to a unicast address.
                         //We also have to make sure we restart the acknowledgement timer only if the acknowledgement timer is not active and the incomplete timer is active
-                        if (MeshParserUtils.isValidUnicastAddress(dst) && !mSegmentedAccessAcknowledgementTimerStarted) {
+                        if (MeshAddress.isValidUnicastAddress(dst) && !mSegmentedAccessAcknowledgementTimerStarted) {
                             Log.v(TAG, "Restarting block acknowledgement timer for src: " + MeshAddress.formatAddress(blockAckDst, false));
                             //Start the block acknowledgement timer irrespective of which segment was received first
                             initSegmentedAccessAcknowledgementTimer(seqZero, ttl, blockAckSrc, blockAckDst, segN);
@@ -623,7 +620,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             mHandler.removeCallbacks(mIncompleteTimerRunnable);
             Log.v(TAG, "Block ack sent? " + mBlockAckSent);
             if (mDuration > System.currentTimeMillis() && !mBlockAckSent) {
-                if (MeshParserUtils.isValidUnicastAddress(dst)) {
+                if (MeshAddress.isValidUnicastAddress(dst)) {
                     mHandler.removeCallbacksAndMessages(null);
                     Log.v(TAG, "Cancelling Scheduled block ack and incomplete timer, sending an immediate block ack");
                     sendBlockAck(seqZero, ttl, blockAckSrc, blockAckDst, segN);
@@ -774,12 +771,9 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         final byte[] transportControlPdu = controlMessage.getTransportControlPdu();
         final int opCode = controlMessage.getOpCode();
 
-        switch (opCode) {
-            case TransportLayerOpCodes.SAR_ACK_OPCODE:
-                final BlockAcknowledgementMessage acknowledgement = new BlockAcknowledgementMessage(transportControlPdu);
-                controlMessage.setTransportControlMessage(acknowledgement);
-            default:
-                break;
+        if (opCode == TransportLayerOpCodes.SAR_ACK_OPCODE) {
+            final BlockAcknowledgementMessage acknowledgement = new BlockAcknowledgementMessage(transportControlPdu);
+            controlMessage.setTransportControlMessage(acknowledgement);
         }
 
     }

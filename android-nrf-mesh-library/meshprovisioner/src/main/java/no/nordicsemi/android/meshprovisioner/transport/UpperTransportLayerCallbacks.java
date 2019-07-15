@@ -22,6 +22,10 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import java.util.UUID;
+
+import androidx.annotation.Nullable;
+
 /**
  * Upper transport layer call backs
  */
@@ -38,4 +42,14 @@ public interface UpperTransportLayerCallbacks {
      * @param aid application key identifier
      */
     byte[] getApplicationKey(final int aid);
+
+
+    /**
+     * Returns the label UUID of the destination address
+     *
+     * @param address Virtual address
+     * @return The label uuid if it's known to the provisioner or null otherwise
+     */
+    @Nullable
+    UUID getLabel(final int address);
 }
