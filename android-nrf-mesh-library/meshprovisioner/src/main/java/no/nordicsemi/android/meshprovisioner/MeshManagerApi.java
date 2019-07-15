@@ -790,8 +790,13 @@ public class MeshManagerApi implements MeshMngrApi {
     private final InternalTransportCallbacks internalTransportCallbacks = new InternalTransportCallbacks() {
 
         @Override
-        public ProvisionedMeshNode getProvisionedNode(final int unicast) {
+        public ProvisionedMeshNode getNode(final int unicast) {
             return mMeshNetwork.getNode(unicast);
+        }
+
+        @Override
+        public Provisioner getProvisioner(final int unicast) {
+            return null;
         }
 
         @Override

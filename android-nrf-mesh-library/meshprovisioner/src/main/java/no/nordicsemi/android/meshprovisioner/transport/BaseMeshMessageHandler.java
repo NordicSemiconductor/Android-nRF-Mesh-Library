@@ -261,7 +261,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param configurationMessage {@link ConfigMessage} Mesh message containing the message opcode and message parameters
      */
     private void createConfigMeshMessage(final int src, final int dst, @NonNull final ConfigMessage configurationMessage) {
-        final ProvisionedMeshNode node = mInternalTransportCallbacks.getProvisionedNode(dst);
+        final ProvisionedMeshNode node = mInternalTransportCallbacks.getNode(dst);
         if (node == null) {
             return;
         }
