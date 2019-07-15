@@ -128,8 +128,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
             for (int i = currentIndex; i < nodes.size(); i++) {
                 final ProvisionedMeshNode node = nodes.get(i);
                 index += i;
-                final int lastUnicastInNode = node.getUnicastAddress() +
-                        (node.getNumberOfElements() == 1 ? node.getNumberOfElements() : node.getNumberOfElements() - 1);
+                final int lastUnicastInNode = node.getLastUnicastAddress();
 
                 // Skip nodes with addresses below the range.
                 if (address > lastUnicastInNode) {
