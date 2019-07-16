@@ -402,6 +402,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         if (network != null) {
             if (network.addGroup(group)) {
                 onPublishAddressSet(group);
+                return true;
             }
         }
         return false;

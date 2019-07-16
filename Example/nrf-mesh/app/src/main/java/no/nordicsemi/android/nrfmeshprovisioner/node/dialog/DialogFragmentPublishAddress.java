@@ -314,7 +314,6 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                     group = ((GroupCallbacks) requireActivity()).createGroup(uuid, name);
                     if (group != null) {
                         if (((GroupCallbacks) requireActivity()).onGroupAdded(group)) {
-                            ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(group);
                             dismiss();
                         }
                     }
