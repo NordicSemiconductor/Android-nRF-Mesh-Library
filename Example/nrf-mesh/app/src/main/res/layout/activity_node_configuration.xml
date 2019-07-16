@@ -341,6 +341,7 @@
                             android:layout_height="wrap_content"
                             android:paddingBottom="@dimen/activity_vertical_margin"
                             android:scrollbars="none"
+                            android:overScrollMode="never"
                             tools:visibility="visible"/>
 
                         <include
