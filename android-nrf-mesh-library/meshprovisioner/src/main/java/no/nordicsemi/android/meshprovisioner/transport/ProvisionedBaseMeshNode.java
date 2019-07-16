@@ -150,15 +150,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @TypeConverters(MeshTypeConverters.class)
     @Expose
     Map<Integer, Element> mElements = new LinkedHashMap<>();
-    @Ignore
-    @Expose
-    byte[] generatedNetworkId;
-    @Ignore
-    @Expose
-    int numberOfElements;
-    @Ignore
-    @Expose(deserialize = false)
-    protected String bluetoothDeviceAddress;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedBaseMeshNode() {
@@ -214,10 +205,18 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     }
 
     /**
+     * Returns the number of elements in the node
+     */
+    public int getNumberOfElements() {
+        return mElements.size();
+    }
+
+    /**
      * Returns the unicast address used by the last element in the node
      */
     public int getLastUnicastAddress() {
-        return numberOfElements == 1 ? unicastAddress : (unicastAddress + (numberOfElements - 1));
+        final int elementCount = getNumberOfElements();
+        return elementCount == 1 ? unicastAddress : (unicastAddress + (elementCount - 1));
     }
 
     public final Integer getTtl() {

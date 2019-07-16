@@ -106,7 +106,6 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             }
 
             node.nodeName = jsonObject.get("name").getAsString();
-            node.numberOfElements = node.mElements.size();
             nodes.add(node);
         }
 

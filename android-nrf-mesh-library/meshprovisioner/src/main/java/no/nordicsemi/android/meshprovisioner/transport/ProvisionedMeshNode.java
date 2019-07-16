@@ -24,8 +24,6 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.os.Parcel;
 
-import com.google.gson.annotations.Expose;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,10 +61,6 @@ import static androidx.room.ForeignKey.CASCADE;
         indices = @Index("mesh_uuid"))
 public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
-    @Ignore
-    @Expose
-    private SecureUtils.K2Output k2Output;
-
     public static final Creator<ProvisionedMeshNode> CREATOR = new Creator<ProvisionedMeshNode>() {
         @Override
         public ProvisionedMeshNode createFromParcel(Parcel in) {
@@ -101,9 +95,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         deviceKey = unprovisionedMeshNode.getDeviceKey();
         ttl = unprovisionedMeshNode.getTtl();
         final NetworkKey networkKey = new NetworkKey(unprovisionedMeshNode.getKeyIndex(), unprovisionedMeshNode.getNetworkKey());
-        k2Output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
         mTimeStampInMillis = unprovisionedMeshNode.getTimeStamp();
-        numberOfElements = unprovisionedMeshNode.getNumberOfElements();
     }
 
     /**
@@ -132,7 +124,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         deviceKey = SecureUtils.generateRandomNumber();
         ttl = provisioner.getGlobalTtl();
         mTimeStampInMillis = System.currentTimeMillis();
-        numberOfElements = 1;
         final MeshModel model = SigModelParser.getSigModel(SigModelParser.CONFIGURATION_CLIENT);
         final HashMap<Integer, MeshModel> models = new HashMap<>();
         models.put(model.getModelId(), model);
@@ -152,15 +143,12 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         unicastAddress = in.readInt();
         deviceKey = in.createByteArray();
         ttl = (Integer) in.readValue(Integer.class.getClassLoader());
-        numberOfElements = in.readInt();
         sequenceNumber = in.readInt();
-        k2Output = in.readParcelable(SecureUtils.K2Output.class.getClassLoader());
         companyIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         productIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         versionIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         crpl = (Integer) in.readValue(Integer.class.getClassLoader());
         nodeFeatures = (Features) in.readValue(Features.class.getClassLoader());
-        generatedNetworkId = in.createByteArray();
         sortElements(in.readHashMap(Element.class.getClassLoader()));
         mAddedAppKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
         mTimeStampInMillis = in.readLong();
@@ -182,15 +170,12 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeInt(unicastAddress);
         dest.writeByteArray(deviceKey);
         dest.writeValue(ttl);
-        dest.writeInt(numberOfElements);
         dest.writeInt(sequenceNumber);
-        dest.writeParcelable(k2Output, flags);
         dest.writeValue(companyIdentifier);
         dest.writeValue(productIdentifier);
         dest.writeValue(versionIdentifier);
         dest.writeValue(crpl);
         dest.writeValue(nodeFeatures);
-        dest.writeByteArray(generatedNetworkId);
         dest.writeMap(mElements);
         dest.writeList(mAddedAppKeyIndexes);
         dest.writeLong(mTimeStampInMillis);
@@ -255,14 +240,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         this.sequenceNumber = sequenceNumber;
     }
 
-    public final SecureUtils.K2Output getK2Output() {
-        return k2Output;
-    }
-
-    final void setK2Output(final SecureUtils.K2Output k2Output) {
-        this.k2Output = k2Output;
-    }
-
     public final Integer getCompanyIdentifier() {
         return companyIdentifier;
     }
@@ -313,17 +290,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setNodeFeatures(final Features features) {
         this.nodeFeatures = features;
-    }
-
-    /**
-     * Returns the number of elements in the node
-     */
-    public int getNumberOfElements() {
-        if (numberOfElements > mElements.size()) {
-            return numberOfElements;
-        }
-
-        return mElements.size();
     }
 
     /**
