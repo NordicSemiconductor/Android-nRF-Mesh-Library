@@ -61,7 +61,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
             final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
 
             level = nodeControlsContainer.findViewById(R.id.level);
-            mLevelSeekBar = nodeControlsContainer.findViewById(R.id.level_seekbar);
+            mLevelSeekBar = nodeControlsContainer.findViewById(R.id.level_seek_bar);
             mLevelSeekBar.setProgress(0);
             mLevelSeekBar.setMax(100);
 

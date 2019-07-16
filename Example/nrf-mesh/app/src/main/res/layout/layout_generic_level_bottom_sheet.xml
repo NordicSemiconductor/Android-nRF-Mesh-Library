@@ -178,7 +178,7 @@
                     tools:ignore="HardcodedText"/>
 
                 <SeekBar
-                    android:id="@+id/level_seekbar"
+                    android:id="@+id/level_seek_bar"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/activity_horizontal_margin"

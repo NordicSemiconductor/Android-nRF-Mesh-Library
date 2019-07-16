@@ -22,11 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.keys.adapter;
 
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
@@ -53,22 +51,32 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
 
     public AddedAppKeyAdapter(@NonNull final Context context,
                               @NonNull final List<ApplicationKey> appKeys,
-                              @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
+                              @NonNull final ProvisionedMeshNode meshNode) {
         this.mContext = context;
-        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
-            if (meshNode != null) {
-                this.appKeys.clear();
-                for(Integer index : meshNode.getAddedAppKeyIndexes()) {
-                    for (ApplicationKey applicationKey : appKeys) {
-                        if (index == applicationKey.getKeyIndex()){
-                            this.appKeys.add(applicationKey);
-                        }
-                    }
+        this.appKeys.clear();
+        for (Integer index : meshNode.getAddedAppKeyIndexes()) {
+            for (ApplicationKey applicationKey : appKeys) {
+                if (index == applicationKey.getKeyIndex()) {
+                    this.appKeys.add(applicationKey);
                 }
-                Collections.sort(this.appKeys, Utils.appKeyComparator);
-                notifyDataSetChanged();
             }
-        });
+        }
+        Collections.sort(this.appKeys, Utils.appKeyComparator);
+        notifyDataSetChanged();
+    }
+
+    public void updateAppKeyAdapter(@NonNull final ProvisionedMeshNode meshNode,
+                                    @NonNull final List<ApplicationKey> appKeys) {
+        this.appKeys.clear();
+        for (Integer index : meshNode.getAddedAppKeyIndexes()) {
+            for (ApplicationKey applicationKey : appKeys) {
+                if (index == applicationKey.getKeyIndex()) {
+                    this.appKeys.add(applicationKey);
+                }
+            }
+        }
+        Collections.sort(this.appKeys, Utils.appKeyComparator);
+        notifyDataSetChanged();
     }
 
     public void setOnItemClickListener(final AddedAppKeyAdapter.OnItemClickListener listener) {
@@ -102,8 +110,19 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         return appKeys.size();
     }
 
+    public ApplicationKey getItem(final int position) {
+        if (isEmpty() || position < 0)
+            return null;
+        return appKeys.get(position);
+    }
+
     public boolean isEmpty() {
         return getItemCount() == 0;
+    }
+
+    public void removeItem(final int position) {
+        appKeys.remove(position);
+        notifyItemRemoved(position);
     }
 
     @FunctionalInterface

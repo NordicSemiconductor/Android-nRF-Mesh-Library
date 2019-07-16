@@ -124,8 +124,8 @@
                             android:layout_gravity="end"
                             android:layout_marginStart="@dimen/item_padding_end"
                             android:layout_marginEnd="@dimen/item_padding_start"
-                            android:padding="@dimen/activity_horizontal_margin"
-                            android:text="@string/title_details"/>
+                            android:padding="@dimen/item_padding_end"
+                            android:text="@string/more"/>
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -173,10 +173,10 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:clipToPadding="false"
+                            android:overScrollMode="never"
                             android:paddingBottom="@dimen/activity_vertical_margin"
                             android:scrollbars="none"
                             android:visibility="gone"
-                            android:overScrollMode="never"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/composition_data_tool_bar"/>
@@ -199,13 +199,13 @@
                                 app:layout_constraintTop_toTopOf="parent"/>
 
                             <com.google.android.material.button.MaterialButton
-                                android:id="@+id/action_get_compostion_data"
+                                android:id="@+id/action_get_composition_data"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_horizontal"
                                 android:layout_marginStart="8dp"
                                 android:layout_marginEnd="8dp"
-                                android:padding="@dimen/activity_horizontal_margin"
+                                android:padding="@dimen/item_padding_end"
                                 android:text="@string/action_composition_data"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintRight_toRightOf="parent"
@@ -243,8 +243,6 @@
                             android:id="@+id/container_app_keys"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="?selectableItemBackground"
-                            android:paddingTop="@dimen/item_padding_top"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/app_key_tool_bar">
@@ -263,10 +261,10 @@
 
 
                             <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/recycler_view_app_keys"
+                                android:id="@+id/recycler_view_added_app_keys"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:paddingBottom="@dimen/activity_vertical_margin"
+                                android:overScrollMode="never"
                                 android:scrollbars="none"
                                 android:visibility="gone"
                                 app:layout_constraintEnd_toEndOf="parent"
@@ -285,6 +283,20 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/container_app_keys"/>
 
+                        <TextView
+                            android:id="@+id/delete_hint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/item_padding_end"
+                            android:padding="@dimen/activity_horizontal_margin"
+                            android:text="@string/hint_delete"
+                            android:visibility="invisible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/div2"
+                            tools:visibility="visible"/>
+
+
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/action_add_app_keys"
                             android:layout_width="wrap_content"
@@ -292,7 +304,7 @@
                             android:layout_gravity="center_horizontal"
                             android:layout_marginStart="@dimen/item_padding_end"
                             android:layout_marginEnd="@dimen/item_padding_start"
-                            android:padding="@dimen/activity_horizontal_margin"
+                            android:padding="@dimen/item_padding_end"
                             android:text="@string/action_add"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -329,6 +341,7 @@
                             android:layout_height="wrap_content"
                             android:paddingBottom="@dimen/activity_vertical_margin"
                             android:scrollbars="none"
+                            android:overScrollMode="never"
                             tools:visibility="visible"/>
 
                         <include
@@ -402,7 +415,7 @@
                             android:layout_gravity="center_horizontal"
                             android:layout_marginStart="@dimen/item_padding_end"
                             android:layout_marginEnd="@dimen/item_padding_start"
-                            android:padding="@dimen/activity_horizontal_margin"
+                            android:padding="@dimen/item_padding_end"
                             android:text="@string/action_proxy_state_get"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/action_set_proxy_state"
@@ -417,7 +430,7 @@
                             android:layout_marginStart="@dimen/item_padding_end"
                             android:layout_marginEnd="@dimen/item_padding_start"
                             android:enabled="false"
-                            android:padding="@dimen/activity_horizontal_margin"
+                            android:padding="@dimen/item_padding_end"
                             android:text="@string/action_proxy_state_set_on"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -479,7 +492,7 @@
                             android:layout_gravity="center_horizontal"
                             android:layout_marginStart="@dimen/item_padding_end"
                             android:layout_marginEnd="@dimen/item_padding_start"
-                            android:padding="@dimen/activity_horizontal_margin"
+                            android:padding="@dimen/item_padding_end"
                             android:text="@string/action_reset_node"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"

@@ -375,11 +375,43 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     }
 
     /**
+     * Removes an AppKey index that was added to the node
+     *
+     * @param index AppKey index
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    protected final void removeAddedAppKeyIndex(final int index) {
+        for (int i = 0; i < mAddedAppKeyIndexes.size(); i++) {
+            final int keyIndex = mAddedAppKeyIndexes.get(i);
+            if (keyIndex == index) {
+                mAddedAppKeyIndexes.remove(i);
+                for (Map.Entry<Integer, Element> elementEntry : getElements().entrySet()) {
+                    final Element element = elementEntry.getValue();
+                    for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
+                        final MeshModel model = modelEntry.getValue();
+                        if (model != null) {
+                            for (int j = 0; j < model.getBoundAppKeyIndexes().size(); j++) {
+                                final int boundKeyIndex = model.getBoundAppKeyIndexes().get(j);
+                                if (boundKeyIndex == index) {
+                                    model.mBoundAppKeyIndexes.remove(j);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    /**
      * Sets the data from the {@link ConfigCompositionDataStatus}
      *
      * @param configCompositionDataStatus Composition data status object
      */
-    protected final void setCompositionData(@NonNull final ConfigCompositionDataStatus configCompositionDataStatus) {
+    protected final void setCompositionData(
+            @NonNull final ConfigCompositionDataStatus configCompositionDataStatus) {
         companyIdentifier = configCompositionDataStatus.getCompanyIdentifier();
         productIdentifier = configCompositionDataStatus.getProductIdentifier();
         versionIdentifier = configCompositionDataStatus.getVersionIdentifier();
@@ -407,7 +439,8 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      *
      * @param configModelAppStatus ConfigModelAppStatus containing the bound app key information
      */
-    protected final void setAppKeyBindStatus(@NonNull final ConfigModelAppStatus configModelAppStatus) {
+    protected final void setAppKeyBindStatus(
+            @NonNull final ConfigModelAppStatus configModelAppStatus) {
         if (configModelAppStatus.isSuccessful()) {
             final Element element = mElements.get(configModelAppStatus.getElementAddress());
             if (element != null) {
@@ -426,7 +459,8 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      *
      * @param configModelAppStatus ConfigModelAppStatus containing the unbound app key information
      */
-    protected final void setAppKeyUnbindStatus(@NonNull final ConfigModelAppStatus configModelAppStatus) {
+    protected final void setAppKeyUnbindStatus(
+            @NonNull final ConfigModelAppStatus configModelAppStatus) {
         if (configModelAppStatus.isSuccessful()) {
             final Element element = mElements.get(configModelAppStatus.getElementAddress());
             if (element != null) {

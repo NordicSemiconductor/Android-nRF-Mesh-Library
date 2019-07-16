@@ -412,6 +412,10 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     private void unbindAppKey(final int position) {
         if (mBoundAppKeyAdapter.getItemCount() != 0) {
+            if (!checkConnectivity()) {
+                mBoundAppKeyAdapter.notifyItemChanged(position);
+                return;
+            }
             final ApplicationKey appKey = mBoundAppKeyAdapter.getAppKey(position);
             final int keyIndex = appKey.getKeyIndex();
             final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
@@ -457,6 +461,10 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     private void deleteSubscription(final int position) {
         if (mSubscriptionAdapter.getItemCount() != 0) {
+            if (!checkConnectivity()) {
+                mSubscriptionAdapter.notifyItemChanged(position);
+                return;
+            }
             final int address = mGroupAddress.get(position);
             final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
             if (meshNode != null) {
