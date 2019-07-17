@@ -57,15 +57,6 @@ public class ConfigNetKeyDelete extends ConfigMessage {
         assembleMessageParameters();
     }
 
-    /**
-     * Returns the Network key that is needs to be sent to the node
-     *
-     * @return app key
-     */
-    public NetworkKey getNetKey() {
-        return mNetKey;
-    }
-
     @Override
     public int getOpCode() {
         return OP_CODE;
