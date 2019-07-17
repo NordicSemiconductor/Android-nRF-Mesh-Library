@@ -237,6 +237,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
                             network.assignUnicastAddress(unicast);
                             updateCapabilitiesUi(capabilities);
                         } catch (IllegalArgumentException ex) {
+                            action_provision.setEnabled(false);
                             mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage(), Snackbar.LENGTH_LONG);
                         }
                     }

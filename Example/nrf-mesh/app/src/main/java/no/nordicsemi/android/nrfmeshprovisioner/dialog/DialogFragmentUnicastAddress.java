@@ -141,8 +141,12 @@ public class DialogFragmentUnicastAddress extends DialogFragment {
         });
 
         alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> {
-            final int unicast = ((DialogFragmentUnicastAddressListener) requireActivity()).getNextUnicastAddress(mElementCount);
-            unicastAddressInput.setText(MeshAddress.formatAddress(unicast, false));
+            try {
+                final int unicast = ((DialogFragmentUnicastAddressListener) requireActivity()).getNextUnicastAddress(mElementCount);
+                unicastAddressInput.setText(MeshAddress.formatAddress(unicast, false));
+            } catch (IllegalArgumentException ex) {
+                unicastAddressInputLayout.setError(ex.getMessage());
+            }
         });
 
         return alertDialog;
