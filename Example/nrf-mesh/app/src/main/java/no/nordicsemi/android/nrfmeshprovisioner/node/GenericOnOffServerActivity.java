@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import javax.inject.Inject;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -67,7 +69,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                         sendGenericOnOff(false, delaySeekBar.getProgress());
                     }
                 } catch (IllegalArgumentException ex) {
-                    mViewModel.displaySnackBar(this, mContainer, ex.getMessage());
+                    mViewModel.displaySnackBar(this, mContainer, ex.getMessage(), Snackbar.LENGTH_LONG);
                 }
             });
 
@@ -207,7 +209,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             if (model != null) {
                 if (!model.getBoundAppKeyIndexes().isEmpty()) {
                     final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                    final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
+                    final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
 
                     final int address = element.getElementAddress();
                     Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
@@ -215,7 +217,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                     final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey);
                     sendMessage(address, genericOnOffSet);
                 } else {
-                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
+                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
                 }
             }
         }
@@ -237,13 +239,13 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                 if (model != null) {
                     if (!model.getBoundAppKeyIndexes().isEmpty()) {
                         final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                        final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
+                        final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state,
                                 node.getSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
                         sendMessage(address, genericOnOffSet);
                     } else {
-                        mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
+                        mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
                     }
                 }
             }

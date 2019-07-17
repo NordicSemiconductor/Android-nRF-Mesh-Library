@@ -127,7 +127,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
         mViewModel.isConnectedToProxy().observe(this, isConnected -> {
             if (!isConnected) {
                 clearAddressPressed = false;
-                final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+                final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
                 if (network != null) {
                     mFilter = network.getProxyFilter();
                     if (mFilter == null) {
@@ -148,7 +148,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
             actionEnableBlackList.setEnabled(isConnected);
         });
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
             if (network == null) {
                 return;
@@ -250,7 +250,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
     }
 
     private void removeAddress(final int position) {
-        final MeshNetwork meshNetwork = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork meshNetwork = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (meshNetwork != null) {
             final ProxyFilter proxyFilter = meshNetwork.getProxyFilter();
             if (proxyFilter != null) {
@@ -266,7 +266,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
     }
 
     private void removeAddresses() {
-        final MeshNetwork meshNetwork = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork meshNetwork = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (meshNetwork != null) {
             final ProxyFilter proxyFilter = meshNetwork.getProxyFilter();
             if (proxyFilter != null) {

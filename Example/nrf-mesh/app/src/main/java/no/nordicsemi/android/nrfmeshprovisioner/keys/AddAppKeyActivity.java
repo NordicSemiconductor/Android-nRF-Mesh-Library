@@ -124,7 +124,7 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable,
         final RecyclerView netKeysRecyclerView = findViewById(R.id.recycler_view_keys);
         netKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         netKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        final ManageBoundNetKeyAdapter adapter = new ManageBoundNetKeyAdapter(this, mViewModel.getMeshNetworkLiveData().getNetworkKeys(), appKey);
+        final ManageBoundNetKeyAdapter adapter = new ManageBoundNetKeyAdapter(this, mViewModel.getNetworkLiveData().getNetworkKeys(), appKey);
         adapter.setOnItemClickListener(this);
         netKeysRecyclerView.setAdapter(adapter);
 
@@ -220,7 +220,7 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable,
                     return key;
                 }
             } catch (IllegalArgumentException ex) {
-                mViewModel.displaySnackBar(this, container, ex.getMessage());
+                mViewModel.displaySnackBar(this, container, ex.getMessage(), Snackbar.LENGTH_LONG);
             }
         }
         return appKey;

@@ -74,7 +74,7 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
         ButterKnife.bind(this);
         //noinspection ConstantConditions
         final int index = getIntent().getExtras().getInt(AppKeysActivity.EDIT_APP_KEY);
-        appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(index);
+        appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(index);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -109,7 +109,7 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
         final RecyclerView netKeysRecyclerView = findViewById(R.id.recycler_view_keys);
         netKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         netKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        final ManageBoundNetKeyAdapter mAdapter = new ManageBoundNetKeyAdapter(this, mViewModel.getMeshNetworkLiveData().getNetworkKeys(), appKey);
+        final ManageBoundNetKeyAdapter mAdapter = new ManageBoundNetKeyAdapter(this, mViewModel.getNetworkLiveData().getNetworkKeys(), appKey);
         mAdapter.setOnItemClickListener(this);
         netKeysRecyclerView.setAdapter(mAdapter);
 
@@ -127,7 +127,7 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
             }
         });
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             if (appKey != null) {
                 this.appKey = meshNetworkLiveData.getMeshNetwork().getAppKey(appKey.getKeyIndex());
                 keyView.setText(MeshParserUtils.bytesToHex(appKey.getKey(), false));

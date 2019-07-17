@@ -91,7 +91,20 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                 }
                 break;
             case 2:
-                if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_APPKEY_STATUS) {
+                if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_NETKEY_STATUS) {
+                    final ConfigNetKeyStatus status = new ConfigNetKeyStatus(message);
+                    if (!isReceivedViaProxyFilter(message)) {
+                        if (status.isSuccessful()) {
+                            if (mMeshMessage instanceof ConfigNetKeyAdd) {
+                                node.setAddedNetKeyIndex(status.getNetKeyIndex());
+                            } else if (mMeshMessage instanceof ConfigNetKeyDelete) {
+                                node.removeAddedNetKeyIndex(status.getNetKeyIndex());
+                            }
+                        }
+                    }
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_APPKEY_STATUS) {
                     final ConfigAppKeyStatus status = new ConfigAppKeyStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (status.isSuccessful()) {

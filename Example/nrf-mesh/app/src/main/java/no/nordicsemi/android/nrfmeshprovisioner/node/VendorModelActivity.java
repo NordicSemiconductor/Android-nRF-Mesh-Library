@@ -214,7 +214,7 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
             final VendorModel model = (VendorModel) mViewModel.getSelectedModel().getValue();
             if (model != null) {
                 final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
+                final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                 final MeshMessage message;
                 if (acknowledged) {
                     message = new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);

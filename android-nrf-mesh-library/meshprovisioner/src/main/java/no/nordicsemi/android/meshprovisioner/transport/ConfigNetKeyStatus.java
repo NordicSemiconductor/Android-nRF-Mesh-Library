@@ -26,15 +26,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * To be used as a wrapper class for when creating the ConfigAppKeyStatus Message.
+ * To be used as a wrapper class for when creating the ConfigNetKeyStatus Message.
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class ConfigNetKeyStatus extends ConfigStatusMessage implements Parcelable {
@@ -58,7 +55,7 @@ public class ConfigNetKeyStatus extends ConfigStatusMessage implements Parcelabl
     };
 
     /**
-     * Constructs the ConfigAppKeyStatus mMessage.
+     * Constructs the ConfigNetKeyStatus mMessage.
      *
      * @param message Access Message
      */
@@ -72,13 +69,11 @@ public class ConfigNetKeyStatus extends ConfigStatusMessage implements Parcelabl
     final void parseStatusParameters() {
         mStatusCode = mParameters[0];
         mStatusCodeName = getStatusCodeName(mStatusCode);
-
-        final byte[] netKeyIndex = new byte[]{(byte) (mParameters[2] & 0x0F), mParameters[1]};
-        mNetKeyIndex = ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
+        mNetKeyIndex = MeshParserUtils.unsignedBytesToInt(mParameters[2], mParameters[1]);
 
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Net key index: " + MeshParserUtils.bytesToHex(netKeyIndex, false));
+        Log.v(TAG, "Net key index: " + Integer.toHexString(mNetKeyIndex));
     }
 
     @Override

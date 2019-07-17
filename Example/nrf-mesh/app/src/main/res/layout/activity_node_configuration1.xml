@@ -217,169 +217,38 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/app_key_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
                     android:background="@color/white"
                     app:cardElevation="1dp">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingBottom="@dimen/item_padding_bottom">
 
                         <androidx.appcompat.widget.Toolbar
-                            android:id="@+id/app_key_tool_bar"
-                            android:layout_width="0dp"
-                            android:layout_height="?actionBarSize"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:logo="@drawable/ic_folder_key_black_24dp_alpha"
-                            app:title="@string/title_app_keys"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:id="@+id/container_app_keys"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/app_key_tool_bar">
-
-                            <TextView
-                                android:id="@+id/no_app_keys"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:paddingStart="@dimen/activity_horizontal_margin"
-                                android:paddingEnd="@dimen/activity_horizontal_margin"
-                                android:paddingBottom="@dimen/activity_vertical_margin"
-                                android:text="@string/no_app_keys_added"
-                                app:layout_constraintLeft_toLeftOf="parent"
-                                app:layout_constraintRight_toRightOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"/>
-
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/recycler_view_added_app_keys"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:overScrollMode="never"
-                                android:scrollbars="none"
-                                android:visibility="gone"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                tools:visibility="visible"/>
-
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
-                        <include
-                            android:id="@+id/div2"
-                            layout="@layout/layout_divider"
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/container_app_keys"/>
-
-                        <TextView
-                            android:id="@+id/delete_hint"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/item_padding_end"
-                            android:layout_marginStart="@dimen/item_padding_start"
-                            android:padding="@dimen/item_padding_end"
-                            android:text="@string/hint_delete"
-                            app:layout_constraintBaseline_toBaselineOf="@id/action_add_app_key"
-                            app:layout_constraintStart_toStartOf="parent"
-                            tools:visibility="visible"/>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/action_add_app_key"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginStart="@dimen/item_padding_end"
-                            android:layout_marginEnd="@dimen/item_padding_start"
-                            android:padding="@dimen/item_padding_end"
-                            android:text="@string/action_add"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/div2"/>
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/net_key_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:background="@color/white"
-                    app:cardElevation="1dp">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <androidx.appcompat.widget.Toolbar
-                            android:id="@+id/net_key_tool_bar"
-                            android:layout_width="0dp"
                             android:layout_height="?actionBarSize"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
                             app:logo="@drawable/ic_folder_key_black_24dp_alpha"
-                            app:title="@string/title_net_keys"
+                            app:title="@string/title_added_keys"
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recycler_view_net_keys"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:overScrollMode="never"
-                            android:scrollbars="none"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/net_key_tool_bar"
-                            tools:visibility="visible"/>
+                        <include
+                            android:id="@+id/container_net_keys"
+                            layout="@layout/layout_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
 
                         <include
-                            android:id="@+id/div2"
-                            layout="@layout/layout_divider"
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/recycler_view_net_keys"/>
+                            android:id="@+id/container_app_keys"
+                            layout="@layout/layout_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
 
-                        <TextView
-                            android:id="@+id/delete_hint1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/item_padding_end"
-                            android:layout_marginStart="@dimen/item_padding_start"
-                            android:padding="@dimen/item_padding_end"
-                            android:text="@string/hint_delete"
-                            app:layout_constraintBaseline_toBaselineOf="@id/action_add_net_key"
-                            app:layout_constraintStart_toStartOf="parent"
-                            tools:visibility="visible"/>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/action_add_net_key"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:layout_marginStart="@dimen/item_padding_end"
-                            android:layout_marginEnd="@dimen/item_padding_start"
-                            android:padding="@dimen/item_padding_end"
-                            android:text="@string/action_add"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/div2"/>
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView

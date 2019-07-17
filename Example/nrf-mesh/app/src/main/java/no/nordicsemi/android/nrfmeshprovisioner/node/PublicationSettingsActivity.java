@@ -150,7 +150,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         });
 
         actionPublishAddress.setOnClickListener(v -> {
-            List<Group> groups = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getGroups();
+            List<Group> groups = mViewModel.getNetworkLiveData().getMeshNetwork().getGroups();
             final DialogFragmentPublishAddress fragmentPublishAddress = DialogFragmentPublishAddress.
                     newInstance(meshModel.getPublicationSettings(), new ArrayList<>(groups));
             fragmentPublishAddress.show(getSupportFragmentManager(), null);
@@ -159,7 +159,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         actionKeyIndex.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(this, AppKeysActivity.class);
             bindAppKeysIntent.putExtra(Utils.EXTRA_DATA, Utils.PUBLICATION_APP_KEY);
-            startActivityForResult(bindAppKeysIntent, AppKeysActivity.SELECT_APP_KEY);
+            startActivityForResult(bindAppKeysIntent, Utils.SELECT_KEY);
         });
 
         actionPublishTtl.setOnClickListener(v -> {
@@ -339,7 +339,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == AppKeysActivity.SELECT_APP_KEY) {
+        if (requestCode == Utils.SELECT_KEY) {
             if (resultCode == RESULT_OK) {
                 final ApplicationKey appKey = data.getParcelableExtra(AppKeysActivity.RESULT_APP_KEY);
                 if (appKey != null) {
@@ -380,7 +380,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     @Override
     public Group createGroup(@NonNull final String name) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
             return network.createGroup(network.getSelectedProvisioner(), name);
         }
@@ -389,7 +389,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     @Override
     public Group createGroup(@NonNull final UUID uuid, final String name) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
             return network.createGroup(uuid, null, name);
         }
@@ -398,7 +398,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     @Override
     public boolean onGroupAdded(@NonNull final Group group) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
             if (network.addGroup(group)) {
                 onPublishAddressSet(group);
@@ -410,7 +410,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
     @Override
     public boolean onGroupAdded(@NonNull final String name, final int address) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
             final Group group = network.createGroup(network.getSelectedProvisioner(), address, name);
             if (group != null) {
@@ -484,7 +484,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         } else {
             mPublishAddressView.setText(MeshAddress.formatAddress(mPublishAddress, true));
         }
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         mAppKeyView.setText(getString(R.string.app_key_index, mAppKeyIndex));
         if (network != null) {
             final ApplicationKey key = network.getAppKey(mAppKeyIndex);

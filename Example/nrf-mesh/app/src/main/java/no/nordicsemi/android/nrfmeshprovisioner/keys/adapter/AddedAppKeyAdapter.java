@@ -26,6 +26,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -33,6 +34,9 @@ import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,37 +50,29 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.ViewHolder> {
 
     private final List<ApplicationKey> appKeys = new ArrayList<>();
+    private final List<ApplicationKey> addedAppKeys = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
     public AddedAppKeyAdapter(@NonNull final Context context,
                               @NonNull final List<ApplicationKey> appKeys,
-                              @NonNull final ProvisionedMeshNode meshNode) {
+                              @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
         this.mContext = context;
         this.appKeys.clear();
-        for (Integer index : meshNode.getAddedAppKeyIndexes()) {
-            for (ApplicationKey applicationKey : appKeys) {
-                if (index == applicationKey.getKeyIndex()) {
-                    this.appKeys.add(applicationKey);
+        this.appKeys.addAll(appKeys);
+        Collections.sort(this.appKeys, Utils.appKeyComparator);
+        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
+            addedAppKeys.clear();
+            for (Integer index : meshNode.getAddedAppKeyIndexes()) {
+                for (ApplicationKey applicationKey : appKeys) {
+                    if (index == applicationKey.getKeyIndex()) {
+                        addedAppKeys.add(applicationKey);
+                    }
                 }
             }
-        }
-        Collections.sort(this.appKeys, Utils.appKeyComparator);
-        notifyDataSetChanged();
-    }
-
-    public void updateAppKeyAdapter(@NonNull final ProvisionedMeshNode meshNode,
-                                    @NonNull final List<ApplicationKey> appKeys) {
-        this.appKeys.clear();
-        for (Integer index : meshNode.getAddedAppKeyIndexes()) {
-            for (ApplicationKey applicationKey : appKeys) {
-                if (index == applicationKey.getKeyIndex()) {
-                    this.appKeys.add(applicationKey);
-                }
-            }
-        }
-        Collections.sort(this.appKeys, Utils.appKeyComparator);
-        notifyDataSetChanged();
+            Collections.sort(addedAppKeys, Utils.appKeyComparator);
+            notifyDataSetChanged();
+        });
     }
 
     public void setOnItemClickListener(final AddedAppKeyAdapter.OnItemClickListener listener) {
@@ -86,17 +82,20 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     @NonNull
     @Override
     public AddedAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item, parent, false);
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.row_item_key, parent, false);
         return new AddedAppKeyAdapter.ViewHolder(layoutView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final AddedAppKeyAdapter.ViewHolder holder, final int position) {
-        if (appKeys.size() > 0) {
-            final ApplicationKey key = appKeys.get(position);
-            holder.appKeyName.setText(key.getName());
-            final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
-            holder.appKey.setText(appKey.toUpperCase());
+        final ApplicationKey key = appKeys.get(position);
+        holder.keyName.setText(key.getName());
+        final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
+        holder.key.setText(appKey.toUpperCase());
+        if (addedAppKeys.contains(key)) {
+            holder.check.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_done_all_nordic_lake_24dp));
+        } else {
+            holder.check.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_done_all_black_alpha_24dp));
         }
     }
 
@@ -110,32 +109,23 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         return appKeys.size();
     }
 
-    public ApplicationKey getItem(final int position) {
-        if (isEmpty() || position < 0)
-            return null;
-        return appKeys.get(position);
-    }
-
     public boolean isEmpty() {
         return getItemCount() == 0;
     }
 
-    public void removeItem(final int position) {
-        appKeys.remove(position);
-        notifyItemRemoved(position);
-    }
-
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final ApplicationKey appKey);
+        void onItemClick(@NonNull final ApplicationKey appKey);
     }
 
     final class ViewHolder extends RemovableViewHolder {
 
         @BindView(R.id.title)
-        TextView appKeyName;
+        TextView keyName;
         @BindView(R.id.subtitle)
-        TextView appKey;
+        TextView key;
+        @BindView(R.id.check)
+        ImageView check;
 
         private ViewHolder(final View view) {
             super(view);

@@ -99,7 +99,7 @@ public class GroupsFragment extends Fragment implements Injectable,
         adapter.setOnItemClickListener(this);
         recyclerViewGroups.setAdapter(adapter);
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
                 if (meshNetworkLiveData.getMeshNetwork().getGroups().isEmpty()) {
                     mEmptyView.setVisibility(View.VISIBLE);
@@ -110,7 +110,7 @@ public class GroupsFragment extends Fragment implements Injectable,
         });
 
         mViewModel.getGroups().observe(this, groups -> {
-            final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+            final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
             adapter.updateAdapter(network, groups);
         });
 
@@ -147,7 +147,7 @@ public class GroupsFragment extends Fragment implements Injectable,
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         final int position = viewHolder.getAdapterPosition();
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         final Group group = network.getGroups().get(position);
         if (network.getModels(group).size() == 0) {
             network.removeGroup(group);
@@ -158,30 +158,30 @@ public class GroupsFragment extends Fragment implements Injectable,
     @Override
     public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
         final String message = getString(R.string.error_group_unsubscribe_to_delete);
-        mViewModel.displaySnackBar(requireActivity(), container, message);
+        mViewModel.displaySnackBar(requireActivity(), container, message, Snackbar.LENGTH_LONG);
     }
 
     @Override
     public Group createGroup() {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         return network.createGroup(network.getSelectedProvisioner(), "Mesh Group");
     }
 
     @Override
     public Group createGroup(@NonNull final String name) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         return network.createGroup(network.getSelectedProvisioner(), name);
     }
 
     @Override
     public Group createGroup(@NonNull final UUID uuid, final String name) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         return network.createGroup(uuid, null, name);
     }
 
     @Override
     public boolean onGroupAdded(@NonNull final String name, final int address) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         final Group group = network.createGroup(network.getSelectedProvisioner(), address, name);
         if (group != null) {
             return network.addGroup(group);
@@ -191,7 +191,7 @@ public class GroupsFragment extends Fragment implements Injectable,
 
     @Override
     public boolean onGroupAdded(@NonNull final Group group) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         return network.addGroup(group);
     }
 
@@ -201,7 +201,7 @@ public class GroupsFragment extends Fragment implements Injectable,
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .setAction(R.string.undo, v -> {
                     mEmptyView.setVisibility(View.INVISIBLE);
-                    final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+                    final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
                     if (network != null) {
                         network.addGroup(group);
                     }

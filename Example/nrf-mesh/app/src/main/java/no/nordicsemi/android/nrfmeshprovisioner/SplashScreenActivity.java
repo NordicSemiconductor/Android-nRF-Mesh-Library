@@ -43,7 +43,7 @@ public class SplashScreenActivity extends AppCompatActivity implements Injectabl
         setContentView(R.layout.activity_splash_screen);
         super.onCreate(savedInstanceState);
         final SplashViewModel viewModel = ViewModelProviders.of(SplashScreenActivity.this, mViewModelFactory).get(SplashViewModel.class);
-        viewModel.getMeshNetworkLiveData().observe(this,meshNetworkLiveData -> {
+        viewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             if(meshNetworkLiveData != null && meshNetworkLiveData.getMeshNetwork() != null) {
                 navigateActivity();
             }

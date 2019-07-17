@@ -317,6 +317,22 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     }
 
     /**
+     * Removes an NetKey index that was added to the node
+     *
+     * @param index NetKey index
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    protected final void removeAddedNetKeyIndex(final int index) {
+        for (int i = 0; i < mAddedNetKeyIndexes.size(); i++) {
+            final int keyIndex = mAddedNetKeyIndexes.get(i);
+            if (keyIndex == index) {
+                mAddedNetKeyIndexes.remove(i);
+                break;
+            }
+        }
+    }
+
+    /**
      * Returns the list of added AppKey indexes to the node
      */
     public final List<Integer> getAddedAppKeyIndexes() {
