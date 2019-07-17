@@ -119,10 +119,10 @@ abstract class ActivitiesModule {
     abstract PublicationSettingsActivity contributePublicationSettingsActivity();
 
     @ContributesAndroidInjector()
-    abstract ConfigurationServerActivity contribyteConfigurationServerActivity();
+    abstract ConfigurationServerActivity contributeConfigurationServerActivity();
 
     @ContributesAndroidInjector()
-    abstract ConfigurationClientActivity contribyteConfigurationClientActivity();
+    abstract ConfigurationClientActivity contributeConfigurationClientActivity();
 
     @ContributesAndroidInjector()
     abstract GenericOnOffServerActivity contributeGenericOnOffServerActivity();
