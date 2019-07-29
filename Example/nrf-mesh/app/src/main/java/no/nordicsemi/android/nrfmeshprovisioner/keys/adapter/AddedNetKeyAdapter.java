@@ -41,6 +41,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -62,9 +63,9 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
         Collections.sort(this.netKeys, Utils.netKeyComparator);
         meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
             addedNetKeys.clear();
-            for (Integer index : meshNode.getAddedNetKeyIndexes()) {
+            for (NodeKey nodeKey : meshNode.getAddedNetKeys()) {
                 for (NetworkKey networkKey : netKeys) {
-                    if (index == networkKey.getKeyIndex()) {
+                    if (nodeKey.getIndex() == networkKey.getKeyIndex()) {
                         addedNetKeys.add(networkKey);
                     }
                 }

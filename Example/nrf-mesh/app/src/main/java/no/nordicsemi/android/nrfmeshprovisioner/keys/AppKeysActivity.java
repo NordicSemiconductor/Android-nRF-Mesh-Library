@@ -52,6 +52,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -125,7 +126,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
                     //Get selected mesh node
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
                     if (node != null) {
-                        final List<Integer> applicationKeys = node.getAddedAppKeyIndexes();
+                        final List<NodeKey> applicationKeys = node.getAddedAppKeys();
                         if (!applicationKeys.isEmpty()) {
                             mAdapter = new ManageAppKeyAdapter(this, mViewModel.getNetworkLiveData().getAppKeys(), applicationKeys);
                             mAdapter.setOnItemClickListener(this);

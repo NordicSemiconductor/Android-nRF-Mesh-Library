@@ -97,6 +97,8 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         if (status.isSuccessful()) {
                             if (mMeshMessage instanceof ConfigNetKeyAdd) {
                                 node.setAddedNetKeyIndex(status.getNetKeyIndex());
+                            } else if (mMeshMessage instanceof ConfigNetKeyUpdate) {
+                                node.updateAddedNetKey(status.getNetKeyIndex());
                             } else if (mMeshMessage instanceof ConfigNetKeyDelete) {
                                 node.removeAddedNetKeyIndex(status.getNetKeyIndex());
                             }

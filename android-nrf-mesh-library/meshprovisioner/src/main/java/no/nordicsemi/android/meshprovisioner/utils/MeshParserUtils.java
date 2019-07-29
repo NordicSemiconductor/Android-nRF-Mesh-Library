@@ -32,11 +32,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.R;
 
 @SuppressWarnings({"WeakerAccess", "BooleanMethodIsAlwaysInverted"})
@@ -718,5 +720,24 @@ public class MeshParserUtils {
      */
     public static String formatTimeStamp(final long timestamp) {
         return SDF.format(new Date(timestamp));
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean isNodeKeyExists(@NonNull final List<NodeKey> keys, final int index) {
+        for (NodeKey key : keys) {
+            if (key.getIndex() == index) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static NodeKey getNodeKey(@NonNull final List<NodeKey> keys, final int index) {
+        for (NodeKey key : keys) {
+            if (key.getIndex() == index) {
+                return key;
+            }
+        }
+        return null;
     }
 }

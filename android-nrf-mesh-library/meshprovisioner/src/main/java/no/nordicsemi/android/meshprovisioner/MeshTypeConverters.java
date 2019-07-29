@@ -25,14 +25,14 @@ public class MeshTypeConverters {
 
     @TypeConverter
     public static Map<Integer, ApplicationKey> fromJsonToAddedAppKeys(final String appKeyJson) {
-        Type addedAppKeys = new TypeToken<Map<Integer, ApplicationKey>>() {
+        final Type addedAppKeys = new TypeToken<Map<Integer, ApplicationKey>>() {
         }.getType();
         return new Gson().fromJson(appKeyJson, addedAppKeys);
     }
 
     @TypeConverter
     public static List<NetworkKey> fromJsonToAddedNetKeys(final String networkKeyJson) {
-        Type addedNetKeys = new TypeToken<List<NetworkKey>>() {
+        final Type addedNetKeys = new TypeToken<List<NetworkKey>>() {
         }.getType();
         return new Gson().fromJson(networkKeyJson, addedNetKeys);
     }
@@ -44,7 +44,7 @@ public class MeshTypeConverters {
 
     @TypeConverter
     public Map<Integer, Element> fromJsonToElements(final String elementsJson) {
-        Type elements = new TypeToken<Map<Integer, Element>>() {
+        final Type elements = new TypeToken<Map<Integer, Element>>() {
         }.getType();
         return new GsonBuilder().
                 excludeFieldsWithoutExposeAnnotation().
@@ -60,7 +60,7 @@ public class MeshTypeConverters {
 
     @TypeConverter
     public static List<AllocatedGroupRange> fromJsonToAllocatedGroupRanges(final String rangesJson) {
-        Type ranges = new TypeToken<List<AllocatedGroupRange>>() {
+        final Type ranges = new TypeToken<List<AllocatedGroupRange>>() {
         }.getType();
         return new Gson().fromJson(rangesJson, ranges);
     }
@@ -72,7 +72,7 @@ public class MeshTypeConverters {
 
     @TypeConverter
     public static List<AllocatedSceneRange> fromJsonToAllocatedSceneRanges(final String rangesJson) {
-        Type ranges = new TypeToken<List<AllocatedSceneRange>>() {
+        final Type ranges = new TypeToken<List<AllocatedSceneRange>>() {
         }.getType();
         return new Gson().fromJson(rangesJson, ranges);
     }
@@ -96,7 +96,7 @@ public class MeshTypeConverters {
 
     @TypeConverter
     public static List<Integer> fromJsonToIntegerList(final String integerListJson) {
-        Type addresses = new TypeToken<List<Integer>>() {
+        final Type addresses = new TypeToken<List<Integer>>() {
         }.getType();
         return new Gson().fromJson(integerListJson, addresses);
     }
@@ -110,7 +110,7 @@ public class MeshTypeConverters {
 
     @TypeConverter
     public UUID fromJsonToUuid(final String addressesJson) {
-        Type uuid = new TypeToken<UUID>() {
+        final Type uuid = new TypeToken<UUID>() {
         }.getType();
         return new Gson().fromJson(addressesJson, uuid);
     }
@@ -122,8 +122,20 @@ public class MeshTypeConverters {
 
     @TypeConverter
     public static SparseIntArray fromJsonToSparseIntArray(final String integerListJson) {
-        Type addresses = new TypeToken<SparseIntArray>() {
+        final Type addresses = new TypeToken<SparseIntArray>() {
         }.getType();
         return new Gson().fromJson(integerListJson, addresses);
+    }
+
+    @TypeConverter
+    public static String nodeKeysToJson(@NonNull final List<NodeKey> nodeKeys) {
+        return new Gson().toJson(nodeKeys);
+    }
+
+    @TypeConverter
+    public static List<NodeKey> fromJsonToNodeKeys(final String nodeKeys) {
+        final Type keys = new TypeToken<List<NodeKey>>() {
+        }.getType();
+        return new Gson().fromJson(nodeKeys, keys);
     }
 }

@@ -41,6 +41,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -63,9 +64,9 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         Collections.sort(this.appKeys, Utils.appKeyComparator);
         meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
             addedAppKeys.clear();
-            for (Integer index : meshNode.getAddedAppKeyIndexes()) {
+            for (NodeKey nodeKey : meshNode.getAddedAppKeys()) {
                 for (ApplicationKey applicationKey : appKeys) {
-                    if (index == applicationKey.getKeyIndex()) {
+                    if (nodeKey.getIndex() == applicationKey.getKeyIndex()) {
                         addedAppKeys.add(applicationKey);
                     }
                 }

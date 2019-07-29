@@ -45,7 +45,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
         ProvisionedMeshNode.class,
         Group.class,
         Scene.class},
-        version = 6)
+        version = 7)
 abstract class MeshNetworkDb extends RoomDatabase {
 
     abstract MeshNetworkDao meshNetworkDao();
@@ -86,6 +86,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                             .addMigrations(MIGRATION_3_4)
                             .addMigrations(MIGRATION_4_5)
                             .addMigrations(MIGRATION_5_6)
+                            .addMigrations(MIGRATION_6_7)
                             .build();
                 }
 
@@ -707,6 +708,13 @@ abstract class MeshNetworkDb extends RoomDatabase {
         }
     };
 
+    private static final Migration MIGRATION_6_7 = new Migration(6, 7) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            migrateKeyIndexes6_7(database);
+        }
+    };
+
     private static void migrateMeshNetwork(final SupportSQLiteDatabase database) {
         database.execSQL("CREATE TABLE `mesh_network_temp` " +
                 "(`mesh_uuid` TEXT NOT NULL, " +
@@ -1040,8 +1048,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         database.execSQL("DROP TABLE provisioner");
         database.execSQL("ALTER TABLE provisioner_temp RENAME TO provisioner");
         database.execSQL("CREATE INDEX index_provisioner_mesh_uuid ON `provisioner` (mesh_uuid)");
-
-        updateNodesTable(database, provisioners);
+        addProvisionerNodes(database, provisioners);
     }
 
     private static HashMap<UUID, ArrayList<Integer>> getKeyIndexes(@NonNull final SupportSQLiteDatabase database, final String tableName) {
@@ -1094,7 +1101,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         return keys;
     }
 
-    private static void updateNodesTable(@NonNull final SupportSQLiteDatabase database, @NonNull final List<Provisioner> provisioners) {
+    private static void addProvisionerNodes(@NonNull final SupportSQLiteDatabase database, @NonNull final List<Provisioner> provisioners) {
         if (!provisioners.isEmpty()) {
             final List<NetworkKey> netKeys = getNetKeys(database);
             final List<ApplicationKey> appKeys = getAppKeys(database);
@@ -1114,8 +1121,8 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 values.put("device_key", node.getDeviceKey());
                 values.put("seq_number", node.getSequenceNumber());
                 values.put("mElements", MeshTypeConverters.elementsToJson(node.getElements()));
-                values.put("netKeys", MeshTypeConverters.integerToJson(node.getAddedNetKeyIndexes()));
-                values.put("appKeys", MeshTypeConverters.integerToJson(node.getAddedAppKeyIndexes()));
+                values.put("netKeys", MeshTypeConverters.nodeKeysToJson(node.getAddedNetKeys()));
+                values.put("appKeys", MeshTypeConverters.nodeKeysToJson(node.getAddedAppKeys()));
                 database.insert("nodes", SQLiteDatabase.CONFLICT_REPLACE, values);
             }
         }
@@ -1177,5 +1184,35 @@ abstract class MeshNetworkDb extends RoomDatabase {
             cursor.close();
         }
         database.execSQL("DROP TABLE mesh_network_temp");
+    }
+
+    private static void migrateKeyIndexes6_7(@NonNull final SupportSQLiteDatabase database) {
+        final Cursor cursor = database.query("SELECT * FROM nodes");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                final ContentValues values = new ContentValues();
+                final String uuid = cursor.getString(cursor.getColumnIndex("uuid"));
+
+                final String netKeysJson = cursor.getString(cursor.getColumnIndex("netKeys"));
+                final List<Integer> netKeys = MeshTypeConverters.fromJsonToIntegerList(netKeysJson);
+                final List<NodeKey> netKeyIndexes = new ArrayList<>();
+                for (Integer keyIndex : netKeys) {
+                    if (keyIndex != null) {
+                        netKeyIndexes.add(new NodeKey(keyIndex, false));
+                    }
+                }
+                values.put("netKeys", MeshTypeConverters.nodeKeysToJson(netKeyIndexes));
+
+                final List<NodeKey> appKeyIndexes = new ArrayList<>();
+                final String appKeysJson = cursor.getString(cursor.getColumnIndex("appKeys"));
+                final List<Integer> appKeys = MeshTypeConverters.fromJsonToIntegerList(appKeysJson);
+                for (Integer keyIndex : appKeys) {
+                    appKeyIndexes.add(new NodeKey(keyIndex, false));
+                }
+                values.put("appKeys", MeshTypeConverters.nodeKeysToJson(appKeyIndexes));
+                database.update("nodes", SQLiteDatabase.CONFLICT_REPLACE, values, "uuid = ?", new String[]{uuid});
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
     }
 }

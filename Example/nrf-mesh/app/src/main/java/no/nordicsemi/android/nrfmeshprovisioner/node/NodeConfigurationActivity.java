@@ -223,14 +223,14 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 mRecyclerViewElements.setVisibility(View.INVISIBLE);
             }
 
-            if (!meshNode.getAddedNetKeyIndexes().isEmpty()) {
-                netKeySummary.setText(String.valueOf(meshNode.getAddedNetKeyIndexes().size()));
+            if (!meshNode.getAddedNetKeys().isEmpty()) {
+                netKeySummary.setText(String.valueOf(meshNode.getAddedNetKeys().size()));
             } else {
                 netKeySummary.setText(R.string.no_app_keys_added);
             }
 
-            if (!meshNode.getAddedAppKeyIndexes().isEmpty()) {
-                appKeySummary.setText(String.valueOf(meshNode.getAddedAppKeyIndexes().size()));
+            if (!meshNode.getAddedAppKeys().isEmpty()) {
+                appKeySummary.setText(String.valueOf(meshNode.getAddedAppKeys().size()));
             } else {
                 appKeySummary.setText(R.string.no_app_keys_added);
             }

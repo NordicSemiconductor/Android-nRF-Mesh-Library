@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.NetKeysActivity;
 
@@ -26,7 +27,7 @@ public class AddKeysViewModel extends KeysViewModel {
     public boolean isNetKeyAdded(final int keyIndex) {
         final ProvisionedMeshNode node = getSelectedMeshNode().getValue();
         if (node != null) {
-            return node.getAddedNetKeyIndexes().contains(keyIndex);
+            return MeshParserUtils.isNodeKeyExists(node.getAddedNetKeys(), keyIndex);
         }
         return false;
     }
@@ -40,7 +41,7 @@ public class AddKeysViewModel extends KeysViewModel {
     public boolean isAppKeyAdded(final int keyIndex) {
         final ProvisionedMeshNode node = getSelectedMeshNode().getValue();
         if (node != null) {
-            return node.getAddedAppKeyIndexes().contains(keyIndex);
+            return MeshParserUtils.isNodeKeyExists(node.getAddedAppKeys(), keyIndex);
         }
         return false;
     }

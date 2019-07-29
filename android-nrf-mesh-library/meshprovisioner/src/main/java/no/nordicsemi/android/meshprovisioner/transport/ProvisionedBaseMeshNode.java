@@ -46,6 +46,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.MeshTypeConverters;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
@@ -138,12 +139,12 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @SerializedName("netKeys")
     @ColumnInfo(name = "netKeys")
     @Expose
-    List<Integer> mAddedNetKeyIndexes = new ArrayList<>();
+    List<NodeKey> mAddedNetKeys = new ArrayList<>();
     @TypeConverters(MeshTypeConverters.class)
     @SerializedName("appKeys")
     @ColumnInfo(name = "appKeys")
     @Expose
-    List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
+    List<NodeKey> mAddedAppKeys = new ArrayList<>();
     @Ignore
     @Expose
     byte[] mFlags;
@@ -324,4 +325,5 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @IntDef({LOW, HIGH})
     public @interface SecurityState {
     }
+
 }

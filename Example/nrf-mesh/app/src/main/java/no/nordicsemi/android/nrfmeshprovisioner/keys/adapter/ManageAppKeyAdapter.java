@@ -38,6 +38,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
@@ -65,11 +66,11 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
 
     public ManageAppKeyAdapter(@NonNull final Context context,
                                @NonNull final List<ApplicationKey> appKeys,
-                               @NonNull final List<Integer> appKeyIndexes) {
+                               @NonNull final List<NodeKey> appKeyIndexes) {
         this.mContext = context;
-        for (Integer index : appKeyIndexes) {
+        for (NodeKey nodeKey : appKeyIndexes) {
             for (ApplicationKey applicationKey : appKeys) {
-                if (index == applicationKey.getKeyIndex()) {
+                if (nodeKey.getIndex() == applicationKey.getKeyIndex()) {
                     this.appKeys.add(applicationKey);
                 }
             }
