@@ -31,7 +31,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * To be used as a wrapper class for when creating the ConfigNetKeyStatus Message.
+ * Creates the ConfigNetKeyStatus Message.
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class ConfigNetKeyStatus extends ConfigStatusMessage implements Parcelable {

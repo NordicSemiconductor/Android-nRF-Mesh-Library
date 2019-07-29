@@ -33,7 +33,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * To be used as a wrapper class to create the ConfigAppKeyAdd message.
+ * Creates ConfigNetKeyAdd message.
  */
 @SuppressWarnings("unused")
 public class ConfigNetKeyAdd extends ConfigMessage {
@@ -44,7 +44,7 @@ public class ConfigNetKeyAdd extends ConfigMessage {
     private final NetworkKey mNetKey;
 
     /**
-     * Constructs ConfigAppKeyAdd message.
+     * Constructs ConfigNetKeyAdd message.
      *
      * @param networkKey Network key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
