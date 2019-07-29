@@ -52,9 +52,9 @@ import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
+import no.nordicsemi.android.meshprovisioner.transport.PublicationSettings;
 import no.nordicsemi.android.meshprovisioner.utils.AddressType;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.meshprovisioner.transport.PublicationSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.GroupCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.AddressTypeAdapter;
@@ -447,12 +447,11 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 addressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }
-            final AddressType type = (AddressType) addressTypesSpinnerView.getSelectedItem();
+            final AddressTypes type = (AddressTypes) addressTypesSpinnerView.getSelectedItem();
 
             final int address = Integer.parseInt(input, 16);
             switch (type) {
                 default:
-                case UNASSIGNED_ADDRESS:
                     if (!MeshAddress.isValidUnassignedAddress(address)) {
                         addressInputLayout.setError(getString(R.string.invalid_address_value));
                         return false;
