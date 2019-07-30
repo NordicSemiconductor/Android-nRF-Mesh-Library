@@ -138,7 +138,6 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
             }
         });
 
-
         final Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             switch (bundle.getInt(Utils.EXTRA_DATA)) {

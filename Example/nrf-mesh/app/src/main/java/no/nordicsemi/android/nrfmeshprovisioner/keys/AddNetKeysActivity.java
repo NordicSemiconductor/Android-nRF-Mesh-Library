@@ -31,6 +31,7 @@ import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNetKeyAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNetKeyDelete;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigNetKeyGet;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -66,5 +67,12 @@ public class AddNetKeysActivity extends AddKeysActivity implements Injectable,
         }
         mViewModel.displaySnackBar(this, container, message, Snackbar.LENGTH_SHORT);
         sendMessage(meshMessage);
+    }
+
+    @Override
+    public void onRefresh() {
+        super.onRefresh();
+        final ConfigNetKeyGet configNetKeyGet = new ConfigNetKeyGet();
+        sendMessage(configNetKeyGet);
     }
 }

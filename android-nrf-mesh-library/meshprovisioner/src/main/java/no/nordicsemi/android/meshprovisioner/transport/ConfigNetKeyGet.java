@@ -22,38 +22,21 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.util.Log;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
-import androidx.annotation.NonNull;
-import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * Creates ConfigNetKeyAdd message.
+ * To be used as a wrapper class to create the ConfigNetKeyGet message.
  */
 @SuppressWarnings("unused")
-public class ConfigNetKeyAdd extends ConfigMessage {
+public class ConfigNetKeyGet extends ConfigMessage {
 
-    private static final String TAG = ConfigNetKeyAdd.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETKEY_ADD;
-
-    private final NetworkKey mNetKey;
+    private static final String TAG = ConfigNetKeyGet.class.getSimpleName();
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETKEY_GET;
 
     /**
-     * Constructs ConfigNetKeyAdd message.
-     *
-     * @param networkKey Network key for this message
-     * @throws IllegalArgumentException if any illegal arguments are passed
+     * Constructs ConfigAppKeyAdd message.
      */
-    public ConfigNetKeyAdd(@NonNull final NetworkKey networkKey) throws IllegalArgumentException {
-        if (networkKey.getKey().length != 16)
-            throw new IllegalArgumentException("Network key must be 16 bytes");
-
-        this.mNetKey = networkKey;
+    public ConfigNetKeyGet() {
         assembleMessageParameters();
     }
 
@@ -62,16 +45,8 @@ public class ConfigNetKeyAdd extends ConfigMessage {
         return OP_CODE;
     }
 
-
     @Override
     void assembleMessageParameters() {
-        Log.v(TAG, "NetKeyIndex: " + mNetKey.getKeyIndex());
-        final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(mNetKey.getKeyIndex());
-
-        final ByteBuffer paramsBuffer = ByteBuffer.allocate(18).order(ByteOrder.LITTLE_ENDIAN);
-        paramsBuffer.put(netKeyIndex[1]);
-        paramsBuffer.put((byte) ((netKeyIndex[0] & 0xFF) & 0x0F));
-        paramsBuffer.put(mNetKey.getKey());
-        mParameters = paramsBuffer.array();
+        //Do nothing as ConfigNetKeyGet message does not have parameters
     }
 }

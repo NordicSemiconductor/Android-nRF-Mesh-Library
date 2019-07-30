@@ -94,12 +94,12 @@ public class ConfigAppKeyAdd extends ConfigMessage {
         Log.v(TAG, "AppKeyIndex: " + mAppKey.getKeyIndex());
         final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(mNetKey.getKeyIndex());
         final byte[] appKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKey.getKeyIndex());
-
         final ByteBuffer paramsBuffer = ByteBuffer.allocate(19).order(ByteOrder.LITTLE_ENDIAN);
         paramsBuffer.put(netKeyIndex[1]);
         paramsBuffer.put((byte) (((appKeyIndex[1] & 0xFF) << 4)  | (netKeyIndex[0] & 0xFF) & 0x0F));
         paramsBuffer.put((byte) (((appKeyIndex[0] & 0xFF) << 4) | (appKeyIndex[1] & 0xFF) >> 4));
         paramsBuffer.put(mAppKey.getKey());
+
         mParameters = paramsBuffer.array();
     }
 }

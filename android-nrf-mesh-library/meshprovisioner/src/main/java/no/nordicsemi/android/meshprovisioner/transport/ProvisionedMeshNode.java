@@ -339,6 +339,19 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     }
 
     /**
+     * Update the added net key list of the node
+     *
+     * @param indexes NetKey index
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    protected final void updateNetKeyList(final List<Integer> indexes) {
+        mAddedNetKeys.clear();
+        for (Integer index : indexes) {
+            mAddedNetKeys.add(new NodeKey(index, false));
+        }
+    }
+
+    /**
      * Removes an NetKey index that was added to the node
      *
      * @param index NetKey index

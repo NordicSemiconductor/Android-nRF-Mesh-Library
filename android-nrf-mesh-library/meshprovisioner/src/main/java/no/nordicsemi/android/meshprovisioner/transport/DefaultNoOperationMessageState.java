@@ -106,6 +106,11 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_NETKEY_LIST) {
+                    final ConfigNetKeyList netKeyList = new ConfigNetKeyList(message);
+                    node.updateNetKeyList(netKeyList.getKeyIndexes());
+                    mInternalTransportCallbacks.updateMeshNetwork(netKeyList);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), netKeyList);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_APPKEY_STATUS) {
                     final ConfigAppKeyStatus status = new ConfigAppKeyStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {

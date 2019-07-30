@@ -69,8 +69,8 @@ public class ConfigNetKeyDelete extends ConfigMessage {
         final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(mNetKey.getKeyIndex());
 
         final ByteBuffer paramsBuffer = ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN);
-        paramsBuffer.put(netKeyIndex[0]);
         paramsBuffer.put(netKeyIndex[1]);
+        paramsBuffer.put((byte) ((netKeyIndex[0] & 0xFF) & 0x0F));
         mParameters = paramsBuffer.array();
     }
 }

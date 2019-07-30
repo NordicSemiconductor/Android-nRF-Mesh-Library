@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.keys;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -45,13 +44,11 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.ApplicationKey;
-import no.nordicsemi.android.meshprovisioner.NetworkKey;
-import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyStatus;
-import no.nordicsemi.android.meshprovisioner.transport.ConfigNetKeyAdd;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigNetKeyList;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNetKeyStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
@@ -63,7 +60,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransaction
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddKeysViewModel;
 
-public abstract class AddKeysActivity extends AppCompatActivity implements Injectable {
+public abstract class AddKeysActivity extends AppCompatActivity implements Injectable, SwipeRefreshLayout.OnRefreshListener {
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -76,6 +73,8 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
     protected ExtendedFloatingActionButton fab;
     @BindView(R.id.configuration_progress_bar)
     protected ProgressBar mProgressbar;
+    @BindView(R.id.swipe_refresh)
+    protected SwipeRefreshLayout mSwipe;
 
     protected Handler mHandler;
     protected View mEmptyView;
@@ -94,7 +93,7 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
         setSupportActionBar(toolbar);
         //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        mSwipe.setOnRefreshListener(this);
         recyclerViewKeys.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration =
                 new DividerItemDecoration(recyclerViewKeys.getContext(), DividerItemDecoration.VERTICAL);
@@ -105,6 +104,7 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
         mViewModel.getMeshMessage().observe(this, meshMessage -> {
             if (meshMessage instanceof ConfigNetKeyStatus) {
                 showDialogFragment(getString(R.string.title_netkey_status), ((ConfigNetKeyStatus) meshMessage).getStatusCodeName());
+            } else if (meshMessage instanceof ConfigNetKeyList) {
             } else if (meshMessage instanceof ConfigAppKeyStatus) {
                 showDialogFragment(getString(R.string.title_appkey_status), ((ConfigAppKeyStatus) meshMessage).getStatusCodeName());
             }
@@ -162,32 +162,6 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
         }
     }
 
-    @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (!checkConnectivity()) return;
-        if (requestCode == Utils.ADD_NET_KEY) {
-            if (resultCode == RESULT_OK) {
-                final NetworkKey netKey = data.getParcelableExtra(Utils.RESULT_KEY);
-                if (netKey != null) {
-                    final ConfigNetKeyAdd configAppKeyAdd = new ConfigNetKeyAdd(netKey);
-                    sendMessage(configAppKeyAdd);
-                }
-            }
-        } else if (requestCode == Utils.ADD_APP_KEY) {
-            if (resultCode == RESULT_OK) {
-                final ApplicationKey appKey = data.getParcelableExtra(Utils.RESULT_KEY);
-                if (appKey != null) {
-                    final NetworkKey networkKey = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(appKey.getBoundNetKeyIndex());
-                    if (networkKey != null) {
-                        final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
-                        sendMessage(configAppKeyAdd);
-                    }
-                }
-            }
-        }
-    }
-
     private void showDialogFragment(@NonNull final String title, @NonNull final String message) {
         if (getSupportFragmentManager().findFragmentByTag(Utils.DIALOG_FRAGMENT_KEY_STATUS) == null) {
             final DialogFragmentConfigStatus fragmentKeyStatus = DialogFragmentConfigStatus.newInstance(title, message);
@@ -211,6 +185,7 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
     }
 
     protected final void hideProgressBar() {
+        mSwipe.setRefreshing(false);
         enableClickableViews();
         mProgressbar.setVisibility(View.INVISIBLE);
         mHandler.removeCallbacks(mOperationTimeout);
@@ -244,6 +219,13 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
             final DialogFragmentConfigError message = DialogFragmentConfigError.
                     newInstance(getString(R.string.title_error), ex.getMessage());
             message.show(getSupportFragmentManager(), null);
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        if (!checkConnectivity()) {
+            mSwipe.setRefreshing(false);
         }
     }
 }

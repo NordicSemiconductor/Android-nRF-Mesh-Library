@@ -24,14 +24,12 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
  * To be used as a wrapper class for when creating the ConfigAppKeyStatus Message.
@@ -74,16 +72,14 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelabl
         mStatusCode = mParameters[0];
         mStatusCodeName = getStatusCodeName(mStatusCode);
 
-        final byte[] netKeyIndex = new byte[]{(byte) (mParameters[2] & 0x0F), mParameters[1]};
-        mNetKeyIndex = ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
-
-        final byte[] appKeyIndex = new byte[]{(byte) ((mParameters[3] & 0xF0) >> 4), (byte) (mParameters[3] << 4 | ((mParameters[2] & 0xF0) >> 4))};
-        mAppKeyIndex = ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
+        final ArrayList<Integer> keyIndexes = decode(mParameters.length, 1);
+        mNetKeyIndex = keyIndexes.get(0);
+        mAppKeyIndex = keyIndexes.get(1);
 
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Net key index: " + MeshParserUtils.bytesToHex(netKeyIndex, false));
-        Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
+        Log.v(TAG, "Net key index: " + Integer.toHexString(mNetKeyIndex));
+        Log.v(TAG, "App key index: " + Integer.toHexString(mAppKeyIndex));
     }
 
     @Override

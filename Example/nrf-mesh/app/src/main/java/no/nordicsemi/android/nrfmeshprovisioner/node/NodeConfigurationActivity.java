@@ -127,7 +127,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_node_configuration1);
+        setContentView(R.layout.activity_node_configuration);
         ButterKnife.bind(this);
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(NodeConfigurationViewModel.class);
 
