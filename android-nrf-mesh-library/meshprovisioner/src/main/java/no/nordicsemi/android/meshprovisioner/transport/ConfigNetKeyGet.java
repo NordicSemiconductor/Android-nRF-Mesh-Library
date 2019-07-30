@@ -25,7 +25,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 
 /**
- * To be used as a wrapper class to create the ConfigNetKeyGet message.
+ * Creates the ConfigNetKeyGet message.
  */
 @SuppressWarnings("unused")
 public class ConfigNetKeyGet extends ConfigMessage {
@@ -34,7 +34,7 @@ public class ConfigNetKeyGet extends ConfigMessage {
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETKEY_GET;
 
     /**
-     * Constructs ConfigAppKeyAdd message.
+     * Constructs ConfigNetKeyGet message.
      */
     public ConfigNetKeyGet() {
         assembleMessageParameters();
