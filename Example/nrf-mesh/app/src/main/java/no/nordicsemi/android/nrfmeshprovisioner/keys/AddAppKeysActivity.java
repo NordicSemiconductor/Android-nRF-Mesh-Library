@@ -33,9 +33,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyDelete;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyGet;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.AddedAppKeyAdapter;
@@ -73,6 +76,20 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
         }
         mViewModel.displaySnackBar(this, container, message, Snackbar.LENGTH_SHORT);
         sendMessage(meshMessage);
+    }
+
+    @Override
+    public void onRefresh() {
+        super.onRefresh();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        if (node != null) {
+            for (NodeKey key : node.getAddedNetKeys()) {
+                final NetworkKey networkKey = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(key.getIndex());
+                final ConfigAppKeyGet configAppKeyGet = new ConfigAppKeyGet(networkKey);
+                messageQueue.add(configAppKeyGet);
+            }
+            sendMessage(messageQueue.peek());
+        }
     }
 
     protected void setUpObserver() {

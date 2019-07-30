@@ -318,6 +318,21 @@ abstract class BaseMeshNetwork {
         return null;
     }
 
+    /**
+     * Returns a list of application keys bound to a Network key
+     *
+     * @param boundNetKeyIndex Network Key index
+     */
+    protected List<ApplicationKey> getAppKeys(final int boundNetKeyIndex) {
+        final List<ApplicationKey> applicationKeys = new ArrayList<>();
+        for (ApplicationKey applicationKey : appKeys) {
+            if (applicationKey.getBoundNetKeyIndex() == boundNetKeyIndex) {
+                applicationKeys.add(applicationKey);
+            }
+        }
+        return applicationKeys;
+    }
+
     private boolean isAppKeyExists(@NonNull final String appKey) {
         for (int i = 0; i < appKeys.size(); i++) {
             final ApplicationKey applicationKey = appKeys.get(i);
