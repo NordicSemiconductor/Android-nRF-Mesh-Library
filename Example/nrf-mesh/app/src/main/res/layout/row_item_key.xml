@@ -43,7 +43,7 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/icon"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:scaleType="center"
             app:layout_constraintBottom_toBottomOf="@id/subtitle"
@@ -82,9 +82,9 @@
             app:layout_constraintTop_toBottomOf="@id/title"
             tools:ignore="HardcodedText"/>
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <CheckBox
             android:id="@+id/check"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@id/subtitle"
             app:layout_constraintEnd_toEndOf="parent"

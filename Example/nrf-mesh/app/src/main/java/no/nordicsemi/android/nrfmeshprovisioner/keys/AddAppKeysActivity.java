@@ -42,6 +42,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.AddedAppKeyAdapter;
 
 public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
         AddedAppKeyAdapter.OnItemClickListener {
+    private AddedAppKeyAdapter adapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -49,16 +50,16 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
         //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_added_app_keys);
         mEmptyView = findViewById(R.id.empty_app_keys);
-        final AddedAppKeyAdapter adapter = new AddedAppKeyAdapter(this,
+        adapter = new AddedAppKeyAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork().getAppKeys(), mViewModel.getSelectedMeshNode());
-        adapter.setOnItemClickListener(this);
+        enableAdapterListener(true);
         recyclerViewKeys.setAdapter(adapter);
         setUpObserver();
     }
 
     @Override
     public void onItemClick(@NonNull final ApplicationKey appKey) {
-        if(!checkConnectivity())
+        if (!checkConnectivity())
             return;
         final MeshMessage meshMessage;
         final String message;
@@ -83,5 +84,10 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
                 }
             }
         });
+    }
+
+    @Override
+    void enableAdapterListener(final boolean enable) {
+        adapter.setOnItemClickListener(enable ? this : null);
     }
 }

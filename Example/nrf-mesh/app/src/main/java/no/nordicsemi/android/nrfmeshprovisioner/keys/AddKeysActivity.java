@@ -30,6 +30,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import javax.inject.Inject;
 
@@ -82,6 +83,8 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
     protected AddKeysViewModel mViewModel;
     protected boolean mIsConnected;
 
+    abstract void enableAdapterListener(final boolean enable);
+
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,10 +106,19 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
 
         mViewModel.getMeshMessage().observe(this, meshMessage -> {
             if (meshMessage instanceof ConfigNetKeyStatus) {
-                showDialogFragment(getString(R.string.title_netkey_status), ((ConfigNetKeyStatus) meshMessage).getStatusCodeName());
-            } else if (meshMessage instanceof ConfigNetKeyList) {
+                final ConfigNetKeyStatus status = (ConfigNetKeyStatus) meshMessage;
+                if (status.isSuccessful()) {
+                    mViewModel.displaySnackBar(this, container, getString(R.string.operation, status.getStatusCodeName()), Snackbar.LENGTH_SHORT);
+                } else {
+                    showDialogFragment(getString(R.string.title_netkey_status), status.getStatusCodeName());
+                }
             } else if (meshMessage instanceof ConfigAppKeyStatus) {
-                showDialogFragment(getString(R.string.title_appkey_status), ((ConfigAppKeyStatus) meshMessage).getStatusCodeName());
+                final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
+                if (status.isSuccessful()) {
+                    mViewModel.displaySnackBar(this, container, getString(R.string.operation, status.getStatusCodeName()), Snackbar.LENGTH_SHORT);
+                } else {
+                    showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
+                }
             }
             hideProgressBar();
         });
@@ -198,21 +210,25 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
     };
 
     protected void enableClickableViews() {
+        enableAdapterListener(true);
         recyclerViewKeys.setEnabled(true);
+        recyclerViewKeys.setClickable(true);
     }
 
     protected void disableClickableViews() {
+        enableAdapterListener(false);
         recyclerViewKeys.setEnabled(false);
+        recyclerViewKeys.setClickable(false);
     }
 
     protected void sendMessage(final MeshMessage meshMessage) {
         try {
             if (!checkConnectivity())
                 return;
+            showProgressbar();
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             if (node != null) {
                 mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), meshMessage);
-                showProgressbar();
             }
         } catch (IllegalArgumentException ex) {
             hideProgressBar();

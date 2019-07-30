@@ -528,4 +528,5 @@
     <string name="deleting_net_key">Deleting net key…</string>
     <string name="adding_app_key">Adding app key…</string>
     <string name="deleting_app_key">Deleting app key…</string>
+    <string name="operation">Operation %s</string>
 </resources>
