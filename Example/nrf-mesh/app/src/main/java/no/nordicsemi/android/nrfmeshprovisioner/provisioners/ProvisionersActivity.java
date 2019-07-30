@@ -111,11 +111,11 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
-        mAdapter = new ProvisionerAdapter(this, mViewModel.getMeshNetworkLiveData());
+        mAdapter = new ProvisionerAdapter(this, mViewModel.getNetworkLiveData());
         mAdapter.setOnItemClickListener(this);
         mRecyclerView.setAdapter(mAdapter);
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
             if (network != null) {
                 final Provisioner provisioner = network.getSelectedProvisioner();
@@ -140,7 +140,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
         });
 
         containerProvisioner.setOnClickListener(v -> {
-            final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+            final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
             if (network != null) {
                 final Provisioner provisioner = network.getSelectedProvisioner();
                 mViewModel.setSelectedProvisioner(provisioner);
@@ -186,7 +186,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
 
     @Override
     public void onItemSelected(final int position, @NonNull final Provisioner provisioner) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
             network.selectProvisioner(provisioner);
         }
@@ -196,7 +196,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         final int position = viewHolder.getAdapterPosition();
         final Provisioner provisioner = mAdapter.getItem(position);
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         try {
             if (network != null) {
                 if (network.removeProvisioner(provisioner)) {
@@ -205,7 +205,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
             }
         } catch (Exception ex) {
             mAdapter.notifyDataSetChanged();
-            mViewModel.displaySnackBar(this, container, ex.getMessage());
+            mViewModel.displaySnackBar(this, container, ex.getMessage(), Snackbar.LENGTH_LONG);
         }
     }
 
@@ -217,7 +217,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
     private void displaySnackBar(@NonNull final Provisioner provisioner) {
         Snackbar.make(container, getString(R.string.provisioner_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
-                    final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+                    final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
                     if (network != null) {
                         network.addProvisioner(provisioner);
                     }

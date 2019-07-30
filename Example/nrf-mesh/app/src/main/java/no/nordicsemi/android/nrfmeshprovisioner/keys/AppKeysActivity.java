@@ -52,6 +52,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
@@ -66,17 +67,16 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
         ManageAppKeyAdapter.OnItemClickListener,
         ItemTouchHelperAdapter {
 
-    public static final String RESULT_APP_KEY = "RESULT_APP_KEY";
+    public static final String RESULT_APP_KEY = "RESULT_KEY";
     public static final String RESULT_APP_KEY_INDEX = "RESULT_APP_KEY_INDEX";
     public static final String RESULT_APP_KEY_LIST_SIZE = "RESULT_APP_KEY_LIST_SIZE";
     public static final String EDIT_APP_KEY = "EDIT_APP_KEY";
-    public static final int SELECT_APP_KEY = 2011; //Random number
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
     //UI Bindings
-    @BindView(android.R.id.empty)
+    @BindView(R.id.empty_app_keys)
     View mEmptyView;
     @BindView(R.id.container)
     CoordinatorLayout container;
@@ -114,7 +114,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
                 case Utils.ADD_APP_KEY:
                     getSupportActionBar().setTitle(R.string.title_select_app_key);
                     fab.hide();
-                    mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
+                    mAdapter = new ManageAppKeyAdapter(this, mViewModel.getNetworkLiveData());
                     mAdapter.setOnItemClickListener(this);
                     appKeysRecyclerView.setAdapter(mAdapter);
                     setUpObserver();
@@ -126,9 +126,9 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
                     //Get selected mesh node
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
                     if (node != null) {
-                        final List<Integer> applicationKeys = node.getAddedAppKeyIndexes();
+                        final List<NodeKey> applicationKeys = node.getAddedAppKeys();
                         if (!applicationKeys.isEmpty()) {
-                            mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData().getAppKeys(), applicationKeys);
+                            mAdapter = new ManageAppKeyAdapter(this, mViewModel.getNetworkLiveData().getAppKeys(), applicationKeys);
                             mAdapter.setOnItemClickListener(this);
                             appKeysRecyclerView.setAdapter(mAdapter);
                         } else {
@@ -144,7 +144,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
             final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
             final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
             itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
-            mAdapter = new ManageAppKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
+            mAdapter = new ManageAppKeyAdapter(this, mViewModel.getNetworkLiveData());
             mAdapter.setOnItemClickListener(this);
             appKeysRecyclerView.setAdapter(mAdapter);
             setUpObserver();
@@ -221,7 +221,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         final ApplicationKey key = (ApplicationKey) viewHolder.getSwipeableView().getTag();
         try {
-            final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+            final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
             if (network.removeAppKey(key)) {
                 displaySnackBar(key);
                 // Show the empty view
@@ -232,7 +232,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
             }
         } catch (Exception ex) {
             mAdapter.notifyDataSetChanged();
-            mViewModel.displaySnackBar(this, container, ex.getMessage());
+            mViewModel.displaySnackBar(this, container, ex.getMessage(), Snackbar.LENGTH_LONG);
         }
     }
 
@@ -242,7 +242,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
     }
 
     private void setUpObserver() {
-        mViewModel.getMeshNetworkLiveData().observe(this, networkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(this, networkLiveData -> {
             if (networkLiveData != null) {
                 final List<ApplicationKey> keys = networkLiveData.getAppKeys();
                 if (keys != null) {
@@ -256,7 +256,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
         Snackbar.make(container, getString(R.string.app_key_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
                     mEmptyView.setVisibility(View.INVISIBLE);
-                    mViewModel.getMeshNetworkLiveData().getMeshNetwork().addAppKey(appKey);
+                    mViewModel.getNetworkLiveData().getMeshNetwork().addAppKey(appKey);
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();

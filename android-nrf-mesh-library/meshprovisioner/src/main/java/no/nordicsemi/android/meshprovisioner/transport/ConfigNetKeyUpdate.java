@@ -24,62 +24,37 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * To be used as a wrapper class to create the ConfigAppKeyAdd message.
+ * Creates the ConfigNetKeyUpdate message.
  */
 @SuppressWarnings("unused")
-public class ConfigAppKeyAdd extends ConfigMessage {
+public class ConfigNetKeyUpdate extends ConfigMessage {
 
-    private static final String TAG = ConfigAppKeyAdd.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_APPKEY_ADD;
+    private static final String TAG = ConfigNetKeyUpdate.class.getSimpleName();
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETKEY_UPDATE;
 
     private final NetworkKey mNetKey;
-    private final ApplicationKey mAppKey;
 
     /**
-     * Constructs ConfigAppKeyAdd message.
+     * Constructs ConfigNetKeyUpdate message.
      *
-     * @param appKey application key for this message
+     * @param networkKey Network key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigAppKeyAdd(@NonNull final NetworkKey networkKey, @NonNull final ApplicationKey appKey) throws IllegalArgumentException {
+    public ConfigNetKeyUpdate(@NonNull final NetworkKey networkKey) throws IllegalArgumentException {
         if (networkKey.getKey().length != 16)
             throw new IllegalArgumentException("Network key must be 16 bytes");
 
-        if (appKey.getKey().length != 16)
-            throw new IllegalArgumentException("App key must be 16 bytes");
-
         this.mNetKey = networkKey;
-        this.mAppKey = appKey;
         assembleMessageParameters();
-    }
-
-    /**
-     * Returns the Network key that is needs to be sent to the node
-     *
-     * @return app key
-     */
-    public NetworkKey getNetKey() {
-        return mNetKey;
-    }
-
-    /**
-     * Returns the application key that is needs to be sent to the node
-     *
-     * @return app key
-     */
-    public ApplicationKey getAppKey() {
-        return mAppKey;
     }
 
     @Override
@@ -91,15 +66,12 @@ public class ConfigAppKeyAdd extends ConfigMessage {
     @Override
     void assembleMessageParameters() {
         Log.v(TAG, "NetKeyIndex: " + mNetKey.getKeyIndex());
-        Log.v(TAG, "AppKeyIndex: " + mAppKey.getKeyIndex());
         final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(mNetKey.getKeyIndex());
-        final byte[] appKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKey.getKeyIndex());
-        final ByteBuffer paramsBuffer = ByteBuffer.allocate(19).order(ByteOrder.LITTLE_ENDIAN);
-        paramsBuffer.put(netKeyIndex[1]);
-        paramsBuffer.put((byte) (((appKeyIndex[1] & 0xFF) << 4)  | (netKeyIndex[0] & 0xFF) & 0x0F));
-        paramsBuffer.put((byte) (((appKeyIndex[0] & 0xFF) << 4) | (appKeyIndex[1] & 0xFF) >> 4));
-        paramsBuffer.put(mAppKey.getKey());
 
+        final ByteBuffer paramsBuffer = ByteBuffer.allocate(18).order(ByteOrder.LITTLE_ENDIAN);
+        paramsBuffer.put(netKeyIndex[0]);
+        paramsBuffer.put(netKeyIndex[1]);
+        paramsBuffer.put(mNetKey.getKey());
         mParameters = paramsBuffer.array();
     }
 }

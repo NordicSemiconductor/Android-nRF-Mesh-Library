@@ -31,10 +31,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class DialogFragmentConfigStatus extends DialogFragmentMessage {
 
-    public interface DialogFragmentAppKeyBindStatusListener {
-        void onAppKeyBindStatusConfirmed();
-    }
-
     public static DialogFragmentConfigStatus newInstance(final String title, final String message) {
         Bundle args = new Bundle();
         DialogFragmentConfigStatus fragment = new DialogFragmentConfigStatus();

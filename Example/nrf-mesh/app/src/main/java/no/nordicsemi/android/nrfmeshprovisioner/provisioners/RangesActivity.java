@@ -131,7 +131,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                 mRangeAdapter = new RangeAdapter(this,
                         mProvisioner.getProvisionerUuid(),
                         mProvisioner.getAllocatedGroupRanges(),
-                        mViewModel.getMeshNetworkLiveData().getProvisioners());
+                        mViewModel.getNetworkLiveData().getProvisioners());
                 break;
             case Utils.SCENE_RANGE:
                 startAddress.setText(MeshAddress.formatAddress(0x0000, true));
@@ -140,7 +140,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                 mRangeAdapter = new RangeAdapter(this,
                         mProvisioner.getProvisionerUuid(),
                         mProvisioner.getAllocatedSceneRanges(),
-                        mViewModel.getMeshNetworkLiveData().getProvisioners());
+                        mViewModel.getNetworkLiveData().getProvisioners());
                 break;
             default:
             case Utils.UNICAST_RANGE:
@@ -150,7 +150,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                 mRangeAdapter = new RangeAdapter(this,
                         mProvisioner.getProvisionerUuid(),
                         mProvisioner.getAllocatedUnicastRanges(),
-                        mViewModel.getMeshNetworkLiveData().getProvisioners());
+                        mViewModel.getNetworkLiveData().getProvisioners());
                 break;
         }
 
@@ -248,7 +248,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                 updateResolveFab();
             } catch (Exception ex) {
                 mRangeAdapter.notifyDataSetChanged();
-                mViewModel.displaySnackBar(this, container, ex.getMessage());
+                mViewModel.displaySnackBar(this, container, ex.getMessage(), Snackbar.LENGTH_LONG);
             }
         }
     }
@@ -388,7 +388,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
         if (mProvisioner != null) {
             List<AllocatedUnicastRange> ranges = new ArrayList<>(mProvisioner.getAllocatedUnicastRanges());
             Collections.sort(ranges, addressRangeComparator);
-            for (Provisioner p : mViewModel.getMeshNetworkLiveData().getProvisioners()) {
+            for (Provisioner p : mViewModel.getNetworkLiveData().getProvisioners()) {
                 if(!p.getProvisionerUuid().equalsIgnoreCase(mProvisioner.getProvisionerUuid())) {
                     final List<AllocatedUnicastRange> otherRanges = new ArrayList<>(p.getAllocatedUnicastRanges());
                     Collections.sort(otherRanges, addressRangeComparator);
@@ -410,7 +410,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
         if (mProvisioner != null) {
             List<AllocatedGroupRange> ranges = new ArrayList<>(mProvisioner.getAllocatedGroupRanges());
             Collections.sort(ranges, addressRangeComparator);
-            for (Provisioner p : mViewModel.getMeshNetworkLiveData().getProvisioners()) {
+            for (Provisioner p : mViewModel.getNetworkLiveData().getProvisioners()) {
                 final List<AllocatedGroupRange> otherRanges = new ArrayList<>(p.getAllocatedGroupRanges());
                 Collections.sort(otherRanges, addressRangeComparator);
                 for (AllocatedGroupRange otherRange : otherRanges) {
@@ -432,7 +432,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
         if (mProvisioner != null) {
             List<AllocatedSceneRange> ranges = new ArrayList<>(mProvisioner.getAllocatedSceneRanges());
             Collections.sort(ranges, sceneRangeComparator);
-            for (Provisioner p : mViewModel.getMeshNetworkLiveData().getProvisioners()) {
+            for (Provisioner p : mViewModel.getNetworkLiveData().getProvisioners()) {
                 final List<AllocatedSceneRange> otherRanges = new ArrayList<>(p.getAllocatedSceneRanges());
                 Collections.sort(otherRanges, sceneRangeComparator);
                 for (AllocatedSceneRange otherRange : otherRanges) {

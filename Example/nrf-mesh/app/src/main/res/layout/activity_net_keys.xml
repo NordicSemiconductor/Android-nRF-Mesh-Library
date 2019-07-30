@@ -97,8 +97,8 @@
                     android:id="@+id/sub_net_key_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/white"
                     android:layout_marginBottom="@dimen/item_padding_bottom"
+                    android:background="@color/white"
                     app:cardElevation="1dp">
 
                     <androidx.core.widget.NestedScrollView
@@ -114,7 +114,8 @@
                             android:id="@+id/sub_net_key_container"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:paddingBottom="@dimen/item_padding_bottom">
 
                             <androidx.appcompat.widget.Toolbar
                                 android:id="@+id/sub_net_key_toolbar"

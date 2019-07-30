@@ -14,7 +14,7 @@ abstract class GenericMessage extends MeshMessage {
     byte mAid;
 
     /**
-     * Constracts a generic message
+     * Constructs a generic message
      *
      * @param appKey application key
      */

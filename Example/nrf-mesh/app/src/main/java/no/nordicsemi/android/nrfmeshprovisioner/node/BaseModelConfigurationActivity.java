@@ -32,6 +32,8 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -166,7 +168,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerViewAddresses);
-        mSubscriptionAdapter = new GroupAddressAdapter(this, mViewModel.getMeshNetworkLiveData().getMeshNetwork(), mViewModel.getSelectedModel());
+        mSubscriptionAdapter = new GroupAddressAdapter(this, mViewModel.getNetworkLiveData().getMeshNetwork(), mViewModel.getSelectedModel());
         recyclerViewAddresses.setAdapter(mSubscriptionAdapter);
 
         recyclerViewBoundKeys = findViewById(R.id.recycler_view_bound_keys);
@@ -174,7 +176,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         final ItemTouchHelper.Callback itemTouchHelperCallbackKeys = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelperKeys = new ItemTouchHelper(itemTouchHelperCallbackKeys);
         itemTouchHelperKeys.attachToRecyclerView(recyclerViewBoundKeys);
-        mBoundAppKeyAdapter = new BoundAppKeysAdapter(this, mViewModel.getMeshNetworkLiveData().getAppKeys(), mViewModel.getSelectedModel());
+        mBoundAppKeyAdapter = new BoundAppKeysAdapter(this, mViewModel.getNetworkLiveData().getAppKeys(), mViewModel.getSelectedModel());
         recyclerViewBoundKeys.setAdapter(mBoundAppKeyAdapter);
 
         mActionBindAppKey.setOnClickListener(v -> {
@@ -185,7 +187,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (!checkConnectivity()) return;
             final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, AppKeysActivity.class);
             bindAppKeysIntent.putExtra(Utils.EXTRA_DATA, Utils.BIND_APP_KEY);
-            startActivityForResult(bindAppKeysIntent, AppKeysActivity.SELECT_APP_KEY);
+            startActivityForResult(bindAppKeysIntent, Utils.SELECT_KEY);
         });
 
         mPublishAddressView.setText(R.string.none);
@@ -285,7 +287,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case AppKeysActivity.SELECT_APP_KEY:
+            case Utils.SELECT_KEY:
                 if (resultCode == RESULT_OK) {
                     final ApplicationKey appKey = data.getParcelableExtra(AppKeysActivity.RESULT_APP_KEY);
                     if (appKey != null) {
@@ -311,19 +313,19 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     @Override
     public Group createGroup(@NonNull final String name) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         return network.createGroup(network.getSelectedProvisioner(), name);
     }
 
     @Override
     public Group createGroup(@NonNull final UUID uuid, final String name) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         return network.createGroup(uuid, null, name);
     }
 
     @Override
     public boolean onGroupAdded(@NonNull final String name, final int address) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         final Group group = network.createGroup(network.getSelectedProvisioner(), address, name);
         if (group != null) {
             if (network.addGroup(group)) {
@@ -336,7 +338,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     @Override
     public boolean onGroupAdded(@NonNull final Group group) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network.addGroup(group)) {
             subscribe(group);
             return true;
@@ -392,7 +394,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
             startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
         } else {
-            mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
+            mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
         }
     }
 
@@ -452,7 +454,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                                 credentialFlag, ttl, publicationSteps, publicationResolution, retransmitCount, retransmitIntervalSteps, model.getModelId());
                         sendMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
                     } else {
-                        mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
+                        mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
                     }
                 }
             }

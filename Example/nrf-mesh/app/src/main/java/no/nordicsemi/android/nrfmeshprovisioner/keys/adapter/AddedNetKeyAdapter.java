@@ -26,6 +26,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -48,6 +50,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.ViewHolder> {
 
     private final List<NetworkKey> netKeys = new ArrayList<>();
+    private final List<NetworkKey> addedNetKeys = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
@@ -55,19 +58,19 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
                               @NonNull final List<NetworkKey> netKeys,
                               @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
         this.mContext = context;
+        this.netKeys.addAll(netKeys);
+        Collections.sort(this.netKeys, Utils.netKeyComparator);
         meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
-            if (meshNode != null) {
-                this.netKeys.clear();
-                for (Integer index : meshNode.getAddedNetKeyIndexes()) {
-                    for (NetworkKey networkKey : netKeys) {
-                        if (index == networkKey.getKeyIndex()) {
-                            this.netKeys.add(networkKey);
-                        }
+            addedNetKeys.clear();
+            for (NodeKey nodeKey : meshNode.getAddedNetKeys()) {
+                for (NetworkKey networkKey : netKeys) {
+                    if (nodeKey.getIndex() == networkKey.getKeyIndex()) {
+                        addedNetKeys.add(networkKey);
                     }
                 }
-                Collections.sort(this.netKeys, Utils.netKeyComparator);
-                notifyDataSetChanged();
             }
+            Collections.sort(addedNetKeys, Utils.netKeyComparator);
+            notifyDataSetChanged();
         });
     }
 
@@ -78,17 +81,22 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
     @NonNull
     @Override
     public AddedNetKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item, parent, false);
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.row_item_key, parent, false);
         return new AddedNetKeyAdapter.ViewHolder(layoutView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final AddedNetKeyAdapter.ViewHolder holder, final int position) {
-        if (netKeys.size() > 0) {
-            final NetworkKey key = netKeys.get(position);
-            holder.keyName.setText(key.getName());
-            final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
-            holder.key.setText(appKey.toUpperCase());
+        final NetworkKey key = netKeys.get(position);
+        holder.keyName.setText(key.getName());
+        final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
+        holder.key.setText(appKey.toUpperCase());
+        if (addedNetKeys.contains(key)) {
+            holder.check.setChecked(true);
+            //holder.check.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_done_all_nordic_lake_24dp));
+        } else {
+            holder.check.setChecked(false);
+            //holder.check.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_done_all_black_alpha_24dp));
         }
     }
 
@@ -117,12 +125,15 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
         TextView keyName;
         @BindView(R.id.subtitle)
         TextView key;
+        @BindView(R.id.check)
+        CheckBox check;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            view.findViewById(R.id.removable).setOnClickListener(v -> {
+            check.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
+                    check.setChecked(!check.isChecked());
                     final NetworkKey key = netKeys.get(getAdapterPosition());
                     mOnItemClickListener.onItemClick(key);
                 }

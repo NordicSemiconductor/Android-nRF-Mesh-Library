@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import javax.inject.Inject;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -215,14 +217,14 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
             if (model != null) {
                 if (!model.getBoundAppKeyIndexes().isEmpty()) {
                     final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                    final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
+                    final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
 
                     final int address = element.getElementAddress();
                     Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
                     final GenericLevelGet genericLevelGet = new GenericLevelGet(appKey);
                     sendMessage(address, genericLevelGet);
                 } else {
-                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
+                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
                 }
             }
         }
@@ -244,13 +246,13 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 if (model != null) {
                     if (!model.getBoundAppKeyIndexes().isEmpty()) {
                         final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
-                        final ApplicationKey appKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
+                        final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level,
                                 node.getSequenceNumber());
                         sendMessage(address, genericLevelSet);
                     } else {
-                        mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound));
+                        mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
                     }
                 }
             }

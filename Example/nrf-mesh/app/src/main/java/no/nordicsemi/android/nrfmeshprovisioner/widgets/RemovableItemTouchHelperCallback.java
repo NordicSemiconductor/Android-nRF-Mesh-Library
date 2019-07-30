@@ -109,7 +109,6 @@ public class RemovableItemTouchHelperCallback extends ItemTouchHelper.Callback {
                         swipeBack = true;
                     } else {
                         if (dX == 0 && !swipeBack) {
-                            Log.v("DX", "DX" + dX);
                             mAdapter.onItemDismissFailed((RemovableViewHolder) viewHolder);
                         }
                     }
@@ -125,7 +124,6 @@ public class RemovableItemTouchHelperCallback extends ItemTouchHelper.Callback {
                     //swipeBack = true;
                 } else {
                     if (dX == 0 && !swipeBack) {
-                        Log.v("DX", "DX" + dX);
                         mAdapter.onItemDismissFailed((RemovableViewHolder) viewHolder);
                     }
                 }

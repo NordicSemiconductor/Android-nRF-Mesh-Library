@@ -53,8 +53,9 @@ import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.ManageNetKeyAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.ManageNetKeyAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
@@ -76,6 +77,16 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
     ScrollView scrollView;
     @BindView(R.id.sub_net_key_card)
     CardView mSubNetKeyCard;
+    @BindView(R.id.recycler_view_keys)
+    RecyclerView netKeysRecyclerView;
+    @BindView(R.id.fab_add)
+    ExtendedFloatingActionButton fab;
+    @BindView(R.id.container_primary_net_key)
+    View containerKey;
+    @BindView(R.id.div3)
+    View divider;
+    @BindView(R.id.delete_hint)
+    View deleteHint;
 
     private NetKeysViewModel mViewModel;
     private ManageNetKeyAdapter mAdapter;
@@ -95,29 +106,24 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
         getSupportActionBar().setTitle(R.string.title_manage_net_keys);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final View containerKey = findViewById(R.id.container_primary_net_key);
         containerKey.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
         final TextView keyTitle = containerKey.findViewById(R.id.title);
         final TextView keyView = containerKey.findViewById(R.id.text);
         keyView.setVisibility(View.VISIBLE);
 
-        final ExtendedFloatingActionButton fab = findViewById(R.id.fab_add);
-
-        final RecyclerView netKeysRecyclerView = findViewById(R.id.recycler_view_keys);
         netKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         netKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(netKeysRecyclerView);
-        mAdapter = new ManageNetKeyAdapter(this, mViewModel.getMeshNetworkLiveData());
+        mAdapter = new ManageNetKeyAdapter(this, mViewModel.getNetworkLiveData());
         mAdapter.setOnItemClickListener(this);
         netKeysRecyclerView.setAdapter(mAdapter);
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
-            if(network!= null) {
+            if (network != null) {
                 final NetworkKey networkKey = network.getPrimaryNetworkKey();
                 if (networkKey != null) {
                     keyTitle.setText(networkKey.getName());
@@ -132,24 +138,25 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
             }
         });
 
-        containerKey.setOnClickListener(v -> {
-            final Intent intent = new Intent(this, EditNetKeyActivity.class);
-            intent.putExtra(EDIT_NET_KEY, 0);
-            startActivity(intent);
-        });
-
-        fab.setOnClickListener(v -> {
-            final Intent intent = new Intent(this, AddNetKeyActivity.class);
-            startActivity(intent);
-        });
-
-        scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
-            if(scrollView.getScrollY() == 0){
-                fab.extend(true);
-            } else {
-                fab.shrink(true);
+        final Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            switch (bundle.getInt(Utils.EXTRA_DATA)) {
+                case Utils.MANAGE_NET_KEY:
+                    setUpClickListeners();
+                    itemTouchHelper.attachToRecyclerView(netKeysRecyclerView);
+                    break;
+                case Utils.ADD_NET_KEY:
+                    getSupportActionBar().setTitle(R.string.title_select_net_key);
+                    divider.setVisibility(View.GONE);
+                    deleteHint.setVisibility(View.GONE);
+                    fab.hide();
+                    mAdapter = new ManageNetKeyAdapter(this, mViewModel.getNetworkLiveData());
+                    mAdapter.setOnItemClickListener(this);
+                    netKeysRecyclerView.setAdapter(mAdapter);
+                    break;
             }
-        });
+
+        }
     }
 
     @Override
@@ -177,7 +184,7 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
             }
         } catch (Exception ex) {
             mAdapter.notifyDataSetChanged();
-            mViewModel.displaySnackBar(this, container, ex.getMessage());
+            mViewModel.displaySnackBar(this, container, ex.getMessage(), Snackbar.LENGTH_LONG);
         }
     }
 
@@ -208,5 +215,26 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
             return network.removeNetKey(networkKey);
         }
         return false;
+    }
+
+    private void setUpClickListeners() {
+        containerKey.setOnClickListener(v -> {
+            final Intent intent = new Intent(this, EditNetKeyActivity.class);
+            intent.putExtra(EDIT_NET_KEY, 0);
+            startActivity(intent);
+        });
+
+        fab.setOnClickListener(v -> {
+            final Intent intent = new Intent(this, AddNetKeyActivity.class);
+            startActivity(intent);
+        });
+
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
+            if (scrollView.getScrollY() == 0) {
+                fab.extend(true);
+            } else {
+                fab.shrink(true);
+            }
+        });
     }
 }

@@ -61,7 +61,7 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
 
         //noinspection ConstantConditions
         final int index = getIntent().getExtras().getInt(NetKeysActivity.EDIT_NET_KEY);
-        networkKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getNetKey(index);
+        networkKey = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(index);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -106,7 +106,7 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
             }
         });
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             if (networkKey != null) {
                 this.networkKey = meshNetworkLiveData.getMeshNetwork().getNetKey(networkKey.getKeyIndex());
                 keyView.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));

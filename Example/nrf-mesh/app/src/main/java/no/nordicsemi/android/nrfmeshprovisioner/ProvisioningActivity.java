@@ -157,7 +157,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
             if (node != null && node.getProvisioningCapabilities() != null) {
                 final int elementCount = node.getProvisioningCapabilities().getNumberOfElements();
                 final DialogFragmentUnicastAddress dialogFragmentFlags = DialogFragmentUnicastAddress.
-                        newInstance(mViewModel.getMeshNetworkLiveData().getMeshNetwork().getUnicastAddress(), elementCount);
+                        newInstance(mViewModel.getNetworkLiveData().getMeshNetwork().getUnicastAddress(), elementCount);
                 dialogFragmentFlags.show(getSupportFragmentManager(), null);
             }
         });
@@ -172,7 +172,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         containerAppKey.setOnClickListener(v -> {
             final Intent manageAppKeys = new Intent(ProvisioningActivity.this, AppKeysActivity.class);
             manageAppKeys.putExtra(Utils.EXTRA_DATA, Utils.ADD_APP_KEY);
-            startActivityForResult(manageAppKeys, AppKeysActivity.SELECT_APP_KEY);
+            startActivityForResult(manageAppKeys, Utils.SELECT_KEY);
         });
 
         mViewModel.getConnectionState().observe(this, connectionState::setText);
@@ -213,7 +213,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
             }
         });
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             nameView.setText(meshNetworkLiveData.getNodeName());
             final ApplicationKey applicationKey = meshNetworkLiveData.getSelectedAppKey();
             appKeyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
@@ -228,7 +228,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
                     mProvisioningProgressBar.setVisibility(View.INVISIBLE);
                     action_provision.setText(R.string.provision_action);
                     containerUnicastAddress.setVisibility(View.VISIBLE);
-                    final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+                    final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
                     if (network != null) {
                         try {
                             final int elementCount = capabilities.getNumberOfElements();
@@ -237,7 +237,8 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
                             network.assignUnicastAddress(unicast);
                             updateCapabilitiesUi(capabilities);
                         } catch (IllegalArgumentException ex) {
-                            mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage());
+                            action_provision.setEnabled(false);
+                            mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage(), Snackbar.LENGTH_LONG);
                         }
                     }
                 }
@@ -247,7 +248,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         action_provision.setOnClickListener(v -> {
             final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
             if (node == null) {
-                device.setName(mViewModel.getMeshNetworkLiveData().getNodeName());
+                device.setName(mViewModel.getNetworkLiveData().getNodeName());
                 mViewModel.getNrfMeshRepository().identifyNode(device);
                 return;
             }
@@ -264,7 +265,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         });
 
         if (savedInstanceState == null)
-            mViewModel.getMeshNetworkLiveData().resetSelectedAppKey();
+            mViewModel.getNetworkLiveData().resetSelectedAppKey();
     }
 
     @Override
@@ -291,11 +292,11 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == AppKeysActivity.SELECT_APP_KEY) {
+        if (requestCode == Utils.SELECT_KEY) {
             if (resultCode == RESULT_OK) {
                 final ApplicationKey appKey = data.getParcelableExtra(AppKeysActivity.RESULT_APP_KEY);
                 if (appKey != null) {
-                    mViewModel.getMeshNetworkLiveData().setSelectedAppKey(appKey);
+                    mViewModel.getNetworkLiveData().setSelectedAppKey(appKey);
                 }
             }
         }
@@ -316,7 +317,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
 
     @Override
     public boolean onNodeNameUpdated(@NonNull final String nodeName) {
-        mViewModel.getMeshNetworkLiveData().setNodeName(nodeName);
+        mViewModel.getNetworkLiveData().setNodeName(nodeName);
         return true;
     }
 
@@ -331,7 +332,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
 
     @Override
     public int getNextUnicastAddress(final int elementCount) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         return network.nextAvailableUnicastAddress(elementCount, network.getSelectedProvisioner());
     }
 
@@ -542,12 +543,12 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
             try {
-                node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
+                node.setNodeName(mViewModel.getNetworkLiveData().getNodeName());
                 setupProvisionerStateObservers(provisioningStatusContainer);
                 mProvisioningProgressBar.setVisibility(View.VISIBLE);
                 mViewModel.getMeshManagerApi().startProvisioning(node);
             } catch (IllegalArgumentException ex) {
-                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage());
+                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage(), Snackbar.LENGTH_LONG);
             }
         }
     }
@@ -557,12 +558,12 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
             try {
-                node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
+                node.setNodeName(mViewModel.getNetworkLiveData().getNodeName());
                 setupProvisionerStateObservers(provisioningStatusContainer);
                 mProvisioningProgressBar.setVisibility(View.VISIBLE);
                 mViewModel.getMeshManagerApi().startProvisioningWithStaticOOB(node);
             } catch (IllegalArgumentException ex) {
-                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage());
+                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage(), Snackbar.LENGTH_LONG);
             }
         }
     }
@@ -572,12 +573,12 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
             try {
-                node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
+                node.setNodeName(mViewModel.getNetworkLiveData().getNodeName());
                 setupProvisionerStateObservers(provisioningStatusContainer);
                 mProvisioningProgressBar.setVisibility(View.VISIBLE);
                 mViewModel.getMeshManagerApi().startProvisioningWithOutputOOB(node, action);
             } catch (IllegalArgumentException ex) {
-                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage());
+                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage(), Snackbar.LENGTH_LONG);
             }
         }
     }
@@ -587,12 +588,12 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
         if (node != null) {
             try {
-                node.setNodeName(mViewModel.getMeshNetworkLiveData().getNodeName());
+                node.setNodeName(mViewModel.getNetworkLiveData().getNodeName());
                 setupProvisionerStateObservers(provisioningStatusContainer);
                 mProvisioningProgressBar.setVisibility(View.VISIBLE);
                 mViewModel.getMeshManagerApi().startProvisioningWithInputOOB(node, action);
             } catch (IllegalArgumentException ex) {
-                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage());
+                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage(), Snackbar.LENGTH_LONG);
             }
         }
     }

@@ -808,7 +808,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     if (!mMeshNetwork.getAppKeys().isEmpty()) {
                         mHandler.postDelayed(() -> {
                             final ApplicationKey appKey = mMeshNetworkLiveData.getSelectedAppKey();
-                            final int index = node.getAddedNetKeyIndexes().get(0);
+                            final int index = node.getAddedNetKeys().get(0).getIndex();
                             final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(index);
                             final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
                             mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), configAppKeyAdd);

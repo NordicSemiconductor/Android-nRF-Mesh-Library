@@ -31,7 +31,9 @@ import no.nordicsemi.android.nrfmeshprovisioner.SplashScreenActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.ReconnectActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AddAppKeyActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.AddAppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AddNetKeyActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.keys.AddNetKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.EditAppKeyActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.EditNetKeyActivity;
@@ -53,78 +55,84 @@ import no.nordicsemi.android.nrfmeshprovisioner.provisioners.RangesActivity;
 @Module
 abstract class ActivitiesModule {
 
-	@ContributesAndroidInjector()
-	abstract SplashScreenActivity contributeSplashScreenActivity();
+    @ContributesAndroidInjector()
+    abstract SplashScreenActivity contributeSplashScreenActivity();
 
-	@ContributesAndroidInjector(modules = FragmentBuildersModule.class)
-	abstract MainActivity contributeMainActivity();
+    @ContributesAndroidInjector(modules = FragmentBuildersModule.class)
+    abstract MainActivity contributeMainActivity();
 
-	@ContributesAndroidInjector()
-	abstract ProvisionersActivity contributeProvisionersActivity();
+    @ContributesAndroidInjector()
+    abstract ProvisionersActivity contributeProvisionersActivity();
 
-	@ContributesAndroidInjector()
-	abstract AddProvisionerActivity contributeAddProvisionersActivity();
+    @ContributesAndroidInjector()
+    abstract AddProvisionerActivity contributeAddProvisionersActivity();
 
-	@ContributesAndroidInjector()
-	abstract EditProvisionerActivity contributeEditProvisionersActivity();
+    @ContributesAndroidInjector()
+    abstract EditProvisionerActivity contributeEditProvisionersActivity();
 
-	@ContributesAndroidInjector()
-	abstract RangesActivity contributeRangesActivity();
+    @ContributesAndroidInjector()
+    abstract RangesActivity contributeRangesActivity();
 
-	@ContributesAndroidInjector()
-	abstract NetKeysActivity contributeNetKeysActivity();
+    @ContributesAndroidInjector()
+    abstract NetKeysActivity contributeNetKeysActivity();
 
-	@ContributesAndroidInjector()
-	abstract AddNetKeyActivity contributeAddNetKeyActivity();
+    @ContributesAndroidInjector()
+    abstract AddNetKeyActivity contributeAddNetKeyActivity();
 
-	@ContributesAndroidInjector()
-	abstract EditNetKeyActivity contributeEditNetKeyActivity();
+    @ContributesAndroidInjector()
+    abstract EditNetKeyActivity contributeEditNetKeyActivity();
 
-	@ContributesAndroidInjector()
-	abstract AppKeysActivity contributeAppKeysActivity();
+    @ContributesAndroidInjector()
+    abstract AppKeysActivity contributeAppKeysActivity();
 
-	@ContributesAndroidInjector()
-	abstract AddAppKeyActivity contributeAddAppKeyActivity();
+    @ContributesAndroidInjector()
+    abstract AddAppKeyActivity contributeAddAppKeyActivity();
 
-	@ContributesAndroidInjector()
-	abstract EditAppKeyActivity contributeEditAppKeyActivity();
+    @ContributesAndroidInjector()
+    abstract EditAppKeyActivity contributeEditAppKeyActivity();
 
-	@ContributesAndroidInjector()
-	abstract ProvisioningActivity contributeMeshProvisionerActivity();
+    @ContributesAndroidInjector()
+    abstract ProvisioningActivity contributeMeshProvisionerActivity();
 
-	@ContributesAndroidInjector()
-	abstract NodeConfigurationActivity contributeElementConfigurationActivity();
+    @ContributesAndroidInjector()
+    abstract NodeConfigurationActivity contributeElementConfigurationActivity();
 
-	@ContributesAndroidInjector()
-	abstract ScannerActivity contributeScannerActivity();
+    @ContributesAndroidInjector()
+    abstract AddAppKeysActivity contributeAddAppKeysActivity();
 
-	@ContributesAndroidInjector()
-	abstract ReconnectActivity contributeReconnectActivity();
+    @ContributesAndroidInjector()
+    abstract AddNetKeysActivity contributeAddNetKeysActivity();
 
-	@ContributesAndroidInjector()
-	abstract NodeDetailsActivity contributeNodeDetailsActivity();
+    @ContributesAndroidInjector()
+    abstract ScannerActivity contributeScannerActivity();
 
-	@ContributesAndroidInjector()
-	abstract GroupControlsActivity contributeGroupControlsActivity();
+    @ContributesAndroidInjector()
+    abstract ReconnectActivity contributeReconnectActivity();
 
-	@ContributesAndroidInjector()
-	abstract PublicationSettingsActivity contributePublicationSettingsActivity();
+    @ContributesAndroidInjector()
+    abstract NodeDetailsActivity contributeNodeDetailsActivity();
 
-	@ContributesAndroidInjector()
-	abstract ConfigurationServerActivity contribyteConfigurationServerActivity();
+    @ContributesAndroidInjector()
+    abstract GroupControlsActivity contributeGroupControlsActivity();
 
-	@ContributesAndroidInjector()
-	abstract ConfigurationClientActivity contribyteConfigurationClientActivity();
+    @ContributesAndroidInjector()
+    abstract PublicationSettingsActivity contributePublicationSettingsActivity();
 
-	@ContributesAndroidInjector()
-	abstract GenericOnOffServerActivity contributeGenericOnOffServerActivity();
+    @ContributesAndroidInjector()
+    abstract ConfigurationServerActivity contributeConfigurationServerActivity();
 
-	@ContributesAndroidInjector()
-	abstract GenericLevelServerActivity contributeGenericLevelServerActivity();
+    @ContributesAndroidInjector()
+    abstract ConfigurationClientActivity contributeConfigurationClientActivity();
 
-	@ContributesAndroidInjector()
-	abstract VendorModelActivity contributeVendorModelActivity();
+    @ContributesAndroidInjector()
+    abstract GenericOnOffServerActivity contributeGenericOnOffServerActivity();
 
-	@ContributesAndroidInjector()
-	abstract ModelConfigurationActivity contributeModelConfigurationActivity();
+    @ContributesAndroidInjector()
+    abstract GenericLevelServerActivity contributeGenericLevelServerActivity();
+
+    @ContributesAndroidInjector()
+    abstract VendorModelActivity contributeVendorModelActivity();
+
+    @ContributesAndroidInjector()
+    abstract ModelConfigurationActivity contributeModelConfigurationActivity();
 }

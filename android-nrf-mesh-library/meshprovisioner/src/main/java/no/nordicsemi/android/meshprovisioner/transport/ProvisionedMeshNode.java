@@ -22,9 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
-
-import com.google.gson.annotations.Expose;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,9 +43,11 @@ import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -62,10 +63,6 @@ import static androidx.room.ForeignKey.CASCADE;
                 onUpdate = CASCADE, onDelete = CASCADE),
         indices = @Index("mesh_uuid"))
 public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
-
-    @Ignore
-    @Expose
-    private SecureUtils.K2Output k2Output;
 
     public static final Creator<ProvisionedMeshNode> CREATOR = new Creator<ProvisionedMeshNode>() {
         @Override
@@ -87,23 +84,21 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     /**
      * Constructor to be used only by hte library
      *
-     * @param unprovisionedMeshNode {@link UnprovisionedMeshNode}
+     * @param node {@link UnprovisionedMeshNode}
      */
     @Ignore
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public ProvisionedMeshNode(final UnprovisionedMeshNode unprovisionedMeshNode) {
-        uuid = unprovisionedMeshNode.getDeviceUuid().toString();
-        isConfigured = unprovisionedMeshNode.isConfigured();
-        nodeName = unprovisionedMeshNode.getNodeName();
-        mAddedNetKeyIndexes.add(unprovisionedMeshNode.getKeyIndex());
-        mFlags = unprovisionedMeshNode.getFlags();
-        unicastAddress = unprovisionedMeshNode.getUnicastAddress();
-        deviceKey = unprovisionedMeshNode.getDeviceKey();
-        ttl = unprovisionedMeshNode.getTtl();
-        final NetworkKey networkKey = new NetworkKey(unprovisionedMeshNode.getKeyIndex(), unprovisionedMeshNode.getNetworkKey());
-        k2Output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
-        mTimeStampInMillis = unprovisionedMeshNode.getTimeStamp();
-        numberOfElements = unprovisionedMeshNode.getNumberOfElements();
+    public ProvisionedMeshNode(final UnprovisionedMeshNode node) {
+        uuid = node.getDeviceUuid().toString();
+        isConfigured = node.isConfigured();
+        nodeName = node.getNodeName();
+        mAddedNetKeys.add(new NodeKey(node.getKeyIndex()));
+        mFlags = node.getFlags();
+        unicastAddress = node.getUnicastAddress();
+        deviceKey = node.getDeviceKey();
+        ttl = node.getTtl();
+        final NetworkKey networkKey = new NetworkKey(node.getKeyIndex(), node.getNetworkKey());
+        mTimeStampInMillis = node.getTimeStamp();
     }
 
     /**
@@ -116,6 +111,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     @SuppressWarnings("ConstantConditions")
     @Ignore
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressLint("UseSparseArrays")
     public ProvisionedMeshNode(@NonNull final Provisioner provisioner,
                                @NonNull final List<NetworkKey> netKeys,
                                @NonNull final List<ApplicationKey> appKeys) {
@@ -123,8 +119,11 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         uuid = provisioner.getProvisionerUuid();
         isConfigured = true;
         nodeName = provisioner.getProvisionerName();
+        for (NetworkKey key : netKeys) {
+            mAddedNetKeys.add(new NodeKey(key.getKeyIndex()));
+        }
         for (ApplicationKey key : appKeys) {
-            mAddedAppKeyIndexes.add(key.getKeyIndex());
+            mAddedAppKeys.add(new NodeKey(key.getKeyIndex()));
         }
         if (provisioner.getProvisionerAddress() != null)
             unicastAddress = provisioner.getProvisionerAddress();
@@ -132,7 +131,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         deviceKey = SecureUtils.generateRandomNumber();
         ttl = provisioner.getGlobalTtl();
         mTimeStampInMillis = System.currentTimeMillis();
-        numberOfElements = 1;
         final MeshModel model = SigModelParser.getSigModel(SigModelParser.CONFIGURATION_CLIENT);
         final HashMap<Integer, MeshModel> models = new HashMap<>();
         models.put(model.getModelId(), model);
@@ -144,25 +142,24 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     @Ignore
     protected ProvisionedMeshNode(Parcel in) {
+        //noinspection ConstantConditions
         uuid = in.readString();
         isConfigured = in.readByte() != 1;
         nodeName = in.readString();
-        mAddedNetKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
+        in.readList(mAddedNetKeys, NodeKey.class.getClassLoader());
         mFlags = in.createByteArray();
         unicastAddress = in.readInt();
         deviceKey = in.createByteArray();
         ttl = (Integer) in.readValue(Integer.class.getClassLoader());
-        numberOfElements = in.readInt();
         sequenceNumber = in.readInt();
-        k2Output = in.readParcelable(SecureUtils.K2Output.class.getClassLoader());
         companyIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         productIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         versionIdentifier = (Integer) in.readValue(Integer.class.getClassLoader());
         crpl = (Integer) in.readValue(Integer.class.getClassLoader());
         nodeFeatures = (Features) in.readValue(Features.class.getClassLoader());
-        generatedNetworkId = in.createByteArray();
-        sortElements(in.readHashMap(Element.class.getClassLoader()));
-        mAddedAppKeyIndexes = in.readArrayList(Integer.class.getClassLoader());
+        in.readMap(mElements, Element.class.getClassLoader());
+        sortElements(mElements);
+        in.readList(mAddedAppKeys, NodeKey.class.getClassLoader());
         mTimeStampInMillis = in.readLong();
         mSeqAuth = in.readParcelable(SparseIntArrayParcelable.class.getClassLoader());
         secureNetworkBeaconSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
@@ -177,22 +174,19 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeString(uuid);
         dest.writeByte((byte) (isConfigured ? 1 : 0));
         dest.writeString(nodeName);
-        dest.writeList(mAddedNetKeyIndexes);
+        dest.writeList(mAddedNetKeys);
         dest.writeByteArray(mFlags);
         dest.writeInt(unicastAddress);
         dest.writeByteArray(deviceKey);
         dest.writeValue(ttl);
-        dest.writeInt(numberOfElements);
         dest.writeInt(sequenceNumber);
-        dest.writeParcelable(k2Output, flags);
         dest.writeValue(companyIdentifier);
         dest.writeValue(productIdentifier);
         dest.writeValue(versionIdentifier);
         dest.writeValue(crpl);
         dest.writeValue(nodeFeatures);
-        dest.writeByteArray(generatedNetworkId);
         dest.writeMap(mElements);
-        dest.writeList(mAddedAppKeyIndexes);
+        dest.writeList(mAddedAppKeys);
         dest.writeLong(mTimeStampInMillis);
         dest.writeParcelable(mSeqAuth, flags);
         dest.writeValue(secureNetworkBeaconSupported);
@@ -255,14 +249,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         this.sequenceNumber = sequenceNumber;
     }
 
-    public final SecureUtils.K2Output getK2Output() {
-        return k2Output;
-    }
-
-    final void setK2Output(final SecureUtils.K2Output k2Output) {
-        this.k2Output = k2Output;
-    }
-
     public final Integer getCompanyIdentifier() {
         return companyIdentifier;
     }
@@ -316,26 +302,15 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     }
 
     /**
-     * Returns the number of elements in the node
-     */
-    public int getNumberOfElements() {
-        if (numberOfElements > mElements.size()) {
-            return numberOfElements;
-        }
-
-        return mElements.size();
-    }
-
-    /**
      * Returns the list of Network keys added to this node
      */
-    public final List<Integer> getAddedNetKeyIndexes() {
-        return Collections.unmodifiableList(mAddedNetKeyIndexes);
+    public final List<NodeKey> getAddedNetKeys() {
+        return Collections.unmodifiableList(mAddedNetKeys);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setAddedNetKeyIndexes(final List<Integer> addedNetKeyIndexes) {
-        mAddedNetKeyIndexes = addedNetKeyIndexes;
+    public final void setAddedNetKeys(final List<NodeKey> addedNetKeyIndexes) {
+        mAddedNetKeys = addedNetKeyIndexes;
     }
 
     /**
@@ -345,21 +320,63 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final void setAddedNetKeyIndex(final int index) {
-        if (!mAddedNetKeyIndexes.contains(index)) {
-            this.mAddedNetKeyIndexes.add(index);
+        if (!MeshParserUtils.isNodeKeyExists(mAddedNetKeys, index)) {
+            mAddedNetKeys.add(new NodeKey(index));
+        }
+    }
+
+    /**
+     * Update a net key's updated state
+     *
+     * @param index NetKey index
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    protected final void updateAddedNetKey(final int index) {
+        final NodeKey nodeKey = MeshParserUtils.getNodeKey(mAddedNetKeys, index);
+        if (nodeKey != null) {
+            nodeKey.setUpdated(true);
+        }
+    }
+
+    /**
+     * Update the added net key list of the node
+     *
+     * @param indexes NetKey index
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    protected final void updateNetKeyList(final List<Integer> indexes) {
+        mAddedNetKeys.clear();
+        for (Integer index : indexes) {
+            mAddedNetKeys.add(new NodeKey(index, false));
+        }
+    }
+
+    /**
+     * Removes an NetKey index that was added to the node
+     *
+     * @param index NetKey index
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    protected final void removeAddedNetKeyIndex(final int index) {
+        for (int i = 0; i < mAddedNetKeys.size(); i++) {
+            final int keyIndex = mAddedNetKeys.get(i).getIndex();
+            if (keyIndex == index) {
+                mAddedNetKeys.remove(i);
+                break;
+            }
         }
     }
 
     /**
      * Returns the list of added AppKey indexes to the node
      */
-    public final List<Integer> getAddedAppKeyIndexes() {
-        return Collections.unmodifiableList(mAddedAppKeyIndexes);
+    public final List<NodeKey> getAddedAppKeys() {
+        return Collections.unmodifiableList(mAddedAppKeys);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setAddedAppKeyIndexes(final List<Integer> addedAppKeyIndexes) {
-        mAddedAppKeyIndexes = addedAppKeyIndexes;
+    public final void setAddedAppKeys(final List<NodeKey> addedAppKeyIndexes) {
+        mAddedAppKeys = addedAppKeyIndexes;
     }
 
     /**
@@ -369,8 +386,8 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final void setAddedAppKeyIndex(final int index) {
-        if (!mAddedAppKeyIndexes.contains(index)) {
-            this.mAddedAppKeyIndexes.add(index);
+        if (!MeshParserUtils.isNodeKeyExists(mAddedAppKeys, index)) {
+            this.mAddedAppKeys.add(new NodeKey(index));
         }
     }
 
@@ -381,10 +398,10 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final void removeAddedAppKeyIndex(final int index) {
-        for (int i = 0; i < mAddedAppKeyIndexes.size(); i++) {
-            final int keyIndex = mAddedAppKeyIndexes.get(i);
+        for (int i = 0; i < mAddedAppKeys.size(); i++) {
+            final int keyIndex = mAddedAppKeys.get(i).getIndex();
             if (keyIndex == index) {
-                mAddedAppKeyIndexes.remove(i);
+                mAddedAppKeys.remove(i);
                 for (Map.Entry<Integer, Element> elementEntry : getElements().entrySet()) {
                     final Element element = elementEntry.getValue();
                     for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
@@ -474,7 +491,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         }
     }
 
-    private void sortElements(final HashMap<Integer, Element> unorderedElements) {
+    private void sortElements(final Map<Integer, Element> unorderedElements) {
         final Set<Integer> unorderedKeys = unorderedElements.keySet();
 
         final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);

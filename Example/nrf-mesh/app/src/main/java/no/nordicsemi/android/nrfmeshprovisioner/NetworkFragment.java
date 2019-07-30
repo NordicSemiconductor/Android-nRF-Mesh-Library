@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import javax.inject.Inject;
 
@@ -162,8 +163,8 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public void onNodeDeleteConfirmed(final int position) {
         final ProvisionedMeshNode node = mNodeAdapter.getItem(position);
-        if (mViewModel.getMeshNetworkLiveData().getMeshNetwork().deleteNode(node)) {
-            mViewModel.displaySnackBar(requireActivity(), container, getString(R.string.node_deleted));
+        if (mViewModel.getNetworkLiveData().getMeshNetwork().deleteNode(node)) {
+            mViewModel.displaySnackBar(requireActivity(), container, getString(R.string.node_deleted), Snackbar.LENGTH_LONG);
         }
     }
 

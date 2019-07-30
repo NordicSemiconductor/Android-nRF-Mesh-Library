@@ -105,7 +105,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final RecyclerView recyclerViewSubGroups = findViewById(R.id.recycler_view_grouped_models);
         recyclerViewSubGroups.setLayoutManager(new LinearLayoutManager(this));
         groupAdapter = new SubGroupAdapter(this,
-                mViewModel.getMeshNetworkLiveData().getMeshNetwork(),
+                mViewModel.getNetworkLiveData().getMeshNetwork(),
                 mViewModel.getSelectedGroup(),
                 mViewModel.isConnectedToProxy());
         groupAdapter.setOnItemClickListener(this);
@@ -118,7 +118,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             }
         });
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             if (groupAdapter.getModelCount() > 0) {
                 noModelsConfigured.setVisibility(View.INVISIBLE);
                 if (groupAdapter.getItemCount() > 0) {
@@ -138,7 +138,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             final BottomSheetDetailsDialogFragment fragment = (BottomSheetDetailsDialogFragment) getSupportFragmentManager().findFragmentByTag(DETAILS_FRAGMENT);
             if (fragment != null) {
                 final Group group = mViewModel.getSelectedGroup().getValue();
-                final MeshNetwork meshNetwork = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+                final MeshNetwork meshNetwork = mViewModel.getNetworkLiveData().getMeshNetwork();
                 final ArrayList<Element> elements = new ArrayList<>(meshNetwork.getElements(group));
                 fragment.updateAdapter(group, elements);
             }
@@ -222,7 +222,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             return;
 
         final MeshMessage meshMessage;
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         final ApplicationKey applicationKey = network.getAppKey(appKeyIndex);
         final int tid = network.getSelectedProvisioner().getSequenceNumber();
         switch (modelId) {
@@ -243,8 +243,8 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         if (group == null)
             return;
 
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        final ApplicationKey applicationKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(keyIndex);
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        final ApplicationKey applicationKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(keyIndex);
         final int tid = network.getSelectedProvisioner().getSequenceNumber();
         final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey,
                 state, tid, transitionSteps, transitionStepResolution, delay);
@@ -258,10 +258,10 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             return;
 
 
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
-            final ApplicationKey applicationKey = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getAppKey(keyIndex);
-            final int tid = mViewModel.getMeshNetworkLiveData().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
+            final ApplicationKey applicationKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(keyIndex);
+            final int tid = mViewModel.getNetworkLiveData().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
             final MeshMessage meshMessage = new GenericLevelSetUnacknowledged(applicationKey, transitionSteps, transitionStepResolution, delay, level, tid);
             sendMessage(group.getAddress(), meshMessage);
         }
@@ -269,7 +269,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     private void editGroup() {
         final Group group = mViewModel.getSelectedGroup().getValue();
-        final MeshNetwork meshNetwork = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork meshNetwork = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (meshNetwork != null) {
             final ArrayList<Element> elements = new ArrayList<>(meshNetwork.getElements(group));
             final BottomSheetDetailsDialogFragment onOffFragment = BottomSheetDetailsDialogFragment.getInstance(group, elements);
@@ -281,7 +281,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
     public void editModelItem(@NonNull final Element element, @NonNull final MeshModel model) {
         final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
         if (isConnectedToNetwork != null && isConnectedToNetwork) {
-            final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+            final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
             final ProvisionedMeshNode node = network.getNode(element.getElementAddress());
             if (node != null) {
                 mViewModel.setSelectedMeshNode(node);
@@ -296,7 +296,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     @Override
     public void onGroupNameChanged(@NonNull final Group group) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         network.updateGroup(group);
     }
 
@@ -310,7 +310,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         if (model == null)
             return;
 
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
             final ApplicationKey appKey = network.getAppKey(keyIndex);
             final MeshMessage message;

@@ -46,6 +46,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.MeshTypeConverters;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
@@ -138,27 +139,18 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @SerializedName("netKeys")
     @ColumnInfo(name = "netKeys")
     @Expose
-    List<Integer> mAddedNetKeyIndexes = new ArrayList<>();
+    List<NodeKey> mAddedNetKeys = new ArrayList<>();
     @TypeConverters(MeshTypeConverters.class)
     @SerializedName("appKeys")
     @ColumnInfo(name = "appKeys")
     @Expose
-    List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
+    List<NodeKey> mAddedAppKeys = new ArrayList<>();
     @Ignore
     @Expose
     byte[] mFlags;
     @TypeConverters(MeshTypeConverters.class)
     @Expose
     Map<Integer, Element> mElements = new LinkedHashMap<>();
-    @Ignore
-    @Expose
-    byte[] generatedNetworkId;
-    @Ignore
-    @Expose
-    int numberOfElements;
-    @Ignore
-    @Expose(deserialize = false)
-    protected String bluetoothDeviceAddress;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedBaseMeshNode() {
@@ -214,10 +206,18 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     }
 
     /**
+     * Returns the number of elements in the node
+     */
+    public int getNumberOfElements() {
+        return mElements.size();
+    }
+
+    /**
      * Returns the unicast address used by the last element in the node
      */
     public int getLastUnicastAddress() {
-        return numberOfElements == 1 ? unicastAddress : (unicastAddress + (numberOfElements - 1));
+        final int elementCount = getNumberOfElements();
+        return elementCount == 1 ? unicastAddress : (unicastAddress + (elementCount - 1));
     }
 
     public final Integer getTtl() {
@@ -325,4 +325,5 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @IntDef({LOW, HIGH})
     public @interface SecurityState {
     }
+
 }

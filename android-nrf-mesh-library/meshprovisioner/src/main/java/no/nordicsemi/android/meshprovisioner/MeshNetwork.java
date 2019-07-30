@@ -114,8 +114,14 @@ public final class MeshNetwork extends BaseMeshNetwork {
      *
      * @param elementCount Element count
      * @param provisioner  provisioner
+     * @return Allocated unicast address or -1 if none
+     * @throws IllegalArgumentException if there is no allocated unicast range to the provisioner
      */
-    public int nextAvailableUnicastAddress(final int elementCount, @NonNull final Provisioner provisioner) {
+    public int nextAvailableUnicastAddress(final int elementCount, @NonNull final Provisioner provisioner) throws IllegalArgumentException {
+        if (provisioner.getAllocatedUnicastRanges().isEmpty()) {
+            throw new IllegalArgumentException("Please allocate a unicast address range to the provisioner");
+        }
+
         Collections.sort(nodes, nodeComparator);
         // Iterate through all nodes just once, while iterating over ranges.
         int index = 0;
@@ -309,7 +315,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public Integer nextAvailableGroupAddress(@NonNull final Provisioner provisioner) throws IllegalStateException {
         if (provisioner.getAllocatedGroupRanges().isEmpty()) {
-            throw new IllegalStateException("Provisioner has no group range allocated.");
+            throw new IllegalArgumentException("Provisioner has no group range allocated.");
         }
 
         Collections.sort(groups, groupComparator);

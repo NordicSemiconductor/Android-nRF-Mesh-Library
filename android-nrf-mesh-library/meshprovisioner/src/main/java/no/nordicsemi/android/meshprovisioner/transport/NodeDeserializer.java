@@ -20,6 +20,7 @@ import java.util.Map;
 
 import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.meshprovisioner.Features;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
@@ -47,7 +48,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             node.unicastAddress = unicastAddress;
             final boolean security = jsonObject.get("security").getAsString().equals("high");
             node.security = security ? 1 : 0;
-            node.mAddedNetKeyIndexes = deserializeNetKeyIndexes(jsonObject.get("netKeys").getAsJsonArray());
+            node.mAddedNetKeys = deserializeAddedIndexes(jsonObject.get("netKeys").getAsJsonArray());
             node.isConfigured = jsonObject.get("configComplete").getAsBoolean();
 
             if (jsonObject.has("cid"))
@@ -92,7 +93,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             }
 
             if (jsonObject.has("appKeys"))
-                node.mAddedAppKeyIndexes = deserializeAppKeyIndexes(jsonObject.get("appKeys").getAsJsonArray());
+                node.mAddedAppKeys = deserializeAddedIndexes(jsonObject.get("appKeys").getAsJsonArray());
 
             if (jsonObject.has("elements")) {
                 final List<Element> elements = deserializeElements(context, jsonObject);
@@ -106,7 +107,6 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             }
 
             node.nodeName = jsonObject.get("name").getAsString();
-            node.numberOfElements = node.mElements.size();
             nodes.add(node);
         }
 
@@ -162,8 +162,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 nodeJson.add("relayRetransmit", json);
             }
 
-            nodeJson.add("netKeys", serializeNetKeyIndexes(node.getAddedNetKeyIndexes()));
-            nodeJson.add("appKeys", serializeAppKeyIndexes(node.getAddedAppKeyIndexes()));
+            nodeJson.add("netKeys", serializeAddedIndexes(node.getAddedNetKeys()));
+            nodeJson.add("appKeys", serializeAddedIndexes(node.getAddedAppKeys()));
             nodeJson.add("elements", serializeElements(context, node.getElements()));
             nodeJson.addProperty("blacklisted", node.isBlackListed());
             jsonArray.add(nodeJson);
@@ -174,58 +174,32 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
     /**
      * Returns a json element containing the added netkeys for this node
      *
-     * @param addedNetKeyIndexes added net keys
+     * @param addedKeyIndexes added net keys
      * @return JsonElement
      */
-    private JsonElement serializeNetKeyIndexes(final List<Integer> addedNetKeyIndexes) {
-        final JsonArray netKeyIndexes = new JsonArray();
-        for (Integer keyIndex : addedNetKeyIndexes) {
+    private JsonElement serializeAddedIndexes(final List<NodeKey> addedKeyIndexes) {
+        final JsonArray addedKeys = new JsonArray();
+        for (NodeKey nodeKey : addedKeyIndexes) {
             final JsonObject keyIndexJson = new JsonObject();
-            keyIndexJson.addProperty("index", keyIndex);
-            //TODO add updated property when key refresh support is added
-            keyIndexJson.addProperty("updated", false);
-            netKeyIndexes.add(keyIndexJson);
+            keyIndexJson.addProperty("index", nodeKey.getIndex());
+            keyIndexJson.addProperty("updated", nodeKey.isUpdated());
+            addedKeys.add(keyIndexJson);
         }
-        return netKeyIndexes;
+        return addedKeys;
     }
 
-    private List<Integer> deserializeNetKeyIndexes(final JsonArray jsonNetKeyIndexes) {
-        List<Integer> netKeyIndexes = new ArrayList<>();
+    private List<NodeKey> deserializeAddedIndexes(final JsonArray jsonNetKeyIndexes) {
+        List<NodeKey> addedKeys = new ArrayList<>();
         for (int i = 0; i < jsonNetKeyIndexes.size(); i++) {
-            final JsonObject jsonIndex = jsonNetKeyIndexes.get(i).getAsJsonObject();
-            netKeyIndexes.add(jsonIndex.get("index").getAsInt());
-            //TODO add updated property when key refresh support is added
+            final JsonObject jsonAddedKeys = jsonNetKeyIndexes.get(i).getAsJsonObject();
+            final int index = jsonAddedKeys.get("index").getAsInt();
+            boolean updated = false;
+            if (jsonAddedKeys.has("updated")) {
+                updated = jsonAddedKeys.get("updated").getAsBoolean();
+            }
+            addedKeys.add(new NodeKey(index, updated));
         }
-        return netKeyIndexes;
-    }
-
-    /**
-     * Returns a json element containing the added appkeys for this node
-     *
-     * @param addedAppKeys added app keys
-     * @return JsonElement
-     */
-    private JsonElement serializeAppKeyIndexes(final List<Integer> addedAppKeys) {
-        final JsonArray appKeyIndexes = new JsonArray();
-
-        for (Integer keyIndex : addedAppKeys) {
-            final JsonObject keyIndexJson = new JsonObject();
-            keyIndexJson.addProperty("index", keyIndex);
-            //TODO add updated property when key refresh support is added
-            keyIndexJson.addProperty("updated", false);
-            appKeyIndexes.add(keyIndexJson);
-        }
-        return appKeyIndexes;
-    }
-
-    private List<Integer> deserializeAppKeyIndexes(final JsonArray jsonAppKeyIndexes) {
-        List<Integer> appKeyIndexes = new ArrayList<>();
-        for (int i = 0; i < jsonAppKeyIndexes.size(); i++) {
-            final JsonObject jsonIndex = jsonAppKeyIndexes.get(i).getAsJsonObject();
-            appKeyIndexes.add(jsonIndex.get("index").getAsInt());
-            //TODO add updated property when key refresh support is added
-        }
-        return appKeyIndexes;
+        return addedKeys;
     }
 
     /**

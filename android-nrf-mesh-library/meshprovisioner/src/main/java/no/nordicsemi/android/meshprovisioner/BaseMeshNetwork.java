@@ -428,18 +428,11 @@ abstract class BaseMeshNetwork {
         for (ProvisionedMeshNode node : nodes) {
             if (!node.getUuid().equalsIgnoreCase(getSelectedProvisioner().getProvisionerUuid())) {
                 final int index = meshKey.getKeyIndex();
+                //We need to check if a key index is in use by checking in the added net/app key indexes
                 if (meshKey instanceof ApplicationKey) {
-                    for (Integer keyIndex : node.getAddedAppKeyIndexes()) {
-                        if (index == keyIndex) {
-                            return true;
-                        }
-                    }
+                    return MeshParserUtils.isNodeKeyExists(node.getAddedAppKeys(), index);
                 } else {
-                    for (Integer keyIndex : node.getAddedNetKeyIndexes()) {
-                        if (index == keyIndex) {
-                            return true;
-                        }
-                    }
+                    return MeshParserUtils.isNodeKeyExists(node.getAddedNetKeys(), index);
                 }
             }
         }

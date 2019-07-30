@@ -11,7 +11,7 @@ import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 /**
  * To be used as a wrapper class to create a ConfigProxySet message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public class ConfigProxySet extends ConfigMessage {
 
     public static final int PROXY_FEATURE_DISABLED = 0x00;   //The node support Relay feature that is disabled
@@ -37,10 +37,9 @@ public class ConfigProxySet extends ConfigMessage {
     @Override
     void assembleMessageParameters() {
         mParameters = new byte[]{(byte) proxyState};
-        //Do nothing as ConfigNodeReset message does not have parameters
+        //Do nothing as ConfigProxySet message does not have parameters
     }
 
-    @SuppressWarnings("WeakerAccess")
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({PROXY_FEATURE_DISABLED, PROXY_FEATURE_ENABLED})
     public @interface ProxyState {

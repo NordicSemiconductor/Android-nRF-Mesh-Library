@@ -20,45 +20,33 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner;
+package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
-import android.content.Intent;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 
-import javax.inject.Inject;
+/**
+ * To be used as a wrapper class to create the ConfigNetKeyGet message.
+ */
+@SuppressWarnings("unused")
+public class ConfigNetKeyGet extends ConfigMessage {
 
-import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SplashViewModel;
+    private static final String TAG = ConfigNetKeyGet.class.getSimpleName();
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETKEY_GET;
 
-public class SplashScreenActivity extends AppCompatActivity implements Injectable {
-
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
-    @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        setContentView(R.layout.activity_splash_screen);
-        super.onCreate(savedInstanceState);
-        final SplashViewModel viewModel = ViewModelProviders.of(SplashScreenActivity.this, mViewModelFactory).get(SplashViewModel.class);
-        viewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
-            if(meshNetworkLiveData != null && meshNetworkLiveData.getMeshNetwork() != null) {
-                navigateActivity();
-            }
-        });
-    }
-
-    private void navigateActivity(){
-        final Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        startActivity(intent);
-        finish();
+    /**
+     * Constructs ConfigAppKeyAdd message.
+     */
+    public ConfigNetKeyGet() {
+        assembleMessageParameters();
     }
 
     @Override
-    public void onBackPressed() {
-        // We don't want the splash screen to be interrupted
+    public int getOpCode() {
+        return OP_CODE;
+    }
+
+    @Override
+    void assembleMessageParameters() {
+        //Do nothing as ConfigNetKeyGet message does not have parameters
     }
 }

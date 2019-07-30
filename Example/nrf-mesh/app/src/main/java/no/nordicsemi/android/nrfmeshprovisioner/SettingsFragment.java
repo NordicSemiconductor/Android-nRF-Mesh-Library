@@ -128,6 +128,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         netKeySummary.setVisibility(View.VISIBLE);
         containerNetKey.setOnClickListener(v -> {
             final Intent intent = new Intent(requireContext(), NetKeysActivity.class);
+            intent.putExtra(Utils.EXTRA_DATA, Utils.MANAGE_NET_KEY);
             startActivity(intent);
         });
 
@@ -155,7 +156,7 @@ public class SettingsFragment extends Fragment implements Injectable,
             e.printStackTrace();
         }
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
                 networkNameView.setText(meshNetworkLiveData.getNetworkName());
                 netKeySummary.setText(String.valueOf(meshNetworkLiveData.getNetworkKeys().size()));
@@ -239,7 +240,7 @@ public class SettingsFragment extends Fragment implements Injectable,
 
     @Override
     public void onNetworkNameEntered(@NonNull final String name) {
-        mViewModel.getMeshNetworkLiveData().setNetworkName(name);
+        mViewModel.getNetworkLiveData().setNetworkName(name);
     }
 
     @Override

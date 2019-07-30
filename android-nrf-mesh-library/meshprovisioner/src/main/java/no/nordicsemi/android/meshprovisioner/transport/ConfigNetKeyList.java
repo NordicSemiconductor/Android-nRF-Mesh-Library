@@ -27,82 +27,58 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 
 /**
- * To be used as a wrapper class for when creating the ConfigAppKeyStatus Message.
+ * Creates reating the ConfigNetKeyList Message.
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
-public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelable {
+public class ConfigNetKeyList extends ConfigStatusMessage implements Parcelable {
 
-    private static final String TAG = ConfigAppKeyStatus.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_APPKEY_STATUS;
-    private int mNetKeyIndex;
-    private int mAppKeyIndex;
+    private static final String TAG = ConfigNetKeyList.class.getSimpleName();
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETKEY_LIST;
+    private final List<Integer> mKeyIndexes;
 
-    public static final Creator<ConfigAppKeyStatus> CREATOR = new Creator<ConfigAppKeyStatus>() {
+    public static final Creator<ConfigNetKeyList> CREATOR = new Creator<ConfigNetKeyList>() {
         @Override
-        public ConfigAppKeyStatus createFromParcel(Parcel in) {
+        public ConfigNetKeyList createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
             //noinspection ConstantConditions
-            return new ConfigAppKeyStatus(message);
+            return new ConfigNetKeyList(message);
         }
 
         @Override
-        public ConfigAppKeyStatus[] newArray(int size) {
-            return new ConfigAppKeyStatus[size];
+        public ConfigNetKeyList[] newArray(int size) {
+            return new ConfigNetKeyList[size];
         }
     };
 
     /**
-     * Constructs the ConfigAppKeyStatus mMessage.
+     * Constructs the ConfigNetKeyList mMessage.
      *
      * @param message Access Message
      */
-    public ConfigAppKeyStatus(@NonNull final AccessMessage message) {
+    public ConfigNetKeyList(@NonNull final AccessMessage message) {
         super(message);
+        mKeyIndexes = new ArrayList<>();
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
 
     @Override
     final void parseStatusParameters() {
-        mStatusCode = mParameters[0];
-        mStatusCodeName = getStatusCodeName(mStatusCode);
-
-        final ArrayList<Integer> keyIndexes = decode(mParameters.length, 1);
-        mNetKeyIndex = keyIndexes.get(0);
-        mAppKeyIndex = keyIndexes.get(1);
-
-        Log.v(TAG, "Status code: " + mStatusCode);
-        Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Net key index: " + Integer.toHexString(mNetKeyIndex));
-        Log.v(TAG, "App key index: " + Integer.toHexString(mAppKeyIndex));
+        mKeyIndexes.addAll(decode(mParameters.length, 0));
+        for (Integer keyIndex : mKeyIndexes) {
+            Log.v(TAG, "Key Index: " + Integer.toHexString(keyIndex));
+        }
     }
 
     @Override
     public final int getOpCode() {
         return OP_CODE;
-    }
-
-    /**
-     * Returns the global index of the net key.
-     *
-     * @return netkey index
-     */
-    public final int getNetKeyIndex() {
-        return mNetKeyIndex;
-    }
-
-    /**
-     * Returns the global app key index.
-     *
-     * @return appkey index
-     */
-    public final int getAppKeyIndex() {
-        return mAppKeyIndex;
     }
 
     /**
@@ -123,5 +99,9 @@ public class ConfigAppKeyStatus extends ConfigStatusMessage implements Parcelabl
     public void writeToParcel(final Parcel dest, final int flags) {
         final AccessMessage message = (AccessMessage) mMessage;
         dest.writeParcelable(message, flags);
+    }
+
+    public List<Integer> getKeyIndexes() {
+        return mKeyIndexes;
     }
 }

@@ -111,6 +111,12 @@
             android:name=".node.NodeConfigurationActivity"
             android:launchMode="singleTop"/>
         <activity
+            android:name=".keys.AddNetKeysActivity"
+            android:launchMode="singleTop"/>
+        <activity
+            android:name=".keys.AddAppKeysActivity"
+            android:launchMode="singleTop"/>
+        <activity
             android:name=".node.PublicationSettingsActivity"
             android:launchMode="singleTop"/>
         <activity

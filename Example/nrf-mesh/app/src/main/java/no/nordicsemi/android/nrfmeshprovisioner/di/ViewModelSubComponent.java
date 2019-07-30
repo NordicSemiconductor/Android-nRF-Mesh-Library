@@ -24,6 +24,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.di;
 
 import dagger.Subcomponent;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddAppKeyViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddNetKeyViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AppKeysViewModel;
@@ -31,12 +32,12 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditAppKeyViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditNetKeyViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditProvisionerViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.GroupControlsViewModel;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetKeysViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeDetailsViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionersViewModel;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisioningViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.PublicationViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.RangesViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ReconnectViewModel;
@@ -52,28 +53,50 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ViewModelFactory;
  */
 @Subcomponent
 public interface ViewModelSubComponent {
-	@Subcomponent.Builder
-	interface Builder {
-		ViewModelSubComponent build();
-	}
-	SplashViewModel splashViewModel();
-	SharedViewModel commonViewModel();
-	ScannerViewModel scannerViewModel();
-	GroupControlsViewModel groupControlsViewModel();
-	ProvisionersViewModel provisionersViewModel();
-	AddProvisionerViewModel addProvisionerViewModel();
-	EditProvisionerViewModel editProvisionerViewModel();
-	RangesViewModel rangesViewModel();
-	NetKeysViewModel netKeysViewModel();
-	AddNetKeyViewModel addNetKeyViewModel();
-	EditNetKeyViewModel editNetKeyViewModel();
-	AppKeysViewModel appKeysViewModel();
-	AddAppKeyViewModel addAppKeyViewModel();
-	EditAppKeyViewModel editAppKeyViewModel();
-	ProvisioningViewModel meshProvisionerViewModel();
-	NodeConfigurationViewModel nodeConfigurationViewModel();
-	NodeDetailsViewModel nodeDetailsViewModel();
-	ModelConfigurationViewModel modelConfigurationViewModel();
-	PublicationViewModel publicationViewModel();
-	ReconnectViewModel reconnectViewModule();
+    @Subcomponent.Builder
+    interface Builder {
+        ViewModelSubComponent build();
+    }
+
+    SplashViewModel splashViewModel();
+
+    SharedViewModel commonViewModel();
+
+    ScannerViewModel scannerViewModel();
+
+    GroupControlsViewModel groupControlsViewModel();
+
+    ProvisionersViewModel provisionersViewModel();
+
+    AddProvisionerViewModel addProvisionerViewModel();
+
+    EditProvisionerViewModel editProvisionerViewModel();
+
+    RangesViewModel rangesViewModel();
+
+    NetKeysViewModel netKeysViewModel();
+
+    AddNetKeyViewModel addNetKeyViewModel();
+
+    EditNetKeyViewModel editNetKeyViewModel();
+
+    AppKeysViewModel appKeysViewModel();
+
+    AddAppKeyViewModel addAppKeyViewModel();
+
+    EditAppKeyViewModel editAppKeyViewModel();
+
+    ProvisioningViewModel meshProvisionerViewModel();
+
+    NodeConfigurationViewModel nodeConfigurationViewModel();
+
+    AddKeysViewModel addKeysViewModel();
+
+    NodeDetailsViewModel nodeDetailsViewModel();
+
+    ModelConfigurationViewModel modelConfigurationViewModel();
+
+    PublicationViewModel publicationViewModel();
+
+    ReconnectViewModel reconnectViewModule();
 }

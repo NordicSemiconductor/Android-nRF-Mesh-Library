@@ -102,7 +102,7 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final int position, @NonNull final NetworkKey appKey);
+        void onItemClick(final int position, @NonNull final NetworkKey networkKey);
     }
 
     final class ViewHolder extends RemovableViewHolder {

@@ -4,22 +4,20 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.annotation.NonNull;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModel;
-
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.models.ConfigurationClientModel;
 import no.nordicsemi.android.meshprovisioner.models.ConfigurationServerModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericLevelServerModel;
 import no.nordicsemi.android.meshprovisioner.models.GenericOnOffServerModel;
-import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
@@ -179,7 +177,7 @@ abstract class BaseViewModel extends ViewModel {
     /**
      * Returns live data object containing provisioning settings.
      */
-    public final MeshNetworkLiveData getMeshNetworkLiveData() {
+    public final MeshNetworkLiveData getNetworkLiveData() {
         return mNrfMeshRepository.getMeshNetworkLiveData();
     }
 
@@ -292,11 +290,12 @@ abstract class BaseViewModel extends ViewModel {
      * Display snack bar
      *
      * @param context   Activity context
-     * @param container container
-     * @param message   message
+     * @param container Coordinator layout
+     * @param message   Message
+     * @param duration  Snack bar duration
      */
-    public void displaySnackBar(@NonNull final Activity context, @NonNull final CoordinatorLayout container, @NonNull final String message) {
-        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
+    public void displaySnackBar(@NonNull final Activity context, @NonNull final CoordinatorLayout container, @NonNull final String message, final int duration) {
+        Snackbar.make(container, message, duration)
                 .setActionTextColor(context.getResources().getColor(R.color.colorPrimaryDark))
                 .show();
     }

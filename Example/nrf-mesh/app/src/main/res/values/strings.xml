@@ -233,6 +233,7 @@
     <string name="title_edit_key_name">Edit Key Name</string>
     <string name="key_name_rationale">This is a friendly name that can be used to identify a key.</string>
     <string name="title_select_app_key">Select App Key</string>
+    <string name="title_select_net_key">Select Net Key</string>
     <string name="hint_app_key">App key</string>
     <string name="no_app_keys_title">NO APP KEYS AVAILABLE</string>
     <string name="no_app_keys_rationale">App keys are required to configure a mesh node.
@@ -252,6 +253,7 @@
     <string name="models">Models:</string>
 
     <string name="title_appkey_status">AppKey Status</string>
+    <string name="title_netkey_status">NetKey Status</string>
     <string name="error_empty_name">Name cannot be empty!</string>
     <string name="element_address">Element: %s</string>
     <string name="model_count">%d Models</string>
@@ -522,4 +524,9 @@
         Would you like to continue? /nThis step cannot be undone and you will have to manually reset the node.</string>
     <string name="node_deleted">Node deleted.</string>
     <string name="interval">Interval</string>
+    <string name="adding_net_key">Adding net key…</string>
+    <string name="deleting_net_key">Deleting net key…</string>
+    <string name="adding_app_key">Adding app key…</string>
+    <string name="deleting_app_key">Deleting app key…</string>
+    <string name="operation">Operation %s</string>
 </resources>
