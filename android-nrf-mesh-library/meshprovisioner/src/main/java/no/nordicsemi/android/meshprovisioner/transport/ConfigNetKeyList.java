@@ -33,7 +33,7 @@ import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 
 /**
- * Creates reating the ConfigNetKeyList Message.
+ * Creates the ConfigNetKeyList Message.
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class ConfigNetKeyList extends ConfigStatusMessage implements Parcelable {
