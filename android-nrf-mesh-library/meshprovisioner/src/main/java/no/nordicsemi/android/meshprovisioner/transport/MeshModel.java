@@ -265,4 +265,14 @@ public abstract class MeshModel implements Parcelable {
         addSubscriptionAddress(labelUuid, address);
         overwriteSubscriptionAddress(address);
     }
+
+    /**
+     * Update the subscription addresses list
+     *
+     * @param addresses List of subscription addresses
+     */
+    protected void updateSubscriptionAddressesList(@NonNull final List<Integer> addresses) {
+        subscriptionAddresses.clear();
+        subscriptionAddresses.addAll(addresses);
+    }
 }

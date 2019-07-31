@@ -32,9 +32,6 @@ import android.widget.ProgressBar;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
@@ -125,9 +122,9 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
                 }
             } else if (meshMessage instanceof ConfigAppKeyList) {
                 final ConfigAppKeyList status = (ConfigAppKeyList) meshMessage;
+                if (!mViewModel.getMessageQueue().isEmpty())
+                    mViewModel.getMessageQueue().remove();
                 if (status.isSuccessful()) {
-                    if (!mViewModel.getMessageQueue().isEmpty())
-                        mViewModel.getMessageQueue().remove();
                     final ConfigAppKeyGet configAppKeyGet = mViewModel.getMessageQueue().poll();
                     if (configAppKeyGet != null) {
                         sendMessage(configAppKeyGet);
