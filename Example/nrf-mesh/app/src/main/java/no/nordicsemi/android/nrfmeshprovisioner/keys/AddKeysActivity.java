@@ -109,14 +109,14 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
             if (meshMessage instanceof ConfigNetKeyStatus) {
                 final ConfigNetKeyStatus status = (ConfigNetKeyStatus) meshMessage;
                 if (status.isSuccessful()) {
-                    mViewModel.displaySnackBar(this, container, getString(R.string.operation, status.getStatusCodeName()), Snackbar.LENGTH_SHORT);
+                    mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
                 } else {
                     showDialogFragment(getString(R.string.title_netkey_status), status.getStatusCodeName());
                 }
             } else if (meshMessage instanceof ConfigAppKeyStatus) {
                 final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
                 if (status.isSuccessful()) {
-                    mViewModel.displaySnackBar(this, container, getString(R.string.operation, status.getStatusCodeName()), Snackbar.LENGTH_SHORT);
+                    mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
                 } else {
                     showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
                 }
@@ -125,12 +125,7 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
                 if (!mViewModel.getMessageQueue().isEmpty())
                     mViewModel.getMessageQueue().remove();
                 if (status.isSuccessful()) {
-                    final ConfigAppKeyGet configAppKeyGet = mViewModel.getMessageQueue().poll();
-                    if (configAppKeyGet != null) {
-                        sendMessage(configAppKeyGet);
-                    } else {
-                        mViewModel.displaySnackBar(this, container, getString(R.string.operation, status.getStatusCodeName()), Snackbar.LENGTH_SHORT);
-                    }
+                    handleStatuses();
                 } else {
                     showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
                 }
@@ -234,6 +229,15 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
         enableAdapterClickListener(false);
         recyclerViewKeys.setEnabled(false);
         recyclerViewKeys.setClickable(false);
+    }
+
+    private void handleStatuses() {
+        final MeshMessage message = mViewModel.getMessageQueue().poll();
+        if (message != null) {
+            sendMessage(message);
+        } else {
+            mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
+        }
     }
 
     protected void sendMessage(final MeshMessage meshMessage) {

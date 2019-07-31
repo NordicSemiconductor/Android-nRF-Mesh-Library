@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?selectableItemBackground"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:clipChildren="false"
     android:clipToPadding="false"
-    android:clipChildren="false">
+    android:paddingBottom="@dimen/activity_vertical_margin">
 
     <androidx.cardview.widget.CardView
         android:layout_width="0dp"
@@ -54,73 +54,67 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/text_view"/>
 
+            <TextView
+                android:id="@+id/prefix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:text="@string/enforce_vendor_op_code"
+                android:textSize="16sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/op_code_layout"
+                app:layout_constraintStart_toStartOf="parent"/>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/op_code_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/item_padding_start"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@id/prefix"
                 app:layout_constraintTop_toBottomOf="@id/text_view">
 
-                <LinearLayout
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/op_code"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="@string/enforce_vendor_op_code"
-                        android:textSize="16sp"/>
-
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/op_code"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/opcode"
-                        android:inputType="text|textCapCharacters"
-                        android:singleLine="true"/>
-                </LinearLayout>
+                    android:hint="@string/opcode"
+                    android:inputType="text|textCapCharacters"
+                    android:singleLine="true"/>
 
             </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@id/prefix1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="8dp"
+                android:text="0x"
+                android:textSize="16sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/parameters_layout"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="HardcodedText"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/parameters_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/item_padding_start"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@id/prefix1"
                 app:layout_constraintTop_toBottomOf="@id/op_code_layout">
 
-                <LinearLayout
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/parameters"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="0x"
-                        android:textSize="16sp"
-                        tools:ignore="HardcodedText"/>
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/parameters"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/parameters"
-                        android:inputType="text|textCapCharacters"
-                        android:singleLine="true"/>
-                </LinearLayout>
+                    android:hint="@string/parameters"
+                    android:inputType="text|textCapCharacters"
+                    android:singleLine="true"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -168,7 +162,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginStart="@dimen/item_padding_end"
                 android:layout_marginEnd="@dimen/item_padding_start"
-                android:padding="@dimen/activity_horizontal_margin"
+                android:padding="@dimen/item_padding_end"
                 android:text="@string/action_send"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -60,4 +60,9 @@ public class ModelConfigurationViewModel extends BaseViewModel {
     public Queue<MeshMessage> getMessageQueue() {
         return messageQueue;
     }
+
+    public void removeMessage() {
+        if (!messageQueue.isEmpty())
+            messageQueue.remove();
+    }
 }

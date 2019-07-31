@@ -281,7 +281,7 @@
 
     <string name="hint_publish_address">Publish Address</string>
     <string name="error_empty_publish_address">Publish Address cannot be empty!</string>
-    <string name="title_publish_address_status">Publish Address Status</string>
+    <string name="title_publication_status">Publication Status</string>
     <string name="hex_format">0x%s</string>
     <string name="hex_prefix">0x</string>
     <string name="invalid_hex_value">Invalid hex value</string>
@@ -528,6 +528,9 @@
     <string name="deleting_net_key">Deleting net key…</string>
     <string name="adding_app_key">Adding app key…</string>
     <string name="deleting_app_key">Deleting app key…</string>
-    <string name="operation">Operation %s</string>
+    <string name="operation_success">Operation success.</string>
     <string name="listing_model_configuration">Listing model configuration…</string>
+    <string name="title_vendor_model_subscription_list">Vendor Model Subscription List</string>
+    <string name="title_sig_model_subscription_list">SIG Model Subscription List</string>
+    <string name="title_subscription_status">Subscription Status</string>
 </resources>

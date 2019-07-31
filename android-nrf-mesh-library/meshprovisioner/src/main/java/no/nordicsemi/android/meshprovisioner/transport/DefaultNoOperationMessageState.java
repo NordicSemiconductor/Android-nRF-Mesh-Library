@@ -152,12 +152,15 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                             if (element != null) {
                                 final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
                                 if (model != null) {
-                                    UUID labelUUID = null;
-                                    if (mMeshMessage instanceof ConfigModelPublicationVirtualAddressSet) {
-                                        labelUUID = ((ConfigModelPublicationVirtualAddressSet) mMeshMessage).
+                                    if (mMeshMessage instanceof ConfigModelPublicationGet) {
+                                        model.setPublicationStatus(status, null);
+                                    } else if (mMeshMessage instanceof ConfigModelPublicationSet) {
+                                        model.setPublicationStatus(status, null);
+                                    } else if (mMeshMessage instanceof ConfigModelPublicationVirtualAddressSet) {
+                                        final UUID labelUUID = ((ConfigModelPublicationVirtualAddressSet) mMeshMessage).
                                                 getLabelUuid();
+                                        model.setPublicationStatus(status, labelUUID);
                                     }
-                                    model.setPublicationStatus(status, labelUUID);
                                 }
                             }
                         }

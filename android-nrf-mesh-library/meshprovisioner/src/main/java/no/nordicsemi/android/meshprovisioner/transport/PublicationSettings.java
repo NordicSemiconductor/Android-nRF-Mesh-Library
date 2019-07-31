@@ -9,6 +9,7 @@ import com.google.gson.annotations.Expose;
 import java.util.UUID;
 
 import androidx.annotation.Nullable;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -118,7 +119,9 @@ public class PublicationSettings implements Parcelable {
                         final int publishRetransmitCount,
                         final int publishRetransmitIntervalSteps) {
         this.publishAddress = publishAddress;
-        this.labelUUID = labelUUID;
+        if (!MeshAddress.isValidVirtualAddress(publishAddress)) {
+            this.labelUUID = labelUUID;
+        }
         this.appKeyIndex = appKeyIndex;
         this.credentialFlag = credentialFlag;
         this.publishTtl = publishTtl;

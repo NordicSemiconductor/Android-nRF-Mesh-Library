@@ -63,6 +63,7 @@ import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppUnbind;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigModelPublicationGet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelPublicationSet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionAdd;
@@ -391,12 +392,41 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     @Override
     public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
-
     }
 
     @Override
     public void onDisconnected() {
         finish();
+    }
+
+    @Override
+    public void onRefresh() {
+        if (!checkConnectivity()) {
+            mSwipe.setRefreshing(false);
+        }
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        final Element element = mViewModel.getSelectedElement().getValue();
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
+        if (node != null && element != null && model != null) {
+            if (model instanceof SigModel) {
+                if (!(model instanceof ConfigurationServerModel) && !(model instanceof ConfigurationClientModel)) {
+                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
+                    final ConfigSigModelSubscriptionGet subscriptionGet = new ConfigSigModelSubscriptionGet(element.getElementAddress(), model.getModelId());
+                    mViewModel.getMessageQueue().add(subscriptionGet);
+                    addConfigurationGetMessages(element.getElementAddress(), model.getModelId());
+                    //noinspection ConstantConditions
+                    sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
+                }
+
+            } else {
+                mViewModel.displaySnackBar(this, mContainer, getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
+                final ConfigVendorModelSubscriptionGet subscriptionGet = new ConfigVendorModelSubscriptionGet(element.getElementAddress(), model.getModelId());
+                mViewModel.getMessageQueue().add(subscriptionGet);
+                addConfigurationGetMessages(element.getElementAddress(), model.getModelId());
+                //noinspection ConstantConditions
+                sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
+            }
+        }
     }
 
     protected void navigateToPublication() {
@@ -557,51 +587,35 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             }
         } else if (meshMessage instanceof ConfigModelPublicationStatus) {
             final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
-            if (!status.isSuccessful()) {
-                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
-                        newInstance(getString(R.string.title_publish_address_status), status.getStatusCodeName());
-                fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+            mViewModel.removeMessage();
+            if (status.isSuccessful()) {
+                handleStatuses();
+            } else {
+                displayDialogFragment(getString(R.string.title_publication_status), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
             final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
-            if (!status.isSuccessful()) {
-                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
-                        newInstance(getString(R.string.title_publish_address_status), status.getStatusCodeName());
-                fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+            mViewModel.removeMessage();
+            if (status.isSuccessful()) {
+                handleStatuses();
+            } else {
+                displayDialogFragment(getString(R.string.title_subscription_status), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigSigModelSubscriptionList) {
             final ConfigSigModelSubscriptionList status = (ConfigSigModelSubscriptionList) meshMessage;
-
-            if (!mViewModel.getMessageQueue().isEmpty())
-                mViewModel.getMessageQueue().remove();
+            mViewModel.removeMessage();
             if (status.isSuccessful()) {
-                final MeshMessage message = mViewModel.getMessageQueue().poll();
-                if (message != null) {
-                    sendMessage(message);
-                } else {
-                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.operation, status.getStatusCodeName()), Snackbar.LENGTH_SHORT);
-                }
+                handleStatuses();
             } else {
-                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
-                        newInstance(getString(R.string.title_publish_address_status), status.getStatusCodeName());
-                fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+                displayDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigVendorModelSubscriptionList) {
             final ConfigVendorModelSubscriptionList status = (ConfigVendorModelSubscriptionList) meshMessage;
-
-            if (!mViewModel.getMessageQueue().isEmpty())
-                mViewModel.getMessageQueue().remove();
+            mViewModel.removeMessage();
             if (status.isSuccessful()) {
-                final MeshMessage message = mViewModel.getMessageQueue().poll();
-                if (message != null) {
-                    sendMessage(message);
-                } else {
-                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.operation, status.getStatusCodeName()), Snackbar.LENGTH_SHORT);
-                }
+                handleStatuses();
             } else {
-                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
-                        newInstance(getString(R.string.title_publish_address_status), status.getStatusCodeName());
-                fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+                displayDialogFragment(getString(R.string.title_vendor_model_subscription_list), status.getStatusCodeName());
             }
         }
         hideProgressBar();
@@ -682,6 +696,15 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
+    private void handleStatuses() {
+        final MeshMessage message = mViewModel.getMessageQueue().poll();
+        if (message != null) {
+            sendMessage(message);
+        } else {
+            mViewModel.displaySnackBar(this, mContainer, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
+        }
+    }
+
     protected void sendMessage(final int address, @NonNull final MeshMessage meshMessage) {
         try {
             if (!checkConnectivity())
@@ -703,31 +726,14 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             disableClickableViews();
     }
 
-    @Override
-    public void onRefresh() {
-        if (!checkConnectivity()) {
-            mSwipe.setRefreshing(false);
-        }
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
-        final Element element = mViewModel.getSelectedElement().getValue();
-        final MeshModel model = mViewModel.getSelectedModel().getValue();
-        if (node != null && element != null && model != null) {
-            if (model instanceof SigModel) {
-                if (!(model instanceof ConfigurationServerModel) && !(model instanceof ConfigurationClientModel)) {
-                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
-                    final ConfigSigModelSubscriptionGet subscriptionGet = new ConfigSigModelSubscriptionGet(element.getElementAddress(), model.getModelId());
-                    mViewModel.getMessageQueue().add(subscriptionGet);
-                    //noinspection ConstantConditions
-                    sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
-                }
+    private void addConfigurationGetMessages(final int address, final int modelId) {
+        final ConfigModelPublicationGet publicationGet = new ConfigModelPublicationGet(address, modelId);
+        mViewModel.getMessageQueue().add(publicationGet);
+    }
 
-            } else {
-                mViewModel.displaySnackBar(this, mContainer, getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
-                final ConfigVendorModelSubscriptionGet subscriptionGet = new ConfigVendorModelSubscriptionGet(element.getElementAddress(), model.getModelId());
-                mViewModel.getMessageQueue().add(subscriptionGet);
-                //noinspection ConstantConditions
-                sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
-            }
-        }
+    private void displayDialogFragment(@NonNull final String title, @NonNull final String message) {
+        DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
+                newInstance(title, message);
+        fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
     }
 }
