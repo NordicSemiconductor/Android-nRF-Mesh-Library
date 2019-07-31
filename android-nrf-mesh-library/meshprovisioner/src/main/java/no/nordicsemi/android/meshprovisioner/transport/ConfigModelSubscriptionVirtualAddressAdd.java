@@ -34,9 +34,9 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * This is the message class for adding a virtual address to a subscription list
+ * Creates the ConfigModelSubscriptionVirtualAddressAdd Message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public final class ConfigModelSubscriptionVirtualAddressAdd extends ConfigMessage {
 
     private static final String TAG = ConfigModelSubscriptionVirtualAddressAdd.class.getSimpleName();
@@ -51,7 +51,7 @@ public final class ConfigModelSubscriptionVirtualAddressAdd extends ConfigMessag
     private final int mModelIdentifier;
 
     /**
-     * Constructs ConfigModelSubscriptionDelete message.
+     * Constructs ConfigModelSubscriptionVirtualAddressAdd message.
      *
      * @param elementAddress  Address of the element to which the model belongs to.
      * @param labelUuid       Value of the Label UUID.

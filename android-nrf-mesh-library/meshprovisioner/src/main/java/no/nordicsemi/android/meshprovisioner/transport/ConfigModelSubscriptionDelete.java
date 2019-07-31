@@ -30,9 +30,9 @@ import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 /**
- * This class handles subscribing a model to subscription address.
+ * Creates the ConfigModelSubscriptionDelete message
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public final class ConfigModelSubscriptionDelete extends ConfigMessage {
 
     private static final String TAG = ConfigModelSubscriptionDelete.class.getSimpleName();

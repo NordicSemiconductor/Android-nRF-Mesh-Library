@@ -30,7 +30,7 @@ import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 /**
- * This class handles subscribing a model to subscription address.
+ * Creates the ConfigModelSubscriptionAdd message
  */
 @SuppressWarnings("unused")
 public final class ConfigModelSubscriptionAdd extends ConfigMessage {
@@ -46,7 +46,7 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessage {
     private final int mModelIdentifier;
 
     /**
-     * Constructs ConfigModelSubscriptionDelete message.
+     * Constructs ConfigModelSubscriptionAdd message.
      *
      * @param elementAddress      Address of the element to which the model belongs to.
      * @param subscriptionAddress Address to whic the element should subscribe.

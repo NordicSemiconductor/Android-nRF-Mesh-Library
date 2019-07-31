@@ -34,9 +34,9 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * This is the message class for deleting a virtual address from a subscription list
+ * Creates the ConfigModelSubscriptionVirtualAddressDelete Message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public final class ConfigModelSubscriptionVirtualAddressDelete extends ConfigMessage {
 
     private static final String TAG = ConfigModelSubscriptionVirtualAddressDelete.class.getSimpleName();
