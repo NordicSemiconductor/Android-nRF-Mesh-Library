@@ -37,8 +37,8 @@ public final class ConfigModelSubscriptionDeleteAll extends ConfigMessage {
     private static final String TAG = ConfigModelSubscriptionDeleteAll.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_DELETE_ALL;
 
-    private static final int SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 6;
-    private static final int VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 8;
+    private static final int SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 4;
+    private static final int VENDOR_MODEL_APP_KEY_BIND_PARAMS_LENGTH = 6;
 
     private final int mElementAddress;
     private final int mModelIdentifier;
