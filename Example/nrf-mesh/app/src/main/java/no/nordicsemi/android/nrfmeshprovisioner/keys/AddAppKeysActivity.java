@@ -55,7 +55,7 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
         mEmptyView = findViewById(R.id.empty_app_keys);
         adapter = new AddedAppKeyAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork().getAppKeys(), mViewModel.getSelectedMeshNode());
-        enableAdapterListener(true);
+        enableAdapterClickListener(true);
         recyclerViewKeys.setAdapter(adapter);
         setUpObserver();
     }
@@ -104,7 +104,7 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
     }
 
     @Override
-    void enableAdapterListener(final boolean enable) {
+    void enableAdapterClickListener(final boolean enable) {
         adapter.setOnItemClickListener(enable ? this : null);
     }
 }

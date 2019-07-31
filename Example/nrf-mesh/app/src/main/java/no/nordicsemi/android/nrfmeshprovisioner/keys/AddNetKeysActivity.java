@@ -49,7 +49,7 @@ public class AddNetKeysActivity extends AddKeysActivity implements Injectable,
         mEmptyView = findViewById(R.id.empty_net_keys);
         adapter = new AddedNetKeyAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork().getNetKeys(), mViewModel.getSelectedMeshNode());
-        enableAdapterListener(true);
+        enableAdapterClickListener(true);
         recyclerViewKeys.setAdapter(adapter);
     }
 
@@ -78,7 +78,7 @@ public class AddNetKeysActivity extends AddKeysActivity implements Injectable,
     }
 
     @Override
-    void enableAdapterListener(final boolean enable) {
+    void enableAdapterClickListener(final boolean enable) {
         adapter.setOnItemClickListener(enable ? this : null);
     }
 }

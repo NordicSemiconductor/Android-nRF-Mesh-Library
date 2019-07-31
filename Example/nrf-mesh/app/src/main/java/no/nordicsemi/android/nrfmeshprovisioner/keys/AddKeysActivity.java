@@ -89,7 +89,7 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
 
     protected Queue<ConfigAppKeyGet> messageQueue = new LinkedList<>();
 
-    abstract void enableAdapterListener(final boolean enable);
+    abstract void enableAdapterClickListener(final boolean enable);
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -230,13 +230,13 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
     };
 
     protected void enableClickableViews() {
-        enableAdapterListener(true);
+        enableAdapterClickListener(true);
         recyclerViewKeys.setEnabled(true);
         recyclerViewKeys.setClickable(true);
     }
 
     protected void disableClickableViews() {
-        enableAdapterListener(false);
+        enableAdapterClickListener(false);
         recyclerViewKeys.setEnabled(false);
         recyclerViewKeys.setClickable(false);
     }
