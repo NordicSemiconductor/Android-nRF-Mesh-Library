@@ -119,9 +119,7 @@ public class PublicationSettings implements Parcelable {
                         final int publishRetransmitCount,
                         final int publishRetransmitIntervalSteps) {
         this.publishAddress = publishAddress;
-        if (!MeshAddress.isValidVirtualAddress(publishAddress)) {
-            this.labelUUID = labelUUID;
-        }
+        this.labelUUID = labelUUID;
         this.appKeyIndex = appKeyIndex;
         this.credentialFlag = credentialFlag;
         this.publishTtl = publishTtl;

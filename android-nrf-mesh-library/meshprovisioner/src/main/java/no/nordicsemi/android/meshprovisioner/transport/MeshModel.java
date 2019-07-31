@@ -179,6 +179,27 @@ public abstract class MeshModel implements Parcelable {
     }
 
     /**
+     * Updates the data from the {@link ConfigModelPublicationStatus}
+     *
+     * @param status publication set status
+     */
+    protected void updatePublicationStatus(@NonNull final ConfigModelPublicationStatus status) {
+        if (status.isSuccessful()) {
+            mPublicationSettings.setPublishAddress(status.getPublishAddress());
+            if (!MeshAddress.isValidVirtualAddress(status.getPublishAddress())) {
+                mPublicationSettings.setLabelUUID(null);
+            }
+            mPublicationSettings.setAppKeyIndex(status.getAppKeyIndex());
+            mPublicationSettings.setCredentialFlag(status.getCredentialFlag());
+            mPublicationSettings.setPublishTtl(status.getPublishTtl());
+            mPublicationSettings.setPublicationSteps(status.getPublicationSteps());
+            mPublicationSettings.setPublicationResolution(status.getPublicationResolution());
+            mPublicationSettings.setPublishRetransmitCount(status.getPublishRetransmitCount());
+            mPublicationSettings.setPublishRetransmitIntervalSteps(status.getPublishRetransmitIntervalSteps());
+        }
+    }
+
+    /**
      * Returns the publication settings used in this model
      *
      * @return publication settings

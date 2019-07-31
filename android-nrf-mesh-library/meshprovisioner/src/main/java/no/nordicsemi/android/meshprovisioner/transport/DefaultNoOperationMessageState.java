@@ -153,7 +153,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                                 final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
                                 if (model != null) {
                                     if (mMeshMessage instanceof ConfigModelPublicationGet) {
-                                        model.setPublicationStatus(status, null);
+                                        model.updatePublicationStatus(status);
                                     } else if (mMeshMessage instanceof ConfigModelPublicationSet) {
                                         model.setPublicationStatus(status, null);
                                     } else if (mMeshMessage instanceof ConfigModelPublicationVirtualAddressSet) {
