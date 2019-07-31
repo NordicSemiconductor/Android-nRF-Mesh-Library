@@ -26,7 +26,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 /**
@@ -77,8 +76,8 @@ public final class ConfigModelSubscriptionOverwrite extends ConfigMessage {
 
         final ByteBuffer paramsBuffer;
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        final byte[] elementAddress = AddressUtils.getUnicastAddressBytes(this.elementAddress);
-        final byte[] subscriptionAddress = AddressUtils.getUnicastAddressBytes(this.mSubscriptionAddress);
+        final byte[] elementAddress = MeshAddress.addressIntToBytes(this.elementAddress);
+        final byte[] subscriptionAddress = MeshAddress.addressIntToBytes(this.mSubscriptionAddress);
         if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put(elementAddress[1]);

@@ -29,7 +29,6 @@ import java.nio.ByteOrder;
 import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -80,7 +79,7 @@ public final class ConfigModelSubscriptionVirtualAddressAdd extends ConfigMessag
 
         final ByteBuffer paramsBuffer;
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        final byte[] elementAddress = AddressUtils.getUnicastAddressBytes(this.elementAddress);
+        final byte[] elementAddress = MeshAddress.addressIntToBytes(this.elementAddress);
         final byte[] subscriptionAddress = MeshParserUtils.uuidToBytes(labelUuid);
         if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_ADD_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);

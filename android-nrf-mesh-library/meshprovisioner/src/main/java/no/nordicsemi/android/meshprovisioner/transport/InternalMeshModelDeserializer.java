@@ -13,7 +13,7 @@ import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
@@ -58,7 +58,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
             for (int j = 0; j < jsonArray.size(); j++) {
                 subscriptionAddress[j] = jsonArray.get(j).getAsByte();
             }
-            meshModel.addSubscriptionAddress(AddressUtils.getUnicastAddressInt(subscriptionAddress));
+            meshModel.addSubscriptionAddress(MeshAddress.addressBytesToInt(subscriptionAddress));
         }
 
         if (jsonObject.getAsJsonObject().has("mPublicationSettings")) {

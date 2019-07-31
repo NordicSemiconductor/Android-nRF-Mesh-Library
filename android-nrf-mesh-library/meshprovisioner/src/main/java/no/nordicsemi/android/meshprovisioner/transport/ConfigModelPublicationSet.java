@@ -28,7 +28,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -118,7 +117,7 @@ public class ConfigModelPublicationSet extends ConfigMessage {
         Log.v(TAG, "Publish resolution: " + publicationResolution);
         Log.v(TAG, "Retransmission count: " + publishRetransmitCount);
         Log.v(TAG, "Retransmission interval steps: " + publishRetransmitIntervalSteps);
-        Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(modelIdentifier), false));
+        Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(modelIdentifier), false));
 
         final int rfu = 0; // We ignore the rfu here
         final int octet5 = (applicationKeyIndex[0] | (credentialFlag ? 0b01 : 0b00) << 4);
