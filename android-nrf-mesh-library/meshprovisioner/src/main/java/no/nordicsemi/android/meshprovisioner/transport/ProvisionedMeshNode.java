@@ -392,6 +392,53 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     }
 
     /**
+     * Update an app key's updated state
+     *
+     * @param index AppKey index
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    protected final void updateAddedAppKey(final int index) {
+        final NodeKey nodeKey = MeshParserUtils.getNodeKey(mAddedNetKeys, index);
+        if (nodeKey != null) {
+            nodeKey.setUpdated(true);
+        }
+    }
+
+    /**
+     * Update the added net key list of the node
+     *
+     * @param netKeyIndex NetKey Index
+     * @param indexes     AppKey indexes
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    protected final void updateAppKeyList(final int netKeyIndex, @NonNull final List<Integer> indexes, @NonNull final List<ApplicationKey> keyIndexes) {
+        if (mAddedAppKeys.isEmpty()) {
+            mAddedAppKeys.addAll(addAppKeyList(indexes, new ArrayList<>()));
+        } else {
+            final ArrayList<NodeKey> tempList = new ArrayList<>(mAddedAppKeys);
+            for (ApplicationKey applicationKey : keyIndexes) {
+                if (applicationKey.getBoundNetKeyIndex() == netKeyIndex) {
+                    for (NodeKey nodeKey : mAddedAppKeys) {
+                        if (nodeKey.getIndex() == applicationKey.getKeyIndex()) {
+                            tempList.remove(nodeKey);
+                        }
+                    }
+                }
+            }
+            mAddedAppKeys.clear();
+            addAppKeyList(indexes, tempList);
+            mAddedAppKeys.addAll(tempList);
+        }
+    }
+
+    private List<NodeKey> addAppKeyList(@NonNull final List<Integer> indexes, @NonNull final ArrayList<NodeKey> tempList) {
+        for (Integer index : indexes) {
+            tempList.add(new NodeKey(index, false));
+        }
+        return tempList;
+    }
+
+    /**
      * Removes an AppKey index that was added to the node
      *
      * @param index AppKey index

@@ -32,6 +32,9 @@ import android.widget.ProgressBar;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
@@ -48,8 +51,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyGet;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyList;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyStatus;
-import no.nordicsemi.android.meshprovisioner.transport.ConfigNetKeyList;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNetKeyStatus;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
@@ -83,7 +87,9 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
     protected AddKeysViewModel mViewModel;
     protected boolean mIsConnected;
 
-    abstract void enableAdapterListener(final boolean enable);
+    protected Queue<ConfigAppKeyGet> messageQueue = new LinkedList<>();
+
+    abstract void enableAdapterClickListener(final boolean enable);
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -116,6 +122,20 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
                 final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
                 if (status.isSuccessful()) {
                     mViewModel.displaySnackBar(this, container, getString(R.string.operation, status.getStatusCodeName()), Snackbar.LENGTH_SHORT);
+                } else {
+                    showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
+                }
+            } else if (meshMessage instanceof ConfigAppKeyList) {
+                final ConfigAppKeyList status = (ConfigAppKeyList) meshMessage;
+                if (status.isSuccessful()) {
+                    if (!messageQueue.isEmpty())
+                        messageQueue.remove();
+                    final ConfigAppKeyGet configAppKeyGet = messageQueue.poll();
+                    if (configAppKeyGet != null) {
+                        sendMessage(configAppKeyGet);
+                    } else {
+                        mViewModel.displaySnackBar(this, container, getString(R.string.operation, status.getStatusCodeName()), Snackbar.LENGTH_SHORT);
+                    }
                 } else {
                     showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
                 }
@@ -210,13 +230,13 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
     };
 
     protected void enableClickableViews() {
-        enableAdapterListener(true);
+        enableAdapterClickListener(true);
         recyclerViewKeys.setEnabled(true);
         recyclerViewKeys.setClickable(true);
     }
 
     protected void disableClickableViews() {
-        enableAdapterListener(false);
+        enableAdapterClickListener(false);
         recyclerViewKeys.setEnabled(false);
         recyclerViewKeys.setClickable(false);
     }

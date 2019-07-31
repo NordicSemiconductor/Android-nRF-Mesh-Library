@@ -33,9 +33,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyDelete;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyGet;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
+import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.adapter.AddedAppKeyAdapter;
@@ -52,7 +55,7 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
         mEmptyView = findViewById(R.id.empty_app_keys);
         adapter = new AddedAppKeyAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork().getAppKeys(), mViewModel.getSelectedMeshNode());
-        enableAdapterListener(true);
+        enableAdapterClickListener(true);
         recyclerViewKeys.setAdapter(adapter);
         setUpObserver();
     }
@@ -75,6 +78,20 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
         sendMessage(meshMessage);
     }
 
+    @Override
+    public void onRefresh() {
+        super.onRefresh();
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        if (node != null) {
+            for (NodeKey key : node.getAddedNetKeys()) {
+                final NetworkKey networkKey = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(key.getIndex());
+                final ConfigAppKeyGet configAppKeyGet = new ConfigAppKeyGet(networkKey);
+                messageQueue.add(configAppKeyGet);
+            }
+            sendMessage(messageQueue.peek());
+        }
+    }
+
     protected void setUpObserver() {
         mViewModel.getNetworkLiveData().observe(this, networkLiveData -> {
             if (networkLiveData != null) {
@@ -87,7 +104,7 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
     }
 
     @Override
-    void enableAdapterListener(final boolean enable) {
+    void enableAdapterClickListener(final boolean enable) {
         adapter.setOnItemClickListener(enable ? this : null);
     }
 }

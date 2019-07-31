@@ -46,9 +46,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:scaleType="center"
-            app:layout_constraintBottom_toBottomOf="@id/subtitle"
+            android:layout_marginTop="@dimen/item_padding_top"
+            android:layout_marginBottom="@dimen/item_padding_bottom"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/title"
+            app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_vpn_key_black_alpha_24dp"/>
 
         <TextView
@@ -62,9 +64,9 @@
             android:text="Living Room Key"
             android:textColor="@color/black"
             android:textSize="16sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/icon"
             app:layout_constraintEnd_toStartOf="@id/check"
             app:layout_constraintStart_toEndOf="@id/icon"
-            app:layout_constraintTop_toTopOf="parent"
             tools:ignore="HardcodedText"/>
 
         <TextView
@@ -80,6 +82,7 @@
             app:layout_constraintEnd_toStartOf="@id/check"
             app:layout_constraintStart_toStartOf="@id/title"
             app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintBaseline_creator="@id/icon"
             tools:ignore="HardcodedText"/>
 
         <CheckBox

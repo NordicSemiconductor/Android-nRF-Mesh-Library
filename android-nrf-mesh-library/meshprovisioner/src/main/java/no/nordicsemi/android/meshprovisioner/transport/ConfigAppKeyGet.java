@@ -22,21 +22,30 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * Creates the ConfigNetKeyGet message.
+ * Createe the ConfigAppKeyGet message.
  */
 @SuppressWarnings("unused")
-public class ConfigNetKeyGet extends ConfigMessage {
+public class ConfigAppKeyGet extends ConfigMessage {
 
-    private static final String TAG = ConfigNetKeyGet.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETKEY_GET;
+    private static final String TAG = ConfigAppKeyGet.class.getSimpleName();
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_APPKEY_GET;
+    private final NetworkKey mNetKey;
 
     /**
-     * Constructs ConfigNetKeyGet message.
+     * Constructs ConfigAppKeyGet message.
+     *
+     * @param networkKey {@link NetworkKey}
      */
-    public ConfigNetKeyGet() {
+    public ConfigAppKeyGet(@NonNull final NetworkKey networkKey) {
+        mNetKey = networkKey;
         assembleMessageParameters();
     }
 
@@ -47,6 +56,8 @@ public class ConfigNetKeyGet extends ConfigMessage {
 
     @Override
     void assembleMessageParameters() {
-        //Do nothing as ConfigNetKeyGet message does not have parameters
+        Log.v(TAG, "NetKeyIndex: " + mNetKey.getKeyIndex());
+        final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(mNetKey.getKeyIndex());
+        mParameters = new byte[]{netKeyIndex[1], (byte) ((netKeyIndex[0] & 0xFF) & 0x0F)};
     }
 }

@@ -26,7 +26,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
@@ -94,9 +93,9 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
         holder.key.setText(appKey.toUpperCase());
         if (addedAppKeys.contains(key)) {
-            holder.check.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_done_all_nordic_lake_24dp));
+            holder.check.setChecked(true);
         } else {
-            holder.check.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_done_all_black_alpha_24dp));
+            holder.check.setChecked(false);
         }
     }
 
@@ -126,12 +125,12 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         @BindView(R.id.subtitle)
         TextView key;
         @BindView(R.id.check)
-        ImageView check;
+        CheckBox check;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            view.findViewById(R.id.removable).setOnClickListener(v -> {
+            check.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final ApplicationKey key = appKeys.get(getAdapterPosition());
                     mOnItemClickListener.onItemClick(key);

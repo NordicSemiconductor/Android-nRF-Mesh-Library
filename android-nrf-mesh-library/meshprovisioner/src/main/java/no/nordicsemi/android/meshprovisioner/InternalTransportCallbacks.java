@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner;
 
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
@@ -31,6 +33,14 @@ import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface InternalTransportCallbacks {
+
+
+    /**
+     * Returns an application key with a given key index
+     *
+     * @param boundNetKeyIndex NetKey index
+     */
+    List<ApplicationKey> getApplicationKeys(final int boundNetKeyIndex);
 
     /**
      * Returns the node with the corresponding unicast address

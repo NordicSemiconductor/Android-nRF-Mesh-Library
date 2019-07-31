@@ -93,10 +93,8 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
         holder.key.setText(appKey.toUpperCase());
         if (addedNetKeys.contains(key)) {
             holder.check.setChecked(true);
-            //holder.check.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_done_all_nordic_lake_24dp));
         } else {
             holder.check.setChecked(false);
-            //holder.check.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_done_all_black_alpha_24dp));
         }
     }
 
