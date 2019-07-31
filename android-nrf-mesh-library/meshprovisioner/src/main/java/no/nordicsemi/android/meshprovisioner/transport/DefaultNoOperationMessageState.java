@@ -177,15 +177,49 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                                     } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressAdd) {
                                         model.addSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressAdd) mMeshMessage).
                                                 getLabelUuid(), status.getSubscriptionAddress());
+                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionOverwrite) {
+                                        model.overwriteSubscriptionAddress(status.getSubscriptionAddress());
+                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressOverwrite) {
+                                        model.overwriteSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressOverwrite) mMeshMessage).
+                                                getLabelUuid(), status.getSubscriptionAddress());
                                     } else if (mMeshMessage instanceof ConfigModelSubscriptionDelete) {
                                         model.removeSubscriptionAddress(status.getSubscriptionAddress());
                                     } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressDelete) {
                                         model.removeSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressDelete) mMeshMessage).
                                                 getLabelUuid(), status.getSubscriptionAddress());
-                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressOverwrite) {
-                                        model.overwriteSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressOverwrite) mMeshMessage).
-                                                getLabelUuid(), status.getSubscriptionAddress());
+                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionDeleteAll) {
+                                        model.removeAllSubscriptionAddresses();
                                     }
+                                }
+                            }
+                        }
+                    }
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_SIG_MODEL_SUBSCRIPTION_LIST) {
+                    final ConfigSigModelSubscriptionList status = new ConfigSigModelSubscriptionList(message);
+                    if (!isReceivedViaProxyFilter(message)) {
+                        if (status.isSuccessful()) {
+                            final Element element = node.getElements().get(status.getElementAddress());
+                            if (element != null) {
+                                final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+                                if (model != null) {
+                                    model.updateSubscriptionAddressesList(status.getSubscriptionAddresses());
+                                }
+                            }
+                        }
+                    }
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_VENDOR_MODEL_SUBSCRIPTION_LIST) {
+                    final ConfigVendorModelSubscriptionList status = new ConfigVendorModelSubscriptionList(message);
+                    if (!isReceivedViaProxyFilter(message)) {
+                        if (status.isSuccessful()) {
+                            final Element element = node.getElements().get(status.getElementAddress());
+                            if (element != null) {
+                                final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+                                if (model != null) {
+                                    model.updateSubscriptionAddressesList(status.getSubscriptionAddresses());
                                 }
                             }
                         }
@@ -245,6 +279,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), registerStatus);
                 } else {
                     Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+                    mMeshStatusCallbacks.onUnknownPduReceived(message.getSrc(), message.getAccessPdu());
                 }
                 break;
             case 3:

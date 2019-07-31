@@ -32,9 +32,6 @@ import android.widget.ProgressBar;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
@@ -87,8 +84,6 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
     protected AddKeysViewModel mViewModel;
     protected boolean mIsConnected;
 
-    protected Queue<ConfigAppKeyGet> messageQueue = new LinkedList<>();
-
     abstract void enableAdapterClickListener(final boolean enable);
 
     @Override
@@ -127,10 +122,10 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
                 }
             } else if (meshMessage instanceof ConfigAppKeyList) {
                 final ConfigAppKeyList status = (ConfigAppKeyList) meshMessage;
+                if (!mViewModel.getMessageQueue().isEmpty())
+                    mViewModel.getMessageQueue().remove();
                 if (status.isSuccessful()) {
-                    if (!messageQueue.isEmpty())
-                        messageQueue.remove();
-                    final ConfigAppKeyGet configAppKeyGet = messageQueue.poll();
+                    final ConfigAppKeyGet configAppKeyGet = mViewModel.getMessageQueue().poll();
                     if (configAppKeyGet != null) {
                         sendMessage(configAppKeyGet);
                     } else {

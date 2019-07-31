@@ -21,7 +21,6 @@ import java.util.Map;
 import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.NodeKey;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -121,7 +120,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             nodeJson.addProperty("UUID", MeshParserUtils.uuidToHex(node.getUuid()));
             nodeJson.addProperty("name", node.getNodeName());
             nodeJson.addProperty("deviceKey", MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
-            nodeJson.addProperty("unicastAddress", MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(node.getUnicastAddress()), false));
+            nodeJson.addProperty("unicastAddress", MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(node.getUnicastAddress()), false));
             nodeJson.addProperty("security", (node.getSecurity() == ProvisionedBaseMeshNode.HIGH) ? "high" : "low");
             nodeJson.addProperty("configComplete", node.isConfigured());
 

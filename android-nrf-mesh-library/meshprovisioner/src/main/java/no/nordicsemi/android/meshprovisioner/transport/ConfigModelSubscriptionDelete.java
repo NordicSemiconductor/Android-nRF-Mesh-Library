@@ -26,13 +26,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 /**
- * This class handles subscribing a model to subscription address.
+ * Creates the ConfigModelSubscriptionDelete message
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public final class ConfigModelSubscriptionDelete extends ConfigMessage {
 
     private static final String TAG = ConfigModelSubscriptionDelete.class.getSimpleName();
@@ -77,8 +76,8 @@ public final class ConfigModelSubscriptionDelete extends ConfigMessage {
 
         final ByteBuffer paramsBuffer;
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        final byte[] elementaddress = AddressUtils.getUnicastAddressBytes(mElementAddress);
-        final byte[] subscriptionAddress = AddressUtils.getUnicastAddressBytes(mSubscriptionAddress);
+        final byte[] elementaddress = MeshAddress.addressIntToBytes(mElementAddress);
+        final byte[] subscriptionAddress = MeshAddress.addressIntToBytes(mSubscriptionAddress);
         if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put(elementaddress[1]);

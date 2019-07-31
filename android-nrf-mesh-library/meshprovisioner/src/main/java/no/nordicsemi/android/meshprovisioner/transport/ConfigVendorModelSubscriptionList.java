@@ -24,38 +24,40 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
  * Creates the ConfigModelSubscriptionStatus Message.
+ * <p> This message lists all subscription addresses for a SIG Models </p>
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
-public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implements Parcelable {
+public class ConfigVendorModelSubscriptionList extends ConfigStatusMessage implements Parcelable {
 
-    private static final String TAG = ConfigModelSubscriptionStatus.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_STATUS;
-    private static final int CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH = 7;
-    private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL_PDU_LENGTH = 9;
+    private static final String TAG = ConfigVendorModelSubscriptionList.class.getSimpleName();
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_VENDOR_MODEL_SUBSCRIPTION_LIST;
     private int mElementAddress;
     private int mModelIdentifier;
-    private int mSubscriptionAddress;
+    private final List<Integer> mSubscriptionAddresses;
 
-    private static final Creator<ConfigModelSubscriptionStatus> CREATOR = new Creator<ConfigModelSubscriptionStatus>() {
+    private static final Creator<ConfigVendorModelSubscriptionList> CREATOR = new Creator<ConfigVendorModelSubscriptionList>() {
         @Override
-        public ConfigModelSubscriptionStatus createFromParcel(Parcel in) {
+        public ConfigVendorModelSubscriptionList createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
             //noinspection ConstantConditions
-            return new ConfigModelSubscriptionStatus(message);
+            return new ConfigVendorModelSubscriptionList(message);
         }
 
         @Override
-        public ConfigModelSubscriptionStatus[] newArray(int size) {
-            return new ConfigModelSubscriptionStatus[size];
+        public ConfigVendorModelSubscriptionList[] newArray(int size) {
+            return new ConfigVendorModelSubscriptionList[size];
         }
     };
 
@@ -64,8 +66,9 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implement
      *
      * @param message Access Message
      */
-    public ConfigModelSubscriptionStatus(@NonNull final AccessMessage message) {
+    public ConfigVendorModelSubscriptionList(@NonNull final AccessMessage message) {
         super(message);
+        mSubscriptionAddresses = new ArrayList<>();
         this.mParameters = message.getParameters();
         parseStatusParameters();
     }
@@ -76,22 +79,18 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implement
         mStatusCode = mParameters[0];
         mStatusCodeName = getStatusCodeName(mStatusCode);
         mElementAddress = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
-
-        mSubscriptionAddress = MeshParserUtils.unsignedBytesToInt(mParameters[3], mParameters[4]);
-
-        final byte[] modelIdentifier;
-        if (mParameters.length == CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH) {
-            mModelIdentifier = MeshParserUtils.unsignedBytesToInt(mParameters[5], mParameters[6]);
-        } else {
-            //modelIdentifier = new byte[]{mParameters[6], mParameters[5], mParameters[8], mParameters[7]};
-            mModelIdentifier = MeshParserUtils.bytesToInt(new byte[]{mParameters[6], mParameters[5], mParameters[8], mParameters[7]});
-        }
+        mModelIdentifier = MeshParserUtils.bytesToInt(new byte[]{mParameters[4], mParameters[3], mParameters[6], mParameters[5]});
 
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
         Log.v(TAG, "Element Address: " + MeshAddress.formatAddress(mElementAddress, true));
-        Log.v(TAG, "Subscription Address: " + MeshAddress.formatAddress(mSubscriptionAddress, true));
         Log.v(TAG, "Model Identifier: " + Integer.toHexString(mModelIdentifier));
+
+        for (int i = 7; i < mParameters.length; i += 2) {
+            final int address = MeshParserUtils.unsignedBytesToInt(mParameters[i], mParameters[i + 1]);
+            mSubscriptionAddresses.add(address);
+            Log.v(TAG, "Subscription Address: " + MeshAddress.formatAddress(address, false));
+        }
     }
 
     @Override
@@ -109,12 +108,12 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implement
     }
 
     /**
-     * Returns the subscription address.
+     * Returns the list of subscription addresses.
      *
      * @return subscription address
      */
-    public int getSubscriptionAddress() {
-        return mSubscriptionAddress;
+    public List<Integer> getSubscriptionAddresses() {
+        return mSubscriptionAddresses;
     }
 
     /**

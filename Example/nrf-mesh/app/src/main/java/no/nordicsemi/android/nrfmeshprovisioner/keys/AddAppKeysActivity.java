@@ -86,9 +86,9 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
             for (NodeKey key : node.getAddedNetKeys()) {
                 final NetworkKey networkKey = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(key.getIndex());
                 final ConfigAppKeyGet configAppKeyGet = new ConfigAppKeyGet(networkKey);
-                messageQueue.add(configAppKeyGet);
+                mViewModel.getMessageQueue().add(configAppKeyGet);
             }
-            sendMessage(messageQueue.peek());
+            sendMessage(mViewModel.getMessageQueue().peek());
         }
     }
 

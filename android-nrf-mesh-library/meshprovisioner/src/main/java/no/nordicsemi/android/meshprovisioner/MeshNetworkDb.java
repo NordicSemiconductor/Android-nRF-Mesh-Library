@@ -32,7 +32,7 @@ import no.nordicsemi.android.meshprovisioner.data.ProvisionerDao;
 import no.nordicsemi.android.meshprovisioner.data.SceneDao;
 import no.nordicsemi.android.meshprovisioner.data.ScenesDao;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -734,7 +734,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             do {
                 final String uuid = cursor.getString(cursor.getColumnIndex("mesh_uuid"));
                 final byte[] unicast = cursor.getBlob(cursor.getColumnIndex("unicast_address"));
-                final int address = AddressUtils.getUnicastAddressInt(unicast);
+                final int address = MeshAddress.addressBytesToInt(unicast);
                 final ContentValues values = new ContentValues();
                 values.put("unicast_address", address);
                 database.update("mesh_network_temp", SQLiteDatabase.CONFLICT_REPLACE, values, "mesh_uuid = ?", new String[]{uuid});
@@ -790,7 +790,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             do {
                 final String uuid = cursor.getString(cursor.getColumnIndex("uuid"));
                 final byte[] unicast = cursor.getBlob(cursor.getColumnIndex("unicast_address"));
-                final int address = AddressUtils.getUnicastAddressInt(unicast);
+                final int address = MeshAddress.addressBytesToInt(unicast);
                 final ContentValues values = new ContentValues();
                 values.put("unicast_address", address);
                 database.update("nodes_temp", SQLiteDatabase.CONFLICT_REPLACE, values, "uuid = ?", new String[]{uuid});
@@ -825,7 +825,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             do {
                 final String uuid = cursor.getString(cursor.getColumnIndex("provisioner_uuid"));
                 final byte[] unicast = cursor.getBlob(cursor.getColumnIndex("provisioner_address"));
-                final int address = AddressUtils.getUnicastAddressInt(unicast);
+                final int address = MeshAddress.addressBytesToInt(unicast);
                 final ContentValues values = new ContentValues();
                 values.put("provisioner_address", address);
                 database.update("provisioner_temp", SQLiteDatabase.CONFLICT_REPLACE, values, "provisioner_uuid = ?", new String[]{uuid});

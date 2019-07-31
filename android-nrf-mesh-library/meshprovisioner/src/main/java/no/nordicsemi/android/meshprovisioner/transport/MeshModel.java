@@ -236,6 +236,14 @@ public abstract class MeshModel implements Parcelable {
     }
 
     /**
+     * Removes all the subscription addresses in a mesh model
+     */
+    protected void removeAllSubscriptionAddresses() {
+        labelUuids.clear();
+        subscriptionAddresses.clear();
+    }
+
+    /**
      * Overwrites the subscription addresses in a mesh model by clearing the existing addresses and adding a new address
      *
      * @param subscriptionAddress Subscription address
@@ -256,5 +264,15 @@ public abstract class MeshModel implements Parcelable {
         labelUuids.clear();
         addSubscriptionAddress(labelUuid, address);
         overwriteSubscriptionAddress(address);
+    }
+
+    /**
+     * Update the subscription addresses list
+     *
+     * @param addresses List of subscription addresses
+     */
+    protected void updateSubscriptionAddressesList(@NonNull final List<Integer> addresses) {
+        subscriptionAddresses.clear();
+        subscriptionAddresses.addAll(addresses);
     }
 }

@@ -1,6 +1,7 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
@@ -324,5 +325,25 @@ public final class MeshAddress {
             return address & 0x3FFF;
         }
         return 0;
+    }
+
+    /**
+     * Returns the unicast address as int
+     *
+     * @param unicastAddress unicast address
+     * @return unicast address
+     */
+    public static byte[] addressIntToBytes(final int unicastAddress) {
+        return new byte[]{(byte) ((unicastAddress >> 8) & 0xFF), (byte) (unicastAddress & 0xFF)};
+    }
+
+    /**
+     * Returns the unicast address as int
+     *
+     * @param unicastAddress unicast address
+     * @return unicast address
+     */
+    public static short addressBytesToInt(final byte[] unicastAddress) {
+        return ByteBuffer.wrap(unicastAddress).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 }

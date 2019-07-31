@@ -41,8 +41,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
@@ -80,7 +80,7 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
         final ProvisionedMeshNode node = mNodes.get(position);
         if (node != null) {
             holder.name.setText(node.getNodeName());
-            holder.unicastAddress.setText(MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(node.getUnicastAddress()), false));
+            holder.unicastAddress.setText(MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(node.getUnicastAddress()), false));
             final Map<Integer, Element> elements = node.getElements();
             if (!elements.isEmpty()) {
                 holder.nodeInfoContainer.setVisibility(View.VISIBLE);

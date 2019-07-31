@@ -50,11 +50,15 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.models.ConfigurationClientModel;
+import no.nordicsemi.android.meshprovisioner.models.ConfigurationServerModel;
+import no.nordicsemi.android.meshprovisioner.models.SigModel;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppBind;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppStatus;
@@ -66,6 +70,10 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionDe
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionVirtualAddressAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionVirtualAddressDelete;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigSigModelSubscriptionGet;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigSigModelSubscriptionList;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigVendorModelSubscriptionGet;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigVendorModelSubscriptionList;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
@@ -93,7 +101,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 public abstract class BaseModelConfigurationActivity extends AppCompatActivity implements Injectable,
         GroupCallbacks,
         ItemTouchHelperAdapter,
-        DialogFragmentDisconnected.DialogFragmentDisconnectedListener {
+        DialogFragmentDisconnected.DialogFragmentDisconnectedListener, SwipeRefreshLayout.OnRefreshListener {
 
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
@@ -131,6 +139,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     TextView mSubscribeHint;
     @BindView(R.id.configuration_progress_bar)
     ProgressBar mProgressbar;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout mSwipe;
 
     protected Handler mHandler;
     protected ModelConfigurationViewModel mViewModel;
@@ -162,6 +172,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         getSupportActionBar().setTitle(modelName);
         final int modelId = meshModel.getModelId();
         getSupportActionBar().setSubtitle(getString(R.string.model_id, CompositionDataParser.formatModelIdentifier(modelId, true)));
+        mSwipe.setOnRefreshListener(this);
 
         recyclerViewAddresses = findViewById(R.id.recycler_view_addresses);
         recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(this));
@@ -499,6 +510,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     protected final void hideProgressBar() {
+        mSwipe.setRefreshing(false);
         enableClickableViews();
         mProgressbar.setVisibility(View.INVISIBLE);
         mHandler.removeCallbacks(mOperationTimeout);
@@ -553,6 +565,40 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
             final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
             if (!status.isSuccessful()) {
+                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
+                        newInstance(getString(R.string.title_publish_address_status), status.getStatusCodeName());
+                fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+            }
+        } else if (meshMessage instanceof ConfigSigModelSubscriptionList) {
+            final ConfigSigModelSubscriptionList status = (ConfigSigModelSubscriptionList) meshMessage;
+
+            if (!mViewModel.getMessageQueue().isEmpty())
+                mViewModel.getMessageQueue().remove();
+            if (status.isSuccessful()) {
+                final MeshMessage message = mViewModel.getMessageQueue().poll();
+                if (message != null) {
+                    sendMessage(message);
+                } else {
+                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.operation, status.getStatusCodeName()), Snackbar.LENGTH_SHORT);
+                }
+            } else {
+                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
+                        newInstance(getString(R.string.title_publish_address_status), status.getStatusCodeName());
+                fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+            }
+        } else if (meshMessage instanceof ConfigVendorModelSubscriptionList) {
+            final ConfigVendorModelSubscriptionList status = (ConfigVendorModelSubscriptionList) meshMessage;
+
+            if (!mViewModel.getMessageQueue().isEmpty())
+                mViewModel.getMessageQueue().remove();
+            if (status.isSuccessful()) {
+                final MeshMessage message = mViewModel.getMessageQueue().poll();
+                if (message != null) {
+                    sendMessage(message);
+                } else {
+                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.operation, status.getStatusCodeName()), Snackbar.LENGTH_SHORT);
+                }
+            } else {
                 DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
                         newInstance(getString(R.string.title_publish_address_status), status.getStatusCodeName());
                 fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
@@ -619,7 +665,24 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         return true;
     }
 
-    protected void sendMessage(final int address, final MeshMessage meshMessage) {
+    protected void sendMessage(@NonNull final MeshMessage meshMessage) {
+        try {
+            if (!checkConnectivity())
+                return;
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+            if (node != null) {
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), meshMessage);
+                showProgressbar();
+            }
+        } catch (IllegalArgumentException ex) {
+            hideProgressBar();
+            final DialogFragmentConfigError message = DialogFragmentConfigError.
+                    newInstance(getString(R.string.title_error), ex.getMessage());
+            message.show(getSupportFragmentManager(), null);
+        }
+    }
+
+    protected void sendMessage(final int address, @NonNull final MeshMessage meshMessage) {
         try {
             if (!checkConnectivity())
                 return;
@@ -638,5 +701,33 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         if (meshNode != null && meshNode.isConfigured() &&
                 !mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))
             disableClickableViews();
+    }
+
+    @Override
+    public void onRefresh() {
+        if (!checkConnectivity()) {
+            mSwipe.setRefreshing(false);
+        }
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        final Element element = mViewModel.getSelectedElement().getValue();
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
+        if (node != null && element != null && model != null) {
+            if (model instanceof SigModel) {
+                if (!(model instanceof ConfigurationServerModel) && !(model instanceof ConfigurationClientModel)) {
+                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
+                    final ConfigSigModelSubscriptionGet subscriptionGet = new ConfigSigModelSubscriptionGet(element.getElementAddress(), model.getModelId());
+                    mViewModel.getMessageQueue().add(subscriptionGet);
+                    //noinspection ConstantConditions
+                    sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
+                }
+
+            } else {
+                mViewModel.displaySnackBar(this, mContainer, getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
+                final ConfigVendorModelSubscriptionGet subscriptionGet = new ConfigVendorModelSubscriptionGet(element.getElementAddress(), model.getModelId());
+                mViewModel.getMessageQueue().add(subscriptionGet);
+                //noinspection ConstantConditions
+                sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
+            }
+        }
     }
 }

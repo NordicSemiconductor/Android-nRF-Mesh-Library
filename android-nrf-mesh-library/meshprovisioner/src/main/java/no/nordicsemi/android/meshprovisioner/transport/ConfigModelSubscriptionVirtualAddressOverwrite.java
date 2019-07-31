@@ -22,22 +22,20 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.annotation.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * This is the message class for overwriting a virtual address in a subscription list.
- * This message will clear the existing subscription list in a model and add a new one
+ * Creates the ConfigModelSubscriptionVirtualAddressOverwrite Message.
+ * <p>his message will clear the existing subscription list in a model and add a new one</p>
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public final class ConfigModelSubscriptionVirtualAddressOverwrite extends ConfigMessage {
 
     private static final String TAG = ConfigModelSubscriptionVirtualAddressOverwrite.class.getSimpleName();
@@ -52,7 +50,7 @@ public final class ConfigModelSubscriptionVirtualAddressOverwrite extends Config
     private final int mModelIdentifier;
 
     /**
-     * Constructs ConfigModelSubscriptionDelete message.
+     * Constructs ConfigModelSubscriptionVirtualAddressOverwrite message.
      *
      * @param elementAddress  Address of the element to which the model belongs to.
      * @param labelUuid       Value of the Label UUID.
@@ -81,7 +79,7 @@ public final class ConfigModelSubscriptionVirtualAddressOverwrite extends Config
 
         final ByteBuffer paramsBuffer;
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        final byte[] elementAddress = AddressUtils.getUnicastAddressBytes(mElementAddress);
+        final byte[] elementAddress = MeshAddress.addressIntToBytes(mElementAddress);
         final byte[] subscriptionAddress = MeshParserUtils.uuidToBytes(labelUuid);
         if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_OVERWRITE_LENGTH).order(ByteOrder.LITTLE_ENDIAN);

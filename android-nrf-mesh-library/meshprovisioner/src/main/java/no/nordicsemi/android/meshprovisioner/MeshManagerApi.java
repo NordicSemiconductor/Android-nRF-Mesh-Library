@@ -51,7 +51,6 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
@@ -602,7 +601,7 @@ public class MeshManagerApi implements MeshMngrApi {
         for (NetworkKey key : mMeshNetwork.netKeys) {
             //if generated hash is null return false
             final byte[] generatedHash = SecureUtils.
-                    calculateHash(key.getIdentityKey(), random, AddressUtils.getUnicastAddressBytes(meshNode.getUnicastAddress()));
+                    calculateHash(key.getIdentityKey(), random, MeshAddress.addressIntToBytes(meshNode.getUnicastAddress()));
             if (Arrays.equals(advertisedHash, generatedHash))
                 return true;
         }

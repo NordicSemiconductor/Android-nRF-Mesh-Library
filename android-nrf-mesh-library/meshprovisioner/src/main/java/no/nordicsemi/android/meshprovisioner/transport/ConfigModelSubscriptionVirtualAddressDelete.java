@@ -29,14 +29,13 @@ import java.nio.ByteOrder;
 import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * This is the message class for deleting a virtual address from a subscription list
+ * Creates the ConfigModelSubscriptionVirtualAddressDelete Message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public final class ConfigModelSubscriptionVirtualAddressDelete extends ConfigMessage {
 
     private static final String TAG = ConfigModelSubscriptionVirtualAddressDelete.class.getSimpleName();
@@ -80,7 +79,7 @@ public final class ConfigModelSubscriptionVirtualAddressDelete extends ConfigMes
 
         final ByteBuffer paramsBuffer;
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        final byte[] elementAddress = AddressUtils.getUnicastAddressBytes(mElementAddress);
+        final byte[] elementAddress = MeshAddress.addressIntToBytes(mElementAddress);
         final byte[] subscriptionAddress = MeshParserUtils.uuidToBytes(labelUuid);
         if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE_LENGTH).order(ByteOrder.LITTLE_ENDIAN);

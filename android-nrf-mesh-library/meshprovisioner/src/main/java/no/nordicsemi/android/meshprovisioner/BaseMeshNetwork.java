@@ -26,7 +26,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -825,7 +825,7 @@ abstract class BaseMeshNetwork {
      */
     public ProvisionedMeshNode getNode(@NonNull final byte[] unicastAddress) {
         for (ProvisionedMeshNode node : nodes) {
-            if (node.hasUnicastAddress(AddressUtils.getUnicastAddressInt(unicastAddress))) {
+            if (node.hasUnicastAddress(MeshAddress.addressBytesToInt(unicastAddress))) {
                 return node;
             }
         }
