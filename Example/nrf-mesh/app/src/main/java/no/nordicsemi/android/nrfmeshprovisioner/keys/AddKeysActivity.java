@@ -232,7 +232,7 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
     }
 
     private void handleStatuses() {
-        final MeshMessage message = mViewModel.getMessageQueue().poll();
+        final MeshMessage message = mViewModel.getMessageQueue().peek();
         if (message != null) {
             sendMessage(message);
         } else {

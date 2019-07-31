@@ -125,6 +125,11 @@ public abstract class MeshModel implements Parcelable {
             mBoundAppKeyIndexes.add(appKeyIndex);
     }
 
+    protected void setBoundAppKeyIndexes(@NonNull final List<Integer> indexes) {
+        mBoundAppKeyIndexes.clear();
+        mBoundAppKeyIndexes.addAll(indexes);
+    }
+
     @SuppressWarnings("RedundantCollectionOperation")
     protected void removeBoundAppKeyIndex(final int appKeyIndex) {
         if (mBoundAppKeyIndexes.contains(appKeyIndex)) {

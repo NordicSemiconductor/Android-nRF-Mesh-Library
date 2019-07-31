@@ -71,8 +71,12 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionDe
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionVirtualAddressAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionVirtualAddressDelete;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigSigModelAppGet;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigSigModelAppList;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigSigModelSubscriptionGet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigSigModelSubscriptionList;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigVendorModelAppGet;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigVendorModelAppList;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigVendorModelSubscriptionGet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigVendorModelSubscriptionList;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
@@ -411,18 +415,22 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (model instanceof SigModel) {
                 if (!(model instanceof ConfigurationServerModel) && !(model instanceof ConfigurationClientModel)) {
                     mViewModel.displaySnackBar(this, mContainer, getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
+                    final ConfigSigModelAppGet appGet = new ConfigSigModelAppGet(element.getElementAddress(), model.getModelId());
                     final ConfigSigModelSubscriptionGet subscriptionGet = new ConfigSigModelSubscriptionGet(element.getElementAddress(), model.getModelId());
+                    mViewModel.getMessageQueue().add(appGet);
                     mViewModel.getMessageQueue().add(subscriptionGet);
-                    addConfigurationGetMessages(element.getElementAddress(), model.getModelId());
+                    queuePublicationGetMessage(element.getElementAddress(), model.getModelId());
                     //noinspection ConstantConditions
                     sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
                 }
 
             } else {
                 mViewModel.displaySnackBar(this, mContainer, getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
+                final ConfigVendorModelAppGet appGet = new ConfigVendorModelAppGet(element.getElementAddress(), model.getModelId());
                 final ConfigVendorModelSubscriptionGet subscriptionGet = new ConfigVendorModelSubscriptionGet(element.getElementAddress(), model.getModelId());
+                mViewModel.getMessageQueue().add(appGet);
                 mViewModel.getMessageQueue().add(subscriptionGet);
-                addConfigurationGetMessages(element.getElementAddress(), model.getModelId());
+                queuePublicationGetMessage(element.getElementAddress(), model.getModelId());
                 //noinspection ConstantConditions
                 sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
             }
@@ -580,16 +588,32 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected void updateMeshMessage(final MeshMessage meshMessage) {
         if (meshMessage instanceof ConfigModelAppStatus) {
             final ConfigModelAppStatus status = (ConfigModelAppStatus) meshMessage;
-            if (!status.isSuccessful()) {
-                DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
-                        newInstance(getString(R.string.title_appkey_status), status.getStatusCodeName());
-                fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+            if (status.isSuccessful()) {
+                mViewModel.displaySnackBar(this, mContainer, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
+            } else {
+                displayDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
+            }
+        } else if (meshMessage instanceof ConfigSigModelAppList) {
+            final ConfigSigModelAppList status = (ConfigSigModelAppList) meshMessage;
+            mViewModel.removeMessage();
+            if (status.isSuccessful()) {
+                if (handleStatuses()) return;
+            } else {
+                displayDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
+            }
+        } else if (meshMessage instanceof ConfigVendorModelAppList) {
+            final ConfigVendorModelAppList status = (ConfigVendorModelAppList) meshMessage;
+            mViewModel.removeMessage();
+            if (status.isSuccessful()) {
+                if (handleStatuses()) return;
+            } else {
+                displayDialogFragment(getString(R.string.title_vendor_model_app_list), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigModelPublicationStatus) {
             final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
             mViewModel.removeMessage();
             if (status.isSuccessful()) {
-                handleStatuses();
+                if (handleStatuses()) return;
             } else {
                 displayDialogFragment(getString(R.string.title_publication_status), status.getStatusCodeName());
             }
@@ -597,7 +621,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
             mViewModel.removeMessage();
             if (status.isSuccessful()) {
-                handleStatuses();
+                if (handleStatuses()) return;
             } else {
                 displayDialogFragment(getString(R.string.title_subscription_status), status.getStatusCodeName());
             }
@@ -605,7 +629,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final ConfigSigModelSubscriptionList status = (ConfigSigModelSubscriptionList) meshMessage;
             mViewModel.removeMessage();
             if (status.isSuccessful()) {
-                handleStatuses();
+                if (handleStatuses()) return;
             } else {
                 displayDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
             }
@@ -613,7 +637,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final ConfigVendorModelSubscriptionList status = (ConfigVendorModelSubscriptionList) meshMessage;
             mViewModel.removeMessage();
             if (status.isSuccessful()) {
-                handleStatuses();
+                if (handleStatuses()) return;
             } else {
                 displayDialogFragment(getString(R.string.title_vendor_model_subscription_list), status.getStatusCodeName());
             }
@@ -696,13 +720,15 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
-    private void handleStatuses() {
-        final MeshMessage message = mViewModel.getMessageQueue().poll();
+    private boolean handleStatuses() {
+        final MeshMessage message = mViewModel.getMessageQueue().peek();
         if (message != null) {
             sendMessage(message);
+            return true;
         } else {
             mViewModel.displaySnackBar(this, mContainer, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
         }
+        return false;
     }
 
     protected void sendMessage(final int address, @NonNull final MeshMessage meshMessage) {
@@ -726,7 +752,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             disableClickableViews();
     }
 
-    private void addConfigurationGetMessages(final int address, final int modelId) {
+    private void queuePublicationGetMessage(final int address, final int modelId) {
         final ConfigModelPublicationGet publicationGet = new ConfigModelPublicationGet(address, modelId);
         mViewModel.getMessageQueue().add(publicationGet);
     }

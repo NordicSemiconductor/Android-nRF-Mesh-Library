@@ -530,7 +530,9 @@
     <string name="deleting_app_key">Deleting app key…</string>
     <string name="operation_success">Operation success.</string>
     <string name="listing_model_configuration">Listing model configuration…</string>
-    <string name="title_vendor_model_subscription_list">Vendor Model Subscription List</string>
     <string name="title_sig_model_subscription_list">SIG Model Subscription List</string>
+    <string name="title_vendor_model_subscription_list">Vendor Model Subscription List</string>
+    <string name="title_sig_model_app_list">SIG Model App List</string>
+    <string name="title_vendor_model_app_list">Vendor Model App List</string>
     <string name="title_subscription_status">Subscription Status</string>
 </resources>
