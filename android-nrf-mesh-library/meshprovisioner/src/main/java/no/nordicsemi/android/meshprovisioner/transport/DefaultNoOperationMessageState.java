@@ -177,16 +177,18 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                                     } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressAdd) {
                                         model.addSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressAdd) mMeshMessage).
                                                 getLabelUuid(), status.getSubscriptionAddress());
-                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionDelete) {
-                                        model.removeSubscriptionAddress(status.getSubscriptionAddress());
-                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressDelete) {
-                                        model.removeSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressDelete) mMeshMessage).
-                                                getLabelUuid(), status.getSubscriptionAddress());
                                     } else if (mMeshMessage instanceof ConfigModelSubscriptionOverwrite) {
                                         model.overwriteSubscriptionAddress(status.getSubscriptionAddress());
                                     } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressOverwrite) {
                                         model.overwriteSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressOverwrite) mMeshMessage).
                                                 getLabelUuid(), status.getSubscriptionAddress());
+                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionDelete) {
+                                        model.removeSubscriptionAddress(status.getSubscriptionAddress());
+                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressDelete) {
+                                        model.removeSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressDelete) mMeshMessage).
+                                                getLabelUuid(), status.getSubscriptionAddress());
+                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionDeleteAll) {
+                                        model.removeAllSubscriptionAddresses();
                                     }
                                 }
                             }
