@@ -252,6 +252,76 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:background="@color/white"
+                    app:cardElevation="1dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingBottom="@dimen/item_padding_bottom">
+
+                        <androidx.appcompat.widget.Toolbar
+                            android:id="@+id/ttl_toolbar"
+                            android:layout_width="0dp"
+                            android:layout_height="?actionBarSize"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:logo="@drawable/ic_timer"
+                            app:title="@string/title_default_ttl"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+                        <include
+                            android:id="@+id/container_ttl"
+                            layout="@layout/layout_container"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/ttl_toolbar"/>
+
+                        <include
+                            android:id="@+id/div2"
+                            layout="@layout/layout_divider"
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/container_ttl"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_get_default_ttl"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/item_padding_end"
+                            android:text="@string/action_get_default_ttl"
+                            app:layout_constraintBaseline_toBaselineOf="@id/action_set_default_ttl"
+                            app:layout_constraintEnd_toStartOf="@id/action_set_default_ttl"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_set_default_ttl"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/item_padding_end"
+                            android:text="@string/action_set_default_ttl"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
                     android:id="@+id/node_proxy_state_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

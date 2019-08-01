@@ -1,7 +1,5 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.util.Log;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;

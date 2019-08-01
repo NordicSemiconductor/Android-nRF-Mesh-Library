@@ -249,7 +249,7 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
     }
 
     @Override
-    public boolean setGlobalTtl(final int ttl) {
+    public boolean setDefaultTtl(final int ttl) {
         if (mProvisioner != null) {
             mProvisioner.setGlobalTtl(ttl);
             final Provisioner provisioner = mProvisioner;
