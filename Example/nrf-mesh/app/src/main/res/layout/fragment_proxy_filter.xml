@@ -54,7 +54,8 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:logo="@drawable/ic_filter_list_black_alpha_24dp"
                     app:title="@string/title_proxy_filter"
-                    app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                    app:titleMarginStart="@dimen/toolbar_title_margin"
+                    app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                 <TextView
                     android:id="@+id/proxy_filter_summary"
@@ -147,7 +148,8 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:logo="@drawable/ic_lan_black_alpha_24dp"
                     app:title="@string/title_filter_addresses"
-                    app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                    app:titleMarginStart="@dimen/toolbar_title_margin"
+                    app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/container_proxy_filter"

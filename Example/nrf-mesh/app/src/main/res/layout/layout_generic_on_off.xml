@@ -31,7 +31,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:logo="@drawable/ic_subscribe_black_alpha_24dp"
                 app:title="@string/title_generic_on_off_controls"
-                app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                app:titleMarginStart="@dimen/toolbar_title_margin"
+                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
             <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/transition_progress_bar"

@@ -98,7 +98,8 @@
                             android:layout_height="?actionBarSize"
                             app:logo="@drawable/ic_info_black_24dp_alpha"
                             app:title="@string/title_details"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                         <include
                             android:id="@+id/container_node_name"
@@ -153,7 +154,8 @@
                             app:layout_constraintTop_toTopOf="parent"
                             app:logo="@drawable/ic_widgets_black_24dp_alpha"
                             app:title="@string/title_elements"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                         <TextView
                             android:id="@+id/no_elements"
@@ -234,7 +236,8 @@
                             android:layout_height="?actionBarSize"
                             app:logo="@drawable/ic_folder_key_black_24dp_alpha"
                             app:title="@string/title_added_keys"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                         <include
                             android:id="@+id/container_net_keys"
@@ -273,7 +276,8 @@
                             app:layout_constraintTop_toTopOf="parent"
                             app:logo="@drawable/ic_timer"
                             app:title="@string/title_default_ttl"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                         <include
                             android:id="@+id/container_ttl"
@@ -342,13 +346,17 @@
                             app:layout_constraintTop_toTopOf="parent"
                             app:logo="@drawable/ic_proxy_24dp_black_alpha"
                             app:title="@string/title_proxy_state_settings"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                         <TextView
                             android:id="@+id/proxy_state_summary"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/activity_vertical_margin"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
+                            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingBottom="@dimen/item_padding_bottom"
                             android:text="@string/proxy_set_off_rationale"
                             android:textSize="16sp"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -418,13 +426,17 @@
                             app:layout_constraintTop_toTopOf="parent"
                             app:logo="@drawable/ic_reset_black_24dp_alpha"
                             app:title="@string/title_reset_node"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                         <TextView
                             android:id="@+id/textview"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/activity_vertical_margin"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
+                            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingBottom="@dimen/item_padding_bottom"
                             android:text="@string/reset_node_rationale"
                             android:textSize="16sp"
                             app:layout_constraintEnd_toEndOf="parent"
