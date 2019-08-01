@@ -34,7 +34,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:logo="@drawable/ic_repeat_black_24dp"
                 app:title="@string/title_relay_retransmit_info"
-                app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                app:titleMarginStart="@dimen/toolbar_title_margin"
+                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -200,7 +201,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:logo="@drawable/ic_repeat_black_24dp"
                 app:title="@string/title_network_transmit_info"
-                app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                app:titleMarginStart="@dimen/toolbar_title_margin"
+                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/container_network_transmit_count"

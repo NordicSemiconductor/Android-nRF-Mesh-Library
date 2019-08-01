@@ -100,7 +100,8 @@
                             app:layout_constraintTop_toTopOf="parent"
                             app:logo="@drawable/ic_certificate"
                             app:title="Provisioning Data"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                         <include
                             android:id="@+id/container_name"

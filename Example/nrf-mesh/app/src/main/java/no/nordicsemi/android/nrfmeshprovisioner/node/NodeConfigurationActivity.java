@@ -37,10 +37,8 @@ import javax.inject.Inject;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
-import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -51,6 +49,9 @@ import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataStatus;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigDefaultTtlGet;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigDefaultTtlSet;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigDefaultTtlStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigProxyGet;
@@ -72,12 +73,14 @@ import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentElementName;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentResetNode;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NodeConfigurationViewModel;
 
 public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
         DialogFragmentElementName.DialogFragmentElementNameListener,
+        DialogFragmentTtl.DialogFragmentTtlListener,
         ElementAdapter.OnItemClickListener,
         DialogFragmentResetNode.DialogFragmentNodeResetListener,
         DialogFragmentConfigurationComplete.ConfigurationCompleteListener {
@@ -91,14 +94,16 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     @BindView(R.id.container)
     CoordinatorLayout mContainer;
-    @BindView(R.id.nested_scroll_view)
-    NestedScrollView mNestedScrollView;
     @BindView(R.id.action_get_composition_data)
     Button actionGetCompositionData;
     @BindView(R.id.node_proxy_state_card)
     View mProxyStateCard;
     @BindView(R.id.proxy_state_summary)
     TextView mProxyStateRationaleSummary;
+    @BindView(R.id.action_get_default_ttl)
+    Button actionGetDefaultTtl;
+    @BindView(R.id.action_set_default_ttl)
+    Button actionSetDefaultTtl;
     @BindView(R.id.action_get_proxy_state)
     Button actionGetProxyState;
     @BindView(R.id.action_set_proxy_state)
@@ -107,8 +112,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     Button actionResetNode;
     @BindView(R.id.recycler_view_elements)
     RecyclerView mRecyclerViewElements;
-    @BindView(R.id.composition_data_card)
-    CardView mCompositionDataCard;
     @BindView(R.id.configuration_progress_bar)
     ProgressBar mProgressbar;
 
@@ -203,6 +206,13 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             startActivity(intent);
         });
 
+        final View containerDefaultTtl = findViewById(R.id.container_ttl);
+        containerDefaultTtl.findViewById(R.id.image).
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_numeric));
+        ((TextView) containerDefaultTtl.findViewById(R.id.title)).setText(R.string.title_ttl);
+        final TextView defaultTtlSummary = containerDefaultTtl.findViewById(R.id.text);
+        defaultTtlSummary.setVisibility(View.VISIBLE);
+
         mViewModel.getSelectedMeshNode().observe(this, meshNode -> {
             if (meshNode == null) {
                 finish();
@@ -235,12 +245,31 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                 appKeySummary.setText(R.string.no_app_keys_added);
             }
 
+            if (meshNode.getTtl() != null) {
+                defaultTtlSummary.setText(String.valueOf(meshNode.getTtl()));
+            } else {
+                defaultTtlSummary.setText(R.string.unknown);
+            }
         });
 
         actionGetCompositionData.setOnClickListener(v -> {
             if (!checkConnectivity()) return;
             final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
             sendMessage(configCompositionDataGet);
+        });
+
+        actionGetDefaultTtl.setOnClickListener(v -> {
+            if (!checkConnectivity()) return;
+            final ConfigDefaultTtlGet defaultTtlGet = new ConfigDefaultTtlGet();
+            sendMessage(defaultTtlGet);
+        });
+
+        actionSetDefaultTtl.setOnClickListener(v -> {
+            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+            if (node != null) {
+                DialogFragmentTtl fragmentTtl = DialogFragmentTtl.newInstance(node.getTtl() == null ? -1 : node.getTtl());
+                fragmentTtl.show(getSupportFragmentManager(), null);
+            }
         });
 
         actionGetProxyState.setOnClickListener(v -> {
@@ -427,6 +456,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     private void enableClickableViews() {
         actionGetCompositionData.setEnabled(true);
+        actionGetDefaultTtl.setEnabled(true);
+        actionSetDefaultTtl.setEnabled(true);
         actionGetProxyState.setEnabled(true);
         actionSetProxyState.setEnabled(true);
         actionResetNode.setEnabled(true);
@@ -434,6 +465,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     private void disableClickableViews() {
         actionGetCompositionData.setEnabled(false);
+        actionGetDefaultTtl.setEnabled(false);
+        actionSetDefaultTtl.setEnabled(false);
         actionGetProxyState.setEnabled(false);
         actionSetProxyState.setEnabled(false);
         actionResetNode.setEnabled(false);
@@ -444,6 +477,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             hideProgressBar();
         }
         if (meshMessage instanceof ConfigCompositionDataStatus) {
+            hideProgressBar();
+        } else if (meshMessage instanceof ConfigDefaultTtlStatus) {
             hideProgressBar();
         } else if (meshMessage instanceof ConfigNodeResetStatus) {
             hideProgressBar();
@@ -487,5 +522,12 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
                     newInstance(getString(R.string.title_error), ex.getMessage());
             message.show(getSupportFragmentManager(), null);
         }
+    }
+
+    @Override
+    public boolean setDefaultTtl(final int ttl) {
+        final ConfigDefaultTtlSet ttlSet = new ConfigDefaultTtlSet(ttl);
+        sendMessage(ttlSet);
+        return true;
     }
 }

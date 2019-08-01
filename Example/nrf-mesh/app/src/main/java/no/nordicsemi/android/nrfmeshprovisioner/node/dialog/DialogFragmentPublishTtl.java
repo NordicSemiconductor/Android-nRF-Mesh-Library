@@ -97,7 +97,7 @@ public class DialogFragmentPublishTtl extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    ttlInputLayout.setError(getString(R.string.error_empty_publish_ttl));
+                    ttlInputLayout.setError(getString(R.string.error_empty_ttl));
                 } else {
                     ttlInputLayout.setError(null);
                 }
@@ -149,7 +149,7 @@ public class DialogFragmentPublishTtl extends DialogFragment {
     private boolean validateInput(final String input) {
         try {
             if(TextUtils.isEmpty(input)){
-                ttlInputLayout.setError(getString(R.string.error_empty_publish_ttl));
+                ttlInputLayout.setError(getString(R.string.error_empty_ttl));
                 return false;
             }
             if(!MeshParserUtils.isValidTtl(Integer.parseInt(input))) {

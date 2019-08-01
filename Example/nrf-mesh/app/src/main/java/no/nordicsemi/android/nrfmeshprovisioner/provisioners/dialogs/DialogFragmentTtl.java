@@ -41,6 +41,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class DialogFragmentTtl extends DialogFragment {
@@ -79,8 +80,6 @@ public class DialogFragmentTtl extends DialogFragment {
         //Bind ui
         ButterKnife.bind(this, rootView);
         final String ttl = String.valueOf(mTtl);
-        ttlInputLayout.setHint(getString(R.string.hint_ttl));
-        //ttlInput.setInputType(InputType.TYPE_CLASS_NUMBER);
         ttlInput.setText(ttl);
         ttlInput.setSelection(ttl.length());
         ttlInput.addTextChangedListener(new TextWatcher() {
@@ -115,7 +114,7 @@ public class DialogFragmentTtl extends DialogFragment {
             final String globalTTL = ttlInput.getEditableText().toString().trim();
             try {
                 if (validateInput(globalTTL)) {
-                    if (((DialogFragmentTtlListener) requireActivity()).setGlobalTtl(Integer.parseInt(globalTTL))) {
+                    if (((DialogFragmentTtlListener) requireActivity()).setDefaultTtl(Integer.parseInt(globalTTL))) {
                         dismiss();
                     }
                 }
@@ -132,12 +131,16 @@ public class DialogFragmentTtl extends DialogFragment {
             ttlInputLayout.setError("TTL value cannot be empty");
             return false;
         }
+
+        if (!MeshParserUtils.isValidDefaultTtl(Integer.parseInt(input))) {
+            throw new IllegalArgumentException(getString(R.string.error_invalid_default_ttl));
+        }
         return true;
     }
 
     public interface DialogFragmentTtlListener {
 
-        boolean setGlobalTtl(final int ttl);
+        boolean setDefaultTtl(final int ttl);
 
     }
 }

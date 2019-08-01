@@ -58,7 +58,8 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:logo="@drawable/ic_certificate"
                     app:title="@string/network_settings"
-                    app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                    app:titleMarginStart="@dimen/toolbar_title_margin"
+                    app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                 <include
                     android:id="@+id/container_network_name"
@@ -121,7 +122,8 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:logo="@drawable/ic_info_black_24dp_alpha"
                     app:title="@string/title_about"
-                    app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                    app:titleMarginStart="@dimen/toolbar_title_margin"
+                    app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                 <include
                     android:id="@+id/container_version"

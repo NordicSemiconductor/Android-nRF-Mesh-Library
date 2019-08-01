@@ -408,13 +408,28 @@ public class MeshParserUtils {
     }
 
     /**
-     * Checks if the ttl value is within the allowed range where the range is 0x00 - 0x7F
+     * Checks if the Publication ttl value is within the allowed range where the range is 0x00 - 0x7F.
      *
      * @param ttl ttl
      * @return true if valid and false otherwise
      */
     public static boolean isValidTtl(final int ttl) {
-        return (ttl >= MIN_TTL) && (ttl <= MAX_TTL);
+        return ttl >= MIN_TTL && ttl <= MAX_TTL;
+    }
+
+    /**
+     * Checks if the ttl value is within the allowed range.
+     *
+     * <p>
+     * 0x00, 0x02 - 0x7F are the Default TTL states.
+     * 0x01, 0x80 and 0xFF are Prohibited.
+     * </p>
+     *
+     * @param ttl ttl
+     * @return true if valid and false otherwise
+     */
+    public static boolean isValidDefaultTtl(final int ttl) {
+        return (ttl == MIN_TTL || (ttl >= 0x02 && ttl <= MAX_TTL));
     }
 
     /**
@@ -722,7 +737,6 @@ public class MeshParserUtils {
         return SDF.format(new Date(timestamp));
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isNodeKeyExists(@NonNull final List<NodeKey> keys, final int index) {
         for (NodeKey key : keys) {
             if (key.getIndex() == index) {

@@ -30,7 +30,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:logo="@drawable/ic_subscribe_black_alpha_24dp"
                 app:title="@string/title_vendor_model_controls"
-                app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                app:titleMarginStart="@dimen/toolbar_title_margin"
+                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
             <TextView
                 android:id="@+id/text_view"

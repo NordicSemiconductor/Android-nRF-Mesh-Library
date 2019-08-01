@@ -152,10 +152,6 @@
     <string name="provisioner_input_numeric">Input the code displayed on the device.</string>
     <string name="provisioner_input_numeric_device">Key in the following code %s on the device.</string>
 
-    <string name="summary_ttl">Enter a ttl value ranging from 0 – 127</string>
-    <string name="hint_ttl">TTL</string>
-    <string name="error_empty_ttl">TTL cannot be empty!</string>
-
     <string name="dialog_summary_src">Hexadecimal value in range 0x0001 – 0x7FFF.</string>
 
     <string name="network_settings">Network Settings</string>
@@ -423,8 +419,13 @@
     <string name="error_invalid_pub_retransmit_interval_steps">Publish retransmit interval steps must be in range of 0 to 31!</string>
     <string name="error_empty_publication_steps">Number of publication steps cannot be empty!</string>
     <string name="error_invalid_publication_steps">Publication period steps must be in range of 0 to 63!</string>
-    <string name="error_empty_publish_ttl">Publish TTL cannot be empty!</string>
+    <string name="error_empty_ttl">TTL cannot be empty!</string>
     <string name="error_invalid_publish_ttl">Publish TTL value must be in range of 0 to 127!</string>
+    <string name="title_default_ttl">Default TTL</string>
+    <string name="error_invalid_default_ttl">Default TTL value must be 0 or range from 2 – 127!</string>
+    <string name="summary_ttl">Default ttl value must be 0 or range from 0 – 127</string>
+    <string name="action_get_default_ttl">Get TTL</string>
+    <string name="action_set_default_ttl">Set TTL</string>
 
     <string name="dialog_summary_retransmit_count">Enter the desired number of retransmissions.</string>
     <string name="dialog_summary_interval_steps">Enter the desired number of interval steps for retransmission. \n\n1 step = 50ms</string>

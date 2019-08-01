@@ -105,7 +105,8 @@
                                 app:layout_constraintTop_toTopOf="parent"
                                 app:logo="@drawable/ic_folder_key_black_24dp_alpha"
                                 app:title="@string/title_bound_app_keys"
-                                app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                                app:titleMarginStart="@dimen/toolbar_title_margin"
+                                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
 
                             <androidx.constraintlayout.widget.ConstraintLayout
@@ -211,7 +212,8 @@
                                 app:layout_constraintTop_toTopOf="parent"
                                 app:logo="@drawable/ic_publish_black_alpha_24dp"
                                 app:title="@string/title_publish_address_configuration"
-                                app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                                app:titleMarginStart="@dimen/toolbar_title_margin"
+                                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                             <androidx.constraintlayout.widget.ConstraintLayout
                                 android:id="@+id/container_publish_address"
@@ -328,7 +330,8 @@
                                 app:layout_constraintTop_toTopOf="parent"
                                 app:logo="@drawable/ic_subscribe_black_alpha_24dp"
                                 app:title="@string/title_subscription_addresses_configuration"
-                                app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                                app:titleMarginStart="@dimen/toolbar_title_margin"
+                                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                             <androidx.constraintlayout.widget.ConstraintLayout
                                 android:id="@+id/container_subscribe_address"
