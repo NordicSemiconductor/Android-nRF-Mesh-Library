@@ -39,13 +39,18 @@ import java.util.UUID;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.data.ApplicationKeyDao;
+import no.nordicsemi.android.meshprovisioner.data.ApplicationKeysDao;
 import no.nordicsemi.android.meshprovisioner.data.GroupDao;
 import no.nordicsemi.android.meshprovisioner.data.GroupsDao;
 import no.nordicsemi.android.meshprovisioner.data.MeshNetworkDao;
 import no.nordicsemi.android.meshprovisioner.data.NetworkKeyDao;
+import no.nordicsemi.android.meshprovisioner.data.NetworkKeysDao;
 import no.nordicsemi.android.meshprovisioner.data.ProvisionedMeshNodeDao;
+import no.nordicsemi.android.meshprovisioner.data.ProvisionedMeshNodesDao;
 import no.nordicsemi.android.meshprovisioner.data.ProvisionerDao;
+import no.nordicsemi.android.meshprovisioner.data.ProvisionersDao;
 import no.nordicsemi.android.meshprovisioner.data.SceneDao;
+import no.nordicsemi.android.meshprovisioner.data.ScenesDao;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
@@ -107,12 +112,17 @@ public class MeshManagerApi implements MeshMngrApi {
     private MeshNetworkDb mMeshNetworkDb;
     private MeshNetworkDao mMeshNetworkDao;
     private NetworkKeyDao mNetworkKeyDao;
+    private NetworkKeysDao mNetworkKeysDao;
     private ApplicationKeyDao mApplicationKeyDao;
+    private ApplicationKeysDao mApplicationKeysDao;
     private ProvisionerDao mProvisionerDao;
+    private ProvisionersDao mProvisionersDao;
     private ProvisionedMeshNodeDao mProvisionedNodeDao;
-    private GroupsDao mGroupsDao;
+    private ProvisionedMeshNodesDao mProvisionedNodesDao;
     private GroupDao mGroupDao;
+    private GroupsDao mGroupsDao;
     private SceneDao mSceneDao;
+    private ScenesDao mScenesDao;
 
     private final Runnable mProxyProtocolTimeoutRunnable = new Runnable() {
         @Override
@@ -160,13 +170,8 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public void loadMeshNetwork() {
-        mMeshNetworkDb.loadNetwork(mMeshNetworkDao,
-                mNetworkKeyDao,
-                mApplicationKeyDao,
-                mProvisionerDao,
-                mProvisionedNodeDao,
-                mGroupsDao, mSceneDao,
-                networkLoadCallbacks);
+        mMeshNetworkDb.loadNetwork(mMeshNetworkDao, mNetworkKeysDao, mApplicationKeysDao, mProvisionersDao, mProvisionedNodesDao,
+                mGroupsDao, mScenesDao, networkLoadCallbacks);
     }
 
     @Override
@@ -182,12 +187,17 @@ public class MeshManagerApi implements MeshMngrApi {
         mMeshNetworkDb = MeshNetworkDb.getDatabase(context);
         mMeshNetworkDao = mMeshNetworkDb.meshNetworkDao();
         mNetworkKeyDao = mMeshNetworkDb.networkKeyDao();
+        mNetworkKeysDao = mMeshNetworkDb.networkKeysDao();
         mApplicationKeyDao = mMeshNetworkDb.applicationKeyDao();
+        mApplicationKeysDao = mMeshNetworkDb.applicationKeysDao();
         mProvisionerDao = mMeshNetworkDb.provisionerDao();
+        mProvisionersDao = mMeshNetworkDb.provisionersDao();
         mProvisionedNodeDao = mMeshNetworkDb.provisionedMeshNodeDao();
-        mGroupsDao = mMeshNetworkDb.groupsDao();
+        mProvisionedNodesDao = mMeshNetworkDb.provisionedMeshNodesDao();
         mGroupDao = mMeshNetworkDb.groupDao();
+        mGroupsDao = mMeshNetworkDb.groupsDao();
         mSceneDao = mMeshNetworkDb.sceneDao();
+        mScenesDao = mMeshNetworkDb.scenesDao();
     }
 
     private void insertNetwork(final MeshNetwork meshNetwork) {
@@ -197,11 +207,11 @@ public class MeshManagerApi implements MeshMngrApi {
             meshNetwork.provisioners.get(0).setLastSelected(true);
         }
         mMeshNetworkDb.insertNetwork(mMeshNetworkDao,
-                mNetworkKeyDao,
-                mApplicationKeyDao,
-                mProvisionerDao,
-                mProvisionedNodeDao,
-                mGroupDao, mSceneDao,
+                mNetworkKeysDao,
+                mApplicationKeysDao,
+                mProvisionersDao,
+                mProvisionedNodesDao,
+                mGroupsDao, mScenesDao,
                 meshNetwork);
     }
 
@@ -847,8 +857,24 @@ public class MeshManagerApi implements MeshMngrApi {
             }
         }
 
+        @Override
+        public MeshNetwork getMeshNetwork() {
+            return mMeshNetwork;
+        }
+
         private void updateNetwork(final ProvisionedMeshNode meshNode) {
             if (meshNode != null) {
+                for (int i = 0; i < mMeshNetwork.nodes.size(); i++) {
+                    if (meshNode.getUnicastAddress() == mMeshNetwork.nodes.get(i).getUnicastAddress()) {
+                        mMeshNetwork.nodes.set(i, meshNode);
+                        //mMeshNetworkDb.updateNode(mProvisionedNodeDao, meshNode);
+                        break;
+                    }
+                }
+            }
+            mMeshNetworkDb.updateNetwork1(mMeshNetwork, mMeshNetworkDao, mNetworkKeysDao, mApplicationKeysDao, mProvisionersDao, mProvisionedNodesDao,
+                    mGroupsDao, mScenesDao);
+            /*if (meshNode != null) {
                 for (int i = 0; i < mMeshNetwork.nodes.size(); i++) {
                     if (meshNode.getUnicastAddress() == mMeshNetwork.nodes.get(i).getUnicastAddress()) {
                         mMeshNetwork.nodes.set(i, meshNode);
@@ -861,7 +887,8 @@ public class MeshManagerApi implements MeshMngrApi {
             mMeshNetworkDb.updateNode(mProvisionedNodeDao, mMeshNetwork.getNode(mMeshNetwork.getSelectedProvisioner().getProvisionerUuid()));
             mMeshNetwork.loadSequenceNumbers();
             mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
-            mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
+            mMeshNetworkDb.updateGroups(mGroupsDao, mMeshNetwork.groups);
+            mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);*/
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
     };
@@ -1102,7 +1129,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
         @Override
         public void onNodesUpdated() {
-            mMeshNetworkDb.updateNodes(mProvisionedNodeDao, mMeshNetwork.nodes);
+            mMeshNetworkDb.updateNodes(mProvisionedNodesDao, mMeshNetwork.nodes);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 

@@ -7,6 +7,7 @@ import java.util.List;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
 
+@SuppressWarnings("unused")
 class NetworkKeys {
 
     public String uuid;

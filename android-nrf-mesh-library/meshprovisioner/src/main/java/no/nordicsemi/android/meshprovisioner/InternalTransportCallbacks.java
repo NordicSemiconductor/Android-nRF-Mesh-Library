@@ -93,4 +93,8 @@ public interface InternalTransportCallbacks {
     void onMeshNodeReset(final ProvisionedMeshNode meshNode);
 
 
+    /**
+     * Returns the mesh network
+     */
+    MeshNetwork getMeshNetwork();
 }

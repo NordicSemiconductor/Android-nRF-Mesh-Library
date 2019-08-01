@@ -101,8 +101,9 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.timestamp = timestamp;
     }
 
+
     public List<Group> getGroups() {
-        return Collections.unmodifiableList(groups);
+        return groups;
     }
 
     void setGroups(final List<Group> groups) {
@@ -439,10 +440,10 @@ public final class MeshNetwork extends BaseMeshNetwork {
                 }
             }
         }
-        return saveGroup(group);
+        return insertGroup(group);
     }
 
-    private boolean saveGroup(@NonNull final Group group) {
+    private boolean insertGroup(@NonNull final Group group) {
         if (!isGroupExist(group)) {
             this.groups.add(group);
             notifyGroupAdded(group);

@@ -7,7 +7,9 @@ import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
@@ -254,6 +256,15 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                                 final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
                                 if (model != null) {
                                     model.updateSubscriptionAddressesList(status.getSubscriptionAddresses());
+                                }
+                            }
+                            final MeshNetwork network = mInternalTransportCallbacks.getMeshNetwork();
+                            for (Integer groupAddress : status.getSubscriptionAddresses()) {
+                                Group group = network.getGroup(groupAddress);
+                                if (group == null) {
+                                    group = new Group(groupAddress, network.getMeshUUID());
+                                    group.setName("Unknown Group");
+                                    network.getGroups().add(group);
                                 }
                             }
                         }

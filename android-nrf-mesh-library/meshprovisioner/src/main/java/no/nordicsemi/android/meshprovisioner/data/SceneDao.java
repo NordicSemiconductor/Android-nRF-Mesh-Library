@@ -20,18 +20,9 @@ public interface SceneDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final Scene scene);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(final List<Scene> scenes);
-
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(final Scene scene);
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    void update(List<Scene> scenes);
-
     @Delete
     void delete(final Scene scene);
-
-    @Query("DELETE FROM scene")
-    void deleteAll();
 }
