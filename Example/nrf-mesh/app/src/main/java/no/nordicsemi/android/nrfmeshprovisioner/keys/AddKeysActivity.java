@@ -215,6 +215,7 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
 
     private final Runnable mOperationTimeout = () -> {
         hideProgressBar();
+        mViewModel.getMessageQueue().clear();
         DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
         fragmentMessage.show(getSupportFragmentManager(), null);
     };

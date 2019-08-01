@@ -405,12 +405,12 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     @Override
     public void onRefresh() {
-        if (!checkConnectivity()) {
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
+        if (!checkConnectivity() || model == null) {
             mSwipe.setRefreshing(false);
         }
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         final Element element = mViewModel.getSelectedElement().getValue();
-        final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (node != null && element != null && model != null) {
             if (model instanceof SigModel) {
                 if (!(model instanceof ConfigurationServerModel) && !(model instanceof ConfigurationClientModel)) {
@@ -422,6 +422,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                     queuePublicationGetMessage(element.getElementAddress(), model.getModelId());
                     //noinspection ConstantConditions
                     sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
+                } else {
+                    mSwipe.setRefreshing(false);
                 }
 
             } else {
@@ -556,6 +558,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     private final Runnable mOperationTimeout = () -> {
         hideProgressBar();
+        mViewModel.getMessageQueue().clear();
         DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
         fragmentMessage.show(getSupportFragmentManager(), null);
     };
@@ -666,8 +669,12 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             final int publishAddress = publicationSettings.getPublishAddress();
             if (publishAddress != MeshAddress.UNASSIGNED_ADDRESS) {
                 if (MeshAddress.isValidVirtualAddress(publishAddress)) {
-                    //noinspection ConstantConditions
-                    mPublishAddressView.setText(publicationSettings.getLabelUUID().toString().toUpperCase(Locale.US));
+                    final UUID uuid = publicationSettings.getLabelUUID();
+                    if (uuid != null) {
+                        mPublishAddressView.setText(uuid.toString().toUpperCase(Locale.US));
+                    } else {
+                        mPublishAddressView.setText(MeshAddress.formatAddress(publishAddress, true));
+                    }
                 } else {
                     mPublishAddressView.setText(MeshAddress.formatAddress(publishAddress, true));
                 }
