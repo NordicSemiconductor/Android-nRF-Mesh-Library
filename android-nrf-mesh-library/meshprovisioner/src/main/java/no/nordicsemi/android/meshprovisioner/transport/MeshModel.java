@@ -125,6 +125,11 @@ public abstract class MeshModel implements Parcelable {
             mBoundAppKeyIndexes.add(appKeyIndex);
     }
 
+    protected void setBoundAppKeyIndexes(@NonNull final List<Integer> indexes) {
+        mBoundAppKeyIndexes.clear();
+        mBoundAppKeyIndexes.addAll(indexes);
+    }
+
     @SuppressWarnings("RedundantCollectionOperation")
     protected void removeBoundAppKeyIndex(final int appKeyIndex) {
         if (mBoundAppKeyIndexes.contains(appKeyIndex)) {
@@ -185,17 +190,29 @@ public abstract class MeshModel implements Parcelable {
      */
     protected void updatePublicationStatus(@NonNull final ConfigModelPublicationStatus status) {
         if (status.isSuccessful()) {
-            mPublicationSettings.setPublishAddress(status.getPublishAddress());
-            if (!MeshAddress.isValidVirtualAddress(status.getPublishAddress())) {
-                mPublicationSettings.setLabelUUID(null);
+            if (mPublicationSettings != null) {
+                mPublicationSettings.setPublishAddress(status.getPublishAddress());
+                if (!MeshAddress.isValidVirtualAddress(status.getPublishAddress())) {
+                    mPublicationSettings.setLabelUUID(null);
+                }
+                mPublicationSettings.setAppKeyIndex(status.getAppKeyIndex());
+                mPublicationSettings.setCredentialFlag(status.getCredentialFlag());
+                mPublicationSettings.setPublishTtl(status.getPublishTtl());
+                mPublicationSettings.setPublicationSteps(status.getPublicationSteps());
+                mPublicationSettings.setPublicationResolution(status.getPublicationResolution());
+                mPublicationSettings.setPublishRetransmitCount(status.getPublishRetransmitCount());
+                mPublicationSettings.setPublishRetransmitIntervalSteps(status.getPublishRetransmitIntervalSteps());
+            } else {
+                mPublicationSettings = new PublicationSettings(status.getPublishAddress(),
+                        null,
+                        status.getAppKeyIndex(),
+                        status.getCredentialFlag(),
+                        status.getPublishTtl(),
+                        status.getPublicationSteps(),
+                        status.getPublicationResolution(),
+                        status.getPublishRetransmitCount(),
+                        status.getPublishRetransmitIntervalSteps());
             }
-            mPublicationSettings.setAppKeyIndex(status.getAppKeyIndex());
-            mPublicationSettings.setCredentialFlag(status.getCredentialFlag());
-            mPublicationSettings.setPublishTtl(status.getPublishTtl());
-            mPublicationSettings.setPublicationSteps(status.getPublicationSteps());
-            mPublicationSettings.setPublicationResolution(status.getPublicationResolution());
-            mPublicationSettings.setPublishRetransmitCount(status.getPublishRetransmitCount());
-            mPublicationSettings.setPublishRetransmitIntervalSteps(status.getPublishRetransmitIntervalSteps());
         }
     }
 

@@ -32,29 +32,27 @@ import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 /**
- * To be used as a wrapper class to create a ConfigModelPublicationSet message.
+ * Creates a ConfigVendorModelAppGet message.
  */
 @SuppressWarnings({"unused"})
-public class ConfigModelPublicationGet extends ConfigMessage {
+public class ConfigVendorModelAppGet extends ConfigMessage {
 
-    private static final String TAG = ConfigModelPublicationGet.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_GET;
-
-    private static final int SIG_MODEL_PUBLISH_GET_PARAMS_LENGTH = 4;
-    private static final int VENDOR_MODEL_PUBLISH_GET_PARAMS_LENGTH = 6;
+    private static final String TAG = ConfigVendorModelAppGet.class.getSimpleName();
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_VENDOR_MODEL_APP_GET;
+    private static final int VENDOR_MODEL_APP_GET_PARAMS_LENGTH = 6;
 
     private final int elementAddress;
     private final int modelIdentifier;
 
     /**
-     * Constructs a ConfigModelPublicationGet message
+     * Constructs a ConfigVendorModelAppGet message
      *
-     * @param elementAddress                 Element address that should publish
-     * @param modelIdentifier                identifier for this model that will do publication
+     * @param elementAddress  Element address that should publish
+     * @param modelIdentifier identifier for this model that will do publication
      * @throws IllegalArgumentException for invalid arguments
      */
-    public ConfigModelPublicationGet(final int elementAddress,
-                                     final int modelIdentifier) throws IllegalArgumentException {
+    public ConfigVendorModelAppGet(final int elementAddress,
+                                   final int modelIdentifier) throws IllegalArgumentException {
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
             throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.elementAddress = elementAddress;
@@ -73,24 +71,15 @@ public class ConfigModelPublicationGet extends ConfigMessage {
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "Element address: " + MeshAddress.formatAddress(elementAddress, true));
         Log.v(TAG, "Model: " + CompositionDataParser.formatModelIdentifier(modelIdentifier, false));
-
-        //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        if (modelIdentifier >= Short.MIN_VALUE && modelIdentifier <= Short.MAX_VALUE) {
-            paramsBuffer = ByteBuffer.allocate(SIG_MODEL_PUBLISH_GET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.putShort((short) elementAddress);
-            paramsBuffer.putShort((short) modelIdentifier);
-            mParameters = paramsBuffer.array();
-        } else {
-            paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_PUBLISH_GET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-            paramsBuffer.putShort((short) elementAddress);
-            final byte[] modelIdentifier = new byte[]{(byte) ((this.modelIdentifier >> 24) & 0xFF), (byte) ((this.modelIdentifier >> 16) & 0xFF),
-                    (byte) ((this.modelIdentifier >> 8) & 0xFF), (byte) (this.modelIdentifier & 0xFF)};
-            paramsBuffer.put(modelIdentifier[1]);
-            paramsBuffer.put(modelIdentifier[0]);
-            paramsBuffer.put(modelIdentifier[3]);
-            paramsBuffer.put(modelIdentifier[2]);
-            mParameters = paramsBuffer.array();
-        }
+        paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_APP_GET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+        paramsBuffer.putShort((short) elementAddress);
+        final byte[] modelIdentifier = new byte[]{(byte) ((this.modelIdentifier >> 24) & 0xFF), (byte) ((this.modelIdentifier >> 16) & 0xFF),
+                (byte) ((this.modelIdentifier >> 8) & 0xFF), (byte) (this.modelIdentifier & 0xFF)};
+        paramsBuffer.put(modelIdentifier[1]);
+        paramsBuffer.put(modelIdentifier[0]);
+        paramsBuffer.put(modelIdentifier[3]);
+        paramsBuffer.put(modelIdentifier[2]);
+        mParameters = paramsBuffer.array();
     }
 
     /**

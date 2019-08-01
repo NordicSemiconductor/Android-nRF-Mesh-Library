@@ -108,7 +108,11 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_NETKEY_LIST) {
                     final ConfigNetKeyList netKeyList = new ConfigNetKeyList(message);
-                    node.updateNetKeyList(netKeyList.getKeyIndexes());
+                    if (!isReceivedViaProxyFilter(message)) {
+                        if (netKeyList.isSuccessful()) {
+                            node.updateNetKeyList(netKeyList.getKeyIndexes());
+                        }
+                    }
                     mInternalTransportCallbacks.updateMeshNetwork(netKeyList);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), netKeyList);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_APPKEY_STATUS) {
@@ -128,7 +132,12 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_APPKEY_LIST) {
                     final ConfigAppKeyList appKeyList = new ConfigAppKeyList(message);
-                    node.updateAppKeyList(appKeyList.getNetKeyIndex(), appKeyList.getKeyIndexes(), mInternalTransportCallbacks.getApplicationKeys(appKeyList.getNetKeyIndex()));
+                    if (!isReceivedViaProxyFilter(message)) {
+                        if (appKeyList.isSuccessful()) {
+                            node.updateAppKeyList(appKeyList.getNetKeyIndex(), appKeyList.getKeyIndexes(),
+                                    mInternalTransportCallbacks.getApplicationKeys(appKeyList.getNetKeyIndex()));
+                        }
+                    }
                     mInternalTransportCallbacks.updateMeshNetwork(appKeyList);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), appKeyList);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS) {
@@ -144,6 +153,36 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_SIG_MODEL_APP_LIST) {
+                    final ConfigSigModelAppList appKeyList = new ConfigSigModelAppList(message);
+                    if (!isReceivedViaProxyFilter(message)) {
+                        if (appKeyList.isSuccessful()) {
+                            final Element element = node.getElements().get(appKeyList.getElementAddress());
+                            if (element != null) {
+                                final MeshModel model = element.getMeshModels().get(appKeyList.getModelIdentifier());
+                                if (model != null) {
+                                    model.setBoundAppKeyIndexes(appKeyList.getKeyIndexes());
+                                }
+                            }
+                        }
+                    }
+                    mInternalTransportCallbacks.updateMeshNetwork(appKeyList);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), appKeyList);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_VENDOR_MODEL_APP_LIST) {
+                    final ConfigVendorModelAppList appKeyList = new ConfigVendorModelAppList(message);
+                    if (!isReceivedViaProxyFilter(message)) {
+                        if (appKeyList.isSuccessful()) {
+                            final Element element = node.getElements().get(appKeyList.getElementAddress());
+                            if (element != null) {
+                                final MeshModel model = element.getMeshModels().get(appKeyList.getModelIdentifier());
+                                if (model != null) {
+                                    model.setBoundAppKeyIndexes(appKeyList.getKeyIndexes());
+                                }
+                            }
+                        }
+                    }
+                    mInternalTransportCallbacks.updateMeshNetwork(appKeyList);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), appKeyList);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS) {
                     final ConfigModelPublicationStatus status = new ConfigModelPublicationStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
