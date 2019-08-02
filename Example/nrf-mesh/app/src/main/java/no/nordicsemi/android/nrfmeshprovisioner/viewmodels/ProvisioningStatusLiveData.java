@@ -122,12 +122,12 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
                 provisioningProgress = new ProvisionerProgress(state, "Composition data status received...", R.drawable.ic_arrow_back_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
-            case SENDING_BLOCK_ACKNOWLEDGEMENT:
-                provisioningProgress = new ProvisionerProgress(state, "Sending block acknowledgements", R.drawable.ic_arrow_forward_black_alpha);
+            case SENDING_DEFAULT_TTL_GET:
+                provisioningProgress = new ProvisionerProgress(state, "Sending default TLL get...", R.drawable.ic_arrow_forward_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
-            case BLOCK_ACKNOWLEDGEMENT_RECEIVED:
-                provisioningProgress = new ProvisionerProgress(state, "Receiving block acknowledgements", R.drawable.ic_arrow_back_black_alpha);
+            case DEFAULT_TTL_STATUS_RECEIVED:
+                provisioningProgress = new ProvisionerProgress(state, "Default TTL status received...", R.drawable.ic_arrow_forward_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
             case SENDING_APP_KEY_ADD:
@@ -144,6 +144,14 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
                 break;
             case NETWORK_TRANSMIT_STATUS_RECEIVED:
                 provisioningProgress = new ProvisionerProgress(state, "Network transmit status received...", R.drawable.ic_arrow_forward_black_alpha);
+                mProvisioningProgress.add(provisioningProgress);
+                break;
+            case SENDING_BLOCK_ACKNOWLEDGEMENT:
+                provisioningProgress = new ProvisionerProgress(state, "Sending block acknowledgements", R.drawable.ic_arrow_forward_black_alpha);
+                mProvisioningProgress.add(provisioningProgress);
+                break;
+            case BLOCK_ACKNOWLEDGEMENT_RECEIVED:
+                provisioningProgress = new ProvisionerProgress(state, "Receiving block acknowledgements", R.drawable.ic_arrow_back_black_alpha);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
             case PROVISIONER_UNASSIGNED:

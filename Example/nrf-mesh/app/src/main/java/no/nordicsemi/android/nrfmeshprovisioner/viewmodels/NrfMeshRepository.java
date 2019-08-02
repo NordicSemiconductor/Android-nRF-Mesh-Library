@@ -35,6 +35,8 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyAdd;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigAppKeyStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataGet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigCompositionDataStatus;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigDefaultTtlGet;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigDefaultTtlStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelPublicationStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigModelSubscriptionStatus;
@@ -143,6 +145,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private ProvisioningStatusLiveData mProvisioningStateLiveData;
     private MeshNetwork mMeshNetwork;
     private boolean mIsCompositionDataReceived;
+    private boolean mIsDefaultTtlReceived;
     private boolean mIsAppKeyAddCompleted;
     private boolean mIsNetworkRetransmitSetCompleted;
 
@@ -209,6 +212,10 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     boolean isCompositionDataStatusReceived() {
         return mIsCompositionDataReceived;
+    }
+
+    boolean isDefaultTtlReceived() {
+        return mIsDefaultTtlReceived;
     }
 
     boolean isAppKeyAddCompleted() {
@@ -304,6 +311,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mMeshNetworkLiveData.setNodeName(device.getName());
         mIsProvisioningComplete = false;
         mIsCompositionDataReceived = false;
+        mIsDefaultTtlReceived = false;
         mIsAppKeyAddCompleted = false;
         mIsNetworkRetransmitSetCompleted = false;
         //clearExtendedMeshNode();
@@ -770,12 +778,17 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     mProvisionedMeshNodeLiveData.postValue(node);
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.COMPOSITION_DATA_GET_SENT);
                 }
-            } else if (meshMessage instanceof ConfigAppKeyStatus) {
+            } else if (meshMessage instanceof ConfigDefaultTtlGet) {
+                if (mSetupProvisionedNode) {
+                    mProvisionedMeshNodeLiveData.postValue(node);
+                    mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.SENDING_DEFAULT_TTL_GET);
+                }
+            } else if (meshMessage instanceof ConfigAppKeyAdd) {
                 if (mSetupProvisionedNode) {
                     mProvisionedMeshNodeLiveData.postValue(node);
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.SENDING_APP_KEY_ADD);
                 }
-            } else if (meshMessage instanceof ConfigNetworkTransmitStatus) {
+            } else if (meshMessage instanceof ConfigNetworkTransmitSet) {
                 if (mSetupProvisionedNode) {
                     mProvisionedMeshNodeLiveData.postValue(node);
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.SENDING_NETWORK_TRANSMIT_SET);
@@ -804,36 +817,57 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     mProvisionedMeshNodeLiveData.postValue(node);
                     mConnectedProxyAddress.postValue(node.getUnicastAddress());
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.COMPOSITION_DATA_STATUS_RECEIVED);
-                    //We send app key add after composition is complete. Adding a delay so that we don't send anything before the acknowledgement is sent out.
-                    if (!mMeshNetwork.getAppKeys().isEmpty()) {
-                        mHandler.postDelayed(() -> {
-                            final ApplicationKey appKey = mMeshNetworkLiveData.getSelectedAppKey();
-                            final int index = node.getAddedNetKeys().get(0).getIndex();
-                            final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(index);
-                            final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
-                            mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), configAppKeyAdd);
-                        }, 2500);
-                    }
+                    mHandler.postDelayed(() -> {
+                        final ConfigDefaultTtlGet configDefaultTtlGet = new ConfigDefaultTtlGet();
+                        mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), configDefaultTtlGet);
+                    }, 2500);
                 } else {
                     updateNode(node);
+                }
+            } else if (meshMessage instanceof ConfigDefaultTtlStatus) {
+                final ConfigDefaultTtlStatus status = (ConfigDefaultTtlStatus) meshMessage;
+                if (mSetupProvisionedNode) {
+                    mIsDefaultTtlReceived = true;
+                    mProvisionedMeshNodeLiveData.postValue(node);
+                    mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.DEFAULT_TTL_STATUS_RECEIVED);
+                    mHandler.postDelayed(() -> {
+                        final ApplicationKey appKey = mMeshNetworkLiveData.getSelectedAppKey();
+                        final int index = node.getAddedNetKeys().get(0).getIndex();
+                        final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(index);
+                        final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
+                        mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), configAppKeyAdd);
+                    }, 2500);
+                } else {
+                    updateNode(node);
+                    mMeshMessageLiveData.postValue(status);
                 }
             } else if (meshMessage instanceof ConfigAppKeyStatus) {
                 final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
                 if (mSetupProvisionedNode) {
                     if (status.isSuccessful()) {
+                        mIsAppKeyAddCompleted = true;
+                        mProvisionedMeshNodeLiveData.postValue(node);
+                        mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.APP_KEY_STATUS_RECEIVED);
                         mHandler.postDelayed(() -> {
                             final ConfigNetworkTransmitSet networkTransmitSet = new ConfigNetworkTransmitSet(2, 1);
                             mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), networkTransmitSet);
                         }, 2500);
-                        mIsAppKeyAddCompleted = true;
                     }
-                    mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.APP_KEY_STATUS_RECEIVED);
                 } else {
                     updateNode(node);
                     mMeshMessageLiveData.postValue(status);
                 }
+            } else if (meshMessage instanceof ConfigNetworkTransmitStatus) {
+                if (mSetupProvisionedNode) {
+                    mSetupProvisionedNode = false;
+                    mIsNetworkRetransmitSetCompleted = true;
+                    mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.NETWORK_TRANSMIT_STATUS_RECEIVED);
+                } else {
+                    updateNode(node);
+                    final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
+                    mMeshMessageLiveData.postValue(status);
+                }
             } else if (meshMessage instanceof ConfigModelAppStatus) {
-
                 if (updateNode(node)) {
                     final ConfigModelAppStatus status = (ConfigModelAppStatus) meshMessage;
                     final Element element = node.getElements().get(status.getElementAddress());
@@ -875,16 +909,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 loadNodes();
                 mMeshMessageLiveData.postValue(status);
 
-            } else if (meshMessage instanceof ConfigNetworkTransmitStatus) {
-                if (mSetupProvisionedNode) {
-                    mSetupProvisionedNode = false;
-                    mIsNetworkRetransmitSetCompleted = true;
-                    mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.NETWORK_TRANSMIT_STATUS_RECEIVED);
-                } else {
-                    updateNode(node);
-                    final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
-                    mMeshMessageLiveData.postValue(status);
-                }
             } else if (meshMessage instanceof ConfigRelayStatus) {
                 if (updateNode(node)) {
                     final ConfigRelayStatus status = (ConfigRelayStatus) meshMessage;

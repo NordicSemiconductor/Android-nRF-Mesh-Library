@@ -81,6 +81,13 @@ public class ProvisioningViewModel extends BaseViewModel {
     }
 
     /**
+     * Returns true if the DefaultTTLGet completed
+     */
+    public boolean isDefaultTtlReceived() {
+        return mNrfMeshRepository.isDefaultTtlReceived();
+    }
+
+    /**
      * Returns true if the AppKeyAdd completed
      */
     public boolean isAppKeyAddCompleted() {

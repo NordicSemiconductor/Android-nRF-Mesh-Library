@@ -264,10 +264,6 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
         }
     }
 
-    private void startScan(){
-
-    }
-
     /**
      * stop scanning for bluetooth devices.
      */
