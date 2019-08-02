@@ -24,6 +24,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -57,7 +58,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingBottom="@dimen/activity_vertical_margin">
+                android:paddingBottom="@dimen/item_padding_bottom">
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
@@ -70,7 +71,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:paddingBottom="@dimen/activity_vertical_margin">
+                        android:paddingBottom="@dimen/item_padding_bottom">
 
                         <androidx.appcompat.widget.Toolbar
                             android:layout_width="match_parent"
@@ -96,6 +97,51 @@
                             layout="@layout/layout_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/select_provisioner_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?selectableItemBackground"
+                            android:clickable="true"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingBottom="@dimen/item_padding_bottom"
+                            tools:ignore="KeyboardInaccessibleWidget">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:id="@+id/image"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                                android:scaleType="center"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@id/title"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/ic_account_check"
+                                tools:ignore="ContentDescription,VectorDrawableCompat"/>
+
+                            <TextView
+                                android:id="@+id/title"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:text="@string/set_as_current_provisioner"
+                                android:textColor="@color/black"
+                                android:textSize="16sp"
+                                app:layout_constraintBaseline_toBaselineOf="@id/image"
+                                app:layout_constraintEnd_toStartOf="@id/check_provisioner"
+                                app:layout_constraintStart_toEndOf="@id/image"
+                                app:layout_goneMarginStart="@dimen/activity_horizontal_margin"/>
+
+                            <CheckBox
+                                android:id="@+id/check_provisioner"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintBaseline_toBaselineOf="@id/image"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/title"/>
+                        </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 

@@ -76,7 +76,7 @@
                 android:text="Nordic's Pixel"
                 android:textColor="@color/black"
                 android:textSize="16sp"
-                app:layout_constraintEnd_toStartOf="@id/action_current"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/icon"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="HardcodedText"/>
@@ -90,23 +90,11 @@
                 android:text="Unicast Address 0x7FFF"
                 android:textColor="@color/textColorSecondary"
                 android:textSize="12sp"
-                app:layout_constraintEnd_toStartOf="@id/action_current"
+                app:layout_constraintEnd_toEndOf="@id/title"
                 app:layout_constraintStart_toStartOf="@id/title"
                 app:layout_constraintTop_toBottomOf="@id/title"
                 tools:ignore="HardcodedText"/>
 
-            <ImageButton
-                android:id="@+id/action_current"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:background="?selectableItemBackgroundBorderless"
-                android:padding="@dimen/item_padding_top"
-                android:scaleType="fitCenter"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_shield_provisioner_black_alpha_24dp"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

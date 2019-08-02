@@ -611,6 +611,9 @@ abstract class BaseMeshNetwork {
         provisioner.assignProvisionerAddress(provisioner.getProvisionerAddress());
         provisioners.add(provisioner);
         notifyProvisionerAdded(provisioner);
+        if (provisioner.isLastSelected()) {
+            selectProvisioner(provisioner);
+        }
         if (provisioner.getProvisionerAddress() != null) {
             final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, netKeys);
             nodes.add(node);
@@ -700,7 +703,9 @@ abstract class BaseMeshNetwork {
                     }
                 }
             }
-            notifyProvisionerUpdated(provisioner);
+            if (provisioner.isLastSelected()) {
+                selectProvisioner(provisioner);
+            }
             return true;
         }
         return false;
@@ -757,7 +762,7 @@ abstract class BaseMeshNetwork {
                 prov.setLastSelected(false);
             }
         }
-        notifyProvisionerUpdated(provisioners);
+        notifyProvisionersUpdated(provisioners);
     }
 
     /**
@@ -1055,7 +1060,7 @@ abstract class BaseMeshNetwork {
         }
     }
 
-    final void notifyProvisionerUpdated(@NonNull final List<Provisioner> provisioner) {
+    final void notifyProvisionersUpdated(@NonNull final List<Provisioner> provisioner) {
         if (mCallbacks != null) {
             mCallbacks.onProvisionersUpdated(provisioner);
         }

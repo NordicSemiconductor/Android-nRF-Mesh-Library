@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -112,6 +113,13 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
         ((TextView) containerTtl.findViewById(R.id.title)).setText(R.string.title_ttl);
         provisionerTtl = containerTtl.findViewById(R.id.text);
         provisionerTtl.setVisibility(View.VISIBLE);
+
+        final CheckBox checkBox = findViewById(R.id.check_provisioner);
+        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (mProvisioner != null) {
+                mProvisioner.setLastSelected(isChecked);
+            }
+        });
 
         final View containerUnicastRange = findViewById(R.id.container_unicast_range);
         containerUnicastRange.setClickable(false);

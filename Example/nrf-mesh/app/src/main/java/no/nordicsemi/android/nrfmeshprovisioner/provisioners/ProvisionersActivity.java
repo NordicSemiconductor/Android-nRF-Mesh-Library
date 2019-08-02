@@ -185,14 +185,6 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
     }
 
     @Override
-    public void onItemSelected(final int position, @NonNull final Provisioner provisioner) {
-        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
-        if (network != null) {
-            network.selectProvisioner(provisioner);
-        }
-    }
-
-    @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         final int position = viewHolder.getAdapterPosition();
         final Provisioner provisioner = mAdapter.getItem(position);

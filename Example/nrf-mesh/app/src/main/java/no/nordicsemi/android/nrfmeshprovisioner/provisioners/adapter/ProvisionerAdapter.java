@@ -26,7 +26,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -87,8 +86,6 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
             holder.provisionerSummary.setText(mContext.getString(R.string.unicast_address,
                     MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true)));
         }
-
-        holder.action_current.setOnClickListener(v -> mOnItemClickListener.onItemSelected(position, provisioner));
     }
 
     @Override
@@ -109,11 +106,9 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
         return mProvisioners.get(position);
     }
 
+    @FunctionalInterface
     public interface OnItemClickListener {
-
         void onItemClick(final int position, @NonNull final Provisioner provisioner);
-
-        void onItemSelected(final int position, @NonNull final Provisioner provisioner);
     }
 
     final class ViewHolder extends RemovableViewHolder {
@@ -124,8 +119,6 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
         TextView provisionerName;
         @BindView(R.id.subtitle)
         TextView provisionerSummary;
-        @BindView(R.id.action_current)
-        ImageButton action_current;
 
         private ViewHolder(final View view) {
             super(view);

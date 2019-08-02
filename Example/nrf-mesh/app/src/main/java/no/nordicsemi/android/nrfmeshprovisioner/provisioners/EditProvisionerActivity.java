@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -43,9 +44,9 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
-import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerName;
+import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentUnassign;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.EditProvisionerViewModel;
@@ -66,6 +67,8 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
     private RangeView unicastRangeView;
     private RangeView groupRangeView;
     private RangeView sceneRangeView;
+    private View selectProvisioner;
+    private CheckBox checkBox;
 
 
     private EditProvisionerViewModel mViewModel;
@@ -106,6 +109,14 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
         ((TextView) containerTtl.findViewById(R.id.title)).setText(R.string.title_ttl);
         provisionerTtl = containerTtl.findViewById(R.id.text);
         provisionerTtl.setVisibility(View.VISIBLE);
+
+        selectProvisioner = findViewById(R.id.select_provisioner_container);
+        checkBox = findViewById(R.id.check_provisioner);
+        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (mProvisioner != null) {
+                mProvisioner.setLastSelected(isChecked);
+            }
+        });
 
         final View containerUnicastRange = findViewById(R.id.container_unicast_range);
         containerUnicastRange.setClickable(false);
@@ -267,6 +278,11 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
             provisionerUnicast.setText(R.string.unicast_address_unassigned);
         } else {
             provisionerUnicast.setText(MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true));
+        }
+        if (provisioner.isLastSelected()) {
+            selectProvisioner.setVisibility(View.GONE);
+        } else {
+            checkBox.setChecked(provisioner.isLastSelected());
         }
         unicastRangeView.clearRanges();
         groupRangeView.clearRanges();
