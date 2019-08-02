@@ -47,6 +47,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDeleteNode;
@@ -128,14 +129,18 @@ public class NetworkFragment extends Fragment implements Injectable,
             }
         });
 
-        fab.setOnClickListener(v ->
-                mViewModel.navigateToScannerActivity(requireActivity(), true, Utils.PROVISIONING_SUCCESS, true));
+        fab.setOnClickListener(v -> {
+            final Intent intent = new Intent(requireContext(), ScannerActivity.class);
+            intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, true);
+            startActivityForResult(intent, Utils.PROVISIONING_SUCCESS);
+        });
 
         return rootView;
     }
 
     @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    public void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         handleActivityResult(requestCode, resultCode, data);
     }
 
@@ -187,33 +192,39 @@ public class NetworkFragment extends Fragment implements Injectable,
                         fragmentConfigError.show(getChildFragmentManager(), null);
                     } else {
                         final boolean compositionDataReceived = data.getBooleanExtra(Utils.COMPOSITION_DATA_COMPLETED, false);
+                        final boolean defaultTtlGetCompleted = data.getBooleanExtra(Utils.DEFAULT_GET_COMPLETED, false);
                         final boolean appKeyAddCompleted = data.getBooleanExtra(Utils.APP_KEY_ADD_COMPLETED, false);
                         final boolean networkRetransmitSetCompleted = data.getBooleanExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, false);
+                        final String title = getString(R.string.title_init_config_error);
+                        final String message;
                         if (compositionDataReceived) {
-                            if (appKeyAddCompleted) {
-                                if (!networkRetransmitSetCompleted) {
-                                    fragmentConfigError =
-                                            DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                                    , getString(R.string.init_config_error_net_transmit_msg));
-                                    fragmentConfigError.show(getChildFragmentManager(), null);
+                            if (defaultTtlGetCompleted) {
+                                if (appKeyAddCompleted) {
+                                    if (!networkRetransmitSetCompleted) {
+                                        message = getString(R.string.init_config_error_app_key_msg);
+                                        showConfigurationFailedDialog(title, message);
+                                    }
+                                } else {
+                                    message = getString(R.string.init_config_error_app_key_msg);
+                                    showConfigurationFailedDialog(title, message);
                                 }
                             } else {
-                                fragmentConfigError =
-                                        DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                                , getString(R.string.init_config_error_app_key_msg));
-                                fragmentConfigError.show(getChildFragmentManager(), null);
+                                message = getString(R.string.init_config_error_default_ttl_get_msg);
+                                showConfigurationFailedDialog(title, message);
                             }
-
                         } else {
-                            fragmentConfigError =
-                                    DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
-                                            , getString(R.string.init_config_error_all));
-                            fragmentConfigError.show(getChildFragmentManager(), null);
+                            message = getString(R.string.init_config_error_all);
+                            showConfigurationFailedDialog(title, message);
                         }
                     }
                 }
                 requireActivity().invalidateOptionsMenu();
             }
         }
+    }
+
+    private void showConfigurationFailedDialog(@NonNull final String title, @NonNull final String message) {
+        final DialogFragmentConfigError dialogFragmentConfigError = DialogFragmentConfigError.newInstance(title, message);
+        dialogFragmentConfigError.show(getChildFragmentManager(), null);
     }
 }

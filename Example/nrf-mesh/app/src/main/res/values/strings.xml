@@ -478,20 +478,26 @@
     <string name="init_config_error_net_transmit_msg">Initial configuration of the node has failed.
         Continue with the following steps to configure the node\n\n
         Step 1. Connect to the network.\n\n
-        Step 2. Select the configure option of the node.\n\n
+        Step 2. Click on the node.\n\n
         Step 3. Open config server settings.\n\n
         Step 4. Set Transmit Count to 3, and Transmit Interval to 20 ms.</string>
+    <string name="init_config_error_default_ttl_get_msg">Initial configuration of the node has failed.
+        Continue with the following steps to configure the node\n\n
+        Step 1. Connect to the network.\n\n
+        Step 2. Click on the node.\n\n
+        Step 3. Get default TTL</string>
     <string name="init_config_error_app_key_msg">Initial configuration of the node has failed.
         Continue with the following steps to configure the node\n\n
         Step 1. Connect to the network.\n\n
-        Step 2. Select the configure option of the node.\n\n
+        Step 2. Click on the node.\n\n
         Step 3. Add app key</string>
     <string name="init_config_error_all">Initial configuration of the node has failed.
         Continue with the following steps to configure the node\n\n
         Step 1. Connect to the network.\n\n
-        Step 2. Select the configure option of the node.\n\n
+        Step 2. Click on the node.\n\n
         Step 3. Click get composition data\n\n
-        Step 4. Add app key</string>
+        Step 4. Get default TTL\n\n
+        Step 5. Add app key</string>
     <string name="network_transmit_interval_steps_summary">10 ms step(s)</string>
     <string name="please_connect_to_network">Please connect to network to control devices!</string>
     <string name="action_edit">Edit</string>

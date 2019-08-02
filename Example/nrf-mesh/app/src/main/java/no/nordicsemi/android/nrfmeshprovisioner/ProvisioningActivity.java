@@ -67,11 +67,11 @@ import no.nordicsemi.android.nrfmeshprovisioner.adapter.ProvisioningProgressAdap
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentAuthenticationInput;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationComplete;
-import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProvisioningFailedError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentSelectOOBType;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentUnicastAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.ProvisionerStates;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ProvisionerProgress;
@@ -434,10 +434,13 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
             } else {
                 if (mViewModel.isCompositionDataStatusReceived()) {
                     returnIntent.putExtra(Utils.COMPOSITION_DATA_COMPLETED, true);
-                    if (mViewModel.isAppKeyAddCompleted()) {
-                        returnIntent.putExtra(Utils.APP_KEY_ADD_COMPLETED, true);
-                        if (mViewModel.isNetworkRetransmitSetCompleted()) {
-                            returnIntent.putExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, true);
+                    if (mViewModel.isDefaultTtlReceived()) {
+                        returnIntent.putExtra(Utils.DEFAULT_GET_COMPLETED, true);
+                        if (mViewModel.isAppKeyAddCompleted()) {
+                            returnIntent.putExtra(Utils.APP_KEY_ADD_COMPLETED, true);
+                            if (mViewModel.isNetworkRetransmitSetCompleted()) {
+                                returnIntent.putExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, true);
+                            }
                         }
                     }
                 }
