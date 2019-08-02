@@ -28,7 +28,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ControlMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 
 /**
- * Callbacks to notify the status of the mesh messgaes
+ * Callbacks to notify the status of the mesh messages
  */
 public interface MeshStatusCallbacks {
 
@@ -74,10 +74,11 @@ public interface MeshStatusCallbacks {
     void onBlockAcknowledgementReceived(final int src, @NonNull final ControlMessage message);
 
     /**
-     * Callback to notify the mesh message has been processed
+     * Callback to notify the mesh message has been processed to be sent to the bearer
      *
      * <p>
-     * This callback is invoked after {@link MeshManagerCallbacks#onMeshPduCreated(byte[])} where a mesh pdu is created.
+     * This callback is invoked after {@link MeshManagerCallbacks#onMeshPduCreated(byte[])} where
+     * a mesh pdu is created and is ready to be sent.
      * </p>
      *
      * @param dst         Destination address to be sent
@@ -86,7 +87,7 @@ public interface MeshStatusCallbacks {
     void onMeshMessageProcessed(final int dst, @NonNull final MeshMessage meshMessage);
 
     /**
-     * Callback to notify that a mesh status message was received
+     * Callback to notify that a mesh status message was received from the bearer
      *
      * @param src         Source address where the message originated from
      * @param meshMessage {@link MeshMessage} containing the message that was received

@@ -4,26 +4,27 @@ import java.util.List;
 
 import androidx.annotation.RestrictTo;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
-import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.Provisioner;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("unused")
 @Dao
-public interface ApplicationKeysDao {
+public interface ProvisionersDao {
 
-    @Query("SELECT * from application_key WHERE mesh_uuid = :meshUuid")
-    List<ApplicationKey> loadApplicationKeys(final String meshUuid);
+    @Query("SELECT * from provisioner WHERE mesh_uuid = :meshUuid")
+    List<Provisioner> getProvisioners(final String meshUuid);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(final List<ApplicationKey> applicationKeys);
+    void insert(final List<Provisioner> provisioners);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    void update(List<ApplicationKey> appKeys);
+    void update(List<Provisioner> provisioners);
 
-    @Query("DELETE FROM application_key")
+    @Query("DELETE FROM provisioner")
     void deleteAll();
 }

@@ -103,28 +103,20 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     /**
      * Constructor to be used only by the library
-     *
-     * @param provisioner {@link Provisioner}
+     *  @param provisioner {@link Provisioner}
      * @param netKeys     List of {@link NetworkKey}
-     * @param appKeys     List of {@link ApplicationKey}
      */
     @SuppressWarnings("ConstantConditions")
     @Ignore
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressLint("UseSparseArrays")
     public ProvisionedMeshNode(@NonNull final Provisioner provisioner,
-                               @NonNull final List<NetworkKey> netKeys,
-                               @NonNull final List<ApplicationKey> appKeys) {
+                               @NonNull final List<NetworkKey> netKeys) {
         this.meshUuid = provisioner.getMeshUuid();
         uuid = provisioner.getProvisionerUuid();
         isConfigured = true;
         nodeName = provisioner.getProvisionerName();
-        for (NetworkKey key : netKeys) {
-            mAddedNetKeys.add(new NodeKey(key.getKeyIndex()));
-        }
-        for (ApplicationKey key : appKeys) {
-            mAddedAppKeys.add(new NodeKey(key.getKeyIndex()));
-        }
+        mAddedNetKeys.add(new NodeKey(netKeys.get(0).getKeyIndex(), false));
         if (provisioner.getProvisionerAddress() != null)
             unicastAddress = provisioner.getProvisionerAddress();
         sequenceNumber = provisioner.getSequenceNumber();

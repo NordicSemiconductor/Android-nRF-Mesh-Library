@@ -3,11 +3,14 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.control.TransportControlMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
@@ -256,6 +259,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                                     model.updateSubscriptionAddressesList(status.getSubscriptionAddresses());
                                 }
                             }
+                            createGroups(status.getSubscriptionAddresses());
                         }
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
@@ -271,6 +275,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                                     model.updateSubscriptionAddressesList(status.getSubscriptionAddresses());
                                 }
                             }
+                            createGroups(status.getSubscriptionAddresses());
                         }
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
@@ -437,5 +442,17 @@ class DefaultNoOperationMessageState extends MeshMessageState {
             }
         }
         return false;
+    }
+
+    private void createGroups(@NonNull final List<Integer> subscriptionAddresses) {
+        final MeshNetwork network = mInternalTransportCallbacks.getMeshNetwork();
+        for (Integer groupAddress : subscriptionAddresses) {
+            Group group = network.getGroup(groupAddress);
+            if (group == null) {
+                group = new Group(groupAddress, network.getMeshUUID());
+                group.setName("Unknown Group");
+                network.getGroups().add(group);
+            }
+        }
     }
 }
