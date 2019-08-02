@@ -400,10 +400,10 @@
     <string name="message_type">Acknowledged Message</string>
     <string name="enforce_vendor_op_code">0xC0 | 0x</string>
     <string name="title_address">Address</string>
-    <string name="title_retransmission">Retransmission</string>
+    <string name="title_retransmission">Publish Retransmission</string>
     <string name="title_retransmit_count">Retransmit Count</string>
     <string name="title_interval_steps">Interval Steps</string>
-    <string name="title_publish_period">Publication Period</string>
+    <string name="title_publish_period">Publish Period</string>
     <string name="title_publish_period_steps">Steps</string>
     <string name="title_publication_resolution">Resolution</string>
     <string name="title_security_credentials">Security Credentials</string>
