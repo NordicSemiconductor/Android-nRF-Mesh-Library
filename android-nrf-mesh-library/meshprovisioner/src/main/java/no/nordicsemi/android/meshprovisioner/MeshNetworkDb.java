@@ -1202,7 +1202,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             final List<ApplicationKey> appKeys = getAppKeys(database);
             final List<ProvisionedMeshNode> nodes = new ArrayList<>();
             for (Provisioner provisioner : provisioners) {
-                final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, netKeys);
+                final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, netKeys, appKeys);
                 final ContentValues values = new ContentValues();
                 values.put("timestamp", node.getTimeStamp());
                 values.put("name", node.getNodeName());
@@ -1216,8 +1216,19 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 values.put("device_key", node.getDeviceKey());
                 values.put("seq_number", node.getSequenceNumber());
                 values.put("mElements", MeshTypeConverters.elementsToJson(node.getElements()));
+                final List<Integer> networkKeys = new ArrayList<>();
+                for (NetworkKey networkKey : netKeys) {
+                    networkKeys.add(networkKey.getKeyIndex());
+                }
+                final List<Integer> applicationKeys = new ArrayList<>();
+                for (ApplicationKey applicationKey : appKeys) {
+                    applicationKeys.add(applicationKey.getKeyIndex());
+                }
                 if (!netKeys.isEmpty()) {
-                    values.put("netKeys", MeshTypeConverters.integerToJson(new ArrayList<>(netKeys.get(0).getKeyIndex())));
+                    values.put("netKeys", MeshTypeConverters.integerToJson(networkKeys));
+                }
+                if (!appKeys.isEmpty()) {
+                    values.put("appKeys", MeshTypeConverters.integerToJson(applicationKeys));
                 }
                 database.insert("nodes", SQLiteDatabase.CONFLICT_REPLACE, values);
             }
