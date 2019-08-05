@@ -90,7 +90,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.GroupCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDisconnected;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGroupSubscription;
@@ -721,7 +721,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             }
         } catch (IllegalArgumentException ex) {
             hideProgressBar();
-            final DialogFragmentConfigError message = DialogFragmentConfigError.
+            final DialogFragmentError message = DialogFragmentError.
                     newInstance(getString(R.string.title_error), ex.getMessage());
             message.show(getSupportFragmentManager(), null);
         }
@@ -746,7 +746,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             showProgressbar();
         } catch (IllegalArgumentException ex) {
             hideProgressBar();
-            final DialogFragmentConfigError message = DialogFragmentConfigError.
+            final DialogFragmentError message = DialogFragmentError.
                     newInstance(getString(R.string.title_error), ex.getMessage());
             message.show(getSupportFragmentManager(), null);
         }

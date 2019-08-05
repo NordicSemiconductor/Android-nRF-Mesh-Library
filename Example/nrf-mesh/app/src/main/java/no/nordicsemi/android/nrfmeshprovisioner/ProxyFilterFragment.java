@@ -58,7 +58,7 @@ import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilterType;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.FilterAddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentFilterAddAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
@@ -287,7 +287,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
         try {
             mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, meshMessage);
         } catch (IllegalArgumentException ex) {
-            final DialogFragmentConfigError message = DialogFragmentConfigError.
+            final DialogFragmentError message = DialogFragmentError.
                     newInstance(getString(R.string.title_error), ex.getMessage());
             message.show(getChildFragmentManager(), null);
         }

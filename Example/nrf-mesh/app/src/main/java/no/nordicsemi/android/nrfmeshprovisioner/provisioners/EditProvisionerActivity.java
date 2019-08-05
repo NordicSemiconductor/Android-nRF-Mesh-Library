@@ -43,7 +43,7 @@ import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentProvisionerName;
 import no.nordicsemi.android.nrfmeshprovisioner.provisioners.dialogs.DialogFragmentTtl;
@@ -315,7 +315,7 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
             try {
                 return network.updateProvisioner(mProvisioner);
             } catch (IllegalArgumentException ex) {
-                final DialogFragmentConfigError fragment = DialogFragmentConfigError.
+                final DialogFragmentError fragment = DialogFragmentError.
                         newInstance(getString(R.string.title_error), ex.getMessage());
                 fragment.show(getSupportFragmentManager(), null);
             }

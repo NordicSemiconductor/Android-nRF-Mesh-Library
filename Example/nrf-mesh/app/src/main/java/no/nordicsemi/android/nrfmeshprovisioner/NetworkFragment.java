@@ -49,7 +49,7 @@ import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDeleteNode;
 import no.nordicsemi.android.nrfmeshprovisioner.node.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.NodeAdapter;
@@ -182,12 +182,12 @@ public class NetworkFragment extends Fragment implements Injectable,
         if (requestCode == Utils.PROVISIONING_SUCCESS) {
             if (resultCode == RESULT_OK) {
                 final boolean provisioningSuccess = data.getBooleanExtra(Utils.PROVISIONING_COMPLETED, false);
-                final DialogFragmentConfigError fragmentConfigError;
+                final DialogFragmentError fragmentConfigError;
                 if (provisioningSuccess) {
                     final boolean provisionerUnassigned = data.getBooleanExtra(Utils.PROVISIONER_UNASSIGNED, false);
                     if (provisionerUnassigned) {
                         fragmentConfigError =
-                                DialogFragmentConfigError.newInstance(getString(R.string.title_init_config_error)
+                                DialogFragmentError.newInstance(getString(R.string.title_init_config_error)
                                         , getString(R.string.provisioner_unassigned_msg));
                         fragmentConfigError.show(getChildFragmentManager(), null);
                     } else {
@@ -202,19 +202,19 @@ public class NetworkFragment extends Fragment implements Injectable,
                                 if (appKeyAddCompleted) {
                                     if (!networkRetransmitSetCompleted) {
                                         message = getString(R.string.init_config_error_app_key_msg);
-                                        showConfigurationFailedDialog(title, message);
+                                        showErrorDialog(title, message);
                                     }
                                 } else {
                                     message = getString(R.string.init_config_error_app_key_msg);
-                                    showConfigurationFailedDialog(title, message);
+                                    showErrorDialog(title, message);
                                 }
                             } else {
                                 message = getString(R.string.init_config_error_default_ttl_get_msg);
-                                showConfigurationFailedDialog(title, message);
+                                showErrorDialog(title, message);
                             }
                         } else {
                             message = getString(R.string.init_config_error_all);
-                            showConfigurationFailedDialog(title, message);
+                            showErrorDialog(title, message);
                         }
                     }
                 }
@@ -223,8 +223,8 @@ public class NetworkFragment extends Fragment implements Injectable,
         }
     }
 
-    private void showConfigurationFailedDialog(@NonNull final String title, @NonNull final String message) {
-        final DialogFragmentConfigError dialogFragmentConfigError = DialogFragmentConfigError.newInstance(title, message);
-        dialogFragmentConfigError.show(getChildFragmentManager(), null);
+    private void showErrorDialog(@NonNull final String title, @NonNull final String message) {
+        final DialogFragmentError dialogFragmentError = DialogFragmentError.newInstance(title, message);
+        dialogFragmentError.show(getChildFragmentManager(), null);
     }
 }

@@ -29,11 +29,11 @@ import androidx.appcompat.app.AlertDialog;
 
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
-public class DialogFragmentConfigError extends DialogFragmentMessage {
+public class DialogFragmentError extends DialogFragmentMessage {
 
-    public static DialogFragmentConfigError newInstance(final String title, final String message) {
+    public static DialogFragmentError newInstance(@NonNull final String title, @NonNull final String message) {
         Bundle args = new Bundle();
-        DialogFragmentConfigError fragment = new DialogFragmentConfigError();
+        DialogFragmentError fragment = new DialogFragmentError();
         args.putString(TITLE, title);
         args.putString(MESSAGE, message);
         fragment.setArguments(args);

@@ -45,7 +45,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.GroupCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentPublishTtl;
@@ -536,7 +536,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
             try {
                 mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configModelPublicationSet);
             } catch (IllegalArgumentException ex) {
-                final DialogFragmentConfigError message = DialogFragmentConfigError.
+                final DialogFragmentError message = DialogFragmentError.
                         newInstance(getString(R.string.title_error), ex.getMessage());
                 message.show(getSupportFragmentManager(), null);
                 return;

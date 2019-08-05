@@ -62,7 +62,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.SubGroupAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigError;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetDetailsDialogFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetLevelDialogFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.BottomSheetOnOffDialogFragment;
@@ -340,7 +340,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         try {
             mViewModel.getMeshManagerApi().createMeshPdu(address, meshMessage);
         } catch (IllegalArgumentException ex) {
-            final DialogFragmentConfigError message = DialogFragmentConfigError.
+            final DialogFragmentError message = DialogFragmentError.
                     newInstance(getString(R.string.title_error), ex.getMessage());
             message.show(getSupportFragmentManager(), null);
         }
