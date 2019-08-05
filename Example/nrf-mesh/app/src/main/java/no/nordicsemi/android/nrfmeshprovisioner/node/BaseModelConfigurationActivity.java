@@ -275,7 +275,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
@@ -298,7 +298,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    protected void onRestoreInstanceState(final Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull final Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
             mProgressbar.setVisibility(View.VISIBLE);
@@ -622,7 +622,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 mViewModel.displaySnackBar(this, mContainer, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
             } else {
-                displayDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigSigModelAppList) {
             final ConfigSigModelAppList status = (ConfigSigModelAppList) meshMessage;
@@ -630,7 +630,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 if (handleStatuses()) return;
             } else {
-                displayDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigVendorModelAppList) {
             final ConfigVendorModelAppList status = (ConfigVendorModelAppList) meshMessage;
@@ -638,7 +638,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 if (handleStatuses()) return;
             } else {
-                displayDialogFragment(getString(R.string.title_vendor_model_app_list), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_vendor_model_app_list), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigModelPublicationStatus) {
             final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
@@ -646,7 +646,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 if (handleStatuses()) return;
             } else {
-                displayDialogFragment(getString(R.string.title_publication_status), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_publication_status), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
             final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
@@ -654,7 +654,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 if (handleStatuses()) return;
             } else {
-                displayDialogFragment(getString(R.string.title_subscription_status), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_subscription_status), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigSigModelSubscriptionList) {
             final ConfigSigModelSubscriptionList status = (ConfigSigModelSubscriptionList) meshMessage;
@@ -662,7 +662,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 if (handleStatuses()) return;
             } else {
-                displayDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigVendorModelSubscriptionList) {
             final ConfigVendorModelSubscriptionList status = (ConfigVendorModelSubscriptionList) meshMessage;
@@ -670,7 +670,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 if (handleStatuses()) return;
             } else {
-                displayDialogFragment(getString(R.string.title_vendor_model_subscription_list), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_vendor_model_subscription_list), status.getStatusCodeName());
             }
         }
         hideProgressBar();
@@ -792,9 +792,11 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mViewModel.getMessageQueue().add(publicationGet);
     }
 
-    private void displayDialogFragment(@NonNull final String title, @NonNull final String message) {
-        DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
-                newInstance(title, message);
-        fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+    private void displayStatusDialogFragment(@NonNull final String title, @NonNull final String message) {
+        if(mViewModel.isActivityVisibile()) {
+            DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
+                    newInstance(title, message);
+            fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+        }
     }
 }
