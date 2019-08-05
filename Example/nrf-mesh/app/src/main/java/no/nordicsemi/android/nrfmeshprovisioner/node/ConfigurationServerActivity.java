@@ -23,7 +23,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkTransmitSettings;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentNetworkTransmitSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogRelayRetransmitSettings;
 
 public class ConfigurationServerActivity extends BaseModelConfigurationActivity implements
@@ -217,7 +217,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         final NetworkTransmitSettings networkTransmitSettings = meshNode.getNetworkTransmitSettings();
         if (networkTransmitSettings != null) {
             mSetNetworkTransmitStateButton.setEnabled(true);
-            mNetworkTransmitCountText.setText(getResources().getQuantityString(R.plurals.network_transmit_count,
+            mNetworkTransmitCountText.setText(getResources().getQuantityString(R.plurals.transmit_count,
                     networkTransmitSettings.getTransmissionCount(),
                     networkTransmitSettings.getTransmissionCount()));
             mNetworkTransmitIntervalStepsText.setText(getString(R.string.time_ms,

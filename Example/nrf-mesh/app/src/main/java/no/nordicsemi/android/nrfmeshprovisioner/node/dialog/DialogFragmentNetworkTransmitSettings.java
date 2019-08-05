@@ -1,4 +1,4 @@
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
+package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.annotation.SuppressLint;
 import androidx.appcompat.app.AlertDialog;
@@ -130,7 +130,7 @@ public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
         mTransmitCount = transmitCount;
         final int transmitCountActual = mTransmitCount + 1;
         networkTransmitCountText.setText(getResources().getQuantityString(
-                R.plurals.network_transmit_count, transmitCountActual, transmitCountActual));
+                R.plurals.transmit_count, transmitCountActual, transmitCountActual));
     }
 
     private void setTransmitIntervalSteps(final int transmitIntervalSteps) {
