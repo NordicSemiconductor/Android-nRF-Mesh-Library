@@ -5,14 +5,14 @@
         <item quantity="other">>Push the button on the device %d times.</item>
     </plurals>
 
-    <plurals name="network_transmit_count">
-        <item quantity="one">%d retransmit</item>
-        <item quantity="other">%d retransmits</item>
+    <plurals name="transmit_count">
+        <item quantity="one">%d transmission</item>
+        <item quantity="other">%d transmissions</item>
     </plurals>
 
     <plurals name="summary_network_transmit_count">
-        <item quantity="one">%d time and total transmissions: %d</item>
-        <item quantity="other">%d times and total transmissions: %d</item>
+        <item quantity="one">%d retransmit and total transmissions: %d</item>
+        <item quantity="other">%d retransmits and total transmissions: %d</item>
     </plurals>
 
     <plurals name="retransmit_count">

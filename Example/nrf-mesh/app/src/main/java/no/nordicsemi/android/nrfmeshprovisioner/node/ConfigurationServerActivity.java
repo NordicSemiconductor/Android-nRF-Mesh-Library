@@ -23,7 +23,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentNetworkTransmitSettings;
+import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogFragmentNetworkTransmitSettings;
 import no.nordicsemi.android.nrfmeshprovisioner.node.dialog.DialogRelayRetransmitSettings;
 
 public class ConfigurationServerActivity extends BaseModelConfigurationActivity implements
@@ -35,12 +35,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private static final int NETWORK_TRANSMIT_SETTING_UNKNOWN = -1;
     private static final int RELAY_RETRANSMIT_SETTINGS_UNKNOWN = -1;
 
-    private Button mActionSetRelayState;
     private TextView mRelayRetransmitCountText;
     private TextView mRelayRetransmitIntervalStepsText;
-
-    private Button mReadNetworkTransmitStateButton;
-    private Button mSetNetworkTransmitStateButton;
     private TextView mNetworkTransmitCountText;
     private TextView mNetworkTransmitIntervalStepsText;
 
@@ -65,19 +61,19 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
 
             final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
             if (meshNode != null) {
+                final Button actionReadRelayState = nodeControlsContainer.findViewById(R.id.action_relay_retransmit_get);
+                mRelayRetransmitIntervalStepsText = nodeControlsContainer.findViewById(R.id.relay_retransmit_interval_steps);
+                mActionSetRelayState = nodeControlsContainer.findViewById(R.id.action_relay_retransmit_configure);
+                mRelayRetransmitCountText = nodeControlsContainer.findViewById(R.id.relay_retransmit_count);
                 if (meshNode.getNodeFeatures().isRelayFeatureSupported()) {
                     final CardView relayCardView = findViewById(R.id.config_relay_set_card);
                     relayCardView.setVisibility(View.VISIBLE);
-                    mRelayRetransmitCountText = nodeControlsContainer.findViewById(R.id.relay_retransmit_count);
-                    mRelayRetransmitIntervalStepsText = nodeControlsContainer.findViewById(R.id.relay_retransmit_interval_steps);
 
-                    final Button actionReadRelayState = nodeControlsContainer.findViewById(R.id.action_relay_retransmit_get);
                     actionReadRelayState.setOnClickListener(v -> {
                         if (!checkConnectivity()) return;
                         getRelayRetransmit();
                     });
 
-                    mActionSetRelayState = nodeControlsContainer.findViewById(R.id.action_relay_retransmit_configure);
                     mActionSetRelayState.setOnClickListener(v -> {
                         if (!checkConnectivity()) return;
                         final RelaySettings relaySettings = meshNode.getRelaySettings();
@@ -221,7 +217,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         final NetworkTransmitSettings networkTransmitSettings = meshNode.getNetworkTransmitSettings();
         if (networkTransmitSettings != null) {
             mSetNetworkTransmitStateButton.setEnabled(true);
-            mNetworkTransmitCountText.setText(getResources().getQuantityString(R.plurals.network_transmit_count,
+            mNetworkTransmitCountText.setText(getResources().getQuantityString(R.plurals.transmit_count,
                     networkTransmitSettings.getTransmissionCount(),
                     networkTransmitSettings.getTransmissionCount()));
             mNetworkTransmitIntervalStepsText.setText(getString(R.string.time_ms,

@@ -54,7 +54,7 @@ final class NetKeyDeserializer implements JsonSerializer<List<NetworkKey>>, Json
             try {
                 timestamp = 0;//MeshParserUtils.parseTimeStamp(jsonObject.get("timestamp").getAsString());
             } catch (Exception e) {
-                throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, mesh network timestamp must follow the Mesh Provisioning/Configuration Database format.");
+                throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database, mesh network timestamp must follow the Mesh Provisioning/Configuration Database format.");
             }
 
             final NetworkKey networkKey = new NetworkKey(index, key);

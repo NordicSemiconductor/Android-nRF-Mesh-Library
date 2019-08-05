@@ -143,7 +143,7 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
     private void setRelayRetransmitCount(final int relayRetransmitCount) {
         mTransmitCount = relayRetransmitCount;
         relayRetransmitCountText.setText(getResources().getQuantityString(
-                R.plurals.network_transmit_count, relayRetransmitCount, relayRetransmitCount));
+                R.plurals.transmit_count, relayRetransmitCount, relayRetransmitCount));
     }
 
     private void setRelayRetransmitIntervalSteps(final int transmitIntervalSteps) {

@@ -1086,12 +1086,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mHandler.postDelayed(() -> connectToProxy(device), 2000);
     }
 
-    void importMeshNetwork(final Uri uri) {
-        //We disconnect from the current mesh network before importing one
-        mBleMeshManager.disconnect();
-        mMeshManagerApi.importMeshNetwork(uri);
-    }
-
     /**
      * Generates the groups based on the addresses each models have subscribed to
      */

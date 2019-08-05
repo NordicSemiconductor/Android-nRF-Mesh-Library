@@ -103,20 +103,28 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     /**
      * Constructor to be used only by the library
-     *  @param provisioner {@link Provisioner}
+     *
+     * @param provisioner {@link Provisioner}
      * @param netKeys     List of {@link NetworkKey}
+     * @param appKeys     List of {@link ApplicationKey}
      */
     @SuppressWarnings("ConstantConditions")
     @Ignore
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressLint("UseSparseArrays")
     public ProvisionedMeshNode(@NonNull final Provisioner provisioner,
-                               @NonNull final List<NetworkKey> netKeys) {
+                               @NonNull final List<NetworkKey> netKeys,
+                               @NonNull final List<ApplicationKey> appKeys) {
         this.meshUuid = provisioner.getMeshUuid();
         uuid = provisioner.getProvisionerUuid();
         isConfigured = true;
         nodeName = provisioner.getProvisionerName();
-        mAddedNetKeys.add(new NodeKey(netKeys.get(0).getKeyIndex(), false));
+        for (NetworkKey key : netKeys) {
+            mAddedNetKeys.add(new NodeKey(key.getKeyIndex(), false));
+        }
+        for (ApplicationKey key : appKeys) {
+            mAddedAppKeys.add(new NodeKey(key.getKeyIndex(), false));
+        }
         if (provisioner.getProvisionerAddress() != null)
             unicastAddress = provisioner.getProvisionerAddress();
         sequenceNumber = provisioner.getSequenceNumber();
@@ -130,6 +138,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         final HashMap<Integer, Element> elements = new HashMap<>();
         elements.put(unicastAddress, element);
         mElements = elements;
+        nodeFeatures = new Features(Features.UNSUPPORTED, Features.UNSUPPORTED, Features.UNSUPPORTED, Features.UNSUPPORTED);
     }
 
     @Ignore
@@ -363,7 +372,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * Returns the list of added AppKey indexes to the node
      */
     public final List<NodeKey> getAddedAppKeys() {
-        return Collections.unmodifiableList(mAddedAppKeys);
+        return mAddedAppKeys;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)

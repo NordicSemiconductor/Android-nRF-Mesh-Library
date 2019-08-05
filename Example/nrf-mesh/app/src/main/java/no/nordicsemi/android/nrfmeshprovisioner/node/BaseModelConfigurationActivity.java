@@ -90,9 +90,9 @@ import no.nordicsemi.android.nrfmeshprovisioner.GroupCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDisconnected;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGroupSubscription;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
@@ -154,6 +154,10 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected GroupAddressAdapter mSubscriptionAdapter;
     protected BoundAppKeysAdapter mBoundAppKeyAdapter;
     protected Button mActionRead;
+    protected Button mActionSetRelayState;
+    protected Button mReadNetworkTransmitStateButton;
+    protected Button mSetNetworkTransmitStateButton;
+
     private RecyclerView recyclerViewBoundKeys, recyclerViewAddresses;
     protected boolean mIsConnected;
 
@@ -255,6 +259,12 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        mViewModel.setActivityVisible(true);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         if (mIsConnected) {
             getMenuInflater().inflate(R.menu.disconnect, menu);
@@ -265,7 +275,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
@@ -288,7 +298,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
-    protected void onRestoreInstanceState(final Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull final Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
             mProgressbar.setVisibility(View.VISIBLE);
@@ -322,6 +332,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @Override
     protected void onStop() {
         super.onStop();
+        mViewModel.setActivityVisible(false);
         if (isFinishing()) {
             mHandler.removeCallbacksAndMessages(null);
         }
@@ -559,8 +570,11 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     private final Runnable mOperationTimeout = () -> {
         hideProgressBar();
         mViewModel.getMessageQueue().clear();
-        DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
-        fragmentMessage.show(getSupportFragmentManager(), null);
+        if (mViewModel.isActivityVisibile()) {
+            DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.
+                    newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
+            fragmentMessage.show(getSupportFragmentManager(), null);
+        }
     };
 
     protected void enableClickableViews() {
@@ -568,6 +582,13 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mActionSetPublication.setEnabled(true);
         mActionClearPublication.setEnabled(true);
         mActionSubscribe.setEnabled(true);
+
+        if (mActionSetRelayState != null)
+            mActionSetRelayState.setEnabled(true);
+        if (mReadNetworkTransmitStateButton != null)
+            mReadNetworkTransmitStateButton.setEnabled(true);
+        if (mSetNetworkTransmitStateButton != null)
+            mSetNetworkTransmitStateButton.setEnabled(true);
 
         if (mActionRead != null && !mActionRead.isEnabled())
             mActionRead.setEnabled(true);
@@ -578,6 +599,13 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mActionSetPublication.setEnabled(false);
         mActionClearPublication.setEnabled(false);
         mActionSubscribe.setEnabled(false);
+
+        if (mActionSetRelayState != null)
+            mActionSetRelayState.setEnabled(false);
+        if (mReadNetworkTransmitStateButton != null)
+            mReadNetworkTransmitStateButton.setEnabled(false);
+        if (mSetNetworkTransmitStateButton != null)
+            mSetNetworkTransmitStateButton.setEnabled(false);
 
         if (mActionRead != null)
             mActionRead.setEnabled(false);
@@ -594,7 +622,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 mViewModel.displaySnackBar(this, mContainer, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
             } else {
-                displayDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigSigModelAppList) {
             final ConfigSigModelAppList status = (ConfigSigModelAppList) meshMessage;
@@ -602,7 +630,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 if (handleStatuses()) return;
             } else {
-                displayDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigVendorModelAppList) {
             final ConfigVendorModelAppList status = (ConfigVendorModelAppList) meshMessage;
@@ -610,7 +638,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 if (handleStatuses()) return;
             } else {
-                displayDialogFragment(getString(R.string.title_vendor_model_app_list), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_vendor_model_app_list), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigModelPublicationStatus) {
             final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
@@ -618,7 +646,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 if (handleStatuses()) return;
             } else {
-                displayDialogFragment(getString(R.string.title_publication_status), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_publication_status), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
             final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
@@ -626,7 +654,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 if (handleStatuses()) return;
             } else {
-                displayDialogFragment(getString(R.string.title_subscription_status), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_subscription_status), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigSigModelSubscriptionList) {
             final ConfigSigModelSubscriptionList status = (ConfigSigModelSubscriptionList) meshMessage;
@@ -634,7 +662,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 if (handleStatuses()) return;
             } else {
-                displayDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigVendorModelSubscriptionList) {
             final ConfigVendorModelSubscriptionList status = (ConfigVendorModelSubscriptionList) meshMessage;
@@ -642,7 +670,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (status.isSuccessful()) {
                 if (handleStatuses()) return;
             } else {
-                displayDialogFragment(getString(R.string.title_vendor_model_subscription_list), status.getStatusCodeName());
+                displayStatusDialogFragment(getString(R.string.title_vendor_model_subscription_list), status.getStatusCodeName());
             }
         }
         hideProgressBar();
@@ -764,9 +792,11 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mViewModel.getMessageQueue().add(publicationGet);
     }
 
-    private void displayDialogFragment(@NonNull final String title, @NonNull final String message) {
-        DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
-                newInstance(title, message);
-        fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+    private void displayStatusDialogFragment(@NonNull final String title, @NonNull final String message) {
+        if(mViewModel.isActivityVisibile()) {
+            DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
+                    newInstance(title, message);
+            fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+        }
     }
 }

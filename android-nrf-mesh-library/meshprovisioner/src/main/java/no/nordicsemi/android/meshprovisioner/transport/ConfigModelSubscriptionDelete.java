@@ -26,7 +26,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
+
+import static no.nordicsemi.android.meshprovisioner.utils.MeshAddress.addressIntToBytes;
+import static no.nordicsemi.android.meshprovisioner.utils.MeshAddress.isValidUnassignedAddress;
+import static no.nordicsemi.android.meshprovisioner.utils.MeshAddress.isValidUnicastAddress;
+import static no.nordicsemi.android.meshprovisioner.utils.MeshAddress.isValidVirtualAddress;
 
 /**
  * Creates the ConfigModelSubscriptionDelete message
@@ -56,11 +60,12 @@ public final class ConfigModelSubscriptionDelete extends ConfigMessage {
                                          final int subscriptionAddress,
                                          final int modelIdentifier) throws IllegalArgumentException {
 
-        if (!MeshAddress.isValidUnicastAddress(elementAddress))
+        if (!isValidUnicastAddress(elementAddress))
             throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.mElementAddress = elementAddress;
-        if (!MeshAddress.isAddressInRange(subscriptionAddress))
-            throw new IllegalArgumentException("Invalid subscription address, subscription address must be a 16-bit value");
+        if (isValidUnassignedAddress(subscriptionAddress) || isValidUnicastAddress(subscriptionAddress) || isValidVirtualAddress(subscriptionAddress) || subscriptionAddress == 0xFFFF)
+            throw new IllegalArgumentException("The value of the Address field shall not be an unassigned address, unicast address, " +
+                    "all-nodes address or virtual address.");
         this.mSubscriptionAddress = subscriptionAddress;
         this.mModelIdentifier = modelIdentifier;
         assembleMessageParameters();
@@ -76,8 +81,8 @@ public final class ConfigModelSubscriptionDelete extends ConfigMessage {
 
         final ByteBuffer paramsBuffer;
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        final byte[] elementaddress = MeshAddress.addressIntToBytes(mElementAddress);
-        final byte[] subscriptionAddress = MeshAddress.addressIntToBytes(mSubscriptionAddress);
+        final byte[] elementaddress = addressIntToBytes(mElementAddress);
+        final byte[] subscriptionAddress = addressIntToBytes(mSubscriptionAddress);
         if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put(elementaddress[1]);

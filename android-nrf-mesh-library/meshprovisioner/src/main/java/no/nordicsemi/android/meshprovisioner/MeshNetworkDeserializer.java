@@ -36,8 +36,8 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
 
         final JsonObject jsonObject = json.getAsJsonObject();
         if (!isValidMeshObject(jsonObject))
-            throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, " +
-                    "mesh network object must follow the Mesh Provisioning/Configuration Database format.");
+            throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database, " +
+                    "Mesh Network must follow the Mesh Provisioning/Configuration Database format.");
 
         final String uuid = jsonObject.get("meshUUID").getAsString();
         final String meshUuid = MeshParserUtils.formatUuid(uuid);
@@ -54,7 +54,6 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, " +
                     "mesh network timestamp must follow the Mesh Provisioning/Configuration Database format.");
         }
-
         network.netKeys = deserializeNetKeys(context,
                 jsonObject.getAsJsonArray("netKeys"), network.meshUUID);
         network.appKeys = deserializeAppKeys(context,
@@ -73,7 +72,6 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             network.scenes = deserializeScenes(jsonObject, network.meshUUID);
 
         assignProvisionerAddresses(network);
-        //network.unicastAddress = getNextAvailableAddress(network.nodes);
 
         return network;
     }
@@ -215,7 +213,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
 
             if (provisionerUuid == null)
                 throw new IllegalArgumentException("Invalid Mesh Provisioning/Configuration " +
-                        "Database JSON file, invalid provisioner uuid");
+                        "Database, invalid provisioner uuid.");
 
             final List<AllocatedUnicastRange> unicastRanges = deserializeAllocatedUnicastRange(context,
                     jsonProvisioner);

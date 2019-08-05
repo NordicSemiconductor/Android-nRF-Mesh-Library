@@ -63,8 +63,8 @@ import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigurationComplete;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentProxySet;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AddAppKeysActivity;
@@ -121,10 +121,13 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     private boolean mRequestedState = true;
     private boolean mIsConnected;
 
-    private final Runnable mOperationTimeout = () -> {
+    private final Runnable mRunnableOperationTimeout = () -> {
         hideProgressBar();
-        DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
-        fragmentMessage.show(getSupportFragmentManager(), null);
+        if (mViewModel.isActivityVisibile()) {
+            DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.
+                    newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
+            fragmentMessage.show(getSupportFragmentManager(), null);
+        }
     };
 
     @Override
@@ -332,6 +335,12 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        mViewModel.setActivityVisible(true);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         if (mIsConnected) {
             getMenuInflater().inflate(R.menu.disconnect, menu);
@@ -361,6 +370,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @Override
     protected void onStop() {
         super.onStop();
+        mViewModel.setActivityVisible(false);
         if (isFinishing()) {
             mHandler.removeCallbacksAndMessages(null);
         }
@@ -443,7 +453,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     private void showProgressbar() {
-        mHandler.postDelayed(mOperationTimeout, Utils.MESSAGE_TIME_OUT);
+        mHandler.postDelayed(mRunnableOperationTimeout, Utils.MESSAGE_TIME_OUT);
         disableClickableViews();
         mProgressbar.setVisibility(View.VISIBLE);
     }
@@ -451,7 +461,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     private void hideProgressBar() {
         enableClickableViews();
         mProgressbar.setVisibility(View.INVISIBLE);
-        mHandler.removeCallbacks(mOperationTimeout);
+        mHandler.removeCallbacks(mRunnableOperationTimeout);
     }
 
     private void enableClickableViews() {

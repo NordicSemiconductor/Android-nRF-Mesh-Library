@@ -3,12 +3,11 @@ package no.nordicsemi.android.meshprovisioner;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
@@ -22,6 +21,8 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.InternalElementListDeserializer;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
@@ -41,18 +42,22 @@ class NetworkImportExportUtils {
      * @param uri       file path
      * @param callbacks internal callbacks to notify network import
      */
-    static void importMeshNetwork(final Context context, final Uri uri, final LoadNetworkCallbacks callbacks) {
+    static void importMeshNetwork(@NonNull final Context context,
+                                  @NonNull final Uri uri,
+                                  @NonNull final LoadNetworkCallbacks callbacks) throws JsonSyntaxException {
         new NetworkImportAsyncTask(context, uri, callbacks).execute();
     }
 
     /**
      * Creates an AsyncTask to import the a mesh network
      *
-     * @param context   context
-     * @param networkJson       network json
-     * @param callbacks internal callbacks to notify network import
+     * @param context     context
+     * @param networkJson network json
+     * @param callbacks   internal callbacks to notify network import
      */
-    static void importMeshNetworkFromJson(final Context context, final String networkJson, final LoadNetworkCallbacks callbacks) {
+    static void importMeshNetworkFromJson(@NonNull final Context context,
+                                          @NonNull final String networkJson,
+                                          @NonNull final LoadNetworkCallbacks callbacks) {
         new NetworkImportAsyncTask(context, networkJson, callbacks).execute();
     }
 
@@ -63,7 +68,9 @@ class NetworkImportExportUtils {
      * @param path        path where the file should be exported
      * @param callbacks   internal callbacks to notify network export
      */
-    static void exportMeshNetwork(final MeshNetwork meshNetwork, final String path, final LoadNetworkCallbacks callbacks) {
+    static void exportMeshNetwork(@NonNull final MeshNetwork meshNetwork,
+                                  @NonNull final String path,
+                                  @NonNull final LoadNetworkCallbacks callbacks) {
         new NetworkExportAsyncTask(meshNetwork, path, callbacks).execute();
     }
 
@@ -97,11 +104,13 @@ class NetworkImportExportUtils {
         /**
          * Creates an AsyncTask to import the a m
          *
-         * @param context   context
-         * @param networkJson  network json
-         * @param callbacks internal callbacks to notify network import
+         * @param context     context
+         * @param networkJson network json
+         * @param callbacks   internal callbacks to notify network import
          */
-        NetworkImportAsyncTask(final Context context, final String networkJson, final LoadNetworkCallbacks callbacks) {
+        NetworkImportAsyncTask(@NonNull final Context context,
+                               @NonNull final String networkJson,
+                               @NonNull final LoadNetworkCallbacks callbacks) {
             this.context = new WeakReference<>(context);
             this.networkJson = networkJson;
             this.uri = null;
@@ -115,7 +124,12 @@ class NetworkImportExportUtils {
 
         @Override
         protected Void doInBackground(final Void... voids) {
-            importNetwork();
+            try {
+                importNetwork();
+            } catch (Exception ex) {
+                error = ex.getMessage() + "\n\nP.S. If the json file was exported using an older version 2.0.0 (Mesh Library), " +
+                        "please retry exporting the json file and importing again.";
+            }
             return null;
         }
 
@@ -132,7 +146,7 @@ class NetworkImportExportUtils {
         /**
          * Imports the network from the Mesh Provisioning/Configuration Database json file
          */
-        private void importNetwork() {
+        private void importNetwork() throws JsonSyntaxException {
             try {
 
                 Type netKeyList = new TypeToken<List<NetworkKey>>() {
@@ -221,7 +235,9 @@ class NetworkImportExportUtils {
          * @param path      final string path
          * @param callbacks internal callbacks to notify network import
          */
-        NetworkExportAsyncTask(final MeshNetwork network, @Nullable final String path, final LoadNetworkCallbacks callbacks) {
+        NetworkExportAsyncTask(@NonNull final MeshNetwork network,
+                               @Nullable final String path, @NonNull final
+                               LoadNetworkCallbacks callbacks) {
             this.network = network;
             this.path = path;
             this.callbacks = callbacks;
