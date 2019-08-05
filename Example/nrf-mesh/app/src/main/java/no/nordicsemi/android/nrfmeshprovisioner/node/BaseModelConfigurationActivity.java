@@ -154,6 +154,10 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected GroupAddressAdapter mSubscriptionAdapter;
     protected BoundAppKeysAdapter mBoundAppKeyAdapter;
     protected Button mActionRead;
+    protected Button mActionSetRelayState;
+    protected Button mReadNetworkTransmitStateButton;
+    protected Button mSetNetworkTransmitStateButton;
+
     private RecyclerView recyclerViewBoundKeys, recyclerViewAddresses;
     protected boolean mIsConnected;
 
@@ -579,6 +583,13 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mActionClearPublication.setEnabled(true);
         mActionSubscribe.setEnabled(true);
 
+        if (mActionSetRelayState != null)
+            mActionSetRelayState.setEnabled(true);
+        if (mReadNetworkTransmitStateButton != null)
+            mReadNetworkTransmitStateButton.setEnabled(true);
+        if (mSetNetworkTransmitStateButton != null)
+            mSetNetworkTransmitStateButton.setEnabled(true);
+
         if (mActionRead != null && !mActionRead.isEnabled())
             mActionRead.setEnabled(true);
     }
@@ -588,6 +599,13 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mActionSetPublication.setEnabled(false);
         mActionClearPublication.setEnabled(false);
         mActionSubscribe.setEnabled(false);
+
+        if (mActionSetRelayState != null)
+            mActionSetRelayState.setEnabled(false);
+        if (mReadNetworkTransmitStateButton != null)
+            mReadNetworkTransmitStateButton.setEnabled(false);
+        if (mSetNetworkTransmitStateButton != null)
+            mSetNetworkTransmitStateButton.setEnabled(false);
 
         if (mActionRead != null)
             mActionRead.setEnabled(false);
