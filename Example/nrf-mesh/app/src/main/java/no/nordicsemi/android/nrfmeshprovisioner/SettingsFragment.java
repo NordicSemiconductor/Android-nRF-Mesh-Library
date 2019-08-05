@@ -144,6 +144,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         });
 
         final View containerAbout = rootView.findViewById(R.id.container_version);
+        containerAbout.setClickable(false);
         containerAbout.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_puzzle));
         final TextView versionTitle = containerAbout.findViewById(R.id.title);
