@@ -65,4 +65,12 @@ public class ModelConfigurationViewModel extends BaseViewModel {
         if (!messageQueue.isEmpty())
             messageQueue.remove();
     }
+
+    public boolean isActivityVisibile() {
+        return isActivityVisibile;
+    }
+
+    public void setActivityVisible(final boolean visible){
+        isActivityVisibile = visible;
+    }
 }

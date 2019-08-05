@@ -90,9 +90,9 @@ import no.nordicsemi.android.nrfmeshprovisioner.GroupCallbacks;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAddressAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentDisconnected;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentGroupSubscription;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.keys.AppKeysActivity;
@@ -255,6 +255,12 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        mViewModel.setActivityVisible(true);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         if (mIsConnected) {
             getMenuInflater().inflate(R.menu.disconnect, menu);
@@ -322,6 +328,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @Override
     protected void onStop() {
         super.onStop();
+        mViewModel.setActivityVisible(false);
         if (isFinishing()) {
             mHandler.removeCallbacksAndMessages(null);
         }
@@ -559,8 +566,11 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     private final Runnable mOperationTimeout = () -> {
         hideProgressBar();
         mViewModel.getMessageQueue().clear();
-        DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
-        fragmentMessage.show(getSupportFragmentManager(), null);
+        if (mViewModel.isActivityVisibile()) {
+            DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.
+                    newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
+            fragmentMessage.show(getSupportFragmentManager(), null);
+        }
     };
 
     protected void enableClickableViews() {

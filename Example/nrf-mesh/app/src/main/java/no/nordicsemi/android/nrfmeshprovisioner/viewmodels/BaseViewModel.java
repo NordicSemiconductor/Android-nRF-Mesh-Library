@@ -41,6 +41,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 abstract class BaseViewModel extends ViewModel {
 
     final NrfMeshRepository mNrfMeshRepository;
+    boolean isActivityVisibile = false;
 
     /**
      * Constructs {@link BaseViewModel}
