@@ -543,4 +543,5 @@
     <string name="title_vendor_model_app_list">Vendor Model App List</string>
     <string name="title_subscription_status">Subscription Status</string>
     <string name="set_as_current_provisioner">Set as current provisioner</string>
+    <string name="title_error_network_import">Network Import Error</string>
 </resources>
