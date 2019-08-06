@@ -1,7 +1,8 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 /**
@@ -20,12 +21,12 @@ public class VendorModelMessageAcked extends GenericMessage {
     /**
      * Constructs VendorModelMessageAcked message.
      *
-     * @param appKey            Application key for this message
+     * @param appKey            {@link ApplicationKey} for this message
      * @param modelId           32-bit Model identifier
      * @param companyIdentifier 16-bit Company identifier of the vendor model
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public VendorModelMessageAcked(@NonNull final byte[] appKey,
+    public VendorModelMessageAcked(@NonNull final ApplicationKey appKey,
                                    final int modelId,
                                    final int companyIdentifier,
                                    final int opCode,
@@ -45,7 +46,7 @@ public class VendorModelMessageAcked extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
     }
 
 

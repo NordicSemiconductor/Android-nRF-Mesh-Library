@@ -1,12 +1,13 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -30,12 +31,12 @@ public class SceneRecallUnacknowledged extends GenericMessage {
     /**
      * Constructs SceneStore message.
      *
-     * @param appKey      application key for this message
-     * @param sceneNumber sceneNumber
-     * @param tId         transaction id
+     * @param appKey      {@link ApplicationKey} key for this message
+     * @param sceneNumber SceneNumber
+     * @param tId         Transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public SceneRecallUnacknowledged(@NonNull final byte[] appKey,
+    public SceneRecallUnacknowledged(@NonNull final ApplicationKey appKey,
                                      final int sceneNumber,
                                      final int tId) throws IllegalArgumentException {
         this(appKey, null, null, null, sceneNumber, tId);
@@ -44,16 +45,16 @@ public class SceneRecallUnacknowledged extends GenericMessage {
     /**
      * Constructs SceneStore message.
      *
-     * @param appKey               application key for this message
-     * @param transitionSteps      transition steps for the level
-     * @param transitionResolution transition resolution for the level
-     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param sceneNumber          sceneNumber
-     * @param tId                  transaction id
+     * @param appKey               {@link ApplicationKey} key for this message
+     * @param transitionSteps      Transition steps for the level
+     * @param transitionResolution Transition resolution for the level
+     * @param delay                Delay for this message to be executed 0 - 1275 milliseconds
+     * @param sceneNumber          SceneNumber
+     * @param tId                  Transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public SceneRecallUnacknowledged(@NonNull final byte[] appKey,
+    public SceneRecallUnacknowledged(@NonNull final ApplicationKey appKey,
                                      @Nullable final Integer transitionSteps,
                                      @Nullable final Integer transitionResolution,
                                      @Nullable final Integer delay,
@@ -75,7 +76,7 @@ public class SceneRecallUnacknowledged extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "Scene number: " + mSceneNumber);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {

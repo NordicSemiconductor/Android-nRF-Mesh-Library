@@ -24,37 +24,40 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 
-import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
-
+/**
+ * Base mesh model class
+ * <p>
+ * This class contains properties such as Model Identifier, bound keys, key indexes, subscription
+ * and publication settings belonging to a mesh model.
+ * </p>
+ */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class MeshModel implements Parcelable {
 
+    @Expose
+    protected int mModelId;
     @Expose
     final List<Integer> mBoundAppKeyIndexes = new ArrayList<>();
     @Expose(serialize = false)
     final Map<Integer, String> mBoundAppKeys = new LinkedHashMap<>();
     @Expose
-    final Map<Integer, ApplicationKey> mBoundApplicationKeys = new LinkedHashMap<>();
-    @Deprecated
-    @Expose(serialize = false)
-    final List<byte[]> mSubscriptionAddress = new ArrayList<>();
-    @Expose
     final List<Integer> subscriptionAddresses = new ArrayList<>();
     @Expose
-    protected int mModelId;
+    final List<UUID> labelUuids = new ArrayList<>();
     @Expose
     PublicationSettings mPublicationSettings;
 
@@ -66,7 +69,6 @@ public abstract class MeshModel implements Parcelable {
 
     }
 
-    @SuppressWarnings("unchecked")
     protected MeshModel(final Parcel in) {
 
         final int modelId = in.readInt();
@@ -76,9 +78,9 @@ public abstract class MeshModel implements Parcelable {
             mModelId = (short) modelId;
         }
         in.readList(mBoundAppKeyIndexes, Integer.class.getClassLoader());
-        sortAppKeys(in.readHashMap(ApplicationKey.class.getClassLoader()));
         mPublicationSettings = (PublicationSettings) in.readValue(PublicationSettings.class.getClassLoader());
         in.readList(subscriptionAddresses, Integer.class.getClassLoader());
+        in.readList(labelUuids, UUID.class.getClassLoader());
     }
 
     /**
@@ -92,24 +94,9 @@ public abstract class MeshModel implements Parcelable {
     protected final void parcelMeshModel(final Parcel dest, final int flags) {
         dest.writeInt(mModelId);
         dest.writeList(mBoundAppKeyIndexes);
-        dest.writeMap(mBoundApplicationKeys);
         dest.writeValue(mPublicationSettings);
         dest.writeList(subscriptionAddresses);
-    }
-
-    /**
-     * Sorts the app keys as the order is not maintained when parcelled.
-     *
-     * @param unorderedBoundAppKeys app keys
-     */
-    private void sortAppKeys(final HashMap<Integer, ApplicationKey> unorderedBoundAppKeys) {
-        final Set<Integer> unorderedKeys = unorderedBoundAppKeys.keySet();
-
-        final List<Integer> orderedKeys = new ArrayList<>(unorderedKeys);
-        Collections.sort(orderedKeys);
-        for (int key : orderedKeys) {
-            mBoundApplicationKeys.put(key, unorderedBoundAppKeys.get(key));
-        }
+        dest.writeList(labelUuids);
     }
 
     /**
@@ -127,61 +114,28 @@ public abstract class MeshModel implements Parcelable {
     public abstract String getModelName();
 
     /**
-     * Returns bound appkey index
+     * Returns bound appkey indexes for this model
      */
     public List<Integer> getBoundAppKeyIndexes() {
         return Collections.unmodifiableList(mBoundAppKeyIndexes);
     }
 
-    protected void setBoundAppKey(final int appKeyIndex, final ApplicationKey appKey) {
+    protected void setBoundAppKeyIndex(final int appKeyIndex) {
         if (!mBoundAppKeyIndexes.contains(appKeyIndex))
             mBoundAppKeyIndexes.add(appKeyIndex);
-        mBoundApplicationKeys.put(appKeyIndex, appKey);
+    }
+
+    protected void setBoundAppKeyIndexes(@NonNull final List<Integer> indexes) {
+        mBoundAppKeyIndexes.clear();
+        mBoundAppKeyIndexes.addAll(indexes);
     }
 
     @SuppressWarnings("RedundantCollectionOperation")
-    protected void removeBoundAppKey(final int appKeyIndex) {
+    protected void removeBoundAppKeyIndex(final int appKeyIndex) {
         if (mBoundAppKeyIndexes.contains(appKeyIndex)) {
             final int position = mBoundAppKeyIndexes.indexOf(appKeyIndex);
             mBoundAppKeyIndexes.remove(position);
         }
-        mBoundApplicationKeys.remove(appKeyIndex);
-    }
-
-    /**
-     * Returns an unmodifiable map of bound app keys for this model.
-     *
-     * @return LinkedHashMap containing the bound app keys for this model
-     * @deprecated use {@link #getBoundApplicationKeys}
-     */
-    @Deprecated
-    public Map<Integer, String> getBoundAppkeys() {
-        return Collections.unmodifiableMap(mBoundAppKeys);
-    }
-
-
-    /**
-     * Returns an unmodifiable map of bound app keys for this model.
-     *
-     * @return LinkedHashMap containing the bound app keys for this model
-     */
-    public Map<Integer, ApplicationKey> getBoundApplicationKeys() {
-        return (mBoundApplicationKeys);
-    }
-
-    public ApplicationKey getBoundAppKey(final int appKeyIndex) {
-        return mBoundApplicationKeys.get(appKeyIndex);
-    }
-
-    /**
-     * Returns the list of subscription addresses belonging to this model
-     *
-     * @return subscription addresses
-     * @deprecated in favor of {@link #getSubscribedAddresses()} since addresses have been migrated to 16-bit int instead of byte[]
-     */
-    @Deprecated
-    public List<byte[]> getSubscriptionAddresses() {
-        return Collections.unmodifiableList(mSubscriptionAddress);
     }
 
     /**
@@ -194,14 +148,31 @@ public abstract class MeshModel implements Parcelable {
     }
 
     /**
+     * Returns the list of label UUIDs subscribed to this model
+     */
+    public List<UUID> getLabelUUID() {
+        return Collections.unmodifiableList(labelUuids);
+    }
+
+    /**
+     * Returns the label UUID for a given virtual address
+     *
+     * @param address 16-bit virtual address
+     */
+    public UUID getLabelUUID(final int address) {
+        return MeshAddress.getLabelUuid(labelUuids, address);
+    }
+
+    /**
      * Sets the data from the {@link ConfigModelPublicationStatus}
      *
      * @param status publication set status
      */
-    protected void setPublicationStatus(final ConfigModelPublicationStatus status) {
+    protected void setPublicationStatus(@NonNull final ConfigModelPublicationStatus status,
+                                        @Nullable final UUID labelUUID) {
         if (status.isSuccessful()) {
-            //mPublicationSettings = new PublicationSettings(publicationStatus);
             mPublicationSettings = new PublicationSettings(status.getPublishAddress(),
+                    labelUUID,
                     status.getAppKeyIndex(),
                     status.getCredentialFlag(),
                     status.getPublishTtl(),
@@ -209,6 +180,39 @@ public abstract class MeshModel implements Parcelable {
                     status.getPublicationResolution(),
                     status.getPublishRetransmitCount(),
                     status.getPublishRetransmitIntervalSteps());
+        }
+    }
+
+    /**
+     * Updates the data from the {@link ConfigModelPublicationStatus}
+     *
+     * @param status publication set status
+     */
+    protected void updatePublicationStatus(@NonNull final ConfigModelPublicationStatus status) {
+        if (status.isSuccessful()) {
+            if (mPublicationSettings != null) {
+                mPublicationSettings.setPublishAddress(status.getPublishAddress());
+                if (!MeshAddress.isValidVirtualAddress(status.getPublishAddress())) {
+                    mPublicationSettings.setLabelUUID(null);
+                }
+                mPublicationSettings.setAppKeyIndex(status.getAppKeyIndex());
+                mPublicationSettings.setCredentialFlag(status.getCredentialFlag());
+                mPublicationSettings.setPublishTtl(status.getPublishTtl());
+                mPublicationSettings.setPublicationSteps(status.getPublicationSteps());
+                mPublicationSettings.setPublicationResolution(status.getPublicationResolution());
+                mPublicationSettings.setPublishRetransmitCount(status.getPublishRetransmitCount());
+                mPublicationSettings.setPublishRetransmitIntervalSteps(status.getPublishRetransmitIntervalSteps());
+            } else {
+                mPublicationSettings = new PublicationSettings(status.getPublishAddress(),
+                        null,
+                        status.getAppKeyIndex(),
+                        status.getCredentialFlag(),
+                        status.getPublishTtl(),
+                        status.getPublicationSteps(),
+                        status.getPublicationResolution(),
+                        status.getPublishRetransmitCount(),
+                        status.getPublishRetransmitIntervalSteps());
+            }
         }
     }
 
@@ -224,7 +228,7 @@ public abstract class MeshModel implements Parcelable {
     /**
      * Sets the subscription address in a mesh model
      *
-     * @param subscriptionAddress subscription address
+     * @param subscriptionAddress Subscription address
      */
     protected void addSubscriptionAddress(final int subscriptionAddress) {
         if (!subscriptionAddresses.contains(subscriptionAddress)) {
@@ -233,11 +237,80 @@ public abstract class MeshModel implements Parcelable {
     }
 
     /**
+     * Sets the subscription address in a mesh model
+     *
+     * @param labelUuid Label uuid of the the subscription address
+     * @param address   Subscription address
+     */
+    protected void addSubscriptionAddress(@NonNull final UUID labelUuid, final int address) {
+        if (!labelUuids.contains(labelUuid)) {
+            labelUuids.add(labelUuid);
+        }
+
+        if (!subscriptionAddresses.contains(address)) {
+            subscriptionAddresses.add(address);
+        }
+    }
+
+    /**
      * Removes the subscription address in a mesh model
      *
-     * @param subscriptionAddress subscription address
+     * @param address Subscription address
      */
-    protected void removeSubscriptionAddress(@NonNull final Integer subscriptionAddress) {
-        subscriptionAddresses.remove(subscriptionAddress);
+    protected void removeSubscriptionAddress(@NonNull final Integer address) {
+        subscriptionAddresses.remove(address);
+    }
+
+    /**
+     * Removes the subscription address in a mesh model
+     *
+     * @param labelUuid Label UUID
+     * @param address   Subscription address
+     */
+    protected void removeSubscriptionAddress(@NonNull final UUID labelUuid,
+                                             @NonNull final Integer address) {
+        labelUuids.remove(labelUuid);
+        removeSubscriptionAddress(address);
+    }
+
+    /**
+     * Removes all the subscription addresses in a mesh model
+     */
+    protected void removeAllSubscriptionAddresses() {
+        labelUuids.clear();
+        subscriptionAddresses.clear();
+    }
+
+    /**
+     * Overwrites the subscription addresses in a mesh model by clearing the existing addresses and adding a new address
+     *
+     * @param subscriptionAddress Subscription address
+     */
+    protected void overwriteSubscriptionAddress(@NonNull final Integer subscriptionAddress) {
+        subscriptionAddresses.clear();
+        addSubscriptionAddress(subscriptionAddress);
+    }
+
+    /**
+     * Overwrites the subscription addresses in a mesh model by clearing the existing addresses and adding a new address
+     *
+     * @param labelUuid Label UUID
+     * @param address   Subscription address
+     */
+    protected void overwriteSubscriptionAddress(@NonNull final UUID labelUuid,
+                                                @NonNull final Integer address) {
+        labelUuids.clear();
+        addSubscriptionAddress(labelUuid, address);
+        overwriteSubscriptionAddress(address);
+    }
+
+    /**
+     * Update the subscription addresses list
+     *
+     * @param addresses List of subscription addresses
+     */
+    protected void updateSubscriptionAddressesList(@NonNull final List<Integer> addresses) {
+        subscriptionAddresses.clear();
+        subscriptionAddresses.addAll(addresses);
     }
 }

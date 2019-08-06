@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 @SuppressWarnings("unused")
 public abstract class ProvisioningState {
@@ -83,10 +83,14 @@ public abstract class ProvisioningState {
         PROVISIONING_FAILED(16),
         COMPOSITION_DATA_GET_SENT(17),
         COMPOSITION_DATA_STATUS_RECEIVED(18),
-        SENDING_BLOCK_ACKNOWLEDGEMENT(19),
-        SENDING_APP_KEY_ADD(20),
-        BLOCK_ACKNOWLEDGEMENT_RECEIVED(21),
-        APP_KEY_STATUS_RECEIVED(22);
+        SENDING_DEFAULT_TTL_GET(19),
+        DEFAULT_TTL_STATUS_RECEIVED(20),
+        SENDING_APP_KEY_ADD(21),
+        APP_KEY_STATUS_RECEIVED(22),
+        SENDING_NETWORK_TRANSMIT_SET(23),
+        NETWORK_TRANSMIT_STATUS_RECEIVED(24),
+        SENDING_BLOCK_ACKNOWLEDGEMENT(98),
+        BLOCK_ACKNOWLEDGEMENT_RECEIVED(99),;
 
         private int state;
 

@@ -23,8 +23,8 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +44,7 @@ public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAda
     private final ArrayList<AddressArray> mAddresses;
     private final Context mContext;
 
-    public FilterAddressAdapter1(@NonNull final Context context, final ArrayList<AddressArray> addresses) {
+    public FilterAddressAdapter1(@NonNull final Context context, @NonNull final ArrayList<AddressArray> addresses) {
         this.mContext = context;
         this.mAddresses = addresses;
     }
@@ -85,7 +85,7 @@ public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAda
 
     final class ViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.address)
+        @BindView(R.id.title)
         TextView address;
 
         @BindView(R.id.img_delete)

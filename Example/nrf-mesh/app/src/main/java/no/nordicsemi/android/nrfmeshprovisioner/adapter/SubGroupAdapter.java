@@ -22,14 +22,7 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
@@ -43,17 +36,25 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
 import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
 
 public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHolder> {
 
@@ -92,7 +93,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
     }
 
 
-    public void setOnItemClickListener(final SubGroupAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(@NonNull final SubGroupAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
@@ -109,8 +110,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
             final int keyIndex = mGroupedKeyModels.keyAt(position);
             holder.groupItemContainer.setTag(keyIndex);
             final ApplicationKey key = mMeshNetwork.getAppKey(keyIndex);
-            final String keyTitle = key.getName() + " " + keyIndex;
-            holder.mGroupAppKeyTitle.setText(keyTitle);
+            holder.mGroupAppKeyTitle.setText(key.getName());
             final SparseIntArray groupedModels = mGroupedKeyModels.valueAt(position);
             holder.mGroupGrid.setRowCount(1);
             //Remove all child views to avoid duplicating
@@ -134,37 +134,35 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
             icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_nordic_medium_gray_48dp));
             view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
             view.findViewById(R.id.container_vendor).setVisibility(View.VISIBLE);
-            final TextView modelIdView = view.findViewById(R.id.model_id);
+            final TextView modelIdView = view.findViewById(R.id.subtitle);
             modelIdView.setText(CompositionDataParser.formatModelIdentifier(modelId, true));
             final TextView companyIdView = view.findViewById(R.id.company_id);
             final int companyIdentifier = MeshParserUtils.getCompanyIdentifier(modelId);
             companyIdView.setText(String.valueOf(CompanyIdentifiers.getCompanyName((short) companyIdentifier)));
-            groupSummary.setText(mContext.getString(R.string.unknown_device_count, modelCount));
+            groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.device_count, modelCount, modelCount));
         } else {
             switch (modelId) {
                 case SigModelParser.GENERIC_ON_OFF_SERVER:
-                    groupSummary.setText(mContext.getString(R.string.light_count, modelCount));
+                    groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.light_count, modelCount, modelCount));
                     break;
                 case SigModelParser.GENERIC_ON_OFF_CLIENT:
                     icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_light_switch_nordic_medium_grey_48dp));
                     view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
-                    groupSummary.setText(mContext.getString(R.string.switch_count, modelCount));
+                    groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.switch_count, modelCount, modelCount));
                     break;
                 case SigModelParser.GENERIC_LEVEL_SERVER:
                     icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_level_nordic_sun_outline_48dp));
-                    groupSummary.setText(mContext.getString(R.string.dimmer_count, modelCount));
+                    groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.dimmer_count, modelCount, modelCount));
                     break;
                 default:
                     icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_nordic_medium_grey_48dp));
                     view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
-                    groupSummary.setText(mContext.getString(R.string.unknown_device_count, modelCount));
+                    groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.device_count, modelCount, modelCount));
                     break;
             }
         }
 
-        groupContainerCard.setOnClickListener(v -> {
-            onSubGroupItemClicked(keyIndex, modelId);
-        });
+        groupContainerCard.setOnClickListener(v -> onSubGroupItemClicked(keyIndex, modelId));
 
         on.setOnClickListener(v -> toggleState(keyIndex, modelId, true));
         off.setOnClickListener(v -> toggleState(keyIndex, modelId, false));
@@ -201,11 +199,11 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         return super.getItemId(position);
     }
 
-    public int getModelCount(){
+    public int getModelCount() {
         return mModels.size();
     }
 
-    public List<MeshModel> getModels(){
+    public List<MeshModel> getModels() {
         return mModels;
     }
 

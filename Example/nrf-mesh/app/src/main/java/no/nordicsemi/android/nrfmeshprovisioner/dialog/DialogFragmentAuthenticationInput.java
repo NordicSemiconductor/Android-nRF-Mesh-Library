@@ -23,14 +23,15 @@
 package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import androidx.fragment.app.DialogFragment;
+import androidx.appcompat.app.AlertDialog;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -99,11 +100,12 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
+        @SuppressLint("InflateParams")
         final View rootView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_fragment_auth_input, null);
         ButterKnife.bind(this, rootView);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).
-                setIcon(R.drawable.ic_lock_open).
+                setIcon(R.drawable.ic_lock_open_black_alpha_24dp).
                 setTitle(getString(R.string.provisioner_authentication_title)).
                 setView(rootView);
 
@@ -245,7 +247,7 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
             //noinspection ConstantConditions
             final int authInput = MeshParserUtils.unsignedByteToInt(authValue[0]);
             if (inputOOBAction == InputOOBAction.PUSH) {
-                msg = getString(R.string.provisioner_input_pushes, authInput);
+                msg = getResources().getQuantityString(R.plurals.input_pushes, authInput, authInput);
             } else {
                 msg = getString(authInput);
             }
@@ -253,14 +255,12 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
             start = msg.indexOf(String.valueOf(authInput));
             end = start + String.valueOf(authInput).length();
         } else if (inputOOBAction == InputOOBAction.INPUT_NUMERIC) {
-            //noinspection ConstantConditions
             final String authString = String.valueOf(ByteBuffer.wrap(authValue).getInt());
             msg = getString(R.string.provisioner_input_numeric_device, authString);
             start = msg.indexOf(authString);
             end = start + authString.length();
             spannableMessage = new SpannableStringBuilder(msg);
         } else {
-            //noinspection ConstantConditions
             final String authString = new String(authValue);
             msg = getString(R.string.provisioner_input_numeric_device, authString);
             start = msg.indexOf(authString);

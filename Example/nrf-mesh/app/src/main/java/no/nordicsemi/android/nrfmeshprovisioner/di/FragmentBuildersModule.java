@@ -26,6 +26,7 @@ import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import no.nordicsemi.android.nrfmeshprovisioner.GroupsFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.NetworkFragment;
+import no.nordicsemi.android.nrfmeshprovisioner.ProxyFilterFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.SettingsFragment;
 
 @Module
@@ -34,6 +35,8 @@ abstract class FragmentBuildersModule {
 	abstract NetworkFragment contributeNetworkFragment();
 	@ContributesAndroidInjector
 	abstract GroupsFragment contributeGroupFragment();
+	@ContributesAndroidInjector
+	abstract ProxyFilterFragment contributeProxyFilterFragment();
 	@ContributesAndroidInjector
 	abstract SettingsFragment contributeSettingsFragment();
 }

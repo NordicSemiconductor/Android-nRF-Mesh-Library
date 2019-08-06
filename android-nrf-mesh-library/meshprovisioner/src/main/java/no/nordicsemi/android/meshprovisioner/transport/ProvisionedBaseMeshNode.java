@@ -22,17 +22,7 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Embedded;
-import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.TypeConverters;
 import android.os.Parcelable;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
@@ -45,16 +35,24 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.Features;
-import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.MeshTypeConverters;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
-import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
 import no.nordicsemi.android.meshprovisioner.utils.NetworkTransmitSettings;
-import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
 import no.nordicsemi.android.meshprovisioner.utils.SparseIntArrayParcelable;
 
-@SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+@SuppressWarnings({"unused", "WeakerAccess"})
 abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     public static final int LOW = 0; //Low security
@@ -63,27 +61,12 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @ColumnInfo(name = "timestamp")
     @Expose
     public long mTimeStampInMillis;
-    @TypeConverters(MeshTypeConverters.class)
-    @Expose
-    public List<NetworkKey> mAddedNetworkKeys = new ArrayList<>();
     @ColumnInfo(name = "name")
     @Expose
     protected String nodeName = "My Node";
     @ColumnInfo(name = "ttl")
     @Expose
     protected Integer ttl = 5;
-    //Fields ignored by the entity as they have been migrated to the mesh network object
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    protected byte[] networkKey;
-    /**
-     * @deprecated IV Index is a network property hence movec to {@link MeshNetwork}
-     */
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    protected byte[] ivIndex;
     @ColumnInfo(name = "blacklisted")
     @Expose
     protected boolean blackListed = false;
@@ -123,7 +106,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     byte[] deviceKey;
     @ColumnInfo(name = "seq_number")
     @Expose
-    int mReceivedSequenceNumber;
+    int sequenceNumber;
     @Ignore
     @Expose
     String bluetoothAddress;
@@ -146,82 +129,31 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Nullable
     @Expose
     Integer crpl = null;
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Boolean relayFeatureSupported = null;
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Boolean proxyFeatureSupported = null;
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Boolean friendFeatureSupported = null;
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Boolean lowPowerFeatureSupported = null;
     @Embedded
     @Expose
     Features nodeFeatures = null;
-    @Embedded
+    @Ignore
     @Expose
     SparseIntArrayParcelable mSeqAuth = new SparseIntArrayParcelable();
-    @Ignore
-    @Expose(serialize = false)
-    List<Integer> mAddedNetworkKeyIndexes = new ArrayList<>();
-    @Ignore
+    @TypeConverters(MeshTypeConverters.class)
+    @SerializedName("netKeys")
+    @ColumnInfo(name = "netKeys")
     @Expose
-    byte[] identityKey;
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    byte[] keyIndex;
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    int netKeyIndex;
+    List<NodeKey> mAddedNetKeys = new ArrayList<>();
+    @TypeConverters(MeshTypeConverters.class)
+    @SerializedName("appKeys")
+    @ColumnInfo(name = "appKeys")
+    @Expose
+    List<NodeKey> mAddedAppKeys = new ArrayList<>();
     @Ignore
     @Expose
     byte[] mFlags;
-    /**
-     * @deprecated use {@link Features} instead
-     */
-    @Deprecated
-    @Ignore
-    @Expose(deserialize = false)
-    Integer features = null;
     @TypeConverters(MeshTypeConverters.class)
     @Expose
     Map<Integer, Element> mElements = new LinkedHashMap<>();
-    @Ignore
-    @SerializedName("appKeys")
-    @Expose(serialize = false)
-    List<Integer> mAddedAppKeyIndexes = new ArrayList<>();
-    @Deprecated
-    @Ignore
-    @Expose(serialize = false)
-    Map<Integer, String> mAddedAppKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
-    @TypeConverters(MeshTypeConverters.class)
-    @Expose
-    Map<Integer, ApplicationKey> mAddedApplicationKeys = new LinkedHashMap<>(); //Map containing the key as the app key index and the app key as the value
-    @Ignore
-    @Expose
-    byte[] generatedNetworkId;
-    @Ignore
-    @Expose
-    int numberOfElements;
-    @Ignore
-    @Expose(deserialize = false)
-    protected String bluetoothDeviceAddress;
 
-    @Ignore
-    @Expose(serialize = false)
-    private ProxyFilter proxyFilter;
-
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedBaseMeshNode() {
-
     }
 
     public String getMeshUuid() {
@@ -254,6 +186,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         return nodeName;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setNodeName(final String nodeName) {
         if (!TextUtils.isEmpty(nodeName))
             this.nodeName = nodeName;
@@ -263,8 +196,28 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         return unicastAddress;
     }
 
+    /**
+     * Sets the unicast address of the node
+     * <p>This is to be used only by the library</p>
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setUnicastAddress(final int unicastAddress) {
         this.unicastAddress = unicastAddress;
+    }
+
+    /**
+     * Returns the number of elements in the node
+     */
+    public int getNumberOfElements() {
+        return mElements.size();
+    }
+
+    /**
+     * Returns the unicast address used by the last element in the node
+     */
+    public int getLastUnicastAddress() {
+        final int elementCount = getNumberOfElements();
+        return elementCount == 1 ? unicastAddress : (unicastAddress + (elementCount - 1));
     }
 
     public final Integer getTtl() {
@@ -275,45 +228,12 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         this.ttl = ttl;
     }
 
-    public final byte[] getIdentityKey() {
-        return identityKey;
-    }
-
-    /**
-     * Returns the key index
-     *
-     * @return network key index
-     * @deprecated Use {@link ProvisionedMeshNode#getAddedNetworkKeys()} instead
-     */
-    @Deprecated
-    public final byte[] getKeyIndex() {
-        return keyIndex;
-    }
-
     public final byte[] getFlags() {
         return mFlags;
     }
 
     public final void setFlags(final byte[] flags) {
         this.mFlags = flags;
-    }
-
-    /**
-     * @deprecated IV Index is a part of the network {@link MeshNetwork#getIvIndex()}
-     */
-    @Deprecated
-    public final byte[] getIvIndex() {
-        return ivIndex;
-    }
-
-    @VisibleForTesting
-    final void setIvIndex(final byte[] ivIndex) {
-        this.ivIndex = ivIndex;
-    }
-
-    @Deprecated
-    public void setBluetoothDeviceAddress(final String bluetoothDeviceAddress) {
-        this.bluetoothDeviceAddress = bluetoothDeviceAddress;
     }
 
     public long getTimeStamp() {
@@ -401,32 +321,9 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         this.relaySettings = relaySettings;
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public List<Integer> getAddedAppKeyIndexes() {
-        return mAddedAppKeyIndexes;
-    }
-
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({LOW, HIGH})
     public @interface SecurityState {
     }
 
-    /**
-     * Returns the {@link ProxyFilter} set on the node
-     */
-    @Nullable
-    public ProxyFilter getProxyFilter() {
-        return proxyFilter;
-    }
-
-    /**
-     * Sets the {@link ProxyFilter} settings on the node
-     * <p>
-     * Please note that this is not persisted within the node since the filter is reinitialized to a whitelist filter upon connecting to a proxy node.
-     * Therefore after setting a proxy filter and disconnecting users will have to manually
-     * <p/>
-     */
-    public void setProxyFilter(@Nullable final ProxyFilter proxyFilter) {
-        this.proxyFilter = proxyFilter;
-    }
 }

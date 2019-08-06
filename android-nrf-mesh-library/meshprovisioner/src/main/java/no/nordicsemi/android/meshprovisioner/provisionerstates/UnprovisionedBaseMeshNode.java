@@ -23,18 +23,18 @@
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.utils.AuthenticationOOBMethods;
 import no.nordicsemi.android.meshprovisioner.utils.InputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.StaticOOBType;
 
 
-@SuppressWarnings("WeakerAccess")
 abstract class UnprovisionedBaseMeshNode implements Parcelable {
 
     protected static final String TAG = UnprovisionedBaseMeshNode.class.getSimpleName();
@@ -97,7 +97,7 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
         return nodeName;
     }
 
-    public final void setNodeName(final String nodeName) {
+    public final void setNodeName(@NonNull final String nodeName) {
         if (!TextUtils.isEmpty(nodeName))
             this.nodeName = nodeName;
     }
@@ -243,6 +243,7 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
 
     /**
      * Sets the input authentication value to be input by the provisioner if Input OOB was selected
+     *
      * @param inputAuthentication generated input authentication
      */
     void setInputAuthentication(final byte[] inputAuthentication) {

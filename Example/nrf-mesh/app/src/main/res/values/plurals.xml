@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="input_pushes">
+        <item quantity="one">Push the button on the device %d time.</item>
+        <item quantity="other">>Push the button on the device %d times.</item>
+    </plurals>
+
+    <plurals name="transmit_count">
+        <item quantity="one">%d transmission</item>
+        <item quantity="other">%d transmissions</item>
+    </plurals>
+
+    <plurals name="summary_network_transmit_count">
+        <item quantity="one">%d retransmit and total transmissions: %d</item>
+        <item quantity="other">%d retransmits and total transmissions: %d</item>
+    </plurals>
+
+    <plurals name="retransmit_count">
+        <item quantity="one">%d time</item>
+        <item quantity="other">%d times</item>
+    </plurals>
+
+    <plurals name="steps">
+        <item quantity="one">%d step</item>
+        <item quantity="other">%d steps</item>
+    </plurals>
+
+    <plurals name="device_count">
+        <item quantity="one">%d Device</item>
+        <item quantity="other">%d Devices</item>
+    </plurals>
+
+    <plurals name="light_count">
+        <item quantity="one">%d Light</item>
+        <item quantity="other">%d Lights</item>
+    </plurals>
+
+    <plurals name="switch_count">
+        <item quantity="one">%d Switch</item>
+        <item quantity="other">%d Switches</item>
+    </plurals>
+
+    <plurals name="dimmer_count">
+        <item quantity="one">%d Dimmer</item>
+        <item quantity="other">%d Dimmers</item>
+    </plurals>
+
+</resources>

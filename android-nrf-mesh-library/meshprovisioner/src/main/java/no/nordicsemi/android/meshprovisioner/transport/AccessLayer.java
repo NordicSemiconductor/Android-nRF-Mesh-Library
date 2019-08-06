@@ -24,7 +24,8 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
 import android.os.Handler;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -32,12 +33,17 @@ import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
+/**
+ * AccessLayer implementation of the mesh network architecture as per the mesh profile specification.
+ * <p>
+ * AccessLayer class generates/parses a raw mesh message containing the specific OpCode and Parameters.
+ * </p>
+ */
 abstract class AccessLayer {
 
     private static final String TAG = AccessLayer.class.getSimpleName();
     protected Context mContext;
-    protected int sequenceNumber;
-    protected Handler mHandler;
+    Handler mHandler;
     ProvisionedMeshNode mMeshNode;
 
     protected abstract void initHandler();
@@ -47,7 +53,7 @@ abstract class AccessLayer {
      *
      * @param message Access message containing the required opcodes and parameters to create access message pdu.
      */
-    void createMeshMessage(final Message message) {
+    void createMeshMessage(@NonNull final Message message) {
         createAccessMessage((AccessMessage) message);
     }
 
@@ -56,7 +62,7 @@ abstract class AccessLayer {
      *
      * @param message Access message containing the required opcodes and parameters to create access message pdu.
      */
-    void createVendorMeshMessage(final Message message) {
+    void createVendorMeshMessage(@NonNull final Message message) {
         createCustomAccessMessage((AccessMessage) message);
     }
 
@@ -66,7 +72,7 @@ abstract class AccessLayer {
      * @param accessMessage Access message containing the required opcodes and parameters to create access message pdu.
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    public final void createAccessMessage(final AccessMessage accessMessage) {
+    final void createAccessMessage(@NonNull final AccessMessage accessMessage) {
         final int opCode = accessMessage.getOpCode();
         final byte[] opCodes = MeshParserUtils.getOpCodes(opCode);
         final byte[] parameters = accessMessage.getParameters();
@@ -89,8 +95,9 @@ abstract class AccessLayer {
      *
      * @param accessMessage Access message containing the required opcodes and parameters to create access message pdu.
      */
+    @SuppressWarnings("ConstantConditions")
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    public final void createCustomAccessMessage(final AccessMessage accessMessage) {
+    final void createCustomAccessMessage(@NonNull final AccessMessage accessMessage) {
         final int opCode = accessMessage.getOpCode();
         final int companyIdentifier = accessMessage.getCompanyIdentifier();
         final byte[] parameters = accessMessage.getParameters();
@@ -114,7 +121,7 @@ abstract class AccessLayer {
      *
      * @param message underlying message containing the access pdu
      */
-    protected final void parseAccessLayerPDU(final AccessMessage message) {
+    final void parseAccessLayerPDU(@NonNull final AccessMessage message) {
         //MSB of the first octet defines the length of opcodes.
         //if MSB = 0 length is 1 and so forth
         final byte[] accessPayload = message.getAccessPdu();

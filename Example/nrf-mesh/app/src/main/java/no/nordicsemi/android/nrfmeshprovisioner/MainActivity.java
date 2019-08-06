@@ -22,34 +22,36 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
-import android.arch.lifecycle.ViewModelProvider;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import butterknife.ButterKnife;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
+import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
 public class MainActivity extends AppCompatActivity implements Injectable,
         HasSupportFragmentInjector,
         BottomNavigationView.OnNavigationItemSelectedListener,
         BottomNavigationView.OnNavigationItemReselectedListener {
 
-    private static final int TAB_COUNT = 3;
     private static final String CURRENT_FRAGMENT = "CURRENT_FRAGMENT";
 
     @Inject
@@ -58,49 +60,68 @@ public class MainActivity extends AppCompatActivity implements Injectable,
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
-    private BottomNavigationView mBottomNavigationView;
-
     private NetworkFragment mNetworkFragment;
     private GroupsFragment mGroupsFragment;
+    private ProxyFilterFragment mProxyFilterFragment;
     private Fragment mSettingsFragment;
+    private SharedViewModel mViewModel;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mViewModel = ViewModelProviders.of(this).get(SharedViewModel.class);
         ButterKnife.bind(this);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.app_name);
 
         mNetworkFragment = (NetworkFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_network);
         mGroupsFragment = (GroupsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_groups);
+        mProxyFilterFragment = (ProxyFilterFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_proxy);
         mSettingsFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_settings);
-        mBottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        final BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
 
-        mBottomNavigationView.setOnNavigationItemSelectedListener(this);
-        mBottomNavigationView.setOnNavigationItemReselectedListener(this);
+        bottomNavigationView.setOnNavigationItemSelectedListener(this);
+        bottomNavigationView.setOnNavigationItemReselectedListener(this);
 
         if (savedInstanceState == null) {
-            onNavigationItemSelected(mBottomNavigationView.getMenu().findItem(R.id.action_network));
+            onNavigationItemSelected(bottomNavigationView.getMenu().findItem(R.id.action_network));
         } else {
-            mBottomNavigationView.setSelectedItemId(savedInstanceState.getInt(CURRENT_FRAGMENT));
+            bottomNavigationView.setSelectedItemId(savedInstanceState.getInt(CURRENT_FRAGMENT));
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
+        if (isConnectedToNetwork != null && isConnectedToNetwork) {
+            getMenuInflater().inflate(R.menu.disconnect, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.connect, menu);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        final int id = item.getItemId();
+        switch (id) {
+            case R.id.action_connect:
+                mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
+                return true;
+            case R.id.action_disconnect:
+                mViewModel.disconnect();
+                return true;
+        }
+        return false;
     }
 
     @Override
     public void onBackPressed() {
-        if(getSupportFragmentManager().getFragments().size() > TAB_COUNT) {
-            getSupportFragmentManager().popBackStack();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+        super.onBackPressed();
     }
 
     @Override
@@ -114,13 +135,16 @@ public class MainActivity extends AppCompatActivity implements Injectable,
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         switch (id) {
             case R.id.action_network:
-                ft.show(mNetworkFragment).hide(mGroupsFragment).hide(mSettingsFragment);
+                ft.show(mNetworkFragment).hide(mGroupsFragment).hide(mProxyFilterFragment).hide(mSettingsFragment);
                 break;
-            case R.id.action_scanner:
-                ft.hide(mNetworkFragment).show(mGroupsFragment).hide(mSettingsFragment);
+            case R.id.action_groups:
+                ft.hide(mNetworkFragment).show(mGroupsFragment).hide(mProxyFilterFragment).hide(mSettingsFragment);
+                break;
+            case R.id.action_proxy:
+                ft.hide(mNetworkFragment).hide(mGroupsFragment).show(mProxyFilterFragment).hide(mSettingsFragment);
                 break;
             case R.id.action_settings:
-                ft.hide(mNetworkFragment).hide(mGroupsFragment).show(mSettingsFragment);
+                ft.hide(mNetworkFragment).hide(mGroupsFragment).hide(mProxyFilterFragment).show(mSettingsFragment);
                 break;
         }
         ft.commit();

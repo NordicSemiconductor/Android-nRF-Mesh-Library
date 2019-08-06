@@ -24,18 +24,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_reset_network"
-        android:enabled="true"
-        android:title="@string/action_reset_network"
-        app:showAsAction="ifRoom"/>
-    <item
         android:id="@+id/action_import_network"
-        android:enabled="true"
         android:title="@string/action_import_network"
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_export_network"
-        android:enabled="true"
         android:title="@string/action_export_network"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_reset_network"
+        android:title="@string/action_reset_network"
         app:showAsAction="never"/>
 </menu>

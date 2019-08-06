@@ -22,8 +22,8 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -141,7 +141,6 @@ public class ProvisioningConfirmationState extends ProvisioningState {
                 return OutputOOBAction.generateOutputOOBAuthenticationValue(action, authentication);
             case INPUT_OOB_AUTHENTICATION:
                 final InputOOBAction inputOOBAction = InputOOBAction.fromValue(mNode.getAuthActionUsed());
-                //noinspection ConstantConditions
                 return InputOOBAction.generateInputOOBAuthenticationValue(inputOOBAction, mNode.getInputAuthentication());
         }
         return null;

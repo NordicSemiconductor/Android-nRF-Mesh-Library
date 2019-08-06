@@ -32,17 +32,17 @@ import android.os.Build;
 import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
 import java.util.Comparator;
 import java.util.UUID;
 
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
-import no.nordicsemi.android.meshprovisioner.transport.NetworkKey;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
@@ -55,10 +55,13 @@ public class Utils {
     public static final String EXTRA_DATA_MODEL_NAME = "EXTRA_DATA_MODEL_NAME";
 
     public static final String EXTRA_DEVICE = "EXTRA_DEVICE";
-    public static final String ACTIVITY_RESULT = "RESULT_APP_KEY";
+    public static final String ACTIVITY_RESULT = "RESULT_KEY";
     public static final String PROVISIONING_COMPLETED = "PROVISIONING_COMPLETED";
+    public static final String PROVISIONER_UNASSIGNED = "PROVISIONER_UNASSIGNED";
     public static final String COMPOSITION_DATA_COMPLETED = "COMPOSITION_DATA_COMPLETED";
+    public static final String DEFAULT_GET_COMPLETED = "DEFAULT_GET_COMPLETED";
     public static final String APP_KEY_ADD_COMPLETED = "APP_KEY_ADD_COMPLETED";
+    public static final String NETWORK_TRANSMIT_SET_COMPLETED = "NETWORK_TRANSMIT_SET_COMPLETED";
     public static final String EXTRA_DATA = "EXTRA_DATA";
     private static final String PREFS_LOCATION_NOT_REQUIRED = "location_not_required";
     private static final String PREFS_PERMISSION_REQUESTED = "permission_requested";
@@ -66,14 +69,28 @@ public class Utils {
     private static final String PREFS_WRITE_STORAGE_PERMISSION_REQUESTED = "write_storage_permission_requested";
     public static final int PROVISIONING_SUCCESS = 2112;
     public static final int CONNECT_TO_NETWORK = 2113;
-    public static final String RESULT_APP_KEY = "RESULT_APP_KEY";
+    public static final String RESULT_KEY = "RESULT_KEY";
     private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
+    public static final String RANGE_TYPE = "RANGE_TYPE";
+    public static final String DIALOG_FRAGMENT_KEY_STATUS = "DIALOG_FRAGMENT_KEY_STATUS";
+
+    //Message timeout in case the message fails to lost/received
+    public static final int MESSAGE_TIME_OUT = 10000;
+    //Manage ranges
+    public static final int UNICAST_RANGE = 0;
+    public static final int GROUP_RANGE = 1;
+    public static final int SCENE_RANGE = 2;
 
     //Manage app keys
-    public static final int MANAGE_APP_KEY = 0;
-    public static final int ADD_APP_KEY = 1;
-    public static final int BIND_APP_KEY = 2;
-    public static final int PUBLICATION_APP_KEY = 3;
+    public static final int MANAGE_NET_KEY = 0;
+    public static final int ADD_NET_KEY = 1;
+
+    //Manage app keys
+    public static final int MANAGE_APP_KEY = 2;
+    public static final int ADD_APP_KEY = 3;
+    public static final int BIND_APP_KEY = 4;
+    public static final int PUBLICATION_APP_KEY = 5;
+    public static final int SELECT_KEY = 2011; //Random number
 
     public static final Comparator<NetworkKey> netKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
 
@@ -173,6 +190,7 @@ public class Utils {
      *
      * @return true if permissions are already granted, false otherwise.
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isWriteExternalStoragePermissionsGranted(final Context context) {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }

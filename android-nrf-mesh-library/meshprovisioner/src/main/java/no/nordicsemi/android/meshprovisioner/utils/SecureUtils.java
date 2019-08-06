@@ -24,7 +24,6 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.gson.annotations.Expose;
@@ -43,7 +42,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
-import java.security.Security;
+
+import androidx.annotation.NonNull;
+import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
 
 @SuppressWarnings("WeakerAccess")
 public class SecureUtils {
@@ -154,7 +155,10 @@ public class SecureUtils {
         return cmac;
     }
 
-    public static byte[] encryptCCM(final byte[] data, final byte[] key, final byte[] nonce, final int micSize) {
+    public static byte[] encryptCCM(@NonNull final byte[] data,
+                                    @NonNull final byte[] key,
+                                    @NonNull final byte[] nonce,
+                                    final int micSize) {
         final byte[] ccm = new byte[data.length + micSize];
 
         final CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
@@ -170,11 +174,49 @@ public class SecureUtils {
         }
     }
 
-    public static byte[] decryptCCM(final byte[] data, final byte[] key, final byte[] nonce, final int micSize) throws InvalidCipherTextException {
+    public static byte[] encryptCCM(@NonNull final byte[] data,
+                                    @NonNull final byte[] key,
+                                    @NonNull final byte[] nonce,
+                                    @NonNull final byte[] additionalData,
+                                    final int micSize) {
+        final byte[] ccm = new byte[data.length + micSize];
+
+        final CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
+        final AEADParameters aeadParameters = new AEADParameters(new KeyParameter(key), micSize * 8, nonce, additionalData);
+        ccmBlockCipher.init(true, aeadParameters);
+        ccmBlockCipher.processBytes(data, 0, data.length, ccm, data.length);
+        try {
+            ccmBlockCipher.doFinal(ccm, 0);
+            return ccm;
+        } catch (InvalidCipherTextException e) {
+            Log.e(TAG, "Error wile encrypting: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static byte[] decryptCCM(@NonNull final byte[] data,
+                                    @NonNull final byte[] key,
+                                    @NonNull final byte[] nonce,
+                                    final int micSize) throws InvalidCipherTextException {
         final byte[] ccm = new byte[data.length - micSize];
 
         final CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
         final AEADParameters aeadParameters = new AEADParameters(new KeyParameter(key), micSize * 8, nonce);
+        ccmBlockCipher.init(false, aeadParameters);
+        ccmBlockCipher.processBytes(data, 0, data.length, ccm, 0);
+        ccmBlockCipher.doFinal(ccm, 0);
+        return ccm;
+    }
+
+    public static byte[] decryptCCM(@NonNull final byte[] data,
+                                    @NonNull final byte[] key,
+                                    @NonNull final byte[] nonce,
+                                    @NonNull final byte[] additionalData,
+                                    final int micSize) throws InvalidCipherTextException {
+        final byte[] ccm = new byte[data.length - micSize];
+
+        final CCMBlockCipher ccmBlockCipher = new CCMBlockCipher(new AESEngine());
+        final AEADParameters aeadParameters = new AEADParameters(new KeyParameter(key), micSize * 8, nonce, additionalData);
         ccmBlockCipher.init(false, aeadParameters);
         ccmBlockCipher.processBytes(data, 0, data.length, ccm, 0);
         ccmBlockCipher.doFinal(ccm, 0);
@@ -241,7 +283,6 @@ public class SecureUtils {
         final int srcOffset = result.length - networkId.length;
 
         System.arraycopy(result, srcOffset, networkId, 0, networkId.length);
-        //bBuffer.
         return networkId;
     }
 
@@ -316,6 +357,32 @@ public class SecureUtils {
         pBuffer.put(ivIndex);
         final byte[] beaconKey = calculateBeaconKey(n);
         return calculateCMAC(pBuffer.array(), beaconKey);
+    }
+
+    /**
+     * Creates the secure network beacon
+     *
+     * @param n         network key
+     * @param flags     network flags, this represents the current state of hte network if key refresh/iv update is ongoing or complete
+     * @param networkId unique id of the network
+     * @param ivIndex   iv index of the network
+     */
+    public static SecureNetworkBeacon createSecureNetworkBeacon(@NonNull final byte[] n,
+                                                         @NonNull final byte[] flags,
+                                                         @NonNull final byte[] networkId,
+                                                         @NonNull final byte[] ivIndex) {
+        final byte[] authentication = calculateAuthValueSecureNetBeacon(n, flags, networkId, ivIndex);
+
+        final int inputLength = flags.length + networkId.length + ivIndex.length;
+        final ByteBuffer pBuffer = ByteBuffer.allocate(inputLength);
+        pBuffer.put(flags);
+        pBuffer.put(networkId);
+        pBuffer.put(ivIndex);
+        final ByteBuffer secNetBeaconBuffer = ByteBuffer.allocate(1 + inputLength + 8);
+        secNetBeaconBuffer.put((byte) 0x01);
+        secNetBeaconBuffer.put(pBuffer.array());
+        secNetBeaconBuffer.put(authentication, 0, 8);
+        return new SecureNetworkBeacon(secNetBeaconBuffer.array());
     }
 
     /**

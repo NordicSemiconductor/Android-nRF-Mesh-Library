@@ -7,6 +7,8 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+
 /**
  * Output OOB Actions
  */
@@ -152,7 +154,7 @@ public enum OutputOOBAction {
      * @param outputActionType selected {@link OutputOOBAction}
      * @param input            input
      */
-    public static byte[] generateOutputOOBAuthenticationValue(final OutputOOBAction outputActionType, final String input) {
+    public static byte[] generateOutputOOBAuthenticationValue(@NonNull final OutputOOBAction outputActionType, @NonNull final String input) {
         final int authLength = 16;
         final ByteBuffer buffer = ByteBuffer.allocate(authLength).order(ByteOrder.BIG_ENDIAN);
         switch (outputActionType) {

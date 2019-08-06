@@ -25,7 +25,7 @@
 	This has to be a CoordinatorLayout, or any other layout that dispatches insets
 	to its children, as the image is to be drawn behind status bar as well.
 -->
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -35,11 +35,11 @@
     tools:context=".SplashScreenActivity"
     tools:ignore="ContentDescription">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
         android:scaleType="centerCrop"
         android:background="@color/colorNordicLogoTop"
         app:srcCompat="@drawable/nordic_logo"/>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

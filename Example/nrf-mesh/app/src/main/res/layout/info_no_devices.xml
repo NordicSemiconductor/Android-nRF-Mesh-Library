@@ -43,13 +43,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="@string/blinky_guide_title"/>
+        android:text="@string/unprovisioned_node_guide_title"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:text="@string/blinky_guide_info"/>
+        android:text="@string/unprovisioned_node_guide_info"/>
 
     <LinearLayout
         android:id="@+id/no_location"
@@ -62,14 +62,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:text="@string/blinky_guide_location_info"/>
+            android:text="@string/unprovisioned_node_guide_location_info"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/action_enable_location"
-            style="@style/BlueTextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="@string/blinky_guide_location_action"/>
+            android:text="@string/unprovisioned_node_guide_location_action"/>
     </LinearLayout>
 </LinearLayout>

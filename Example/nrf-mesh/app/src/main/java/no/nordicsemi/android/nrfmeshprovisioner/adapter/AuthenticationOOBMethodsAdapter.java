@@ -23,7 +23,7 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,8 +40,8 @@ import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class AuthenticationOOBMethodsAdapter extends BaseAdapter {
 
-    private final ArrayList<AuthenticationOOBMethods> mOOBTypes = new ArrayList<>();
     private final Context mContext;
+    private final ArrayList<AuthenticationOOBMethods> mOOBTypes = new ArrayList<>();
 
     /**
      * Constructs AuthenticationOOBMethodsAdapter

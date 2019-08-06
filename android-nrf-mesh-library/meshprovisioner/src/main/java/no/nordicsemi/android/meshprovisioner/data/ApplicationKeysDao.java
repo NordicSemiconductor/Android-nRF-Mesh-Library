@@ -1,12 +1,14 @@
 package no.nordicsemi.android.meshprovisioner.data;
 
-import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Query;
-import android.support.annotation.RestrictTo;
-
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.transport.ApplicationKey;
+import androidx.annotation.RestrictTo;
+import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("unused")
@@ -15,4 +17,13 @@ public interface ApplicationKeysDao {
 
     @Query("SELECT * from application_key WHERE mesh_uuid = :meshUuid")
     List<ApplicationKey> loadApplicationKeys(final String meshUuid);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(final List<ApplicationKey> applicationKeys);
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    void update(List<ApplicationKey> appKeys);
+
+    @Query("DELETE FROM application_key")
+    void deleteAll();
 }

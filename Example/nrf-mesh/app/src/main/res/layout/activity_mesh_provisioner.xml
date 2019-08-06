@@ -21,27 +21,27 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MeshProvisionerActivity"
+    tools:context=".ProvisioningActivity"
     tools:ignore="ContentDescription">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.design.widget.AppBarLayout
+        <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay">
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
@@ -59,7 +59,7 @@
                 android:indeterminateTint="@color/white"
                 android:visibility="invisible"/>
 
-        </android.support.design.widget.AppBarLayout>
+        </com.google.android.material.appbar.AppBarLayout>
 
         <ScrollView
             android:id="@+id/data_container"
@@ -77,7 +77,7 @@
                 android:orientation="vertical"
                 android:paddingBottom="@dimen/item_padding_bottom">
 
-                <android.support.v7.widget.CardView
+                <androidx.cardview.widget.CardView
                     android:id="@+id/capabilities_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -86,13 +86,13 @@
                     android:background="@color/white"
                     app:cardElevation="1dp">
 
-                    <android.support.constraint.ConstraintLayout
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/provisioning_data_container"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <android.support.v7.widget.Toolbar
-                            android:id="@+id/capabilities_bar"
+                        <androidx.appcompat.widget.Toolbar
+                            android:id="@+id/tool_bar"
                             android:layout_width="0dp"
                             android:layout_height="?actionBarSize"
                             app:layout_constraintLeft_toLeftOf="parent"
@@ -100,34 +100,37 @@
                             app:layout_constraintTop_toTopOf="parent"
                             app:logo="@drawable/ic_certificate"
                             app:title="Provisioning Data"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                         <include
-                            android:id="@+id/container_element_count"
+                            android:id="@+id/container_name"
                             layout="@layout/layout_container"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/capabilities_bar"/>
+                            app:layout_constraintTop_toBottomOf="@id/tool_bar"/>
 
                         <include
-                            android:id="@+id/container_supported_algorithm"
+                            android:id="@+id/container_app_keys"
                             layout="@layout/layout_container"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_element_count"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_name"/>
 
                         <include
-                            android:id="@+id/container_public_key_type"
+                            android:id="@+id/container_unicast"
                             layout="@layout/layout_container"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_supported_algorithm"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_app_keys"
+                            android:visibility="gone"
+                            tools:visibility="visible"/>
 
                         <View
                             android:id="@+id/div1"
@@ -136,11 +139,10 @@
                             android:background="@drawable/divider"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/container_public_key_type"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_unicast"/>
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/action_provision_device"
-                            style="@style/BlueTextButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
@@ -152,8 +154,8 @@
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/div1"/>
 
-                    </android.support.constraint.ConstraintLayout>
-                </android.support.v7.widget.CardView>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
 
                 <include
                     layout="@layout/layout_capabilities"
@@ -199,4 +201,4 @@
         </LinearLayout>
 
     </RelativeLayout>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

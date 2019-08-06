@@ -1,13 +1,14 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -31,12 +32,12 @@ public class LightLightnessSet extends GenericMessage {
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param appKey         application key for this message
+     * @param appKey         {@link ApplicationKey} key for this message
      * @param lightLightness lightLightness of the LightLightnessModel
      * @param tId            transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightLightnessSet(@NonNull final byte[] appKey,
+    public LightLightnessSet(@NonNull final ApplicationKey appKey,
                              final int lightLightness,
                              final int tId) throws IllegalArgumentException {
         this(appKey, null, null, null, lightLightness, tId);
@@ -54,7 +55,7 @@ public class LightLightnessSet extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public LightLightnessSet(@NonNull final byte[] appKey,
+    public LightLightnessSet(@NonNull final ApplicationKey appKey,
                              @Nullable final Integer transitionSteps,
                              @Nullable final Integer transitionResolution,
                              @Nullable final Integer delay,
@@ -78,7 +79,7 @@ public class LightLightnessSet extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "Lightness: " + mLightness);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {

@@ -22,30 +22,33 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
+import no.nordicsemi.android.nrfmeshprovisioner.utils.ProvisionerStates;
+
 public class ProvisionerProgress {
 
-    private final ProvisioningStatusLiveData.ProvisioningLiveDataState state;
+    private final ProvisionerStates state;
     private int statusReceived;
     private final String message;
     private final int resId;
 
-    ProvisionerProgress(final ProvisioningStatusLiveData.ProvisioningLiveDataState state, final String message, final int resId){
+    ProvisionerProgress(final ProvisionerStates state, final String message, final int resId) {
         this.state = state;
         this.message = message;
         this.resId = resId;
     }
-    ProvisionerProgress(final ProvisioningStatusLiveData.ProvisioningLiveDataState state, final int status, final String message, final int resId){
+
+    ProvisionerProgress(final ProvisionerStates state, final int status, final String message, final int resId) {
         this.state = state;
         this.statusReceived = status;
         this.message = message;
         this.resId = resId;
     }
 
-    public ProvisioningStatusLiveData.ProvisioningLiveDataState getState(){
+    public ProvisionerStates getState() {
         return state;
     }
 
-    public int getStatusReceived(){
+    public int getStatusReceived() {
         return statusReceived;
     }
 

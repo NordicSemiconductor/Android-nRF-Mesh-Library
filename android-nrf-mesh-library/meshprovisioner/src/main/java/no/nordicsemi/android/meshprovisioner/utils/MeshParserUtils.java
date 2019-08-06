@@ -22,23 +22,32 @@
 package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.Random;
+import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.R;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "BooleanMethodIsAlwaysInverted"})
 public class MeshParserUtils {
 
     private static final String TAG = MeshParserUtils.class.getSimpleName();
-    private static final String PATTERN_NETWORK_KEY = "[0-9a-fA-F]{32}";
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US);
+    private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
+    private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
     private static final int TAI_YEAR = 2000;
     private static final int TAI_MONTH = 1;
     private static final int TAI_DATE = 1;
@@ -67,7 +76,6 @@ public class MeshParserUtils {
     public static final int RESOLUTION_10_S = 0b10;
     public static final int RESOLUTION_10_M = 0b11;
 
-    public static final int DISABLED_PUBLICATION_ADDRESS = 0x0000;
     public static final int GENERIC_ON_OFF_5_MS = 5;
 
     public static String bytesToHex(final byte[] bytes, final boolean add0x) {
@@ -106,97 +114,19 @@ public class MeshParserUtils {
         return value == null || value != (value & 0xFFF);
     }
 
-    private static boolean isValidUnicastAddress(final Integer value) {
-        return value != null && value == (value & 0x7FFF);
-    }
-
     /**
-     * Checks if the unicast address is valid
+     * Checks if the IV Index is valid.
      *
-     * @param address address to be validated
-     * @return true if is valid and false otherwise
-     */
-    public static boolean isValidUnicastAddress(final byte[] address) {
-        if (address == null || address.length != 2)
-            return false;
-        final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
-
-        return addressVal > 0x0000 && addressVal <= 0x7FFF;
-    }
-
-    /**
-     * Checks if the address is a valid unassigned address
+     * <p>
+     * The IV Index is a 32-bit value that is a shared network resource
+     * (i.e., all nodes in a mesh network share the same value of the IV Index
+     * and use it for all subnets they belong to). The IV Index starts at 0x00000000
+     * </p>
      *
-     * @param address address to be validated
-     * @return true if is valid and false otherwise
+     * @param ivIndex IV Index value
      */
-    public static boolean isValidUnassignedAddress(final byte[] address) {
-        if (address == null || address.length != 2)
-            return false;
-        final int addressVal = ((address[0] & 0xFF) << 8) | address[1] & 0xFF;
-
-        return addressVal == 0x0000;
-    }
-
-    /**
-     * Validates a given address for subscriptions
-     *
-     * @param address group address
-     * @return true if is valid and false otherwise
-     */
-    public static boolean isValidSubscriptionAddress(@NonNull final byte[] address) {
-        if (address.length == 2) {
-            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
-            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
-
-            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
-            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
-            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
-            return groupRange && !rfu && !allNodes;
-        }
-        return false;
-    }
-
-    /**
-     * Validates a given group address
-     *
-     * @param address group address
-     * @return true if is valid and false otherwise
-     */
-    public static boolean isValidGroupAddress(@NonNull final byte[] address) {
-        if (address.length == 2) {
-            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
-            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
-
-            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
-            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
-            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
-            return groupRange && !rfu && allNodes;
-        }
-        return false;
-    }
-
-    /**
-     * Validates a given group address
-     *
-     * @param address group address
-     * @return true if is valid and false otherwise
-     */
-    public static boolean isValidFilterAddress(@NonNull final byte[] address) {
-        if (address.length == 2) {
-            final int b0 = MeshParserUtils.unsignedByteToInt(address[0]);
-            final int b1 = MeshParserUtils.unsignedByteToInt(address[1]);
-
-            final boolean groupRange = b0 >= 0xC0 && b0 <= 0xFF;
-            final boolean rfu = b0 == 0xFF && b1 >= 0x00 && b1 <= 0xFB;
-            final boolean allNodes = b0 == 0xFF && b1 == 0xFF;
-            return groupRange && !rfu && allNodes;
-        }
-        return false;
-    }
-
-    private static boolean isValidIvIndex(final Integer value) {
-        return value != null && (value >= 0 && value <= Integer.MAX_VALUE);
+    private static boolean isValidIvIndex(@NonNull final Integer ivIndex) {
+        return ivIndex == 0 || ivIndex > 0;
     }
 
     public static byte parseUpdateFlags(final int keyRefreshFlag, final int ivUpdateFlag) {
@@ -228,38 +158,18 @@ public class MeshParserUtils {
     }
 
     /**
-     * Validates the ttl input
-     *
-     * @param context  context
-     * @param ttlInput ttl input
-     * @return true if the global ttl is a valid value
-     * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
-     */
-    public static boolean validateTtlInput(final Context context, final Integer ttlInput) throws IllegalArgumentException {
-
-        if (ttlInput == null) {
-            throw new IllegalArgumentException(context.getString(R.string.error_empty_global_ttl));
-        } else if (!isValidTtl(ttlInput)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_global_ttl));
-        }
-
-        return true;
-    }
-
-    /**
      * Validates the network key input
      *
-     * @param context context
-     * @param input   Network Key input
+     * @param networkKey Network Key input
      * @return true if the Network Key is a valid value
      * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
      */
-    public static boolean validateNetworkKeyInput(final Context context, final String input) throws IllegalArgumentException {
+    public static boolean validateNetworkKeyInput(@NonNull final String networkKey) throws IllegalArgumentException {
 
-        if (TextUtils.isEmpty(input)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_empty_network_key));
-        } else if (!input.matches(PATTERN_NETWORK_KEY)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_network_key));
+        if (TextUtils.isEmpty(networkKey)) {
+            throw new IllegalArgumentException("Network key cannot be empty!");
+        } else if (!networkKey.matches(PATTERN_KEY)) {
+            throw new IllegalArgumentException("Network key must be 16 bytes long!");
         }
 
         return true;
@@ -294,27 +204,6 @@ public class MeshParserUtils {
     }
 
     /**
-     * Validates the Key Index input
-     *
-     * @param context  context
-     * @param keyIndex Key Index input
-     * @return true if the Key Index is a valid value
-     * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
-     */
-    public static boolean validateKeyIndexInput(final Context context, final Integer keyIndex) throws IllegalArgumentException {
-
-        if (keyIndex == null) {
-            throw new IllegalArgumentException(context.getString(R.string.error_empty_key_index));
-        }
-
-        if (isValidKeyIndex(keyIndex)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_key_index));
-        }
-
-        return true;
-    }
-
-    /**
      * Validates the IV Index input
      *
      * @param context context
@@ -339,10 +228,6 @@ public class MeshParserUtils {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
         }
 
-        if (ivIndex < IV_ADDRESS_MIN && ivIndex > IV_ADDRESS_MAX) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
-        }
-
         return true;
     }
 
@@ -364,35 +249,29 @@ public class MeshParserUtils {
             throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
         }
 
-        if (ivIndex < IV_ADDRESS_MIN && ivIndex > IV_ADDRESS_MAX) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_iv_index));
-        }
-
         return true;
     }
 
     /**
      * Validates the app key input
      *
-     * @param context context
-     * @param input   App key input
+     * @param appKey App key
      * @return true if the Network Key is a valid value
      * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
      */
-    public static boolean validateAppKeyInput(final Context context, final String input) throws IllegalArgumentException {
-
-        if (TextUtils.isEmpty(input)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_empty_app_key));
-        } else if (!input.matches(PATTERN_NETWORK_KEY)) {
-            throw new IllegalArgumentException(context.getString(R.string.error_invalid_app_key));
+    public static boolean validateAppKeyInput(@NonNull final String appKey) throws IllegalArgumentException {
+        if (TextUtils.isEmpty(appKey)) {
+            throw new IllegalArgumentException("App key cannot be empty!");
+        } else if (!appKey.matches(PATTERN_KEY)) {
+            throw new IllegalArgumentException("The key must be a 32-character hexadecimal string!");
         }
 
         return true;
     }
 
-    public static boolean isValidSequenceNumber(final Integer sequenceNumber) {
+    public static boolean isValidSequenceNumber(final int sequenceNumber) {
 
-        boolean flag = sequenceNumber != null && sequenceNumber == (sequenceNumber & 0xFFFFFF);
+        boolean flag = sequenceNumber == (sequenceNumber & 0xFFFFFF);
 
         if (sequenceNumber == 0xFFFFFF) {
             flag = false;
@@ -529,13 +408,28 @@ public class MeshParserUtils {
     }
 
     /**
-     * Checks if the ttl value is within the allowed range where the range is 0x00 - 0x7F
+     * Checks if the Publication ttl value is within the allowed range where the range is 0x00 - 0x7F.
      *
      * @param ttl ttl
      * @return true if valid and false otherwise
      */
     public static boolean isValidTtl(final int ttl) {
-        return (ttl >= MIN_TTL) && (ttl <= MAX_TTL);
+        return ttl >= MIN_TTL && ttl <= MAX_TTL;
+    }
+
+    /**
+     * Checks if the ttl value is within the allowed range.
+     *
+     * <p>
+     * 0x00, 0x02 - 0x7F are the Default TTL states.
+     * 0x01, 0x80 and 0xFF are Prohibited.
+     * </p>
+     *
+     * @param ttl ttl
+     * @return true if valid and false otherwise
+     */
+    public static boolean isValidDefaultTtl(final int ttl) {
+        return (ttl == MIN_TTL || (ttl >= 0x02 && ttl <= MAX_TTL));
     }
 
     /**
@@ -551,11 +445,11 @@ public class MeshParserUtils {
     /**
      * Checks if the retransmit count is within the allowed range
      *
-     * @param retrantmistCount publish ttl
+     * @param retransmitCount publish ttl
      * @return true if valid and false otherwise
      */
-    public static boolean validateRetransmitCount(final int retrantmistCount) {
-        return retrantmistCount == (retrantmistCount & 0b111);
+    public static boolean validateRetransmitCount(final int retransmitCount) {
+        return retransmitCount == (retransmitCount & 0b111);
     }
 
     /**
@@ -669,7 +563,6 @@ public class MeshParserUtils {
     /**
      * Convert an unsigned integer value to a two's-complement encoded signed value.
      */
-
     private static int unsignedToSigned(int unsigned, int size) {
         if ((unsigned & (1 << size - 1)) != 0) {
             unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
@@ -763,4 +656,102 @@ public class MeshParserUtils {
         return value;
     }
 
+    /**
+     * Returns UUID as a hex
+     *
+     * @param uuid UUID
+     */
+    public static String uuidToHex(@NonNull final UUID uuid) {
+        return uuid.toString().replace("-", "").toUpperCase(Locale.US);
+    }
+
+    /**
+     * Returns UUID as a hex
+     *
+     * @param uuid UUID
+     */
+    public static String uuidToHex(@NonNull final String uuid) {
+        return uuid.replace("-", "").toUpperCase(Locale.US);
+    }
+
+    /**
+     * Returns UUID in bytes
+     *
+     * @param uuid UUID
+     */
+    public static byte[] uuidToBytes(@NonNull final UUID uuid) {
+        return toByteArray(uuid.toString().replace("-", ""));
+    }
+
+    /**
+     * Formats a hex string without dashes to a uuid string
+     *
+     * @param uuidHex Hex string
+     */
+    public static String formatUuid(@NonNull final String uuidHex) {
+        if (isUuidPattern(uuidHex)) {
+            return new StringBuffer(uuidHex).
+                    insert(8, "-").
+                    insert(13, "-").
+                    insert(18, "-").
+                    insert(23, "-").toString();
+        }
+        return null;
+    }
+
+    public static boolean isUuidPattern(@NonNull final String uuidHex) {
+        return uuidHex.matches(PATTERN_UUID_HEX);
+    }
+
+    /**
+     * Returns a type4 UUID from a uuid string without dashes
+     *
+     * @param uuidHex Hex string
+     */
+    public static UUID getUuid(@NonNull final String uuidHex) {
+        if (uuidHex.matches(PATTERN_UUID_HEX)) {
+            return UUID.fromString(new StringBuffer(uuidHex).
+                    insert(8, "-").
+                    insert(4, "-").
+                    insert(4, "-").
+                    insert(4, "-").toString());
+        }
+        return null;
+    }
+
+    /**
+     * Converts the timestamp to long
+     *
+     * @param timestamp timestamp
+     */
+    public static Long parseTimeStamp(@NonNull final String timestamp) throws ParseException {
+        return SDF.parse(timestamp).getTime();
+    }
+
+    /**
+     * Formats the timestamp
+     *
+     * @param timestamp timestamp
+     */
+    public static String formatTimeStamp(final long timestamp) {
+        return SDF.format(new Date(timestamp));
+    }
+
+    public static boolean isNodeKeyExists(@NonNull final List<NodeKey> keys, final int index) {
+        for (NodeKey key : keys) {
+            if (key.getIndex() == index) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static NodeKey getNodeKey(@NonNull final List<NodeKey> keys, final int index) {
+        for (NodeKey key : keys) {
+            if (key.getIndex() == index) {
+                return key;
+            }
+        }
+        return null;
+    }
 }

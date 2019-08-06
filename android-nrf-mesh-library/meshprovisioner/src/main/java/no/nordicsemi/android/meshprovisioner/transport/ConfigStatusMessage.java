@@ -1,6 +1,10 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+
+import androidx.annotation.NonNull;
 
 import static no.nordicsemi.android.meshprovisioner.transport.ConfigStatusMessage.StatusCodeNames.fromStatusCode;
 
@@ -32,6 +36,33 @@ public abstract class ConfigStatusMessage extends MeshMessage {
     @Override
     public final byte[] getParameters() {
         return mParameters;
+    }
+
+    protected ArrayList<Integer> decode(final int dataSize, final int offset) {
+        final ArrayList<Integer> arrayList = new ArrayList<>();
+        final int size = dataSize - offset;
+        if (size == 0) {
+            return arrayList;
+        }
+        if (size == 2) {
+            final byte[] netKeyIndex = new byte[]{(byte) (mParameters[offset + 1] & 0x0F), mParameters[offset]};
+            final int keyIndex = encode(netKeyIndex);
+            arrayList.add(keyIndex);
+            return arrayList;
+        } else {
+            final int firstKeyIndex = encode(new byte[]{(byte) (mParameters[offset + 1] & 0x0F), mParameters[offset]});
+            final int secondNetKeyIndex = encode(new byte[]{
+                    (byte) ((mParameters[offset + 2] & 0xF0) >> 4),
+                    (byte) (mParameters[offset + 2] << 4 | ((mParameters[offset + 1] & 0xF0) >> 4))});
+            arrayList.add(firstKeyIndex);
+            arrayList.add(secondNetKeyIndex);
+            arrayList.addAll(decode(dataSize, offset + 3));
+            return arrayList;
+        }
+    }
+
+    private static int encode(@NonNull final byte[] netKeyIndex) {
+        return ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
     }
 
     /**

@@ -23,9 +23,11 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,19 +47,20 @@ public class ProvisioningProgressAdapter extends RecyclerView.Adapter<Provisioni
     private final Context mContext;
     private final List<ProvisionerProgress> mProgress = new ArrayList<>();
 
-    public ProvisioningProgressAdapter(final AppCompatActivity mContext, final ProvisioningStatusLiveData provisioningProgress) {
+    public ProvisioningProgressAdapter(@NonNull final Context mContext, @NonNull final ProvisioningStatusLiveData provisioningProgress) {
         this.mContext = mContext;
         this.mProgress.addAll(provisioningProgress.getStateList());
     }
 
+    @NonNull
     @Override
-    public ProvisioningProgressAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public ProvisioningProgressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.progress_item, parent, false);
         return new ProvisioningProgressAdapter.ViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final ProvisionerProgress provisioningProgress = mProgress.get(position);
         if(provisioningProgress != null) {
             holder.image.setImageDrawable(ContextCompat.getDrawable(mContext, provisioningProgress.getResId()));

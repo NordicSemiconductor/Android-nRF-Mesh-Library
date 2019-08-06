@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018, Nordic Semiconductor
+  ~ All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+  ~
+  ~ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+  ~
+  ~ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+  ~ documentation and/or other materials provided with the distribution.
+  ~
+  ~ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+  ~ software without specific prior written permission.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  ~ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  ~ HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  ~ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+  ~ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+  ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<!--suppress AndroidDomInspection -->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+
+            <ProgressBar
+                android:id="@+id/configuration_progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-8dp"
+                android:layout_marginBottom="-7dp"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/white"
+                android:visibility="invisible"
+                tools:ignore="UnusedAttribute"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nested_scroll_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/appbar_layout">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/activity_vertical_margin">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/details_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    app:cardElevation="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <androidx.appcompat.widget.Toolbar
+                            android:id="@+id/details_tool_bar"
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            app:logo="@drawable/ic_info_black_24dp_alpha"
+                            app:title="@string/title_details"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+
+                        <include
+                            android:id="@+id/container_node_name"
+                            layout="@layout/layout_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/network_settings_toolbar"/>
+
+                        <include
+                            layout="@layout/layout_divider"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/container_app_keys"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_show_details"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/item_padding_end"
+                            android:text="@string/more"/>
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/composition_data_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin"
+                    android:background="@color/white"
+                    app:cardElevation="1dp"
+                    tools:visibility="visible">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/composition_data_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <androidx.appcompat.widget.Toolbar
+                            android:id="@+id/composition_data_tool_bar"
+                            android:layout_width="0dp"
+                            android:layout_height="?actionBarSize"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:logo="@drawable/ic_widgets_black_24dp_alpha"
+                            app:title="@string/title_elements"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+
+                        <TextView
+                            android:id="@+id/no_elements"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="@dimen/activity_horizontal_margin"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
+                            android:paddingBottom="@dimen/activity_vertical_margin"
+                            android:text="@string/no_elements_guide_composition_data"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/composition_data_tool_bar"/>
+
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recycler_view_elements"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:clipToPadding="false"
+                            android:overScrollMode="never"
+                            android:paddingBottom="@dimen/activity_vertical_margin"
+                            android:scrollbars="none"
+                            android:visibility="gone"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/composition_data_tool_bar"/>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/composition_action_container"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/no_elements">
+
+                            <View
+                                android:id="@+id/div1"
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:background="@drawable/divider"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/action_get_composition_data"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:layout_marginEnd="8dp"
+                                android:padding="@dimen/item_padding_end"
+                                android:text="@string/action_composition_data"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintRight_toRightOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/div1"/>
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:background="@color/white"
+                    app:cardElevation="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingBottom="@dimen/item_padding_bottom">
+
+                        <androidx.appcompat.widget.Toolbar
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            app:logo="@drawable/ic_folder_key_black_24dp_alpha"
+                            app:title="@string/title_added_keys"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+
+                        <include
+                            android:id="@+id/container_net_keys"
+                            layout="@layout/layout_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <include
+                            android:id="@+id/container_app_keys"
+                            layout="@layout/layout_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:background="@color/white"
+                    app:cardElevation="1dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <androidx.appcompat.widget.Toolbar
+                            android:id="@+id/ttl_toolbar"
+                            android:layout_width="0dp"
+                            android:layout_height="?actionBarSize"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:logo="@drawable/ic_timer"
+                            app:title="@string/title_default_ttl"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+
+                        <include
+                            android:id="@+id/container_ttl"
+                            layout="@layout/layout_container"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/ttl_toolbar"/>
+
+                        <include
+                            android:id="@+id/div2"
+                            layout="@layout/layout_divider"
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/container_ttl"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_get_default_ttl"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/item_padding_end"
+                            android:text="@string/action_get_default_ttl"
+                            app:layout_constraintBaseline_toBaselineOf="@id/action_set_default_ttl"
+                            app:layout_constraintEnd_toStartOf="@id/action_set_default_ttl"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_set_default_ttl"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/item_padding_end"
+                            android:text="@string/action_set_default_ttl"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/node_proxy_state_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:background="@color/white"
+                    app:cardElevation="1dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <androidx.appcompat.widget.Toolbar
+                            android:id="@+id/node_proxy_tool_bar"
+                            android:layout_width="0dp"
+                            android:layout_height="?actionBarSize"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:logo="@drawable/ic_proxy_24dp_black_alpha"
+                            app:title="@string/title_proxy_state_settings"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+
+                        <TextView
+                            android:id="@+id/proxy_state_summary"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
+                            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingBottom="@dimen/item_padding_bottom"
+                            android:text="@string/proxy_set_off_rationale"
+                            android:textSize="16sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/node_proxy_tool_bar"/>
+
+                        <include
+                            android:id="@+id/div2"
+                            layout="@layout/layout_divider"
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/proxy_state_summary"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_get_proxy_state"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/item_padding_end"
+                            android:text="@string/action_proxy_state_get"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/action_set_proxy_state"
+                            app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_set_proxy_state"
+                            style="@style/RedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:enabled="false"
+                            android:padding="@dimen/item_padding_end"
+                            android:text="@string/action_proxy_state_set_on"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/node_reset_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:background="@color/white"
+                    app:cardElevation="1dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <androidx.appcompat.widget.Toolbar
+                            android:id="@+id/node_reset_tool_bar"
+                            android:layout_width="0dp"
+                            android:layout_height="?actionBarSize"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:logo="@drawable/ic_reset_black_24dp_alpha"
+                            app:title="@string/title_reset_node"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+
+                        <TextView
+                            android:id="@+id/textview"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
+                            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingBottom="@dimen/item_padding_bottom"
+                            android:text="@string/reset_node_rationale"
+                            android:textSize="16sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/node_reset_tool_bar"/>
+
+                        <include
+                            android:id="@+id/div2"
+                            layout="@layout/layout_divider"
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/textview"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_reset_node"
+                            style="@style/RedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/item_padding_end"
+                            android:text="@string/action_reset_node"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

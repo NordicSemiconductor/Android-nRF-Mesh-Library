@@ -22,31 +22,23 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
-import android.content.Context;
-
-import java.util.List;
-
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import no.nordicsemi.android.meshprovisioner.Group;
-import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
-import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
-import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
+import no.nordicsemi.android.nrfmeshprovisioner.GroupControlsActivity;
 
-public class GroupControlsViewModel extends ViewModel {
+/**
+ * ViewModel for {@link GroupControlsActivity}
+ */
+public class GroupControlsViewModel extends BaseViewModel {
 
-    private final NrfMeshRepository mNrfMeshRepository;
     private final ScannerRepository mScannerRepository;
 
     @Inject
-    GroupControlsViewModel(final NrfMeshRepository nrfMeshRepository, final ScannerRepository scannerRepository) {
-        this.mNrfMeshRepository = nrfMeshRepository;
+    GroupControlsViewModel(@NonNull final NrfMeshRepository nrfMeshRepository, @NonNull final ScannerRepository scannerRepository) {
+        super(nrfMeshRepository);
         this.mScannerRepository = scannerRepository;
         scannerRepository.registerBroadcastReceivers();
     }
@@ -57,111 +49,10 @@ public class GroupControlsViewModel extends ViewModel {
         mScannerRepository.unregisterBroadcastReceivers();
     }
 
-    public LiveData<Void> isDeviceReady() {
-        return mNrfMeshRepository.isDeviceReady();
-    }
-
-    public LiveData<String> getConnectionState() {
-        return mNrfMeshRepository.getConnectionState();
-    }
-
-    public LiveData<Boolean> isConnected() {
-        return mNrfMeshRepository.isConnected();
-    }
-
-    public void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
-        mNrfMeshRepository.connect(context, device, connectToNetwork);
-    }
-
-    public void disconnect() {
-        mNrfMeshRepository.disconnect();
-    }
-
-    public NrfMeshRepository getNrfMeshRepository() {
-        return mNrfMeshRepository;
-    }
-
-    public BleMeshManager getBleMeshManager() {
-        return mNrfMeshRepository.getBleMeshManager();
-    }
-
-    public MeshManagerApi getMeshManagerApi() {
-        return mNrfMeshRepository.getMeshManagerApi();
-    }
-
     /**
-     * Returns an instance of the scanner repository
+     * Returns the selected LiveData {@link Group}
      */
-    public ScannerRepository getScannerRepository() {
-        return mScannerRepository;
-    }
-
     public LiveData<Group> getSelectedGroup() {
         return mNrfMeshRepository.getSelectedGroup();
-    }
-    /**
-     * Returns the provisioned nodes as a live data object.
-     */
-    public LiveData<List<ProvisionedMeshNode>> getProvisionedNodes() {
-        return mNrfMeshRepository.getProvisionedNodes();
-    }
-
-    /**
-     * Returns if currently connected to the mesh network.
-     *
-     * @return true if connected and false otherwise
-     */
-    public LiveData<Boolean> isConnectedToProxy() {
-        return mNrfMeshRepository.isConnectedToProxy();
-    }
-
-    public MeshNetworkLiveData getMeshNetworkLiveData() {
-        return mNrfMeshRepository.getMeshNetworkLiveData();
-    }
-
-    public LiveData<MeshMessage> getMeshMessageLiveData() {
-        return mNrfMeshRepository.getMeshMessageLiveData();
-    }
-
-    /**
-     * Set the mesh node to be configured
-     *
-     * @param meshNode provisioned mesh node
-     */
-    public void setSelectedMeshNode(final ProvisionedMeshNode meshNode) {
-        mNrfMeshRepository.setSelectedMeshNode(meshNode);
-    }
-
-    /**
-     * Set the element to be configured
-     *
-     * @param element {@link Element}
-     */
-    public void setSelectedElement(final Element element) {
-        mNrfMeshRepository.setSelectedElement(element);
-    }
-
-    /**
-     * Get selected model
-     */
-    public LiveData<MeshModel> getSelectedModel() {
-        return mNrfMeshRepository.getSelectedModel();
-    }
-
-    /**
-     * Set the mesh model to be configured
-     *
-     * @param model {@link MeshModel}
-     */
-    public void setSelectedModel(final MeshModel model) {
-        mNrfMeshRepository.setSelectedModel(model);
-    }
-    /**
-     * Get selected mesh node
-     *
-     * @return {@link ExtendedMeshNode} element
-     */
-    public LiveData<ProvisionedMeshNode> getSelectedMeshNode() {
-        return mNrfMeshRepository.getSelectedMeshNode();
     }
 }

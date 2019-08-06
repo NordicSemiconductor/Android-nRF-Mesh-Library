@@ -1,19 +1,17 @@
 package no.nordicsemi.android.meshprovisioner;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Index;
-import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.TypeConverters;
-
 import com.google.gson.annotations.Expose;
 
 import java.util.List;
 
-import no.nordicsemi.android.meshprovisioner.utils.MeshTypeConverters;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 
-import static android.arch.persistence.room.ForeignKey.CASCADE;
+import static androidx.room.ForeignKey.CASCADE;
 
 /**
  * Class definitions for creating scenes in a mesh network
@@ -36,14 +34,14 @@ public class Scene {
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<byte[]> addresses;
+    private List<Integer> addresses;
 
     @PrimaryKey
     @ColumnInfo(name = "number")
     @Expose
     private int number;
 
-    public Scene(final int number, final List<byte[]> addresses, final String meshUuid) {
+    public Scene(final int number, final List<Integer> addresses, final String meshUuid) {
         this.number = number;
         this.addresses = addresses;
         this.meshUuid = meshUuid;
@@ -80,7 +78,7 @@ public class Scene {
      *
      * @return 2 byte address
      */
-    public List<byte[]> getAddresses() {
+    public List<Integer> getAddresses() {
         return addresses;
     }
 
@@ -89,7 +87,7 @@ public class Scene {
      *
      * @param addresses list of addresses
      */
-    public void setAddresses(final List<byte[]> addresses) {
+    public void setAddresses(final List<Integer> addresses) {
         this.addresses = addresses;
     }
 
@@ -99,5 +97,10 @@ public class Scene {
 
     public void setNumber(final int number) {
         this.number = number;
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean isValidScene(final int scene) {
+        return scene >= 0x0000 && scene <= 0xFFFF;
     }
 }

@@ -22,11 +22,11 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
@@ -34,7 +34,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SplashViewModel;
 
 public class SplashScreenActivity extends AppCompatActivity implements Injectable {
-    private static final int DURATION = 1000;
+
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
@@ -43,7 +43,7 @@ public class SplashScreenActivity extends AppCompatActivity implements Injectabl
         setContentView(R.layout.activity_splash_screen);
         super.onCreate(savedInstanceState);
         final SplashViewModel viewModel = ViewModelProviders.of(SplashScreenActivity.this, mViewModelFactory).get(SplashViewModel.class);
-        viewModel.getMeshNetworkLiveData().observe(this,meshNetworkLiveData -> {
+        viewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             if(meshNetworkLiveData != null && meshNetworkLiveData.getMeshNetwork() != null) {
                 navigateActivity();
             }

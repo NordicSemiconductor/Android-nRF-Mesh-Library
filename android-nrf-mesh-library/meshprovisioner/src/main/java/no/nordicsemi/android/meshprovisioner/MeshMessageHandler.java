@@ -23,25 +23,41 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
 
 import no.nordicsemi.android.meshprovisioner.transport.BaseMeshMessageHandler;
-import no.nordicsemi.android.meshprovisioner.transport.MeshTransport;
+import no.nordicsemi.android.meshprovisioner.transport.NetworkLayerCallbacks;
+import no.nordicsemi.android.meshprovisioner.transport.UpperTransportLayerCallbacks;
+import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 
+/**
+ * MeshMessageHandler class for handling mesh
+ */
 final class MeshMessageHandler extends BaseMeshMessageHandler {
 
-    private static final String TAG = MeshMessageHandler.class.getSimpleName();
-
-
-    MeshMessageHandler(final Context context, final InternalTransportCallbacks internalTransportCallbacks) {
-        super(context, internalTransportCallbacks);
+    /**
+     * Constructs MeshMessageHandler
+     *
+     * @param context                      Context
+     * @param internalTransportCallbacks   {@link InternalTransportCallbacks} Callbacks
+     * @param networkLayerCallbacks        {@link NetworkLayerCallbacks} network layer callbacks
+     * @param upperTransportLayerCallbacks {@link UpperTransportLayerCallbacks} upper transport layer callbacks
+     */
+    MeshMessageHandler(@NonNull final Context context,
+                       @NonNull final InternalTransportCallbacks internalTransportCallbacks,
+                       @NonNull final NetworkLayerCallbacks networkLayerCallbacks,
+                       @NonNull final UpperTransportLayerCallbacks upperTransportLayerCallbacks) {
+        super(context, internalTransportCallbacks, networkLayerCallbacks, upperTransportLayerCallbacks);
     }
 
     @Override
-    protected MeshTransport getMeshTransport() {
-        return mMeshTransport;
+    protected final void setMeshStatusCallbacks(@NonNull final MeshStatusCallbacks statusCallbacks) {
+        mStatusCallbacks = statusCallbacks;
     }
 
-    void setMeshStatusCallbacks(final MeshStatusCallbacks statusCallbacks) {
-        mStatusCallbacks = statusCallbacks;
+
+    @Override
+    protected final void parseMeshPduNotifications(@NonNull final byte[] pdu, @NonNull final MeshNetwork network) throws ExtendedInvalidCipherTextException {
+        super.parseMeshPduNotifications(pdu, network);
     }
 }

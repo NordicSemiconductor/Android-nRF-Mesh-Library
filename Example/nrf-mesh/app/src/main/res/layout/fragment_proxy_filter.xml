@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018, Nordic Semiconductor
+  ~ All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+  ~
+  ~ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+  ~
+  ~ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+  ~ documentation and/or other materials provided with the distribution.
+  ~
+  ~ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+  ~ software without specific prior written permission.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  ~ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  ~ HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  ~ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+  ~ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+  ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/proxy_filter_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            app:cardElevation="1dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                style="?buttonBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/proxy_filter_tool_bar"
+                    android:layout_width="0dp"
+                    android:layout_height="?actionBarSize"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:logo="@drawable/ic_filter_list_black_alpha_24dp"
+                    app:title="@string/title_proxy_filter"
+                    app:titleMarginStart="@dimen/toolbar_title_margin"
+                    app:titleTextAppearance="@style/Toolbar.TitleText"/>
+
+                <TextView
+                    android:id="@+id/proxy_filter_summary"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/activity_horizontal_margin"
+                    android:text="@string/proxy_filter_summary"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/proxy_filter_tool_bar"/>
+
+                <include
+                    android:id="@+id/div2"
+                    layout="@layout/layout_divider"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/proxy_filter_summary"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/action_disable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="@dimen/item_padding_end"
+                    android:layout_marginEnd="@dimen/item_padding_start"
+                    android:enabled="false"
+                    android:padding="@dimen/activity_horizontal_margin"
+                    android:text="@string/action_disable"
+                    android:textColor="@color/proxy_filter_button_states"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/action_black_list"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="@dimen/item_padding_end"
+                    android:layout_marginEnd="@dimen/item_padding_start"
+                    android:enabled="false"
+                    android:padding="@dimen/activity_horizontal_margin"
+                    android:text="@string/black_list_filter"
+                    android:textColor="@color/proxy_filter_button_states"
+                    app:layout_constraintBottom_toBottomOf="@id/action_disable"
+                    app:layout_constraintEnd_toStartOf="@id/action_disable"
+                    app:layout_constraintTop_toTopOf="@id/action_disable"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/action_white_list"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="@dimen/item_padding_end"
+                    android:layout_marginEnd="@dimen/item_padding_start"
+                    android:enabled="false"
+                    android:padding="@dimen/activity_horizontal_margin"
+                    android:text="@string/white_list_filter"
+                    android:textColor="@color/proxy_filter_button_states"
+                    app:layout_constraintBottom_toBottomOf="@id/action_black_list"
+                    app:layout_constraintEnd_toStartOf="@id/action_black_list"
+                    app:layout_constraintTop_toTopOf="@id/action_black_list"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/proxy_filter_address_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:background="@color/white"
+            app:cardElevation="1dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/address_filter_tool_bar"
+                    android:layout_width="0dp"
+                    android:layout_height="?actionBarSize"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:logo="@drawable/ic_lan_black_alpha_24dp"
+                    app:title="@string/title_filter_addresses"
+                    app:titleMarginStart="@dimen/toolbar_title_margin"
+                    app:titleTextAppearance="@style/Toolbar.TitleText"/>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/container_proxy_filter"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/address_filter_tool_bar">
+
+                    <TextView
+                        android:id="@+id/no_addresses"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/activity_horizontal_margin"
+                        android:text="@string/no_addresses_added"
+                        android:textSize="16sp"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_view_filter_addresses"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@color/nordicRed"
+                        android:scrollbars="none"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:visibility="visible"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <include
+                    android:id="@+id/div2"
+                    layout="@layout/layout_divider"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/container_proxy_filter"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/action_add_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="@dimen/item_padding_end"
+                    android:layout_marginEnd="@dimen/item_padding_start"
+                    android:enabled="false"
+                    android:padding="@dimen/activity_horizontal_margin"
+                    android:text="@string/action_add"
+                    android:textColor="@color/filter_add_button_states"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/div2"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/action_clear_addresses"
+                    style="@style/RedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="@dimen/item_padding_end"
+                    android:layout_marginEnd="@dimen/item_padding_start"
+                    android:padding="@dimen/activity_horizontal_margin"
+                    android:text="@string/action_clear"
+                    android:visibility="gone"
+                    app:layout_constraintBaseline_toBaselineOf="@id/action_add_address"
+                    app:layout_constraintEnd_toStartOf="@id/action_add_address"
+                    tools:visibility="visible"/>
+
+                <TextView
+                    android:id="@+id/remove_hint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/item_padding_end"
+                    android:padding="@dimen/activity_horizontal_margin"
+                    android:text="@string/hint_remove"
+                    android:visibility="gone"
+                    app:layout_constraintBaseline_toBaselineOf="@id/action_add_address"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:visibility="visible"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+</ScrollView>

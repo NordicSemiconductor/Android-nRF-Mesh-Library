@@ -1,13 +1,14 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -33,14 +34,14 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
     /**
      * Constructs LightCtlSetUnacknowledged message.
      *
-     * @param appKey           application key for this message
-     * @param lightLightness   lightLightness of the LightCtlModel
-     * @param lightTemperature temperature of the LightCtlModel
-     * @param lightDeltaUv     delta uv of the LightCtlModel
-     * @param tId              transaction id
+     * @param appKey           {@link ApplicationKey} key for this message
+     * @param lightLightness   LightLightness of the LightCtlModel
+     * @param lightTemperature Temperature of the LightCtlModel
+     * @param lightDeltaUv     Delta uv of the LightCtlModel
+     * @param tId              Transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightCtlSetUnacknowledged(@NonNull final byte[] appKey,
+    public LightCtlSetUnacknowledged(@NonNull final ApplicationKey appKey,
                                      final int lightLightness,
                                      final int lightTemperature,
                                      final int lightDeltaUv,
@@ -62,7 +63,7 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public LightCtlSetUnacknowledged(@NonNull final byte[] appKey,
+    public LightCtlSetUnacknowledged(@NonNull final ApplicationKey appKey,
                                      @Nullable final Integer transitionSteps,
                                      @Nullable final Integer transitionResolution,
                                      @Nullable final Integer delay,
@@ -94,7 +95,7 @@ public class LightCtlSetUnacknowledged extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "Lightness: " + mLightness);
         Log.v(TAG, "Temperature: " + mTemperature);

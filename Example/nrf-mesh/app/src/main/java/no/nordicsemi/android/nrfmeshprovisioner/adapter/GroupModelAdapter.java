@@ -23,10 +23,10 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,7 +78,7 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
      *
      * @param listener {@link OnItemClickListener}
      */
-    public void setOnItemClickListener(final GroupModelAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(@NonNull final GroupModelAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
@@ -106,7 +106,7 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
         for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
             final MeshModel model = modelEntry.getValue();
             for (Integer address : model.getSubscribedAddresses()) {
-                if (mGroup.getGroupAddress() == address) {
+                if (mGroup.getAddress() == address) {
                     final View view = LayoutInflater.from(mContext).inflate(R.layout.group_model_item, holder.mModelContainer, false);
                     final ConstraintLayout container = view.findViewById(R.id.container);
                     final ImageView modelIcon = view.findViewById(R.id.icon);

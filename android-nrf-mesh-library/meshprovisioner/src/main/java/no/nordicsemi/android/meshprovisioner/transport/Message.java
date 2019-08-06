@@ -26,81 +26,47 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
+
 @SuppressWarnings({"WeakerAccess", "unused"})
 abstract class Message implements Parcelable {
 
-    /**
-     * ctl, if ctl = 0 access message and ctl = 1 control message
-     **/
-    protected int ctl;
-    protected SparseArray<byte[]> networkPdu;
-    /**
-     * pdu type
-     **/
-    private int pduType;
-    /**
-     * ttl, time to live
-     **/
-    private int ttl = 100;
-    /**
-     * src, source address
-     **/
-    private int src;
-    /**
-     * mDst, destination address
-     **/
-    private int dst;
-    /**
-     * sequence number, which is unique 24-bit value for each message
-     **/
-    private byte[] mSequenceNumber;
-    /**
-     * key, used for encryption in transport layer which could be application key or device key
-     **/
-    private byte[] key;
-    /**
-     * encryption key, derived from k2 using network key
-     **/
-    private byte[] encryptionKey;
-    /**
-     * privacy key, derived from k2 using network key
-     **/
-    private byte[] privacyKey;
-    /**
-     * akf if akf = 0 device key to be used for encryption in the transport layer if not use application key
-     **/
-    private int akf;
-    /**
-     * aid, if akf = 0 aid is also 0 if not aid is the identifier for the key used for encrytpion
-     **/
-    private int aid;
-    /**
-     * aszmic, if aszmic = 0 the transmic is 32-bits, if aszmic = 1 transmic 64-bits this is usually for a segmented message
-     **/
-    private int aszmic;
-    /**
-     * opcode, operation code for the message
-     **/
-    private int opCode;
-    /**
-     * parameters, opcode parameters
-     **/
-    private byte[] parameters;
-    private int companyIdentifier;
-    private byte[] ivIndex;
+    protected int ctl;                              // If ctl = 0 access message and ctl = 1 control message
+    protected SparseArray<byte[]> networkLayerPdu;  // Mesh pdu
+    private int pduType;                            // PDU Type
+    private int ttl = 100;                          // Time to live
+    private int src;                                // Source address
+    private int dst;                                // Destination address
+    private byte[] mSequenceNumber;                 // unique 24-bit value for each message
+    private byte[] deviceKey;                       // Used for transport layer encryption of configuration messages
+    private ApplicationKey applicationKey;          // Used for transport layer encryption of application messages
+    private NetworkKey networkKey;                  // Used for transport layer encryption of application messages
+    private byte[] encryptionKey;                   // Derived from network key using k2 function
+    private byte[] privacyKey;                      // Derived from privacy key using k2 function
+    private int akf;                                // Use device key for encryption if akf = 0 or application key otherwise
+    private int aid;                                // Used to identify the application key generated using k4 function
+    private int aszmic;                             // if aszmic = 0 the transmic is 32-bits, if aszmic = 1 transmic 64-bits this is usually for a segmented message
+    private int opCode;                             // Opcode of message
+    private byte[] parameters;                      // Parameters of the message
+    private int companyIdentifier;                  // Company identifier for vendor model messages
+    private byte[] ivIndex;                         // IV Index of the network
     private boolean segmented;
 
-    Message(){}
+    Message() {
+    }
 
     protected Message(final Parcel source) {
         ctl = source.readInt();
-        networkPdu = readSparseArrayToParcelable(source);
+        networkLayerPdu = readSparseArrayToParcelable(source);
         pduType = source.readInt();
         ttl = source.readInt();
         src = source.readInt();
         dst = source.readInt();
         mSequenceNumber = source.createByteArray();
-        key = source.createByteArray();
+        deviceKey = source.createByteArray();
+        applicationKey = (ApplicationKey) source.readValue(ApplicationKey.class.getClassLoader());
+        networkKey = (NetworkKey) source.readValue(NetworkKey.class.getClassLoader());
         encryptionKey = source.createByteArray();
         privacyKey = source.createByteArray();
         akf = source.readInt();
@@ -116,13 +82,15 @@ abstract class Message implements Parcelable {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeInt(ctl);
-        writeSparseArrayToParcelable(dest, networkPdu);
+        writeSparseArrayToParcelable(dest, networkLayerPdu);
         dest.writeInt(pduType);
         dest.writeInt(ttl);
         dest.writeInt(src);
         dest.writeInt(dst);
         dest.writeByteArray(mSequenceNumber);
-        dest.writeByteArray(key);
+        dest.writeByteArray(deviceKey);
+        dest.writeValue(applicationKey);
+        dest.writeValue(networkKey);
         dest.writeByteArray(encryptionKey);
         dest.writeByteArray(privacyKey);
         dest.writeInt(akf);
@@ -177,12 +145,28 @@ abstract class Message implements Parcelable {
         this.mSequenceNumber = sequenceNumber;
     }
 
-    public final byte[] getKey() {
-        return key;
+    public final byte[] getDeviceKey() {
+        return deviceKey;
     }
 
-    public final void setKey(final byte[] key) {
-        this.key = key;
+    public final void setDeviceKey(final byte[] deviceKey) {
+        this.deviceKey = deviceKey;
+    }
+
+    public final ApplicationKey getApplicationKey() {
+        return applicationKey;
+    }
+
+    public final void setApplicationKey(final ApplicationKey key) {
+        this.applicationKey = key;
+    }
+
+    public NetworkKey getNetworkKey() {
+        return networkKey;
+    }
+
+    public void setNetworkKey(final NetworkKey networkKey) {
+        this.networkKey = networkKey;
     }
 
     public final byte[] getEncryptionKey() {
@@ -265,26 +249,26 @@ abstract class Message implements Parcelable {
         this.segmented = segmented;
     }
 
-    public final SparseArray<byte[]> getNetworkPdu() {
-        return networkPdu;
+    public final SparseArray<byte[]> getNetworkLayerPdu() {
+        return networkLayerPdu;
     }
 
-    final void setNetworkPdu(final SparseArray<byte[]> pdu) {
-        networkPdu = pdu;
+    final void setNetworkLayerPdu(final SparseArray<byte[]> pdu) {
+        networkLayerPdu = pdu;
     }
 
-    protected final void writeSparseArrayToParcelable(final Parcel dest, final SparseArray<byte[]> array){
+    protected final void writeSparseArrayToParcelable(final Parcel dest, final SparseArray<byte[]> array) {
         final int size = array.size();
         dest.writeInt(size);
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             dest.writeByteArray(array.valueAt(i));
         }
     }
 
-    protected final SparseArray<byte[]> readSparseArrayToParcelable(final Parcel src){
+    protected final SparseArray<byte[]> readSparseArrayToParcelable(final Parcel src) {
         final SparseArray<byte[]> array = new SparseArray<>();
         final int size = src.readInt();
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             array.put(i, src.createByteArray());
         }
         return array;

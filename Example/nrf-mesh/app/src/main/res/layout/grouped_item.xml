@@ -29,7 +29,7 @@
     android:layout_height="wrap_content"
     tools:ignore="ContentDescription">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/group_container_card"
         android:layout_width="125dp"
         android:layout_height="150dp"
@@ -38,7 +38,7 @@
         app:elevation="8dp"
         app:cardCornerRadius="6dp">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/group_item_container"
             android:layout_width="145dp"
             android:layout_height="150dp"
@@ -78,30 +78,28 @@
                 app:layout_constraintTop_toBottomOf="@id/group_summary"
                 app:layout_constraintStart_toStartOf="@id/icon"
                 app:layout_constraintEnd_toEndOf="@id/icon">
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_on"
                     android:gravity="center"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/group_on_off_button_padding"
                     android:text="@string/action_generic_on"
-                    android:background="?selectableItemBackgroundBorderless"
-                    style="@style/BlueTextButton"/>
+                    android:background="?selectableItemBackgroundBorderless"/>
 
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_off"
                     android:gravity="center"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/group_on_off_button_padding"
                     android:text="@string/action_generic_off"
-                    android:background="?selectableItemBackgroundBorderless"
-                    style="@style/BlueTextButton"/>
+                    android:background="?selectableItemBackgroundBorderless"/>
 
             </LinearLayout>
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/container_vendor"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -115,7 +113,7 @@
                 tools:visibility="visible">
 
                 <TextView
-                    android:id="@+id/model_id"
+                    android:id="@+id/subtitle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="00001234"
@@ -134,10 +132,10 @@
                     android:gravity="center"
                     android:ellipsize="marquee"
                     android:singleLine="true"
-                    app:layout_constraintTop_toBottomOf="@id/model_id"
+                    app:layout_constraintTop_toBottomOf="@id/subtitle"
                     app:layout_constraintStart_toStartOf="parent"/>
 
-            </android.support.constraint.ConstraintLayout>
-        </android.support.constraint.ConstraintLayout>
-    </android.support.v7.widget.CardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 </RelativeLayout>

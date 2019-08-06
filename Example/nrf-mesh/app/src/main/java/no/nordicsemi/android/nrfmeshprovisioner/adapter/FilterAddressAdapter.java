@@ -22,11 +22,8 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,10 +31,12 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.AddressArray;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -45,23 +44,28 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 
 public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdapter.ViewHolder> {
 
-    private final ArrayList<AddressArray> mAddresses;// = new ArrayList<>();
+    private final ArrayList<AddressArray> mAddresses = new ArrayList<>();
     private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public FilterAddressAdapter(@NonNull final Context context, @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
+    public FilterAddressAdapter(@NonNull final Context context) {
         this.mContext = context;
-        mAddresses = new ArrayList<>();
-        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
-            if (meshNode != null) {
-                final ProxyFilter proxyFilter = meshNode.getProxyFilter();
-                if (proxyFilter != null) {
-                    mAddresses.clear();
-                    mAddresses.addAll(proxyFilter.getAddresses());
-                    notifyDataSetChanged();
-                }
-            }
-        });
+    }
+
+    public void updateData(@NonNull final ProxyFilter filter){
+        mAddresses.clear();
+        mAddresses.addAll(filter.getAddresses());
+        notifyDataSetChanged();
+    }
+
+    public void clearData(){
+        mAddresses.clear();
+        notifyDataSetChanged();
+    }
+
+    public void clearRow(final int position){
+        mAddresses.remove(position);
+        notifyDataSetChanged();
     }
 
     public void setOnItemClickListener(final FilterAddressAdapter.OnItemClickListener listener) {
@@ -76,17 +80,15 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final FilterAddressAdapter.ViewHolder holder, final int position) {
-        if (mAddresses.size() > 0) {
-            final byte[] address = mAddresses.get(position).getAddress();
-            holder.address.setText(MeshParserUtils.bytesToHex(address, true));
-            if (MeshParserUtils.isValidSubscriptionAddress(address)) {
-                holder.addressTitle.setText(R.string.title_group_address);
-            } else if (MeshParserUtils.isValidUnicastAddress(address)) {
-                holder.addressTitle.setText(R.string.title_unicast_address);
-            } else {
-                holder.addressTitle.setText(R.string.address);
-            }
+    public void onBindViewHolder(@NonNull final FilterAddressAdapter.ViewHolder holder, int position) {
+        final byte[] address = mAddresses.get(position).getAddress();
+        holder.address.setText(MeshParserUtils.bytesToHex(address, true));
+        if (MeshAddress.isValidGroupAddress(address)) {
+            holder.addressTitle.setText(R.string.title_group_address);
+        } else if (MeshAddress.isValidUnicastAddress(address)) {
+            holder.addressTitle.setText(R.string.title_unicast_address);
+        } else if (MeshAddress.isValidVirtualAddress(address)) {
+            holder.addressTitle.setText(R.string.virtual_address);
         }
     }
 
@@ -113,7 +115,7 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
 
         @BindView(R.id.address_id)
         TextView addressTitle;
-        @BindView(R.id.address)
+        @BindView(R.id.title)
         TextView address;
 
         private ViewHolder(final View view) {

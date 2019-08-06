@@ -8,19 +8,21 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 import java.lang.reflect.Type;
+import java.util.Locale;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
 /**
  * Do not touch this class, implemented for mesh model deserialization
  */
 public final class InternalMeshModelDeserializer implements JsonDeserializer<MeshModel> {
     @Override
-    public MeshModel deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
+    public MeshModel deserialize(final JsonElement json, final Type typeOfT,
+                                 final JsonDeserializationContext context) throws JsonParseException {
         final JsonObject jsonObject;
         if (json.getAsJsonObject().has("data")) {
             jsonObject = json.getAsJsonObject().getAsJsonObject("data");
@@ -45,8 +47,6 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
         for (int i = 0; i < jsonArrayBoundKeyIndexes.size(); i++) {
             final int index = jsonArrayBoundKeyIndexes.get(i).getAsInt();
             final String key = jsonBoundKeys.get(String.valueOf(index)).getAsString();
-            final ApplicationKey applicationKey = new ApplicationKey(index, MeshParserUtils.toByteArray(key));
-            meshModel.mBoundApplicationKeys.put(index, applicationKey);
             meshModel.mBoundAppKeyIndexes.add(index);
         }
 
@@ -58,7 +58,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
             for (int j = 0; j < jsonArray.size(); j++) {
                 subscriptionAddress[j] = jsonArray.get(j).getAsByte();
             }
-            meshModel.addSubscriptionAddress(AddressUtils.getUnicastAddressInt(subscriptionAddress));
+            meshModel.addSubscriptionAddress(MeshAddress.addressBytesToInt(subscriptionAddress));
         }
 
         if (jsonObject.getAsJsonObject().has("mPublicationSettings")) {
@@ -87,11 +87,13 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                     }
 
                     final int publishRetransmitCount = jsonPublicationSettings.get("publishRetransmitCount").getAsInt();
-                    final int publishRetransmitIntervalSteps = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsInt();
+                    final int publishRetransmitIntervalSteps = jsonPublicationSettings.
+                            get("publishRetransmitIntervalSteps").getAsInt();
                     final int publishTtl = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsByte();
 
                     meshModel.mPublicationSettings = new PublicationSettings(publishAddress,
-                            appKeyIndex, credentialFlag, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
+                            appKeyIndex, credentialFlag, publishTtl, publicationSteps,
+                            publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
                 }
             }
         } else {
@@ -141,30 +143,37 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
         final MeshModel meshModel = getMeshModel(modelId);
 
         final JsonArray jsonArrayBoundKeyIndexes = jsonObject.getAsJsonArray("mBoundAppKeyIndexes");
-        final JsonObject jsonBoundKeys = jsonObject.getAsJsonObject("mBoundApplicationKeys");
         for (int i = 0; i < jsonArrayBoundKeyIndexes.size(); i++) {
             final int index = jsonArrayBoundKeyIndexes.get(i).getAsInt();
-            final byte[] key = getKey(jsonBoundKeys.get(String.valueOf(index)).getAsJsonObject().getAsJsonArray("key"));
-            final ApplicationKey applicationKey = new ApplicationKey(index, key);
-            meshModel.mBoundApplicationKeys.put(index, applicationKey);
             meshModel.mBoundAppKeyIndexes.add(index);
         }
 
         //We check if subscription address is a byte[] or not inorder to migrate the data without losing
         if (jsonObject.has("mSubscriptionAddress")) {
             final JsonArray addresses = jsonObject.getAsJsonArray("mSubscriptionAddress");
-            if(addresses.size() > 0) {
+            if (addresses.size() > 0) {
                 for (int i = 0; i < addresses.size(); i++) {
                     final JsonArray jsonArray = addresses.get(i).getAsJsonArray();
-                    final int address = MeshParserUtils.unsignedBytesToInt(jsonArray.get(1).getAsByte(), jsonArray.get(0).getAsByte());
+                    final int address = MeshParserUtils.unsignedBytesToInt(jsonArray.get(1).getAsByte(),
+                            jsonArray.get(0).getAsByte());
                     meshModel.addSubscriptionAddress(address);
                 }
             }
         }
 
-        if (jsonObject.has("subscriptionAddresses"))  {
+        if (jsonObject.has("labelUuids")) {
+            final JsonArray labelUuids = jsonObject.get("labelUuids").getAsJsonArray();
+            for (int i = 0; i < labelUuids.size(); i++) {
+                final String hexUuid = labelUuids.get(i).getAsString().toUpperCase(Locale.US);
+                final UUID uuid = UUID.fromString(hexUuid);
+                if (uuid != null)
+                    meshModel.labelUuids.add(uuid);
+            }
+        }
+
+        if (jsonObject.has("subscriptionAddresses")) {
             final JsonArray addresses = jsonObject.get("subscriptionAddresses").getAsJsonArray();
-            if(addresses != null) {
+            if (addresses != null) {
                 for (int i = 0; i < addresses.size(); i++) {
                     meshModel.addSubscriptionAddress(addresses.get(i).getAsInt());
                 }
@@ -181,8 +190,9 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
 
                 if (jsonPublicationSettings.has("publishAddress")) {
                     final int publishAddress;
+                    UUID labelUUID = null;
                     final JsonElement jsonElement = jsonPublicationSettings.get("publishAddress");
-                    //We check if publish address is a byte[] or not inorder to migrate the data without losing
+                    //We check if publish address is a byte[] or not inorder to migrate avoiding data loss
                     if (jsonElement.isJsonArray()) {
                         final JsonArray jsonPublishAddress = jsonElement.getAsJsonArray();
                         final byte[] address = new byte[jsonPublishAddress.size()];
@@ -193,17 +203,22 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                     } else {
                         publishAddress = jsonElement.getAsInt();
                     }
+
+                    if(jsonPublicationSettings.has("labelUUID")){
+                        final String uuid = jsonPublicationSettings.get("labelUUID").getAsString();
+                        labelUUID = UUID.fromString(uuid);
+                    }
+
                     final int publishRetransmitCount = jsonPublicationSettings.get("publishRetransmitCount").getAsInt();
                     final int publishRetransmitIntervalSteps = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsInt();
                     final int publishTtl = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsByte();
                     meshModel.mPublicationSettings = new PublicationSettings(publishAddress,
-                            appKeyIndex, credentialFlag, publishTtl, publicationSteps, publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
-
-
+                            appKeyIndex, credentialFlag, publishTtl, publicationSteps,
+                            publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
+                    meshModel.mPublicationSettings.setLabelUUID(labelUUID);
                 }
             }
         }
-
         return meshModel;
     }
 

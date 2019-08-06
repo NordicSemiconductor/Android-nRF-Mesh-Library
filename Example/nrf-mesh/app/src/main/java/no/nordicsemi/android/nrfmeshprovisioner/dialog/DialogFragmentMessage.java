@@ -25,13 +25,13 @@ package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+import androidx.appcompat.app.AlertDialog;
 
 public class DialogFragmentMessage extends DialogFragment {
 
-    protected static final String ICON_RES_ID = "ICON_RES_ID";
+    static final String ICON_RES_ID = "ICON_RES_ID";
     protected static final String TITLE = "TITLE";
     protected static final String MESSAGE = "MESSAGE";
     protected AlertDialog.Builder alertDialogBuilder;

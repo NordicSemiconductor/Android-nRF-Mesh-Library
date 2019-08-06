@@ -22,12 +22,12 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.InternalProvisioningCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
@@ -43,7 +43,10 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
     private final InternalProvisioningCallbacks provisioningCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
-    public ProvisioningRandomConfirmationState(final InternalProvisioningCallbacks callbacks, final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    public ProvisioningRandomConfirmationState(@NonNull final InternalProvisioningCallbacks callbacks,
+                                               @NonNull final UnprovisionedMeshNode unprovisionedMeshNode,
+                                               @NonNull final InternalTransportCallbacks mInternalTransportCallbacks,
+                                               @NonNull final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
         this.provisioningCallbacks = callbacks;
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
@@ -83,7 +86,8 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
     private boolean provisioneeMatches() {
         final byte[] provisioneeRandom = mUnprovisionedMeshNode.getProvisioneeRandom();
 
-        final byte[] confirmationInputs = provisioningCallbacks.generateConfirmationInputs(mUnprovisionedMeshNode.getProvisionerPublicKeyXY(), mUnprovisionedMeshNode.getProvisioneePublicKeyXY());
+        final byte[] confirmationInputs = provisioningCallbacks.generateConfirmationInputs(mUnprovisionedMeshNode.getProvisionerPublicKeyXY(),
+                mUnprovisionedMeshNode.getProvisioneePublicKeyXY());
         Log.v(TAG, "Confirmation inputs: " + MeshParserUtils.bytesToHex(confirmationInputs, false));
 
         //Generate a confirmation salt of the confirmation inputs

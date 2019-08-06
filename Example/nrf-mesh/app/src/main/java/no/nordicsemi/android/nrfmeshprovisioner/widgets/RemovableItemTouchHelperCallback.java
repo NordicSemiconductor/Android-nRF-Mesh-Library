@@ -23,16 +23,17 @@
 package no.nordicsemi.android.nrfmeshprovisioner.widgets;
 
 import android.graphics.Canvas;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAdapter;
+import no.nordicsemi.android.nrfmeshprovisioner.node.adapter.NodeAdapter;
 
 /**
  * This callback works with {@link RemovableViewHolder}. Only view holders that inherit from this class may be removed.
@@ -93,7 +94,11 @@ public class RemovableItemTouchHelperCallback extends ItemTouchHelper.Callback {
         }
     }
 
-    public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+    @Override
+    public void onChildDraw(@NonNull Canvas c,
+                            @NonNull RecyclerView recyclerView,
+                            @NonNull RecyclerView.ViewHolder viewHolder,
+                            float dX, float dY, int actionState, boolean isCurrentlyActive) {
         if (recyclerView.getId() == R.id.recycler_view_groups) {
             final GroupAdapter adapter = (GroupAdapter) recyclerView.getAdapter();
             if (adapter != null) {
@@ -104,12 +109,23 @@ public class RemovableItemTouchHelperCallback extends ItemTouchHelper.Callback {
                         swipeBack = true;
                     } else {
                         if (dX == 0 && !swipeBack) {
-                            Log.v("DX", "DX" + dX);
                             mAdapter.onItemDismissFailed((RemovableViewHolder) viewHolder);
                         }
                     }
                 } else {
                     getDefaultUIUtil().onDraw(c, recyclerView, ((RemovableViewHolder) viewHolder).getSwipeableView(), dX, dY, actionState, isCurrentlyActive);
+                }
+            }
+        } else if (recyclerView.getId() == R.id.recycler_view_provisioned_nodes) {
+            final NodeAdapter adapter = (NodeAdapter) recyclerView.getAdapter();
+            if (adapter != null) {
+                if (dX > -800.0f && dX < 800.0f && dX != 0) {
+                    getDefaultUIUtil().onDraw(c, recyclerView, ((RemovableViewHolder) viewHolder).getSwipeableView(), dX, dY, actionState, isCurrentlyActive);
+                    //swipeBack = true;
+                } else {
+                    if (dX == 0 && !swipeBack) {
+                        mAdapter.onItemDismissFailed((RemovableViewHolder) viewHolder);
+                    }
                 }
             }
         } else {

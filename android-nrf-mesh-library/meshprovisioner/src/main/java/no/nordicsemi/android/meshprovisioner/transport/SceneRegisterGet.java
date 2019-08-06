@@ -1,7 +1,8 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -20,8 +21,7 @@ public class SceneRegisterGet extends GenericMessage {
      * @param appKey application key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    @SuppressWarnings("WeakerAccess")
-    public SceneRegisterGet(@NonNull final byte[] appKey) {
+    public SceneRegisterGet(@NonNull final ApplicationKey appKey) {
         super(appKey);
         assembleMessageParameters();
     }
@@ -33,6 +33,6 @@ public class SceneRegisterGet extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
     }
 }

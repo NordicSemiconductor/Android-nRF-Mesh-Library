@@ -27,6 +27,7 @@ import android.content.SharedPreferences;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
@@ -81,9 +82,9 @@ final class ProvisioningSettings extends NetworkSettings {
                 appKeys.add(i, String.valueOf(keys.get(String.valueOf(i))));
             }
         } else {
-            appKeys.add(SecureUtils.generateRandomApplicationKey().toUpperCase());
-            appKeys.add(SecureUtils.generateRandomApplicationKey().toUpperCase());
-            appKeys.add(SecureUtils.generateRandomApplicationKey().toUpperCase());
+            appKeys.add(SecureUtils.generateRandomApplicationKey().toUpperCase(Locale.US));
+            appKeys.add(SecureUtils.generateRandomApplicationKey().toUpperCase(Locale.US));
+            appKeys.add(SecureUtils.generateRandomApplicationKey().toUpperCase(Locale.US));
         }
         saveApplicationKeys();
     }

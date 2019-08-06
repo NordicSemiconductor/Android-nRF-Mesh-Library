@@ -25,7 +25,6 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_disconnect"
-        android:enabled="true"
         android:title="@string/action_disconnect"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
 </menu>

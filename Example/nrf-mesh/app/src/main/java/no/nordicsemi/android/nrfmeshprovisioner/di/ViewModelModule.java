@@ -22,40 +22,38 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.di;
 
-import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
 
 import javax.inject.Singleton;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 import dagger.Module;
 import dagger.Provides;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NetworkInformation;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerRepository;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ViewModelFactory;
 
-
 @Module(subcomponents = ViewModelSubComponent.class)
 class ViewModelModule {
 
-	@Provides
-	static ScannerRepository provideScannerRepository(final Context context, final MeshManagerApi meshManagerApi) {
-		return new ScannerRepository(context, meshManagerApi);
-	}
+    @Provides
+    static ScannerRepository provideScannerRepository(@NonNull final Context context, @NonNull final MeshManagerApi meshManagerApi) {
+        return new ScannerRepository(context, meshManagerApi);
+    }
 
-	@Provides
-	@Singleton
-	static NrfMeshRepository provideNrfMeshRepository(final MeshManagerApi meshManagerApi,
-													  final NetworkInformation networkInformation,
-													  final BleMeshManager bleMeshManager) {
-		return new NrfMeshRepository(meshManagerApi, networkInformation, bleMeshManager);
-	}
+    @Provides
+    @Singleton
+    static NrfMeshRepository provideNrfMeshRepository(@NonNull final MeshManagerApi meshManagerApi,
+                                                      @NonNull final BleMeshManager bleMeshManager) {
+        return new NrfMeshRepository(meshManagerApi, bleMeshManager);
+    }
 
-	@Provides
-	@Singleton
-	static ViewModelProvider.Factory provideViewModelFactory(final ViewModelSubComponent.Builder viewModelSubComponent) {
-		return new ViewModelFactory(viewModelSubComponent.build());
-	}
+    @Provides
+    @Singleton
+    static ViewModelProvider.Factory provideViewModelFactory(@NonNull final ViewModelSubComponent.Builder viewModelSubComponent) {
+        return new ViewModelFactory(viewModelSubComponent.build());
+    }
 }

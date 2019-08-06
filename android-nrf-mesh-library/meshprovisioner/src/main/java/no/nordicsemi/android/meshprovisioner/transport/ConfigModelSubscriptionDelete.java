@@ -22,19 +22,20 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
-import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
+
+import static no.nordicsemi.android.meshprovisioner.utils.MeshAddress.addressIntToBytes;
+import static no.nordicsemi.android.meshprovisioner.utils.MeshAddress.isValidUnassignedAddress;
+import static no.nordicsemi.android.meshprovisioner.utils.MeshAddress.isValidUnicastAddress;
+import static no.nordicsemi.android.meshprovisioner.utils.MeshAddress.isValidVirtualAddress;
 
 /**
- * This class handles subscribing a model to subscription address.
+ * Creates the ConfigModelSubscriptionDelete message
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public final class ConfigModelSubscriptionDelete extends ConfigMessage {
 
     private static final String TAG = ConfigModelSubscriptionDelete.class.getSimpleName();
@@ -55,30 +56,16 @@ public final class ConfigModelSubscriptionDelete extends ConfigMessage {
      * @param modelIdentifier     identifier of the model, 16-bit for Sig model and 32-bit model id for vendor models.
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    @Deprecated
-    public ConfigModelSubscriptionDelete(@NonNull final byte[] elementAddress,
-                                         @NonNull final byte[] subscriptionAddress,
-                                         final int modelIdentifier) throws IllegalArgumentException {
-        this(AddressUtils.getUnicastAddressInt(elementAddress), AddressUtils.getUnicastAddressInt(subscriptionAddress), modelIdentifier);
-    }
-
-    /**
-     * Constructs ConfigModelSubscriptionDelete message.
-     *
-     * @param elementAddress      Address of the element to which the model belongs to.
-     * @param subscriptionAddress Address to unsubscribe from or deleted.
-     * @param modelIdentifier     identifier of the model, 16-bit for Sig model and 32-bit model id for vendor models.
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     */
     public ConfigModelSubscriptionDelete(final int elementAddress,
                                          final int subscriptionAddress,
                                          final int modelIdentifier) throws IllegalArgumentException {
 
-        if (!MeshAddress.isValidUnicastAddress(elementAddress))
-            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
+        if (!isValidUnicastAddress(elementAddress))
+            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.mElementAddress = elementAddress;
-        if (!MeshAddress.isAddressInRange(subscriptionAddress))
-            throw new IllegalArgumentException("Invalid subscription address, subscription address must be a 16-bit value");
+        if (isValidUnassignedAddress(subscriptionAddress) || isValidUnicastAddress(subscriptionAddress) || isValidVirtualAddress(subscriptionAddress) || subscriptionAddress == 0xFFFF)
+            throw new IllegalArgumentException("The value of the Address field shall not be an unassigned address, unicast address, " +
+                    "all-nodes address or virtual address.");
         this.mSubscriptionAddress = subscriptionAddress;
         this.mModelIdentifier = modelIdentifier;
         assembleMessageParameters();
@@ -94,8 +81,8 @@ public final class ConfigModelSubscriptionDelete extends ConfigMessage {
 
         final ByteBuffer paramsBuffer;
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        final byte[] elementaddress = AddressUtils.getUnicastAddressBytes(mElementAddress);
-        final byte[] subscriptionAddress = AddressUtils.getUnicastAddressBytes(mSubscriptionAddress);
+        final byte[] elementaddress = addressIntToBytes(mElementAddress);
+        final byte[] subscriptionAddress = addressIntToBytes(mSubscriptionAddress);
         if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put(elementaddress[1]);

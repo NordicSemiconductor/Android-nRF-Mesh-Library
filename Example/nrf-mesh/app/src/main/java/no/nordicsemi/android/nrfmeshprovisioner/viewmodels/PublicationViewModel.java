@@ -22,61 +22,18 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
-
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
+import androidx.annotation.NonNull;
+import no.nordicsemi.android.nrfmeshprovisioner.node.PublicationSettingsActivity;
 
 /**
- * View Model class for {@link ConfigurationServerActivity}
+ * View Model class for {@link PublicationSettingsActivity}
  */
-public class PublicationViewModel extends ViewModel {
-
-    private final NrfMeshRepository mNrfMeshRepository;
+public class PublicationViewModel extends BaseViewModel {
 
     @Inject
-    PublicationViewModel(final NrfMeshRepository nrfMeshRepository) {
-        this.mNrfMeshRepository = nrfMeshRepository;
-    }
-    /**
-     * Returns the Mesh repository
-     */
-    public NrfMeshRepository getNrfMeshRepository() {
-        return mNrfMeshRepository;
-    }
-
-    /**
-     * Returns the mesh manager api
-     */
-    public MeshManagerApi getMeshManagerApi() {
-        return mNrfMeshRepository.getMeshManagerApi();
-    }
-
-
-    /**
-     * Get selected mesh node
-     */
-    public LiveData<ProvisionedMeshNode> getSelectedMeshNode() {
-        return mNrfMeshRepository.getSelectedMeshNode();
-    }
-
-    /**
-     * Get selected element
-     */
-    public LiveData<Element> getSelectedElement() {
-        return mNrfMeshRepository.getSelectedElement();
-    }
-
-    /**
-     * Get selected model
-     */
-    public LiveData<MeshModel> getSelectedModel() {
-        return mNrfMeshRepository.getSelectedModel();
+    PublicationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
+        super(nrfMeshRepository);
     }
 }

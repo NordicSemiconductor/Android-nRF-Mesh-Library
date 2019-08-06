@@ -1,13 +1,14 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -33,14 +34,14 @@ public class LightHslSet extends GenericMessage {
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param appKey          application key for this message
-     * @param lightLightness  lightness of the LightHslModel
-     * @param lightHue        hue of the LightHslModel
-     * @param lightSaturation saturation of the LightHslModel
-     * @param tId             transaction id
+     * @param appKey          {@link ApplicationKey} key for this message
+     * @param lightLightness  Lightness of the LightHslModel
+     * @param lightHue        Hue of the LightHslModel
+     * @param lightSaturation Saturation of the LightHslModel
+     * @param tId             Transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightHslSet(@NonNull final byte[] appKey,
+    public LightHslSet(@NonNull final ApplicationKey appKey,
                        final int lightLightness,
                        final int lightHue,
                        final int lightSaturation,
@@ -51,18 +52,18 @@ public class LightHslSet extends GenericMessage {
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param appKey               application key for this message
-     * @param transitionSteps      transition steps for the lightLightness
-     * @param transitionResolution transition resolution for the lightLightness
-     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param lightLightness       lightness of the LightHslModel
-     * @param lightHue             hue of the LightHslModel
-     * @param lightSaturation      saturation of the LightHslModel
-     * @param tId                  transaction id
+     * @param appKey               {@link ApplicationKey} key for this message
+     * @param transitionSteps      Transition steps for the lightLightness
+     * @param transitionResolution Transition resolution for the lightLightness
+     * @param delay                Delay for this message to be executed 0 - 1275 milliseconds
+     * @param lightLightness       Lightness of the LightHslModel
+     * @param lightHue             Hue of the LightHslModel
+     * @param lightSaturation      Saturation of the LightHslModel
+     * @param tId                  Transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public LightHslSet(@NonNull final byte[] appKey,
+    public LightHslSet(@NonNull final ApplicationKey appKey,
                        @Nullable final Integer transitionSteps,
                        @Nullable final Integer transitionResolution,
                        @Nullable final Integer delay,
@@ -94,7 +95,7 @@ public class LightHslSet extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey() );
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "Lightness: " + mLightness);
         Log.v(TAG, "Hue: " + mHue);

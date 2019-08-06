@@ -21,7 +21,7 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -29,34 +29,47 @@
     android:layout_height="wrap_content"
     android:background="?selectableItemBackground"
     android:clickable="true"
-    android:padding="@dimen/activity_horizontal_margin">
+    android:paddingTop="@dimen/item_padding_top"
+    android:paddingBottom="@dimen/item_padding_bottom"
+    tools:ignore="KeyboardInaccessibleWidget">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:scaleType="center"
+        app:layout_constraintBottom_toBottomOf="@+id/text"
+        app:layout_constraintEnd_toStartOf="@id/title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/title"
+        tools:ignore="ContentDescription,VectorDrawableCompat"/>
 
     <TextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="16dp"
+        android:text="Title"
         android:textColor="@color/black"
         android:textSize="16sp"
-        app:layout_constraintLeft_toRightOf="@id/image"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintBaseline_toBaselineOf="@id/image"
+        app:layout_constraintStart_toEndOf="@id/image"
+        app:layout_goneMarginStart="@dimen/activity_horizontal_margin"
+        tools:ignore="HardcodedText"/>
 
     <TextView
         android:id="@+id/text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:text="Subtitle"
         android:textSize="12sp"
-        app:layout_constraintLeft_toRightOf="@id/image"
-        app:layout_constraintTop_toBottomOf="@id/title"/>
+        android:visibility="gone"
+        app:layout_constraintBaseline_creator="@id/image"
+        app:layout_constraintStart_toStartOf="@id/title"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        tools:ignore="HardcodedText"
+        tools:visibility="visible"/>
 
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/title"
-        tools:ignore="VectorDrawableCompat"/>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

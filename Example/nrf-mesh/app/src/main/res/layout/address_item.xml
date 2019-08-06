@@ -21,32 +21,33 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="wrap_content"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             android:background="@color/background_swipe_delete"
+             android:background="@color/nordicRed"
              tools:ignore="ContentDescription">
 
     <ImageView
         android:id="@+id/icon_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_delete_white"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"/>
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        app:srcCompat="@drawable/ic_delete_white"/>
 
-    <LinearLayout
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/removable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:background="@color/white"
-        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:orientation="horizontal"
         android:paddingStart="@dimen/activity_horizontal_margin"
-        android:paddingBottom="@dimen/item_padding_bottom"
         android:paddingTop="@dimen/item_padding_top"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/item_padding_bottom"
         tools:ignore="ContentDescription">
 
         <ImageView
@@ -54,37 +55,37 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:scaleType="center"
+            app:layout_constraintBottom_toBottomOf="@id/title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/address_id"
             app:srcCompat="@drawable/ic_lan_black_alpha_24dp"/>
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/address_id"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <TextView
-                android:id="@+id/address_id"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_centerVertical="true"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="@string/title_group_address"
-                android:textColor="@color/black"
-                android:textSize="16sp"/>
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="@string/title_group_address"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/icon"
+            app:layout_constraintTop_toTopOf="parent"/>
 
-            <TextView
-                android:id="@+id/address"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:layout_centerVertical="true"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:textSize="12sp"/>
-        </LinearLayout>
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="0xCEED"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/address_id"
+            app:layout_constraintTop_toBottomOf="@id/address_id"
+            tools:ignore="HardcodedText"/>
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

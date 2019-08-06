@@ -24,7 +24,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
@@ -32,7 +32,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
- * To be used as a wrapper class for when creating the ConfigModelSubscriptionStatus Message.
+ * Creates the ConfigModelSubscriptionStatus Message.
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implements Parcelable {

@@ -1,8 +1,9 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -21,7 +22,7 @@ public class GenericOnOffGet extends GenericMessage {
      * @param appKey application key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericOnOffGet(@NonNull final byte[] appKey) throws IllegalArgumentException {
+    public GenericOnOffGet(@NonNull final ApplicationKey appKey) throws IllegalArgumentException {
         super(appKey);
         assembleMessageParameters();
     }
@@ -33,6 +34,6 @@ public class GenericOnOffGet extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
     }
 }

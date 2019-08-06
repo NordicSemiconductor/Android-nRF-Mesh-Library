@@ -1,13 +1,14 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -31,12 +32,12 @@ public class LightLightnessSetUnacknowledged extends GenericMessage {
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param appKey application key for this message
-     * @param level  level of the GenericLevelModel
-     * @param tId    transaction Id
+     * @param appKey {@link ApplicationKey} key for this message
+     * @param level  Level value
+     * @param tId    Transaction Id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightLightnessSetUnacknowledged(@NonNull final byte[] appKey,
+    public LightLightnessSetUnacknowledged(@NonNull final ApplicationKey appKey,
                                            final int level,
                                            final int tId) throws IllegalArgumentException {
         this(appKey, null, null, null, level, tId);
@@ -45,16 +46,16 @@ public class LightLightnessSetUnacknowledged extends GenericMessage {
     /**
      * Constructs GenericLevelSet message.
      *
-     * @param appKey               application key for this message
-     * @param transitionSteps      transition steps for the level
-     * @param transitionResolution transition resolution for the level
-     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
-     * @param level                level of the GenericLevelModel
-     * @param tId                  transaction Id
+     * @param appKey               {@link ApplicationKey} key for this message
+     * @param transitionSteps      Transition steps for the level
+     * @param transitionResolution Transition resolution for the level
+     * @param delay                Delay for this message to be executed 0 - 1275 milliseconds
+     * @param level                Level of the GenericLevelModel
+     * @param tId                  Transaction Id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     @SuppressWarnings("WeakerAccess")
-    public LightLightnessSetUnacknowledged(@NonNull final byte[] appKey,
+    public LightLightnessSetUnacknowledged(@NonNull final ApplicationKey appKey,
                                            @Nullable final Integer transitionSteps,
                                            @Nullable final Integer transitionResolution,
                                            @Nullable final Integer delay,
@@ -78,7 +79,7 @@ public class LightLightnessSetUnacknowledged extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "Level: " + mLevel);
         Log.v(TAG, "TID: " + tId);

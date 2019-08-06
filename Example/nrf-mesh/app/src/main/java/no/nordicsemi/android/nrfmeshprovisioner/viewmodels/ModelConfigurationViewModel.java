@@ -22,91 +22,55 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
-
-import java.util.List;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.Group;
-import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.transport.Element;
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
-import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.nrfmeshprovisioner.ConfigurationServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.ConfigurationClientActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.ConfigurationServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.GenericLevelServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.GenericOnOffServerActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.ModelConfigurationActivity;
+import no.nordicsemi.android.nrfmeshprovisioner.node.VendorModelActivity;
 
 /**
- * View Model class for {@link ConfigurationServerActivity}
+ * Generic View Model class for {@link ConfigurationServerActivity},{@link ConfigurationClientActivity},
+ * {@link GenericOnOffServerActivity}, {@link GenericLevelServerActivity}, {@link VendorModelActivity},
+ * {@link ModelConfigurationActivity}
  */
-public class ModelConfigurationViewModel extends ViewModel {
+public class ModelConfigurationViewModel extends BaseViewModel {
 
-    private final NrfMeshRepository mNrfMeshRepository;
+    private Queue<MeshMessage> messageQueue = new LinkedList<>();
 
     @Inject
-    ModelConfigurationViewModel(final NrfMeshRepository nrfMeshRepository) {
-        this.mNrfMeshRepository = nrfMeshRepository;
+    ModelConfigurationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
+        super(nrfMeshRepository);
     }
 
-    public LiveData<Boolean> isConnectedToProxy() {
-        return mNrfMeshRepository.isConnectedToProxy();
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        mNrfMeshRepository.clearTransactionStatus();
+        messageQueue.clear();
     }
 
-    /**
-     * Returns the Mesh repository
-     */
-    public NrfMeshRepository getNrfMeshRepository() {
-        return mNrfMeshRepository;
+    public Queue<MeshMessage> getMessageQueue() {
+        return messageQueue;
     }
 
-    /**
-     * Returns the mesh manager api
-     */
-    public MeshManagerApi getMeshManagerApi() {
-        return mNrfMeshRepository.getMeshManagerApi();
+    public void removeMessage() {
+        if (!messageQueue.isEmpty())
+            messageQueue.remove();
     }
 
-    /**
-     * Returns an observable live data object containing the mesh message received
-     *
-     * @return {@link MeshMessageLiveData}
-     */
-    public LiveData<MeshMessage> getMeshMessageLiveData() {
-        return mNrfMeshRepository.getMeshMessageLiveData();
+    public boolean isActivityVisibile() {
+        return isActivityVisibile;
     }
 
-    /**
-     * Get selected mesh node
-     */
-    public LiveData<ProvisionedMeshNode> getSelectedMeshNode() {
-        return mNrfMeshRepository.getSelectedMeshNode();
-    }
-
-    /**
-     * Get selected element
-     */
-    public LiveData<Element> getSelectedElement() {
-        return mNrfMeshRepository.getSelectedElement();
-    }
-
-    /**
-     * Get selected model
-     */
-    public LiveData<MeshModel> getSelectedModel() {
-        return mNrfMeshRepository.getSelectedModel();
-    }
-
-    /**
-     * Returns an observable live data object containing the transaction status.
-     *
-     * @return {@link TransactionStatusLiveData}
-     */
-    public TransactionStatusLiveData getTransactionStatus() {
-        return mNrfMeshRepository.getTransactionStatusLiveData();
-    }
-
-    public LiveData<List<Group>> getGroups(){
-        return mNrfMeshRepository.getGroups();
+    public void setActivityVisible(final boolean visible){
+        isActivityVisibile = visible;
     }
 }

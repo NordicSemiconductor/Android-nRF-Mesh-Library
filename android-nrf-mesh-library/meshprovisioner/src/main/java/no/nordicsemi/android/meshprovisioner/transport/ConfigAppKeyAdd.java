@@ -22,11 +22,15 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -86,14 +90,16 @@ public class ConfigAppKeyAdd extends ConfigMessage {
 
     @Override
     void assembleMessageParameters() {
-        final byte[] networkKeyIndex = MeshParserUtils.addKeyIndexPadding(mNetKey.getKeyIndex());
-        final byte[] applicationKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKey.getKeyIndex());
-
-        final ByteBuffer paramsBuffer = ByteBuffer.allocate(19).order(ByteOrder.BIG_ENDIAN);
-        paramsBuffer.put(networkKeyIndex[1]);
-        paramsBuffer.put((byte) ((applicationKeyIndex[1] << 4) | networkKeyIndex[0] & 0x0F));
-        paramsBuffer.put((byte) ((applicationKeyIndex[0] << 4) | applicationKeyIndex[1] >> 4));
+        Log.v(TAG, "NetKeyIndex: " + mNetKey.getKeyIndex());
+        Log.v(TAG, "AppKeyIndex: " + mAppKey.getKeyIndex());
+        final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(mNetKey.getKeyIndex());
+        final byte[] appKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKey.getKeyIndex());
+        final ByteBuffer paramsBuffer = ByteBuffer.allocate(19).order(ByteOrder.LITTLE_ENDIAN);
+        paramsBuffer.put(netKeyIndex[1]);
+        paramsBuffer.put((byte) (((appKeyIndex[1] & 0xFF) << 4)  | (netKeyIndex[0] & 0xFF) & 0x0F));
+        paramsBuffer.put((byte) (((appKeyIndex[0] & 0xFF) << 4) | (appKeyIndex[1] & 0xFF) >> 4));
         paramsBuffer.put(mAppKey.getKey());
+
         mParameters = paramsBuffer.array();
     }
 }

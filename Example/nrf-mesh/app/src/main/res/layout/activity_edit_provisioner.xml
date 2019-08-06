@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018, Nordic Semiconductor
+  ~ All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+  ~
+  ~ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+  ~
+  ~ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+  ~ documentation and/or other materials provided with the distribution.
+  ~
+  ~ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+  ~ software without specific prior written permission.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  ~ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  ~ HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  ~ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+  ~ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+  ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/main_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/item_padding_bottom">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:background="@color/white"
+                    app:cardElevation="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingBottom="@dimen/item_padding_bottom">
+
+                        <androidx.appcompat.widget.Toolbar
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            app:logo="@drawable/ic_account_key_black_alpha_24dp"
+                            app:title="@string/title_provisioner"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+                        <include
+                            android:id="@+id/container_name"
+                            layout="@layout/layout_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <include
+                            android:id="@+id/container_unicast"
+                            layout="@layout/layout_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <include
+                            android:id="@+id/container_ttl"
+                            layout="@layout/layout_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/select_provisioner_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?selectableItemBackground"
+                            android:clickable="true"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingBottom="@dimen/item_padding_bottom"
+                            tools:ignore="KeyboardInaccessibleWidget">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:id="@+id/image"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                                android:scaleType="center"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@id/title"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/ic_account_check"
+                                tools:ignore="ContentDescription,VectorDrawableCompat"/>
+
+                            <TextView
+                                android:id="@+id/title"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:text="@string/set_as_current_provisioner"
+                                android:textColor="@color/black"
+                                android:textSize="16sp"
+                                app:layout_constraintBaseline_toBaselineOf="@id/image"
+                                app:layout_constraintEnd_toStartOf="@id/check_provisioner"
+                                app:layout_constraintStart_toEndOf="@id/image"
+                                app:layout_goneMarginStart="@dimen/activity_horizontal_margin"/>
+
+                            <CheckBox
+                                android:id="@+id/check_provisioner"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintBaseline_toBaselineOf="@id/image"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/title"/>
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:background="@color/white"
+                    app:cardElevation="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <androidx.appcompat.widget.Toolbar
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            app:logo="@drawable/ic_arrow_collapse_black_alpha_24dp"
+                            app:title="@string/title_allocated_ranges"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+
+                        <include
+                            android:id="@+id/container_unicast_range"
+                            layout="@layout/layout_range_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <include
+                            android:id="@+id/container_group_range"
+                            layout="@layout/layout_range_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <include
+                            android:id="@+id/container_scene_range"
+                            layout="@layout/layout_range_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                        <include
+                            android:id="@+id/div3"
+                            layout="@layout/layout_divider"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"/>
+
+                        <include
+                            android:id="@+id/info_ranges"
+                            layout="@layout/info_range_legend"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,12 +1,13 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
@@ -30,12 +31,12 @@ public class GenericOnOffSet extends GenericMessage {
     /**
      * Constructs GenericOnOffSet message.
      *
-     * @param appKey application key for this message
-     * @param state  boolean state of the GenericOnOffModel
-     * @param tId    transaction id
+     * @param appKey {@link ApplicationKey} key for this message
+     * @param state  Boolean state of the GenericOnOffModel
+     * @param tId    Transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericOnOffSet(@NonNull final byte[] appKey,
+    public GenericOnOffSet(@NonNull final ApplicationKey appKey,
                            final boolean state,
                            final int tId) throws IllegalArgumentException {
         this(appKey, state, tId, null, null, null);
@@ -44,16 +45,15 @@ public class GenericOnOffSet extends GenericMessage {
     /**
      * Constructs GenericOnOffSet message.
      *
-     * @param appKey               application key for this message
-     * @param state                boolean state of the GenericOnOffModel
-     * @param tId                  transaction id
-     * @param transitionSteps      transition steps for the level
-     * @param transitionResolution transition resolution for the level
-     * @param delay                delay for this message to be executed 0 - 1275 milliseconds
+     * @param appKey               {@link ApplicationKey} key for this message
+     * @param state                Boolean state of the GenericOnOffModel
+     * @param tId                  Transaction id
+     * @param transitionSteps      Transition steps for the level
+     * @param transitionResolution Transition resolution for the level
+     * @param delay                Delay for this message to be executed 0 - 1275 milliseconds
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    @SuppressWarnings("WeakerAccess")
-    public GenericOnOffSet(@NonNull final byte[] appKey,
+    public GenericOnOffSet(@NonNull final ApplicationKey appKey,
                            final boolean state,
                            final int tId,
                            @Nullable final Integer transitionSteps,
@@ -75,7 +75,7 @@ public class GenericOnOffSet extends GenericMessage {
 
     @Override
     void assembleMessageParameters() {
-        mAid = SecureUtils.calculateK4(mAppKey);
+        mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
         Log.v(TAG, "State: " + (mState ? "ON" : "OFF"));
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {

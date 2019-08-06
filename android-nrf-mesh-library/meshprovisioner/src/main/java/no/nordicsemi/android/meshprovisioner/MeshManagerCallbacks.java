@@ -100,9 +100,9 @@ public interface MeshManagerCallbacks {
     /**
      * Send mesh pdu
      *
-     * @param pdu      mesh pdu to be sent
+     * @param pdu mesh pdu to be sent
      */
-    void sendMeshPdu(final byte[] pdu);
+    void onMeshPduCreated(final byte[] pdu);
 
     /**
      * Get mtu size supported by the peripheral node

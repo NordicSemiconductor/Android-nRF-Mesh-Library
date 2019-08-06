@@ -24,27 +24,46 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.content.Context;
 import android.os.Handler;
-import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
+import java.util.UUID;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
-public final class MeshTransport extends NetworkLayer {
+/**
+ * MeshTransport class is responsible for building the configuration and application layer mesh messages.
+ */
+final class MeshTransport extends NetworkLayer {
 
     private static final String TAG = MeshTransport.class.getSimpleName();
     private static final int PROXY_CONFIGURATION_TTL = 0;
 
-    MeshTransport(final Context context) {
+    /**
+     * Constructs the MeshTransport
+     *
+     * @param context context
+     */
+    MeshTransport(@NonNull final Context context) {
         this.mContext = context;
         initHandler();
     }
 
+    /**
+     * Constructs MeshTransport
+     *
+     * @param context Context
+     * @param node    Mesh node
+     */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    MeshTransport(final Context context, final ProvisionedMeshNode node) {
+    MeshTransport(@NonNull final Context context, @NonNull final ProvisionedMeshNode node) {
         super();
         this.mContext = context;
         this.mMeshNode = node;
@@ -57,31 +76,39 @@ public final class MeshTransport extends NetworkLayer {
     }
 
     @Override
-    public final void setLowerTransportLayerCallbacks(final LowerTransportLayerCallbacks callbacks) {
-        super.setLowerTransportLayerCallbacks(callbacks);
+    protected final void setLowerTransportLayerCallbacks(@NonNull final LowerTransportLayerCallbacks callbacks) {
+        mLowerTransportLayerCallbacks = callbacks;
     }
 
-    public final void setNetworkLayerCallbacks(final NetworkLayerCallbacks callbacks) {
+    @Override
+    final void setNetworkLayerCallbacks(@NonNull final NetworkLayerCallbacks callbacks) {
         this.mNetworkLayerCallbacks = callbacks;
     }
 
-
-    public final void setUpperTransportLayerCallbacks(final UpperTransportLayerCallbacks callbacks) {
+    @Override
+    final void setUpperTransportLayerCallbacks(@NonNull final UpperTransportLayerCallbacks callbacks) {
         this.mUpperTransportLayerCallbacks = callbacks;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected final int incrementSequenceNumber(final int src) {
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
-        return provisioner.incrementSequenceNumber();
+        final int seqNumber = provisioner.incrementSequenceNumber();
+        final ProvisionedMeshNode node = mNetworkLayerCallbacks.getNode(provisioner.getProvisionerAddress());
+        node.setSequenceNumber(seqNumber);
+        return seqNumber;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
-    protected final int incrementSequenceNumber(final int src, final byte[] sequenceNumber) {
+    protected final int incrementSequenceNumber(final int src, @NonNull final byte[] sequenceNumber) {
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
-        final int seqNumber = MeshParserUtils.getSequenceNumber(sequenceNumber);
-        provisioner.setSequenceNumber(seqNumber);
-        return provisioner.incrementSequenceNumber();
+        provisioner.setSequenceNumber(MeshParserUtils.getSequenceNumber(sequenceNumber));
+        final int seqNumber = provisioner.incrementSequenceNumber();
+        final ProvisionedMeshNode node = mNetworkLayerCallbacks.getNode(provisioner.getProvisionerAddress());
+        node.setSequenceNumber(seqNumber);
+        return seqNumber;
     }
 
     /**
@@ -103,8 +130,8 @@ public final class MeshTransport extends NetworkLayer {
      * </p>
      *
      * @param src                     Source address of the provisioner/configurator.
-     * @param dst                     destination address to be sent to
-     * @param key                     Key could be application key or device key.
+     * @param dst                     Destination address to be sent to
+     * @param key                     Device Key
      * @param akf                     Application key flag defines which key to be used to decrypt the message i.e device key or application key.
      * @param aid                     Identifier of the application key.
      * @param aszmic                  Defines the length of the transport mic length where 1 will encrypt withn 64 bit and 0 with 32 bit encryption.
@@ -112,8 +139,12 @@ public final class MeshTransport extends NetworkLayer {
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    final AccessMessage createMeshMessage(final int src, final int dst,
-                                          final byte[] key, final int akf, final int aid, final int aszmic,
+    final AccessMessage createMeshMessage(final int src,
+                                          final int dst,
+                                          final byte[] key,
+                                          final int akf,
+                                          final int aid,
+                                          final int aszmic,
                                           final int accessOpCode, final byte[] accessMessageParameters) {
         final int sequenceNumber = incrementSequenceNumber(src);
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
@@ -133,7 +164,66 @@ public final class MeshTransport extends NetworkLayer {
         message.setDst(dst);
         message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         message.setSequenceNumber(sequenceNum);
-        message.setKey(key);
+        message.setDeviceKey(key);
+        message.setAkf(akf);
+        message.setAid(aid);
+        message.setAszmic(aszmic);
+        message.setOpCode(accessOpCode);
+        message.setParameters(accessMessageParameters);
+        message.setPduType(MeshManagerApi.PDU_TYPE_NETWORK);
+
+        super.createMeshMessage(message);
+        return message;
+    }
+
+    /**
+     * Creates an access message to be sent to the peripheral node
+     * <p>
+     * This method will create the access message and propagate the message through the transport layers to create the final mesh pdu.
+     * </p>
+     *
+     * @param src                     Source address of the provisioner/configurator.
+     * @param dst                     Destination address to be sent to
+     * @param label                   Label UUID for destination address
+     * @param key                     Application Key
+     * @param akf                     Application key flag defines which key to be used to decrypt the message i.e device key or application key.
+     * @param aid                     Identifier of the application key.
+     * @param aszmic                  Defines the length of the transport mic length where 1 will encrypt withn 64 bit and 0 with 32 bit encryption.
+     * @param accessOpCode            Operation code for the access message.
+     * @param accessMessageParameters Parameters for the access message.
+     * @return access message containing the mesh pdu
+     */
+    final AccessMessage createMeshMessage(final int src,
+                                          final int dst,
+                                          @Nullable final UUID label,
+                                          @NonNull final ApplicationKey key,
+                                          final int akf,
+                                          final int aid,
+                                          final int aszmic,
+                                          final int accessOpCode,
+                                          @Nullable final byte[] accessMessageParameters) {
+        final int sequenceNumber = incrementSequenceNumber(src);
+        final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
+
+        Log.v(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
+        Log.v(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
+        Log.v(TAG, "Key: " + MeshParserUtils.bytesToHex(key.getKey(), false));
+        Log.v(TAG, "akf: " + akf);
+        Log.v(TAG, "aid: " + aid);
+        Log.v(TAG, "aszmic: " + aszmic);
+        Log.v(TAG, "Sequence number: " + sequenceNumber);
+        Log.v(TAG, "Access message opcode: " + Integer.toHexString(accessOpCode));
+        Log.v(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
+
+        final AccessMessage message = new AccessMessage();
+        message.setSrc(src);
+        message.setDst(dst);
+        if (label != null) {
+            message.setLabel(label);
+        }
+        message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
+        message.setSequenceNumber(sequenceNum);
+        message.setApplicationKey(key);
         message.setAkf(akf);
         message.setAid(aid);
         message.setAszmic(aszmic);
@@ -152,24 +242,32 @@ public final class MeshTransport extends NetworkLayer {
      * </p>
      *
      * @param src                     Source address of the provisioner/configurator.
-     * @param dst                     destination address to be sent to
-     * @param key                     Key could be application key or device key.
+     * @param dst                     Destination address to be sent to
+     * @param label                   Label UUID
+     * @param key                     Application key
      * @param akf                     Application key flag defines which key to be used to decrypt the message i.e device key or application key.
      * @param aid                     Identifier of the application key.
-     * @param aszmic                  Defines the length of the transport mic length where 1 will encrypt withn 64 bit and 0 with 32 bit encryption.
+     * @param aszmic                  Defines the length of the transport mic length where 1 will encrypt within 64 bit and 0 with 32 bit encryption.
      * @param accessOpCode            Operation code for the access message.
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    final AccessMessage createVendorMeshMessage(final int companyIdentifier, final int src, final int dst,
-                                                final byte[] key, final int akf, final int aid, final int aszmic,
-                                                final int accessOpCode, final byte[] accessMessageParameters) {
+    final AccessMessage createVendorMeshMessage(final int companyIdentifier,
+                                                final int src,
+                                                final int dst,
+                                                @Nullable final UUID label,
+                                                @NonNull final ApplicationKey key,
+                                                final int akf,
+                                                final int aid,
+                                                final int aszmic,
+                                                final int accessOpCode,
+                                                @Nullable final byte[] accessMessageParameters) {
         final int sequenceNumber = incrementSequenceNumber(src);
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
         Log.v(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
         Log.v(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
-        Log.v(TAG, "Key: " + MeshParserUtils.bytesToHex(key, false));
+        Log.v(TAG, "Key: " + MeshParserUtils.bytesToHex(key.getKey(), false));
         Log.v(TAG, "akf: " + akf);
         Log.v(TAG, "aid: " + aid);
         Log.v(TAG, "aszmic: " + aszmic);
@@ -181,9 +279,12 @@ public final class MeshTransport extends NetworkLayer {
         message.setCompanyIdentifier(companyIdentifier);
         message.setSrc(src);
         message.setDst(dst);
+        if (label != null) {
+            message.setLabel(label);
+        }
         message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         message.setSequenceNumber(sequenceNum);
-        message.setKey(key);
+        message.setApplicationKey(key);
         message.setAkf(akf);
         message.setAid(aid);
         message.setAszmic(aszmic);
@@ -241,7 +342,11 @@ public final class MeshTransport extends NetworkLayer {
      * @return Message
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    final Message parsePdu(final byte[] pdu) throws ExtendedInvalidCipherTextException {
-        return parseMeshMessage(pdu);
+    final Message parsePdu(@NonNull final ProvisionedMeshNode node,
+                           @NonNull final byte[] pdu,
+                           @NonNull final byte[] networkHeader,
+                           @NonNull final byte[] decryptedNetworkPayload) throws ExtendedInvalidCipherTextException {
+
+        return parseMeshMessage(node, pdu, networkHeader, decryptedNetworkPayload);
     }
 }

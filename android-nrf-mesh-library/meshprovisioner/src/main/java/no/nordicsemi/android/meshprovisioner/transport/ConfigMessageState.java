@@ -22,19 +22,51 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
-abstract class ConfigMessageState extends MeshMessageState {
+/**
+ * ConfigMessageState class that handles configuration message state.
+ */
+class ConfigMessageState extends MeshMessageState {
 
-    private static final String TAG = ConfigMessageState.class.getSimpleName();
+    private final byte[] mDeviceKey;
 
-    ConfigMessageState(@NonNull final Context context,
+    /**
+     * Constructs the ConfigMessageState
+     *
+     * @param src           Source address
+     * @param dst           Destination address
+     * @param deviceKey     Device key
+     * @param meshMessage   {@link MeshMessage} Mesh message to be sent
+     * @param meshTransport {@link MeshTransport} Mesh transport
+     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} callbacks
+     */
+    ConfigMessageState(final int src,
+                       final int dst,
+                       @NonNull final byte[] deviceKey,
                        @NonNull final MeshMessage meshMessage,
                        @NonNull final MeshTransport meshTransport,
                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
-        super(context, meshMessage, meshTransport, callbacks);
+        super(meshMessage, meshTransport, callbacks);
+        this.mSrc = src;
+        this.mDst = dst;
+        this.mDeviceKey = deviceKey;
+        createAccessMessage();
     }
 
-    public abstract MessageState getState();
+    @Override
+    public MessageState getState() {
+        return MessageState.CONFIG_MESSAGE_STATE;
+    }
+
+    private void createAccessMessage() throws IllegalArgumentException {
+        final ConfigMessage configMessage = (ConfigMessage) mMeshMessage;
+        final int akf = configMessage.getAkf();
+        final int aid = configMessage.getAid();
+        final int aszmic = configMessage.getAszmic();
+        final int opCode = configMessage.getOpCode();
+        final byte[] parameters = configMessage.getParameters();
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mDeviceKey, akf, aid, aszmic, opCode, parameters);
+        configMessage.setMessage(message);
+    }
 }

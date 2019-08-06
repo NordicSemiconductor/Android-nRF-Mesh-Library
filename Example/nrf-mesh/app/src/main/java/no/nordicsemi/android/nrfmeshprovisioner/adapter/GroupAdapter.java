@@ -23,8 +23,8 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,19 +49,18 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     private OnItemClickListener mOnItemClickListener;
     private MeshNetwork mNetwork;
 
-    public GroupAdapter(final Context context/*, final MeshNetwork meshNetwork, final List<Group> groupLiveData*/) {
+    public GroupAdapter(@NonNull final Context context) {
         this.mContext = context;
     }
 
-    public void updateAdapter(final MeshNetwork meshNetwork, final List<Group> groups){
-
+    public void updateAdapter(@NonNull final MeshNetwork meshNetwork, @NonNull final List<Group> groups) {
         mNetwork = meshNetwork;
         mGroups.clear();
         mGroups.addAll(groups);
         notifyDataSetChanged();
     }
 
-    public void setOnItemClickListener(final OnItemClickListener listener) {
+    public void setOnItemClickListener(@NonNull final OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
 
@@ -79,9 +78,10 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             if (group != null) {
                 final List<MeshModel> models = mNetwork.getModels(group);
                 holder.groupName.setText(group.getName());
-                final String addressSummary = "Address: " + MeshAddress.formatAddress(group.getGroupAddress(), true);
-                holder.groupAddress.setText(addressSummary);
-                holder.groupDeviceCount.setText(mContext.getString(R.string.group_device_count, models.size()));
+                holder.groupAddress.setText(mContext.
+                        getString(R.string.group_address_summary, MeshAddress.formatAddress(group.getAddress(), true)));
+                holder.groupDeviceCount.setText(mContext.getResources().
+                        getQuantityString(R.plurals.device_count, models.size(), models.size()));
             }
         }
     }
@@ -102,10 +102,11 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     /**
      * Returns the number of models associated to the group in a particular position
+     *
      * @param position position
      */
-    public int getModelCount(final int position){
-        if(position >= 0 && !mGroups.isEmpty() && position < mGroups.size()) {
+    public int getModelCount(final int position) {
+        if (position >= 0 && !mGroups.isEmpty() && position < mGroups.size()) {
             final Group group = mGroups.get(position);
             return mNetwork.getModels(group).size();
         }
@@ -130,7 +131,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             ButterKnife.bind(this, view);
             view.findViewById(R.id.container).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(mGroups.get(getAdapterPosition()).getGroupAddress());
+                    mOnItemClickListener.onItemClick(mGroups.get(getAdapterPosition()).getAddress());
                 }
             });
         }

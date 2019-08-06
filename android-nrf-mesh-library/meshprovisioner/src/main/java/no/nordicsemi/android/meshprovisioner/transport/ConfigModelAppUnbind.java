@@ -22,13 +22,10 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -55,28 +52,12 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
      * @param modelIdentifier Model from which the key must be unbound from
      * @param appKeyIndex     Global app key index of the key to be unbound
      * @throws IllegalArgumentException if any illegal arguments are passed
-     * @deprecated in favour of {@link #ConfigModelAppUnbind(int, int, int)}
-     */
-    @Deprecated
-    public ConfigModelAppUnbind(@NonNull final byte[] elementAddress,
-                                final int modelIdentifier,
-                                final int appKeyIndex) throws IllegalArgumentException {
-        this(AddressUtils.getUnicastAddressInt(elementAddress), modelIdentifier, appKeyIndex);
-    }
-
-    /**
-     * Constructs ConfigModelAppUnbind message.
-     *
-     * @param elementAddress  Address of the element to which the model belongs to
-     * @param modelIdentifier Model from which the key must be unbound from
-     * @param appKeyIndex     Global app key index of the key to be unbound
-     * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public ConfigModelAppUnbind(final int elementAddress,
                                 final int modelIdentifier,
                                 final int appKeyIndex) throws IllegalArgumentException {
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
-            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
+            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.mElementAddress = elementAddress;
         this.mModelIdentifier = modelIdentifier;
         this.mAppKeyIndex = appKeyIndex;

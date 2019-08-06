@@ -22,124 +22,56 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
-import android.net.Uri;
-
-import java.util.List;
-
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.Group;
-import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
+import no.nordicsemi.android.nrfmeshprovisioner.GroupsFragment;
+import no.nordicsemi.android.nrfmeshprovisioner.NetworkFragment;
+import no.nordicsemi.android.nrfmeshprovisioner.ProxyFilterFragment;
+import no.nordicsemi.android.nrfmeshprovisioner.SettingsFragment;
 
-public class SharedViewModel extends ViewModel {
+/**
+ * ViewModel for {@link NetworkFragment}, {@link GroupsFragment}, {@link ProxyFilterFragment}, {@link SettingsFragment}
+ */
+public class SharedViewModel extends BaseViewModel {
 
     private final ScannerRepository mScannerRepository;
-    private final NrfMeshRepository nRFMeshRepository;
 
     @Inject
-    SharedViewModel(final ScannerRepository scannerRepository, final NrfMeshRepository nrfMeshRepository) {
+    SharedViewModel(@NonNull final NrfMeshRepository nrfMeshRepository, @NonNull final ScannerRepository scannerRepository) {
+        super(nrfMeshRepository);
         mScannerRepository = scannerRepository;
-        nRFMeshRepository = nrfMeshRepository;
         scannerRepository.registerBroadcastReceivers();
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        nRFMeshRepository.disconnect();
+        mNrfMeshRepository.disconnect();
         mScannerRepository.unregisterBroadcastReceivers();
     }
 
-    public MeshManagerApi getMeshManagerApi(){
-        return nRFMeshRepository.getMeshManagerApi();
-    }
-
-    public void importMeshNetwork(final Uri uri){
-        nRFMeshRepository.importMeshNetwork(uri);
-    }
-
-    public MeshNetworkLiveData getMeshNetworkLiveData() {
-        return nRFMeshRepository.getMeshNetworkLiveData();
-    }
-
-    public LiveData<List<Group>> getGroups(){
-        return nRFMeshRepository.getGroups();
-    }
-
     /**
-     * Returns an instance of the scanner repository
+     * Returns network load state
      */
-    public ScannerRepository getScannerRepository() {
-        return mScannerRepository;
-    }
-
-    public NrfMeshRepository getnRFMeshRepository() {
-        return nRFMeshRepository;
+    public LiveData<String> getNetworkLoadState() {
+        return mNrfMeshRepository.getNetworkLoadState();
     }
 
     /**
-     * Returns the provisioned nodes as a live data object.
+     * Returns network export state
      */
-    public LiveData<List<ProvisionedMeshNode>> getProvisionedNodes() {
-        return nRFMeshRepository.getProvisionedNodes();
+    public LiveData<String> getNetworkExportState() {
+        return mNrfMeshRepository.getNetworkExportState();
     }
 
     /**
-     * Returns if currently connected to a peripheral device.
+     * Sets the selected group
      *
-     * @return true if connected and false otherwise
+     * @param address Address of the group
      */
-    public LiveData<Boolean> isConnected() {
-        return nRFMeshRepository.isConnected();
-    }
-
-    /**
-     * Disconnect from peripheral
-     */
-    public void disconnect() {
-        nRFMeshRepository.disconnect();
-    }
-
-    /**
-     * Returns if currently connected to the mesh network.
-     *
-     * @return true if connected and false otherwise
-     */
-    public LiveData<Boolean> isConnectedToProxy() {
-        return nRFMeshRepository.isConnectedToProxy();
-    }
-
-    /**
-     * Set the mesh node to be configured
-     *
-     * @param meshNode provisioned mesh node
-     */
-    public void setSelectedMeshNode(final ProvisionedMeshNode meshNode) {
-        nRFMeshRepository.setSelectedMeshNode(meshNode);
-    }
-
-    /**
-     * Reset mesh network
-     */
-    public void resetMeshNetwork() {
-        nRFMeshRepository.resetMeshNetwork();
-    }
-
-    public LiveData<String> getNetworkLoadState(){
-        return nRFMeshRepository.getNetworkLoadState();
-    }
-    public LiveData<String> getNetworkExportState(){
-        return nRFMeshRepository.getNetworkExportState();
-    }
-
-    public LiveData<Integer> getConnectedMeshNodeAddress(){
-        return nRFMeshRepository.getConnectedMeshNodeAddress();
-    }
-
-    public void setSelectedGroup(final int address){
-        nRFMeshRepository.setSelectedGroup(address);
+    public void setSelectedGroup(final int address) {
+        mNrfMeshRepository.setSelectedGroup(address);
     }
 }

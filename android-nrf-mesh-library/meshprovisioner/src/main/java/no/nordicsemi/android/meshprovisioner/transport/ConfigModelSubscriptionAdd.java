@@ -22,17 +22,14 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 /**
- * This class handles subscribing a model to subscription address.
+ * Creates the ConfigModelSubscriptionAdd message
  */
 @SuppressWarnings("unused")
 public final class ConfigModelSubscriptionAdd extends ConfigMessage {
@@ -48,23 +45,7 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessage {
     private final int mModelIdentifier;
 
     /**
-     * Constructs ConfigModelSubscriptionDelete message.
-     *
-     * @param elementAddress      Address of the element to which the model belongs to.
-     * @param subscriptionAddress Address to whic the element should subscribe.
-     * @param modelIdentifier     identifier of the model, 16-bit for Sig model and 32-bit model id for vendor models.
-     * @throws IllegalArgumentException if any illegal arguments are passed
-     * @deprecated in favour of {@link #ConfigModelSubscriptionAdd(int, int, int)}
-     */
-    @Deprecated
-    public ConfigModelSubscriptionAdd(@NonNull final byte[] elementAddress,
-                                      @NonNull final byte[] subscriptionAddress,
-                                      final int modelIdentifier) throws IllegalArgumentException {
-        this(AddressUtils.getUnicastAddressInt(elementAddress), AddressUtils.getUnicastAddressInt(subscriptionAddress), modelIdentifier);
-    }
-
-    /**
-     * Constructs ConfigModelSubscriptionDelete message.
+     * Constructs ConfigModelSubscriptionAdd message.
      *
      * @param elementAddress      Address of the element to which the model belongs to.
      * @param subscriptionAddress Address to whic the element should subscribe.
@@ -76,7 +57,7 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessage {
                                       final int modelIdentifier) throws IllegalArgumentException {
 
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
-            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
+            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.elementAddress = elementAddress;
         if (!MeshAddress.isAddressInRange(subscriptionAddress))
             throw new IllegalArgumentException("Invalid subscription address, subscription address must be a 16-bit value");
@@ -95,8 +76,8 @@ public final class ConfigModelSubscriptionAdd extends ConfigMessage {
 
         final ByteBuffer paramsBuffer;
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        final byte[] elementAddress = AddressUtils.getUnicastAddressBytes(this.elementAddress);
-        final byte[] subscriptionAddress = AddressUtils.getUnicastAddressBytes(this.mSubscriptionAddress);
+        final byte[] elementAddress = MeshAddress.addressIntToBytes(this.elementAddress);
+        final byte[] subscriptionAddress = MeshAddress.addressIntToBytes(this.mSubscriptionAddress);
         if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put(elementAddress[1]);

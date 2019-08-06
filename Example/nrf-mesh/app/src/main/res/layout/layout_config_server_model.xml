@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,7 +9,7 @@
     android:clipToPadding="false"
     android:clipChildren="false">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/config_relay_set_card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -21,11 +21,11 @@
         android:visibility="gone"
         tools:visibility="visible">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/config_relay_tool_bar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
@@ -34,10 +34,11 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:logo="@drawable/ic_repeat_black_24dp"
                 app:title="@string/title_relay_retransmit_info"
-                app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                app:titleMarginStart="@dimen/toolbar_title_margin"
+                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/container_relay_retransmit_count"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -87,9 +88,9 @@
                     app:srcCompat="@drawable/ic_numeric"
                     tools:ignore="ContentDescription"/>
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/container_relay_retransmit_interval_steps"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -139,7 +140,7 @@
                     app:layout_constraintTop_toBottomOf="@id/relay_retransmit_interval_steps_title"
                     tools:ignore="HardcodedText"/>
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <include
                 android:id="@+id/relay_retransmit_divider"
@@ -149,9 +150,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/container_relay_retransmit_interval_steps"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_relay_retransmit_get"
-                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -162,9 +162,8 @@
                 app:layout_constraintEnd_toStartOf="@id/action_relay_retransmit_configure"
                 app:layout_constraintTop_toBottomOf="@id/relay_retransmit_divider"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_relay_retransmit_configure"
-                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -174,11 +173,11 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/relay_retransmit_divider"/>
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/network_transmit_card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -189,11 +188,11 @@
         android:background="@color/white"
         app:cardElevation="1dp">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/network_transmit_tool_bar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
@@ -202,9 +201,10 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:logo="@drawable/ic_repeat_black_24dp"
                 app:title="@string/title_network_transmit_info"
-                app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                app:titleMarginStart="@dimen/toolbar_title_margin"
+                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/container_network_transmit_count"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -254,9 +254,9 @@
                     app:srcCompat="@drawable/ic_numeric"
                     tools:ignore="ContentDescription"/>
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/container_network_transmit_interval_steps"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -306,7 +306,7 @@
                     app:layout_constraintTop_toBottomOf="@id/network_transmit_interval_steps_title"
                     tools:ignore="HardcodedText"/>
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <include
                 android:id="@+id/network_transmit_divider"
@@ -316,9 +316,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/container_network_transmit_interval_steps"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_network_transmit_get"
-                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -329,9 +328,8 @@
                 app:layout_constraintEnd_toStartOf="@id/action_network_transmit_configure"
                 app:layout_constraintTop_toBottomOf="@id/network_transmit_divider"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_network_transmit_configure"
-                style="@style/BlueTextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -341,8 +339,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/network_transmit_divider"/>
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

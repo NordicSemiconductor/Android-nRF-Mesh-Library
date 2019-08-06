@@ -25,13 +25,7 @@
 
     <string name="error_empty_pin">Error, pin cannot be empty!</string>
 
-    <string name="error_empty_network_name">Network name cannot be empty!</string>
-
-    <string name="error_empty_global_ttl">TTL cannot be empty!</string>
-    <string name="error_invalid_global_ttl">TTL value must range from 0 to 127!</string>
-
     <string name="error_empty_network_key">Network key cannot be empty!</string>
-    <string name="error_invalid_network_key">Network key must be 16 bytes long!</string>
 
     <string name="error_empty_key_index">Key index cannot be empty!</string>
     <string name="error_invalid_key_index">Key index must be 0 to 4095!</string>
@@ -42,7 +36,6 @@
     <string name="error_empty_unicast_address">Unicast Address cannot be empty!</string>
 
     <string name="error_empty_app_key">App key cannot be empty!</string>
-    <string name="error_invalid_app_key">App key must be 16 bytes long and must be a valid hex value!</string>
 
     <string name="error_prohibited">Prohibited!</string>
     <string name="error_invalid_pdu">The provisioning protocol PDU is not recognized by the device!</string>

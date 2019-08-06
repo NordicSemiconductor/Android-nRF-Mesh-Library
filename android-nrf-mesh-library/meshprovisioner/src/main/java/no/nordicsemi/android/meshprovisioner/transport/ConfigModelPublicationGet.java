@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -31,12 +30,11 @@ import java.nio.ByteOrder;
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
 /**
  * To be used as a wrapper class to create a ConfigModelPublicationSet message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public class ConfigModelPublicationGet extends ConfigMessage {
 
     private static final String TAG = ConfigModelPublicationGet.class.getSimpleName();
@@ -55,23 +53,10 @@ public class ConfigModelPublicationGet extends ConfigMessage {
      * @param modelIdentifier                identifier for this model that will do publication
      * @throws IllegalArgumentException for invalid arguments
      */
-    @Deprecated
-    public ConfigModelPublicationGet(@NonNull final byte[] elementAddress,
-                                     final int modelIdentifier) throws IllegalArgumentException {
-        this(MeshParserUtils.bytesToInt(elementAddress), modelIdentifier);
-    }
-
-    /**
-     * Constructs a ConfigModelPublicationGet message
-     *
-     * @param elementAddress                 Element address that should publish
-     * @param modelIdentifier                identifier for this model that will do publication
-     * @throws IllegalArgumentException for invalid arguments
-     */
     public ConfigModelPublicationGet(final int elementAddress,
                                      final int modelIdentifier) throws IllegalArgumentException {
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
-            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
+            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.elementAddress = elementAddress;
         this.modelIdentifier = modelIdentifier;
         assembleMessageParameters();
@@ -98,7 +83,8 @@ public class ConfigModelPublicationGet extends ConfigMessage {
         } else {
             paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_PUBLISH_GET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) elementAddress);
-            final byte[] modelIdentifier = new byte[]{(byte) ((this.modelIdentifier >> 24) & 0xFF), (byte) ((this.modelIdentifier >> 16) & 0xFF), (byte) ((this.modelIdentifier >> 8) & 0xFF), (byte) (this.modelIdentifier & 0xFF)};
+            final byte[] modelIdentifier = new byte[]{(byte) ((this.modelIdentifier >> 24) & 0xFF), (byte) ((this.modelIdentifier >> 16) & 0xFF),
+                    (byte) ((this.modelIdentifier >> 8) & 0xFF), (byte) (this.modelIdentifier & 0xFF)};
             paramsBuffer.put(modelIdentifier[1]);
             paramsBuffer.put(modelIdentifier[0]);
             paramsBuffer.put(modelIdentifier[3]);

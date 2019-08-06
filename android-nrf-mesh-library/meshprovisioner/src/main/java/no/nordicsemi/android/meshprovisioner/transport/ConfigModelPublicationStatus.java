@@ -24,7 +24,7 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -83,21 +83,20 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
     @Override
     final void parseStatusParameters() {
         final AccessMessage message = (AccessMessage) mMessage;
-        final ByteBuffer buffer = ByteBuffer.wrap(message.getParameters()).order(ByteOrder.LITTLE_ENDIAN);
         mStatusCode = mParameters[0];
         mStatusCodeName = getStatusCodeName(mStatusCode);
-        final byte[] elementAddress = new byte[]{mParameters[2], mParameters[1]};
         mElementAddress = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
         publishAddress = MeshParserUtils.unsignedBytesToInt(mParameters[3], mParameters[4]);
         final byte[] appKeyIndex = new byte[]{(byte) (mParameters[6] & 0x0F), mParameters[5]};
         mAppKeyIndex = ByteBuffer.wrap(appKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
         credentialFlag = (mParameters[6] & 0xF0) >> 4 == 1;
-        publishTtl = mParameters[7];
-        final int publishPeriod = mParameters[8];
-        publicationSteps = publishPeriod >> 6;
-        publicationResolution = publishPeriod & 0x03;
-        publishRetransmitCount = mParameters[9] >> 5;
-        publishRetransmitIntervalSteps = mParameters[9] & 0x1F;
+        publishTtl = MeshParserUtils.unsignedByteToInt(mParameters[7]);
+        final int publishPeriod = MeshParserUtils.unsignedByteToInt(mParameters[8]);
+        publicationSteps = publishPeriod & 0x3F;
+        publicationResolution = publishPeriod >> 6;
+        final int publishRetransmission = MeshParserUtils.unsignedByteToInt(mParameters[9]);
+        publishRetransmitCount = publishRetransmission >> 5;
+        publishRetransmitIntervalSteps = publishRetransmission & 0x1F;
 
         final byte[] modelIdentifier;
         if (mParameters.length == CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH) {
@@ -109,15 +108,16 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
 
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Element address: " + MeshParserUtils.bytesToHex(elementAddress, false));
+        Log.v(TAG, "Element address: " + MeshAddress.formatAddress(mElementAddress, false));
         Log.v(TAG, "Publish Address: " + MeshAddress.formatAddress(publishAddress, false));
         Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
         Log.v(TAG, "Credential Flag: " + credentialFlag);
         Log.v(TAG, "Publish TTL: " + publishTtl);
-        Log.v(TAG, "Publish Period: " + publishPeriod);
+        Log.v(TAG, "Publish Period where steps: " + publicationSteps + " and resolution: " + publicationResolution);
         Log.v(TAG, "Publish Retransmit Count: " + publishRetransmitCount);
-        Log.v(TAG, "Publish Publish Interval Steps: " + publishRetransmitIntervalSteps);
+        Log.v(TAG, "Publish Retransmit Interval Steps: " + publishRetransmitIntervalSteps);
         Log.v(TAG, "Model Identifier: " + Integer.toHexString(mModelIdentifier));
+        Log.v(TAG, "Publication status: " + MeshParserUtils.bytesToHex(mParameters, false));
     }
 
     @Override

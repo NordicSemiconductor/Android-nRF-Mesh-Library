@@ -22,14 +22,12 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -59,57 +57,18 @@ public class ConfigModelPublicationSet extends ConfigMessage {
     /**
      * Constructs a ConfigModelPublicationSet message
      *
-     * @param elementAddress                 Element address that should publish
-     * @param publishAddress                 Address to which the element must publish
-     * @param appKeyIndex                    Index of the application key
-     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false for master credentials.
-     *                                       Currently supports only master credentials
-     * @param publishTtl                     Publication ttl
-     * @param publicationSteps               Publication steps for the publication period
-     * @param publicationResolution          Publication resolution of the publication period
-     * @param publishRetransmitCount         Number of publication retransmits
-     * @param publishRetransmitIntervalSteps Publish retransmit interval steps
-     * @param modelIdentifier                identifier for this model that will do publication
-     * @throws IllegalArgumentException for invalid arguments
-     * @deprecated in favour of {@link #ConfigModelPublicationSet(int, int, int, boolean, int, int, int, int, int, int)}
-     */
-    @Deprecated
-    public ConfigModelPublicationSet(@NonNull final byte[] elementAddress,
-                                     @NonNull final byte[] publishAddress,
-                                     final int appKeyIndex,
-                                     final boolean credentialFlag,
-                                     final int publishTtl,
-                                     final int publicationSteps,
-                                     final int publicationResolution,
-                                     final int publishRetransmitCount,
-                                     final int publishRetransmitIntervalSteps,
-                                     final int modelIdentifier) throws IllegalArgumentException {
-        this(MeshParserUtils.bytesToInt(elementAddress),
-                MeshParserUtils.bytesToInt(publishAddress),
-                appKeyIndex,
-                credentialFlag,
-                publishTtl,
-                publicationSteps,
-                publicationResolution,
-                publishRetransmitCount,
-                publishRetransmitIntervalSteps,
-                modelIdentifier);
-    }
-
-    /**
-     * Constructs a ConfigModelPublicationSet message
-     *
-     * @param elementAddress                 Element address that should publish
-     * @param publishAddress                 Address to which the element must publish
-     * @param appKeyIndex                    Index of the application key
-     * @param credentialFlag                 Credentials flag define which credentials to be used, set true to use friendship credentials and false for master credentials.
-     *                                       Currently supports only master credentials
-     * @param publishTtl                     Publication ttl
-     * @param publicationSteps               Publication steps for the publication period
-     * @param publicationResolution          Publication resolution of the publication period
-     * @param publishRetransmitCount         Number of publication retransmits
-     * @param publishRetransmitIntervalSteps Publish retransmit interval steps
-     * @param modelIdentifier                identifier for this model that will do publication
+     * @param elementAddress          Element address that should publish
+     * @param publishAddress          Address to which the element must publish
+     * @param appKeyIndex             Index of the application key
+     * @param credentialFlag          Credentials flag define which credentials to be used,
+     *                                set true to use friendship credentials and false for master credentials.
+     *                                Currently supports only master credentials
+     * @param publishTtl              Publication ttl
+     * @param publicationSteps        Publication steps for the publication period
+     * @param publicationResolution   Publication resolution of the publication period
+     * @param retransmitCount         Number of publication retransmits
+     * @param retransmitIntervalSteps Publish retransmit interval steps
+     * @param modelIdentifier         identifier for this model that will do publication
      * @throws IllegalArgumentException for invalid arguments
      */
     public ConfigModelPublicationSet(final int elementAddress,
@@ -119,11 +78,11 @@ public class ConfigModelPublicationSet extends ConfigMessage {
                                      final int publishTtl,
                                      final int publicationSteps,
                                      final int publicationResolution,
-                                     final int publishRetransmitCount,
-                                     final int publishRetransmitIntervalSteps,
+                                     final int retransmitCount,
+                                     final int retransmitIntervalSteps,
                                      final int modelIdentifier) throws IllegalArgumentException {
         if (!MeshAddress.isValidUnicastAddress(elementAddress))
-            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range range from 0x0001 to 0x7FFF");
+            throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.elementAddress = elementAddress;
         if (!MeshAddress.isAddressInRange(publishAddress))
             throw new IllegalArgumentException("Invalid publish address, publish address must be a 16-bit value");
@@ -133,8 +92,8 @@ public class ConfigModelPublicationSet extends ConfigMessage {
         this.publishTtl = publishTtl;
         this.publicationSteps = publicationSteps;
         this.publicationResolution = publicationResolution;
-        this.publishRetransmitCount = publishRetransmitCount;
-        this.publishRetransmitIntervalSteps = publishRetransmitIntervalSteps;
+        this.publishRetransmitCount = retransmitCount;
+        this.publishRetransmitIntervalSteps = retransmitIntervalSteps;
         this.modelIdentifier = modelIdentifier;
         this.appKeyIndex = appKeyIndex;
         assembleMessageParameters();
@@ -157,21 +116,22 @@ public class ConfigModelPublicationSet extends ConfigMessage {
         Log.v(TAG, "Publish steps: " + publicationSteps);
         Log.v(TAG, "Publish resolution: " + publicationResolution);
         Log.v(TAG, "Retransmission count: " + publishRetransmitCount);
-        Log.v(TAG, "Retransmission interval: " + publishRetransmitIntervalSteps);
-        Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(AddressUtils.getUnicastAddressBytes(modelIdentifier), false));
+        Log.v(TAG, "Retransmission interval steps: " + publishRetransmitIntervalSteps);
+        Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(modelIdentifier), false));
 
         final int rfu = 0; // We ignore the rfu here
-        final int octet5 = ((applicationKeyIndex[0] << 4)) | (credentialFlag ? 1 : 0);
-        final int octet8 = (publishRetransmitCount << 5) | (publishRetransmitIntervalSteps & 0x1F);
-        //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
+        final int octet5 = (applicationKeyIndex[0] | (credentialFlag ? 0b01 : 0b00) << 4);
+        final byte publishPeriod = (byte) ((publicationResolution << 6) | (publicationSteps & 0x3F));
+        final int octet8 = (publishRetransmitIntervalSteps << 5) | (publishRetransmitCount & 0x07);
+        //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sig model
         if (modelIdentifier >= Short.MIN_VALUE && modelIdentifier <= Short.MAX_VALUE) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_PUBLISH_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) this.elementAddress);
             paramsBuffer.putShort((short) this.publishAddress);
-            paramsBuffer.put(applicationKeyIndex[1]);
+            paramsBuffer.put((applicationKeyIndex[1]));
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);
-            paramsBuffer.put((byte) ((publicationSteps << 6) | publicationResolution));
+            paramsBuffer.put(publishPeriod);
             paramsBuffer.put((byte) octet8);
             paramsBuffer.putShort((short) modelIdentifier);
             mParameters = paramsBuffer.array();
@@ -182,15 +142,17 @@ public class ConfigModelPublicationSet extends ConfigMessage {
             paramsBuffer.put(applicationKeyIndex[1]);
             paramsBuffer.put((byte) octet5);
             paramsBuffer.put((byte) publishTtl);
-            paramsBuffer.put((byte) ((publicationSteps << 6) | publicationResolution));
+            paramsBuffer.put(publishPeriod);
             paramsBuffer.put((byte) octet8);
-            final byte[] modelIdentifier = new byte[]{(byte) ((this.modelIdentifier >> 24) & 0xFF), (byte) ((this.modelIdentifier >> 16) & 0xFF), (byte) ((this.modelIdentifier >> 8) & 0xFF), (byte) (this.modelIdentifier & 0xFF)};
+            final byte[] modelIdentifier = new byte[]{(byte) ((this.modelIdentifier >> 24) & 0xFF),
+                    (byte) ((this.modelIdentifier >> 16) & 0xFF), (byte) ((this.modelIdentifier >> 8) & 0xFF), (byte) (this.modelIdentifier & 0xFF)};
             paramsBuffer.put(modelIdentifier[1]);
             paramsBuffer.put(modelIdentifier[0]);
             paramsBuffer.put(modelIdentifier[3]);
             paramsBuffer.put(modelIdentifier[2]);
             mParameters = paramsBuffer.array();
         }
+        Log.v(TAG, "Publication set: " + MeshParserUtils.bytesToHex(mParameters, false));
     }
 
     /**

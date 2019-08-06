@@ -17,14 +17,14 @@ public class AddressArray implements Parcelable {
      * @param b1 address byte1
      * @param b2 address byte2
      */
-    public AddressArray(final byte b1, final byte b2){
+    public AddressArray(final byte b1, final byte b2) {
         address[0] = b1;
         address[1] = b2;
     }
 
     protected AddressArray(Parcel in) {
         final byte[] address = in.createByteArray();
-        if(address != null) {
+        if (address != null) {
             this.address[0] = address[0];
             this.address[1] = address[1];
         }

@@ -22,29 +22,30 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.UUID;
+
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
@@ -52,7 +53,6 @@ import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.nrfmeshprovisioner.adapter.GroupAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentCreateGroup;
-import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableItemTouchHelperCallback;
@@ -61,9 +61,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 public class GroupsFragment extends Fragment implements Injectable,
         ItemTouchHelperAdapter,
         GroupAdapter.OnItemClickListener,
-        DialogFragmentCreateGroup.DialogFragmentCreateGroupListener {
-
-    private static final String TAG = GroupsFragment.class.getSimpleName();
+        GroupCallbacks {
 
     private SharedViewModel mViewModel;
 
@@ -71,25 +69,23 @@ public class GroupsFragment extends Fragment implements Injectable,
     ViewModelProvider.Factory mViewModelFactory;
 
     @BindView(R.id.container)
-    View container;
-    @BindView(R.id.fab_add_group)
-    FloatingActionButton fab;
+    CoordinatorLayout container;
+    @BindView(android.R.id.empty)
+    View mEmptyView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_groups, null);
+        @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_groups, null);
+        mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
         ButterKnife.bind(this, rootView);
 
-        mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
-
-        final View noGroupsConfiguredView = rootView.findViewById(R.id.no_groups_configured);
+        final ExtendedFloatingActionButton fab = rootView.findViewById(R.id.fab_add_group);
 
         // Configure the recycler view
         final RecyclerView recyclerViewGroups = rootView.findViewById(R.id.recycler_view_groups);
@@ -103,18 +99,18 @@ public class GroupsFragment extends Fragment implements Injectable,
         adapter.setOnItemClickListener(this);
         recyclerViewGroups.setAdapter(adapter);
 
-        mViewModel.getMeshNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
-                if(meshNetworkLiveData.getMeshNetwork().getGroups().isEmpty()){
-                    noGroupsConfiguredView.setVisibility(View.VISIBLE);
+                if (meshNetworkLiveData.getMeshNetwork().getGroups().isEmpty()) {
+                    mEmptyView.setVisibility(View.VISIBLE);
                 } else {
-                    noGroupsConfiguredView.setVisibility(View.INVISIBLE);
+                    mEmptyView.setVisibility(View.INVISIBLE);
                 }
             }
         });
 
         mViewModel.getGroups().observe(this, groups -> {
-            final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+            final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
             adapter.updateAdapter(network, groups);
         });
 
@@ -123,41 +119,23 @@ public class GroupsFragment extends Fragment implements Injectable,
             fragmentCreateGroup.show(getChildFragmentManager(), null);
         });
 
+        recyclerViewGroups.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull final RecyclerView recyclerView, final int dx, final int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                final LinearLayoutManager m = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (m != null) {
+                    if (m.findFirstCompletelyVisibleItemPosition() == 0) {
+                        fab.extend(true);
+                    } else {
+                        fab.shrink(true);
+                    }
+                }
+            }
+        });
+
         return rootView;
 
-    }
-
-    @Override
-    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        if (mViewModel.getProvisionedNodes().getValue() != null && !mViewModel.getProvisionedNodes().getValue().isEmpty()) {
-            final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-            if (isConnectedToNetwork != null && isConnectedToNetwork) {
-                inflater.inflate(R.menu.disconnect, menu);
-            } else {
-                inflater.inflate(R.menu.connect, menu);
-            }
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        final int id = item.getItemId();
-        switch (id) {
-            case R.id.action_connect:
-                final Intent intent = new Intent(requireActivity(), ScannerActivity.class);
-                intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, false);
-                startActivity(intent);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void onAttach(final Context context) {
-        super.onAttach(context);
     }
 
     @Override
@@ -169,31 +147,66 @@ public class GroupsFragment extends Fragment implements Injectable,
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         final int position = viewHolder.getAdapterPosition();
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         final Group group = network.getGroups().get(position);
-        if(network.getModels(group).size() == 0) {
+        if (network.getModels(group).size() == 0) {
             network.removeGroup(group);
-            final String message = getString(R.string.group_deleted, group.getName());
-            displaySnackBar(message);
+            displaySnackBar(group);
         }
     }
 
     @Override
     public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
         final String message = getString(R.string.error_group_unsubscribe_to_delete);
-        displaySnackBar(message);
-    }
-
-
-    private void displaySnackBar(final String message){
-        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
-                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark ))
-                .show();
+        mViewModel.displaySnackBar(requireActivity(), container, message, Snackbar.LENGTH_LONG);
     }
 
     @Override
-    public boolean createGroup(@NonNull final String name, final int address) {
-        final MeshNetwork network = mViewModel.getMeshNetworkLiveData().getMeshNetwork();
-        return network.addGroup(address, name);
+    public Group createGroup() {
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        return network.createGroup(network.getSelectedProvisioner(), "Mesh Group");
+    }
+
+    @Override
+    public Group createGroup(@NonNull final String name) {
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        return network.createGroup(network.getSelectedProvisioner(), name);
+    }
+
+    @Override
+    public Group createGroup(@NonNull final UUID uuid, final String name) {
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        return network.createGroup(uuid, null, name);
+    }
+
+    @Override
+    public boolean onGroupAdded(@NonNull final String name, final int address) {
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        final Group group = network.createGroup(network.getSelectedProvisioner(), address, name);
+        if (group != null) {
+            return network.addGroup(group);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onGroupAdded(@NonNull final Group group) {
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        return network.addGroup(group);
+    }
+
+    private void displaySnackBar(final Group group) {
+        final String message = getString(R.string.group_deleted, group.getName());
+        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
+                .setAction(R.string.undo, v -> {
+                    mEmptyView.setVisibility(View.INVISIBLE);
+                    final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+                    if (network != null) {
+                        network.addGroup(group);
+                    }
+
+                })
+                .show();
     }
 }

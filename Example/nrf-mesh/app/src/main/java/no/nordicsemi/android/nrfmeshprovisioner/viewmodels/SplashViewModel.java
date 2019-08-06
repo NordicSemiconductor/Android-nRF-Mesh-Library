@@ -22,19 +22,19 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.ViewModel;
+import androidx.annotation.NonNull;
+import no.nordicsemi.android.nrfmeshprovisioner.SplashScreenActivity;
 
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-
-public class SplashViewModel extends ViewModel {
-
-    private final NrfMeshRepository mNrfMeshRepository;
+/**
+ * ViewModel for {@link SplashScreenActivity}
+ */
+public class SplashViewModel extends BaseViewModel {
 
     @Inject
-    SplashViewModel(final NrfMeshRepository nrfMeshRepository) {
-        this.mNrfMeshRepository = nrfMeshRepository;
+    SplashViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
+        super(nrfMeshRepository);
     }
 
     @Override
@@ -42,15 +42,4 @@ public class SplashViewModel extends ViewModel {
         super.onCleared();
     }
 
-    public NrfMeshRepository getNrfMeshRepository() {
-        return mNrfMeshRepository;
-    }
-
-    public MeshManagerApi getMeshManagerApi() {
-        return mNrfMeshRepository.getMeshManagerApi();
-    }
-
-    public MeshNetworkLiveData getMeshNetworkLiveData(){
-        return mNrfMeshRepository.getMeshNetworkLiveData();
-    }
 }

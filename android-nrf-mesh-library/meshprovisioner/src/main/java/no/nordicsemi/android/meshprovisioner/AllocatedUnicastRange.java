@@ -1,63 +1,16 @@
 package no.nordicsemi.android.meshprovisioner;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.Index;
-import android.arch.persistence.room.PrimaryKey;
+import android.os.Parcel;
 
-import com.google.gson.annotations.Expose;
-
-import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-
-import static android.arch.persistence.room.ForeignKey.CASCADE;
+import androidx.annotation.NonNull;
+import androidx.room.Ignore;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 
 /**
  * Class definition for allocating unicast range for provisioners.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
-@Entity(tableName = "allocated_unicast_range",
-        foreignKeys = @ForeignKey(entity = Provisioner.class,
-                parentColumns = "provisioner_uuid",
-                childColumns = "provisioner_uuid",
-                onUpdate = CASCADE,
-                onDelete = CASCADE),
-        indices = @Index("provisioner_uuid"))
-public class AllocatedUnicastRange {
-
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    int id;
-
-    @ColumnInfo(name = "provisioner_uuid")
-    String provisionerUuid;
-
-    @ColumnInfo(name = "low_address")
-    @Expose
-    private int lowAddress;
-
-    @ColumnInfo(name = "high_address")
-    @Expose
-    private int highAddress;
-
-    @Ignore
-    public AllocatedUnicastRange() {
-
-    }
-
-    /**
-     * Constructs {@link AllocatedUnicastRange} for provisioner
-     *
-     * @param lowAddress  low address of unicast range
-     * @param highAddress high address of unicast range
-     */
-    @Deprecated
-    @Ignore
-    public AllocatedUnicastRange(final byte[] lowAddress, final byte[] highAddress) {
-        this.lowAddress = MeshParserUtils.unsignedBytesToInt(lowAddress[1], lowAddress[0]);
-        this.highAddress = MeshParserUtils.unsignedBytesToInt(highAddress[1], highAddress[0]);
-    }
+@SuppressWarnings({"unused"})
+public class AllocatedUnicastRange extends AddressRange {
 
     /**
      * Constructs {@link AllocatedUnicastRange} for provisioner
@@ -66,39 +19,55 @@ public class AllocatedUnicastRange {
      * @param highAddress high address of unicast range
      */
     public AllocatedUnicastRange(final int lowAddress, final int highAddress) {
+        lowerBound = MeshAddress.START_UNICAST_ADDRESS;
+        upperBound = MeshAddress.END_UNICAST_ADDRESS;
+        if (!MeshAddress.isValidUnicastAddress(lowAddress))
+            throw new IllegalArgumentException("Low address must range from 0x0001 to 0x7FFF");
+
+        if (!MeshAddress.isValidUnicastAddress(highAddress))
+            throw new IllegalArgumentException("High address must range from 0x0001 to 0x7FFF");
+
+        /*if(lowAddress > highAddress)
+            throw new IllegalArgumentException("low address must be lower than the high address");*/
+
         this.lowAddress = lowAddress;
         this.highAddress = highAddress;
     }
 
-    public int getId() {
-        return id;
+    @Ignore
+    AllocatedUnicastRange() {
     }
 
-    public void setId(final int id) {
-        this.id = id;
+    @Override
+    public final int getLowerBound() {
+        return lowAddress;
     }
 
-    /**
-     * Returns the provisionerUuid of the Mesh network
-     * @return String provisionerUuid
-     */
-    public String getProvisionerUuid() {
-        return provisionerUuid;
+    @Override
+    public final int getUpperBound() {
+        return upperBound;
     }
 
-    /**
-     * Sets the provisionerUuid of the mesh network to this application key
-     * @param provisionerUuid mesh network provisionerUuid
-     */
-    public void setProvisionerUuid(final String provisionerUuid) {
-        this.provisionerUuid = provisionerUuid;
+    protected AllocatedUnicastRange(Parcel in) {
+        lowerBound = in.readInt();
+        upperBound = in.readInt();
+        lowAddress = in.readInt();
+        highAddress = in.readInt();
     }
 
-    /**
-     * Returns the low address of the allocated unicast address
-     *
-     * @return low address
-     */
+    public static final Creator<AllocatedUnicastRange> CREATOR = new Creator<AllocatedUnicastRange>() {
+        @Override
+        public AllocatedUnicastRange createFromParcel(Parcel in) {
+            return new AllocatedUnicastRange(in);
+        }
+
+        @Override
+        public AllocatedUnicastRange[] newArray(int size) {
+            return new AllocatedUnicastRange[size];
+        }
+    };
+
+    @Override
     public int getLowAddress() {
         return lowAddress;
     }
@@ -109,14 +78,12 @@ public class AllocatedUnicastRange {
      * @param lowAddress of the unicast range
      */
     public void setLowAddress(final int lowAddress) {
+        if (!MeshAddress.isValidUnicastAddress(lowAddress))
+            throw new IllegalArgumentException("Low address must range from 0x0000 to 0x7FFF");
         this.lowAddress = lowAddress;
     }
 
-    /**
-     * Returns the high address of the allocated unicast range
-     *
-     * @return highAddress of the group range
-     */
+    @Override
     public int getHighAddress() {
         return highAddress;
     }
@@ -127,6 +94,21 @@ public class AllocatedUnicastRange {
      * @param highAddress of the group range
      */
     public void setHighAddress(final int highAddress) {
+        if (!MeshAddress.isValidUnicastAddress(lowAddress))
+            throw new IllegalArgumentException("High address must range from 0x0000 to 0x7FFF");
         this.highAddress = highAddress;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeInt(lowerBound);
+        dest.writeInt(upperBound);
+        dest.writeInt(lowAddress);
+        dest.writeInt(highAddress);
     }
 }

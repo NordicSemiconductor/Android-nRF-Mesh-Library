@@ -22,28 +22,31 @@
 
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.InternalProvisioningCallbacks;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
-import no.nordicsemi.android.meshprovisioner.utils.AddressUtils;
+import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 
 public class ProvisioningDataState extends ProvisioningState {
 
-    private final String TAG = ProvisioningRandomConfirmationState.class.getSimpleName();
+    private final String TAG = ProvisioningDataState.class.getSimpleName();
     private final UnprovisionedMeshNode mUnprovisionedMeshNode;
     private final MeshProvisioningStatusCallbacks mStatusCallbacks;
     private final InternalProvisioningCallbacks provisioningCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
-    public ProvisioningDataState(final InternalProvisioningCallbacks callbacks, final UnprovisionedMeshNode unprovisionedMeshNode, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    public ProvisioningDataState(@NonNull final InternalProvisioningCallbacks callbacks,
+                                 @NonNull final UnprovisionedMeshNode unprovisionedMeshNode,
+                                 @NonNull final InternalTransportCallbacks mInternalTransportCallbacks,
+                                 @NonNull final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
         this.provisioningCallbacks = callbacks;
         this.mUnprovisionedMeshNode = unprovisionedMeshNode;
@@ -110,7 +113,7 @@ public class ProvisioningDataState extends ProvisioningState {
         Log.v(TAG, "IV index: " + MeshParserUtils.bytesToHex(ivIndex, false));
 
         /* Generate random 2 byte unicast address*/
-        final byte[] unicastAddress = AddressUtils.getUnicastAddressBytes(mUnprovisionedMeshNode.getUnicastAddress());
+        final byte[] unicastAddress = MeshAddress.addressIntToBytes(mUnprovisionedMeshNode.getUnicastAddress());
 
         Log.v(TAG, "Unicast address: " + MeshParserUtils.bytesToHex(unicastAddress, false));
         ByteBuffer buffer = ByteBuffer.allocate(networkKey.length + keyIndex.length + flags.length + ivIndex.length + unicastAddress.length);

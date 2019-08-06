@@ -23,12 +23,11 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -44,17 +43,12 @@ public class GroupAdapterSpinner extends BaseAdapter {
 
     private final ArrayList<Group> mGroups = new ArrayList<>();
     private final Context mContext;
-    private OnItemClickListener mOnItemClickListener;
 
     public GroupAdapterSpinner(@NonNull final Context context, @NonNull final List<Group> groups) {
         this.mContext = context;
         mGroups.clear();
         mGroups.addAll(groups);
         notifyDataSetChanged();
-    }
-
-    public void setOnItemClickListener(final GroupAdapterSpinner.OnItemClickListener listener) {
-        mOnItemClickListener = listener;
     }
 
     @Override
@@ -89,7 +83,7 @@ public class GroupAdapterSpinner extends BaseAdapter {
 
             final Group group = mGroups.get(position);
             viewHolder.groupName.setText(group.getName());
-            viewHolder.address.setText(MeshAddress.formatAddress(group.getGroupAddress(), true));
+            viewHolder.address.setText(MeshAddress.formatAddress(group.getAddress(), true));
             return view;
         } else {
             view = LayoutInflater.from(mContext).inflate(R.layout.no_groups_layout, parent, false);
@@ -101,18 +95,11 @@ public class GroupAdapterSpinner extends BaseAdapter {
         return mGroups.isEmpty();
     }
 
-    @FunctionalInterface
-    public interface OnItemClickListener {
-        void onItemClick(final int position, final byte[] address);
-    }
-
     public final class ViewHolder {
 
-        @BindView(R.id.icon)
-        ImageView imgIcon;
         @BindView(R.id.group_name)
         TextView groupName;
-        @BindView(R.id.address)
+        @BindView(R.id.title)
         TextView address;
 
         private ViewHolder(final View view) {

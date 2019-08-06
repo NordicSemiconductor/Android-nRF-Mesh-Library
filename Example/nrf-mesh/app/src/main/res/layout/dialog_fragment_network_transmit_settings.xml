@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     app:layout_constraintTop_toTopOf="parent">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dialog_container_relay_retransmit_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,8 +15,8 @@
         android:clickable="false"
         android:padding="@dimen/activity_horizontal_margin"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/dialog_image_network_transmit_count"
@@ -39,7 +40,7 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@id/dialog_network_transmit_count"
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_count"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/dialog_network_transmit_count"
@@ -57,16 +58,16 @@
             android:id="@+id/dialog_network_transmit_count_seekbar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/item_padding_bottom"
             android:paddingTop="@dimen/item_padding_top"
+            android:paddingBottom="@dimen/item_padding_bottom"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_count"
-            app:layout_constraintTop_toBottomOf="@id/dialog_network_transmit_count_title" />
+            app:layout_constraintTop_toBottomOf="@id/dialog_network_transmit_count_title"/>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dialog_container_network_transmit_interval_steps"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -99,7 +100,8 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@id/dialog_network_transmit_interval_steps"
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_interval_steps"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <TextView
             android:id="@+id/steps_summary"
             android:layout_width="wrap_content"
@@ -108,8 +110,8 @@
             android:paddingEnd="@dimen/activity_horizontal_margin"
             android:text="@string/network_transmit_interval_steps_summary"
             android:textSize="12sp"
-            app:layout_constraintTop_toBottomOf="@id/dialog_network_transmit_interval_steps_title"
-            app:layout_constraintStart_toStartOf="@id/dialog_network_transmit_interval_steps_title" />
+            app:layout_constraintStart_toStartOf="@id/dialog_network_transmit_interval_steps_title"
+            app:layout_constraintTop_toBottomOf="@id/dialog_network_transmit_interval_steps_title"/>
 
         <TextView
             android:id="@+id/dialog_network_transmit_interval_steps"
@@ -133,6 +135,6 @@
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_interval_steps"
             app:layout_constraintTop_toBottomOf="@id/steps_summary"/>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

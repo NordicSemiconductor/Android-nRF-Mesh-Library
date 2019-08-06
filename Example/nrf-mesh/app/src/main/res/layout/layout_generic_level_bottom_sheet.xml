@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,7 +8,7 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/white"
@@ -17,11 +17,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/node_controls_tool_bar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
@@ -30,9 +30,10 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:logo="@drawable/ic_subscribe_black_alpha_24dp"
                 app:title="@string/title_generic_level_controls"
-                app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                app:titleMarginStart="@dimen/toolbar_title_margin"
+                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
-            <android.support.v4.widget.ContentLoadingProgressBar
+            <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/transition_progress_bar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="0dp"
@@ -43,7 +44,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/node_controls_tool_bar"/>
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/container_controls"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -178,7 +179,7 @@
                     tools:ignore="HardcodedText"/>
 
                 <SeekBar
-                    android:id="@+id/level_seekbar"
+                    android:id="@+id/level_seek_bar"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -190,8 +191,8 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/title_level"/>
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </android.support.constraint.ConstraintLayout>
-    </android.support.v7.widget.CardView>
-</android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

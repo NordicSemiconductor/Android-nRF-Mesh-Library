@@ -23,16 +23,16 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 29
+    buildToolsVersion '29.0.0'
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
-        targetSdkVersion 28
-        versionCode 29
-        versionName "1.2.1"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        targetSdkVersion 29
+        versionCode 48
+        versionName "2.0.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
     }
@@ -62,34 +62,30 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     // Required -- JUnit 4 framework
     testImplementation 'junit:junit:4.12'
+    implementation 'androidx.test:runner:1.2.0'
 
-    def support_lib_version = "28.0.0"
-    implementation "com.android.support:appcompat-v7:$support_lib_version"
-    implementation "com.android.support:design:$support_lib_version"
-    implementation "com.android.support:recyclerview-v7:$support_lib_version"
-    implementation "com.android.support:cardview-v7:$support_lib_version"
-    implementation "com.android.support:support-v4:$support_lib_version"
-    implementation 'com.android.support.constraint:constraint-layout:2.0.0-alpha2'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.android.material:material:1.1.0-alpha08'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta1'
 
     // Butter Knife
-    implementation 'com.jakewharton:butterknife:8.8.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    implementation 'com.jakewharton:butterknife:10.1.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.1.0'
     // Brings the new BluetoothLeScanner API to older platforms
-    implementation 'no.nordicsemi.android.support.v18:scanner:1.1.0'
+    implementation 'no.nordicsemi.android.support.v18:scanner:1.4.0'
     implementation 'no.nordicsemi.android:ble:1.2.0'
     // Log Bluetooth LE events in nRF Logger
-    compileOnly 'com.android.support:multidex:1.0.3'
+    implementation 'androidx.multidex:multidex:2.0.1'
     // Lifecycle extensions
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha02'
 
-    def arch_version = "1.1.1"
-    implementation "android.arch.lifecycle:extensions:$arch_version"
-    implementation "android.arch.persistence.room:runtime:$arch_version"
-    annotationProcessor "android.arch.persistence.room:compiler:$arch_version"
-
-    implementation 'com.google.dagger:dagger:2.17'
-    implementation "com.google.dagger:dagger-android:2.17"
-    implementation "com.google.dagger:dagger-android-support:2.17"
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.17'
-    annotationProcessor "com.google.dagger:dagger-android-processor:2.17"
+    implementation 'com.google.dagger:dagger:2.21'
+    implementation 'com.google.dagger:dagger-android:2.21'
+    implementation 'com.google.dagger:dagger-android-support:2.21'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.21'
+    annotationProcessor "com.google.dagger:dagger-android-processor:2.21"
     implementation project(':meshprovisioner')
 }

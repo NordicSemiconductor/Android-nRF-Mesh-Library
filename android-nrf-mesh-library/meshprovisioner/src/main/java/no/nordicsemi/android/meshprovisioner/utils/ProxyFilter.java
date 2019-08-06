@@ -2,7 +2,7 @@ package no.nordicsemi.android.meshprovisioner.utils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,7 +103,7 @@ public class ProxyFilter implements Parcelable {
      * @param address Unicast, Group address
      */
     public final boolean contains(@NonNull final byte[] address) {
-        if (MeshParserUtils.isValidUnicastAddress(address) || MeshParserUtils.isValidSubscriptionAddress(address)) {
+        if (MeshAddress.isValidUnicastAddress(address) || MeshAddress.isValidSubscriptionAddress(address)) {
             final AddressArray addressArray = new AddressArray(address[0], address[1]);
             for (AddressArray arr : addresses) {
                 if (Arrays.equals(addressArray.getAddress(), arr.getAddress())) {

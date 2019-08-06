@@ -24,16 +24,12 @@ package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class DialogFragmentConfigStatus extends DialogFragmentMessage {
-
-    public interface DialogFragmentAppKeyBindStatusListener {
-        void onAppKeyBindStatusConfirmed();
-    }
 
     public static DialogFragmentConfigStatus newInstance(final String title, final String message) {
         Bundle args = new Bundle();

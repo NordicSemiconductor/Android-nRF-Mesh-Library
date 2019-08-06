@@ -1,6 +1,9 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import android.support.annotation.NonNull;
+import java.util.UUID;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Mesh message handler api
@@ -11,15 +14,8 @@ interface MeshMessageHandlerApi {
     /**
      * Sends a mesh message specified within the {@link MeshMessage} object
      *
+     * @param label       Label UUID for destination address
      * @param meshMessage {@link MeshMessage} Mesh message containing the message opcode and message parameters
      */
-    @Deprecated
-    void sendMeshMessage(@NonNull final byte[] src, @NonNull final byte[] dst, @NonNull final MeshMessage meshMessage);
-
-    /**
-     * Sends a mesh message specified within the {@link MeshMessage} object
-     *
-     * @param meshMessage {@link MeshMessage} Mesh message containing the message opcode and message parameters
-     */
-    void sendMeshMessage(final int src, final int dst, @NonNull final MeshMessage meshMessage);
+    void createMeshMessage(final int src, final int dst, @Nullable final UUID label, @NonNull final MeshMessage meshMessage);
 }

@@ -22,24 +22,21 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
-import android.content.Context;
-
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.nrfmeshprovisioner.adapter.ExtendedBluetoothDevice;
-import no.nordicsemi.android.nrfmeshprovisioner.ble.BleMeshManager;
+import androidx.annotation.NonNull;
+import no.nordicsemi.android.nrfmeshprovisioner.ble.ScannerActivity;
 
-public class ScannerViewModel extends ViewModel {
+/**
+ * ViewModel for {@link ScannerActivity}
+ */
+public class ScannerViewModel extends BaseViewModel {
 
-    private final NrfMeshRepository mNrfMeshRepository;
     private final ScannerRepository mScannerRepository;
 
     @Inject
-    ScannerViewModel(final NrfMeshRepository nrfMeshRepository, final ScannerRepository scannerRepository) {
-        this.mNrfMeshRepository = nrfMeshRepository;
+    ScannerViewModel(@NonNull final NrfMeshRepository nrfMeshRepository, @NonNull final ScannerRepository scannerRepository) {
+        super(nrfMeshRepository);
         this.mScannerRepository = scannerRepository;
         scannerRepository.registerBroadcastReceivers();
     }
@@ -48,38 +45,6 @@ public class ScannerViewModel extends ViewModel {
     protected void onCleared() {
         super.onCleared();
         mScannerRepository.unregisterBroadcastReceivers();
-    }
-
-    public LiveData<Void> isDeviceReady() {
-        return mNrfMeshRepository.isDeviceReady();
-    }
-
-    public LiveData<String> getConnectionState() {
-        return mNrfMeshRepository.getConnectionState();
-    }
-
-    public LiveData<Boolean> isConnected() {
-        return mNrfMeshRepository.isConnected();
-    }
-
-    public void connect(final Context context, final ExtendedBluetoothDevice device, final boolean connectToNetwork) {
-        mNrfMeshRepository.connect(context, device, connectToNetwork);
-    }
-
-    public void disconnect() {
-        mNrfMeshRepository.disconnect();
-    }
-
-    public NrfMeshRepository getNrfMeshRepository() {
-        return mNrfMeshRepository;
-    }
-
-    public BleMeshManager getBleMeshManager() {
-        return mNrfMeshRepository.getBleMeshManager();
-    }
-
-    public MeshManagerApi getMeshManagerApi() {
-        return mNrfMeshRepository.getMeshManagerApi();
     }
 
     /**

@@ -30,7 +30,8 @@ interface InternalMeshMsgHandlerCallbacks {
     /**
      * Callback to notify the incomplete timer has expired
      *
-     * @param incompleteTimerExpired state of the incomplete timer
+     * @param address address of the message
      */
-    void onIncompleteTimerExpired(final boolean incompleteTimerExpired);
+    void onIncompleteTimerExpired(final int address);
+
 }

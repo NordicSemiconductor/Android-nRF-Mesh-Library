@@ -1,5 +1,8 @@
 package no.nordicsemi.android.meshprovisioner.transport;
 
+import androidx.annotation.NonNull;
+import android.text.TextUtils;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -13,12 +16,12 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.models.SigModelParser;
 import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
-import no.nordicsemi.android.meshprovisioner.utils.PublicationSettings;
 
 /**
  * Class for deserializing a list of elements stored in the Mesh Configuration Database
@@ -33,13 +36,11 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             final JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
             final int modelId = MeshParserUtils.hexToInt(jsonObject.get("modelId").getAsString());
 
-            final PublicationSettings publicationSettings = getPublicationSettings(jsonObject);
-            final List<Integer> subscriptionAddresses = getSubscriptionAddresses(jsonObject);
-            final List<Integer> boundKeyIndexes = getBoundAppKeyIndexes(jsonObject);
             final MeshModel meshModel = getMeshModel(modelId);
             if (meshModel != null) {
-                meshModel.mPublicationSettings = publicationSettings;
-                meshModel.subscriptionAddresses.addAll(subscriptionAddresses);
+                meshModel.mPublicationSettings = getPublicationSettings(jsonObject);
+                setSubscriptionAddresses(meshModel, jsonObject);
+                final List<Integer> boundKeyIndexes = getBoundAppKeyIndexes(jsonObject);
                 meshModel.mBoundAppKeyIndexes.addAll(boundKeyIndexes);
                 meshModels.add(meshModel);
             }
@@ -57,16 +58,14 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             } else {
                 meshModelJson.addProperty("modelId", String.format(Locale.US, "%04X", model.getModelId()));
             }
-            if (!model.getSubscribedAddresses().isEmpty()) {
-                meshModelJson.add("subscribe", serializeSubscriptionAddresses(model.getSubscribedAddresses()));
-            }
+
+            meshModelJson.add("bind", serializeBoundAppKeys(model.getBoundAppKeyIndexes()));
+            meshModelJson.add("subscribe", serializeSubscriptionAddresses(model));
+
             if (model.getPublicationSettings() != null) {
                 meshModelJson.add("publish", serializePublicationSettings(model.getPublicationSettings()));
             }
 
-            if (!model.getBoundAppKeyIndexes().isEmpty()) {
-                meshModelJson.add("bind", serializeBoundAppKeys(model.getBoundAppKeyIndexes()));
-            }
             jsonArray.add(meshModelJson);
         }
         return jsonArray;
@@ -83,7 +82,16 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             return null;
 
         final JsonObject publish = jsonObject.get("publish").getAsJsonObject();
-        final int publishAddress = Integer.parseInt(publish.get("address").getAsString(), 16);
+
+        final String hexAddress = publish.get("address").getAsString();
+        final int publishAddress;
+        UUID uuid = null;
+        if (!TextUtils.isEmpty(hexAddress) && hexAddress.length() == 32) {
+            uuid = UUID.fromString(MeshParserUtils.formatUuid(hexAddress));
+            publishAddress = MeshAddress.generateVirtualAddress(uuid);
+        } else {
+            publishAddress = Integer.parseInt(hexAddress, 16);
+        }
 
         final int index = publish.get("index").getAsInt();
         final int ttl = publish.get("ttl").getAsByte();
@@ -101,6 +109,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         //Set the values
         final PublicationSettings publicationSettings = new PublicationSettings();
         publicationSettings.setPublishAddress(publishAddress);
+        publicationSettings.setLabelUUID(uuid);
         publicationSettings.setPublishTtl(ttl);
         publicationSettings.setPublicationSteps(publicationSteps);
         publicationSettings.setPublicationResolution(publicationResolution);
@@ -112,22 +121,31 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
     }
 
     /**
-     * Returns subscription addresses from json
+     * Sets subscription addresses to a mesh model from json
      *
-     * @param jsonObject json
-     * @return list of subscription addresses
+     * @param meshModel  Mesh Model
+     * @param jsonObject Json representation of the mesh model
      */
-    private List<Integer> getSubscriptionAddresses(final JsonObject jsonObject) {
+    private void setSubscriptionAddresses(final MeshModel meshModel, final JsonObject jsonObject) {
         final List<Integer> subscriptions = new ArrayList<>();
-        if (!(jsonObject.has("subscribe")))
-            return subscriptions;
+        if (!(jsonObject.has("subscribe"))) {
+            return;
+        }
 
         final JsonArray jsonArray = jsonObject.get("subscribe").getAsJsonArray();
         for (int i = 0; i < jsonArray.size(); i++) {
-            final int address = Integer.parseInt(jsonArray.get(i).getAsString(), 16);
+            final String hexAddress = jsonArray.get(i).getAsString();
+            final int address;
+            if (hexAddress.length() == 32) {
+                final UUID uuid = UUID.fromString(MeshParserUtils.formatUuid(hexAddress));
+                address = MeshAddress.generateVirtualAddress(uuid);
+                meshModel.labelUuids.add(uuid);
+            } else {
+                address = Integer.parseInt(hexAddress, 16);
+            }
             subscriptions.add(address);
         }
-        return subscriptions;
+        meshModel.subscriptionAddresses.addAll(subscriptions);
     }
 
     private List<Integer> getBoundAppKeyIndexes(final JsonObject jsonObject) {
@@ -137,7 +155,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
 
         final JsonArray jsonArray = jsonObject.get("bind").getAsJsonArray();
         for (int i = 0; i < jsonArray.size(); i++) {
-            final int index = Integer.parseInt(jsonArray.get(i).getAsString(), 16);
+            final int index = jsonArray.get(i).getAsInt();
             boundKeyIndexes.add(index);
         }
         return boundKeyIndexes;
@@ -146,12 +164,17 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
     /**
      * Returns JsonElement containing the subscription addresses addresses from json
      *
-     * @param subscriptions subscriptions list
+     * @param model Mesh model
      */
-    private JsonArray serializeSubscriptionAddresses(final List<Integer> subscriptions) {
+    private JsonArray serializeSubscriptionAddresses(@NonNull final MeshModel model) {
         final JsonArray subscriptionsJson = new JsonArray();
-        for (Integer address : subscriptions) {
-            subscriptionsJson.add(MeshAddress.formatAddress(address, false));
+        for (Integer address : model.getSubscribedAddresses()) {
+            if (MeshAddress.isValidVirtualAddress(address)) {
+                final UUID uuid = model.getLabelUUID(address);
+                subscriptionsJson.add(MeshParserUtils.uuidToHex(uuid));
+            } else {
+                subscriptionsJson.add(MeshAddress.formatAddress(address, false));
+            }
         }
         return subscriptionsJson;
     }
@@ -159,20 +182,25 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
     /**
      * Returns JsonElement containing the subscription addresses addresses from json
      *
-     * @param publicationSettings publication settings for this node
+     * @param settings publication settings for this node
      */
-    private JsonObject serializePublicationSettings(final PublicationSettings publicationSettings) {
+    @SuppressWarnings("ConstantConditions")
+    private JsonObject serializePublicationSettings(final PublicationSettings settings) {
         final JsonObject publicationJson = new JsonObject();
-        publicationJson.addProperty("address", MeshAddress.formatAddress(publicationSettings.getPublishAddress(), false));
-        publicationJson.addProperty("index", String.format(Locale.US, "%04X", publicationSettings.getAppKeyIndex()));
-        publicationJson.addProperty("ttl", publicationSettings.getPublishTtl());
-        publicationJson.addProperty("period", publicationSettings.calculatePublicationPeriod());
+        if(MeshAddress.isValidVirtualAddress(settings.getPublishAddress())){
+            publicationJson.addProperty("address", MeshParserUtils.uuidToHex(settings.getLabelUUID()));
+        } else {
+            publicationJson.addProperty("address", MeshAddress.formatAddress(settings.getPublishAddress(), false));
+        }
+        publicationJson.addProperty("index", settings.getAppKeyIndex());
+        publicationJson.addProperty("ttl", settings.getPublishTtl());
+        publicationJson.addProperty("period", settings.encodePublicationPeriod());
 
         final JsonObject retransmitJson = new JsonObject();
-        retransmitJson.addProperty("count", publicationSettings.getPublishRetransmitCount());
-        retransmitJson.addProperty("interval", publicationSettings.getPublishRetransmitIntervalSteps());
+        retransmitJson.addProperty("count", settings.getPublishRetransmitCount());
+        retransmitJson.addProperty("interval", settings.getPublishRetransmitIntervalSteps());
         publicationJson.add("retransmit", retransmitJson);
-        publicationJson.addProperty("credentials", publicationSettings.getCredentialFlag() ? 1 : 0);
+        publicationJson.addProperty("credentials", settings.getCredentialFlag() ? 1 : 0);
         return publicationJson;
     }
 
@@ -184,7 +212,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
     private JsonArray serializeBoundAppKeys(final List<Integer> boundAppKeys) {
         final JsonArray boundAppKeyIndexes = new JsonArray();
         for (Integer index : boundAppKeys) {
-            boundAppKeyIndexes.add(String.format(Locale.US, "%04X", index));
+            boundAppKeyIndexes.add(index);
         }
         return boundAppKeyIndexes;
     }
