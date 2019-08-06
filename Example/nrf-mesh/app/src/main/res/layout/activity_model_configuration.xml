@@ -174,7 +174,6 @@
                                 android:id="@+id/action_bind_app_key"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center_horizontal"
                                 android:layout_marginStart="@dimen/item_padding_end"
                                 android:layout_marginEnd="@dimen/item_padding_start"
                                 android:padding="@dimen/item_padding_end"
@@ -277,7 +276,6 @@
                                 android:id="@+id/action_set_publication"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center_horizontal"
                                 android:layout_marginStart="@dimen/item_padding_end"
                                 android:layout_marginEnd="@dimen/item_padding_start"
                                 android:padding="@dimen/item_padding_end"
@@ -290,7 +288,6 @@
                                 android:id="@+id/action_clear_publication"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center_horizontal"
                                 android:layout_marginStart="@dimen/item_padding_end"
                                 android:layout_marginEnd="@dimen/item_padding_start"
                                 android:padding="@dimen/item_padding_end"
@@ -314,7 +311,6 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/publish_address_card">
-
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
@@ -397,7 +393,6 @@
                                 android:id="@+id/action_subscribe_address"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center_horizontal"
                                 android:layout_marginStart="@dimen/item_padding_end"
                                 android:layout_marginEnd="@dimen/item_padding_start"
                                 android:padding="@dimen/item_padding_end"
