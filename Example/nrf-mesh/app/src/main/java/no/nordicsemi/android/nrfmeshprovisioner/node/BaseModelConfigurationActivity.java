@@ -781,9 +781,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     private void updateClickableViews() {
-        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
-        if (meshNode != null && meshNode.isConfigured() &&
-                !mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
+        if (model != null && model.getModelId() == SigModelParser.CONFIGURATION_CLIENT)
             disableClickableViews();
     }
 
@@ -793,7 +792,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     private void displayStatusDialogFragment(@NonNull final String title, @NonNull final String message) {
-        if(mViewModel.isActivityVisibile()) {
+        if (mViewModel.isActivityVisibile()) {
             DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
                     newInstance(title, message);
             fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
