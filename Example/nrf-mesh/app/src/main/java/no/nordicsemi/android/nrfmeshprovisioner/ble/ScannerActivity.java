@@ -60,6 +60,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerViewModel;
 
 public class ScannerActivity extends AppCompatActivity implements Injectable,
         DevicesAdapter.OnItemClickListener {
+    private static final int REQUEST_ENABLE_BLUETOOTH = 1021; // random number
     private static final int REQUEST_ACCESS_COARSE_LOCATION = 1022; // random number
 
     @Inject
@@ -120,14 +121,13 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
         adapter.setOnItemClickListener(this);
         recyclerViewDevices.setAdapter(adapter);
 
-
+        mViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mViewModel.getScannerRepository().getScannerState().startScanning();
-        mViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
     }
 
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
             return true;
@@ -162,6 +162,10 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
         } else if (requestCode == Utils.CONNECT_TO_NETWORK) {
             if (resultCode == RESULT_OK) {
                 finish();
+            }
+        } else if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
+            if (resultCode == RESULT_OK) {
+                startScan(mViewModel.getScannerRepository().getScannerState());
             }
         }
     }
@@ -200,7 +204,7 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
     @OnClick(R.id.action_enable_bluetooth)
     public void onEnableBluetoothClicked() {
         final Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivity(enableIntent);
+        startActivityForResult(enableIntent, REQUEST_ENABLE_BLUETOOTH);
     }
 
     @OnClick(R.id.action_grant_location_permission)
