@@ -220,6 +220,8 @@ public class SettingsFragment extends Fragment implements Injectable,
         if (requestCode == READ_FILE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
+                    //Disconnect from network before importing
+                    mViewModel.disconnect();
                     final Uri uri = data.getData();
                     mViewModel.getMeshManagerApi().importMeshNetwork(uri);
                 }
