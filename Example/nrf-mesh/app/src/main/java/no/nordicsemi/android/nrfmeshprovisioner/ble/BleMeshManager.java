@@ -27,7 +27,6 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.lang.reflect.Method;
@@ -37,6 +36,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.ble.BleManager;
 import no.nordicsemi.android.ble.Request;
 import no.nordicsemi.android.log.LogContract;
@@ -138,7 +138,7 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
                         final int rxProperties = mMeshProvisioningDataInCharacteristic.getProperties();
                         writeRequest = (rxProperties & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) > 0;
                     }
-                    return mMeshProvisioningDataInCharacteristic != null && mMeshProvisioningDataInCharacteristic != null && writeRequest;
+                    return mMeshProvisioningDataInCharacteristic != null && mMeshProvisioningDataOutCharacteristic != null && writeRequest;
                 }
             }
             return false;
@@ -196,10 +196,6 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
         return mGattCallback;
     }
 
-    public BluetoothDevice getBluetoothDevice(){
-        return mBluetoothDevice;
-    }
-
     @Override
     protected boolean shouldAutoConnect() {
         // If you want to connect to the device using autoConnect flag = true, return true here.
@@ -210,14 +206,15 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
     /**
      * Sends the mesh pdu
      * <p>
-     *     The function will chunk the pdu to fit in to the mtu size supported by the node
+     * The function will chunk the pdu to fit in to the mtu size supported by the node
      * </p>
+     *
      * @param pdu mesh pdu
      */
     public void sendPdu(final byte[] pdu) {
         final int chunks = (pdu.length + (mtuSize - 1)) / mtuSize;
         int srcOffset = 0;
-        if(chunks > 1) {
+        if (chunks > 1) {
             for (int i = 0; i < chunks; i++) {
                 final int length = Math.min(pdu.length - srcOffset, mtuSize);
                 final byte[] segmentedBuffer = new byte[length];
@@ -233,17 +230,13 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
     /**
      * Refreshes the device cache. This is to make sure that Android will discover the services as the the mesh node will change the provisioning service to a proxy service.
      */
-    public boolean refreshDeviceCache(){
+    public boolean refreshDeviceCache() {
         //Once the service discovery is complete we will refresh the device cache and discover the services again.
         return refreshDeviceCache(mBluetoothGatt);
     }
 
     public boolean isProvisioningComplete() {
         return isProvisioningComplete;
-    }
-
-    public void setProvisioningComplete(final boolean provisioningComplete) {
-        this.isProvisioningComplete = provisioningComplete;
     }
 
     public final int getMtuSize() {
