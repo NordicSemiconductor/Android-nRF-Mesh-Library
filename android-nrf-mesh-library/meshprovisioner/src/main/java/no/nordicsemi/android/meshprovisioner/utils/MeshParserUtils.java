@@ -45,7 +45,7 @@ import no.nordicsemi.android.meshprovisioner.R;
 public class MeshParserUtils {
 
     private static final String TAG = MeshParserUtils.class.getSimpleName();
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US);
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
     private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
     private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
     private static final int TAI_YEAR = 2000;
