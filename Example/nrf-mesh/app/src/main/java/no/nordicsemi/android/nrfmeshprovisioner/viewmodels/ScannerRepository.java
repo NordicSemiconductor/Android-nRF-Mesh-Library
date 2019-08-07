@@ -137,6 +137,7 @@ public class ScannerRepository {
             switch (state) {
                 case BluetoothAdapter.STATE_ON:
                     mScannerLiveData.bluetoothEnabled();
+                    mScannerLiveData.startScanning();
                     break;
                 case BluetoothAdapter.STATE_TURNING_OFF:
                 case BluetoothAdapter.STATE_OFF:
