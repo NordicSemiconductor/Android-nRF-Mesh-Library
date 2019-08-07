@@ -2,7 +2,6 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.ParcelUuid;
@@ -820,7 +819,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     mHandler.postDelayed(() -> {
                         final ConfigDefaultTtlGet configDefaultTtlGet = new ConfigDefaultTtlGet();
                         mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), configDefaultTtlGet);
-                    }, 2500);
+                    }, 500);
                 } else {
                     updateNode(node);
                 }
@@ -836,7 +835,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                         final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(index);
                         final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
                         mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), configAppKeyAdd);
-                    }, 2500);
+                    }, 1500);
                 } else {
                     updateNode(node);
                     mMeshMessageLiveData.postValue(status);
@@ -851,7 +850,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                         mHandler.postDelayed(() -> {
                             final ConfigNetworkTransmitSet networkTransmitSet = new ConfigNetworkTransmitSet(2, 1);
                             mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), networkTransmitSet);
-                        }, 2500);
+                        }, 1500);
                     }
                 } else {
                     updateNode(node);

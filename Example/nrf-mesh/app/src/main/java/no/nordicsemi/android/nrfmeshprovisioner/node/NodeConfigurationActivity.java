@@ -55,6 +55,7 @@ import no.nordicsemi.android.meshprovisioner.transport.ConfigDefaultTtlStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeReset;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigNodeResetStatus;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigProxyGet;
+import no.nordicsemi.android.meshprovisioner.transport.ConfigProxySet;
 import no.nordicsemi.android.meshprovisioner.transport.ConfigProxyStatus;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
@@ -81,6 +82,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
         DialogFragmentElementName.DialogFragmentElementNameListener,
         DialogFragmentTtl.DialogFragmentTtlListener,
+        DialogFragmentProxySet.DialogFragmentProxySetListener,
         ElementAdapter.OnItemClickListener,
         DialogFragmentResetNode.DialogFragmentNodeResetListener,
         DialogFragmentConfigurationComplete.ConfigurationCompleteListener {
@@ -539,5 +541,12 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         final ConfigDefaultTtlSet ttlSet = new ConfigDefaultTtlSet(ttl);
         sendMessage(ttlSet);
         return true;
+    }
+
+    @Override
+    public void onProxySet(final int state) {
+        final ConfigProxySet configProxySet = new ConfigProxySet(state);
+        sendMessage(configProxySet);
+        mRequestedState = state == 1;
     }
 }

@@ -22,14 +22,14 @@
 
 package no.nordicsemi.android.meshprovisioner.transport;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.TransportLayerOpCodes;
@@ -47,6 +47,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 abstract class LowerTransportLayer extends UpperTransportLayer {
 
     private static final String TAG = LowerTransportLayer.class.getSimpleName();
+    private static final int BLOCK_ACK_TIMER = 600; //Increased from minimum value 150;
     private static final int UNSEGMENTED_HEADER = 0;
     private static final int SEGMENTED_HEADER = 1;
     private static final int UNSEGMENTED_MESSAGE_HEADER_LENGTH = 1;
@@ -683,7 +684,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     private void initSegmentedAccessAcknowledgementTimer(final int seqZero, final int ttl, final int src, final int dst, final int segN) {
         if (!mSegmentedAccessAcknowledgementTimerStarted) {
             mSegmentedAccessAcknowledgementTimerStarted = true;
-            final int duration = (150 + (50 * ttl));
+            final int duration = (BLOCK_ACK_TIMER + (50 * ttl));
             mDuration = System.currentTimeMillis() + duration;
             mHandler.postDelayed(() -> {
                 Log.v(TAG, "Acknowledgement timer expiring");
@@ -703,7 +704,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     private void initSegmentedControlAcknowledgementTimer(final int seqZero, final int ttl, final int src, final int dst, final int segN) {
         if (!mSegmentedControlAcknowledgementTimerStarted) {
             mSegmentedControlAcknowledgementTimerStarted = true;
-            final int duration = (150 + (50 * ttl));
+            final int duration = BLOCK_ACK_TIMER + (50 * ttl);
             mDuration = System.currentTimeMillis() + duration;
             mHandler.postDelayed(() -> sendBlockAck(seqZero, ttl, src, dst, segN), duration);
         }
