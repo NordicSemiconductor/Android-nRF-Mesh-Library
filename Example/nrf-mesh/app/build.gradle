@@ -75,7 +75,7 @@ dependencies {
     implementation 'com.jakewharton:butterknife:10.1.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.1.0'
     // Brings the new BluetoothLeScanner API to older platforms
-    implementation 'no.nordicsemi.android.support.v18:scanner:1.4.0'
+    implementation 'no.nordicsemi.android.support.v18:scanner:1.4.2'
     implementation 'no.nordicsemi.android:ble:1.2.0'
     // Log Bluetooth LE events in nRF Logger
     implementation 'androidx.multidex:multidex:2.0.1'
