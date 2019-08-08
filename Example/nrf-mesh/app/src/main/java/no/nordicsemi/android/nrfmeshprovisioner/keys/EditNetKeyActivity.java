@@ -124,7 +124,7 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
     }
 
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
             return true;
@@ -137,7 +137,8 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
         if (networkKey != null) {
             final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
             if (network != null) {
-                return network.updateNetKey(networkKey, name);
+                networkKey.setName(name);
+                return network.updateNetKey(networkKey);
             }
         }
         return false;

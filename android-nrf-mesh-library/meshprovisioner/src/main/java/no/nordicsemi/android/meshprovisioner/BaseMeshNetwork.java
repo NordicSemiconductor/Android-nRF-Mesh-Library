@@ -183,37 +183,61 @@ abstract class BaseMeshNetwork {
     }
 
     /**
+     * Update a network key with the given 16-byte hexadecimal string in the mesh network.
+     *
+     * @param networkKey Network key
+     * @param newNetKey  16-byte hexadecimal string
+     */
+    public boolean updateNetKey(@NonNull final NetworkKey networkKey, @NonNull final String newNetKey) throws IllegalArgumentException {
+        if (MeshParserUtils.validateKeyInput(newNetKey)) {
+            final byte[] key = MeshParserUtils.toByteArray(newNetKey);
+            for (final NetworkKey netKey : netKeys) {
+                if (Arrays.equals(netKey.getKey(), key)) {
+                    throw new IllegalArgumentException("Net key already in use");
+                }
+            }
+
+            final int keyIndex = networkKey.getKeyIndex();
+            final NetworkKey netKey = getNetKey(keyIndex);
+            if (!isKeyInUse(netKey)) {
+                //We check if the contents of the key are the same
+                //This will return true only if the key index and the key are the same
+                if (netKey.equals(networkKey)) {
+                    netKey.setKey(key);
+                    return updateMeshKey(netKey);
+                } else {
+                    return false;
+                }
+            } else {
+                throw new IllegalArgumentException("Unable to update a network key that's already in use");
+            }
+        }
+        return false;
+    }
+
+    /**
      * Update a network key in the mesh network.
      *
      * @param networkKey Network key
+     * @throws IllegalArgumentException if the key is already in use
      */
     public boolean updateNetKey(@NonNull final NetworkKey networkKey) throws IllegalArgumentException {
         final int keyIndex = networkKey.getKeyIndex();
         final NetworkKey key = getNetKey(keyIndex);
-        if (isKeyInUse(key)) {
-            //We check if the contents of the key are the same
-            //This will return true only if the key index and the key are the same
-            if (key.equals(networkKey)) {
+        //We check if the contents of the key are the same
+        //This will return true only if the key index and the key are the same
+        if (key.equals(networkKey)) {
+            return updateMeshKey(networkKey);
+        } else {
+            //If the keys are not the same we check if its in use before updating the key
+            if (!isKeyInUse(key)) {
+                //We check if the contents of the key are the same
+                //This will return true only if the key index and the key are the same
                 return updateMeshKey(networkKey);
             } else {
                 throw new IllegalArgumentException("Unable to update a network key that's already in use");
             }
-        } else {
-            return updateMeshKey(networkKey);
         }
-    }
-
-    /**
-     * Updates an network key in the mesh network with a new key.
-     *
-     * @param key    {@link ApplicationKey}
-     * @param appKey Application key
-     */
-    public boolean updateNetKey(@NonNull final NetworkKey key, @NonNull final String appKey) throws IllegalArgumentException {
-        if (MeshParserUtils.validateAppKeyInput(appKey)) {
-            return updateNetKey(key);
-        }
-        return false;
     }
 
     /**
@@ -384,7 +408,7 @@ abstract class BaseMeshNetwork {
      * @param appKey Application key
      */
     public boolean updateAppKey(@NonNull final ApplicationKey key, @NonNull final String appKey) throws IllegalArgumentException {
-        if (MeshParserUtils.validateAppKeyInput(appKey)) {
+        if (MeshParserUtils.validateKeyInput(appKey)) {
             return updateAppKey(key);
         }
         return false;
@@ -400,12 +424,17 @@ abstract class BaseMeshNetwork {
                 }
             }
         } else {
-            for (NetworkKey netKey : netKeys) {
+            NetworkKey netKey = null;
+            for (int i = 0; i < netKeys.size(); i++) {
+                netKey = netKeys.get(i);
                 if (netKey.getKeyIndex() == key.getKeyIndex()) {
-                    netKey = (NetworkKey) key;
-                    notifyNetKeyUpdated(netKey);
-                    return true;
+                    netKeys.set(i, (NetworkKey) key);
+                    break;
                 }
+            }
+            if (netKey != null) {
+                notifyNetKeyUpdated(netKey);
+                return true;
             }
         }
         return false;
