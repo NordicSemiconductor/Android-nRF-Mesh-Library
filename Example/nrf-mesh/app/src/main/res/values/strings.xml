@@ -106,7 +106,7 @@
     <string name="title_elements">Elements</string>
     <string name="title_node_element_details">Element Details</string>
 
-    <string name="generate_new_key">Generate New key</string>
+    <string name="generate_new_key">Generate Key</string>
 
     <string name="title_network_name">Network Name</string>
     <string name="summary_network_name">Enter a network name</string>

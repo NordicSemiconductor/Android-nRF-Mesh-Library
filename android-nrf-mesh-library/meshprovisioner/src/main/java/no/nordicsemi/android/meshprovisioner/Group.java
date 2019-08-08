@@ -1,6 +1,7 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.os.Parcel;
+import android.os.ParcelUuid;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
@@ -202,8 +203,20 @@ public class Group implements Parcelable {
         id = in.readInt();
         name = in.readString();
         address = in.readInt();
+        addressLabel = readVirtualLabelFromParcelable(in, address);
         parentAddress = in.readInt();
+        parentAddressLabel = readVirtualLabelFromParcelable(in, parentAddress);
         meshUuid = in.readString();
+    }
+
+    private UUID readVirtualLabelFromParcelable(Parcel in, final int address) {
+        if (MeshAddress.isValidVirtualAddress(address)) {
+            final ParcelUuid parcelUuid = in.readParcelable(ParcelUuid.class.getClassLoader());
+            if (parcelUuid != null) {
+                return parcelUuid.getUuid();
+            }
+        }
+        return null;
     }
 
     @Override
@@ -211,8 +224,16 @@ public class Group implements Parcelable {
         dest.writeInt(id);
         dest.writeString(name);
         dest.writeInt(address);
+        writeVirtualLabelToParcel(dest, flags, address, addressLabel);
         dest.writeInt(parentAddress);
+        writeVirtualLabelToParcel(dest, flags, parentAddress, parentAddressLabel);
         dest.writeString(meshUuid);
+    }
+
+    private void writeVirtualLabelToParcel(Parcel dest, int flags, final int address, final UUID addressLabel) {
+        if (MeshAddress.isValidVirtualAddress(address)) {
+            dest.writeParcelable(new ParcelUuid(addressLabel), flags);
+        }
     }
 
     @Override

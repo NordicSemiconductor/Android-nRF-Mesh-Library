@@ -131,9 +131,11 @@ public class PublicationSettings implements Parcelable {
 
     private PublicationSettings(Parcel in) {
         publishAddress = in.readInt();
-        final ParcelUuid parcelUuid = in.readParcelable(ParcelUuid.class.getClassLoader());
-        if (parcelUuid != null) {
-            labelUUID = parcelUuid.getUuid();
+        if (MeshAddress.isValidVirtualAddress(publishAddress)) {
+            final ParcelUuid parcelUuid = in.readParcelable(ParcelUuid.class.getClassLoader());
+            if (parcelUuid != null) {
+                labelUUID = parcelUuid.getUuid();
+            }
         }
         appKeyIndex = in.readInt();
         credentialFlag = in.readInt() == 1;
@@ -395,7 +397,9 @@ public class PublicationSettings implements Parcelable {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeInt(publishAddress);
-        dest.writeParcelable(new ParcelUuid(labelUUID), flags);
+        if (MeshAddress.isValidVirtualAddress(publishAddress)) {
+            dest.writeParcelable(new ParcelUuid(labelUUID), flags);
+        }
         dest.writeInt(appKeyIndex);
         dest.writeInt(credentialFlag ? 1 : 0);
         dest.writeInt(publishTtl);
