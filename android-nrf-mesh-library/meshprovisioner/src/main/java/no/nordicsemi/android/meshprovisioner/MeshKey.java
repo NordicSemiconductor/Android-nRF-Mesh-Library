@@ -108,12 +108,11 @@ abstract class MeshKey implements Parcelable, Cloneable {
      * Sets a network key.
      *
      * <p>
-     * In order to change the key call {@link BaseMeshNetwork#updateNetKey(NetworkKey) or {@link BaseMeshNetwork#updateNetKey(NetworkKey)}}
+     * In order to change the key call {@link BaseMeshNetwork#updateNetKey(NetworkKey, String)}  or {@link BaseMeshNetwork#updateAppKey(ApplicationKey, String)})}}
      * </p>
      *
      * @param key 16-byte network key
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setKey(@NonNull final byte[] key) {
         this.key = key;
     }
@@ -173,6 +172,7 @@ abstract class MeshKey implements Parcelable, Cloneable {
         return false;
     }
 
+    @NonNull
     @Override
     public MeshKey clone() throws CloneNotSupportedException {
         return (MeshKey) super.clone();

@@ -168,6 +168,7 @@ public final class NetworkKey extends MeshKey {
     public @interface KeyRefreshPhases {
     }
 
+    @NonNull
     @Override
     public NetworkKey clone() throws CloneNotSupportedException {
         return (NetworkKey) super.clone();

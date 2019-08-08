@@ -108,6 +108,7 @@ public final class ApplicationKey extends MeshKey {
         return false;
     }
 
+    @NonNull
     @Override
     public ApplicationKey clone() throws CloneNotSupportedException {
         return (ApplicationKey) super.clone();

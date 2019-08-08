@@ -253,17 +253,17 @@ public class MeshParserUtils {
     }
 
     /**
-     * Validates the app key input
+     * Validates the key input
      *
-     * @param appKey App key
-     * @return true if the Network Key is a valid value
+     * @param key key
+     * @return true if the Key is a valid value
      * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
      */
-    public static boolean validateAppKeyInput(@NonNull final String appKey) throws IllegalArgumentException {
-        if (TextUtils.isEmpty(appKey)) {
-            throw new IllegalArgumentException("App key cannot be empty!");
-        } else if (!appKey.matches(PATTERN_KEY)) {
-            throw new IllegalArgumentException("The key must be a 32-character hexadecimal string!");
+    public static boolean validateKeyInput(@NonNull final String key) throws IllegalArgumentException {
+        if (TextUtils.isEmpty(key)) {
+            throw new IllegalArgumentException("Key cannot be empty!");
+        } else if (!key.matches(PATTERN_KEY)) {
+            throw new IllegalArgumentException("key must be a 32-character hexadecimal string!");
         }
 
         return true;
