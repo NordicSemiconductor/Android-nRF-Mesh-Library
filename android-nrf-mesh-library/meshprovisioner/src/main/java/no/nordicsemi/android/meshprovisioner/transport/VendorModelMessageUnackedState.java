@@ -49,7 +49,6 @@ class VendorModelMessageUnackedState extends GenericMessageState {
                                    @NonNull final MeshTransport meshTransport,
                                    @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
         super(src, dst, vendorModelMessageUnacked, meshTransport, callbacks);
-        createAccessMessage();
     }
 
     @Override
