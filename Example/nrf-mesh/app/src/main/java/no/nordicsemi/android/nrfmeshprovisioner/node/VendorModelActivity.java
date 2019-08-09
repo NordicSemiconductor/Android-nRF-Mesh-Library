@@ -1,10 +1,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.node;
 
-import androidx.lifecycle.ViewModelProvider;
 import android.os.Bundle;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -16,10 +12,16 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import javax.inject.Inject;
 
-import no.nordicsemi.android.meshprovisioner.models.VendorModel;
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.ViewModelProvider;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
+import no.nordicsemi.android.meshprovisioner.models.VendorModel;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.MeshModel;
@@ -28,6 +30,7 @@ import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageStatus;
 import no.nordicsemi.android.meshprovisioner.transport.VendorModelMessageUnacked;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 
@@ -218,11 +221,26 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
                 final MeshMessage message;
                 if (acknowledged) {
                     message = new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
+                    super.sendMessage(element.getElementAddress(), message);
                 } else {
                     message = new VendorModelMessageUnacked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters);
+                    sendMessage(element.getElementAddress(), message);
                 }
-              sendMessage(element.getElementAddress(), message);
             }
+        }
+    }
+
+    @Override
+    protected void sendMessage(final int address, @NonNull final MeshMessage meshMessage) {
+        try {
+            if (!checkConnectivity())
+                return;
+            mViewModel.getMeshManagerApi().createMeshPdu(address, meshMessage);
+        } catch (IllegalArgumentException ex) {
+            hideProgressBar();
+            final DialogFragmentError message = DialogFragmentError.
+                    newInstance(getString(R.string.title_error), ex.getMessage());
+            message.show(getSupportFragmentManager(), null);
         }
     }
 }
