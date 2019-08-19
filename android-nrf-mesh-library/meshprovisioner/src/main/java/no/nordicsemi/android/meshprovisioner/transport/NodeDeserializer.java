@@ -105,7 +105,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 node.setBlackListed(jsonObject.get("blacklisted").getAsBoolean());
             }
 
-            node.nodeName = jsonObject.get("name").getAsString();
+            if (jsonObject.has("name"))
+                node.nodeName = jsonObject.get("name").getAsString();
             nodes.add(node);
         }
 
