@@ -2,6 +2,7 @@ package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.ParcelUuid;
@@ -123,7 +124,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     //Contains the MeshNetwork
     private MeshNetworkLiveData mMeshNetworkLiveData = new MeshNetworkLiveData();
     private SingleLiveEvent<String> mNetworkImportState = new SingleLiveEvent<>();
-    private SingleLiveEvent<String> mNetworkExportState = new SingleLiveEvent<>();
     private SingleLiveEvent<MeshMessage> mMeshMessageLiveData = new SingleLiveEvent<>();
 
     // Contains the provisioned nodes
@@ -147,6 +147,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private boolean mIsDefaultTtlReceived;
     private boolean mIsAppKeyAddCompleted;
     private boolean mIsNetworkRetransmitSetCompleted;
+    private Uri uri;
 
     private final Runnable mReconnectRunnable = this::startScan;
 
@@ -239,10 +240,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     LiveData<String> getNetworkLoadState() {
         return mNetworkImportState;
-    }
-
-    LiveData<String> getNetworkExportState() {
-        return mNetworkExportState;
     }
 
     ProvisioningStatusLiveData getProvisioningState() {
@@ -626,23 +623,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 "In order to start sending messages to this network, please change the provisioner address. " +
                 "Using the same provisioner address will cause messages to be discarded due to the usage of incorrect sequence numbers " +
                 "for this address. However if the network does not contain any nodes you do not need to change the address");
-    }
-
-    @Override
-    public void onNetworkExported(final MeshNetwork meshNetwork) {
-        mNetworkExportState.postValue(meshNetwork.getMeshName() + " has been successfully exported. " +
-                "You can find the exported network information in the following path. " + EXPORTED_PATH);
-    }
-
-    @Override
-    public void onNetworkExportedJson(MeshNetwork meshNetwork, String networkJson) {
-
-    }
-
-    @Override
-    public void onNetworkExportFailed(final String error) {
-        mNetworkExportState.postValue(error);
-
     }
 
     @Override

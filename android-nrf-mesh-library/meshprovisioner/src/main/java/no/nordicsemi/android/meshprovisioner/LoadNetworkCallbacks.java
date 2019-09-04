@@ -32,23 +32,4 @@ interface LoadNetworkCallbacks {
      * @param error error
      */
     void onNetworkImportFailed(final String error);
-
-    /**
-     * Notifies when the mesh network is exported
-     * @param meshNetwork network that was exported
-     */
-    void onNetworkExported(final MeshNetwork meshNetwork);
-
-    /**
-     * Notifies when the mesh network is exported
-     * @param meshNetwork network that was exported
-     */
-    void onNetworkExportedJson(final MeshNetwork meshNetwork, final String meshNetworkJson);
-
-    /**
-     * Notifies when the mesh network import fails
-     *
-     * @param error error
-     */
-    void onNetworkExportFailed(final String error);
 }

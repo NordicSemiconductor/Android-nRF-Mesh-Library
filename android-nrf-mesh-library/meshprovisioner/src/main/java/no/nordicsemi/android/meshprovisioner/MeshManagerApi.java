@@ -774,11 +774,12 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
-    public void exportMeshNetwork(@NonNull final String path) {
+    public String exportMeshNetwork() {
         final MeshNetwork meshNetwork = mMeshNetwork;
         if (meshNetwork != null) {
-            NetworkImportExportUtils.exportMeshNetwork(meshNetwork, path, networkLoadCallbacks);
+            return NetworkImportExportUtils.export(meshNetwork);
         }
+        return null;
     }
 
     @Override
@@ -1020,21 +1021,6 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onNetworkImportFailed(final String error) {
             mMeshManagerCallbacks.onNetworkImportFailed(error);
-        }
-
-        @Override
-        public void onNetworkExportedJson(MeshNetwork meshNetwork, String meshNetworkJson) {
-            mMeshManagerCallbacks.onNetworkExportedJson(meshNetwork, meshNetworkJson);
-        }
-
-        @Override
-        public void onNetworkExported(final MeshNetwork meshNetwork) {
-            mMeshManagerCallbacks.onNetworkExported(meshNetwork);
-        }
-
-        @Override
-        public void onNetworkExportFailed(final String error) {
-            mMeshManagerCallbacks.onNetworkExportFailed(error);
         }
     };
 
