@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.viewmodels;
 
+import java.io.OutputStream;
+
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
@@ -30,13 +32,15 @@ import no.nordicsemi.android.nrfmeshprovisioner.GroupsFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.NetworkFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.ProxyFilterFragment;
 import no.nordicsemi.android.nrfmeshprovisioner.SettingsFragment;
+import no.nordicsemi.android.nrfmeshprovisioner.utils.NetworkExportUtils;
 
 /**
  * ViewModel for {@link NetworkFragment}, {@link GroupsFragment}, {@link ProxyFilterFragment}, {@link SettingsFragment}
  */
-public class SharedViewModel extends BaseViewModel {
+public class SharedViewModel extends BaseViewModel implements NetworkExportUtils.NetworkExportCallbacks {
 
     private final ScannerRepository mScannerRepository;
+    private SingleLiveEvent<String> networkExportState = new SingleLiveEvent<>();
 
     @Inject
     SharedViewModel(@NonNull final NrfMeshRepository nrfMeshRepository, @NonNull final ScannerRepository scannerRepository) {
@@ -59,11 +63,8 @@ public class SharedViewModel extends BaseViewModel {
         return mNrfMeshRepository.getNetworkLoadState();
     }
 
-    /**
-     * Returns network export state
-     */
     public LiveData<String> getNetworkExportState() {
-        return mNrfMeshRepository.getNetworkExportState();
+        return networkExportState;
     }
 
     /**
@@ -73,5 +74,24 @@ public class SharedViewModel extends BaseViewModel {
      */
     public void setSelectedGroup(final int address) {
         mNrfMeshRepository.setSelectedGroup(address);
+    }
+
+    public void exportMeshNetwork(@NonNull final OutputStream stream) {
+        NetworkExportUtils.exportMeshNetwork(getMeshManagerApi(), stream, this);
+    }
+
+    public void exportMeshNetwork() {
+        final String fileName = getNetworkLiveData().getNetworkName() + ".json";
+        NetworkExportUtils.exportMeshNetwork(getMeshManagerApi(), NrfMeshRepository.EXPORT_PATH, fileName, this);
+    }
+
+    @Override
+    public void onNetworkExported() {
+        networkExportState.postValue(getNetworkLiveData().getMeshNetwork().getMeshName() + " has been successfully exported.");
+    }
+
+    @Override
+    public void onNetworkExportFailed(@NonNull final String error) {
+        networkExportState.postValue(error);
     }
 }

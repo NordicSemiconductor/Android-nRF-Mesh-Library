@@ -24,14 +24,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion '29.0.0'
+    buildToolsVersion '29.0.2'
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
         targetSdkVersion 29
-        versionCode 51
-        versionName "2.0.3"
+        versionCode 53
+        versionName "2.0.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -40,7 +40,6 @@ android {
         release {
             minifyEnabled false
             shrinkResources false
-            useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -75,12 +74,12 @@ dependencies {
     implementation 'com.jakewharton:butterknife:10.1.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.1.0'
     // Brings the new BluetoothLeScanner API to older platforms
-    implementation 'no.nordicsemi.android.support.v18:scanner:1.4.2'
+    implementation 'no.nordicsemi.android.support.v18:scanner:1.4.3'
     implementation 'no.nordicsemi.android:ble:1.2.0'
     // Log Bluetooth LE events in nRF Logger
     implementation 'androidx.multidex:multidex:2.0.1'
     // Lifecycle extensions
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha02'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha03'
 
     implementation 'com.google.dagger:dagger:2.21'
     implementation 'com.google.dagger:dagger-android:2.21'
