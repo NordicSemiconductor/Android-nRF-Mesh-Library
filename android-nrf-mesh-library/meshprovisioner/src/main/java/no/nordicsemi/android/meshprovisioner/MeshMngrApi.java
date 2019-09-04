@@ -1,11 +1,11 @@
 package no.nordicsemi.android.meshprovisioner;
 
 import android.net.Uri;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
@@ -62,8 +62,8 @@ interface MeshMngrApi {
      * This method will send a provisioning invite to the connected peripheral. This will help users to identify a particular node before starting the provisioning process.
      * This method must be invoked before calling {@link #startProvisioning(UnprovisionedMeshNode)}
      * </p
-     *  @param deviceUUID Device uuid of the unprovisioned mesh node. This could be obtain by calling {{@link #getMeshBeacon(byte[])}}
      *
+     * @param deviceUUID Device uuid of the unprovisioned mesh node. This could be obtain by calling {{@link #getMeshBeacon(byte[])}}
      */
     void identifyNode(@NonNull final UUID deviceUUID) throws IllegalArgumentException;
 
@@ -73,7 +73,8 @@ interface MeshMngrApi {
      * This method will send a provisioning invite to the connected peripheral. This will help users to identify a particular node before starting the provisioning process.
      * This method must be invoked before calling {@link #startProvisioning(UnprovisionedMeshNode)}
      * </p
-     *  @param deviceUUID     Device uuid of the unprovisioned mesh node. This could be obtain by calling {{@link #getMeshBeacon(byte[])}}
+     *
+     * @param deviceUUID     Device uuid of the unprovisioned mesh node. This could be obtain by calling {{@link #getMeshBeacon(byte[])}}
      * @param attentionTimer Attention timer in seconds
      */
     void identifyNode(@NonNull final UUID deviceUUID, final int attentionTimer) throws IllegalArgumentException;
@@ -227,9 +228,10 @@ interface MeshMngrApi {
     MeshNetwork getMeshNetwork();
 
     /**
-     * Exports mesh network to a json file
+     * Exports mesh network to a json String
      */
-    void exportMeshNetwork(@NonNull final String path);
+    @Nullable
+    String exportMeshNetwork();
 
     /**
      * Starts an asynchronous task that imports a network from the mesh configuration db json

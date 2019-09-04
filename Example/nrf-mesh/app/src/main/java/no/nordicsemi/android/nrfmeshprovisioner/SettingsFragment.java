@@ -39,6 +39,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
 
 import javax.inject.Inject;
 
@@ -228,6 +230,18 @@ public class SettingsFragment extends Fragment implements Injectable,
             } else {
                 Log.e(TAG, "Error while opening file browser");
             }
+        } else if (requestCode == 2011) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    final Uri uri = data.getData();
+                    try {
+                        final OutputStream stream = requireContext().getContentResolver().openOutputStream(uri);
+                        mViewModel.exportMeshNetwork(stream);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
@@ -277,7 +291,6 @@ public class SettingsFragment extends Fragment implements Injectable,
         startActivityForResult(intent, READ_FILE_REQUEST_CODE);
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void handleNetworkExport() {
         if (!Utils.isWriteExternalStoragePermissionsGranted(getContext())
                 || Utils.isWriteExternalStoragePermissionDeniedForever(getActivity())) {
@@ -287,11 +300,16 @@ public class SettingsFragment extends Fragment implements Injectable,
                             getString(R.string.external_storage_permission_required));
             fragmentPermissionRationale.show(getChildFragmentManager(), null);
         } else {
-            final File f = new File(EXPORT_PATH);
-            if (!f.exists()) {
-                f.mkdirs();
+            final String networkName = mViewModel.getNetworkLiveData().getNetworkName();
+            if (Utils.isKitkatOrAbove()) {
+                final Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/json");
+                intent.putExtra(Intent.EXTRA_TITLE, networkName);
+                startActivityForResult(intent, 2011);
+            } else {
+                mViewModel.exportMeshNetwork();
             }
-            mViewModel.getMeshManagerApi().exportMeshNetwork(EXPORT_PATH);
         }
     }
 }
