@@ -1030,7 +1030,7 @@ public class MeshManagerApi implements MeshMngrApi {
     private final MeshNetworkCallbacks callbacks = new MeshNetworkCallbacks() {
         @Override
         public void onMeshNetworkUpdated() {
-            mMeshNetwork.setTimestamp(System.currentTimeMillis());
+            mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
             mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
