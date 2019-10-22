@@ -581,6 +581,7 @@ public class MeshParserUtils {
     public static long getInternationalAtomicTime(final long currentTime) {
         final Calendar calendar = Calendar.getInstance();
         calendar.set(TAI_YEAR, TAI_MONTH, TAI_DATE, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         final long millisSinceEpoch = calendar.getTimeInMillis();
         return (currentTime - millisSinceEpoch) / 1000;
     }
