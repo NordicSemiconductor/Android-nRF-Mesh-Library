@@ -48,9 +48,7 @@ public class MeshParserUtils {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
     private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
     private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
-    private static final int TAI_YEAR = 2000;
-    private static final int TAI_MONTH = 0;
-    private static final int TAI_DATE = 0;
+    private static final long TAI_OFFSET = 946598400000L;
 
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MIN = 0x01;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MID = 0x80;
@@ -573,17 +571,16 @@ public class MeshParserUtils {
     /**
      * Returns the international atomic time (TAI) in seconds
      * <p>
-     * TAI seconds and is the number of seconds after 00:00:00 TAI on 2000-01-01
+     * The TAI Seconds state is the current TAI time in seconds after the epoch 2000-01-01T00:00:00
+     * TAI (1999-12-31T23:59:28 UTC). Mesh Model Bluetooth® Specification Revision: v1.0.1
+     *
+     * Epoch 946598400000L is roughly equivalent to Friday, December 31, 1999 12:00:00 AM
      * </p>
      *
      * @param currentTime current time in milliseconds
      */
     public static long getInternationalAtomicTime(final long currentTime) {
-        final Calendar calendar = Calendar.getInstance();
-        calendar.set(TAI_YEAR, TAI_MONTH, TAI_DATE, 0, 0, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        final long millisSinceEpoch = calendar.getTimeInMillis();
-        return (currentTime - millisSinceEpoch) / 1000;
+        return (currentTime - TAI_OFFSET) / 1000;
     }
 
     /**
