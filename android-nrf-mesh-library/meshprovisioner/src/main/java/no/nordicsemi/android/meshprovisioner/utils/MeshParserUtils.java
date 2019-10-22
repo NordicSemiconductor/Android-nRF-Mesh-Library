@@ -49,8 +49,8 @@ public class MeshParserUtils {
     private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
     private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
     private static final int TAI_YEAR = 2000;
-    private static final int TAI_MONTH = 1;
-    private static final int TAI_DATE = 1;
+    private static final int TAI_MONTH = 0;
+    private static final int TAI_DATE = 0;
 
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MIN = 0x01;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MID = 0x80;
