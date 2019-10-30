@@ -156,9 +156,9 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
 
         scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             if (scrollView.getScrollY() == 0) {
-                fab.extend(true);
+                fab.extend();
             } else {
-                fab.shrink(true);
+                fab.shrink();
             }
         });
     }

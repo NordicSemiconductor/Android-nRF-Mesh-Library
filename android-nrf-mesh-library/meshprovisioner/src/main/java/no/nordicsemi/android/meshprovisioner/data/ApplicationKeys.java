@@ -12,7 +12,7 @@ class ApplicationKeys {
 
     public String uuid;
 
-    @Relation(entity = MeshNetwork.class, parentColumn = "mesh_uuid", entityColumn = "uuid")
+    @Relation(entity = MeshNetwork.class, parentColumn = "mesh_uuid", entityColumn = "mesh_uuid")
     public List<ApplicationKey> applicationKeys;
 
 }

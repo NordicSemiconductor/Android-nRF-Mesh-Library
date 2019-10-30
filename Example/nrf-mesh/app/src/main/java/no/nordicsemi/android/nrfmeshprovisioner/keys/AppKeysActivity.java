@@ -163,9 +163,9 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
                 final LinearLayoutManager m = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (m != null) {
                     if (m.findFirstCompletelyVisibleItemPosition() == 0) {
-                        fab.extend(true);
+                        fab.extend();
                     } else {
-                        fab.shrink(true);
+                        fab.shrink();
                     }
                 }
             }

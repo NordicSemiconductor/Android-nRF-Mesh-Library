@@ -20,21 +20,45 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.meshprovisioner.transport;
+package no.nordicsemi.android.meshprovisioner.models;
 
-public interface LowerTransportLayerCallbacks {
+import android.os.Parcel;
 
-    /**
-     * Callback to notify that a block acknowledgement message be sent now.
-     *
-     * @param controlMessage control message to be sent
-     */
-    void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage);
+@SuppressWarnings("WeakerAccess")
+public class LightLcClient extends SigModel {
 
-    /**
-     * Callback to notify that the incomplete timer has expired.
-     */
-    void onIncompleteTimerExpired();
+    public static final Creator<LightLcClient> CREATOR = new Creator<LightLcClient>() {
+        @Override
+        public LightLcClient createFromParcel(final Parcel source) {
+            return new LightLcClient(source);
+        }
 
-    int getTtl();
+        @Override
+        public LightLcClient[] newArray(final int size) {
+            return new LightLcClient[size];
+        }
+    };
+
+    public LightLcClient(final int modelId) {
+        super(modelId);
+    }
+
+    private LightLcClient(final Parcel source) {
+        super(source);
+    }
+
+    @Override
+    public String getModelName() {
+        return "Light LC Server";
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        super.parcelMeshModel(dest, flags);
+    }
 }
