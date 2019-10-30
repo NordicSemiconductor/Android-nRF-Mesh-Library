@@ -64,6 +64,7 @@ public final class NetworkKey extends MeshKey {
         super(keyIndex, key);
         name = "Network Key " + (keyIndex + 1);
         identityKey = SecureUtils.calculateIdentityKey(key);
+        timestamp = System.currentTimeMillis();
     }
 
     protected NetworkKey(Parcel in) {
