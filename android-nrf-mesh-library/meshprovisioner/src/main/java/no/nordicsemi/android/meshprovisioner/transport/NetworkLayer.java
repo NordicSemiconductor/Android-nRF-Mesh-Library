@@ -121,7 +121,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 for (int i = 0; i < lowerTransportPduMap.size(); i++) {
                     final byte[] lowerTransportPdu = lowerTransportPduMap.get(i);
                     if (i != 0) {
-                        final int sequenceNumber = incrementSequenceNumber(message.getSrc(), message.getSequenceNumber());
+                        final int sequenceNumber = incrementSequenceNumber(mNetworkLayerCallbacks.getProvisioner(), message.getSequenceNumber());
                         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
                         message.setSequenceNumber(sequenceNum);
                     }
@@ -137,6 +137,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 lowerTransportPduMap = ((ControlMessage) message).getLowerTransportControlPdu();
                 for (int i = 0; i < lowerTransportPduMap.size(); i++) {
                     final byte[] lowerTransportPdu = lowerTransportPduMap.get(i);
+                    mNetworkLayerCallbacks.getProvisioner(message.getSrc());
                     final int sequenceNumber = incrementSequenceNumber(message.getSrc());
                     final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
                     message.setSequenceNumber(sequenceNum);
@@ -199,7 +200,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final int pduType = message.getPduType();
         if (message.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
             final byte[] lowerTransportPdu = lowerTransportPduMap.get(segment);
-            final int sequenceNumber = incrementSequenceNumber(message.getSrc(), message.getSequenceNumber());
+            final int sequenceNumber = incrementSequenceNumber(mNetworkLayerCallbacks.getProvisioner(), message.getSequenceNumber());
             final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
             message.setSequenceNumber(sequenceNum);
 

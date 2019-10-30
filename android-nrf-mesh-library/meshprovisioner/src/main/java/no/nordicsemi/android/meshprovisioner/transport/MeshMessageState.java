@@ -134,6 +134,11 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     }
 
     @Override
+    public int getTtl() {
+        return message.getTtl();
+    }
+
+    @Override
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         //We don't send acknowledgements here
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
