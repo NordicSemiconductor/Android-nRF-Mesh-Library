@@ -214,7 +214,7 @@ public class SigModelParser {
             case LIGHT_LC_SETUP_SERVER:
                 return new LightLcSetupServer(modelId);
             case LIGHT_LC_CLIENT:
-                return new LightLightnessClient(modelId);
+                return new LightLcClient(modelId);
             default: {
                 Log.v(TAG, "Model ID: " + String.format(Locale.US, "%04X", modelId));
                 return null;
