@@ -128,6 +128,8 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                                 return;
                             }
                             node.setSequenceNumber(sequenceNo);
+                        } else {
+                            return;
                         }
                     } else {
                         return;

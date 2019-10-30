@@ -306,27 +306,27 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                     switch (mType) {
                         case Utils.GROUP_RANGE:
                             if (mProvisioner.hasOverlappingGroupRanges(other.getAllocatedGroupRanges())) {
-                                mFabResolve.show(true);
+                                mFabResolve.show();
                                 return;
                             } else {
-                                mFabResolve.hide(true);
+                                mFabResolve.hide();
                             }
                             break;
                         case Utils.SCENE_RANGE:
                             if (mProvisioner.hasOverlappingSceneRanges(other.getAllocatedSceneRanges())) {
-                                mFabResolve.show(true);
+                                mFabResolve.show();
                                 return;
                             } else {
-                                mFabResolve.hide(true);
+                                mFabResolve.hide();
                             }
                             break;
                         default:
                         case Utils.UNICAST_RANGE:
                             if (mProvisioner.hasOverlappingUnicastRanges(other.getAllocatedUnicastRanges())) {
-                                mFabResolve.show(true);
+                                mFabResolve.show();
                                 return;
                             } else {
-                                mFabResolve.hide(true);
+                                mFabResolve.hide();
                             }
                             break;
                     }

@@ -231,9 +231,9 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
 
         scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             if (scrollView.getScrollY() == 0) {
-                fab.extend(true);
+                fab.extend();
             } else {
-                fab.shrink(true);
+                fab.shrink();
             }
         });
     }

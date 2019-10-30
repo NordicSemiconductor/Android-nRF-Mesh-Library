@@ -99,7 +99,7 @@ public class GroupsFragment extends Fragment implements Injectable,
         adapter.setOnItemClickListener(this);
         recyclerViewGroups.setAdapter(adapter);
 
-        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(getViewLifecycleOwner(), meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
                 if (meshNetworkLiveData.getMeshNetwork().getGroups().isEmpty()) {
                     mEmptyView.setVisibility(View.VISIBLE);
@@ -109,7 +109,7 @@ public class GroupsFragment extends Fragment implements Injectable,
             }
         });
 
-        mViewModel.getGroups().observe(this, groups -> {
+        mViewModel.getGroups().observe(getViewLifecycleOwner(), groups -> {
             final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
             adapter.updateAdapter(network, groups);
         });
@@ -126,9 +126,9 @@ public class GroupsFragment extends Fragment implements Injectable,
                 final LinearLayoutManager m = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (m != null) {
                     if (m.findFirstCompletelyVisibleItemPosition() == 0) {
-                        fab.extend(true);
+                        fab.extend();
                     } else {
-                        fab.shrink(true);
+                        fab.shrink();
                     }
                 }
             }

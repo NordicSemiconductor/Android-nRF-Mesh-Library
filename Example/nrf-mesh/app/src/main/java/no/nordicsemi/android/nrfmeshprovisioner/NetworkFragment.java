@@ -99,7 +99,7 @@ public class NetworkFragment extends Fragment implements Injectable,
         mRecyclerViewNodes.setAdapter(mNodeAdapter);
 
         // Create view model containing utility methods for scanning
-        mViewModel.getNodes().observe(this, nodes -> {
+        mViewModel.getNodes().observe(getViewLifecycleOwner(), nodes -> {
             if (nodes != null && !nodes.isEmpty()) {
                 noNetworksConfiguredView.setVisibility(View.GONE);
             } else {
@@ -108,7 +108,7 @@ public class NetworkFragment extends Fragment implements Injectable,
             requireActivity().invalidateOptionsMenu();
         });
 
-        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
+        mViewModel.isConnectedToProxy().observe(getViewLifecycleOwner(), isConnected -> {
             if (isConnected != null) {
                 requireActivity().invalidateOptionsMenu();
             }
@@ -121,9 +121,9 @@ public class NetworkFragment extends Fragment implements Injectable,
                 final LinearLayoutManager m = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (m != null) {
                     if (m.findFirstCompletelyVisibleItemPosition() == 0) {
-                        fab.extend(true);
+                        fab.extend();
                     } else {
-                        fab.shrink(true);
+                        fab.shrink();
                     }
                 }
             }

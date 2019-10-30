@@ -143,9 +143,9 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
 
         scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             if (scrollView.getScrollY() == 0) {
-                fabApply.extend(true);
+                fabApply.extend();
             } else {
-                fabApply.shrink(true);
+                fabApply.shrink();
             }
         });
 
