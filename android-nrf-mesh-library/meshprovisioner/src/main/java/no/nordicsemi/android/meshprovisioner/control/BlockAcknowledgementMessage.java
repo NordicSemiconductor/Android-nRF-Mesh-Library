@@ -50,12 +50,12 @@ public class BlockAcknowledgementMessage extends TransportControlMessage {
         int ack = 0;
         if (blockAck == null) {
             ack |= 1 << segO;
-            Log.v(TAG, "Block ack value: " + ack);
+            Log.v(TAG, "Block ack value: " + Integer.toString(ack, 16));
             return ack;
         } else {
             ack = blockAck;
             ack |= 1 << segO;
-            Log.v(TAG, "Block ack value: " + ack);
+            Log.v(TAG, "Block ack value: " + Integer.toString(ack, 16));
             return ack;
         }
     }
@@ -113,7 +113,7 @@ public class BlockAcknowledgementMessage extends TransportControlMessage {
      * @param segN                 number of segments
      */
     public static boolean hasAllSegmentsBeenReceived(final Integer blockAcknowledgement, final int segN) {
-        if(blockAcknowledgement == null)
+        if (blockAcknowledgement == null)
             return false;
         Log.v(TAG, "Block ack: " + blockAcknowledgement);
         final int blockAck = blockAcknowledgement;
