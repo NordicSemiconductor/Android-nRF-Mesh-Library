@@ -32,7 +32,6 @@ import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -54,7 +53,6 @@ import no.nordicsemi.android.meshprovisioner.utils.CompanyIdentifiers;
 import no.nordicsemi.android.meshprovisioner.utils.CompositionDataParser;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
-import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.MeshNetworkLiveData;
 
 public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHolder> {
 
@@ -62,26 +60,17 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
     private MeshNetwork mMeshNetwork;
     private List<MeshModel> mModels;
     private SparseArray<SparseIntArray> mGroupedKeyModels;
-    private boolean mIsConnected = false;
     private Group mGroup;
     private OnItemClickListener mOnItemClickListener;
 
     public SubGroupAdapter(@NonNull final Context context,
                            @NonNull final MeshNetwork network,
-                           @NonNull final LiveData<Group> groupedModels,
-                           @NonNull final LiveData<Boolean> connectedState) {
+                           @NonNull final LiveData<Group> groupedModels) {
         this.mContext = context;
         this.mMeshNetwork = network;
         groupedModels.observe((LifecycleOwner) context, group -> {
             mGroup = group;
             updateAdapterData();
-        });
-
-        connectedState.observe((LifecycleOwner) context, isConnected -> {
-            if (isConnected != null) {
-                this.mIsConnected = isConnected;
-                updateAdapterData();
-            }
         });
     }
 
@@ -171,19 +160,11 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
     }
 
     private void toggleState(final int appKeyIndex, final int modelId, final boolean state) {
-        if (mIsConnected) {
-            mOnItemClickListener.toggle(appKeyIndex, modelId, state);
-        } else {
-            Toast.makeText(mContext, R.string.please_connect_to_network, Toast.LENGTH_SHORT).show();
-        }
+        mOnItemClickListener.toggle(appKeyIndex, modelId, state);
     }
 
     private void onSubGroupItemClicked(final int keyIndex, final int modelIdentifier) {
-        if (mIsConnected) {
-            mOnItemClickListener.onSubGroupItemClick(keyIndex, modelIdentifier);
-        } else {
-            Toast.makeText(mContext, R.string.please_connect_to_network, Toast.LENGTH_SHORT).show();
-        }
+        mOnItemClickListener.onSubGroupItemClick(keyIndex, modelIdentifier);
     }
 
     @Override
