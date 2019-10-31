@@ -30,8 +30,8 @@ android {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
         targetSdkVersion 29
-        versionCode 53
-        versionName "2.0.5"
+        versionCode 56
+        versionName "2.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
