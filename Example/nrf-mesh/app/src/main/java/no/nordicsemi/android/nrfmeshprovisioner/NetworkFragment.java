@@ -81,7 +81,7 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_network, null);
-        mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
         ButterKnife.bind(this, rootView);
 
         final ExtendedFloatingActionButton fab = rootView.findViewById(R.id.fab_add_node);
@@ -147,7 +147,7 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public void onConfigureClicked(final ProvisionedMeshNode node) {
         mViewModel.setSelectedMeshNode(node);
-        final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
+        final Intent meshConfigurationIntent = new Intent(requireActivity(), NodeConfigurationActivity.class);
         requireActivity().startActivity(meshConfigurationIntent);
     }
 

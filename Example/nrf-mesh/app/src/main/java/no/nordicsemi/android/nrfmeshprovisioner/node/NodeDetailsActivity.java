@@ -61,7 +61,7 @@ public class NodeDetailsActivity extends AppCompatActivity implements Injectable
         setContentView(R.layout.activity_node_details);
         ButterKnife.bind(this);
 
-        final NodeDetailsViewModel viewModel = ViewModelProviders.of(this, mViewModelFactory).get(NodeDetailsViewModel.class);
+        final NodeDetailsViewModel viewModel = new ViewModelProvider(this, mViewModelFactory).get(NodeDetailsViewModel.class);
         if (viewModel.getSelectedMeshNode().getValue() == null) {
             finish();
         }

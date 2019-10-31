@@ -74,7 +74,7 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
         getSupportActionBar().setSubtitle(deviceAddress);
         final TextView connectionState = findViewById(R.id.connection_state);
         // Create view model containing utility methods for scanning
-        mReconnectViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ReconnectViewModel.class);
+        mReconnectViewModel = new ViewModelProvider(this, mViewModelFactory).get(ReconnectViewModel.class);
 
         mReconnectViewModel.connect(this, device, true);
         mReconnectViewModel.isConnected().observe(this, isConnected -> {

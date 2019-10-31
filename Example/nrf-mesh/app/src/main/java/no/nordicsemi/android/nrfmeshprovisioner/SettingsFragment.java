@@ -93,7 +93,7 @@ public class SettingsFragment extends Fragment implements Injectable,
     public View onCreateView(@NonNull final LayoutInflater inflater,
                              @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_settings, null);
-        mViewModel = ViewModelProviders.of(getActivity(), mViewModelFactory).get(SharedViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
 
         // Set up views
         final View containerNetworkName = rootView.findViewById(R.id.container_network_name);
@@ -159,7 +159,7 @@ public class SettingsFragment extends Fragment implements Injectable,
             e.printStackTrace();
         }
 
-        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(getViewLifecycleOwner(), meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
                 networkNameView.setText(meshNetworkLiveData.getNetworkName());
                 netKeySummary.setText(String.valueOf(meshNetworkLiveData.getNetworkKeys().size()));
@@ -168,7 +168,7 @@ public class SettingsFragment extends Fragment implements Injectable,
             }
         });
 
-        mViewModel.getNetworkLoadState().observe(this, networkImportState -> {
+        mViewModel.getNetworkLoadState().observe(getViewLifecycleOwner(), networkImportState -> {
             final String title = getString(R.string.title_network_import);
             final DialogFragmentMeshImportMsg fragment =
                     DialogFragmentMeshImportMsg.newInstance(R.drawable.ic_info_outline_black_alpha,
@@ -176,7 +176,7 @@ public class SettingsFragment extends Fragment implements Injectable,
             fragment.show(getChildFragmentManager(), null);
         });
 
-        mViewModel.getNetworkExportState().observe(this, networkExportState -> {
+        mViewModel.getNetworkExportState().observe(getViewLifecycleOwner(), networkExportState -> {
             final String title = getString(R.string.title_network_export);
             final DialogFragmentMeshExportMsg fragment =
                     DialogFragmentMeshExportMsg.newInstance(R.drawable.ic_info_outline_black_alpha,
@@ -293,9 +293,9 @@ public class SettingsFragment extends Fragment implements Injectable,
 
     private void handleNetworkExport() {
         if (!Utils.isWriteExternalStoragePermissionsGranted(getContext())
-                || Utils.isWriteExternalStoragePermissionDeniedForever(getActivity())) {
+                || Utils.isWriteExternalStoragePermissionDeniedForever(requireActivity())) {
             final DialogFragmentPermissionRationale fragmentPermissionRationale = DialogFragmentPermissionRationale.
-                    newInstance(Utils.isWriteExternalStoragePermissionDeniedForever(getActivity()),
+                    newInstance(Utils.isWriteExternalStoragePermissionDeniedForever(requireActivity()),
                             getString(R.string.title_permission_required),
                             getString(R.string.external_storage_permission_required));
             fragmentPermissionRationale.show(getChildFragmentManager(), null);

@@ -122,7 +122,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         setContentView(R.layout.activity_publication_settings);
         ButterKnife.bind(this);
 
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(PublicationViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(PublicationViewModel.class);
 
         final MeshModel meshModel = mMeshModel = mViewModel.getSelectedModel().getValue();
         if (meshModel == null)

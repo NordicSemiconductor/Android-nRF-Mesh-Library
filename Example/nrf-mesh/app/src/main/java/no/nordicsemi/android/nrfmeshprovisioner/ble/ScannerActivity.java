@@ -91,7 +91,7 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
         ButterKnife.bind(this);
 
         // Create view model containing utility methods for scanning
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ScannerViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ScannerViewModel.class);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.title_scanner);

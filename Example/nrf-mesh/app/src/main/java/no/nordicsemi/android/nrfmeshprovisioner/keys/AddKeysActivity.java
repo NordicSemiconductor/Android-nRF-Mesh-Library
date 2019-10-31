@@ -40,7 +40,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -55,8 +54,8 @@ import no.nordicsemi.android.meshprovisioner.transport.MeshMessage;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
-import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentConfigStatus;
+import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.AddKeysViewModel;
@@ -88,7 +87,7 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AddKeysViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddKeysViewModel.class);
         setContentView(R.layout.activity_add_keys);
         ButterKnife.bind(this);
         mHandler = new Handler();
@@ -190,7 +189,6 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
         }
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected final boolean checkConnectivity() {
         if (!mIsConnected) {
             mViewModel.displayDisconnectedSnackBar(this, container);

@@ -105,7 +105,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranges);
         ButterKnife.bind(this);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(RangesViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(RangesViewModel.class);
         mType = getIntent().getExtras().getInt(Utils.RANGE_TYPE);
 
         //Bind ui
