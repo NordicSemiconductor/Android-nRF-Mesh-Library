@@ -64,12 +64,12 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.1.0'
     api 'no.nordicsemi.android:log:2.2.0'
     // Spongycastle - Android implementation of Bouncy Castle
-    implementation 'com.madgag.spongycastle:core:1.56.0.0'
-    implementation 'com.madgag.spongycastle:prov:1.56.0.0'
+    implementation 'com.madgag.spongycastle:core:1.58.0.0'
+    implementation 'com.madgag.spongycastle:prov:1.58.0.0'
     implementation 'com.google.code.gson:gson:2.8.5'
 
-    implementation 'androidx.room:room-runtime:2.1.0'
-    annotationProcessor 'androidx.room:room-compiler:2.1.0'
-    androidTestImplementation 'androidx.room:room-testing:2.1.0'
+    implementation 'androidx.room:room-runtime:2.2.1'
+    annotationProcessor 'androidx.room:room-compiler:2.2.1'
+    androidTestImplementation 'androidx.room:room-testing:2.2.1'
 
 }
