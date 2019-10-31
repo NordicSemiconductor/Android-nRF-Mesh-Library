@@ -68,7 +68,7 @@ public final class MeshAddress {
      * @return true if the address is a valid unassigned address or false otherwise
      */
     public static boolean isValidUnassignedAddress(@NonNull final byte[] address) {
-        if (isAddressInRange(address)) {
+        if (!isAddressInRange(address)) {
             return false;
         }
         return isValidUnassignedAddress(MeshParserUtils.unsignedBytesToInt(address[0], address[1]));
@@ -91,7 +91,7 @@ public final class MeshAddress {
      * @return true if the address is a valid unicast address or false otherwise
      */
     public static boolean isValidUnicastAddress(@NonNull final byte[] address) {
-        if (isAddressInRange(address)) {
+        if (!isAddressInRange(address)) {
             return false;
         }
 
@@ -115,7 +115,7 @@ public final class MeshAddress {
      * @return true if the address is a valid virtual address or false otherwise
      */
     public static boolean isValidVirtualAddress(@NonNull final byte[] address) {
-        if (isAddressInRange(address)) {
+        if (!isAddressInRange(address)) {
             return false;
         }
         return isValidVirtualAddress(MeshParserUtils.unsignedBytesToInt(address[0], address[1]));

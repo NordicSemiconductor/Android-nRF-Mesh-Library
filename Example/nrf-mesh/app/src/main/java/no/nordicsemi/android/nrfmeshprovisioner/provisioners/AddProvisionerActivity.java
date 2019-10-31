@@ -81,7 +81,7 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_provisioner);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AddProvisionerViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddProvisionerViewModel.class);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);

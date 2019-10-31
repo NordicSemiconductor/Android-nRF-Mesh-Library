@@ -102,7 +102,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_proxy_filter, null);
-        mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
         ButterKnife.bind(this, rootView);
 
         if (savedInstanceState != null) {
@@ -124,7 +124,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
         addressAdapter = new FilterAddressAdapter(requireContext());
         recyclerViewAddresses.setAdapter(addressAdapter);
 
-        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
+        mViewModel.isConnectedToProxy().observe(getViewLifecycleOwner(), isConnected -> {
             if (!isConnected) {
                 clearAddressPressed = false;
                 final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
@@ -148,7 +148,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
             actionEnableBlackList.setEnabled(isConnected);
         });
 
-        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(getViewLifecycleOwner(), meshNetworkLiveData -> {
             final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
             if (network == null) {
                 return;

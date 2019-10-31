@@ -31,6 +31,7 @@ import java.nio.ByteOrder;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
+import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.TransportLayerOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
@@ -47,7 +48,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 abstract class LowerTransportLayer extends UpperTransportLayer {
 
     private static final String TAG = LowerTransportLayer.class.getSimpleName();
-    private static final int BLOCK_ACK_TIMER = 600; //Increased from minimum value 150;
+    private static final int BLOCK_ACK_TIMER = 150; //Increased from minimum value 150;
     private static final int UNSEGMENTED_HEADER = 0;
     private static final int SEGMENTED_HEADER = 1;
     private static final int UNSEGMENTED_MESSAGE_HEADER_LENGTH = 1;
@@ -94,13 +95,21 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     protected abstract int incrementSequenceNumber(final int src);
 
     /**
+     * Increments the sequence number and returns the new sequence number.
+     *
+     * @param provisioner provisioner
+     * @return Incremented sequence number.
+     */
+    protected abstract int incrementSequenceNumber(final Provisioner provisioner);
+
+    /**
      * Increments the given sequence number.
      *
-     * @param src            source address, which is the address of the provisioner
+     * @param provisioner    provisioner
      * @param sequenceNumber Sequence number to be incremented.
      * @return Incremented sequence number.
      */
-    protected abstract int incrementSequenceNumber(final int src, @NonNull final byte[] sequenceNumber);
+    protected abstract int incrementSequenceNumber(final Provisioner provisioner, @NonNull final byte[] sequenceNumber);
 
     /**
      * Creates the network layer pdu
@@ -443,7 +452,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         final int segO = ((pdu[12] & 0x03) << 3) | ((pdu[13] & 0xE0) >> 5);
         final int segN = ((pdu[13]) & 0x1F);
 
-        final int ttl = pdu[2] & 0x7F;
+        final int ttl = mLowerTransportLayerCallbacks.getTtl();// pdu[2] & 0x7F;
         final byte[] src = MeshParserUtils.getSrcAddress(pdu);
         final byte[] dst = MeshParserUtils.getDstAddress(pdu);
 
@@ -485,14 +494,16 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             //if the seqauth values are the same and the init complete timer has already started for a received segmented message, we need to restart the incomplete timer
             if (lastSeqAuth == seqAuth) {
                 if (mIncompleteTimerStarted) {
-                    segmentedAccessMessageMap.put(segO, payloadBuffer.array());
+                    if (segmentedAccessMessageMap.get(segO) == null) {
+                        segmentedAccessMessageMap.put(segO, payloadBuffer.array());
+                    }
                     final int receivedSegmentedMessageCount = segmentedAccessMessageMap.size();
                     Log.v(TAG, "Received segment message count: " + receivedSegmentedMessageCount);
                     //Add +1 to segN since its zero based
                     if (receivedSegmentedMessageCount != (segN + 1)) {
+                        restartIncompleteTimer();
                         mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
                         Log.v(TAG, "Restarting incomplete timer for src: " + MeshAddress.formatAddress(blockAckDst, false));
-                        restartIncompleteTimer();
 
                         //Start acknowledgement timer only for messages directed to a unicast address.
                         //We also have to make sure we restart the acknowledgement timer only if the acknowledgement timer is not active and the incomplete timer is active
@@ -684,7 +695,9 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     private void initSegmentedAccessAcknowledgementTimer(final int seqZero, final int ttl, final int src, final int dst, final int segN) {
         if (!mSegmentedAccessAcknowledgementTimerStarted) {
             mSegmentedAccessAcknowledgementTimerStarted = true;
+            Log.v(TAG, "TTL: " + ttl);
             final int duration = (BLOCK_ACK_TIMER + (50 * ttl));
+            Log.v(TAG, "Duration: " + duration);
             mDuration = System.currentTimeMillis() + duration;
             mHandler.postDelayed(() -> {
                 Log.v(TAG, "Acknowledgement timer expiring");

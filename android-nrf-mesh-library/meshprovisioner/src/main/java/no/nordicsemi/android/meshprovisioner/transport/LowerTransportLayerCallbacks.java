@@ -35,4 +35,6 @@ public interface LowerTransportLayerCallbacks {
      * Callback to notify that the incomplete timer has expired.
      */
     void onIncompleteTimerExpired();
+
+    int getTtl();
 }

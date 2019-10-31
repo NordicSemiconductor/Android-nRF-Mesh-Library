@@ -86,7 +86,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_provisioners);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ProvisionersViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ProvisionersViewModel.class);
 
         //Bind ui
         ButterKnife.bind(this);
@@ -156,9 +156,9 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
 
         scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             if (scrollView.getScrollY() == 0) {
-                fab.extend(true);
+                fab.extend();
             } else {
-                fab.shrink(true);
+                fab.shrink();
             }
         });
     }

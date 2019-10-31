@@ -137,7 +137,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_node_configuration);
         ButterKnife.bind(this);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(NodeConfigurationViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(NodeConfigurationViewModel.class);
 
         if (savedInstanceState != null) {
             if (savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
@@ -503,7 +503,6 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         }
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected final boolean checkConnectivity() {
         if (!mIsConnected) {
             mViewModel.displayDisconnectedSnackBar(this, mContainer);

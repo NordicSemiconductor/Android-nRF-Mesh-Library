@@ -88,7 +88,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_app_keys);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AppKeysViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AppKeysViewModel.class);
 
         //Bind ui
         ButterKnife.bind(this);
@@ -163,9 +163,9 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
                 final LinearLayoutManager m = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (m != null) {
                     if (m.findFirstCompletelyVisibleItemPosition() == 0) {
-                        fab.extend(true);
+                        fab.extend();
                     } else {
-                        fab.shrink(true);
+                        fab.shrink();
                     }
                 }
             }

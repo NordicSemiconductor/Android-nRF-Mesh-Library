@@ -457,6 +457,7 @@ abstract class BaseMeshNetwork {
                 }
             }
             if (netKey != null) {
+                netKey.setTimestamp(System.currentTimeMillis());
                 notifyNetKeyUpdated(netKey);
                 return true;
             }

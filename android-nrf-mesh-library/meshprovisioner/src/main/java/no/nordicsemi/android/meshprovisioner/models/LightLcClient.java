@@ -20,37 +20,45 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmeshprovisioner.dialog;
+package no.nordicsemi.android.meshprovisioner.models;
 
-import android.app.Dialog;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
+import android.os.Parcel;
 
-import no.nordicsemi.android.nrfmeshprovisioner.R;
+@SuppressWarnings("WeakerAccess")
+public class LightLcClient extends SigModel {
 
-public class DialogFragmentProvisioningFailedError extends DialogFragmentMessage {
+    public static final Creator<LightLcClient> CREATOR = new Creator<LightLcClient>() {
+        @Override
+        public LightLcClient createFromParcel(final Parcel source) {
+            return new LightLcClient(source);
+        }
 
-    public interface DialogFragmentProvisioningFailedErrorListener {
-        void onProvisioningFailed();
+        @Override
+        public LightLcClient[] newArray(final int size) {
+            return new LightLcClient[size];
+        }
+    };
+
+    public LightLcClient(final int modelId) {
+        super(modelId);
     }
 
-    public static DialogFragmentProvisioningFailedError newInstance(final String title, final String message) {
-        Bundle args = new Bundle();
-        DialogFragmentProvisioningFailedError fragment = new DialogFragmentProvisioningFailedError();
-        args.putString(TITLE, title);
-        args.putString(MESSAGE, message);
-        fragment.setArguments(args);
-        return fragment;
+    private LightLcClient(final Parcel source) {
+        super(source);
     }
 
-    @NonNull
     @Override
-    public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        alertDialogBuilder = new AlertDialog.Builder(requireActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
-        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> ((DialogFragmentProvisioningFailedErrorListener)requireActivity()).onProvisioningFailed());
+    public String getModelName() {
+        return "Light LC Server";
+    }
 
-        return super.onCreateDialog(savedInstanceState);
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        super.parcelMeshModel(dest, flags);
     }
 }

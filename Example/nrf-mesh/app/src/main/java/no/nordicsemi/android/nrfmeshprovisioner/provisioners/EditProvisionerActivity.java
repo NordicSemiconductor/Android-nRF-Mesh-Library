@@ -78,7 +78,7 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_provisioner);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(EditProvisionerViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(EditProvisionerViewModel.class);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);

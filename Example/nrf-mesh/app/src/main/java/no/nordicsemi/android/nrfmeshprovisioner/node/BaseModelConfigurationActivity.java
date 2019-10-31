@@ -166,7 +166,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_model_configuration);
         ButterKnife.bind(this);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(ModelConfigurationViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ModelConfigurationViewModel.class);
         mHandler = new Handler();
 
         final MeshModel meshModel = mViewModel.getSelectedModel().getValue();
@@ -729,7 +729,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected final boolean checkConnectivity() {
         if (!mIsConnected) {
             mViewModel.displayDisconnectedSnackBar(this, mContainer);

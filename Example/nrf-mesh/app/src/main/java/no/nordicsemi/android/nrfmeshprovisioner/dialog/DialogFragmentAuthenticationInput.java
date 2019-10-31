@@ -101,7 +101,7 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         @SuppressLint("InflateParams")
-        final View rootView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_fragment_auth_input, null);
+        final View rootView = LayoutInflater.from(requireActivity()).inflate(R.layout.dialog_fragment_auth_input, null);
         ButterKnife.bind(this, rootView);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).

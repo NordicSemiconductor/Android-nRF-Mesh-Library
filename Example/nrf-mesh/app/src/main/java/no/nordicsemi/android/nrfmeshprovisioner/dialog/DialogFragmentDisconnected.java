@@ -48,11 +48,9 @@ public class DialogFragmentDisconnected extends DialogFragmentMessage {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder = new AlertDialog.Builder(requireActivity());
         alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
-        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> {
-            ((DialogFragmentDisconnectedListener)getContext()).onDisconnected();
-        });
+        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> ((DialogFragmentDisconnectedListener)requireContext()).onDisconnected());
 
         return super.onCreateDialog(savedInstanceState);
     }

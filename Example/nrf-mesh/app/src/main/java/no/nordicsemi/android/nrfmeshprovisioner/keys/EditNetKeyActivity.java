@@ -57,7 +57,7 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_key);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(EditNetKeyViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(EditNetKeyViewModel.class);
 
         //noinspection ConstantConditions
         final int index = getIntent().getExtras().getInt(NetKeysActivity.EDIT_NET_KEY);

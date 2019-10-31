@@ -868,28 +868,13 @@ public class MeshManagerApi implements MeshMngrApi {
                 for (int i = 0; i < mMeshNetwork.nodes.size(); i++) {
                     if (meshNode.getUnicastAddress() == mMeshNetwork.nodes.get(i).getUnicastAddress()) {
                         mMeshNetwork.nodes.set(i, meshNode);
-                        //mMeshNetworkDb.updateNode(mProvisionedNodeDao, meshNode);
                         break;
                     }
                 }
             }
+            mMeshNetwork.setTimestamp(System.currentTimeMillis());
             mMeshNetworkDb.updateNetwork1(mMeshNetwork, mMeshNetworkDao, mNetworkKeysDao, mApplicationKeysDao, mProvisionersDao, mProvisionedNodesDao,
                     mGroupsDao, mScenesDao);
-            /*if (meshNode != null) {
-                for (int i = 0; i < mMeshNetwork.nodes.size(); i++) {
-                    if (meshNode.getUnicastAddress() == mMeshNetwork.nodes.get(i).getUnicastAddress()) {
-                        mMeshNetwork.nodes.set(i, meshNode);
-                        mMeshNetworkDb.updateNode(mProvisionedNodeDao, meshNode);
-                        break;
-                    }
-                }
-            }
-            mMeshNetworkDb.updateProvisioner(mProvisionerDao, mMeshNetwork.getSelectedProvisioner());
-            mMeshNetworkDb.updateNode(mProvisionedNodeDao, mMeshNetwork.getNode(mMeshNetwork.getSelectedProvisioner().getProvisionerUuid()));
-            mMeshNetwork.loadSequenceNumbers();
-            mMeshNetwork.setTimestamp(MeshParserUtils.getInternationalAtomicTime(System.currentTimeMillis()));
-            mMeshNetworkDb.updateGroups(mGroupsDao, mMeshNetwork.groups);
-            mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);*/
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
     };

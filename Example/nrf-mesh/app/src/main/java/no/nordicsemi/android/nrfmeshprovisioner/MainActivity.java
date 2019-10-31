@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements Injectable,
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mViewModel = ViewModelProviders.of(this).get(SharedViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
         ButterKnife.bind(this);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);

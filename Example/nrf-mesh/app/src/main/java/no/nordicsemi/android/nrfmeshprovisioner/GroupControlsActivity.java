@@ -29,6 +29,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,10 +40,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Group;
@@ -84,16 +87,18 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
-
+    @BindView(R.id.container)
+    CoordinatorLayout container;
     private GroupControlsViewModel mViewModel;
     private SubGroupAdapter groupAdapter;
+    private boolean mIsConnected;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config_groups);
         ButterKnife.bind(this);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(GroupControlsViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(GroupControlsViewModel.class);
 
         final Toolbar toolbar = findViewById(R.id.toolbar_info);
         setSupportActionBar(toolbar);
@@ -106,8 +111,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         recyclerViewSubGroups.setLayoutManager(new LinearLayoutManager(this));
         groupAdapter = new SubGroupAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork(),
-                mViewModel.getSelectedGroup(),
-                mViewModel.isConnectedToProxy());
+                mViewModel.getSelectedGroup());
         groupAdapter.setOnItemClickListener(this);
         recyclerViewSubGroups.setAdapter(groupAdapter);
 
@@ -153,7 +157,11 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             }
         });
 
-        mViewModel.isConnectedToProxy().observe(this, aBoolean -> invalidateOptionsMenu());
+        mViewModel.isConnectedToProxy().observe(this, aBoolean -> {
+            mIsConnected = aBoolean;
+            groupAdapter.updateAdapterData();
+            invalidateOptionsMenu();
+        });
 
     }
 
@@ -198,6 +206,9 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     @Override
     public void onSubGroupItemClick(final int appKeyIndex, final int modelId) {
+        if(!isConnected())
+            return;
+
         if (MeshParserUtils.isVendorModel(modelId)) {
             final BottomSheetVendorDialogFragment onOffFragment = BottomSheetVendorDialogFragment.getInstance(modelId, appKeyIndex);
             onOffFragment.show(getSupportFragmentManager(), VENDOR_FRAGMENT);
@@ -217,6 +228,9 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     @Override
     public void toggle(final int appKeyIndex, final int modelId, final boolean isChecked) {
+        if (!isConnected()) {
+            return;
+        }
         final Group group = mViewModel.getSelectedGroup().getValue();
         if (group == null)
             return;
@@ -239,6 +253,9 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     @Override
     public void toggle(final int keyIndex, final boolean state, final int transitionSteps, final int transitionStepResolution, final int delay) {
+        if (!isConnected()) {
+            return;
+        }
         final Group group = mViewModel.getSelectedGroup().getValue();
         if (group == null)
             return;
@@ -253,10 +270,12 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     @Override
     public void toggleLevel(final int keyIndex, final int level, final int transitionSteps, final int transitionStepResolution, final int delay) {
+        if (!isConnected()) {
+            return;
+        }
         final Group group = mViewModel.getSelectedGroup().getValue();
         if (group == null)
             return;
-
 
         final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
@@ -344,5 +363,14 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
                     newInstance(getString(R.string.title_error), ex.getMessage());
             message.show(getSupportFragmentManager(), null);
         }
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean isConnected() {
+        if (!mIsConnected) {
+            mViewModel.displaySnackBar(this, container, getString(R.string.please_connect_to_network), Snackbar.LENGTH_SHORT);
+            return false;
+        }
+        return true;
     }
 }

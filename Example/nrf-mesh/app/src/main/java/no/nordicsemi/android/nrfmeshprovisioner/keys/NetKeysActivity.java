@@ -95,7 +95,7 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_net_keys);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(NetKeysViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(NetKeysViewModel.class);
 
         //Bind ui
         ButterKnife.bind(this);
@@ -231,9 +231,9 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
 
         scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             if (scrollView.getScrollY() == 0) {
-                fab.extend(true);
+                fab.extend();
             } else {
-                fab.shrink(true);
+                fab.shrink();
             }
         });
     }

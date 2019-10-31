@@ -52,10 +52,10 @@ public class DialogFragmenPermissionDenied extends DialogFragmentMessage {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder = new AlertDialog.Builder(requireActivity());
         alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
         alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> (
-                (DialogFragmentNetworkImportListener)getParentFragment()).onNetworkImportFailed());
+                (DialogFragmentNetworkImportListener)requireParentFragment()).onNetworkImportFailed());
 
         return super.onCreateDialog(savedInstanceState);
     }

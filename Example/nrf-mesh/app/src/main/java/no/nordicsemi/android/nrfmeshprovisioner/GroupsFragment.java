@@ -82,7 +82,7 @@ public class GroupsFragment extends Fragment implements Injectable,
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_groups, null);
-        mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
         ButterKnife.bind(this, rootView);
 
         final ExtendedFloatingActionButton fab = rootView.findViewById(R.id.fab_add_group);
@@ -99,7 +99,7 @@ public class GroupsFragment extends Fragment implements Injectable,
         adapter.setOnItemClickListener(this);
         recyclerViewGroups.setAdapter(adapter);
 
-        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
+        mViewModel.getNetworkLiveData().observe(getViewLifecycleOwner(), meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
                 if (meshNetworkLiveData.getMeshNetwork().getGroups().isEmpty()) {
                     mEmptyView.setVisibility(View.VISIBLE);
@@ -109,7 +109,7 @@ public class GroupsFragment extends Fragment implements Injectable,
             }
         });
 
-        mViewModel.getGroups().observe(this, groups -> {
+        mViewModel.getGroups().observe(getViewLifecycleOwner(), groups -> {
             final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
             adapter.updateAdapter(network, groups);
         });
@@ -126,9 +126,9 @@ public class GroupsFragment extends Fragment implements Injectable,
                 final LinearLayoutManager m = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (m != null) {
                     if (m.findFirstCompletelyVisibleItemPosition() == 0) {
-                        fab.extend(true);
+                        fab.extend();
                     } else {
-                        fab.shrink(true);
+                        fab.shrink();
                     }
                 }
             }

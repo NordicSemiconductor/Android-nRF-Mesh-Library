@@ -77,7 +77,7 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable,
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_key);
-        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(AddAppKeyViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddAppKeyViewModel.class);
         ButterKnife.bind(this);
 
         if (savedInstanceState == null) {

@@ -30,8 +30,8 @@ android {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
         targetSdkVersion 29
-        versionCode 53
-        versionName "2.0.5"
+        versionCode 56
+        versionName "2.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -63,8 +63,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     implementation 'androidx.test:runner:1.2.0'
 
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'com.google.android.material:material:1.1.0-alpha09'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.material:material:1.2.0-alpha01'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -79,7 +79,7 @@ dependencies {
     // Log Bluetooth LE events in nRF Logger
     implementation 'androidx.multidex:multidex:2.0.1'
     // Lifecycle extensions
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-alpha03'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-rc01'
 
     implementation 'com.google.dagger:dagger:2.21'
     implementation 'com.google.dagger:dagger-android:2.21'

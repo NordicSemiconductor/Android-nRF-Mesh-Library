@@ -81,7 +81,7 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_network, null);
-        mViewModel = ViewModelProviders.of(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
         ButterKnife.bind(this, rootView);
 
         final ExtendedFloatingActionButton fab = rootView.findViewById(R.id.fab_add_node);
@@ -99,7 +99,7 @@ public class NetworkFragment extends Fragment implements Injectable,
         mRecyclerViewNodes.setAdapter(mNodeAdapter);
 
         // Create view model containing utility methods for scanning
-        mViewModel.getNodes().observe(this, nodes -> {
+        mViewModel.getNodes().observe(getViewLifecycleOwner(), nodes -> {
             if (nodes != null && !nodes.isEmpty()) {
                 noNetworksConfiguredView.setVisibility(View.GONE);
             } else {
@@ -108,7 +108,7 @@ public class NetworkFragment extends Fragment implements Injectable,
             requireActivity().invalidateOptionsMenu();
         });
 
-        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
+        mViewModel.isConnectedToProxy().observe(getViewLifecycleOwner(), isConnected -> {
             if (isConnected != null) {
                 requireActivity().invalidateOptionsMenu();
             }
@@ -121,9 +121,9 @@ public class NetworkFragment extends Fragment implements Injectable,
                 final LinearLayoutManager m = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (m != null) {
                     if (m.findFirstCompletelyVisibleItemPosition() == 0) {
-                        fab.extend(true);
+                        fab.extend();
                     } else {
-                        fab.shrink(true);
+                        fab.shrink();
                     }
                 }
             }
@@ -147,7 +147,7 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public void onConfigureClicked(final ProvisionedMeshNode node) {
         mViewModel.setSelectedMeshNode(node);
-        final Intent meshConfigurationIntent = new Intent(getActivity(), NodeConfigurationActivity.class);
+        final Intent meshConfigurationIntent = new Intent(requireActivity(), NodeConfigurationActivity.class);
         requireActivity().startActivity(meshConfigurationIntent);
     }
 

@@ -68,6 +68,8 @@
 
         <item name="alertDialogTheme">@style/CustomDialogTheme</item>
 
+        <item name="bottomSheetDialogTheme">@style/CustomBottomSheetDialog</item>
+
         <!--<item name="alertDialogTheme">@style/CustomDialogTheme</item>-->
     </style>
 

@@ -51,11 +51,10 @@ public class DialogFragmentMeshExportMsg extends DialogFragmentMessage {
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder = new AlertDialog.Builder(requireActivity());
         alertDialogBuilder.setIcon(R.drawable.ic_info_outline_black_alpha);
         alertDialogBuilder.setPositiveButton(getString(R.string.ok), null);
         return super.onCreateDialog(savedInstanceState);
