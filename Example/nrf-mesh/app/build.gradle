@@ -78,7 +78,7 @@ dependencies {
     // Brings the new BluetoothLeScanner API to older platforms
     implementation 'no.nordicsemi.android.support.v18:scanner:1.4.3'
     // Android BLE Library
-    implementation 'no.nordicsemi.android:ble:1.2.0'
+    implementation 'no.nordicsemi.android:ble:2.1.1'
 
     implementation 'com.google.dagger:dagger:2.25.2'
     implementation 'com.google.dagger:dagger-android:2.25.2'
