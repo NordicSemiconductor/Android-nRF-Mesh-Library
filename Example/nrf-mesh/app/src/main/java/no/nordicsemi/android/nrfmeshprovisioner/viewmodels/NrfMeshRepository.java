@@ -311,13 +311,15 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mIsAppKeyAddCompleted = false;
         mIsNetworkRetransmitSetCompleted = false;
         //clearExtendedMeshNode();
-        final LogSession logSession = Logger.newSession(context, null, device.getAddress(), device.getName());
-        mBleMeshManager.setLogger(logSession);
         final BluetoothDevice bluetoothDevice = device.getDevice();
         initIsConnectedLiveData(connectToNetwork);
         mConnectionState.postValue("Connecting....");
         //Added a 1 second delay for connection, mostly to wait for a disconnection to complete before connecting.
-        mHandler.postDelayed(() -> mBleMeshManager.connect(bluetoothDevice), 1000);
+        mHandler.postDelayed(() -> mBleMeshManager.connect(bluetoothDevice)
+                .retry(3, 500) //Auto-retry in case of Gatt 133 error
+                .timeout(15000)
+                .useAutoConnect(false)
+                .enqueue(), 1000);
     }
 
     /**
@@ -328,7 +330,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private void connectToProxy(final ExtendedBluetoothDevice device) {
         initIsConnectedLiveData(true);
         mConnectionState.postValue("Connecting....");
-        mBleMeshManager.connect(device.getDevice());
+        mBleMeshManager.connect(device.getDevice())
+                .retry(3, 500) //Auto-retry in case of Gatt 133 error
+                .timeout(15000)
+                .useAutoConnect(false)
+                .enqueue();
     }
 
     private void initIsConnectedLiveData(final boolean connectToNetwork) {
@@ -345,7 +351,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     void disconnect() {
         clearProvisioningLiveData();
         mIsProvisioningComplete = false;
-        mBleMeshManager.disconnect();
+        mBleMeshManager.disconnect()
+                .enqueue();
     }
 
     void clearProvisioningLiveData() {
@@ -525,7 +532,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     @Override
-    public void onLinklossOccur(final BluetoothDevice device) {
+    public void onLinkLossOccurred(@NonNull BluetoothDevice device) {
         Log.v(TAG, "Link loss occurred");
         mIsConnected.postValue(false);
     }
@@ -577,6 +584,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onBonded(final BluetoothDevice device) {
+
+    }
+
+    @Override
+    public void onBondingFailed(@NonNull BluetoothDevice device) {
 
     }
 
@@ -688,7 +700,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         mIsProvisioningComplete = true;
         mProvisionedMeshNode = node;
         mIsReconnecting.postValue(true);
-        mBleMeshManager.disconnect();
+        mBleMeshManager.disconnect()
+                .enqueue();
         mBleMeshManager.refreshDeviceCache();
         loadNodes();
         mHandler.post(() -> mConnectionState.postValue("Scanning for provisioned node"));
