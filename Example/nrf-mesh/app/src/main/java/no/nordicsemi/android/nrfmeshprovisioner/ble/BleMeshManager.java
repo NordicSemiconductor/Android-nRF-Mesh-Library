@@ -39,6 +39,13 @@ import javax.inject.Inject;
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.ble.BleManager;
 import no.nordicsemi.android.ble.Request;
+import no.nordicsemi.android.ble.callback.DataReceivedCallback;
+import no.nordicsemi.android.ble.callback.DataSentCallback;
+import no.nordicsemi.android.ble.callback.FailCallback;
+import no.nordicsemi.android.ble.callback.InvalidRequestCallback;
+import no.nordicsemi.android.ble.callback.MtuCallback;
+import no.nordicsemi.android.ble.callback.SuccessCallback;
+import no.nordicsemi.android.ble.data.Data;
 import no.nordicsemi.android.log.LogContract;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -85,33 +92,46 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
 
     private int mtuSize = MAX_PACKET_SIZE;
 
-    private BluetoothGatt mBluetoothGatt;
     private boolean isProvisioningComplete;
     private boolean mIsDeviceReady;
     /**
      * BluetoothGatt callbacks for connection/disconnection, service discovery, receiving indication, etc
      */
-    private final BleManagerGattCallback mGattCallback = new BleManagerGattCallback() {
-
+    private BleManagerGattCallback mGattCallback = new BleManagerGattCallback() {
         @Override
-        protected Deque<Request> initGatt(final BluetoothGatt gatt) {
-            mBluetoothGatt = gatt;
-            final LinkedList<Request> requests = new LinkedList<>();
-            requests.add(Request.newMtuRequest(MTU_SIZE_MAX));
-            if (isProvisioningComplete) {
-                requests.add(Request.newReadRequest(mMeshProxyDataOutCharacteristic));
-                requests.add(Request.newReadRequest(mMeshProxyDataInCharacteristic));
-                requests.add(Request.newEnableNotificationsRequest(mMeshProxyDataOutCharacteristic));
-            } else {
-                requests.add(Request.newReadRequest(mMeshProvisioningDataInCharacteristic));
-                requests.add(Request.newReadRequest(mMeshProvisioningDataOutCharacteristic));
-                requests.add(Request.newEnableNotificationsRequest(mMeshProvisioningDataOutCharacteristic));
-            }
-            return requests;
+        protected void initialize() {
+            requestMtu(MTU_SIZE_MAX)
+                    .with(new MtuCallback() {
+                        @Override
+                        public void onMtuChanged(@NonNull BluetoothDevice device, int mtu) {
+                            if (isProvisioningComplete) {
+                                // Data Out
+                                setNotificationCallback(mMeshProxyDataOutCharacteristic)
+                                        .with(new DataReceivedCallback() {
+                                            @Override
+                                            public void onDataReceived(@NonNull BluetoothDevice device, @NonNull Data data) {
+                                                mCallbacks.onDataReceived(device, mtu, data.getValue());
+                                            }
+                                        });
+                                enableNotifications(mMeshProxyDataOutCharacteristic).enqueue();
+                            } else {
+                                // Data Out
+                                setNotificationCallback(mMeshProvisioningDataOutCharacteristic)
+                                        .with(new DataReceivedCallback() {
+                                            @Override
+                                            public void onDataReceived(@NonNull BluetoothDevice device, @NonNull Data data) {
+                                                mCallbacks.onDataReceived(device, mtu, data.getValue());
+                                            }
+                                        });
+                                enableNotifications(mMeshProvisioningDataOutCharacteristic).enqueue();
+                            }
+                        }
+                    })
+                    .enqueue();
         }
 
         @Override
-        public boolean isRequiredServiceSupported(final BluetoothGatt gatt) {
+        protected boolean isRequiredServiceSupported(@NonNull BluetoothGatt gatt) {
             boolean writeRequest;
 
             BluetoothGattService meshService = gatt.getService(MESH_PROXY_UUID);
@@ -155,30 +175,6 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
         }
 
         @Override
-        protected void onCharacteristicRead(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
-        }
-
-        @Override
-        public void onCharacteristicWrite(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
-            final byte[] data = characteristic.getValue();
-            Log.v(TAG, "Data written: " + MeshParserUtils.bytesToHex(data, true));
-            mCallbacks.onDataSent(gatt.getDevice(), mtuSize, data);
-        }
-
-        @Override
-        public void onCharacteristicNotified(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
-            final byte[] data = characteristic.getValue();
-            Log.v(TAG, "Characteristic notified: " + MeshParserUtils.bytesToHex(data, true));
-            mCallbacks.onDataReceived(gatt.getDevice(), mtuSize, data);
-        }
-
-        @Override
-        protected void onMtuChanged(final int mtu) {
-            super.onMtuChanged(mtu);
-            mtuSize = mtu - 3;
-        }
-
-        @Override
         protected void onDeviceReady() {
             mIsDeviceReady = true;
             super.onDeviceReady();
@@ -194,13 +190,6 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
     @Override
     protected BleManagerGattCallback getGattCallback() {
         return mGattCallback;
-    }
-
-    @Override
-    protected boolean shouldAutoConnect() {
-        // If you want to connect to the device using autoConnect flag = true, return true here.
-        // Read the documentation of this method.
-        return super.shouldAutoConnect();
     }
 
     /**
@@ -230,9 +219,8 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
     /**
      * Refreshes the device cache. This is to make sure that Android will discover the services as the the mesh node will change the provisioning service to a proxy service.
      */
-    public boolean refreshDeviceCache() {
-        //Once the service discovery is complete we will refresh the device cache and discover the services again.
-        return refreshDeviceCache(mBluetoothGatt);
+    public Request refreshDeviceCache() {
+        return super.refreshDeviceCache();
     }
 
     public boolean isProvisioningComplete() {
@@ -251,7 +239,14 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
                 return;
             final BluetoothGattCharacteristic characteristic = mMeshProxyDataInCharacteristic;
             characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-            writeCharacteristic(characteristic, data);
+            writeCharacteristic(characteristic, data)
+                    .with(new DataSentCallback() {
+                        @Override
+                        public void onDataSent(@NonNull BluetoothDevice device, @NonNull Data data) {
+                            mCallbacks.onDataSent(device, mtuSize, data.getValue());
+                        }
+                    })
+                    .enqueue();
 
         } else {
             // Are we connected?
@@ -259,25 +254,15 @@ public class BleMeshManager extends BleManager<BleMeshManagerCallbacks> {
                 return;
             final BluetoothGattCharacteristic characteristic = mMeshProvisioningDataInCharacteristic;
             characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-            writeCharacteristic(characteristic, data);
+            writeCharacteristic(characteristic, data)
+                    .with(new DataSentCallback() {
+                        @Override
+                        public void onDataSent(@NonNull BluetoothDevice device, @NonNull Data data) {
+                            mCallbacks.onDataSent(device, mtuSize, data.getValue());
+                        }
+                    })
+                    .enqueue();
         }
-    }
-
-    private boolean refreshDeviceCache(final BluetoothGatt gatt) {
-        if (gatt == null)
-            return false;
-        /*
-         * There is a refresh() method in BluetoothGatt class but for now it's hidden. We will call it using reflections.
-         */
-        try {
-            final Method refresh = gatt.getClass().getMethod("refresh");
-            if (refresh != null) {
-                return (Boolean) refresh.invoke(gatt);
-            }
-        } catch (final Exception e) {
-            log(LogContract.Log.Level.ERROR, "An exception occurred while refreshing device " + e.getMessage());
-        }
-        return false;
     }
 
     public boolean isDeviceReady() {
