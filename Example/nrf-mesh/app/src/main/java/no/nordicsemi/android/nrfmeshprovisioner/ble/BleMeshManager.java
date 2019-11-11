@@ -73,6 +73,7 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
 
     private boolean isProvisioningComplete;
     private boolean mIsDeviceReady;
+    private boolean mNodeReset;
     /**
      * BluetoothGatt callbacks for connection/disconnection, service discovery, receiving notifications, etc.
      */
@@ -152,7 +153,16 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
     protected boolean shouldClearCacheWhenDisconnected() {
         // This is to make sure that Android will discover the services as the the mesh node will
         // change the provisioning service to a proxy service.
-        return !isProvisioningComplete;
+        final boolean result = !isProvisioningComplete ||  mNodeReset;
+        mNodeReset = false;
+        return result;
+    }
+
+    /**
+     * After calling this method the device cache will be cleared upon next disconnection.
+     */
+    public void setClearCacheRequired() {
+        mNodeReset = true;
     }
 
     /**

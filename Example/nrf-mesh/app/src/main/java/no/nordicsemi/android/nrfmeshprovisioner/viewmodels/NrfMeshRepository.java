@@ -873,7 +873,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 }
 
             } else if (meshMessage instanceof ConfigNodeResetStatus) {
-
+                mBleMeshManager.setClearCacheRequired();
                 final ConfigNodeResetStatus status = (ConfigNodeResetStatus) meshMessage;
                 mExtendedMeshNode.postValue(null);
                 loadNodes();
