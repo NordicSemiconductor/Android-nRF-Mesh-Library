@@ -61,7 +61,7 @@ import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.ScannerViewModel;
 public class ScannerActivity extends AppCompatActivity implements Injectable,
         DevicesAdapter.OnItemClickListener {
     private static final int REQUEST_ENABLE_BLUETOOTH = 1021; // random number
-    private static final int REQUEST_ACCESS_COARSE_LOCATION = 1022; // random number
+    private static final int REQUEST_ACCESS_FINE_LOCATION = 1022; // random number
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -190,7 +190,7 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
     @Override
     public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_ACCESS_COARSE_LOCATION) {
+        if (requestCode == REQUEST_ACCESS_FINE_LOCATION) {
             mViewModel.getScannerRepository().getScannerState().refresh();
         }
     }
@@ -210,7 +210,7 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
     @OnClick(R.id.action_grant_location_permission)
     public void onGrantLocationPermissionClicked() {
         Utils.markLocationPermissionRequested(this);
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ACCESS_FINE_LOCATION);
     }
 
     @OnClick(R.id.action_permission_settings)

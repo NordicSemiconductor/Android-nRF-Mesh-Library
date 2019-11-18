@@ -32,8 +32,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.AppCompatActivity;
 
 import dagger.android.AndroidInjection;
+import dagger.android.HasAndroidInjector;
 import dagger.android.support.AndroidSupportInjection;
-import dagger.android.support.HasSupportFragmentInjector;
 
 /**
  * Helper class to automatically inject fragments if they implement {@link Injectable}.
@@ -50,44 +50,44 @@ class AppInjector {
 
 		application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
 			@Override
-			public void onActivityCreated(final Activity activity, final Bundle savedInstanceState) {
+			public void onActivityCreated(@NonNull final Activity activity, final Bundle savedInstanceState) {
 				handleActivity(activity);
 			}
 
 			@Override
-			public void onActivityStarted(final Activity activity) {
+			public void onActivityStarted(@NonNull final Activity activity) {
 				// empty
 			}
 
 			@Override
-			public void onActivityResumed(final Activity activity) {
+			public void onActivityResumed(@NonNull final Activity activity) {
 				// empty
 			}
 
 			@Override
-			public void onActivityPaused(final Activity activity) {
+			public void onActivityPaused(@NonNull final Activity activity) {
 				// empty
 			}
 
 			@Override
-			public void onActivityStopped(final Activity activity) {
+			public void onActivityStopped(@NonNull final Activity activity) {
 				// empty
 			}
 
 			@Override
-			public void onActivitySaveInstanceState(final Activity activity, final Bundle outState) {
+			public void onActivitySaveInstanceState(@NonNull final Activity activity, @NonNull final Bundle outState) {
 				// empty
 			}
 
 			@Override
-			public void onActivityDestroyed(final Activity activity) {
+			public void onActivityDestroyed(@NonNull final Activity activity) {
 				// empty
 			}
 		});
 	}
 
 	private static void handleActivity(final Activity activity) {
-		if (activity instanceof Injectable || activity instanceof HasSupportFragmentInjector) {
+		if (activity instanceof Injectable || activity instanceof HasAndroidInjector) {
 			AndroidInjection.inject(activity);
 		}
 		if (activity instanceof AppCompatActivity) {

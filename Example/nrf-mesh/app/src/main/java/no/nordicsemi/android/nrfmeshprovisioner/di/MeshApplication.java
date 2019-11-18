@@ -22,24 +22,17 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.di;
 
-import android.app.Activity;
-import android.app.Service;
-import androidx.multidex.MultiDexApplication;
-import androidx.appcompat.app.AppCompatDelegate;
-
 import javax.inject.Inject;
 
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.multidex.MultiDexApplication;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
-import dagger.android.HasActivityInjector;
-import dagger.android.HasServiceInjector;
+import dagger.android.HasAndroidInjector;
 
-public class MeshApplication extends MultiDexApplication implements HasActivityInjector, HasServiceInjector {
+public class MeshApplication extends MultiDexApplication implements HasAndroidInjector {
     @Inject
-    DispatchingAndroidInjector<Activity> dispatchingAndroidInjector;
-
-    @Inject
-    DispatchingAndroidInjector<Service> mServiceDispatchingAndroidInjector;
+    DispatchingAndroidInjector<Object> dispatchingAndroidInjector;
 
     @Override
     public void onCreate() {
@@ -49,12 +42,7 @@ public class MeshApplication extends MultiDexApplication implements HasActivityI
     }
 
     @Override
-    public DispatchingAndroidInjector<Activity> activityInjector() {
+    public AndroidInjector<Object> androidInjector() {
         return dispatchingAndroidInjector;
-    }
-
-    @Override
-    public AndroidInjector<Service> serviceInjector() {
-        return mServiceDispatchingAndroidInjector;
     }
 }

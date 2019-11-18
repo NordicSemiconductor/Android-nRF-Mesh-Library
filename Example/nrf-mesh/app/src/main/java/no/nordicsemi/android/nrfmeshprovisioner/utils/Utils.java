@@ -112,7 +112,7 @@ public class Utils {
      * @return true if permissions are already granted, false otherwise.
      */
     public static boolean isLocationPermissionsGranted(final Context context) {
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     /**
@@ -127,7 +127,7 @@ public class Utils {
 
         return !isLocationPermissionsGranted(activity) // Location permission must be denied
                 && preferences.getBoolean(PREFS_PERMISSION_REQUESTED, false) // Permission must have been requested before
-                && !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_COARSE_LOCATION); // This method should return false
+                && !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION); // This method should return false
     }
 
     /**

@@ -38,24 +38,23 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import butterknife.ButterKnife;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
-import dagger.android.support.HasSupportFragmentInjector;
+import dagger.android.HasAndroidInjector;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
 public class MainActivity extends AppCompatActivity implements Injectable,
-        HasSupportFragmentInjector,
+        HasAndroidInjector,
         BottomNavigationView.OnNavigationItemSelectedListener,
         BottomNavigationView.OnNavigationItemReselectedListener {
 
     private static final String CURRENT_FRAGMENT = "CURRENT_FRAGMENT";
 
     @Inject
-    DispatchingAndroidInjector<Fragment> mDispatchingAndroidInjector;
+    DispatchingAndroidInjector<Object> mDispatchingAndroidInjector;
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -157,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements Injectable,
     }
 
     @Override
-    public AndroidInjector<Fragment> supportFragmentInjector() {
+    public AndroidInjector<Object> androidInjector() {
         return mDispatchingAndroidInjector;
     }
 }

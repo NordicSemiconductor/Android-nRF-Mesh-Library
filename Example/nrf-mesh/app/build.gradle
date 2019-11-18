@@ -30,8 +30,8 @@ android {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
         targetSdkVersion 29
-        versionCode 56
-        versionName "2.1.0"
+        versionCode 57
+        versionName "2.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -63,28 +63,27 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     implementation 'androidx.test:runner:1.2.0'
 
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'com.google.android.material:material:1.2.0-alpha01'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta3'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-rc02'
 
     // Butter Knife
-    implementation 'com.jakewharton:butterknife:10.1.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.1.0'
+    implementation 'com.jakewharton:butterknife:10.2.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.0'
     // Brings the new BluetoothLeScanner API to older platforms
     implementation 'no.nordicsemi.android.support.v18:scanner:1.4.3'
-    implementation 'no.nordicsemi.android:ble:1.2.0'
-    // Log Bluetooth LE events in nRF Logger
-    implementation 'androidx.multidex:multidex:2.0.1'
-    // Lifecycle extensions
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-rc01'
+    // Android BLE Library
+    implementation 'no.nordicsemi.android:ble:2.1.1'
 
-    implementation 'com.google.dagger:dagger:2.21'
-    implementation 'com.google.dagger:dagger-android:2.21'
-    implementation 'com.google.dagger:dagger-android-support:2.21'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.21'
-    annotationProcessor "com.google.dagger:dagger-android-processor:2.21"
+    implementation 'com.google.dagger:dagger:2.25.2'
+    implementation 'com.google.dagger:dagger-android:2.25.2'
+    implementation 'com.google.dagger:dagger-android-support:2.25.2'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.25.2'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.25.2'
     implementation project(':meshprovisioner')
 }
