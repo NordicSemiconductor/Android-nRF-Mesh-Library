@@ -108,11 +108,11 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
 
         @Override
         protected void initialize() {
-            requestMtu(MTU_SIZE_MAX).enqueue();
+            //requestMtu(MTU_SIZE_MAX).enqueue();
 
             // This callback will be called each time a notification is received.
             final DataReceivedCallback onDataReceived = (device, data) ->
-                    mCallbacks.onDataReceived(device, getMtu(), data.getValue());
+                    mCallbacks.onDataReceived(device, getMaximumPacketSize(), data.getValue());
 
             // Set the notification callback and enable notification on Data In characteristic.
             final BluetoothGattCharacteristic characteristic = isProvisioningComplete ?
@@ -178,7 +178,7 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
 
         // This callback will be called each time the data were sent.
         final DataSentCallback callback = (device, data) ->
-                mCallbacks.onDataSent(device, getMtu(), data.getValue());
+                mCallbacks.onDataSent(device, getMaximumPacketSize(), data.getValue());
 
         // Write the right characteristic.
         final BluetoothGattCharacteristic characteristic = isProvisioningComplete ?
@@ -189,9 +189,8 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
                 .enqueue();
     }
 
-    @Override
-    public int getMtu() {
-        return super.getMtu();
+    public int getMaximumPacketSize() {
+        return super.getMtu() - 3;
     }
 
     public boolean isProvisioningComplete() {

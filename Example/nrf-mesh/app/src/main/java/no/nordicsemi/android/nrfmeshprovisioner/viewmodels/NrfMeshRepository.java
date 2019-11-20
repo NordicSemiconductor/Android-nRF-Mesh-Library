@@ -637,7 +637,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public int getMtu() {
-        return mBleMeshManager.getMtu();
+        return mBleMeshManager.getMaximumPacketSize();
     }
 
     @Override
