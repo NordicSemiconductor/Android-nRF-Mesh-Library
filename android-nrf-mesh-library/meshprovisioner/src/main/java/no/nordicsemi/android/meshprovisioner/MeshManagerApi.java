@@ -295,6 +295,8 @@ public class MeshManagerApi implements MeshMngrApi {
             }
         } catch (ExtendedInvalidCipherTextException ex) {
             //TODO handle decryption failure
+        } catch (IllegalArgumentException ex) {
+            Log.e(TAG, "Parsing notification failed: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true) + " - " + ex.getMessage());
         }
     }
 

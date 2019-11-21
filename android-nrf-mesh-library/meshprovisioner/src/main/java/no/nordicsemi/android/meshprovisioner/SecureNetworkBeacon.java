@@ -26,8 +26,9 @@ public class SecureNetworkBeacon extends MeshBeacon {
      */
     public SecureNetworkBeacon(@NonNull final byte[] beaconData) {
         super(beaconData);
-        if (beaconData.length != SecureNetworkBeacon.BEACON_DATA_LENGTH)
-            throw new IllegalArgumentException("Invalid secure network beacon data");
+        if (beaconData.length != BEACON_DATA_LENGTH)
+            throw new IllegalArgumentException("Incorrect Secure Network Beacon length: " + beaconData.length
+                    + ", expected: " + BEACON_DATA_LENGTH + ". Check MTU and Proxy Protocol segmentation.");
 
         final ByteBuffer byteBuffer = ByteBuffer.wrap(beaconData);
         byteBuffer.position(1);

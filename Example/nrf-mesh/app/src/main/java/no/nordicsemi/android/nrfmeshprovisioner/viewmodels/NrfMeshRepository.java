@@ -577,7 +577,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onError(final BluetoothDevice device, @NonNull final String message, final int errorCode) {
-        Log.e(TAG, "Error: " + message + " Error Code: " + errorCode + " Device: " + device.getAddress());
+        Log.e(TAG, message + " (code: " + errorCode + "), device: " + device.getAddress());
         mConnectionState.postValue(message);
     }
 

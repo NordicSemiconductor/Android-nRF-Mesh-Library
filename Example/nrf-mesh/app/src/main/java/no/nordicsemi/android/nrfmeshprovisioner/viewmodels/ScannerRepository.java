@@ -94,7 +94,7 @@ public class ScannerRepository {
                     }
                 }
             } catch (Exception ex) {
-                Log.v(TAG, "Error: " + ex.getMessage());
+                Log.e(TAG, "Error: " + ex.getMessage());
             }
         }
 
@@ -105,12 +105,7 @@ public class ScannerRepository {
 
         @Override
         public void onScanFailed(final int errorCode) {
-            try {
-                // TODO This should be handled
-                mScannerStateLiveData.scanningStopped();
-            } catch (Exception ex) {
-                Log.v(TAG, ex.getMessage() + " : Error code: " + errorCode);
-            }
+            mScannerStateLiveData.scanningStopped();
         }
     };
 
