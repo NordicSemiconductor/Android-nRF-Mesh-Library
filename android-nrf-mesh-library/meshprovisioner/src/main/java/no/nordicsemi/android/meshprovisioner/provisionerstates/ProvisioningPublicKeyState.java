@@ -23,7 +23,6 @@
 package no.nordicsemi.android.meshprovisioner.provisionerstates;
 
 
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import org.spongycastle.jce.ECNamedCurveTable;
@@ -49,6 +48,7 @@ import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.KeyAgreement;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.InternalTransportCallbacks;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshProvisioningStatusCallbacks;
@@ -142,6 +142,10 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
     }
 
     private void generateSharedECDHSecret(final byte[] provisioneePublicKeyXYPDU) {
+        if (provisioneePublicKeyXYPDU.length != 66) {
+            throw new IllegalArgumentException("Invalid Provisionee Public Key PDU," +
+                    " length of the Provisionee public key must be 66 bytes, but was " + provisioneePublicKeyXYPDU.length);
+        }
         final ByteBuffer buffer = ByteBuffer.allocate(provisioneePublicKeyXYPDU.length - 2);
         buffer.put(provisioneePublicKeyXYPDU, 2, buffer.limit());
         final byte[] xy = mTempProvisioneeXY = buffer.array();

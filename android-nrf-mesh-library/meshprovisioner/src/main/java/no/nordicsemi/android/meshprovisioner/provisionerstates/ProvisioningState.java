@@ -90,7 +90,7 @@ public abstract class ProvisioningState {
         SENDING_NETWORK_TRANSMIT_SET(23),
         NETWORK_TRANSMIT_STATUS_RECEIVED(24),
         SENDING_BLOCK_ACKNOWLEDGEMENT(98),
-        BLOCK_ACKNOWLEDGEMENT_RECEIVED(99),;
+        BLOCK_ACKNOWLEDGEMENT_RECEIVED(99);
 
         private int state;
 
@@ -102,9 +102,9 @@ public abstract class ProvisioningState {
             return state;
         }
 
-        public static States fromStatusCode(final int statusCode){
-            for(States state : States.values()){
-                if(state.getState() == statusCode){
+        public static States fromStatusCode(final int statusCode) {
+            for (States state : States.values()) {
+                if (state.getState() == statusCode) {
                     return state;
                 }
             }
