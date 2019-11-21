@@ -295,6 +295,8 @@ public class MeshManagerApi implements MeshMngrApi {
             }
         } catch (ExtendedInvalidCipherTextException ex) {
             //TODO handle decryption failure
+        } catch (IllegalArgumentException ex) {
+            Log.e(TAG, "Parsing notification failed: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true) + " - " + ex.getMessage());
         }
     }
 
@@ -621,8 +623,8 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public boolean isAdvertisedWithNodeIdentity(@Nullable final byte[] serviceData) {
-        return serviceData != null &&
-                serviceData[ADVERTISED_HASH_OFFSET - 1] == ADVERTISEMENT_TYPE_NODE_IDENTITY;
+        return serviceData != null && serviceData.length == 17
+                && serviceData[ADVERTISED_HASH_OFFSET - 1] == ADVERTISEMENT_TYPE_NODE_IDENTITY;
     }
 
     /**
@@ -665,7 +667,8 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public boolean isAdvertisingWithNetworkIdentity(@Nullable final byte[] serviceData) {
-        return serviceData != null && serviceData[ADVERTISED_NETWORK_ID_OFFSET - 1] == ADVERTISEMENT_TYPE_NETWORK_ID;
+        return serviceData != null && serviceData.length == 9
+                && serviceData[ADVERTISED_NETWORK_ID_OFFSET - 1] == ADVERTISEMENT_TYPE_NETWORK_ID;
     }
 
     /**

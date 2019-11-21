@@ -64,6 +64,7 @@ public class ScannerRepository {
      * MutableLiveData containing the scanner state to notify MainActivity.
      */
     private final ScannerLiveData mScannerLiveData;
+    private final ScannerStateLiveData mScannerStateLiveData;
 
     private UUID mFilterUuid;
 
@@ -77,9 +78,7 @@ public class ScannerRepository {
                     if (Utils.isLocationRequired(mContext) && !Utils.isLocationEnabled(mContext))
                         Utils.markLocationNotRequired(mContext);
 
-                    if (!mScannerLiveData.isStopScanRequested()) {
-                        updateScannerLiveData(result);
-                    }
+                    updateScannerLiveData(result);
                 } else if (mFilterUuid.equals(BleMeshManager.MESH_PROXY_UUID)) {
                     final byte[] serviceData = Utils.getServiceData(result, BleMeshManager.MESH_PROXY_UUID);
                     if (mMeshManagerApi != null) {
@@ -95,7 +94,7 @@ public class ScannerRepository {
                     }
                 }
             } catch (Exception ex) {
-                Log.v(TAG, ex.getMessage());
+                Log.e(TAG, "Error: " + ex.getMessage());
             }
         }
 
@@ -106,12 +105,7 @@ public class ScannerRepository {
 
         @Override
         public void onScanFailed(final int errorCode) {
-            try {
-                // TODO This should be handled
-                mScannerLiveData.scanningStopped();
-            } catch (Exception ex) {
-                Log.v(TAG, ex.getMessage() + " : Error code: " + errorCode);
-            }
+            mScannerStateLiveData.scanningStopped();
         }
     };
 
@@ -122,7 +116,7 @@ public class ScannerRepository {
         @Override
         public void onReceive(final Context context, final Intent intent) {
             final boolean enabled = Utils.isLocationEnabled(context);
-            mScannerLiveData.setLocationEnabled(enabled);
+            mScannerStateLiveData.setLocationEnabled(enabled);
         }
     };
     /**
@@ -136,14 +130,13 @@ public class ScannerRepository {
 
             switch (state) {
                 case BluetoothAdapter.STATE_ON:
-                    mScannerLiveData.bluetoothEnabled();
-                    mScannerLiveData.startScanning();
+                    mScannerStateLiveData.bluetoothEnabled();
                     break;
                 case BluetoothAdapter.STATE_TURNING_OFF:
                 case BluetoothAdapter.STATE_OFF:
                     if (previousState != BluetoothAdapter.STATE_TURNING_OFF && previousState != BluetoothAdapter.STATE_OFF) {
                         stopScan();
-                        mScannerLiveData.bluetoothDisabled();
+                        mScannerStateLiveData.bluetoothDisabled();
                     }
                     break;
             }
@@ -154,10 +147,15 @@ public class ScannerRepository {
     public ScannerRepository(final Context context, final MeshManagerApi meshManagerApi) {
         this.mContext = context;
         this.mMeshManagerApi = meshManagerApi;
-        mScannerLiveData = new ScannerLiveData(Utils.isBleEnabled(), Utils.isLocationEnabled(context));
+        mScannerStateLiveData = new ScannerStateLiveData(Utils.isBleEnabled(), Utils.isLocationEnabled(context));
+        mScannerLiveData = new ScannerLiveData();
     }
 
-    public ScannerLiveData getScannerState() {
+    public ScannerStateLiveData getScannerState() {
+        return mScannerStateLiveData;
+    }
+
+    public ScannerLiveData getScannerResults() {
         return mScannerLiveData;
     }
 
@@ -171,6 +169,7 @@ public class ScannerRepository {
                 } else {
                     mScannerLiveData.deviceDiscovered(result);
                 }
+                mScannerStateLiveData.deviceFound();
             }
         }
     }
@@ -203,13 +202,7 @@ public class ScannerRepository {
     public void startScan(final UUID filterUuid) {
         mFilterUuid = filterUuid;
 
-        if (mScannerLiveData.isScanRequested()) {
-            if (mScannerLiveData.isScanning()) {
-                return;
-            }
-        }
-
-        if (mScannerLiveData.isStopScanRequested()) {
+        if (mScannerStateLiveData.isScanning()) {
             return;
         }
 
@@ -222,7 +215,7 @@ public class ScannerRepository {
             }
         }
 
-        mScannerLiveData.scanningStarted();
+        mScannerStateLiveData.scanningStarted();
         //Scanning settings
         final ScanSettings settings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
@@ -246,10 +239,9 @@ public class ScannerRepository {
      * stop scanning for bluetooth devices.
      */
     public void stopScan() {
-        mScannerLiveData.stopScanning();
         final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
         scanner.stopScan(mScanCallbacks);
-        mScannerLiveData.scanningStopped();
+        mScannerStateLiveData.scanningStopped();
     }
 
     /**
@@ -268,6 +260,5 @@ public class ScannerRepository {
             }
         }
         return false;
-
     }
 }
