@@ -43,70 +43,8 @@ import no.nordicsemi.android.support.v18.scanner.ScanResult;
 public class ScannerLiveData extends LiveData<ScannerLiveData> {
     private final List<ExtendedBluetoothDevice> mDevices = new ArrayList<>();
     private Integer mUpdatedDeviceIndex;
-    private boolean mScanningStarted;
-    private boolean mBluetoothEnabled;
-    private boolean mLocationEnabled;
-    private boolean mStartScanning;
-    private boolean mStopScanning;
 
-    ScannerLiveData(final boolean bluetoothEnabled, final boolean locationEnabled) {
-        mScanningStarted = false;
-        mBluetoothEnabled = bluetoothEnabled;
-        mLocationEnabled = locationEnabled;
-        postValue(this);
-    }
-
-    public void refresh() {
-        postValue(this);
-    }
-
-    /**
-     * Updates the flag to notify scanner live data that a stop scan was requested.
-     */
-    public void startScanning() {
-        mDevices.clear(); //Clear the devices on resuming the scan
-        mStopScanning = false;
-        mStartScanning = true;
-        setValue(this);
-    }
-
-    public boolean isScanRequested(){
-        return mStartScanning;
-    }
-
-    /**
-     * Updates the flag to notify scanner live data that a stop scan was requested.
-     */
-    public void stopScanning() {
-        mStopScanning = true;
-        mStartScanning = false;
-        setValue(this);
-    }
-
-    boolean isStopScanRequested(){
-        return mStopScanning;
-    }
-
-    void scanningStarted() {
-        mScanningStarted = true;
-        setValue(this);
-    }
-
-    void scanningStopped() {
-        mScanningStarted = false;
-        setValue(this);
-    }
-
-    void bluetoothEnabled() {
-        mBluetoothEnabled = true;
-        postValue(this);
-    }
-
-    void bluetoothDisabled() {
-        mBluetoothEnabled = false;
-        mUpdatedDeviceIndex = null;
-        mDevices.clear();
-        postValue(this);
+    ScannerLiveData() {
     }
 
     void deviceDiscovered(final ScanResult result) {
@@ -172,36 +110,6 @@ public class ScannerLiveData extends LiveData<ScannerLiveData> {
      */
     public boolean isEmpty() {
         return mDevices.isEmpty();
-    }
-
-    /**
-     * Returns whether scanning is in progress.
-     */
-    public boolean isScanning() {
-        return mScanningStarted;
-    }
-
-    public boolean isScanStopped() {
-        return mScanningStarted;
-    }
-
-    /**
-     * Returns whether Bluetooth adapter is enabled.
-     */
-    public boolean isBluetoothEnabled() {
-        return mBluetoothEnabled;
-    }
-
-    /**
-     * Returns whether Location is enabled.
-     */
-    public boolean isLocationEnabled() {
-        return mLocationEnabled;
-    }
-
-    void setLocationEnabled(final boolean enabled) {
-        mLocationEnabled = enabled;
-        postValue(this);
     }
 
     /**
