@@ -29,14 +29,10 @@ import no.nordicsemi.android.meshprovisioner.R;
 
 public class ProvisioningFailedState extends ProvisioningState {
 
-    private final Context mContext;
-    private final UnprovisionedMeshNode mUnprovisionedMeshNode;
     private int error;
 
-    public ProvisioningFailedState(final Context context, final UnprovisionedMeshNode unprovisionedMeshNode) {
+    public ProvisioningFailedState() {
         super();
-        this.mContext = context;
-        this.mUnprovisionedMeshNode = unprovisionedMeshNode;
     }
 
     @Override
@@ -61,35 +57,6 @@ public class ProvisioningFailedState extends ProvisioningState {
     }
 
     public static String parseProvisioningFailure(final Context context, final int errorCode) {
-        switch (ProvisioningFailureCode.fromErrorCode(errorCode)) {
-            case PROHIBITED:
-                return context.getString(R.string.error_prohibited);
-            case INVALID_PDU:
-                return context.getString(R.string.error_invalid_pdu);
-            case INVALID_FORMAT:
-                return context.getString(R.string.error_invalid_format);
-            case UNEXPECTED_PDU:
-                return context.getString(R.string.error_prohibited);
-            case CONFIRMATION_FAILED:
-                return context.getString(R.string.error_confirmation_failed);
-            case OUT_OF_RESOURCES:
-                return context.getString(R.string.error_prohibited);
-            case DECRYPTION_FAILED:
-                return context.getString(R.string.error_decryption_failed);
-            case UNEXPECTED_ERROR:
-                return context.getString(R.string.error_unexpected_error);
-            case CANNOT_ASSIGN_ADDRESSES:
-                return context.getString(R.string.error_cannot_assign_addresses);
-            case UNKNOWN_ERROR_CODE:
-            default:
-                return context.getString(R.string.error_rfu);
-        }
-    }
-
-    public static String parseProvisioningFailure(final Context context, final byte[] pdu) {
-        if(pdu == null)
-            return "Unknown";
-        final int errorCode = pdu[2];
         switch (ProvisioningFailureCode.fromErrorCode(errorCode)) {
             case PROHIBITED:
                 return context.getString(R.string.error_prohibited);
