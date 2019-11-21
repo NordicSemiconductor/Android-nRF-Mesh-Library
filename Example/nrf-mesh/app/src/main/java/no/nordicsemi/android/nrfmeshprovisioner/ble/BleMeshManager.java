@@ -36,6 +36,7 @@ import no.nordicsemi.android.ble.callback.DataReceivedCallback;
 import no.nordicsemi.android.ble.callback.DataSentCallback;
 
 public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> {
+    private static final int MTU_SIZE_DEFAULT = 23;
     private static final int MTU_SIZE_MAX = 517;
 
     /**
@@ -123,6 +124,8 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
 
         @Override
         protected void onDeviceDisconnected() {
+            //We reset the MTU to 23 upon disconnection
+            overrideMtu(MTU_SIZE_DEFAULT);
             mIsDeviceReady = false;
             isProvisioningComplete = false;
             mMeshProvisioningDataInCharacteristic = null;
