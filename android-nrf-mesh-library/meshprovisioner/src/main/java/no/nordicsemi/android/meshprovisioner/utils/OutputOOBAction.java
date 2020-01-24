@@ -49,7 +49,7 @@ public enum OutputOOBAction {
             case 0x0001:
                 return BLINK;
             case 0x0002:
-                return VIBRATE;
+                return BEEP;
             case 0x0004:
                 return VIBRATE;
             case 0x0008:
