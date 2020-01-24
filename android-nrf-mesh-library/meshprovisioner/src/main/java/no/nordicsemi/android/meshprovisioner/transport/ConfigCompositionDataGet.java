@@ -32,7 +32,7 @@ public class ConfigCompositionDataGet extends ConfigMessage {
 
     private static final String TAG = ConfigCompositionDataGet.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_GET;
-    private static final int COMPOSITION_DATA_PAGE = 0xFF;
+    private static final int COMPOSITION_DATA_PAGE = 0x00;
 
     /**
      * Constructs ConfigCompositionDataGet message.
