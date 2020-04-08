@@ -3,9 +3,9 @@ package no.nordicsemi.android.meshprovisioner;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.nio.ByteBuffer;
-
 import androidx.annotation.NonNull;
+
+import java.nio.ByteBuffer;
 
 /**
  * Contains the information related to a secure network beacon.
@@ -14,9 +14,12 @@ import androidx.annotation.NonNull;
 public class SecureNetworkBeacon extends MeshBeacon {
     public static final int BEACON_DATA_LENGTH = 22;
     private final int flags;
+    private boolean isKeyRefreshActive;
+    private boolean isIvUpdateActive;
     private final byte[] networkId = new byte[8];
     private final int ivIndex;
     private final byte[] authenticationValue = new byte[8];
+
 
     /**
      * Constructs a {@link SecureNetworkBeacon} object
@@ -33,6 +36,8 @@ public class SecureNetworkBeacon extends MeshBeacon {
         final ByteBuffer byteBuffer = ByteBuffer.wrap(beaconData);
         byteBuffer.position(1);
         flags = byteBuffer.get();
+        isKeyRefreshActive = (flags & 0x01) == 1;
+        isIvUpdateActive = ((flags >> 1) & 0x02) == BaseMeshNetwork.NORMAL_OPERATION;
         byteBuffer.get(networkId, 0, 8);
         ivIndex = byteBuffer.getInt();
         byteBuffer.get(authenticationValue, 0, 8);
@@ -48,6 +53,20 @@ public class SecureNetworkBeacon extends MeshBeacon {
      */
     public int getFlags() {
         return flags;
+    }
+
+    /**
+     * Returns true if Key Refresh Procedure is active.
+     */
+    public boolean isKeyRefreshActive() {
+        return isKeyRefreshActive;
+    }
+
+    /**
+     * Returns true is IV Update is active.
+     */
+    public boolean isIvUpdateActive() {
+        return isIvUpdateActive;
     }
 
     /**

@@ -78,8 +78,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public ProvisionedMeshNode() {
-    }
+    public ProvisionedMeshNode() { }
 
     /**
      * Constructor to be used only by hte library

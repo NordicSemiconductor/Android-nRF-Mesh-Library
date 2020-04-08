@@ -26,6 +26,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.Expose;
 
 import org.spongycastle.crypto.BlockCipher;
@@ -43,10 +45,11 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 
-import androidx.annotation.NonNull;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "CharsetObjectCanBeUsed"})
 public class SecureUtils {
 
     /**
@@ -360,6 +363,34 @@ public class SecureUtils {
     }
 
     /**
+     * Creates the secure network beacon from a given mesh network.
+     *
+     * @param network Mesh network
+     */
+    public static SecureNetworkBeacon createSecureNetworkBeacon(@NonNull final MeshNetwork network) {
+        final NetworkKey key = network.getPrimaryNetworkKey();
+        if (key == null) {
+            throw new IllegalArgumentException("Unable ot create a beacon, primary network key is null");
+        }
+        final byte[] n = key.getKey();
+        final byte[] flags = {(byte) network.getProvisioningFlags()};
+        final byte[] networkId = SecureUtils.calculateK3(n);
+        final byte[] ivIndex = ByteBuffer.allocate(4).putInt(network.getIvIndex()).array();
+        final byte[] authentication = calculateAuthValueSecureNetBeacon(n, flags, networkId, ivIndex);
+
+        final int inputLength = flags.length + networkId.length + ivIndex.length;
+        final ByteBuffer pBuffer = ByteBuffer.allocate(inputLength);
+        pBuffer.put(flags);
+        pBuffer.put(networkId);
+        pBuffer.put(ivIndex);
+        final ByteBuffer secNetBeaconBuffer = ByteBuffer.allocate(1 + inputLength + 8);
+        secNetBeaconBuffer.put((byte) 0x01);
+        secNetBeaconBuffer.put(pBuffer.array());
+        secNetBeaconBuffer.put(authentication, 0, 8);
+        return new SecureNetworkBeacon(secNetBeaconBuffer.array());
+    }
+
+    /**
      * Creates the secure network beacon
      *
      * @param n         network key
@@ -368,9 +399,9 @@ public class SecureUtils {
      * @param ivIndex   iv index of the network
      */
     public static SecureNetworkBeacon createSecureNetworkBeacon(@NonNull final byte[] n,
-                                                         @NonNull final byte[] flags,
-                                                         @NonNull final byte[] networkId,
-                                                         @NonNull final byte[] ivIndex) {
+                                                                @NonNull final byte[] flags,
+                                                                @NonNull final byte[] networkId,
+                                                                @NonNull final byte[] ivIndex) {
         final byte[] authentication = calculateAuthValueSecureNetBeacon(n, flags, networkId, ivIndex);
 
         final int inputLength = flags.length + networkId.length + ivIndex.length;

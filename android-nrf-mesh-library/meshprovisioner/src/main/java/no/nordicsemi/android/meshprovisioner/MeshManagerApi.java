@@ -27,6 +27,9 @@ import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.Security;
@@ -36,8 +39,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.data.ApplicationKeyDao;
 import no.nordicsemi.android.meshprovisioner.data.ApplicationKeysDao;
 import no.nordicsemi.android.meshprovisioner.data.GroupDao;
@@ -265,19 +266,14 @@ public class MeshManagerApi implements MeshMngrApi {
                     //Mesh beacon
                     final NetworkKey networkKey = mMeshNetwork.getPrimaryNetworkKey();
                     if (networkKey != null) {
-                        final byte[] n = networkKey.getKey();
-                        final byte[] flags = {(byte) mMeshNetwork.getProvisioningFlags()};
-                        final byte[] networkId = SecureUtils.calculateK3(n);
-                        final byte[] ivIndex = ByteBuffer.allocate(4).putInt(mMeshNetwork.getIvIndex()).array();
                         final byte[] receivedBeaconData = new byte[unsegmentedPdu.length - 1];
                         System.arraycopy(unsegmentedPdu, 1, receivedBeaconData, 0, receivedBeaconData.length);
                         final SecureNetworkBeacon receivedBeacon = new SecureNetworkBeacon(receivedBeaconData);
-                        final SecureNetworkBeacon localSecureNetworkBeacon = SecureUtils.createSecureNetworkBeacon(n, flags, networkId, ivIndex);
+                        final SecureNetworkBeacon localSecureNetworkBeacon = SecureUtils.createSecureNetworkBeacon(mMeshNetwork);
                         if (Arrays.equals(receivedBeacon.getAuthenticationValue(), localSecureNetworkBeacon.getAuthenticationValue())) {
                             mMeshNetwork.ivIndex = receivedBeacon.getIvIndex();
                             //TODO set iv update state
-                            Log.v(TAG, "Generated mesh beacon: " +
-                                    MeshParserUtils.bytesToHex(SecureUtils.calculateSecureNetworkBeacon(n, 1, flags, networkId, ivIndex), true));
+                            Log.v(TAG, "Generated mesh beacon: " + MeshParserUtils.bytesToHex(localSecureNetworkBeacon.beaconData, true));
                             Log.v(TAG, "Received mesh beacon: " + MeshParserUtils.bytesToHex(unsegmentedPdu, true));
                         }
                     }
@@ -451,16 +447,14 @@ public class MeshManagerApi implements MeshMngrApi {
             for (int i = 0; i < chunks; i++) {
                 // when removing segmentation bits we only remove the start because the pdu type would be the same for each segment.
                 // Therefore we can ignore this pdu type byte as they are already put together in the ble
+                length = Math.min(buffer.length - dstOffset, mtuSize);
                 if (i == 0) {
-                    length = Math.min(buffer.length - dstOffset, mtuSize);
                     System.arraycopy(data, srcOffset, buffer, dstOffset, length);
                     buffer[0] = (byte) (buffer[0] & GATT_SAR_UNMASK);
                 } else if (i == chunks - 1) {
-                    length = Math.min(buffer.length - dstOffset, mtuSize);
                     System.arraycopy(data, srcOffset + 1, buffer, dstOffset, length);
                 } else {
-                    length = Math.min(buffer.length - dstOffset, mtuSize) - 1;
-                    System.arraycopy(data, srcOffset + 1, buffer, dstOffset, length);
+                    System.arraycopy(data, srcOffset + 1, buffer, dstOffset, length - 1);
                 }
                 srcOffset += mtuSize;
                 dstOffset += length;
@@ -952,7 +946,11 @@ public class MeshManagerApi implements MeshMngrApi {
 
         @Override
         public byte[] getIvIndex() {
-            return ByteBuffer.allocate(4).putInt(mMeshNetwork.getIvIndex()).array();
+            int ivIndex = mMeshNetwork.getIvIndex();
+            if (mMeshNetwork.ivUpdateState == MeshNetwork.IV_UPDATE_ACTIVE) {
+                ivIndex--;
+            }
+            return ByteBuffer.allocate(4).putInt(ivIndex).array();
         }
 
         @Override
