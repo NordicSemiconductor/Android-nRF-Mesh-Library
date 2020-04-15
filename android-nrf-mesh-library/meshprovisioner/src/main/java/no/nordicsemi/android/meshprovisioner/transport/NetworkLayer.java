@@ -24,6 +24,10 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.util.Log;
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+
 import org.spongycastle.crypto.InvalidCipherTextException;
 
 import java.nio.ByteBuffer;
@@ -31,9 +35,6 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
@@ -239,26 +240,30 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * This method will drop messages with an invalid sequence number as all mesh messages are supposed to have a sequence
      * </p>
      *
-     * @param data                    PDU received from the mesh node
-     * @param decryptedNetworkPayload Decrypted network payload
-     * @return complete {@link Message} that was successfully parsed or null otherwise
+     * @param node                    Mesh node.
+     * @param data                    PDU received from the mesh node.
+     * @param networkHeader           Network header.
+     * @param decryptedNetworkPayload Decrypted network payload.
+     * @param ivIndex                 IV Index of the network.
+     * @return complete {@link Message} that was successfully parsed or null otherwise.
      */
     final Message parseMeshMessage(@NonNull final ProvisionedMeshNode node,
                                    @NonNull final byte[] data,
                                    @NonNull final byte[] networkHeader,
-                                   final byte[] decryptedNetworkPayload) throws ExtendedInvalidCipherTextException {
+                                   @NonNull final byte[] decryptedNetworkPayload,
+                                   final int ivIndex,
+                                   @NonNull final byte[] sequenceNumber) throws ExtendedInvalidCipherTextException {
         mMeshNode = node;
         final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner();
         final int ctlTtl = networkHeader[0];
         final int ctl = (ctlTtl >> 7) & 0x01;
         final int ttl = ctlTtl & 0x7F;
         Log.v(TAG, "TTL for received message: " + ttl);
-        final byte[] sequenceNumber = ByteBuffer.allocate(3).order(ByteOrder.BIG_ENDIAN).put(networkHeader, 1, 3).array();
         final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
         if (ctl == 1) {
-            return parseControlMessage(provisioner.getProvisionerAddress(), data, networkHeader, decryptedNetworkPayload, src, sequenceNumber);
+            return parseControlMessage(provisioner.getProvisionerAddress(), data, networkHeader, decryptedNetworkPayload, src, sequenceNumber, ivIndex);
         } else {
-            return parseAccessMessage(data, networkHeader, decryptedNetworkPayload, src, sequenceNumber);
+            return parseAccessMessage(data, networkHeader, decryptedNetworkPayload, src, sequenceNumber, ivIndex);
         }
     }
 
@@ -270,6 +275,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param decryptedNetworkPayload Decrypted network payload
      * @param src                     Source address
      * @param sequenceNumber          Sequence number of the received message
+     * @param ivIndex
      * @return access message
      */
     @VisibleForTesting
@@ -277,7 +283,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
                                              @NonNull final byte[] networkHeader,
                                              @NonNull final byte[] decryptedNetworkPayload,
                                              final int src,
-                                             @NonNull final byte[] sequenceNumber) throws ExtendedInvalidCipherTextException {
+                                             @NonNull final byte[] sequenceNumber,
+                                             int ivIndex) throws ExtendedInvalidCipherTextException {
         try {
             final int ttl = networkHeader[0] & 0x7F;
             final int dst = MeshParserUtils.unsignedBytesToInt(decryptedNetworkPayload[1], decryptedNetworkPayload[0]);
@@ -307,11 +314,11 @@ abstract class NetworkLayer extends LowerTransportLayer {
                         .put(networkHeader)
                         .put(decryptedNetworkPayload)
                         .array();
-                final AccessMessage message = parseSegmentedAccessLowerTransportPDU(pdu);
+                final AccessMessage message = parseSegmentedAccessLowerTransportPDU(pdu, ivIndex, sequenceNumber);
                 if (message != null) {
                     final SparseArray<byte[]> segmentedMessages = segmentedAccessMessagesMessages.clone();
                     segmentedAccessMessagesMessages = null;
-                    message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
+                    message.setIvIndex(MeshParserUtils.intToBytes(ivIndex));
                     message.setNetworkLayerPdu(segmentedMessages);
                     message.setTtl(ttl);
                     message.setSrc(src);
@@ -322,15 +329,6 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 return message;
 
             } else {
-                final AccessMessage message = new AccessMessage();
-                message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-                final SparseArray<byte[]> pduArray = new SparseArray<>();
-                pduArray.put(0, data);
-                message.setNetworkLayerPdu(pduArray);
-                message.setTtl(ttl);
-                message.setSrc(src);
-                message.setDst(dst);
-                message.setSequenceNumber(sequenceNumber);
 
                 //Removing the mDst here
                 final byte[] pdu = ByteBuffer.allocate(2 + networkHeader.length + decryptedNetworkPayload.length)
@@ -339,7 +337,17 @@ abstract class NetworkLayer extends LowerTransportLayer {
                         .put(networkHeader)
                         .put(decryptedNetworkPayload)
                         .array();
-                parseUnsegmentedAccessLowerTransportPDU(message, pdu);
+                final AccessMessage message = parseUnsegmentedAccessLowerTransportPDU(pdu, ivIndex, sequenceNumber);
+                if (message == null)
+                    return null;
+                message.setIvIndex(MeshParserUtils.intToBytes(ivIndex));
+                final SparseArray<byte[]> pduArray = new SparseArray<>();
+                pduArray.put(0, data);
+                message.setNetworkLayerPdu(pduArray);
+                message.setTtl(ttl);
+                message.setSrc(src);
+                message.setDst(dst);
+                message.setSequenceNumber(sequenceNumber);
                 parseUpperTransportPDU(message);
                 parseAccessLayerPDU(message);
                 return message;
@@ -358,6 +366,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param decryptedNetworkPayload Decrypted network payload
      * @param src                     Source address where the pdu originated from
      * @param sequenceNumber          Sequence number of the received message
+     * @param ivIndex
      * @return a complete {@link ControlMessage} or null if the message was unable to parsed
      */
     private ControlMessage parseControlMessage(@Nullable final Integer provisionerAddress,
@@ -365,7 +374,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
                                                @NonNull final byte[] networkHeader,
                                                @NonNull final byte[] decryptedNetworkPayload,
                                                final int src,
-                                               @NonNull final byte[] sequenceNumber) throws ExtendedInvalidCipherTextException {
+                                               @NonNull final byte[] sequenceNumber, int ivIndex) throws ExtendedInvalidCipherTextException {
         try {
             final int ttl = networkHeader[0] & 0x7F;
             final int dst = MeshParserUtils.unsignedBytesToInt(decryptedNetworkPayload[1], decryptedNetworkPayload[0]);
@@ -524,7 +533,9 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param pdu Received from the node
      * @return Obfuscated network header
      */
-    static byte[] deObfuscateNetworkHeader(@NonNull final byte[] pdu, @NonNull final byte[] ivIndex, @NonNull final byte[] privacyKey) {
+    static byte[] deObfuscateNetworkHeader(@NonNull final byte[] pdu,
+                                           @NonNull final byte[] ivIndex,
+                                           @NonNull final byte[] privacyKey) {
         final ByteBuffer obfuscatedNetworkBuffer = ByteBuffer.allocate(6);
         obfuscatedNetworkBuffer.order(ByteOrder.BIG_ENDIAN);
         obfuscatedNetworkBuffer.put(pdu, 2, 6);

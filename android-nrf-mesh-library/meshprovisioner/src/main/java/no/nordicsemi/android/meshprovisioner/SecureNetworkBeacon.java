@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 
 import java.nio.ByteBuffer;
 
+import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
+
 /**
  * Contains the information related to a secure network beacon.
  */
@@ -37,10 +39,20 @@ public class SecureNetworkBeacon extends MeshBeacon {
         byteBuffer.position(1);
         flags = byteBuffer.get();
         isKeyRefreshActive = (flags & 0x01) == 1;
-        isIvUpdateActive = ((flags >> 1) & 0x02) == BaseMeshNetwork.NORMAL_OPERATION;
+        isIvUpdateActive = ((flags & 0x02) >> 1) == BaseMeshNetwork.IV_UPDATE_ACTIVE;
         byteBuffer.get(networkId, 0, 8);
         ivIndex = byteBuffer.getInt();
         byteBuffer.get(authenticationValue, 0, 8);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "SecureNetworkBeacon" +
+                " KeyRefreshActive: " + isKeyRefreshActive +
+                " IvUpdateActive: " + isIvUpdateActive +
+                " IV Index: " + ivIndex +
+                " Authentication Value: " + MeshParserUtils.bytesToHex(authenticationValue, true);
     }
 
     @Override

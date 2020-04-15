@@ -50,10 +50,12 @@ class DefaultNoOperationMessageState extends MeshMessageState {
     void parseMeshPdu(@NonNull final ProvisionedMeshNode node,
                       @NonNull final byte[] pdu,
                       @NonNull final byte[] networkHeader,
-                      @NonNull final byte[] decryptedNetworkPayload) {
+                      @NonNull final byte[] decryptedNetworkPayload,
+                      final int ivIndex,
+                      @NonNull final byte[] sequenceNumber) {
         final Message message;
         try {
-            message = mMeshTransport.parsePdu(node, pdu, networkHeader, decryptedNetworkPayload);
+            message = mMeshTransport.parseMeshMessage(node, pdu, networkHeader, decryptedNetworkPayload, ivIndex, sequenceNumber);
             if (message != null) {
                 if (message instanceof AccessMessage) {
                     parseAccessMessage((AccessMessage) message);
