@@ -355,14 +355,15 @@ public class MeshParserUtils {
      * @param opCode operation code
      * @return length of opcodes
      */
-    public static byte[] getOpCodes(final int opCode) {
-        if ((opCode & 0xC00000) == 0xC00000) {
-            return new byte[]{(byte) ((opCode >> 16) & 0xFF), (byte) ((opCode >> 8) & 0xFF), (byte) (opCode & 0xFF)};
-        } else if ((opCode & 0xFF8000) == 0x8000) {
-            return new byte[]{(byte) ((opCode >> 8) & 0xFF), (byte) (opCode & 0xFF)};
+    public static byte[] getOpCode(final int opCode) {
+        if (opCode < 0x80) {
+            return new byte[]{(byte) (opCode & 0xFF)};
+        } else if (opCode < 0x4000 || (opCode & 0xFFFC00) == 0x8000) {
+            return new byte[]{(byte) (0x80 | ((opCode >> 8) & 0x3F)), (byte) (opCode & 0xFF)};
         } else {
-            //return new byte[]{ (byte) ((opCode >> 8) & 0xFF), (byte) (opCode & 0xFF)};
-            return new byte[]{(byte) opCode};
+            return new byte[]{(byte) (0xC0 | ((opCode >> 16) & 0x3F)),
+                    (byte) ((opCode >> 8) & 0xFF),
+                    (byte) (opCode & 0xFF)};
         }
     }
 
@@ -376,10 +377,10 @@ public class MeshParserUtils {
      * @return length of opcodes
      */
     public static byte[] createVendorOpCode(final int opCode, final int companyIdentifier) {
-        if (companyIdentifier != 0xFFFF) {
-            return new byte[]{(byte) (0xC0 | (opCode & 0x3F)), (byte) (companyIdentifier & 0xFF), (byte) ((companyIdentifier >> 8) & 0xFF)};
-        }
-        return null;
+        final byte[] opCodes = getOpCode(opCode);
+        opCodes[1] = (byte) (companyIdentifier & 0xFF);
+        opCodes[2] = (byte) ((companyIdentifier >> 8) & 0xFF);
+        return opCodes;
     }
 
     /**

@@ -16,7 +16,7 @@ public class VendorModelMessageUnacked extends GenericMessage {
 
     private final int mModelIdentifier;
     private final int mCompanyIdentifier;
-    private final int opCode;
+    private final int mOpCode;
 
     /**
      * Constructs VendorModelMessageAcked message.
@@ -29,12 +29,13 @@ public class VendorModelMessageUnacked extends GenericMessage {
     public VendorModelMessageUnacked(@NonNull final ApplicationKey appKey,
                                      final int modelId,
                                      final int companyIdentifier,
-                                     final int opCode,
+                                     final int mOpCode,
                                      @Nullable final byte[] parameters) {
         super(appKey);
         this.mModelIdentifier = modelId;
         this.mCompanyIdentifier = companyIdentifier;
-        this.opCode = opCode;
+        //Set the opCode to a 3-bit opCode
+        this.mOpCode = (0xC0 | mOpCode) << 16;
         mParameters = parameters;
         assembleMessageParameters();
     }
@@ -46,7 +47,7 @@ public class VendorModelMessageUnacked extends GenericMessage {
 
     @Override
     public int getOpCode() {
-        return opCode;
+        return mOpCode;
     }
 
     /**
