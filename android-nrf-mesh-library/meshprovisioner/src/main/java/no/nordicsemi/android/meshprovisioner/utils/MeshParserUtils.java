@@ -32,7 +32,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -329,21 +328,19 @@ public class MeshParserUtils {
      * Returns the opcode within the access payload
      *
      * @param accessPayload payload
-     * @param opcodeCount   number of opcodes
      * @return array of opcodes
      */
-    public static int getOpCode(final byte[] accessPayload, final int opcodeCount) {
-        switch (opcodeCount) {
+    public static int getOpCode(final byte[] accessPayload, final int opCodeCount) {
+        switch (opCodeCount) {
             case 1:
                 return accessPayload[0];
             case 2:
                 return MeshParserUtils.unsignedBytesToInt(accessPayload[1], accessPayload[0]);
-            case 3:
+            default:
                 return ((byte) (MeshParserUtils.unsignedByteToInt(accessPayload[1]))
                         | (byte) ((MeshParserUtils.unsignedByteToInt(accessPayload[0]) << 8)
                         | (byte) ((MeshParserUtils.unsignedByteToInt(accessPayload[2]) << 16))));
         }
-        return -1;
     }
 
     /**
@@ -568,21 +565,6 @@ public class MeshParserUtils {
             unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
         }
         return unsigned;
-    }
-
-    /**
-     * Returns the international atomic time (TAI) in seconds
-     * <p>
-     * TAI seconds and is the number of seconds after 00:00:00 TAI on 2000-01-01
-     * </p>
-     *
-     * @param currentTime current time in milliseconds
-     */
-    public static long getInternationalAtomicTime(final long currentTime) {
-        final Calendar calendar = Calendar.getInstance();
-        calendar.set(TAI_YEAR, TAI_MONTH, TAI_DATE, 0, 0, 0);
-        final long millisSinceEpoch = calendar.getTimeInMillis();
-        return (currentTime - millisSinceEpoch) / 1000;
     }
 
     /**

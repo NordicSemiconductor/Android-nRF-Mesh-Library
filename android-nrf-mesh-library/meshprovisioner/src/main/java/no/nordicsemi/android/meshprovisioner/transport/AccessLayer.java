@@ -123,15 +123,7 @@ abstract class AccessLayer {
         //MSB of the first octet defines the length of opcodes.
         //if MSB = 0 length is 1 and so forth
         final byte[] accessPayload = message.getAccessPdu();
-        final int msb = ((accessPayload[0] & 0xF0) >> 6);
-        final int opCodeLength;
-        if (msb == 0)
-            opCodeLength = 1;
-        else {
-            opCodeLength = msb;
-        }
-        Log.v(TAG, "Opcode length: " + opCodeLength + " Octets");
-
+        final int opCodeLength = (accessPayload[0] & 0xC0) >> 6;
         final int opcode = MeshParserUtils.getOpCode(accessPayload, opCodeLength);
         message.setOpCode(opcode);
         final int length = accessPayload.length - opCodeLength;
